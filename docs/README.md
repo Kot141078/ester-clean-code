@@ -1,29 +1,36 @@
 # Documentation Map
 
-## Where To Start
+## Start Here
 
-- `QUICKSTART.md` - how to run basic checks locally.
+- `QUICKSTART.md` explains local setup, checks, and publish hygiene.
+- `ARCHITECTURE.md` maps trust boundaries, modules, and execution flow.
+- `L4W_ALIGNMENT.md` states witness-first norms and fail-closed posture.
+- `THREAT_MODEL.md` lists concrete risks and repository-level controls.
+- `RELEASE_CHECKLIST.md` is the release gate before commit and push.
 
-- `L4W_ALIGNMENT.md` - what safety claims this repository makes (and does not).
+## Repository Claims
 
-- `ARCHITECTURE.md` - modules, boundaries, and where trust lives.
+- Ester is not a chatbot; it is an accountable operations core.
+- Safety posture is Reality-Bound (L4): constraints are first-class inputs.
+- c = a + b: a responsible human anchor plus bounded procedures.
+- Privileged actions must be attributable and reviewable.
 
-- `THREAT_MODEL.md` - practical failure modes and controls.
+## What Is Explicitly In Scope
 
-## Design Claims (Tight)
+- Local-first workflows.
+- Auditable privilege use.
+- Witness trail that is tamper-evident and hash-friendly.
+- Budget controls for time, spend, and rate.
+- Veto/challenge windows for contested actions.
 
-- Local-first by default; network is opt-in.
-
-- Privileges must be explicit and auditable.
-
-- Logs should be survivable and hash-friendly.
-
-- Real constraints (L4) are treated as safety inputs.
-
-## Non-Goals
+## What Is Not Claimed
 
 - No autonomy promises.
+- No perfect containment guarantees.
+- No hidden background task guarantees in this repo.
 
-- No containment guarantees.
+## Navigation Tips
 
-- No hidden background operations.
+- If you are onboarding: read `QUICKSTART.md`, then `ARCHITECTURE.md`.
+- If you are reviewing policy: read `L4W_ALIGNMENT.md` and `THREAT_MODEL.md`.
+- If you are preparing release: complete `RELEASE_CHECKLIST.md` line by line.

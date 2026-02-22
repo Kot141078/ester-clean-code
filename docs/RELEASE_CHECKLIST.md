@@ -1,22 +1,47 @@
 # Release Checklist
 
-## Scope
-- Public clean-code repository.
-- Code license: AGPL-3.0-or-later.
-- Trademark and logo rights separated from code license.
+## Release Identity
 
-## License Source
-- Source URL: https://www.gnu.org/licenses/agpl-3.0.txt
-- Retrieved on (UTC): 2026-02-22
-- LICENSE SHA256: 0D96A4FF68AD6D4B6F1F30F713B18D5184912BA8DD389F86AA7710DB079ABCB0
+- Repository: `Kot141078/ester-clean-code`
+- Branch: `main`
+- Scope: public clean-code only (no runtime/private artifacts)
 
-## Required Local Checks
-- `powershell -ExecutionPolicy Bypass -File .\tools\scan_repo.ps1 -Root .` => PASS (HIGH=0, MEDIUM=0)
-- `python -m compileall ESTER` => PASS
-- `python -m compileall modules` => PASS
-- `git status` clean after commit => PASS
+## Legal and Policy
 
-## Post-Push Sanity
-- GitHub license detection shows AGPL-3.0: CHECK
-- README renders properly: CHECK
-- Docs files render properly: CHECK
+- [ ] `LICENSE` present and AGPL-3.0-or-later.
+- [ ] `NOTICE` present and trademark separation stated.
+- [ ] `TRADEMARK.md` present and consistent with logo policy.
+- [ ] `README.md` states "Ester is not a chatbot".
+
+## L4/L4W Claims
+
+- [ ] README includes `c = a + b` framing.
+- [ ] README references L4 Reality Boundary.
+- [ ] Explicit bridge is documented (identity + privilege + witness).
+- [ ] Two hidden bridges are documented (Ashby and information theory).
+- [ ] Earth paragraph exists (entropy, degradation, fail-closed consequence).
+
+## Required Technical Checks
+
+Run and require PASS:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\scan_repo.ps1 -Root .
+```
+
+```bash
+python -m compileall ESTER
+python -m compileall modules
+```
+
+## Ignore Policy Sanity
+
+- [ ] Create local `.env` and `data/test.jsonl` for sanity test.
+- [ ] `git status --porcelain` remains empty for those paths.
+- [ ] Cleanup local test artifacts after verification.
+
+## Push Readiness
+
+- [ ] `git status` shows only intended changes.
+- [ ] Commit message is explicit and auditable.
+- [ ] Push only after all gates report PASS.
