@@ -1,0 +1,7 @@
+{
+  "schema": "ester.usb.job/1",
+  "uid": "job-2025-0001",
+  "type": "build_report | healthcheck | copy | noop",
+  "args": { "autofix": true, "rewrite_launchers": true },   // zavisyat ot tipa
+  "created_ts": 1750000000
+}

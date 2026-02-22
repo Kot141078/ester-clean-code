@@ -1,0 +1,74 @@
+# Default deny: include only release artifacts and public source targets.
+/*
+
+# Core repo metadata and legal docs
+!/.gitignore
+!/.gitattributes
+!/.editorconfig
+!/LICENSE
+!/NOTICE
+!/README.md
+!/SECURITY.md
+!/CONTRIBUTING.md
+!/CODE_OF_CONDUCT.md
+!/CHANGELOG.md
+!/CITATION.cff
+!/AUTHORS.md
+!/TRADEMARK.md
+
+# Release checklist and scanner
+!/docs/
+/docs/*
+!/docs/RELEASE_CHECKLIST.md
+!/tools/
+/tools/*
+!/tools/scan_repo.ps1
+
+# Branding assets
+!/logo/
+!/logo/**
+
+# Public source targets
+!/ESTER/
+!/ESTER/**
+!/modules/
+!/modules/**
+
+# Runtime/state exclusions (including within allowed trees)
+data/
+state/
+logs/
+memory/
+passport/
+scroll/
+chroma/
+chromadb/
+dumps/
+manifests/
+outbox/
+out_reembed/
+_ESTER_DUMP/
+_tmp_corefacts_home/
+artifacts/
+private/
+
+# Secrets and local env
+.env
+.env.*
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Build/cache/binaries
+__pycache__/
+*.py[cod]
+*.so
+*.dll
+*.db
+*.sqlite
+*.sqlite3
+*.jsonl
+*.log
+*.pid

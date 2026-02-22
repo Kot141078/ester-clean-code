@@ -1,0 +1,7 @@
+# po odnomu modulyu na stroku
+modules.register_all
+modules.scheduler_engine
+modules.events_bus
+modules.net_manager
+modules.voice
+modules.web_search

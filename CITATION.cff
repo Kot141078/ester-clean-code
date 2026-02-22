@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: "Ester Clean Code"
+message: "If you use this software, please cite it."
+type: software
+authors:
+  - name: "Ester Project Contributors"
+license: "AGPL-3.0-or-later"
+version: "0.1.0"
+date-released: "2026-02-22"
+url: "https://github.com/Kot141078"

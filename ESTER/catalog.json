@@ -1,0 +1,23 @@
+{
+  "schema":"ester.usb.catalog/1",
+  "items":[
+    {
+      "uid":"ds-001",
+      "kind":"folder",
+      "title":"Sample Dataset",
+      "src_rel":"payloads/sample_dataset",
+      "dest":"~/.ester/imports/datasets/sample_dataset",
+      "tags":["data","sample"],
+      "description":"Primer dannykh"
+    },
+    {
+      "uid":"mdl-gguf-7b",
+      "kind":"model",
+      "title":"LLM 7B GGUF",
+      "src_rel":"models/llm-7b-q4.gguf",
+      "dest":"~/.ester/imports/models/llm-7b-q4.gguf",
+      "lmstudio_alias":"chat_quality",
+      "tags":["model","gguf"]
+    }
+  ]
+}
