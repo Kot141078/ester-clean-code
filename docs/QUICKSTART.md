@@ -2,17 +2,15 @@
 
 ## Purpose
 
-This guide provides the minimal local path to verify repository hygiene and compile integrity.
+This document is the minimal local runbook for repository checks.
 
 ## Preconditions
 
-- Python is installed and available in PATH.
-- You are inside the repository root.
-- Runtime secrets are outside git (`.env`, key files, private dumps).
+- Python is installed.
+- You are in repository root.
+- Secrets remain outside git.
 
-## 1) Environment Setup
-
-Create and activate a virtual environment if needed.
+## 1) Optional Virtual Environment
 
 ```bash
 python -m venv .venv
@@ -22,39 +20,38 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-## 2) Compile Checks
-
-Run both compile gates before commit:
+## 2) Compile Gates
 
 ```bash
 python -m compileall ESTER
 python -m compileall modules
 ```
 
-## 3) Repository Scanner
-
-Run the safety scanner and require a clean result:
+## 3) Scanner Gate
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\tools\scan_repo.ps1 -Root .
 ```
 
-Expected result: `HIGH=0` and `MEDIUM=0`.
+Expected result:
 
-## 4) Publish Hygiene
+- HIGH findings = 0
+- MEDIUM findings = 0
 
-- Confirm no secrets were added.
-- Confirm `git status` contains only intended files.
-- Confirm docs mention L4/L4W constraints accurately.
+## 4) Git Hygiene
 
-## 5) Local Runtime Policy
+- Keep commits focused.
+- Keep runtime files untracked.
+- Confirm docs remain multiline and readable.
 
-- `.env` is local-only and ignored.
-- `data/`, `state/`, `logs/` are runtime-only and ignored.
-- Do not commit transient artifacts or personal data.
+## 5) Runtime Exclusions
 
-## Troubleshooting
+- `.env` is local-only.
+- `data/`, `state/`, `logs/` are runtime-only.
+- dumps and private artifacts must not be committed.
 
-- If scanner fails, remove sensitive content and rerun.
-- If compileall fails, fix syntax/import errors before push.
-- If status is noisy, verify `.gitignore` and cleanup local junk.
+## 6) Before Push
+
+- Re-run compile gates.
+- Re-run scanner gate.
+- Review staged diff for policy consistency.

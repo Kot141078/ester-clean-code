@@ -2,45 +2,55 @@
 
 ## Scope
 
-This model focuses on repository-level and workflow-level threats for public clean-code release.
+This model covers repository and release workflow risks.
 
 ## Threat 1: Secret Leakage
 
-- Tokens, keys, certificates, or personal identifiers enter tracked files.
+- Risk: keys, tokens, or personal identifiers enter tracked files.
 - Impact: credential abuse, privacy breach, legal exposure.
-- Control: strict `.gitignore`, scanner gates, reviewer scrutiny.
+- Control: deny-by-default ignore policy and scanner gate.
 
 ## Threat 2: Privilege Drift
 
-- Capability expands silently without policy alignment.
-- Impact: unauthorized or irreversible actions.
-- Control: explicit privilege model, documented escalation, human veto points.
+- Risk: capability grows without explicit review.
+- Impact: unauthorized or irreversible behavior.
+- Control: explicit privilege mapping with human escalation.
 
 ## Threat 3: Covert Network Paths
 
-- Hidden outbound calls bypass declared workflow constraints.
-- Impact: data exfiltration or remote dependency risk.
-- Control: local-first defaults, explicit network policy, reviewable scripts.
+- Risk: undeclared outbound calls bypass policy.
+- Impact: data exfiltration and hidden dependencies.
+- Control: local-first defaults and auditable scripts.
 
 ## Threat 4: Audit Gaps
 
-- Actions occur without sufficient witness artifacts.
-- Impact: disputes cannot be resolved and accountability collapses.
-- Control: tamper-evident logs and deterministic release checks.
+- Risk: actions occur without durable evidence.
+- Impact: disputes become unresolvable.
+- Control: witness trail requirements and release gates.
 
-## Threat 5: Hidden Task Fragmentation
+## Threat 5: Hidden Fragmentation
 
-- Work is delegated to untracked background flows.
-- Impact: unpredictable state and unverifiable change history.
-- Control: no background tasks in release procedure; explicit command transcript.
+- Risk: invisible background delegation alters behavior.
+- Impact: nondeterministic operations and accountability loss.
+- Control: explicit task flow and no-background-task rule.
 
-## Threat 6: Infinite Retry and Silent Escalation
+## Threat 6: Retry Storms and Silent Escalation
 
-- Failure loops continue without human intervention.
-- Impact: budget burn, noisy failures, accidental policy violation.
-- Control: hard stop conditions, budget caps, fail-closed defaults.
+- Risk: failures loop without intervention.
+- Impact: budget burn and policy violations.
+- Control: hard stops, budget caps, and fail-closed defaults.
 
-## Residual Risk Statement
+## Detection Signals
 
-No static threat model is complete.
-Residual risk is managed by conservative defaults and repeatable local gates.
+- unexpected privilege expansion,
+- undeclared outbound network calls,
+- missing witness records,
+- repeated retries past budget threshold,
+- policy text and executable checks drifting apart.
+
+## Residual Risk
+
+Residual risk remains.
+It is managed through conservative defaults,
+repeatable local checks,
+and explicit human review points.

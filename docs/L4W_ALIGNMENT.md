@@ -2,47 +2,56 @@
 
 ## Definition
 
-L4W means L4 Reality Boundary plus witness-first controls.
-The system must be explainable in terms of identity, privilege, and evidence.
+L4W combines L4 Reality Boundary with witness-first accountability.
+Privileged actions must be attributable, bounded, and reviewable.
 
 ## Norm 1: Identity
 
-Every privileged action must have an attributable actor identity.
-Anonymous high-impact actions are out of policy.
+The acting identity is explicit for privileged operations.
+Anonymous high-impact behavior is out of policy.
 
 ## Norm 2: Auditable Privileges
 
-Capabilities are explicit, bounded, and reviewable.
-Privilege expansion without review is treated as drift.
+Granted capabilities are explicit and least-privilege.
+Unreviewed privilege expansion is treated as drift.
 
 ## Norm 3: Witness Trail
 
-Actions produce tamper-evident records suitable for hash-based verification.
-No-witness execution paths are considered unsafe for privileged workflows.
+Actions produce durable evidence.
+Evidence must support tamper-evident review.
+No-witness privileged paths are unsafe.
 
 ## Norm 4: Budgets
 
-Time, spend, and rate budgets are first-class controls.
-Budget breaches require escalation or stop conditions.
+Time, spend, and rate budgets are mandatory controls.
+Budget overflow requires stop or escalation.
 
 ## Norm 5: Veto and Challenge Window
 
-Humans can veto risky actions before irreversible effects.
-Contested actions must support a challenge window and review path.
+Humans can veto risky actions before irreversible commit.
+Disputed actions require a defined challenge window.
 
 ## Norm 6: Fail-Closed
 
-If policy state is ambiguous, execution must degrade to safer behavior.
-The default under uncertainty is deny or pause, not optimistic continuation.
+Ambiguous policy state resolves to safer behavior.
+Default behavior is deny or pause.
 
-## Required Bridge Set
+## Bridge Requirements
 
-- Explicit bridge: identity + auditable privilege + witness trail for action rights.
-- Hidden bridge A: regulator variety must match disturbance variety (Ashby).
-- Hidden bridge B: ambiguity lowers coordination capacity (information theory).
+- Explicit bridge: identity + auditable privileges + witness trail.
+- Hidden bridge A: Ashby variety requirement.
+- Hidden bridge B: Cover and Thomas information constraint.
+
+## Implementation Expectations
+
+- identity checks run before privileged action,
+- privilege grants are explicit and reviewable,
+- witness records survive process restarts,
+- budget gates are enforced before execution,
+- veto and challenge windows are documented.
 
 ## Non-Claims
 
-- No claim of perfect safety.
-- No claim of perfect containment.
-- No claim of autonomy without accountable governance.
+- No autonomy guarantee.
+- No perfect containment guarantee.
+- No perfect safety claim.

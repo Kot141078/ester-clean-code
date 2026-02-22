@@ -30,6 +30,7 @@
 !/tools/
 /tools/*
 !/tools/scan_repo.ps1
+!/tools/write_public_docs.py
 
 # Branding assets
 !/logo/

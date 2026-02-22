@@ -2,35 +2,35 @@
 
 ## Start Here
 
-- `QUICKSTART.md` explains local setup, checks, and publish hygiene.
-- `ARCHITECTURE.md` maps trust boundaries, modules, and execution flow.
-- `L4W_ALIGNMENT.md` states witness-first norms and fail-closed posture.
-- `THREAT_MODEL.md` lists concrete risks and repository-level controls.
-- `RELEASE_CHECKLIST.md` is the release gate before commit and push.
+- `QUICKSTART.md` for local setup and release hygiene.
+- `ARCHITECTURE.md` for trust boundaries and execution model.
+- `L4W_ALIGNMENT.md` for witness-first norms.
+- `THREAT_MODEL.md` for concrete risks and controls.
+- `RELEASE_CHECKLIST.md` for final gate before push.
 
-## Repository Claims
+## Core Claims
 
-- Ester is not a chatbot; it is an accountable operations core.
-- Safety posture is Reality-Bound (L4): constraints are first-class inputs.
-- c = a + b: a responsible human anchor plus bounded procedures.
-- Privileged actions must be attributable and reviewable.
+- Ester is not a chatbot.
+- `c = a + b` governs accountability framing.
+- L4 Reality Boundary is treated as an operational safety input.
+- L4W adds witness-first requirements to L4 constraints.
 
-## What Is Explicitly In Scope
+## L4W Norms In Scope
 
-- Local-first workflows.
-- Auditable privilege use.
-- Witness trail that is tamper-evident and hash-friendly.
-- Budget controls for time, spend, and rate.
-- Veto/challenge windows for contested actions.
+- explicit identity,
+- auditable privileges,
+- witness trail,
+- budgets,
+- veto and challenge window,
+- fail-closed uncertainty handling.
 
-## What Is Not Claimed
+## Practical Navigation
 
-- No autonomy promises.
-- No perfect containment guarantees.
-- No hidden background task guarantees in this repo.
+- Onboarding: `QUICKSTART.md`, then `ARCHITECTURE.md`.
+- Policy review: `L4W_ALIGNMENT.md`, then `THREAT_MODEL.md`.
+- Release prep: `RELEASE_CHECKLIST.md` end to end.
 
-## Navigation Tips
+## Formatting Note
 
-- If you are onboarding: read `QUICKSTART.md`, then `ARCHITECTURE.md`.
-- If you are reviewing policy: read `L4W_ALIGNMENT.md` and `THREAT_MODEL.md`.
-- If you are preparing release: complete `RELEASE_CHECKLIST.md` line by line.
+These docs are intentionally true multiline files.
+Headings, bullets, and code fences are line-separated for audit readability.

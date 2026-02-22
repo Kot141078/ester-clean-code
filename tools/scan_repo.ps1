@@ -3,6 +3,9 @@ param(
   [string]$Root = "."
 )
 
+# Iter9 note: scanner text is intentionally multiline and audit-readable.
+# Keep policy checks explicit and line-separated for reviewability.
+
 $ErrorActionPreference = "Stop"
 
 $resolvedRoot = (Resolve-Path -LiteralPath $Root).Path

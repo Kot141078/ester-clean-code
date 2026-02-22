@@ -4,26 +4,25 @@
 
 - Repository: `Kot141078/ester-clean-code`
 - Branch: `main`
-- Scope: public clean-code only (no runtime/private artifacts)
+- Scope: public clean-code only
 
 ## Legal and Policy
 
 - [ ] `LICENSE` present and AGPL-3.0-or-later.
-- [ ] `NOTICE` present and trademark separation stated.
+- [ ] `NOTICE` present and trademark boundary stated.
 - [ ] `TRADEMARK.md` present and consistent with logo policy.
-- [ ] `README.md` states "Ester is not a chatbot".
+- [ ] README states "Ester is not a chatbot".
 
 ## L4/L4W Claims
 
-- [ ] README includes `c = a + b` framing.
-- [ ] README references L4 Reality Boundary.
-- [ ] Explicit bridge is documented (identity + privilege + witness).
-- [ ] Two hidden bridges are documented (Ashby and information theory).
-- [ ] Earth paragraph exists (entropy, degradation, fail-closed consequence).
+- [ ] README includes `c = a + b`.
+- [ ] README describes L4 Reality Boundary.
+- [ ] README includes explicit bridge.
+- [ ] README includes hidden Ashby bridge.
+- [ ] README includes hidden Cover and Thomas bridge.
+- [ ] README includes earth paragraph and fail-closed implication.
 
-## Required Technical Checks
-
-Run and require PASS:
+## Required Command Checks
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\tools\scan_repo.ps1 -Root .
@@ -34,14 +33,21 @@ python -m compileall ESTER
 python -m compileall modules
 ```
 
-## Ignore Policy Sanity
+## Ignore Proof
 
-- [ ] Create local `.env` and `data/test.jsonl` for sanity test.
-- [ ] `git status --porcelain` remains empty for those paths.
-- [ ] Cleanup local test artifacts after verification.
+- [ ] Create `.env` and `data/test.jsonl`.
+- [ ] Run `git check-ignore -v .env data/test.jsonl`.
+- [ ] Output shows `.gitignore` rules.
+- [ ] Cleanup temporary files.
+
+## Staged Blob Gate Proof
+
+- [ ] Stage touch list plus writer.
+- [ ] Print staged line counts for all gated files.
+- [ ] Verify CR is absent in key staged files.
 
 ## Push Readiness
 
-- [ ] `git status` shows only intended changes.
-- [ ] Commit message is explicit and auditable.
-- [ ] Push only after all gates report PASS.
+- [ ] There are staged changes to commit.
+- [ ] Commit message is exact and auditable.
+- [ ] Push only after every gate reports PASS.

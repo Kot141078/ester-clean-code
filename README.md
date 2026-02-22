@@ -1,92 +1,122 @@
 # Ester Clean Code
 
-> **Ester is not a "chatbot".**  
-> This repository publishes a **clean-code** core for a long-lived, local-first entity designed for **accountable action under real constraints**.
+> **Ester is not a chatbot.**
+> This repository publishes a clean-code core for accountable action under real constraints.
 
 ## What This Repository Is
-- **Public clean-code core** (no personal data, no runtime state).
-- A codebase built around **operational accountability** (identity, privileges, auditability).
-- A practical implementation direction aligned with:
-  - **c = a + b** (a responsible human anchor + procedures/constraints -> a long-lived accountable entity)
-  - **L4 (Reality Boundary)** as first-class safety: physics + operational constraints.
+
+- A public clean-code repository.
+- A local-first operational core.
+- A safety-oriented governance scaffold.
+- A place where privileged actions are reviewable.
 
 ## What This Repository Is Not
-- Not a "general chatbot for conversation".
+
+- Not a generic conversation product.
 - Not a promise of autonomy.
-- Not a cloud/SaaS product template.
-- Not a dump of private memory, logs, keys, or personal datasets.
+- Not a hidden-background-task framework.
+- Not a storage for private runtime artifacts.
 
-## Conceptual Anchors (Bridges)
-**Explicit bridge (operational):**  
-Every privileged action must map to **identity**, **auditable privileges**, and a **tamper-evident witness trail**.
+## Core Formula
 
-**Hidden bridges (short):**
-- **Cybernetics (Ashby):** control fails when regulator variety is lower than disturbance variety.
-- **Information theory (Cover and Thomas):** ambiguity lowers signal and coordination capacity.
+- `c = a + b`
+- `a` is a responsible human anchor.
+- `b` is bounded policy plus executable controls.
+- `c` is accountable behavior under constraints.
 
-**Earth paragraph (engineering):**  
-Long-lived systems pay the entropy tax: fans fail, disks fill, clocks drift, keys leak, and dependencies decay.  
-So Ester is designed to be **fail-closed**: uncertainty degrades into safe behavior, not confident risk.
+## L4 Reality Boundary
 
-## L4W Alignment (What "L4W Norms" Mean Here)
-This codebase follows a **witness-first** safety posture:
-- verified identity for who may act,
-- explicit, least-privilege capability grants,
-- logged escalation + human veto,
-- hard budgets (time / spend / rate),
-- tamper-evident records (hash-friendly logs),
-- clear challenge windows for disputed actions.
+L4 treats real-world constraints as first-class safety input.
 
-Details: `docs/L4W_ALIGNMENT.md`
+- time constraints,
+- access constraints,
+- spend constraints,
+- rate constraints,
+- irreversibility constraints.
 
-## Repository Map
-- `ESTER/` - application routes and core runtime surface.
-- `modules/` - internal modules and subsystems.
-- `docs/` - documentation pack (start here if you are new).
-- `logo/` - branding assets (separate rights; see trademark section).
-- `tools/` - local safety utilities (repository scanner).
+## Bridge Set
 
-Start here: `docs/README.md`
+### Explicit Bridge
 
-## Quick Start (Local, Minimal)
-> The project is local-first; do not add secrets to the repository.
+Every privileged action must map to:
 
-1. Create a virtual environment and install dependencies (adjust to your toolchain):
+- identity,
+- auditable privileges,
+- tamper-evident witness trail.
 
-```bash
-python -m venv .venv
-# Windows
-.venv\Scripts\pip install -r requirements.txt
-# Linux/macOS
-source .venv/bin/activate && pip install -r requirements.txt
-```
+### Hidden Bridge A (Ashby)
 
-2. Run basic sanity:
+Control fails when regulator variety is lower than disturbance variety.
+
+### Hidden Bridge B (Cover and Thomas)
+
+Ambiguity reduces signal quality and coordination capacity.
+
+### Earth Paragraph
+
+Real systems degrade over time.
+Fans fail.
+Disks fill.
+Clocks drift.
+Keys leak.
+Dependencies rot.
+
+Ester therefore defaults to fail-closed behavior.
+Uncertainty must degrade to safer outcomes.
+
+## L4W Norms
+
+This repository aligns with witness-first execution norms.
+
+- identity is explicit,
+- privileges are explicit and least-privilege,
+- witness trail is durable and reviewable,
+- budgets are explicit (time, spend, rate),
+- veto and challenge windows exist,
+- ambiguous state resolves to fail-closed behavior.
+
+## Operational Commitments
+
+- deny-by-default for risky operations,
+- explicit escalation before irreversible action,
+- reviewable evidence packet for privileged changes,
+- deterministic local gates before push,
+- no background task assumptions in this release workflow,
+- policy and code drift treated as a release blocker,
+- challenge window for disputed actions,
+- safe stop when evidence is incomplete.
+
+## Repository Layout
+
+- `ESTER/` contains runtime routes and surfaces.
+- `modules/` contains subsystem implementations.
+- `docs/` contains governance and operator docs.
+- `tools/` contains local scanner and release helpers.
+
+## Local Verification
+
+Run compile checks:
 
 ```bash
 python -m compileall ESTER
 python -m compileall modules
 ```
 
-3. Before publishing changes:
+Run scanner:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\tools\scan_repo.ps1 -Root .
 ```
 
-More: `docs/QUICKSTART.md`
+## Security and Rights
 
-## Security
-- Vulnerability reporting: `SECURITY.md`
-- No secrets policy: `.env`, keys, logs, `data/`, and `state/` must never be committed.
-
-## License and Trademark
-- Code: GNU AGPL-3.0-or-later (`LICENSE`)
+- Security policy: `SECURITY.md`
+- Code license: AGPL-3.0-or-later (`LICENSE`)
+- Trademark separation: `TRADEMARK.md`
 - Notices: `NOTICE`
-- Trademark/branding: `TRADEMARK.md`
-- Logos: `logo/LICENSE` (separate rights)
 
-## Related Public Corpus (Context)
-- AGI v1.1 (Protocol L4 + architecture pack): https://github.com/Kot141078/advanced-global-intelligence/releases/tag/v1.1
-- Reality-Bound AI (L4) notes: https://github.com/Kot141078/ester-reality-bound
-- SER (c = a + b protocol spec): https://github.com/Kot141078/sovereign-entity-recursion
+## Related Public Corpus
+
+- AGI v1.1: https://github.com/Kot141078/advanced-global-intelligence/releases/tag/v1.1
+- ester-reality-bound: https://github.com/Kot141078/ester-reality-bound
+- sovereign-entity-recursion: https://github.com/Kot141078/sovereign-entity-recursion
