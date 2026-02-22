@@ -1,15 +1,12 @@
 # Code of Conduct
 
-## Our Standard
-We expect respectful, professional collaboration focused on technical clarity and user safety.
+We expect a professional, respectful collaboration environment.
 
-## Unacceptable Behavior
-- Harassment, discrimination, or personal attacks
-- Publishing private information without permission
-- Deliberate sabotage, deception, or abusive communication
+## Standards
+- No harassment, hate speech, or personal attacks.
+- Be constructive in reviews and issues.
+- Do not share secrets, personal data, or exploit details publicly.
 
-## Enforcement
-Project maintainers may remove, edit, or reject contributions that violate this policy and may restrict participation when necessary.
+Security issues must follow `SECURITY.md`.
 
-## Reporting
-Report conduct issues through repository maintainers using private channels when available.
+Maintainers may remove content or contributions that violate these rules.

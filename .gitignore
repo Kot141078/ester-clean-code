@@ -1,7 +1,7 @@
-# Default deny: include only release artifacts and public source targets.
+# Default deny posture: allow only explicitly listed release files and trees.
 /*
 
-# Core repo metadata and legal docs
+# Root metadata and legal documents
 !/.gitignore
 !/.gitattributes
 !/.editorconfig
@@ -16,10 +16,17 @@
 !/AUTHORS.md
 !/TRADEMARK.md
 
-# Release checklist and scanner
+# Documentation allowlist
 !/docs/
 /docs/*
+!/docs/README.md
+!/docs/QUICKSTART.md
+!/docs/ARCHITECTURE.md
+!/docs/L4W_ALIGNMENT.md
+!/docs/THREAT_MODEL.md
 !/docs/RELEASE_CHECKLIST.md
+
+# Tooling allowlist
 !/tools/
 /tools/*
 !/tools/scan_repo.ps1
@@ -34,7 +41,7 @@
 !/modules/
 !/modules/**
 
-# Runtime/state exclusions (including within allowed trees)
+# Runtime/state exclusions (including inside allowed trees)
 data/
 state/
 logs/
@@ -52,7 +59,7 @@ _tmp_corefacts_home/
 artifacts/
 private/
 
-# Secrets and local env
+# Local secrets and environment
 .env
 .env.*
 secrets/
@@ -61,7 +68,7 @@ secrets/
 *.p12
 *.pfx
 
-# Build/cache/binaries
+# Build caches and binary/runtime artifacts
 __pycache__/
 *.py[cod]
 *.so

@@ -1,6 +1,7 @@
-Ester clean-code release notice
+Ester Clean Code
+Copyright (c) 2026 Ivan Kotov and contributors
 
-Source code in this repository is licensed under the GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later). See LICENSE.
+Code in this repository is licensed under GNU AGPL-3.0-or-later (see LICENSE).
+The name "Ester" and the Ester logo are not granted under the AGPL license (see TRADEMARK.md and logo/LICENSE).
 
-The "Ester" name and logo are trademarks or protected marks. Trademark rights are separate from the AGPL grant.
-Use of the name or logos requires prior written permission. See TRADEMARK.md and logo/LICENSE.
+This repository is a clean-code release: it excludes secrets, runtime state, logs, and personal data.

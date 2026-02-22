@@ -2,18 +2,27 @@
 
 ## Ground Rules
 - Keep changes focused and reviewable.
-- Keep secrets, personal data, and runtime artifacts out of commits.
-- Follow the license and trademark boundaries described in `LICENSE`, `NOTICE`, and `TRADEMARK.md`.
+- No secrets, no personal data, and no runtime artifacts in commits.
+- Respect repository boundaries defined by `LICENSE`, `NOTICE`, `TRADEMARK.md`, and `logo/LICENSE`.
 
-## Development Checks
-Run before opening a pull request:
-- `powershell -ExecutionPolicy Bypass -File .\\tools\\scan_repo.ps1 -Root .`
-- `python -m compileall .`
+## Before Opening a Pull Request
+Run the scanner:
 
-## Pull Requests
-- Describe intent, risks, and test evidence.
-- Update docs when behavior or policy changes.
-- Keep commit messages clear and specific.
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\scan_repo.ps1 -Root .
+```
+
+Run compile checks:
+
+```bash
+python -m compileall ESTER
+python -m compileall modules
+```
+
+## Pull Request Expectations
+- Describe intent and risk.
+- Provide test evidence.
+- Update documentation when behavior or policy changes.
 
 ## License for Contributions
 By contributing, you agree your contribution is provided under AGPL-3.0-or-later.

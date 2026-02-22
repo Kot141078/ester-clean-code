@@ -1,3 +1,4 @@
 # Authors
 
-- Ester Project Contributors
+- Ivan Kotov (initial author)
+- Contributors (see Git history)

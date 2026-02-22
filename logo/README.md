@@ -2,7 +2,7 @@
 
 This directory contains Ester logo variants for documentation and branding.
 
-## Available Files
+## Files
 - `Logo Ester (1).jpeg`
 - `Logo Ester (1).jpg`
 - `Logo Ester (1).png`
