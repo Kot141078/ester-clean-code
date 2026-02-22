@@ -14,7 +14,7 @@
 - `powershell -ExecutionPolicy Bypass -File .\\tools\\scan_repo.ps1 -Root .` => PASS (HIGH=0, MEDIUM=0)
 - `python -m compileall ESTER` => PASS
 - `python -m compileall modules` => PASS
-- `git status` clean after commit => TO_BE_FILLED
+- `git status` clean after commit => PASS
 
 ## Repository Publishing
 - Desired repo order:
@@ -22,9 +22,9 @@
   2. `Kot141078/ester-clean-release`
   3. `Kot141078/ester-core-clean`
   4. `Kot141078/ester-public-core`
-- Chosen repo: TO_BE_FILLED
-- Main branch pushed: TO_BE_FILLED
+- Chosen repo: `Kot141078/ester-clean-code`
+- Main branch pushed: PASS
 
 ## Post-push Sanity
-- GitHub license detection visible as AGPL-3.0: TO_BE_FILLED
-- README and logo paths render correctly: TO_BE_FILLED
+- GitHub license detection visible as AGPL-3.0: PENDING_MANUAL_UI_CHECK
+- README and logo paths render correctly: PENDING_MANUAL_UI_CHECK
