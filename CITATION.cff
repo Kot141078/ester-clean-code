@@ -1,10 +1,23 @@
 cff-version: 1.2.0
+
 title: "Ester Clean Code"
+
 message: "If you use this software, please cite it."
+
 type: software
+
 authors:
+
   - name: "Ivan Kotov"
+
     url: "https://github.com/Kot141078/ester-clean-code"
+
 license: "AGPL-3.0-or-later"
+
 version: "0.1.1"
+
 date-released: "2026-02-22"
+
+
+
+# End of citation metadata.
