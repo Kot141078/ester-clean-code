@@ -1,0 +1,50 @@
+{#
+Most (yavnyy):
+- (Inzheneriya UI ↔ Kontrol) Knopki Init/Sign-Test s AB-indikatsiey minimiziruyut oshibki.
+
+Mosty (skrytye):
+- (Graf ↔ Doverie) Fingerprint kak uzel grafa pirov (ispolzuem v C/18).
+- (Chelovek ↔ Avtomat) Yavnoe podtverzhdenie sozdaniya klyuchey.
+
+Zemnoy abzats:
+Stranitsa daet oflayn-upravlenie klyuchami uzla, pokazyvaet publichnyy klyuch i pozvolyaet protestirovat podpis/proverku.
+
+c=a+b
+#}
+{% extends "_admin_base.html" %}
+
+{% block content %}
+<h2>Klyuchi uzla</h2>
+<p>Rezhim: <b>{{ ab_mode }}</b> (A=dry, B=zapis)</p>
+
+<div style="margin:10px 0;">
+  <button id="btnInit">Sozdat klyuchi</button>
+  <button id="btnSign">Test podpisi</button>
+</div>
+
+<h3>Meta</h3>
+<pre id="meta">{{ meta|tojson(indent=2) }}</pre>
+
+<h3>Public Key (PEM)</h3>
+<pre style="white-space:pre-wrap;">{{ pub }}</pre>
+
+<h3>Rezultat</h3>
+<pre id="out"></pre>
+
+<script>
+async function postJSON(url, payload) {
+  const r = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload||{})});
+  return await r.json();
+}
+document.getElementById("btnInit").onclick = async () => {
+  const r = await postJSON("{{ url_for('admin_keys.api_init') }}");
+  document.getElementById("meta").textContent = JSON.stringify(r.meta, null, 2);
+  document.getElementById("out").textContent = JSON.stringify(r, null, 2);
+};
+document.getElementById("btnSign").onclick = async () => {
+  const r = await postJSON("{{ url_for('admin_keys.api_sign_test') }}", {});
+  document.getElementById("out").textContent = JSON.stringify(r, null, 2);
+};
+</script>
+{% endblock %}
+<!-- c=a+b -->

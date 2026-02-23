@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — LM Studio: obnaruzhenie i test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+    ul{margin:6px 0 0 18px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Pult LM Studio: vidim lokalnye modeli i servery, stroim aliasy i delaem kontrolnyy zapros.
+    Mosty:
+      • Yavnyy — UX poverkh discovery/profile/aliases/test_infer.
+      • Skrytye — AB-predokhranitel; offlayn; stdlib.
+  -->
+</head>
+<body>
+  <h1>LM Studio <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid">
+    <div>
+      <h3>Status</h3>
+      <button onclick="loadStatus()">Obnovit</button>
+      <pre id="status">—</pre>
+    </div>
+    <div>
+      <h3>Aliasy pod ustroystvo</h3>
+      <button onclick="aliases()">Rasschitat aliasy</button>
+      <pre id="aliases">—</pre>
+    </div>
+    <div>
+      <h3>Test inferensa</h3>
+      <div class="row">
+        <input id="base" placeholder="http://127.0.0.1:1234" style="width:100%"/>
+      </div>
+      <textarea id="prompt" style="width:100%;min-height:80px">Skazhi «pong» na eto «ping».</textarea>
+      <button onclick="testInfer()">Pusk</button>
+      <pre id="infer">—</pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+async function loadStatus(){
+  const r = await fetch('/admin/lmstudio/status'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('status').textContent = JSON.stringify(j, null, 2);
+  const ports = (j.discovery?.ports||[]); if(ports.length && !document.getElementById('base').value){ document.getElementById('base').value = `http://127.0.0.1:${ports[0]}`; }
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function aliases(){
+  const r = await fetch('/admin/lmstudio/aliases',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('aliases').textContent = JSON.stringify(j, null, 2);
+}
+async function testInfer(){
+  const base = document.getElementById('base').value.trim() || 'http://127.0.0.1:1234';
+  const prompt = document.getElementById('prompt').value;
+  const r = await fetch('/admin/lmstudio/test_infer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({base, prompt})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('infer').textContent = JSON.stringify(j, null, 2);
+}
+loadStatus().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

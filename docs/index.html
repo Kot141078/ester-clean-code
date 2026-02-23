@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8'/>
+  <meta name='viewport' content='width=device-width,initial-scale=1'/>
+  <title>Ester — Pro</title>
+</head>
+<body>
+  <h1>Ester — local-first AI</h1>
+  <p><a id='buy-install'  href='#'>Buy Pro Install</a></p>
+  <p><a id='buy-pro'      href='#'>Buy Pro Monthly</a></p>
+  <p><a id='buy-team'     href='#'>Buy Team Monthly</a></p>
+
+  <script>
+  fetch('payments.json')
+    .then(r => r.json())
+    .then(cfg => {
+      document.getElementById('buy-install').href = cfg.plans.pro_install;
+      document.getElementById('buy-pro').href     = cfg.plans.pro_monthly;
+      document.getElementById('buy-team').href    = cfg.plans.team_monthly;
+    })
+    .catch(console.error);
+  </script>
+</body>
+</html>

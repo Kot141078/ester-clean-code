@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Video (mini-panel)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:24px;line-height:1.46}
+    .card{border:1px solid #ddd;border-radius:12px;padding:16px;max-width:980px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    button{padding:8px 12px;border:0;border-radius:10px;background:#111;color:#fff;cursor:pointer}
+    button[disabled]{opacity:.5;cursor:not-allowed}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef;margin-right:6px}
+    pre{background:#0b1020;color:#e7eaf6;padding:12px;border-radius:10px;overflow:auto;max-height:50vh}
+    .muted{color:#666}
+  </style>
+</head>
+<body>
+  <h2>Video (mini-panel)</h2>
+  <div class="card">
+    <div class="row">
+      <button id="run_index">Indeksirovat poslednie</button>
+      <button id="health">Self-check</button>
+      <a href="/portal/video" target="_blank"><span class="pill">Portal: poslednie video</span></a>
+      <a href="/metrics/video" target="_blank"><span class="pill">Metriki</span></a>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3>Sostoyanie</h3>
+    <pre id="state" class="muted">Zagruzka…</pre>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3>Otchet</h3>
+    <pre id="out" class="muted">Gotovo…</pre>
+  </div>
+
+  <script src="/static/admin_video_mini.js"></script>
+</body>
+</html>

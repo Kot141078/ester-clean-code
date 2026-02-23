@@ -1,0 +1,62 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Memory</title>
+<style>
+body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1000px}
+input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:160px;white-space:pre-wrap}
+.row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
+</style>
+
+<h2>Memory Ester</h2>
+<div class="row">
+  <input id="q" style="width:280px" placeholder="poisk...">
+  <button onclick="search_()">Search</button>
+  <input id="txt" style="width:280px" placeholder="novaya zapis...">
+  <select id="type">
+    <option>fact</option>
+    <option>event</option>
+    <option>dialog</option>
+    <option>dream</option>
+    <option>goal</option>
+  </select>
+  <button onclick="add_()">Add</button>
+  <button onclick="snap()">Snapshot</button>
+  <button onclick="status_()">Status</button>
+</div>
+
+<div class="row">
+  <strong>Retention telemetry</strong>
+</div>
+<pre id="retention"></pre>
+
+<div class="row">
+  <strong>Retrieval Router</strong>
+</div>
+<pre id="router"></pre>
+
+<div class="row">
+  <strong>Branch Residue (cascade)</strong>
+</div>
+<pre id="residue"></pre>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}}}
+function out(x){document.getElementById('out').textContent=JSON.stringify(x,null,2);}
+function outRetention(x){document.getElementById('retention').textContent=JSON.stringify(x,null,2);}
+function outRouter(x){document.getElementById('router').textContent=JSON.stringify(x,null,2);}
+function outResidue(x){document.getElementById('residue').textContent=JSON.stringify(x,null,2);}
+async function search_(){const q=document.getElementById('q').value;out(await j('GET','/memory/search?q='+encodeURIComponent(q)));}
+async function add_(){const t=document.getElementById('txt').value;const ty=document.getElementById('type').value;out(await j('POST','/memory/add',{"type":ty,"text":t}));}
+async function snap(){out(await j('POST','/memory/snapshot',{}));}
+async function status_(){
+  const s=await j('GET','/memory/status');
+  outRetention(s&&s.retention?s.retention:s);
+  outRouter(s&&s.retrieval_router?s.retrieval_router:(s&&s.router)?s.router:{});
+  const r=await j('GET','/memory/branch_residue?limit=20');
+  outResidue(r&&r.items?r.items:r);
+}
+status_();
+</script>

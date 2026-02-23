@@ -1,0 +1,773 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+
+<!-- Navigatsiya po vkladkam -->
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:8px;flex-wrap:wrap">
+    <button class="btn" data-tab="overview" onclick="showTab('overview')">Obzor</button>
+    <button class="btn" data-tab="chat" onclick="showTab('chat')">Chat</button>
+    <button class="btn" data-tab="upload" onclick="showTab('upload')">Zagruzka</button>
+    <button class="btn" data-tab="providers" onclick="showTab('providers')">Provaydery</button>
+    <button class="btn" data-tab="backup" onclick="showTab('backup')">Bekap</button>
+    <button class="btn" data-tab="hyp" onclick="showTab('hyp')">Sny</button>
+    <button class="btn" data-tab="routes" onclick="showTab('routes')">Marshruty</button>
+    <button class="btn" data-tab="docs" onclick="showTab('docs')">Docs</button>
+    <div class="spacer"></div>
+    <button class="btn" onclick="openNew(api('/docs'))">Swagger</button>
+    <button class="btn" onclick="openNew(api('/openapi.json'))">OpenAPI</button>
+    <button class="btn" onclick="openNew(api('/admin/identity'))">Identity</button>
+    <button class="btn" onclick="openNew(api('/admin/keys/vault'))">Keys Vault</button>
+    <button class="btn" onclick="openNew(api('/admin/settings'))">Settings</button>
+    <button class="btn" onclick="openNew(api('/admin'))">/admin</button>
+  </div>
+</section>
+
+<!-- VKLADKA: Obzor -->
+<section id="tab-overview" class="card tab">
+  <div class="row" style="margin-bottom:8px">
+    <h3 style="margin:0">Obzor</h3>
+    <span class="muted right"><span id="ovBase"></span>/health · /live · /ready · /metrics</span>
+  </div>
+
+  <div class="grid" style="margin-bottom:8px">
+    <!-- Sostoyanie -->
+    <div class="box">
+      <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
+        <strong>Sostoyanie servisa</strong>
+        <button class="btn right" onclick="loadHealth()">Obnovit</button>
+      </div>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:8px">
+        <div class="card">
+          <div class="row" style="gap:6px;align-items:center">
+            <span class="muted">/live</span><span id="ovLiveChip" class="chip">—</span>
+          </div>
+          <pre id="ovLive" class="log" style="height:80px;margin-top:6px"></pre>
+        </div>
+        <div class="card">
+          <div class="row" style="gap:6px;align-items:center">
+            <span class="muted">/ready</span><span id="ovReadyChip" class="chip">—</span>
+          </div>
+          <pre id="ovReady" class="log" style="height:80px;margin-top:6px"></pre>
+        </div>
+      </div>
+      <pre id="ovHealth" class="log" style="height:140px"></pre>
+      <div class="row" style="gap:8px;margin-top:8px">
+        <button class="btn" onclick="openNew(api('/metrics'))">/metrics</button>
+        <button class="btn" onclick="openNew(api('/routes'))">/routes</button>
+        <button class="btn" onclick="openNew(api('/providers'))">/providers</button>
+        <button class="btn" onclick="openNew(api('/ops/backup'))">/ops/backup</button>
+        <button class="btn" onclick="openNew(api('/hypotheses'))">/hypotheses</button>
+      </div>
+    </div>
+
+    <!-- Roli / JWT -->
+    <div class="box">
+      <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
+        <strong>Roli i kleymy (JWT)</strong>
+        <button class="btn right" onclick="refreshClaims()">Obnovit</button>
+      </div>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">
+        <div class="card">
+          <div class="muted">roles / role / scopes</div>
+          <pre id="ovRoles" class="log" style="height:120px;margin-top:6px"></pre>
+        </div>
+        <div class="card">
+          <div class="muted">subject / user</div>
+          <pre id="ovSub" class="log" style="height:120px;margin-top:6px"></pre>
+        </div>
+      </div>
+      <div class="row" style="gap:8px;margin-top:8px">
+        <button class="btn" onclick="tryWhoAmI()">/whoami</button>
+        <input id="ovHeaderSubject" class="input" style="min-width:180px" placeholder="subject (opts., napr. Owner)">
+        <input id="ovHeaderUser" class="input" style="min-width:180px" placeholder="user (opts., napr. Owner)">
+        <span class="muted">Servernaya proverka (esli ruchka est). V UI ispolzuetsya tolko lokalnyy JWT dlya indikatsii.</span>
+      </div>
+      <div class="muted" style="margin-top:6px">Esli v subject/user est Unicode, zagolovki peredayutsya bezopasno cherez <code>X-Subject-B64</code>/<code>X-User-B64</code>.</div>
+      <pre id="ovWho" class="log" style="height:100px;margin-top:6px"></pre>
+    </div>
+
+    <!-- Ping / Latency -->
+    <div class="box">
+      <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
+        <strong>Ping / Latency</strong>
+        <button class="btn right" onclick="runPing()">Zamerit</button>
+      </div>
+      <div class="box" style="overflow:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Endpoint</th>
+              <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">N</th>
+              <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">min</th>
+              <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">avg</th>
+              <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">max</th>
+              <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">status</th>
+            </tr>
+          </thead>
+          <tbody id="pingBody"></tbody>
+        </table>
+      </div>
+      <p class="muted" style="margin-top:6px">GET s <code>no-cache</code>, 3 progona na ruchku. JWT podstavlyaetsya avtomaticheski.</p>
+    </div>
+  </div>
+</section>
+
+<!-- VKLADKA: Chat -->
+<section id="tab-chat" class="card tab" hidden>
+  <div class="row" style="margin-bottom:6px">
+    <h3 style="margin:0">Konsol (chat)</h3>
+    <span class="chip right">POST {{ API_BASE }}/chat/message</span>
+  </div>
+  <div class="console">
+    <div class="pane">
+      <div id="pChatLog" class="log box"></div>
+      <div class="box" style="margin-top:8px">
+        <div class="row" style="margin-bottom:6px">
+          <select id="pMode" class="input">
+            <option value="local">local</option>
+            <option value="cloud">cloud</option>
+            <option value="judge">judge</option>
+          </select>
+          <label class="stack" style="align-items:center">
+            <input id="pUseRag" type="checkbox" checked />
+            <span>RAG</span>
+          </label>
+          <label class="stack" style="align-items:center">
+            <span class="muted">temp</span>
+            <input id="pTemp" type="range" min="0" max="1" step="0.05" value="0.2" />
+          </label>
+          <button class="btn right" onclick="pClear()">Ochistit</button>
+        </div>
+        <textarea id="pInput" class="textarea" placeholder="Sprosi Ester…"></textarea>
+        <div class="row" style="margin-top:6px">
+          <button class="btn" onclick="pSend()">Otpravit</button>
+          <span class="muted">JWT beretsya iz <code>localStorage.jwt</code>.</span>
+        </div>
+      </div>
+    </div>
+    <div class="pane">
+      <div class="box">
+        <strong>Podskazki</strong>
+        <ul style="margin:8px 0 0 18px;line-height:1.6">
+          <li>Sprosi: «Summiruy etot dokument…» i zagruzi fayl na sosedney vkladke.</li>
+          <li>Pereklyuchay rezhimy: <code>local/cloud/judge</code>.</li>
+          <li>Vklyuchay/vyklyuchay RAG — dlya otvetov iz tvoey BZ.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VKLADKA: Zagruzka -->
+<section id="tab-upload" class="card tab" hidden>
+  <div class="row" style="margin-bottom:6px">
+    <h3 style="margin:0">Zagruzka faylov</h3>
+    <span class="chip right">POST {{ API_BASE }}/ingest/file</span>
+  </div>
+  <div id="pDrop" class="drop box">
+    Peretaschi fayly syuda ili <label class="btn" style="margin-left:6px">
+      vybrat<input id="pFile" type="file" multiple style="display:none">
+    </label>
+    <div class="row" style="margin-top:10px">
+      <input id="pCollection" class="input" placeholder="collection (opts.)">
+      <button class="btn" onclick="pFlush()">Ochistit spisok</button>
+    </div>
+    <div class="filelist" id="pList"></div>
+  </div>
+</section>
+
+<!-- VKLADKA: Provaydery -->
+<section id="tab-providers" class="card tab" hidden>
+  <div class="row" style="gap:10px;align-items:center;margin-bottom:8px">
+    <h3 style="margin:0">Provaydery LLM</h3>
+    <span class="chip right">{{ API_BASE }}/providers/status · {{ API_BASE }}/providers/select</span>
+  </div>
+  <div class="row" style="gap:10px;margin-bottom:8px">
+    <button class="btn" onclick="pvLoad()">Obnovit status</button>
+    <input id="pvFilter" class="input" placeholder="filtr…" oninput="pvRender()"/>
+    <label class="stack" style="align-items:center">
+      <span class="muted">Role:</span>
+      <select id="pvRole" class="input">
+        <option value="default">default</option>
+        <option value="judge">judge</option>
+        <option value="embedding">embedding</option>
+        <option value="rag">rag</option>
+      </select>
+    </label>
+  </div>
+  <div class="box" style="overflow:auto">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Imya</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Tip</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Model</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Status</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Latentnost</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Deystviya</th>
+      </tr></thead>
+      <tbody id="pvBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- VKLADKA: Bekap -->
+<section id="tab-backup" class="card tab" hidden>
+  <div class="row" style="gap:10px;margin-bottom:8px">
+    <h3 style="margin:0">Bekap</h3>
+    <span class="chip right">{{ API_BASE }}/ops/backup/*</span>
+  </div>
+  <div class="row" style="gap:8px;margin-bottom:8px">
+    <button class="btn" onclick="bkList()">Snimki</button>
+    <button class="btn" onclick="bkRun()">Sdelat bekap</button>
+    <button class="btn" onclick="bkVerify()">Proverit</button>
+    <input id="bkId" class="input" placeholder="snapshot id → restore">
+    <button class="btn" onclick="bkRestore()">Vosstanovit</button>
+  </div>
+  <div class="grid">
+    <div class="box">
+      <strong>Logi</strong>
+      <div id="bkLog" class="log" style="height:200px;margin-top:6px"></div>
+    </div>
+    <div class="box">
+      <strong>Snimki</strong>
+      <div id="bkList" class="box" style="max-height:240px;overflow:auto;margin-top:6px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- VKLADKA: Sny -->
+<section id="tab-hyp" class="card tab" hidden>
+  <div class="row" style="gap:10px;margin-bottom:8px">
+    <h3 style="margin:0">Sny / Initsiativy</h3>
+    <span class="chip right">{{ API_BASE }}/hypotheses</span>
+  </div>
+  <div class="row" style="gap:10px;margin-bottom:8px">
+    <input id="hTitle" class="input" style="min-width:300px" placeholder="Zagolovok…">
+    <input id="hTags" class="input" placeholder="tegi (cherez zapyatuyu)">
+    <select id="hPriority" class="input">
+      <option value="normal">normal</option><option value="low">low</option>
+      <option value="high">high</option><option value="urgent">urgent</option>
+    </select>
+    <button class="btn" onclick="hCreate()">Sozdat</button>
+    <div class="spacer"></div>
+    <input id="hFilter" class="input" placeholder="filtr…" oninput="hRender()">
+    <button class="btn" onclick="hLoad()">Obnovit</button>
+  </div>
+  <div class="box" style="overflow:auto">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">ID</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Zagolovok</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Tegi</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Prioritet</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Status</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Deystviya</th>
+      </tr></thead>
+      <tbody id="hBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- VKLADKA: Marshruty -->
+<section id="tab-routes" class="card tab" hidden>
+  <div class="row" style="gap:8px;margin-bottom:8px">
+    <h3 style="margin:0">Marshruty</h3>
+    <span class="chip right">{{ API_BASE }}/routes · {{ API_BASE }}/openapi.json</span>
+  </div>
+  <div class="row" style="gap:8px;margin-bottom:8px">
+    <input id="rQ" class="input" placeholder="filtr…" oninput="rRender()">
+    <select id="rM" class="input" onchange="rRender()">
+      <option value="">vse</option><option>GET</option><option>POST</option><option>PUT</option>
+      <option>PATCH</option><option>DELETE</option><option>OPTIONS</option><option>HEAD</option>
+    </select>
+    <div class="spacer"></div>
+    <button class="btn" onclick="rLoad()">Obnovit</button>
+    <button class="btn" onclick="openNew(api('/routes'))">Otkryt /routes</button>
+  </div>
+  <div class="box" style="overflow:auto;max-height:360px">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Metod</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Put</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Opisanie</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Deystviya</th>
+      </tr></thead>
+      <tbody id="rBody"></tbody>
+    </table>
+  </div>
+  <div class="box" style="margin-top:8px">
+    <div class="row" style="gap:8px;margin-bottom:6px">
+      <select id="tMethod" class="input">
+        <option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option>
+        <option>DELETE</option><option>OPTIONS</option><option>HEAD</option>
+      </select>
+      <input id="tUrl" class="input" style="min-width:420px" placeholder="/api/endpoint">
+      <button class="btn" onclick="rPrefill()">Iz spiska</button>
+      <div class="spacer"></div>
+      <button class="btn" onclick="rSend()">Otpravit</button>
+    </div>
+    <textarea id="tBody" class="textarea" placeholder="Telo JSON (dlya ne-GET)…"></textarea>
+    <pre id="tOut" class="log box" style="height:220px;margin-top:6px"></pre>
+  </div>
+</section>
+
+<!-- VKLADKA: Docs (vstroennyy Swagger) -->
+<section id="tab-docs" class="card tab" hidden>
+  <div class="row" style="gap:8px;margin-bottom:8px;align-items:center">
+    <h3 style="margin:0">Dokumentatsiya API</h3>
+    <span class="chip right">{{ API_BASE }}/docs (iframe) · {{ API_BASE }}/openapi.json</span>
+  </div>
+  <div class="box" style="padding:0">
+    <iframe id="docsFrame" src="" style="width:100%;border:0;display:block;min-height:480px"></iframe>
+  </div>
+  <div class="row" style="gap:8px;margin-top:8px">
+    <button class="btn" onclick="reloadDocs()">Perezagruzit</button>
+    <div class="spacer"></div>
+    <button class="btn" onclick="openNew(api('/docs'))">Otkryt v novoy vkladke</button>
+    <button class="btn" onclick="fetchSpec()">Pokazat openapi.json</button>
+  </div>
+  <pre id="specOut" class="log box" style="height:220px;margin-top:8px"></pre>
+</section>
+
+<script>
+/* === bazovyy prefiks dlya safe-/obychnykh marshrutov === */
+window.API_BASE = (location.pathname.startsWith('/_safe/') ? '/_safe' : '');
+function api(path){ return (window.API_BASE || '') + path; }
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('ovBase').textContent = API_BASE || '';
+  document.getElementById('docsFrame').src = api('/docs');
+});
+
+/* $fetch polyfill */
+window.$fetch = window.$fetch || (async function(url, opts){
+  opts = opts || {};
+  const o = { method: (opts.method||'GET').toUpperCase(), headers: opts.headers||{} };
+  if (opts.noCache){ o.headers['Cache-Control']='no-cache'; o.headers['Pragma']='no-cache'; }
+  if (opts.body){
+    if (opts.body instanceof FormData) o.body = opts.body;
+    else if (typeof opts.body==='string') o.body = opts.body;
+    else { o.body = JSON.stringify(opts.body); o.headers['Content-Type']=(o.headers['Content-Type']||'application/json'); }
+  }
+  return fetch(url, o);
+});
+
+/* === obschie utility === */
+function openNew(u){ window.open(u, '_blank', 'noopener'); }
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(el => el.hidden = true);
+  document.getElementById('tab-'+name).hidden = false;
+  document.querySelectorAll('[data-tab]').forEach(b => {
+    b.style.borderColor = (b.getAttribute('data-tab')===name) ? 'var(--accent)' : 'var(--border)';
+  });
+  switch(name){
+    case 'overview': loadHealth(); break;
+    case 'providers': if(!window.__pvLoaded){ pvLoad(); window.__pvLoaded=true; } break;
+    case 'backup': if(!window.__bkLoaded){ bkList(); window.__bkLoaded=true; } break;
+    case 'hyp': if(!window.__hLoaded){ hLoad(); window.__hLoaded=true; } break;
+    case 'routes': if(!window.__rLoaded){ rLoad(); window.__rLoaded=true; } break;
+    case 'docs': adjustDocsHeight(); break;
+  }
+}
+document.addEventListener('DOMContentLoaded', ()=> showTab('overview'));
+
+function textLog(el, text, kind){
+  const d=document.createElement('div'); d.className='msg '+(kind||'m-bot'); d.textContent=text;
+  el.appendChild(d); el.scrollTop=el.scrollHeight;
+}
+
+/* === Obzor: health/live/ready === */
+async function loadHealth(){
+  try{
+    const [h, live, ready] = await Promise.allSettled([
+      $fetch(api('/health'), {noCache:true}),
+      $fetch(api('/live'), {noCache:true}),
+      $fetch(api('/ready'), {noCache:true})
+    ]);
+    if(h.status==='fulfilled'){
+      document.getElementById('ovHealth').textContent = await h.value.text();
+    }else{
+      document.getElementById('ovHealth').textContent = 'Oshibka /health: '+h.reason;
+    }
+    let liveText='—', liveOk=false;
+    if(live.status==='fulfilled'){ liveText = await live.value.text(); liveOk = live.value.ok; }
+    else liveText = 'Oshibka: '+live.reason;
+    document.getElementById('ovLive').textContent = liveText;
+    document.getElementById('ovLiveChip').textContent = liveOk?'OK':'ERR';
+    document.getElementById('ovLiveChip').style.borderColor = liveOk?'var(--ok)':'var(--danger)';
+    document.getElementById('ovLiveChip').style.color = liveOk?'var(--ok)':'var(--danger)';
+
+    let readyText='—', readyOk=false;
+    if(ready.status==='fulfilled'){ readyText = await ready.value.text(); readyOk = ready.value.ok; }
+    else readyText = 'Oshibka: '+ready.reason;
+    document.getElementById('ovReady').textContent = readyText;
+    document.getElementById('ovReadyChip').textContent = readyOk?'OK':'ERR';
+    document.getElementById('ovReadyChip').style.borderColor = readyOk?'var(--ok)':'var(--danger)';
+    document.getElementById('ovReadyChip').style.color = readyOk?'var(--ok)':'var(--danger)';
+  }catch(e){
+    document.getElementById('ovHealth').textContent = 'Oshibka: '+e;
+  }
+}
+
+/* === JWT / roli === */
+function getJwtPayload(){
+  const jwt = localStorage.getItem('jwt') || '';
+  if(!jwt || !jwt.includes('.')) return null;
+  try{
+    const p1 = jwt.split('.')[1] || '';
+    const pad = '='.repeat((4 - (p1.length % 4)) % 4);
+    const txt = atob(p1.replace(/-/g,'+').replace(/_/g,'/') + pad);
+    return JSON.parse(decodeURIComponent(escape(txt)));
+  }catch(_){ return null; }
+}
+function refreshClaims(){
+  const p = getJwtPayload() || {};
+  const roles = p.roles || p.role || p.scopes || p.permissions || [];
+  const sub = p.sub || p.user || p.email || p.name || '';
+  const pretty = (v)=> typeof v==='string' ? v : JSON.stringify(v, null, 2);
+  document.getElementById('ovRoles').textContent = pretty(roles);
+  document.getElementById('ovSub').textContent = pretty(sub || p);
+}
+async function tryWhoAmI(){
+  const out = document.getElementById('ovWho'); out.textContent='…';
+  const subject = (document.getElementById('ovHeaderSubject')?.value || '').trim();
+  const user = (document.getElementById('ovHeaderUser')?.value || '').trim();
+  try{
+    const r = await $fetch(api('/whoami'), {noCache:true, subject, user});
+    if(!r.ok){ out.textContent = `HTTP ${r.status}`; return; }
+    const ct = r.headers.get('content-type')||'';
+    out.textContent = ct.includes('application/json') ? JSON.stringify(await r.json(), null, 2) : await r.text();
+  }catch(e){ out.textContent = 'Oshibka: '+e; }
+}
+document.addEventListener('DOMContentLoaded', refreshClaims);
+
+/* === Ping / Latency === */
+const PING_ENDPOINTS = [
+  {name:'/health', url:()=>api('/health')},
+  {name:'/providers/status', url:()=>api('/providers/status')},
+  {name:'/hypotheses', url:()=>api('/hypotheses?format=json&limit=5')},
+  {name:'/docs', url:()=>api('/docs')},
+];
+async function pingOnce(url){
+  const t0 = performance.now();
+  try{
+    const r = await $fetch(url, {noCache:true, method:'GET'});
+    const ms = Math.max(0, Math.round(performance.now() - t0));
+    return {ok:r.ok, ms};
+  }catch(_){ return {ok:false, ms:null}; }
+}
+async function pingSeries(urlFactory, n){
+  const times=[]; let status=true;
+  for(let i=0;i<n;i++){
+    const {ok, ms} = await pingOnce(urlFactory());
+    status = status && ok; if(ms!==null) times.push(ms);
+  }
+  const agg = (f)=> (times.length ? Math[f](...times) : null);
+  const avg = times.length ? Math.round(times.reduce((a,b)=>a+b,0)/times.length) : null;
+  return {n:times.length, min:agg('min'), avg, max:agg('max'), status};
+}
+function rowForPing(ep){
+  const tr = document.createElement('tr');
+  const td = (t)=>{ const x=document.createElement('td'); x.style.padding='8px 6px'; x.style.borderBottom='1px solid var(--border)'; x.innerHTML=t; return x; };
+  tr.appendChild(td(`<code>${ep.name}</code>`));
+  const n = td('—'); n.id = `pg-n-${ep.name}`; tr.appendChild(n);
+  const mi = td('—'); mi.id = `pg-min-${ep.name}`; tr.appendChild(mi);
+  const av = td('—'); av.id = `pg-avg-${ep.name}`; tr.appendChild(av);
+  const ma = td('—'); ma.id = `pg-max-${ep.name}`; tr.appendChild(ma);
+  const st = td('<span class="chip">…</span>'); st.id = `pg-st-${ep.name}`; tr.appendChild(st);
+  return tr;
+}
+async function runPing(){
+  const body = document.getElementById('pingBody'); body.innerHTML='';
+  const N = 3;
+  for(const ep of PING_ENDPOINTS){
+    const tr = rowForPing(ep); body.appendChild(tr);
+    const res = await pingSeries(ep.url, N);
+    document.getElementById(`pg-n-${ep.name}`).textContent = String(res.n);
+    document.getElementById(`pg-min-${ep.name}`).textContent = res.min===null?'—':(res.min+' ms');
+    document.getElementById(`pg-avg-${ep.name}`).textContent = res.avg===null?'—':(res.avg+' ms');
+    document.getElementById(`pg-max-${ep.name}`).textContent = res.max===null?'—':(res.max+' ms');
+    const st = document.getElementById(`pg-st-${ep.name}`);
+    st.innerHTML = res.status ? '<span class="chip" style="border-color:var(--ok);color:var(--ok)">OK</span>' : '<span class="chip" style="border-color:var(--danger);color:var(--danger)">ERR</span>';
+  }
+}
+
+/* === Chat === */
+const pLog = document.getElementById('pChatLog');
+function pClear(){ pLog.innerHTML=''; }
+async function pSend(){
+  const s = document.getElementById('pInput').value.trim(); if(!s) return;
+  document.getElementById('pInput').value='';
+  textLog(pLog, s, 'm-user');
+  const mode = document.getElementById('pMode').value;
+  const use_rag = document.getElementById('pUseRag').checked;
+  const temperature = parseFloat(document.getElementById('pTemp').value || '0.2');
+  try{
+    const r = await $fetch(api('/chat/message'),{
+      method:'POST',
+      body: { message:s, mode, use_rag, temperature }
+    });
+    const j = await r.json().catch(()=> ({}));
+    if(!r.ok || j.ok===false){ textLog(pLog, 'Oshibka: ' + (j.error || r.statusText)); return; }
+    const ans = j.answer || j.message || JSON.stringify(j);
+    textLog(pLog, ans, 'm-bot');
+  }catch(e){ textLog(pLog, 'Set: '+e, 'm-bot'); }
+}
+
+/* === Upload === */
+const pDrop = document.getElementById('pDrop');
+const pInp  = document.getElementById('pFile');
+const pList = document.getElementById('pList');
+['dragenter','dragover'].forEach(ev => pDrop.addEventListener(ev, e=>{e.preventDefault();e.stopPropagation();pDrop.classList.add('drag')} ));
+['dragleave','drop'].forEach(ev => pDrop.addEventListener(ev, e=>{e.preventDefault();e.stopPropagation();pDrop.classList.remove('drag')} ));
+pDrop.addEventListener('drop', e => { const f=e.dataTransfer.files; if(f&&f.length) pHandle(f); });
+pInp.addEventListener('change', e => { if(pInp.files) pHandle(pInp.files); });
+function pFlush(){ pList.innerHTML=''; }
+async function pHandle(files){
+  const coll=(document.getElementById('pCollection').value||'').trim();
+  for(const file of files){
+    const row=document.createElement('div'); row.textContent='→ '+file.name+' ';
+    const prog=document.createElement('div'); prog.className='progress'; prog.style.margin='6px 0';
+    const bar=document.createElement('div'); bar.className='bar'; prog.appendChild(bar); row.appendChild(prog);
+    pList.appendChild(row);
+    const fd=new FormData(); fd.append('file',file,file.name); if(coll) fd.append('collection',coll);
+    try{
+      const r=await $fetch(api('/ingest/file'),{method:'POST', body:fd});
+      const j=await r.json().catch(()=> ({}));
+      bar.style.width='100%'; bar.classList.add(r.ok && (j.ok===undefined||j.ok)?'ok':'err');
+    }catch(e){ bar.style.width='100%'; bar.classList.add('err'); }
+  }
+}
+
+/* === Providers === */
+let PV=[];
+function pvNorm(data){
+  if(Array.isArray(data)) return data;
+  if(Array.isArray(data.providers)) return data.providers;
+  if(Array.isArray(data.items)) return data.items;
+  return Object.values(data||{});
+}
+async function pvLoad(){
+  const urls=[api('/providers/status'),api('/providers'),api('/providers/list')];
+  let j=null;
+  for(const u of urls){
+    try{ const r=await $fetch(u); j=await r.json(); break; }catch(e){}
+  }
+  PV = pvNorm(j).map(x => ({
+    name: x.name || x.id || x.provider || 'unknown',
+    type: x.type || x.kind || (x.is_local?'local':'cloud'),
+    model: x.model || x.engine || x.family || '',
+    status: (x.status || (x.healthy===false?'down':'up')),
+    latency: x.latency_ms ?? x.latency ?? ''
+  }));
+  pvRender();
+}
+function pvRender(){
+  const body=document.getElementById('pvBody');
+  const q=(document.getElementById('pvFilter').value||'').toLowerCase();
+  body.innerHTML='';
+  for(const p of PV){
+    if(q && !(`${p.name} ${p.type} ${p.model}`.toLowerCase().includes(q))) continue;
+    const tr=document.createElement('tr');
+    const td=(t)=>{ const x=document.createElement('td'); x.style.padding='8px 6px'; x.style.borderBottom='1px solid var(--border)'; x.innerHTML=t; return x; };
+    tr.appendChild(td(`<code>${p.name}</code>`));
+    tr.appendChild(td(p.type||'')); tr.appendChild(td(p.model||'')); 
+    tr.appendChild(td(p.status==='up' ? '<span class="chip" style="border-color:var(--ok);color:var(--ok)">up</span>' : '<span class="chip" style="border-color:var(--danger);color:var(--danger)">down</span>'));
+    tr.appendChild(td(p.latency? (p.latency+' ms') : ''));
+    const act=document.createElement('td'); act.style.padding='8px 6px'; act.style.borderBottom='1px solid var(--border)';
+    const b=document.createElement('button'); b.className='btn'; b.textContent='Sdelat aktivnym';
+    b.onclick=()=> pvSelect(p.name);
+    act.appendChild(b); tr.appendChild(act); body.appendChild(tr);
+  }
+}
+async function pvSelect(name){
+  const role=document.getElementById('pvRole').value||'default';
+  try{
+    const r=await $fetch(api('/providers/select'),{method:'POST', body: {provider:name, role}});
+    const j=await r.json().catch(()=> ({}));
+    if(r.ok && (j.ok===undefined||j.ok)){ alert('Ok: '+name+' ('+role+')'); pvLoad(); }
+    else{ alert('Oshibka: '+(j.error||r.statusText)); }
+  }catch(e){ alert('Set: '+e); }
+}
+
+/* === Backup === */
+function bkLogLine(t){ const el=document.getElementById('bkLog'); textLog(el, t, 'm-bot'); }
+function bkListRender(items){
+  const el=document.getElementById('bkList');
+  if(!items||!items.length){ el.innerHTML='<span class="muted">Pusto</span>'; return; }
+  const ul=document.createElement('ul'); ul.style.margin='0 0 0 16px';
+  for(const s of items){
+    const id=s.id||s.name||s.key||JSON.stringify(s);
+    const when=s.created_at||s.time||s.ts||'';
+    const size=s.size_bytes||s.size||'';
+    const li=document.createElement('li');
+    li.innerHTML=`<code>${id}</code> <span class="muted">${when} ${size?('· '+size+'B'):''}</span>`;
+    ul.appendChild(li);
+  }
+  el.innerHTML=''; el.appendChild(ul);
+}
+async function bkList(){
+  bkLogLine('→ list');
+  const urls=[api('/ops/backup/list'),api('/ops/backup/snapshots'),api('/ops/backup?mode=list')];
+  for(const u of urls){
+    try{ const r=await $fetch(u); const j=await r.json(); const arr=Array.isArray(j)?j:(j.items||j.snapshots||[]); bkListRender(arr); bkLogLine('OK: '+u); return; }
+    catch(e){}
+  }
+  bkLogLine('Oshibka spiska');
+}
+async function bkRun(){
+  bkLogLine('→ run');
+  const urls=[[api('/ops/backup/run'),'POST'],[api('/ops/backup?mode=run'),'POST']];
+  for(const [u,m] of urls){
+    try{ const r=await $fetch(u,{method:m}); const j=await r.json(); bkLogLine('OK: '+(j.message||j.status||'run started')); bkList(); return; }
+    catch(e){}
+  }
+  bkLogLine('Oshibka run');
+}
+async function bkVerify(){
+  bkLogLine('→ verify');
+  const urls=[[api('/ops/backup/verify'),'POST'],[api('/ops/backup?mode=verify'),'POST']];
+  for(const [u,m] of urls){
+    try{ const r=await $fetch(u,{method:m}); const j=await r.json(); bkLogLine('OK: '+(j.message||j.status||'verify done')); return; }
+    catch(e){}
+  }
+  bkLogLine('Oshibka verify');
+}
+async function bkRestore(){
+  const id=(document.getElementById('bkId').value||'').trim();
+  if(!id){ alert('Ukazhi snapshot id'); return; }
+  bkLogLine('→ restore '+id);
+  const urls=[[api('/ops/backup/restore'),'POST'],[api('/ops/backup?mode=restore'),'POST']];
+  for(const [u,m] of urls){
+    try{ const r=await $fetch(u,{method:m, body: {snapshot:id}}); const j=await r.json(); bkLogLine('OK: '+(j.message||j.status||'restore requested')); return; }
+    catch(e){}
+  }
+  bkLogLine('Oshibka restore');
+}
+
+/* === Hypotheses === */
+let H=[];
+function hTags(s){ return Array.isArray(s)?s: (s? String(s).split(',').map(x=>x.trim()).filter(Boolean):[]); }
+function hNorm(o){ const id=o.id||o._id||o.uid||o.key||o.uuid; return {id, title:o.title||o.name||o.text||o.summary||'', tags:hTags(o.tags||o.labels||o.keywords), priority:o.priority||o.prio||'normal', status:o.status||o.state||'new'}; }
+async function hLoad(){
+  let j=null;
+  const urls=[api('/hypotheses/json?limit=200'),api('/hypotheses/list?limit=200'),api('/hypotheses?format=json&limit=200'),api('/api/hypotheses?limit=200')];
+  for(const u of urls){ try{ const r=await $fetch(u); j=await r.json(); break; }catch(e){} }
+  const items=j ? (Array.isArray(j)?j:(j.items||j.hypotheses||[])) : [];
+  H=items.map(hNorm); hRender();
+}
+function hRender(){
+  const body=document.getElementById('hBody'); body.innerHTML='';
+  const q=(document.getElementById('hFilter').value||'').toLowerCase();
+  for(const h of H){
+    if(q && !(`${h.id} ${h.title} ${h.tags.join(' ')} ${h.priority} ${h.status}`.toLowerCase().includes(q))) continue;
+    const tr=document.createElement('tr'); const td=(t)=>{ const x=document.createElement('td'); x.style.padding='8px 6px'; x.style.borderBottom='1px solid var(--border)'; x.innerHTML=t; return x; };
+    tr.appendChild(td(`<code>${h.id||'—'}</code>`));
+    const tdT=td(''); const inp=document.createElement('input'); inp.className='input'; inp.value=h.title; inp.onkeydown=(e)=>{ if(e.key==='Enter') hUpdate(h.id,'title',inp.value); }; tdT.appendChild(inp); tr.appendChild(tdT);
+    const tdG=td(''); const inpG=document.createElement('input'); inpG.className='input'; inpG.value=h.tags.join(', '); inpG.onkeydown=(e)=>{ if(e.key==='Enter') hUpdate(h.id,'tags',inpG.value); }; tdG.appendChild(inpG); tr.appendChild(tdG);
+    const tdP=td(''); const sel=document.createElement('select'); sel.className='input'; ['low','normal','high','urgent'].forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=p; if(p===h.priority) o.selected=true; sel.appendChild(o);}); sel.onchange=()=>hUpdate(h.id,'priority',sel.value); tdP.appendChild(sel); tr.appendChild(tdP);
+    const tdS=td(''); const selS=document.createElement('select'); selS.className='input'; ['new','accepted','in_progress','done','rejected','paused'].forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; if(s===h.status) o.selected=true; selS.appendChild(o);}); selS.onchange=()=>hUpdate(h.id,'status',selS.value); tdS.appendChild(selS); tr.appendChild(tdS);
+    const tdA=td(''); const b=document.createElement('button'); b.className='btn'; b.textContent='Udalit'; b.onclick=()=>hDel(h.id); tdA.appendChild(b); tr.appendChild(tdA);
+    body.appendChild(tr);
+  }
+}
+async function hCreate(){
+  const title=(document.getElementById('hTitle').value||'').trim(); if(!title){ alert('Zagolovok?'); return; }
+  const tags=hTags(document.getElementById('hTags').value||''); const priority=(document.getElementById('hPriority').value||'normal');
+  const payload={title, tags, priority}; const urls=[api('/hypotheses'),api('/hypotheses/create'),api('/api/hypotheses')];
+  for(const u of urls){ try{ const r=await $fetch(u,{method:'POST', body: payload}); if(r.ok) { document.getElementById('hTitle').value=''; document.getElementById('hTags').value=''; hLoad(); return; } }catch(e){} }
+  alert('Ne udalos sozdat');
+}
+async function hUpdate(id, field, value){
+  if(!id) return; const payload={id}; payload[field]=value;
+  const urls=[api(`/hypotheses/${encodeURIComponent(id)}`), api('/hypotheses/update'), api('/api/hypotheses/update')];
+  for(const u of urls){ try{ const r=await $fetch(u,{method:(u.includes('/update')?'POST':'PUT'), body: payload}); if(r.ok) return; }catch(e){} }
+  alert('Ne udalos obnovit');
+}
+async function hDel(id){
+  if(!confirm('Udalit '+id+'?')) return;
+  const urls=[api(`/hypotheses/${encodeURIComponent(id)}`), api('/hypotheses/delete'), api('/api/hypotheses/delete')];
+  for(const u of urls){ try{ const r=await $fetch(u,{method:(u.includes('/delete')?'POST':'DELETE'), body: {id}}); if(r.ok){ hLoad(); return; } }catch(e){} }
+  alert('Ne udalos udalit');
+}
+
+/* === Routes === */
+let R=[]; let Rsel=null;
+function rFromRoutesJson(j){
+  const items=Array.isArray(j)?j:(j.items||j.routes||[]); const out=[];
+  for(const r of items){
+    const m=(r.method||r.methods||r.http_method||'').toString().toUpperCase();
+    const p=r.path||r.rule||r.endpoint||r.url||'';
+    const d=r.summary||r.description||'';
+    if(!m||!p) continue; out.push({m,p,d});
+  } return out;
+}
+function rFromOpenAPI(j){
+  const out=[]; const paths=j.paths||{};
+  for(const p in paths){ const ops=paths[p];
+    for(const k in ops){ const M=k.toUpperCase(); const meta=ops[k]||{}; out.push({m:M,p, d: meta.summary||meta.description||''}); }
+  } return out;
+}
+async function rLoad(){
+  try{ const r=await $fetch(api('/routes?format=json')); R=rFromRoutesJson(await r.json()); }
+  catch(_){ try{ const r2=await $fetch(api('/routes')); R=rFromRoutesJson(await r2.json()); }
+    catch(_2){ const r3=await $fetch(api('/openapi.json')); R=rFromOpenAPI(await r3.json()); } }
+  const k=new Map(); R.forEach(x=>k.set(x.m+' '+x.p,x)); R=Array.from(k.values()).sort((a,b)=> a.p.localeCompare(b.p)||a.m.localeCompare(b.m));
+  rRender();
+}
+function rRender(){
+  const body=document.getElementById('rBody'); body.innerHTML='';
+  const q=(document.getElementById('rQ').value||'').toLowerCase();
+  const m=(document.getElementById('rM').value||'').toUpperCase();
+  for(const it of R){
+    if(m && it.m!==m) continue;
+    if(q){ const blob=(it.m+' '+it.p+' '+it.d).toLowerCase(); if(!blob.includes(q)) continue; }
+    const tr=document.createElement('tr'); const td=(t)=>{ const x=document.createElement('td'); x.style.padding='8px 6px'; x.style.borderBottom='1px solid var(--border)'; x.innerHTML=t; return x; };
+    tr.appendChild(td(`<span class="chip" style="border-color:var(--accent);color:var(--accent)">${it.m}</span>`));
+    tr.appendChild(td(`<code>${it.p}</code>`)); tr.appendChild(td(it.d||'')); 
+    const act=td(''); const b1=document.createElement('button'); b1.className='btn'; b1.textContent='Otkryt'; b1.disabled=(it.m!=='GET'); b1.onclick=()=>window.open(api(it.p), '_blank', 'noopener');
+    const b2=document.createElement('button'); b2.className='btn'; b2.style.marginLeft='6px'; b2.textContent='Try';
+    b2.onclick=()=>{ Rsel=it; document.getElementById('tMethod').value=it.m; document.getElementById('tUrl').value=it.p; document.getElementById('tBody').value=(it.m!=='GET')?'{\n  \n}':''; document.getElementById('tOut').textContent=''; };
+    act.appendChild(b1); act.appendChild(b2); tr.appendChild(act); body.appendChild(tr);
+  }
+}
+function rPrefill(){ if(Rsel){ document.getElementById('tMethod').value=Rsel.m; document.getElementById('tUrl').value=Rsel.p; } }
+async function rSend(){
+  const method=(document.getElementById('tMethod').value||'GET').toUpperCase();
+  let url=(document.getElementById('tUrl').value||'').trim();
+  if(!url){ alert('URL?'); return; }
+  if(!url.startsWith('/') && !/^https?:\/\//i.test(url)) url='/'+url;
+  let body=undefined; const raw=(document.getElementById('tBody').value||'').trim();
+  if(raw && !['GET','HEAD','OPTIONS'].includes(method)){
+    try{ body=JSON.parse(raw); }catch(e){ body=raw; }
+  }
+  const t0=performance.now();
+  try{
+    const r=await $fetch(api(url),{method, body});
+    const ct=r.headers.get('content-type')||''; 
+    const txt = ct.includes('application/json') ? JSON.stringify(await r.json(),null,2) : await r.text();
+    const ms=Math.round(performance.now()-t0);
+    document.getElementById('tOut').textContent=`HTTP ${r.status} (${ms} ms)\n\n`+txt;
+  }catch(e){ document.getElementById('tOut').textContent='Oshibka: '+e; }
+}
+
+/* === Docs === */
+function adjustDocsHeight(){
+  const fr = document.getElementById('docsFrame');
+  const rect = fr.getBoundingClientRect();
+  const h = Math.max(480, window.innerHeight - rect.top - 24);
+  fr.style.minHeight = h+'px';
+}
+function reloadDocs(){ document.getElementById('docsFrame').src = api('/docs'); }
+async function fetchSpec(){
+  try{
+    const r=await $fetch(api('/openapi.json'));
+    const j=await r.json();
+    document.getElementById('specOut').textContent = JSON.stringify(j, null, 2);
+  }catch(e){
+    document.getElementById('specOut').textContent = 'Oshibka: '+e;
+  }
+}
+window.addEventListener('resize', adjustDocsHeight);
+</script>
+
+{% endblock %}

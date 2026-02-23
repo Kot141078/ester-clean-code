@@ -1,0 +1,64 @@
+# Preset RuleHub dlya bezopasnogo avtoprimeneniya Agent Builder
+# Naznachenie: razreshat zapis artefaktov tolko pri strogikh usloviyakh,
+# inache — ostavlyat v preview-rezhime (log sokhranyaetsya).
+#
+# Mosty:
+# - Yavnyy: (Pravila ↔ Mysli) — reguliruem vyzovy "agent.builder.apply" po okruzheniyu.
+# - Skrytyy #1: (Pravila ↔ UX) — YAML redaktiruetsya iz docs/agent_builder.html → /rulehub/config.
+# - Skrytyy #2: (Pravila ↔ Memory) — logi resheniy pishem v profile/zhurnal pri otkaze/razreshenii.
+#
+# Zemnoy abzats:
+# Eta politika — remen bezopasnosti. Poka slot ne A i zapis ne razreshena yavno, Builder rabotaet tolko v prevyu.
+# Pri vypolnenii usloviy — razreshaem guarded_apply. Tak my isklyuchaem «samoispravleniya» bez sanktsii.
+# c=a+b
+
+meta:
+  preset: agent_builder_safe_apply
+  version: 1
+
+enabled: 0   # Po umolchaniyu vyklyuchen. Vklyuchayte vruchnuyu posle proverki.
+
+guards:
+  - id: ab_slot_must_be_A
+    when:
+      any:
+        - env: { key: "ESTER_AGENT_BUILDER_AB", equals: "A" }
+    else:
+      deny:
+        reason: "AB-slot != A"
+        actions:
+          - kind: mem.passport.append
+            note: "RuleHub: zapis otklonena — AB-slot != A."
+  - id: write_flag_required
+    when:
+      any:
+        - env: { key: "ESTER_AGENT_BUILDER_WRITE", equals: "1" }
+    else:
+      deny:
+        reason: "WRITE flag not set"
+        actions:
+          - kind: mem.passport.append
+            note: "RuleHub: zapis otklonena — WRITE=0."
+
+policies:
+  - id: agent_builder_apply
+    match:
+      action_name: "agent.builder.apply"
+    allow_if_all:
+      - guard: ab_slot_must_be_A
+      - guard: write_flag_required
+    on_allow:
+      - kind: log.append
+        level: "info"
+        message: "RuleHub: razreshena zapis Agent Builder (A-slot + WRITE=1)."
+    on_deny:
+      - kind: mutate.args
+        path: "preview_only"
+        value: true
+      - kind: log.append
+        level: "warn"
+        message: "RuleHub: prevyu vmesto zapisi (usloviya ne vypolneny)."
+
+telemetry:
+  record: true
+  redact_keys: ["files.content"]  # primer skrytiya «tela» faylov iz logov

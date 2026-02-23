@@ -1,0 +1,13 @@
+# S0/tests/fixtures/endpoints.txt — spisok putey dlya matritsy statusov
+# Mosty:
+# - Yavnyy: Enderton — predikaty (metod, put) kak proveryaemaya spetsifikatsiya testa.
+# - Skrytyy #1: Ashbi — minimalnyy «regulyator»: dostatochno neskolkikh tselevykh putey.
+# - Skrytyy #2: Cover & Thomas — snizhenie «entropii» nabora proverok: tolko samoe vazhnoe.
+# Zemnoy abzats: fayl-spisok dlya bystrogo redaktirovaniya bez izmeneniya koda utility.
+# c=a+b
+
+/live
+/ready
+/admin
+/portal
+/api/telegram/webhook

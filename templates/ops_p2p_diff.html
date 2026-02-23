@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — P2P Diff</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial; margin: 24px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+    input, button, textarea { padding: 10px 12px; border-radius: 10px; border: 1px solid #d1d5db; width: 100%; box-sizing: border-box; }
+    button { background: #111827; color: #fff; cursor: pointer; }
+    button:hover { opacity: .9; }
+    pre { background: #f8fafc; padding: 12px; border-radius: 8px; overflow:auto; }
+    ul { padding-left: 18px; }
+    .muted { color:#6b7280; }
+  </style>
+</head>
+<body>
+  <h1>🧭 Ester — P2P Merkle Diff</h1>
+  <p class="muted">Sravnivaet lokalnye listya s udalennym uzlom i pokazyvaet raskhozhdeniya id.</p>
+
+  <div class="row">
+    <div class="card">
+      <h3>Pir</h3>
+      <input id="peer" type="text" placeholder="http://10.0.0.11:5000"/>
+      <div style="margin-top:8px;">
+        <button onclick="runDiff()">Sravnit</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Rezultat</h3>
+      <pre id="out" class="muted">—</pre>
+    </div>
+  </div>
+
+  <script>
+    async function runDiff() {
+      const peer = document.getElementById('peer').value.trim();
+      const out = document.getElementById('out');
+      out.textContent = '⏳ Sravnivayu...';
+      try {
+        const resp = await fetch('/ops/p2p/diff/json', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({peer})});
+        const data = await resp.json();
+        out.textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        out.textContent = 'Oshibka: ' + (e && e.message ? e.message : e);
+      }
+    }
+  </script>
+</body>
+</html>

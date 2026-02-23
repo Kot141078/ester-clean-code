@@ -1,0 +1,138 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+
+<section class="row" style="margin-bottom:12px">
+  <h2 style="margin:0">Provaydery LLM</h2>
+  <span class="chip right">/providers · /providers/status · /providers/select</span>
+</section>
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:10px">
+    <button class="btn" onclick="loadProviders()">Obnovit status</button>
+    <input id="provFilter" class="input" placeholder="filtr po imeni/tipu…" oninput="renderProviders()" />
+    <div class="spacer"></div>
+    <label class="stack" style="align-items:center">
+      <span class="muted">Role vybora:</span>
+      <select id="role" class="input">
+        <option value="default">default</option>
+        <option value="judge">judge</option>
+        <option value="embedding">embedding</option>
+        <option value="rag">rag</option>
+      </select>
+    </label>
+  </div>
+</section>
+
+<section class="card">
+  <div class="row" style="margin-bottom:8px">
+    <h3 style="margin:0">Spisok provayderov</h3>
+    <span class="muted right">Nazhmi «Sdelat aktivnym» — otpravitsya POST /providers/select</span>
+  </div>
+  <div id="tableWrap" class="box" style="overflow:auto">
+    <table id="provTable" style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Imya</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Tip</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Model</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Status</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Latentnost</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Deystviya</th>
+        </tr>
+      </thead>
+      <tbody id="provBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+  let providers = [];
+
+  function pick(v, fallback){ return (v===undefined||v===null||v==='') ? fallback : v; }
+
+  function normRows(data){
+    if(!data) return [];
+    // Podderzhka raznykh formatov: {providers:[...]}, [...], {items:[...]}
+    if(Array.isArray(data)) return data;
+    if(Array.isArray(data.providers)) return data.providers;
+    if(Array.isArray(data.items)) return data.items;
+    if(typeof data === 'object') return Object.values(data);
+    return [];
+  }
+
+  async function loadProviders(){
+    const targets = ['/providers/status','/providers','/providers/list'];
+    let out=null, resp=null, lastErr=null;
+    for(const url of targets){
+      try{
+        resp = await $fetch(url, {method:'GET'});
+        // esli vernulsya HTML — popytka json upadet; poymaem i poprobuem drugoy URL
+        out = await resp.json();
+        break;
+      }catch(e){ lastErr=e; out=null; }
+    }
+    if(!out){
+      document.getElementById('stateOut')?.scrollIntoView();
+      alert('Ne udalos poluchit status provayderov'+(lastErr?': '+lastErr:''));
+      return;
+    }
+    providers = normRows(out).map(x => ({
+      name: x.name || x.id || x.provider || 'unknown',
+      type: x.type || x.kind || (x.is_local?'local':'cloud'),
+      model: x.model || x.engine || x.family || '',
+      status: x.status || (x.healthy===false?'down':'up'),
+      latency_ms: pick(x.latency_ms, pick(x.latency, '—')),
+      raw: x
+    }));
+    renderProviders();
+  }
+
+  function renderProviders(){
+    const body = document.getElementById('provBody');
+    const q = (document.getElementById('provFilter').value||'').toLowerCase();
+    body.innerHTML='';
+    for(const p of providers){
+      if(q && !(`${p.name} ${p.type} ${p.model}`.toLowerCase().includes(q))) continue;
+      const tr = document.createElement('tr');
+      const td = (t)=>{ const x=document.createElement('td'); x.style.padding='8px 6px'; x.style.borderBottom='1px solid var(--border)'; x.innerHTML=t; return x; };
+
+      tr.appendChild(td(`<code>${p.name}</code>`));
+      tr.appendChild(td(p.type||''));
+      tr.appendChild(td(p.model||''));
+      tr.appendChild(td(p.status==='up' ? '<span class="chip" style="border-color:var(--ok);color:var(--ok)">up</span>' : '<span class="chip" style="border-color:var(--danger);color:var(--danger)">down</span>'));
+      tr.appendChild(td(p.latency_ms+' ms'));
+
+      const act = document.createElement('td'); act.style.padding='8px 6px'; act.style.borderBottom='1px solid var(--border)';
+      const btn = document.createElement('button'); btn.className='btn'; btn.textContent='Sdelat aktivnym';
+      btn.onclick = ()=> selectProvider(p.name);
+      act.appendChild(btn);
+      tr.appendChild(act);
+
+      body.appendChild(tr);
+    }
+  }
+
+  async function selectProvider(name){
+    const role = document.getElementById('role').value || 'default';
+    try{
+      const r = await $fetch('/providers/select', {
+        method:'POST',
+        body: JSON.stringify({ provider: name, role })
+      });
+      const data = await r.json().catch(()=> ({}));
+      if(r.ok && (data.ok===undefined || data.ok)){
+        alert('Ok: aktiven '+name+' ('+role+')');
+        loadProviders();
+      }else{
+        alert('Oshibka vybora: '+(data.error||r.statusText));
+      }
+    }catch(e){
+      alert('Set: '+e);
+    }
+  }
+
+  // avtozagruzka
+  document.addEventListener('DOMContentLoaded', loadProviders);
+</script>
+
+{% endblock %}

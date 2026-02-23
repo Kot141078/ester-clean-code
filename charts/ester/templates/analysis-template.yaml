@@ -1,0 +1,68 @@
+{{- if and .Values.rollouts .Values.rollouts.analysis .Values.rollouts.analysis.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "ester.fullname" . }}-slo
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+spec:
+  args:
+    - name: prom
+      value: {{ .Values.rollouts.analysis.provider.prometheusAddress | quote }}
+    - name: p99
+      value: {{ .Values.rollouts.analysis.slo.latency.p99 | quote }}
+    - name: err_fast
+      value: {{ .Values.rollouts.analysis.slo.maxErrorRateFast | quote }}
+    - name: err_slow
+      value: {{ .Values.rollouts.analysis.slo.maxErrorRateSlow | quote }}
+  metrics:
+    - name: error-rate-fast
+      interval: {{ .Values.rollouts.analysis.intervals.interval }}
+      count: {{ .Values.rollouts.analysis.intervals.count }}
+      successCondition: result < {{ .Values.rollouts.analysis.slo.maxErrorRateFast }}
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: {{`{{args.prom}}`}}
+          query: |
+            sum(rate(http_requests_total{job="ester",code=~"5.."}[5m]))
+            /
+            clamp_min(sum(rate(http_requests_total{job="ester"}[5m])), 1)
+    - name: error-rate-slow
+      interval: {{ .Values.rollouts.analysis.intervals.interval }}
+      count: {{ .Values.rollouts.analysis.intervals.count }}
+      successCondition: result < {{ .Values.rollouts.analysis.slo.maxErrorRateSlow }}
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: {{`{{args.prom}}`}}
+          query: |
+            sum(rate(http_requests_total{job="ester",code=~"5.."}[1h]))
+            /
+            clamp_min(sum(rate(http_requests_total{job="ester"}[1h])), 1)
+    - name: latency-p99
+      interval: {{ .Values.rollouts.analysis.intervals.interval }}
+      count: {{ .Values.rollouts.analysis.intervals.count }}
+      successCondition: result < {{ .Values.rollouts.analysis.slo.latency.p99 }}
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: {{`{{args.prom}}`}}
+          query: |
+            histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{job="ester"}[5m])) by (le))
+  {{- if .Values.rollouts.analysis.slo.adaptive.enabled }}
+    - name: latency-p99-adaptive
+      interval: {{ .Values.rollouts.analysis.intervals.interval }}
+      count: {{ .Values.rollouts.analysis.intervals.count }}
+      successCondition: result < {{ mul .Values.rollouts.analysis.slo.latency.p99 .Values.rollouts.analysis.slo.adaptive.uplift | printf "%g" }}
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: {{`{{args.prom}}`}}
+          query: |
+            # Evristicheskiy baseline p99 za {{ .Values.rollouts.analysis.slo.adaptive.baselineRange }}
+            histogram_quantile(0.99,
+              avg_over_time(sum(rate(http_request_duration_seconds_bucket{job="ester"}[5m])) by (le)[{{ .Values.rollouts.analysis.slo.adaptive.baselineRange }}:])
+            )
+  {{- end }}
+{{- end }}

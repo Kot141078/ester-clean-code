@@ -1,0 +1,82 @@
+# Konfig proaktivnosti Ester (edinyy slovar verkhnego urovnya)
+
+version: 1
+
+# ——————————————————————————————————————————
+# Semeynaya marshrutizatsiya (ispolzuetsya telegram_bot._family_route)
+# ——————————————————————————————————————————
+family_default_question: "Nuzhno utochnenie. Vse li ok?"
+family_routing:
+  - about: "Owner"
+    keywords: ["zdorove", "vrach", "temperatura", "bolit", "lekarstv", "davlenie"]
+    notify: ["Mama", "Sestra"]
+  - about: "Mama"
+    keywords: ["poezdk", "bilet", "viza", "aeroport", "doroga", "gostit"]
+    notify: ["Owner", "Sestra"]
+  - about: "Sestra"
+    keywords: ["rabot", "sobes", "ucheb", "srok", "dedlayn", "otchet"]
+    notify: ["Owner", "Mama"]
+
+# ——————————————————————————————————————————
+# Utrenniy daydzhest (MorningDigestDaemon / proactive_notifier)
+# ——————————————————————————————————————————
+morning_digest:
+  hour_local: 8
+  minute_local: 20
+  window_min: 15
+  tone: "teplyy, bodryy, bez tekhno-leksiki"
+  picks:
+    - when: "interest>=0.6 and anxiety<0.6"
+      idea: "Mikro-obuchenie: 1 ideya za 7 minut"
+      howto: "Vyberi korotkuyu zametku. Taymer 7 minut. Zapishi 1 insayt i gde primenit segodnya."
+    - when: "anxiety>=0.6"
+      idea: "Dykhanie 4-4-6 + rasstanovka prioritetov"
+      howto: "Vdokh 4 — pauza 4 — vydokh 6 (2 raza). Zapishi 1 samyy malenkiy shag."
+    - when: "default"
+      idea: "Legkaya kukhnya: 15-minutnyy perekus"
+      howto: "Sdelay chto-to prostoe (frukty/yogurt/tost). Vernis s energiey."
+
+# ——————————————————————————————————————————
+# Vecherniy daydzhest po gruppam (ispolzuetsya group_evening.py)
+# ——————————————————————————————————————————
+evening_digest:
+  hour_local: 20
+  minute_local: 30
+  window_min: 20
+  active_within_sec: 86400
+  text_template: |
+    📌 <b>Vecherniy puls</b>
+    Soobscheniy za den: {msg_count}
+    Temy: {topics}
+    Esli khotite, soberu 3-shagovyy plan na zavtra.
+
+# ——————————————————————————————————————————
+# Ritualy (ispolzuetsya rituals.py)
+# ——————————————————————————————————————————
+rituals:
+  hour_local: 20
+  minute_local: 45
+  window_min: 20
+  active_within_sec: 86400
+  film_nights_weekdays: [5, 6]  # 5=pt, 6=sb
+  film_bank:
+    - ["Legkiy korotkiy film", "Drama • 20–30 min"]
+    - ["Dok-mini na vecher", "Dokumentalnyy • 25–35 min"]
+    - ["Smeshnaya korotkometrazhka", "Komediya • 10–20 min"]
+    - ["Teplaya animatsiya", "Animatsiya • 15–30 min"]
+    - ["Neo-nuar korotkometrazhka", "Nuar • 15–25 min"]
+  checkin_text: |
+    🌙 <b>Vecherniy chek-in</b>
+    Kak den proshel? Odin moment radosti i odin moment slozhnosti.
+    Esli khotite — zapishem 1 malenkiy shag na zavtra.
+
+# ——————————————————————————————————————————
+# Myagkie proaktiv-triggery v lichke (esli kogda-to podklyuchish)
+# ——————————————————————————————————————————
+personal_triggers:
+  - trigger: "anxiety>=0.75"
+    action: "support-breath"
+    message: "Davayte na minutku vydokhnem. Vdokh 4 — pauza 4 — vydokh 6. Ya s toboy."
+  - trigger: "interest>=0.7"
+    action: "spark-idea"
+    message: "Khochesh malenkuyu ideyu na 7 minut, chtoby zakrepit interes?"

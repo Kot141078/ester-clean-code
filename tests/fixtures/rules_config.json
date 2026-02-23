@@ -1,0 +1,13 @@
+{
+  "allow_tags": [],
+  "deny_tags": ["private"],
+  "allow_users": [],
+  "deny_users": [],
+  "regex_block": ["(?i)sekret", "(?i)confidential"],
+  "per_tag_max": { "rss_demo": 3, "inbox_demo": 3 },
+  "per_user_max": { "unknown": 5 },
+  "dedup_threshold": 0.82,
+  "mmr": { "enabled": true, "lambda": 0.7 },
+  "top_per_section": 5,
+  "cross_section_dedup": true
+}

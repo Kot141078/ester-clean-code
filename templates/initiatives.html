@@ -1,0 +1,74 @@
+{% set page_title = "Initsiativy i Sny — Ester" %}
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8"/>
+    <title>{{ page_title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>
+      :root {
+        --bg: #0f1115; --card: #151823; --text: #e9edf1; --muted:#9aa4b2; --accent:#7dd3fc; --ok:#34d399; --warn:#fbbf24;
+        --danger:#f87171; --btn:#1f2937; --btnh:#111827; --br: 14px;
+      }
+      * { box-sizing:border-box; }
+      body { margin:0; padding:24px; background:var(--bg); color:var(--text); font:14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial; }
+      h1 { font-size:22px; margin:0 0 16px; }
+      .wrap { max-width: 980px; margin: 0 auto; }
+      .hint { color:var(--muted); margin-bottom:18px; }
+      .list { display:grid; grid-template-columns: 1fr; gap:12px; }
+      @media (min-width: 720px) { .list { grid-template-columns: 1fr 1fr; } }
+      .card { background:var(--card); border-radius: var(--br); padding:16px; box-shadow: 0 6px 22px rgba(0,0,0,.35); border:1px solid #23283b; }
+      .title { font-size:16px; margin:0 0 8px; }
+      .meta { font-size:12px; color:var(--muted); margin:0 0 12px; }
+      .reason { font-size:13px; color:#cbd5e1; white-space:pre-wrap; }
+      .actions { display:flex; gap:8px; margin-top:14px; }
+      .btn { display:inline-block; padding:8px 12px; background:var(--btn); border:1px solid #2a3147; color:#e5e7eb; border-radius:10px; text-decoration:none; transition:.15s; }
+      .btn:hover { background:var(--btnh); transform: translateY(-1px); }
+      .ok { border-color:#064e3b; color:#bbf7d0; }
+      .snooze { border-color:#4b5563; color:#e5e7eb; }
+      .status { font-size:12px; padding:2px 8px; border-radius:999px; display:inline-block; border:1px solid #29324a; margin-left:6px; }
+      .status.pending { background:#1f2435; color:#e5e7eb; }
+      .status.accepted { background:#062e1f; color:#bbf7d0; border-color:#064e3b; }
+      .status.snoozed { background:#2b1f0a; color:#fde68a; border-color:#4b2e0a; }
+      .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+      .user { color:#a5b4fc; font-weight:600; }
+      .muted { color:var(--muted); }
+      .empty { padding:20px; color:var(--muted); background:#121524; border:1px dashed #26304a; border-radius:12px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="topbar">
+        <h1>Initsiativy i Sny</h1>
+        <div class="user">Polzovatel: {{ user }}</div>
+      </div>
+      <div class="hint muted">Zdes — predlozheniya Ester (initsiativy), sformirovannye pravilami i «snami». Mozhno <b>prinyat</b> ili <b>otlozhit</b>.</div>
+
+      {% if not items %}
+        <div class="empty">Poka pusto. Zaglyani pozzhe — ili poprosi Ester sgenerirovat plan na den.</div>
+      {% else %}
+        <div class="list">
+          {% for it in items %}
+            <div class="card">
+              <div class="title">
+                {{ it.title }}
+                <span class="status {{ it.status }}">{{ it.status }}</span>
+              </div>
+              {% if it.reason %}
+                <div class="meta">Pravilo: {{ it.rule or "—" }}</div>
+                <div class="reason">{{ it.reason }}</div>
+              {% else %}
+                <div class="meta">Do: {{ it.until or "—" }}</div>
+              {% endif %}
+              <div class="actions">
+                <a class="btn ok" href="/initiatives/accept?id={{ it.id }}&user={{ user }}">Prinyat</a>
+                <a class="btn snooze" href="/initiatives/defer?id={{ it.id }}&min=60&user={{ user }}">Otlozhit na 1 chas</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <p class="muted" style="margin-top:18px;">Podskazka: Swagger dokumentatsiya dostupna na <a class="btn" href="/docs">/docs</a>.</p>
+    </div>
+  </body>
+</html>

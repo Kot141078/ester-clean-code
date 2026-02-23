@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Zero-Click USB Deploy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .muted{color:#9aa9bd}
+    input[type="text"]{min-width:280px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Vstavil doverennuyu fleshku — odnim klikom plan/primenenie v sloty A/B, s proverkoy kheshey i avtokatbekom.
+    Mosty:
+      • Yavnyy — bezopasnyy perenos (doverie+kheshi+okno) → ekspluatatsiya.
+      • Skrytye — shtampy/idempotentnost i A/B-rezhim (sukhoy plan).
+  -->
+</head>
+<body>
+  <h1>Zero-Click USB Deploy <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <h3>Nastroyki</h3>
+    <div class="row">
+      <label><input type="checkbox" id="enable"/> Enable</label>
+      <label>Interval <input id="interval" type="number" value="10" style="width:120px"/></label>
+      <label>Base dir <input id="base" type="text" value="~/.ester/portable"/></label>
+      <label>Health cmd <input id="health" type="text" placeholder="napr. python current/app.py --version"/></label>
+      <button onclick="save()">Save</button>
+      <a class="chip" href="/admin/usb/trust">Doverennye USB →</a>
+    </div>
+    <pre id="st">—</pre>
+  </section>
+
+  <section>
+    <h3>Fleshki</h3>
+    <div class="row">
+      <button onclick="probe()">Proba tomov</button>
+      <select id="mount"></select>
+      <button onclick="plan()">Plan</button>
+      <button onclick="apply()">Primenit</button>
+    </div>
+    <pre id="out">—</pre>
+  </section>
+
+<script>
+async function status(){
+  const r = await fetch('/admin/usb/zc-deploy/status'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok){ document.getElementById('st').textContent='Oshibka'; return; }
+  const s=j.settings||{};
+  document.getElementById('enable').checked=!!s.enable;
+  document.getElementById('interval').value=s.interval||10;
+  document.getElementById('base').value=s.base_dir||'~/.ester/portable';
+  document.getElementById('health').value=s.health_cmd||'';
+  document.getElementById('st').textContent = JSON.stringify(j, null, 2);
+}
+async function save(){
+  const body={enable:document.getElementById('enable').checked,
+              interval:parseInt(document.getElementById('interval').value,10),
+              base_dir:document.getElementById('base').value.trim(),
+              health_cmd:document.getElementById('health').value.trim()};
+  const r = await fetch('/admin/usb/zc-deploy/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('st').textContent = JSON.stringify(j, null, 2);
+}
+async function probe(){
+  const r = await fetch('/admin/usb/zc-deploy/probe'); const j = await r.json().catch(()=>({ok:false}));
+  const sel=document.getElementById('mount'); sel.innerHTML='';
+  (j.targets||[]).forEach(t=>{
+    const o=document.createElement('option'); o.value=t.mount; o.textContent=(t.mount+' — '+(t.label||'')+' ('+(t.fs||'?')+')');
+    sel.appendChild(o);
+  });
+}
+async function plan(){
+  const m=document.getElementById('mount').value;
+  const r = await fetch('/admin/usb/zc-deploy/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount:m})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+async function apply(){
+  const m=document.getElementById('mount').value;
+  const r = await fetch('/admin/usb/zc-deploy/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount:m})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+status().catch(()=>{}); probe().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

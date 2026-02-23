@@ -1,0 +1,68 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Policies</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1200px}
+  input,textarea,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:10px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  .card{border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:1000px){.grid{grid-template-columns:1fr}}
+  .small{font-size:12px;color:#666}
+</style>
+
+<h2>Policies — roli, pravila i komponovka s Safety</h2>
+
+<div class="grid">
+  <section class="card">
+    <h3>Pravila/Roli</h3>
+    <div class="row">
+      <button onclick="load_()">Load</button>
+      <button onclick="save_()">Save</button>
+    </div>
+    <textarea id="json" rows="20" style="width:100%" placeholder="JSON politik"></textarea>
+  </section>
+
+  <section class="card">
+    <h3>Test decision</h3>
+    <div class="row">
+      <input id="agent" value="desktop" style="width:120px">
+      <input id="kind" value="open_app" style="width:120px">
+      <input id="subject" value="user:default" style="width:140px">
+    </div>
+    <div class="row">
+      <input id="meta" value='{"app":"notepad"}' style="width:320px">
+      <input id="ctx" value='{"mode":"A","real_enabled":false,"requires_admin":false,"steps":2}' style="width:420px">
+      <select id="safety"><option>allow</option><option>needs_user_consent</option><option>deny</option></select>
+      <button onclick="decide()">Decide</button>
+    </div>
+    <pre id="out"></pre>
+  </section>
+</div>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function set_(id,obj){ document.getElementById(id).textContent = JSON.stringify(obj,null,2); }
+
+async function load_(){
+  const res = await (await fetch('/policy/list')).json();
+  document.getElementById('json').value = JSON.stringify(res, null, 2);
+}
+async function save_(){
+  let obj=null; try{ obj=JSON.parse(document.getElementById('json').value) }catch(e){ alert('JSON error'); return; }
+  set_('out', await j('POST','/policy/save', obj));
+}
+async function decide(){
+  let m={}, c={}; 
+  try{ m=JSON.parse(document.getElementById('meta').value) }catch(e){ alert('meta JSON error'); return; }
+  try{ c=JSON.parse(document.getElementById('ctx').value) }catch(e){ alert('ctx JSON error'); return; }
+  set_('out', await j('POST','/policy/decide', {
+    "agent":document.getElementById('agent').value,
+    "kind":document.getElementById('kind').value,
+    "subject":document.getElementById('subject').value,
+    "meta": m, "ctx": c, "safety": document.getElementById('safety').value
+  }));
+}
+load_();
+</script>

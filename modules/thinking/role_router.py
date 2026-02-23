@@ -6,7 +6,7 @@ Sostoyanie (v pamyati, s sokhraneniem v fayl):
 data/coop/roles.json
 {
   "role": "leader",
-  "peers": ["192.168.1.20:8000"],
+  "peers": ["127.0.0.1:8000"],
   "policy": {
      "forward": ["missions.step","desktop.window.hotkey"],  # kakie vyzovy retranslirovat na peers
      "observe": true                                        # otpravlyat li overleynye PNG nablyudatelyam
@@ -16,6 +16,7 @@ data/coop/roles.json
 API:
 - set_role(role), add_peer(host), drop_peer(host), status()
 - forward_call(tag, path, payload) -> lokalno + na peers (esli policy razreshaet)
+- ESTER_ROLE_ROUTER_URL задает peer по умолчанию (default: http://127.0.0.1:8000)
 
 MOSTY:
 - Yavnyy: (Orkestratsiya ↔ Set) kto vedet, kto pomogaet, kto nablyudaet — formalno.
@@ -30,12 +31,34 @@ Bez brokerov: obychnye HTTP-vyzovy na peers cherez suschestvuyuschiy peer-proksi
 from __future__ import annotations
 import os, json
 from typing import Dict, Any, List
+from urllib.parse import urlparse
 
 ROOT = os.environ.get("ESTER_ROOT", os.getcwd())
 DIR = os.path.join(ROOT, "data", "coop")
 FILE = os.path.join(DIR, "roles.json")
 
-_DEF = {"role": "leader", "peers": [], "policy": {"forward": ["missions.step","desktop.window.hotkey"], "observe": True}}
+def _normalize_peer(value: str) -> str:
+    raw = (value or "").strip()
+    if not raw:
+        return ""
+    if "://" not in raw:
+        return raw
+    parsed = urlparse(raw)
+    if not parsed.hostname:
+        return ""
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    return f"{parsed.hostname}:{port}"
+
+def _default_peers() -> List[str]:
+    raw = (os.getenv("ESTER_ROLE_ROUTER_URL") or "http://127.0.0.1:8000").strip()
+    normalized = _normalize_peer(raw)
+    return [normalized] if normalized else []
+
+_DEF = {
+    "role": "leader",
+    "peers": _default_peers(),
+    "policy": {"forward": ["missions.step", "desktop.window.hotkey"], "observe": True},
+}
 
 def _load() -> Dict[str, Any]:
     os.makedirs(DIR, exist_ok=True)
@@ -56,7 +79,8 @@ def set_role(role: str) -> Dict[str, Any]:
     return {"ok": True, "role": role}
 
 def add_peer(host: str) -> Dict[str, Any]:
-    obj = _load(); host = (host or "").strip()
+    obj = _load()
+    host = _normalize_peer(host)
     if not host: return {"ok": False, "error":"host_required"}
     if host not in obj["peers"]: obj["peers"].append(host); _save(obj)
     return {"ok": True, "peers": obj["peers"]}

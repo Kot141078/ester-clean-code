@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — P2P / CRDT Ops</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji","Segoe UI Emoji"; margin: 24px; }
+    h1 { margin: 0 0 8px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+    .muted { color: #6b7280; font-size: 0.9em; }
+    button { padding: 10px 14px; border-radius: 10px; border: 1px solid #111827; background: #111827; color: #fff; cursor: pointer; }
+    button:hover { opacity: .9; }
+    pre { background: #f8fafc; padding: 12px; border-radius: 8px; overflow:auto; }
+    ul { padding-left: 18px; }
+  </style>
+</head>
+<body>
+  <h1>⚙️ Ester — P2P / CRDT Ops</h1>
+  <p class="muted">Kontrol merkli-sverki i sinkhronizatsii pamyati mezhdu uzlami.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Lokalnyy uzel</h3>
+      <ul>
+        <li><b>Peer ID:</b> {{ summary.peer }}</li>
+        <li><b>Clock:</b> {{ summary.clock }}</li>
+        <li><b>Visible items:</b> {{ summary.visible_count }}</li>
+      </ul>
+      <form id="syncForm" method="post" action="/ops/p2p/sync" onsubmit="return runSync(event);">
+        <button>🔁 Vypolnit sync_once()</button>
+      </form>
+      <div id="syncResult" class="muted" style="margin-top: 8px;"></div>
+    </div>
+
+    <div class="card">
+      <h3>Obnaruzhennye piry (LAN + staticheskiy)</h3>
+      {% if summary.peers and summary.peers|length > 0 %}
+        <ul>
+          {% for p in summary.peers %}
+          <li>{{ p }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">Pirov ne obnaruzheno. Prover ESTER_P2P_STATIC ili zeroconf.</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h3>Lokalnaya Merkle-svodka</h3>
+      {% if summary.local_state %}
+        <pre>{{ summary.local_state | tojson(indent=2) }}</pre>
+      {% else %}
+        <p class="muted">Net lokalnogo dampa (DEBUG_LOCAL_STATE ne zadan). Stranitsa dostupna.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    async function runSync(ev) {
+      ev.preventDefault();
+      const el = document.getElementById('syncResult');
+      el.textContent = 'Sinkhronizatsiya...';
+      try {
+        const resp = await fetch('/ops/p2p/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }});
+        const data = await resp.json();
+        el.textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        el.textContent = 'Oshibka: ' + (e && e.message ? e.message : e);
+      }
+      return false;
+    }
+  </script>
+</body>
+</html>

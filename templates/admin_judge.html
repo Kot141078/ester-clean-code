@@ -1,0 +1,83 @@
+{#
+Most (yavnyy):
+- (Inzheneriya UI ↔ Kontrol) Razdelnyy vvod prompta, vybor rezhima i taymauta delayut povedenie predskazuemym.
+
+Mosty (skrytye):
+- (Grafy ↔ Operatsii) Tablitsa otvetov — «mini-graf» versiy teksta, iz kotorogo vybiraem konsensus.
+- (Chelovek ↔ Avtomat) Polzovatel mozhet bystro sverit finalku s syrem.
+
+Zemnoy abzats:
+Stranitsa zapuskaet «sudyu»: sobiraet otvety ot lokalnykh LLM (ili moki v A) i pokazyvaet finalnuyu sborku.
+Nikakikh oblakov po umolchaniyu — vse lokalno.
+
+c=a+b
+#}
+{% extends "_admin_base.html" %}
+
+{% block content %}
+<h2>Judge — agregator otvetov</h2>
+<p>Rezhim: <b>{{ ab_mode }}</b> (A=dry/moki, B=lokalnye HTTP-zaprosy)</p>
+
+<div style="margin:10px 0;">
+  <textarea id="prompt" rows="6" style="width:100%;" placeholder="Vash prompt..."></textarea>
+  <div style="margin:6px 0;">
+    <label>Rezhim:
+      <select id="mode">
+        <option value="local">Tolko lokalnye</option>
+        <option value="full">Polnyy sintez (zaglushka)</option>
+        <option value="flex">Gibkiy sintez (lokalnyy)</option>
+      </select>
+    </label>
+    <label style="margin-left:12px;">timeout (s): <input id="timeout" type="number" value="6" style="width:80px;"></label>
+    <button id="btnRun">Zaprosit</button>
+  </div>
+</div>
+
+<div id="status" style="margin:8px 0; font-family:monospace;"></div>
+
+<h3>Finalnaya sborka</h3>
+<pre id="final" style="white-space:pre-wrap;"></pre>
+
+<h3>Syrye otvety</h3>
+<table border="1" cellpadding="6" cellspacing="0">
+  <thead>
+    <tr><th>alias</th><th>elapsed</th><th>error</th><th>text</th></tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+
+<script>
+async function postJSON(url, payload){
+  const r = await fetch(url,{method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload||{})});
+  return await r.json();
+}
+document.getElementById("btnRun").onclick = async () => {
+  const s = document.getElementById("status");
+  const prompt = document.getElementById("prompt").value || "";
+  const mode = document.getElementById("mode").value || "local";
+  const timeout = parseFloat(document.getElementById("timeout").value || "6");
+  if (!prompt.trim()) { s.textContent = "Vvedite prompt."; return; }
+  s.textContent = "Zaprashivayu…";
+  try{
+    const data = await postJSON("{{ url_for('admin_judge.api_run') }}", {prompt, mode, timeout});
+    if (!data.ok){ s.textContent = "Oshibka: " + (data.error || ""); return; }
+    document.getElementById("final").textContent = JSON.stringify(data.final, null, 2);
+    const body = document.getElementById("tbody");
+    let html = "";
+    (data.answers||[]).forEach(a => {
+      html += `<tr>
+        <td>${a.alias}</td>
+        <td>${(a.elapsed_sec||0).toFixed(3)}</td>
+        <td>${a.error||""}</td>
+        <td style="white-space:pre-wrap;">${(a.text||"").replace(/</g,"&lt;")}</td>
+      </tr>`;
+    })
+    body.innerHTML = html || "<tr><td colspan='4'>Net dannykh.</td></tr>";
+    s.textContent = "Gotovo.";
+  }catch(e){
+    s.textContent = "Oshibka: " + e;
+  }
+};
+</script>
+{% endblock %}
+<!-- c=a+b -->

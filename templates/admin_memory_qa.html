@@ -1,0 +1,33 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — QA pamyati</title>
+<style>
+body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+button{padding:8px;border:1px solid #ccc;border-radius:8px;margin-right:8px}
+pre{background:#0b0b0b;color:#9f9;padding:10px;border-radius:8px;white-space:pre-wrap}
+.meta{color:#666;font-size:12px;margin-bottom:10px}
+</style>
+
+<h2>Kontrol kachestva pamyati Ester</h2>
+<div class="meta">Proveryaet strukturu, dublikaty, vremennye anomalii i embeddingi</div>
+<div style="margin:10px 0 6px;">
+  <strong>Retention telemetry</strong>
+</div>
+<pre id="retention"></pre>
+<div>
+  <button onclick="run(false)">Run Full QA</button>
+  <button onclick="run(true)">Fix Issues</button>
+  <button onclick="summary()">Summary</button>
+</div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function out(x){document.getElementById('out').textContent=JSON.stringify(x,null,2);}
+function outRetention(x){document.getElementById('retention').textContent=JSON.stringify(x,null,2);}
+async function run(fix){out(await j('POST','/memory/qa/run',{"auto_fix":fix}));}
+async function summary(){out(await j('GET','/memory/qa/summary'));}
+async function status_(){const s=await j('GET','/memory/status');outRetention(s&&s.retention?s.retention:s);}
+status_();
+</script>

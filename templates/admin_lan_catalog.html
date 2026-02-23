@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — LAN Catalog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    table{width:100%;border-collapse:collapse}
+    td,th{border-bottom:1px solid #273244;padding:6px;text-align:left;font-size:13px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .muted{opacity:.7}
+  </style>
+  <!-- Zemnoy abzats:
+       Teper iz svodnogo LAN-plana mozhno v odin klik sobrat USB-ochered:
+       lokalnye resursy → payloads/* + copy-jobs; chuzhie → (opts.) noop-jobs.
+       Mosty: yavnyy — plan→jobs; skrytye — AB-dry, tot zhe format job/ocheredi. -->
+</head>
+<body>
+  <h1>LAN Catalog <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <div class="row">
+      <button onclick="scan()">Skanirovat</button>
+      <label>Filtr kind
+        <select id="kinds" multiple size="3">
+          <option value="folder">folder</option>
+          <option value="model">model</option>
+          <option value="file">file</option>
+        </select>
+      </label>
+      <label>Filtr tags
+        <input id="tags" placeholder="cherez zapyatuyu (naprimer: usb,alias)"/>
+      </label>
+      <button onclick="buildPlan()">Sobrat plan</button>
+    </div>
+    <h3>Sosedi</h3>
+    <div id="peers">—</div>
+    <h3>Elementy (obedinenno)</h3>
+    <div id="items">—</div>
+  </section>
+
+  <section>
+    <h3>Plan importa (read-only)</h3>
+    <div class="row">
+      <label><input type="checkbox" id="p2u_stage" checked/> Stadirovat payload na USB</label>
+      <label><input type="checkbox" id="p2u_clean"/> Ochistit ESTER/jobs pered zapisyu</label>
+      <label><input type="checkbox" id="p2u_noop" checked/> Delat noop dlya chuzhikh uzlov</label>
+      <button onclick="planToUsb()">Sgenerirovat USB-ochered</button>
+      <span id="p2u_res" class="chip">—</span>
+    </div>
+    <pre id="plan">—</pre>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+let LAST_STATUS=null;
+function esc(s){return (s??"").toString().replace(/</g,"&lt;")}
+function peersTable(peers){
+  if(!peers||!peers.length) return "<p class='muted'>Net sosedey</p>";
+  let h="<table><tr><th>use</th><th>node</th><th>base_url</th><th>tags</th><th>last_seen</th></tr>";
+  for(const p of peers){
+    const id=esc(p.base_url);
+    h+=`<tr>
+      <td><input type="checkbox" class="pick" value="${id}" checked/></td>
+      <td>${esc(p.node||"-")}</td>
+      <td><code>${esc(p.base_url||"-")}</code></td>
+      <td>${esc((p.tags||[]).join(","))}</td>
+      <td>${esc(p.last_seen||"-")}</td>
+    </tr>`;
+  }
+  h+="</table>";
+  return h;
+}
+function itemsTable(items){
+  if(!items||!items.length) return "<p class='muted'>Pusto</p>";
+  let h="<table><tr><th>node</th><th>uid</th><th>kind</th><th>title</th><th>tags</th></tr>";
+  for(const it of items){
+    h+=`<tr>
+      <td>${esc(it._source_node||"-")}</td>
+      <td><code>${esc(it.uid||"-")}</code></td>
+      <td>${esc(it.kind||"-")}</td>
+      <td>${esc(it.title||it.src_rel||"-")}</td>
+      <td>${esc((it.tags||[]).join(","))}</td>
+    </tr>`;
+  }
+  h+="</table>";
+  return h;
+}
+async function scan(){
+  const r = await fetch('/admin/lan_catalog/status'); const j = await r.json().catch(()=>({ok:false}));
+  LAST_STATUS = j;
+  document.getElementById('peers').innerHTML = peersTable(j.peers||[]);
+  document.getElementById('items').innerHTML = itemsTable(j.items||[]);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+function pickedNodes(){
+  return [...document.querySelectorAll('.pick:checked')].map(x=>x.value);
+}
+async function buildPlan(){
+  const kindsSel=[...document.getElementById('kinds').options].filter(o=>o.selected).map(o=>o.value);
+  const tags=(document.getElementById('tags').value||"").split(",").map(s=>s.trim()).filter(Boolean);
+  const nodes=pickedNodes();
+  const body={nodes, kinds: (kindsSel.length?kindsSel:undefined), tags: (tags.length?tags:undefined)};
+  const r=await fetch('/admin/lan_catalog/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({ok:false}));
+  document.getElementById('plan').textContent = JSON.stringify(j, null, 2);
+}
+async function planToUsb(){
+  const planText=document.getElementById('plan').textContent||"";
+  let planObj=null; try{ planObj=JSON.parse(planText); }catch(e){ alert("Snachala soberi plan"); return; }
+  const body={
+    plan: planObj,
+    stage: document.getElementById('p2u_stage').checked,
+    clean_jobs: document.getElementById('p2u_clean').checked,
+    noop_for_remote: document.getElementById('p2u_noop').checked
+  };
+  const r=await fetch('/admin/lan_catalog/plan_to_usb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({ok:false}));
+  document.getElementById('p2u_res').textContent = j.ok ? "OK" : "ERR";
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+scan().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

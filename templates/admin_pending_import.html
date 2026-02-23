@@ -1,0 +1,35 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Pending → Trigger Add</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:960px}
+  textarea,button,input{padding:8px;border:1px solid #ccc;border-radius:8px}
+  textarea{width:100%;min-height:160px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:140px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+</style>
+<h2>Import pending_add → /triggers/add (safe)</h2>
+<div class="row">
+  Batch <input id="batch" type="number" value="50">
+  <button onclick="demo()">Load sample</button>
+  <button onclick="dry()">Dry-run</button>
+  <button onclick="apply()">Try /triggers/add</button>
+  <button onclick="exp()">Export POSTs</button>
+</div>
+<textarea id="src">{
+  "exported_at": 1700000000,
+  "kind": "pending_templates",
+  "items": [
+    {"name":"Save","bbox":{"left":600,"top":330,"width":120,"height":48},"threshold":0.86,"lang":"eng+rus"},
+    {"name":"Export","bbox":{"left":120,"top":80,"width":120,"height":48}}
+  ]
+}</textarea>
+<pre id="out"></pre>
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+function demo(){ /* sample uzhe v textarea */ }
+async function dry(){ const items=(JSON.parse(src.value||"{}").items)||[]; out(await j('POST','/pending_import/dry_run',{"items":items,"batch":+batch.value||50})); }
+async function apply(){ const items=(JSON.parse(src.value||"{}").items)||[]; out(await j('POST','/pending_import/try_apply',{"items":items,"batch":+batch.value||50})); }
+async function exp(){ const items=(JSON.parse(src.value||"{}").items)||[]; const r=await fetch('/pending_import/export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({"items":items,"filename":"triggers_add_posts.json"})}); const b=await r.blob(); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='triggers_add_posts.json'; a.click(); }
+</script>

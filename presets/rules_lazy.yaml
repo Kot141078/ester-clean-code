@@ -1,0 +1,22 @@
+version: 1
+name: lazy_individual
+description: "Myagkie napominaniya, minimum shuma, utrenniy daydzhest"
+triggers:
+  - kind: scheduler.tick
+    when: "RRULE:FREQ=DAILY;BYHOUR=7;BYMINUTE=30"
+    actions:
+      - type: summarize_recent
+        top_k: 12
+      - type: suggest_next_steps
+        limit: 3
+      - type: notify
+        channel: "telegram,email"
+  - kind: ingest.completed
+    filters: { mime: ["application/pdf","text/plain"] }
+    actions:
+      - type: chunk_and_vectorize
+      - type: tag
+        with: ["inbox","to_review"]
+guardrails:
+  max_notifications_per_day: 3
+  quiet_hours: "22:00-07:00"

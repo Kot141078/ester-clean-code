@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Agent Builder Console</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{ --bg:#0b0c10; --fg:#e5e7eb; --accent:#7c3aed; --muted:#9ca3af; --border:#374151; }
+    body{ background:var(--bg); color:var(--fg); font:14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin:0; }
+    a{ color:var(--accent); }
+    .wrap{ max-width:1100px; margin:0 auto; padding:20px; }
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    textarea, input, button{ width:100%; box-sizing:border-box; }
+    textarea{ min-height:120px; background:#0f1115; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:8px; }
+    input{ background:#0f1115; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:8px; }
+    button{ background:#1f2937; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:10px; cursor:pointer; }
+    button:hover{ filter:brightness(1.1); }
+    .card{ border:1px solid var(--border); border-radius:10px; padding:14px; background:#0f1115; }
+    .muted{ color:var(--muted); font-size:12px; }
+    pre{ white-space:pre-wrap; word-break:break-word; border:1px solid var(--border); border-radius:8px; padding:10px; background:#0b0e14; }
+    .row{ display:flex; gap:8px; align-items:center; }
+    .row > *{ flex:1; }
+    .pill{ display:inline-block; padding:2px 8px; border:1px solid var(--border); border-radius:999px; margin-right:6px; font-size:12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Agent Builder Console dlya Ester</h1>
+    <p class="muted">Panel vyzyvaet uzhe suschestvuyuschie ruchki: <code>/thinking/act</code>, <code>/thinking/cascade/*</code>, <code>/rulehub/*</code>. JWT khranitsya tak zhe, kak v obschey adminke (sm. <code>static/admin.js</code>).</p>
+
+    <div class="card">
+      <h3>JWT</h3>
+      <div class="row">
+        <input id="jwtInput" placeholder="JWT" />
+        <button id="saveJwtBtn">Save</button>
+        <button id="clearJwtBtn">Ochistit</button>
+      </div>
+      <p class="muted">Token budet ispolzovatsya avtomaticheski (analogichno suschestvuyuschey adminke).</p>
+    </div>
+
+    <div class="grid" style="margin-top:16px;">
+      <div class="card">
+        <h3>Parametry agenta</h3>
+        <input id="goal" placeholder="Tsel (napr. Ekologicheskiy sovetnik dlya SMB)">
+        <div class="row">
+          <input id="audience" placeholder="Auditoriya (napr. SMB)">
+          <input id="domain" placeholder="Domen (napr. sustainability)">
+        </div>
+        <input id="name" placeholder="Imya (optsionalno)">
+        <div class="row">
+          <button id="btnEnv">Proverit okruzhenie</button>
+          <button id="btnList">Spisok shablonov</button>
+          <button id="btnDesc">Opisat agenta</button>
+        </div>
+        <div class="row">
+          <button id="btnPlan">Sformirovat plan</button>
+          <button id="btnExec">Vypolnit plan</button>
+        </div>
+        <div class="row">
+          <button id="btnFiles">Sformirovat fayly (preview)</button>
+          <button id="btnApply">Primenit fayly</button>
+        </div>
+        <label class="row" style="margin-top:8px;">
+          <span class="pill">preview-only</span>
+          <input id="applyWrite" type="checkbox"> <span>Ya osoznanno razreshayu zapis (ponadobitsya ENV na servere)</span>
+        </label>
+      </div>
+
+      <div class="card">
+        <h3>RuleHub (optsionalno)</h3>
+        <div class="row">
+          <button id="btnRuleGet">Zagruzit tekuschiy YAML</button>
+          <button id="btnRuleSet">Save YAML</button>
+        </div>
+        <textarea id="rulehubCfg" placeholder="YAML konfiguratsii pravil"></textarea>
+        <p class="muted">Eti ruchki uzhe suschestvuyut (sm. admin_rulehub.js); stranitsa lish daet bystryy dostup.</p>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px;">
+      <div class="card">
+        <h3>Spetsifikatsiya agenta (JSON)</h3>
+        <textarea id="spec" placeholder='{"name":"EkoRazum","description":"...","instructions":"...","capabilities":["web.browse"]}'></textarea>
+      </div>
+      <div class="card">
+        <h3>Plan (JSON)</h3>
+        <textarea id="plan" placeholder='{"ok":true,"goal":"...","steps":[...]}'></textarea>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px;">
+      <div class="card">
+        <h3>Sostoyanie</h3>
+        <pre id="abState" class="muted"></pre>
+        <pre id="rulehubState" class="muted"></pre>
+      </div>
+      <div class="card">
+        <h3>Vyvod</h3>
+        <pre id="out">{}</pre>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h3>Log</h3>
+      <pre id="log"></pre>
+    </div>
+  </div>
+
+  <!-- obschiy dlya adminki helper (JWT+apiFetch) -->
+  <script src="../static/admin.js"></script>
+  <!-- nash pult -->
+  <script src="../static/admin_agent_builder.js"></script>
+</body>
+</html>
+<!-- c=a+b -->

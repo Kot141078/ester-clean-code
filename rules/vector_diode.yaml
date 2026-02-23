@@ -1,0 +1,14 @@
+# -*- coding: utf-8 -*-
+# rules/vector_diode.yaml — konfig "data diode" dlya vektornoy BZ.
+
+outbox_dir: "var/diode/outbox"
+inbox_dir:  "var/diode/inbox"
+store_dir:  "var/vector_store"   # po umolchaniyu prostoy JSONL-stor
+
+moderation:
+  min_len: 12
+  max_len: 20000
+  deny_patterns:
+    - "(?i)rm -rf"
+    - "(?i)curl .*\\|\\s*sh"
+    - "(?i)secret\\s*key"

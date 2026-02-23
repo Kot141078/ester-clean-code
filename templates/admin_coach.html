@@ -1,0 +1,82 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Coach</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  input,textarea,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:10px;white-space:pre-wrap}
+  .card{border:1px solid #eee;border-radius:10px;padding:10px;margin:8px 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:1000px){.grid{grid-template-columns:1fr}}
+  .meta{font-size:12px;color:#666}
+</style>
+
+<h2>Kouching myshleniya — navigator uluchsheniy</h2>
+
+<div class="grid">
+  <section class="card">
+    <h3>Diagnostika</h3>
+    <div class="row">
+      <input id="win" type="number" value="200" style="width:100px">
+      <button onclick="diag()">Diagnose</button>
+    </div>
+    <pre id="diag"></pre>
+  </section>
+
+  <section class="card">
+    <h3>Mikro-tseli</h3>
+    <div class="row">
+      <input id="k" type="number" value="5" style="width:80px">
+      <button onclick="suggest()">Suggest micro-goals</button>
+    </div>
+    <div id="list"></div>
+  </section>
+
+  <section class="card">
+    <h3>Retrospektiva</h3>
+    <div class="row">
+      <input id="winr" type="number" value="400" style="width:100px">
+      <button onclick="retro()">Retro</button>
+    </div>
+    <pre id="retro"></pre>
+  </section>
+
+  <section class="card">
+    <h3>Status koucha</h3>
+    <div class="row">
+      <button onclick="stat()">Status</button>
+    </div>
+    <pre id="status"></pre>
+  </section>
+</div>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+
+function pre(id, obj){ document.getElementById(id).textContent = JSON.stringify(obj, null, 2); }
+
+async function diag(){ pre('diag', await j('POST','/thinking/coach/diagnose',{"window": +win.value || 200})); }
+async function suggest(){
+  const res=await j('POST','/thinking/coach/suggest',{"k": +k.value || 5});
+  const box=document.getElementById('list'); box.innerHTML='';
+  (res.micro_goals||[]).forEach(m=>{
+    const btn = document.createElement('button');
+    btn.textContent = 'Commit';
+    btn.onclick = async ()=>{ await j('POST','/thinking/coach/commit_goal',{"text": m.goal}); alert('Committed'); };
+    const div = document.createElement('div');
+    div.innerHTML = `<div style="margin:6px 0"><b>${m.goal}</b><br><span class="meta">focus: ${m.focus}</span></div>`;
+    div.appendChild(btn);
+    box.appendChild(div);
+  });
+  if ((res.playbook_tips||[]).length){
+    const tips = document.createElement('pre');
+    tips.textContent = 'Playbook tips:\\n- ' + res.playbook_tips.join('\\n- ');
+    box.appendChild(tips);
+  }
+}
+async function retro(){ pre('retro', await j('POST','/thinking/coach/retro',{"window": +winr.value || 400})); }
+async function stat(){ pre('status', await (await fetch('/thinking/coach/status')).json()); }
+
+diag(); stat();
+</script>

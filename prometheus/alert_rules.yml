@@ -1,0 +1,62 @@
+# Pravila alertinga: SLO burn-rate, latency, errors, backup freshness
+# job="ester" — podstroy pod svoy label v scrape_config
+
+# SLO: 99.5% availability => 0.5% error budget
+# Multi-Window Multi-Burn (MWMB): bystrye i medlennye okna
+
+groups:
+- name: ester-slo
+  rules:
+  - alert: EsterHighErrorBurn
+    expr: |
+      (
+        sum(rate(http_requests_total{job="ester",code=~"5.."}[5m]))
+        /
+        sum(rate(http_requests_total{job="ester"}[5m]))
+      ) > 0.02
+      and
+      (
+        sum(rate(http_requests_total{job="ester",code=~"5.."}[1h]))
+        /
+        sum(rate(http_requests_total{job="ester"}[1h]))
+      ) > 0.005
+    for: 10m
+    labels:
+      severity: page
+    annotations:
+      summary: "Ester SLO burn-rate high"
+      description: "5xx ratio exceeds budget (5m & 1h)"
+
+  - alert: EsterLatencyP95High
+    expr: |
+      histogram_quantile(0.95,
+        sum(rate(http_request_duration_seconds_bucket{job="ester"}[5m])) by (le)
+      ) > 2
+    for: 10m
+    labels:
+      severity: ticket
+    annotations:
+      summary: "Ester p95 latency > 2s"
+      description: "p95 latency over last 5m higher than 2s"
+
+  - alert: EsterLatencyP99High
+    expr: |
+      histogram_quantile(0.99,
+        sum(rate(http_request_duration_seconds_bucket{job="ester"}[5m])) by (le)
+      ) > 5
+    for: 10m
+    labels:
+      severity: ticket
+    annotations:
+      summary: "Ester p99 latency > 5s"
+      description: "p99 latency over last 5m higher than 5s"
+
+  - alert: EsterBackupStale
+    expr: |
+      (time() - max(ester_backup_last_success_timestamp_seconds{job="ester"})) > 48*3600
+    for: 15m
+    labels:
+      severity: ticket
+    annotations:
+      summary: "Backup stale > 48h"
+      description: "No successful backup in > 48h"

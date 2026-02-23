@@ -1,0 +1,11 @@
+[Unit]
+Description=Ensure Ester P2P CRDT Sync is running
+
+[Timer]
+OnBootSec=20
+OnUnitActiveSec=1min
+Unit=ester-p2p-sync.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target

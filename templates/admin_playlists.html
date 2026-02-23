@@ -1,0 +1,77 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Attention Playlists / Safe Windows / Adapt Triggers</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  input[type="text"]{min-width:320px}
+  textarea{width:100%;min-height:120px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:120px;white-space:pre-wrap}
+  .pill{padding:4px 8px;border-radius:999px;border:1px solid #bbb}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:1080px){.grid{grid-template-columns:1fr}}
+</style>
+
+<h2>Attention Playlists</h2>
+<div class="grid">
+  <div>
+    <h3>Quick demo</h3>
+    <div class="row">
+      Repeats: <input id="rep" type="number" value="3">
+      Delay(ms): <input id="dly" type="number" value="1000">
+      Peers: <input id="peers" type="text" value="">
+    </div>
+    <button onclick="demo()">Start demo</button>
+    <button onclick="stop()">Stop</button>
+    <button onclick="stat()">Status</button>
+    <span id="pstat" class="pill">—</span>
+  </div>
+  <div>
+    <h3>Safe Windows</h3>
+    Deny (comma): <input id="deny" type="text" value="Steam,BankApp">
+    Allow (comma): <input id="allow" type="text" value="Notepad">
+    <button onclick="saveSafe()">Apply</button>
+    <button onclick="showSafe()">Status</button>
+  </div>
+</div>
+
+<h3>Adapt Triggers</h3>
+<div class="row">
+  Seed thr: <input id="thr" type="number" value="0.78" step="0.01" min="0" max="1">
+  N: <input id="n" type="number" value="5">
+  <button onclick="seed()">Seed</button>
+  <button onclick="thr()">Current threshold</button>
+</div>
+
+<h3>Log</h3>
+<pre id="log"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function log(x){ const e=document.getElementById('log'); e.textContent += JSON.stringify(x)+"\n"; e.scrollTop=e.scrollHeight; }
+
+function peers(){ const s=(document.getElementById('peers').value||'').trim(); return s? s.split(',').map(x=>x.trim()).filter(Boolean):[]; }
+
+async function demo(){
+  const R=+document.getElementById('rep').value, D=+document.getElementById('dly').value;
+  const items=[];
+  for(let i=0;i<R;i++){
+    items.push({"kind":"arrow","from":[300,200],"to":[420,240],"label":"Shag "+(2*i+1),"delay_ms":D});
+    items.push({"kind":"box","box":{"left":120,"top":160,"width":220,"height":80},"label":"Shag "+(2*i+2),"delay_ms":D});
+  }
+  log(await j('POST','/playlist/run',{"spec":{"name":"demo","items":items,"loop":false},"peers":peers()}));
+}
+async function stop(){ log(await j('POST','/playlist/stop',{})); }
+async function stat(){ const r=await j('GET','/playlist/status'); document.getElementById('pstat').textContent=r.running?'running':'stopped'; log(r); }
+
+async function saveSafe(){
+  const deny=(document.getElementById('deny').value||'').split(',').map(x=>x.trim()).filter(Boolean);
+  const allow=(document.getElementById('allow').value||'').split(',').map(x=>x.trim()).filter(Boolean);
+  log(await j('POST','/safe/set',{"deny":deny,"allow":allow}));
+}
+async function showSafe(){ log(await j('GET','/safe/status')); }
+
+async function seed(){ log(await j('POST','/adapt/seed_template',{"thr":+document.getElementById('thr').value,"n":+document.getElementById('n').value})); }
+async function thr(){ log(await j('GET','/adapt/threshold')); }
+</script>

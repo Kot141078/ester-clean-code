@@ -1,0 +1,7 @@
+[
+  { "match": { "action": "install_software" }, "base_cost": 25, "base_risk": 0.30, "need_consent": true },
+  { "match": { "action": "open_url" },         "base_cost": 1,  "base_risk": 0.05, "need_consent": false },
+  { "match": { "action": "delete_files" },     "base_cost": 50, "base_risk": 0.70, "need_consent": true },
+  { "match": { "action": "edit_config" },      "base_cost": 12, "base_risk": 0.35, "need_consent": true },
+  { "match": { "action": "send_message" },     "base_cost": 2,  "base_risk": 0.10, "need_consent": false }
+]

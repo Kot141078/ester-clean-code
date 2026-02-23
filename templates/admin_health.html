@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Self-Check</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .ok{color:#7ad36b}.warn{color:#f0c36d}.bad{color:#ff8080}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Tekhpanel: svodka sostoyaniya uzla i knopki «avtopochinki». V A — tolko chtenie. V B — realnye deystviya.
+    Mosty:
+      • Yavnyy — UX poverkh health-proverok i ispolnyaemykh fiksov.
+      • Skrytye — otchet v JSON na fleshku; degradatsiya «skipped» vmesto padeniy.
+  -->
+</head>
+<body>
+  <h1>Self-Check <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid">
+    <div>
+      <h3>Svodka</h3>
+      <button onclick="refresh()">Obnovit status</button>
+      <button onclick="deep()">Self-check (deep)</button>
+      <pre id="sum">—</pre>
+    </div>
+    <div>
+      <h3>Avtopochinka</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="fix(['restart_sidecar'])">Perezapusk saydkara</button>
+        <button onclick="fix(['clear_inboxes'])">Ochistit inboksy</button>
+        <button onclick="fix(['rebuild_indices'])">Peresborka indeksov</button>
+        <button onclick="fix(['rebind_lmstudio'])">Rebaynd LM Studio</button>
+        <button onclick="fix(['rescan_usb_once'])">Razovyy USB-skan</button>
+      </div>
+      <pre id="fix">—</pre>
+    </div>
+    <div>
+      <h3>Eksport otcheta</h3>
+      <input id="mount" placeholder="/media/USB..." style="width:100%"/>
+      <button onclick="exportRep()">Eksportirovat</button>
+      <pre id="exp">—</pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+async function refresh(){
+  const r = await fetch('/admin/health/status'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('sum').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function deep(){
+  const r = await fetch('/admin/health/selfcheck',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('sum').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function fix(actions){
+  const r = await fetch('/admin/health/auto_fix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({actions})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('fix').textContent = JSON.stringify(j, null, 2);
+}
+async function exportRep(){
+  const mount=document.getElementById('mount').value.trim(); if(!mount) return;
+  const r = await fetch('/admin/health/export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('exp').textContent = JSON.stringify(j, null, 2);
+}
+refresh().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

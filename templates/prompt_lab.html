@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — PromptLab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    textarea{width:100%;min-height:160px}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Mini-laboratoriya promptov: zadaesh shablon i massivy znacheniy → vidish prevyu → zapuskaesh setku → sravnivaesh otvety → otmechaesh luchshiy → eksport.
+    Mosty:
+      • Yavnyy — UX poverkh resursnogo planirovschika i lokalnykh LLM.
+      • Skrytye — ploskie JSON-sessii i unified-diff dlya vosproizvodimosti.
+  -->
+</head>
+<body>
+  <h1>PromptLab <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid">
+    <div>
+      <h3>Shablon</h3>
+      <input id="tpl_name" placeholder="Nazvanie" />
+      <textarea id="tpl" placeholder="Napr.: Obyasni {{topic}} prostymi slovami..."></textarea>
+      <button onclick="saveTpl()">Save shablon</button>
+    </div>
+    <div>
+      <h3>Peremennye (JSON)</h3>
+      <textarea id="vars" placeholder='{"topic":["tea","coffee"]}'></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button onclick="preview()">Preview</button>
+        <button onclick="refresh()">Obnovit</button>
+        <a class="chip" href="/admin/lmstudio">LM Studio →</a>
+        <a class="chip" href="/admin/resources/scheduler">Scheduler →</a>
+      </div>
+    </div>
+    <div>
+      <h3>Zapusk setki</h3>
+      <label>alias (opts.) <input id="alias" placeholder="esli pusto — vyberet planirovschik"/></label><br/>
+      <label>max_tokens <input id="maxtok" type="number" value="64" style="width:120px"/></label>
+      <label>T <input id="temp" type="number" step="0.1" value="0.0" style="width:120px"/></label><br/>
+      <button onclick="run()">Run Grid</button>
+    </div>
+  </section>
+
+  <section>
+    <h3>Prevyu / Rezultat</h3>
+    <pre id="out">—</pre>
+  </section>
+
+  <section class="grid">
+    <div>
+      <h3>Vybor dlya diff</h3>
+      <input id="sid" placeholder="session_id"/>
+      <input id="aid" placeholder="varA id (napr. v1)"/>
+      <input id="bid" placeholder="varB id (napr. v2)"/>
+      <button onclick="doDiff()">Diff</button>
+      <button onclick="markBest()">Mark Best (a_id)</button>
+      <pre id="diff">—</pre>
+    </div>
+    <div>
+      <h3>Eksport na fleshku</h3>
+      <input id="mount" placeholder="/media/USB..."/>
+      <button onclick="doExport()">Export</button>
+      <pre id="exp">—</pre>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div>
+      <h3>Shablony</h3>
+      <pre id="tpls">—</pre>
+    </div>
+    <div>
+      <h3>Sessii</h3>
+      <pre id="sess">—</pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+async function refresh(){
+  const r = await fetch('/admin/promptlab/status'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok) return;
+  document.getElementById('tpls').textContent = JSON.stringify(j.templates, null, 2);
+  document.getElementById('sess').textContent = JSON.stringify(j.sessions, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function saveTpl(){
+  let vars={}; try{ vars=JSON.parse(document.getElementById('vars').value||'{}'); }catch(e){ alert('bad vars JSON'); return; }
+  const body={name: document.getElementById('tpl_name').value.trim()||'template', template: document.getElementById('tpl').value, vars};
+  const r = await fetch('/admin/promptlab/save_template',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  await refresh();
+}
+async function preview(){
+  let vars={}; try{ vars=JSON.parse(document.getElementById('vars').value||'{}'); }catch(e){ alert('bad vars JSON'); return; }
+  const body={template: document.getElementById('tpl').value, vars, selector:{alias: document.getElementById('alias').value.trim()||null}};
+  const r = await fetch('/admin/promptlab/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+async function run(){
+  let vars={}; try{ vars=JSON.parse(document.getElementById('vars').value||'{}'); }catch(e){ alert('bad vars JSON'); return; }
+  const body={
+    name: document.getElementById('tpl_name').value.trim()||'session',
+    template: document.getElementById('tpl').value,
+    vars,
+    selector:{alias: document.getElementById('alias').value.trim()||null},
+    max_tokens: parseInt(document.getElementById('maxtok').value,10)||64,
+    temperature: parseFloat(document.getElementById('temp').value)||0.0
+  };
+  const r = await fetch('/admin/promptlab/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  if(j?.session_id){ document.getElementById('sid').value = j.session_id; }
+  await refresh();
+}
+async function doDiff(){
+  const body={session_id: document.getElementById('sid').value.trim(), a_id: document.getElementById('aid').value.trim(), b_id: document.getElementById('bid').value.trim()};
+  const r = await fetch('/admin/promptlab/diff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('diff').textContent = JSON.stringify(j, null, 2);
+}
+async function markBest(){
+  const body={session_id: document.getElementById('sid').value.trim(), best_id: document.getElementById('aid').value.trim()};
+  const r = await fetch('/admin/promptlab/mark_best',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  alert(JSON.stringify(j));
+  await refresh();
+}
+async function doExport(){
+  const body={session_id: document.getElementById('sid').value.trim(), mount: document.getElementById('mount').value.trim()};
+  const r = await fetch('/admin/promptlab/export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('exp').textContent = JSON.stringify(j, null, 2);
+}
+refresh().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

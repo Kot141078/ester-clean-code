@@ -1,0 +1,35 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Coop Game</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:900px}
+  .row{display:flex;gap:10px;align-items:center;margin:10px 0}
+  input,button,textarea{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:140px;white-space:pre-wrap}
+</style>
+<h2>Coop Game</h2>
+<div class="row">
+  Tick <input id="tick" type="number" value="20">
+  Quota/sec <input id="quota" type="number" value="5">
+  Room <input id="room" value="test">
+  Peers <input id="peers" placeholder="ip:port,ip:port" style="min-width:300px">
+  <button onclick="apply()">Apply</button>
+  <button onclick="start()">Start</button>
+  <button onclick="stop()">Stop</button>
+  <button onclick="stat()">Status</button>
+</div>
+<div class="row">
+  Action (JSON) <input id="act" style="min-width:360px" value='{"kind":"input","type":"hotkey","seq":"CTRL+S"}'>
+  As peer <input id="who" value="p1">
+  <button onclick="send()">Send</button>
+</div>
+<pre id="out"></pre>
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent += JSON.stringify(x)+"\n"; }
+async function apply(){ const pr=(peers.value||'').split(',').map(s=>s.trim()).filter(Boolean); out(await j('POST','/game/config',{"tick_rate":+tick.value,"peers":pr,"quota":+quota.value,"room":room.value||null})); }
+async function start(){ out(await j('POST','/game/start',{})); }
+async function stop(){ out(await j('POST','/game/stop',{})); }
+async function stat(){ out(await j('GET','/game/status')); }
+async function send(){ try{var a=JSON.parse(act.value);}catch(e){return out({ok:false,err:"bad json"});} out(await j('POST','/game/ingest',{"peer":who.value||"p1","action":a})); }
+</script>

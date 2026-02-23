@@ -1,0 +1,67 @@
+{
+  "__inputs": [],
+  "title": "Ester · Synergy Observability",
+  "uid": "ester-synergy",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "tags": ["ester","synergy","otel"],
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "API latency (p95)",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(otel_meter_synergy_assign_latency_ms_bucket[5m])) by (le))",
+          "legendFormat": "p95 assign_v2"
+        }
+      ],
+      "id": 1
+    },
+    {
+      "type": "stat",
+      "title": "Errors (assign)",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(increase(otel_meter_synergy_assign_errors_total[5m]))",
+          "legendFormat": "errors/5m"
+        }
+      ],
+      "id": 2
+    },
+    {
+      "type": "timeseries",
+      "title": "API statuses",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum by (status) (increase(otel_meter_synergy_api_status_count[5m]))",
+          "legendFormat": "status {{status}}"
+        }
+      ],
+      "id": 3
+    },
+    {
+      "type": "timeseries",
+      "title": "Plan quality (total/penalty)",
+      "datasource": "Prometheus",
+      "targets": [
+        {"expr": "avg_over_time(otel_meter_synergy_plan_total_sum[5m]) / avg_over_time(otel_meter_synergy_plan_total_count[5m])", "legendFormat": "total"},
+        {"expr": "avg_over_time(otel_meter_synergy_plan_penalty_sum[5m]) / avg_over_time(otel_meter_synergy_plan_penalty_count[5m])", "legendFormat": "penalty"}
+      ],
+      "id": 4
+    },
+    {
+      "type": "stat",
+      "title": "SSE clients (board)",
+      "datasource": "Prometheus",
+      "targets": [
+        {"expr": "otel_meter_synergy_board_sse_clients", "legendFormat": "clients"}
+      ],
+      "id": 5
+    }
+  ],
+  "time": {"from": "now-6h", "to": "now"}
+}

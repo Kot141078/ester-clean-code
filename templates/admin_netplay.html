@@ -1,0 +1,42 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Net Playback</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:900px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  textarea{width:100%;min-height:140px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:140px;white-space:pre-wrap}
+</style>
+
+<h2>Net Playback</h2>
+<div class="row">
+  Peers: <input id="peers" type="text" placeholder="ip:port,ip:port">
+  <button onclick="savePeers()">Save</button>
+  <button onclick="stat()">Status</button>
+</div>
+
+<div class="row">
+  <button onclick="loadDemo()">Load demo step</button>
+  <button onclick="sendStep()">Leader: Send Step</button>
+  <button onclick="ctrl('start')">Start</button>
+  <button onclick="ctrl('pause')">Pause</button>
+  <button onclick="ctrl('resume')">Resume</button>
+  <button onclick="ctrl('stop')">Stop</button>
+</div>
+
+<textarea id="step">{"title":"Otkryt menyu","action":{"type":"hotkey","seq":"ALT+F"},"check":{"kind":"ocr_contains","text":"Fayl","lang":"rus+eng"},"timeout_ms":4000}</textarea>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent = JSON.stringify(x,null,2); }
+
+function peersList(){ const s=(document.getElementById('peers').value||'').trim(); return s? s.split(',').map(x=>x.trim()).filter(Boolean):[]; }
+async function savePeers(){ out(await j('POST','/netplay/peers',{"peers":peersList()})); }
+async function stat(){ out(await j('GET','/netplay/status')); }
+function loadDemo(){ document.getElementById('step').value='{"title":"Otkryt menyu","action":{"type":"hotkey","seq":"ALT+F"},"check":{"kind":"ocr_contains","text":"Fayl","lang":"rus+eng"},"timeout_ms":4000}'; }
+async function sendStep(){ const step=JSON.parse(document.getElementById('step').value||"{}"); out(await j('POST','/netplay/leader/step',{"step":step,"index":0})); }
+async function ctrl(op){ out(await j('POST','/netplay/leader/ctrl',{"op":op})); }
+</script>

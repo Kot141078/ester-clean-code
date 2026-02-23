@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Activity → Report</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{ --bg:#0b0c10; --fg:#e5e7eb; --accent:#f472b6; --muted:#9ca3af; --border:#374151; }
+    body{ background:var(--bg); color:var(--fg); font:14px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; margin:0; }
+    .wrap{ max-width:1100px; margin:0 auto; padding:20px; }
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    .card{ border:1px solid var(--border); border-radius:10px; padding:14px; background:#0f1115; }
+    input,button,select,textarea{ width:100%; box-sizing:border-box; }
+    input,select{ background:#0f1115; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:8px; }
+    textarea{ min-height:120px; background:#0f1115; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:8px; }
+    button{ background:#1f2937; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:10px; cursor:pointer; }
+    button:hover{ filter:brightness(1.08) }
+    pre{ white-space:pre-wrap; word-break:break-word; border:1px solid var(--border); border-radius:8px; padding:10px; background:#0b0e14; }
+    .row{ display:flex; gap:8px; align-items:center; }
+    .row>*{ flex:1; }
+    .muted{ color:var(--muted); font-size:12px; }
+  </style>
+</head>
+<body>
+  <!--
+    Mosty:
+    - Yavnyy: (UX ↔ Mysli/Deystviya/Kaskad) — /thinking/act (activity.report.*) i /thinking/cascade/execute.
+    - Skrytyy #1: (UX ↔ Avtorizatsiya) — JWT iz static/admin.js.
+    - Skrytyy #2: (UX ↔ RuleHub) — sostoyanie pokazyvaetsya cherez /rulehub/state (read-only).
+
+    Zemnoy abzats:
+    Pult «Activity → Report»: odnim vzglyadom sobrat sobytiya, prevratit ikh v MD/HTML i, esli razresheno, sokhranit ryadom s dokumentatsiey. Polnostyu sovmestim s tekuschimi API.
+    c=a+b
+  -->
+  <div class="wrap">
+    <h1>Activity → Report</h1>
+    <p class="muted">Rabotaet poverkh suschestvuyuschikh API: <code>/thinking/act</code>, <code>/thinking/cascade/*</code>, <code>/rulehub/*</code>. JWT — obschiy (kak v adminke).</p>
+
+    <div class="card">
+      <h3>JWT</h3>
+      <div class="row">
+        <input id="jwtInput" placeholder="JWT">
+        <button id="saveJwtBtn">Save</button>
+        <button id="clearJwtBtn">Ochistit</button>
+      </div>
+      <div class="grid" style="margin-top:12px;">
+        <div class="card">
+          <h4>Okruzhenie</h4>
+          <button id="btnEnv">Proverit okruzhenie</button>
+          <pre id="state" class="muted">{}</pre>
+        </div>
+        <div class="card">
+          <h4>RuleHub (status)</h4>
+          <pre id="rule" class="muted">{}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px;">
+      <div class="card">
+        <h3>Skan aktivnosti</h3>
+        <div class="row">
+          <input id="title" placeholder="Nazvanie otcheta (napr. Daydzhest aktivnosti: nedelya)">
+        </div>
+        <div class="row">
+          <input id="q" placeholder="Filtr (napr. EkoRazum | AgentBuilder)">
+          <input id="limit" placeholder="Limit" value="50">
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <button id="btnScan">Skanirovat aktivnost</button>
+          <button id="btnMD">Sobrat MD-otchet iz aktivnosti</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>MD/HTML</h3>
+        <div class="row">
+          <button id="btnHTML">Sobrat HTML</button>
+          <button id="btnSave">Save fayly</button>
+        </div>
+        <textarea id="md" placeholder="# Otchet aktivnosti..."></textarea>
+        <textarea id="html" placeholder="<!doctype html>..."></textarea>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px;">
+      <div class="card">
+        <h3>Mini-plan</h3>
+        <div class="row">
+          <button id="btnPlan">Sformirovat mini-plan</button>
+          <button id="btnExec">Vypolnit plan</button>
+        </div>
+        <textarea id="plan" placeholder='{"ok":true,"goal":"...","steps":[...]}'></textarea>
+      </div>
+      <div class="card">
+        <h3>Vyvod</h3>
+        <pre id="out">{}</pre>
+        <h3>Log</h3>
+        <pre id="log"></pre>
+      </div>
+    </div>
+  </div>
+
+  <script src="../static/admin.js"></script>
+  <script src="../static/admin_activity_to_report.js"></script>
+</body>
+</html>
+<!-- c=a+b -->

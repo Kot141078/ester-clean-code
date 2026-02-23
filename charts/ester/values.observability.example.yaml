@@ -1,0 +1,41 @@
+# Primer znacheniy dlya vklyucheniya nablyudaemosti i Istio v charte Ester.
+# Skopiruyte/adaptiruyte v koren kak values.observability.yaml,
+# zatem primenyayte: helm upgrade --install ester ./charts/ester -n ester --create-namespace -f values.observability.yaml
+
+service:
+  port: 5000
+
+serviceMonitor:
+  enabled: true
+  path: /metrics
+  interval: 15s
+  scrapeTimeout: 5s
+  scheme: http
+
+recordingRules:
+  enabled: true
+
+prometheusRule:
+  enabled: true
+  runbookURL: "https://example.com/runbooks/ester"
+  slo:
+    windows:
+      fastShort: "5m"
+      fastLong:  "30m"
+      slowShort: "2h"
+      slowLong:  "24h"
+    errorRate:
+      fast: 0.02
+      slow: 0.01
+    backupMaxAgeHours: 26
+  latency:
+    p99Threshold: 1.5
+
+istio:
+  enabled: true
+  host: "ester.local"
+  # gateway: "istio-system/ingressgateway"
+  mirror:
+    enabled: false
+    host: ""
+    percent: 5

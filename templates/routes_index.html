@@ -1,0 +1,268 @@
+<!-- templates/routes_index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ester · Routes and JWT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --muted: #8a9099;
+      --txt: #e6e9ef;
+      --acc: #4cc9f0;
+      --ok: #7ae582;
+      --warn: #ffb703;
+      --err: #ef476f;
+      --br: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--txt);
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    }
+    h1,h2,h3 { margin: 0 0 12px; line-height: 1.2; }
+    .grid { display: grid; gap: 16px; grid-template-columns: repeat(12, 1fr); }
+    .card {
+      background: var(--panel);
+      border: 1px solid #222835;
+      border-radius: var(--br);
+      padding: 16px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.25);
+    }
+    .span-12 { grid-column: span 12; }
+    .span-6 { grid-column: span 6; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    label { color: var(--muted); font-size: 12px; display: block; margin-bottom: 6px; }
+    input, select, button, textarea {
+      border-radius: 12px;
+      border: 1px solid #263043;
+      background: #0e121a;
+      color: var(--txt);
+      padding: 10px 12px;
+      font: inherit;
+      outline: none;
+    }
+    button {
+      background: linear-gradient(180deg, #3aa9d5, #2e87ad);
+      border: none;
+      cursor: pointer;
+    }
+    button.secondary { background: #1c2331; border: 1px solid #2a3244; }
+    button.ok { background: linear-gradient(180deg, #52d67f, #3bab67); }
+    button.warn { background: linear-gradient(180deg, #ffcc4d, #d9a431); color: #1e222b; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace; font-size: 12px; }
+    .muted { color: var(--muted); }
+    .badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; border:1px solid #2a3244; background:#11151c; color:#a1a7b1; }
+    .badge.ok { border-color:#2e6b45; background:#0f1a15; color:#86f0ab; }
+    .table { width: 100%; border-collapse: collapse; }
+    .table th, .table td { border-bottom: 1px solid #232a38; padding: 8px 6px; text-align: left; }
+    .table th { color: #a6adbb; font-weight: 600; font-size: 12px; text-transform: uppercase; }
+    .hint { font-size: 12px; color: var(--muted); }
+    .token-box {
+      background: #0a0d12;
+      border: 1px dashed #2a3244;
+      border-radius: 12px;
+      padding: 12px;
+      word-break: break-all;
+      max-height: 180px;
+      overflow: auto;
+    }
+    .sep { height: 1px; background: #222a37; margin: 12px 0; border-radius: 1px; }
+    @media (max-width: 1024px) {
+      .span-6 { grid-column: span 12; }
+      body { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid">
+    <div class="card span-12">
+      <h1>Ester · Routes and Token Console</h1>
+      <div class="muted">JWT minting, HTTP route overview, and quick access checks.</div>
+    </div>
+
+    <div class="card span-6" id="jwt-card">
+      <h2>JWT (RBAC)</h2>
+      <div class="sep"></div>
+      <div class="row">
+        <div style="flex: 1 1 220px; min-width:220px;">
+          <label for="username">Username</label>
+          <input id="username" placeholder="owner" autocomplete="username" />
+          <div class="hint">Use a name from <span class="mono">ADMIN_USERNAMES</span> to auto-select admin role.</div>
+        </div>
+        <div style="width: 180px;">
+          <label for="role">Role</label>
+          <select id="role">
+            <option value="user">user</option>
+            <option value="admin">admin</option>
+            <option value="replicator">replicator</option>
+            <option value="ops">ops</option>
+          </select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <button id="btn-mint">Mint JWT</button>
+        <button class="secondary" id="btn-copy">Copy</button>
+        <button class="secondary" id="btn-clear">Clear</button>
+        <span id="jwt-status" class="badge">-</span>
+      </div>
+      <div class="sep"></div>
+      <div>
+        <label>Current token (localStorage <span class="mono">jwt</span>)</label>
+        <div id="token-box" class="token-box mono"></div>
+      </div>
+      <div class="hint" style="margin-top:8px;">
+        Endpoint: <span class="mono">POST /auth/login</span> returns <span class="mono">{"access_token":"..."}</span>.
+      </div>
+    </div>
+
+    <div class="card span-6">
+      <h2>Quick Checks</h2>
+      <div class="sep"></div>
+      <div class="row">
+        <button class="ok" id="btn-check-portal">/portal</button>
+        <button id="btn-check-ops" class="warn">/ops/ingest/help</button>
+        <button id="btn-check-feed" class="secondary">/tg/feed</button>
+        <span id="check-status" class="badge">-</span>
+      </div>
+      <div class="sep"></div>
+      <label>Response</label>
+      <pre id="check-out" class="token-box mono" style="white-space: pre-wrap;"></pre>
+      <div class="hint">Requests are sent with <span class="mono">Authorization: Bearer &lt;jwt&gt;</span> when available.</div>
+    </div>
+
+    <div class="card span-12">
+      <h2>Routes</h2>
+      <div class="sep"></div>
+      <div class="row">
+        <input id="flt" placeholder="filter by method/path/endpoint" style="flex:1 1 240px; min-width:240px;">
+        <span class="badge" id="routes-count">-</span>
+      </div>
+      <div class="sep"></div>
+      <div style="overflow:auto;">
+        <table class="table" id="tbl">
+          <thead><tr><th>Method</th><th>Path</th><th>Endpoint</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="hint">Source: <span class="mono">GET /routes</span>.</div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (s) => document.querySelector(s);
+    const jwtKey = "jwt";
+
+    function setStatus(el, text, kind="") {
+      el.textContent = text;
+      el.className = "badge" + (kind ? " " + kind : "");
+    }
+    function loadJWT() { return localStorage.getItem(jwtKey) || ""; }
+    function saveJWT(tok) {
+      if (tok) localStorage.setItem(jwtKey, tok);
+      else localStorage.removeItem(jwtKey);
+      $("#token-box").textContent = loadJWT();
+    }
+    function authHeaders() {
+      const t = loadJWT();
+      return t ? { "Authorization": "Bearer " + t } : {};
+    }
+    async function jsonFetch(url, opt={}) {
+      const o = Object.assign({
+        method: "GET",
+        headers: Object.assign({"Content-Type":"application/json"}, authHeaders())
+      }, opt);
+      const resp = await fetch(url, o);
+      const text = await resp.text();
+      try { return { ok: resp.ok, status: resp.status, json: JSON.parse(text), raw: text }; }
+      catch { return { ok: resp.ok, status: resp.status, json: null, raw: text }; }
+    }
+
+    async function mintJWT(name, role) {
+      setStatus($("#jwt-status"), "minting...");
+      const r = await jsonFetch("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ user: name || "user", role: role || "user" })
+      });
+      if (r.ok && r.json && r.json.access_token) {
+        saveJWT(r.json.access_token);
+        setStatus($("#jwt-status"), "ready", "ok");
+      } else {
+        setStatus($("#jwt-status"), "error " + r.status, "err");
+      }
+    }
+
+    function initJWTCard() {
+      const q = new URLSearchParams(location.search);
+      const pre = q.get("user") || "owner";
+      $("#username").value = pre;
+      $("#role").value = "user";
+      saveJWT(loadJWT());
+
+      $("#btn-mint").onclick = async () => mintJWT($("#username").value, $("#role").value);
+      $("#btn-copy").onclick = async () => {
+        const t = loadJWT();
+        if (!t) return;
+        try { await navigator.clipboard.writeText(t); setStatus($("#jwt-status"), "copied", "ok"); }
+        catch { setStatus($("#jwt-status"), "copy failed", "warn"); }
+      };
+      $("#btn-clear").onclick = () => { saveJWT(""); setStatus($("#jwt-status"), "cleared"); };
+      $("#username").addEventListener("input", () => {
+        if (window._deb) clearTimeout(window._deb);
+        window._deb = setTimeout(() => mintJWT($("#username").value, $("#role").value), 500);
+      });
+    }
+
+    function renderRoutes(items) {
+      const tbody = $("#tbl tbody");
+      tbody.innerHTML = "";
+      const flt = ($("#flt").value || "").toLowerCase();
+      let shown = 0;
+      for (const r of items) {
+        const s = `${r.method} ${r.rule} ${r.endpoint}`.toLowerCase();
+        if (flt && !s.includes(flt)) continue;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td class="mono">${r.method}</td><td class="mono">${r.rule}</td><td class="mono">${r.endpoint}</td>`;
+        tbody.appendChild(tr);
+        shown++;
+      }
+      setStatus($("#routes-count"), `${shown} / ${items.length}`, "ok");
+    }
+
+    async function loadRoutes() {
+      const r = await jsonFetch("/routes");
+      if (r.ok && Array.isArray(r.json)) {
+        window._allRoutes = r.json;
+        renderRoutes(window._allRoutes);
+      } else {
+        $("#tbl tbody").innerHTML = `<tr><td colspan="3">/routes unavailable (${r.status})</td></tr>`;
+        setStatus($("#routes-count"), "-");
+      }
+    }
+
+    async function check(url) {
+      const r = await jsonFetch(url, { method: "GET" });
+      $("#check-out").textContent = r.ok ? JSON.stringify(r.json ?? r.raw, null, 2) : `[${r.status}] ${r.raw}`;
+      setStatus($("#check-status"), r.ok ? "OK " + r.status : "ERR " + r.status, r.ok ? "ok" : "err");
+    }
+
+    function initChecks() {
+      $("#btn-check-portal").onclick = () => check("/portal");
+      $("#btn-check-ops").onclick = () => check("/ops/ingest/help");
+      $("#btn-check-feed").onclick = () => check("/tg/feed");
+    }
+
+    (async function main(){
+      initJWTCard();
+      initChecks();
+      await loadRoutes();
+      $("#flt").addEventListener("input", () => renderRoutes(window._allRoutes || []));
+    })();
+  </script>
+</body>
+</html>

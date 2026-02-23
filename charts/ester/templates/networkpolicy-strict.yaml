@@ -1,0 +1,30 @@
+{{- $mode := lower (default "" .Values.networkPolicy.mode) -}}
+{{- $legacyStrict := .Values.networkPolicyStrict.enabled -}}
+{{- if or (eq $mode "strict") (and (eq $mode "") $legacyStrict) -}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ester.fullname" . }}-strict
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ester.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes: ["Ingress","Egress"]
+  ingress:
+    - from:
+        - podSelector: {}
+  egress:
+    # STRICT profile: minimal safe egress for DNS + HTTPS.
+    # strict != airgap: in strict mode external egress is still allowed.
+    - to: [ { namespaceSelector: {} } ]
+      ports:
+        - { port: 53,  protocol: UDP }
+        - { port: 443, protocol: TCP }
+    # Prometheus (esli v drugom neymspeyse)
+    - to: [ { namespaceSelector: {} } ]
+      ports:
+        - { port: 9090, protocol: TCP }
+{{- end }}

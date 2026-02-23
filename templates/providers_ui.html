@@ -1,0 +1,119 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:10px;align-items:center;flex-wrap:wrap">
+    <h2 style="margin:0">LLM-provaydery</h2>
+    <span class="chip">/providers/status</span>
+    <span class="chip">/providers/select</span>
+    <div class="spacer"></div>
+    <a class="navlink" href="/portal">← Nazad v /portal</a>
+  </div>
+</section>
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:10px;align-items:center;margin-bottom:8px">
+    <button class="btn" onclick="pvLoad()">Obnovit status</button>
+    <input id="pvFilter" class="input" placeholder="filtr po imeni/tipu/modeli…" oninput="pvRender()"/>
+    <label class="stack" style="align-items:center">
+      <span class="muted">Role:</span>
+      <select id="pvRole" class="input">
+        <option value="default">default</option>
+        <option value="judge">judge</option>
+        <option value="embedding">embedding</option>
+        <option value="rag">rag</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="box" style="overflow:auto">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Imya</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Tip</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Model</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Status</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Latentnost</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Deystviya</th>
+      </tr></thead>
+      <tbody id="pvBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
+    <h3 style="margin:0">Bystrye deystviya</h3>
+  </div>
+  <div class="row" style="gap:8px;flex-wrap:wrap">
+    <button class="btn" onclick="openNew('/providers')">/providers</button>
+    <button class="btn" onclick="openNew('/routes')">/routes</button>
+    <button class="btn" onclick="openNew('/docs')">Swagger</button>
+    <button class="btn" onclick="openNew('/openapi.json')">OpenAPI</button>
+  </div>
+</section>
+
+<script>
+  let PV=[];
+
+  function pvNorm(data){
+    if(Array.isArray(data)) return data;
+    if(Array.isArray(data.providers)) return data.providers;
+    if(Array.isArray(data.items)) return data.items;
+    return Object.values(data||{});
+  }
+
+  async function pvLoad(){
+    const urls=['/providers/status','/providers','/providers/list'];
+    let j=null;
+    for(const u of urls){
+      try{ const r=await $fetch(u, {noCache:true}); j=await r.json(); break; }catch(e){}
+    }
+    PV = pvNorm(j).map(x => ({
+      name: x.name || x.id || x.provider || 'unknown',
+      type: x.type || x.kind || (x.is_local?'local':'cloud'),
+      model: x.model || x.engine || x.family || '',
+      status: (x.status || (x.healthy===false?'down':'up')),
+      latency: x.latency_ms ?? x.latency ?? ''
+    }));
+    pvRender();
+  }
+
+  function pvRender(){
+    const body=document.getElementById('pvBody');
+    const q=(document.getElementById('pvFilter').value||'').toLowerCase();
+    body.innerHTML='';
+    for(const p of PV){
+      if(q && !(`${p.name} ${p.type} ${p.model}`.toLowerCase().includes(q))) continue;
+      const tr=document.createElement('tr');
+      const td=(t)=>{ const x=document.createElement('td'); x.style.padding='8px 6px'; x.style.borderBottom='1px solid var(--border)'; x.innerHTML=t; return x; };
+
+      tr.appendChild(td(`<code>${p.name}</code>`));
+      tr.appendChild(td(p.type||'')); tr.appendChild(td(p.model||''));
+      tr.appendChild(td(p.status==='up' ? '<span class="chip" style="border-color:var(--ok);color:var(--ok)">up</span>' : '<span class="chip" style="border-color:var(--danger);color:var(--danger)">down</span>'));
+      tr.appendChild(td(p.latency? (p.latency+' ms') : ''));
+
+      const act=td('');
+      const bSel=document.createElement('button'); bSel.className='btn'; bSel.textContent='Sdelat aktivnym';
+      bSel.onclick=()=> pvSelect(p.name);
+      act.appendChild(bSel);
+      tr.appendChild(act);
+
+      body.appendChild(tr);
+    }
+  }
+
+  async function pvSelect(name){
+    const role=document.getElementById('pvRole').value||'default';
+    try{
+      const r=await $fetch('/providers/select',{method:'POST', body: JSON.stringify({provider:name, role})});
+      const j=await r.json().catch(()=> ({}));
+      if(r.ok && (j.ok===undefined||j.ok)){ alert('Ok: '+name+' ('+role+')'); pvLoad(); }
+      else{ alert('Oshibka: '+(j.error||r.statusText)); }
+    }catch(e){ alert('Set: '+e); }
+  }
+
+  document.addEventListener('DOMContentLoaded', pvLoad);
+</script>
+
+{% endblock %}

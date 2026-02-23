@@ -1,0 +1,21 @@
+# config/privacy_policies.yaml — politika stels/privatnosti (primer)
+# MOSTY:
+# - (Yavnyy) Parametry po umolchaniyu dlya redaktirovaniya i kroulinga.
+# - (Skrytyy #1) Prioritet ENV nad YAML; YAML — kak dokumentatsiya/sid po umolchaniyu.
+# - (Skrytyy #2) Raznye profili: dev/stage/prod (nizhe — prod, kak «tikhiy»).
+# ZEMNOY ABZATs:
+# Odin fayl opisyvaet «gromkost» sistemy. V prode — ostorozhnyy rezhim s uvazheniem k pravilam saytov. c=a+b
+
+profile: prod
+
+redaction:
+  enable: true
+  keep_last_n: 4
+
+crawler:
+  user_agent: Ester-Integrator/1.0
+  respect_robots: true
+  disallow_archives: true
+  cache_ttl_sec: 900
+  max_rps: 2
+  budget_per_min: 60

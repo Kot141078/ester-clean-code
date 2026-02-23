@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester · Marshrutizatsiya i golos</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root { --fg:#111; --bg:#fff; --muted:#666; --line:#eee; --accent:#0a7; }
+    body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; color:var(--fg); background:var(--bg); }
+    header { padding:16px 20px; border-bottom:1px solid var(--line); }
+    main { max-width:1120px; margin:0 auto; padding:20px; }
+    .tabs { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+    .tab { padding:10px 12px; border:1px solid var(--line); border-radius:10px; cursor:pointer; user-select:none; }
+    .tab.active { background:var(--accent); color:#fff; }
+    .panel { display:none; border:1px solid var(--line); border-radius:12px; padding:16px; box-shadow:0 1px 2px rgba(0,0,0,.05); }
+    .panel.active { display:block; }
+    label { display:block; font-size:13px; color:var(--muted); margin:8px 0 6px; }
+    input[type=text], textarea, select { width:100%; padding:10px; border:1px solid var(--line); border-radius:10px; font-size:15px; }
+    textarea { min-height:160px; }
+    button { padding:10px 14px; border:0; border-radius:10px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; }
+    pre { white-space:pre-wrap; background:#f9f9f9; border:1px dashed #ddd; padding:12px; border-radius:10px; }
+    .row { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+  </style>
+</head>
+<body>
+<header><strong>Marshrutizatsiya i golos</strong> · Ester</header>
+<main>
+  <div class="tabs">
+    <div class="tab active" data-id="mail">Pismo</div>
+    <div class="tab" data-id="voice">Golos</div>
+    <div class="tab" data-id="presets">Presety</div>
+    <div class="tab" data-id="route">Marshrutizatsiya</div>
+  </div>
+
+  <!-- Pismo -->
+  <div class="panel active" id="panel-mail">
+    <div class="row">
+      <div>
+        <label>Auditoriya</label>
+        <select id="m_aud">
+          <option>lawyer</option><option>student</option><option>friend</option>
+          <option>business</option><option>medic</option><option>bank</option>
+          <option>gov</option><option>engineer</option><option>teacher</option>
+          <option>investor</option><option selected>neutral</option>
+        </select>
+        <label>Namerenie</label>
+        <select id="m_intent">
+          <option>letter</option><option selected>update</option><option>request</option><option>reminder</option><option>apology</option>
+        </select>
+      </div>
+      <div>
+        <label>Fakty</label>
+        <textarea id="m_content" placeholder="Kratko opishite fakty..."></textarea>
+        <div style="margin-top:8px; display:flex; gap:8px;">
+          <button id="m_preview">Predprosmotr</button>
+        </div>
+      </div>
+      <div>
+        <label>Rezultat</label>
+        <pre id="m_out"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Golos -->
+  <div class="panel" id="panel-voice">
+    <div class="row">
+      <div>
+        <label>Auditoriya</label>
+        <select id="v_aud"><option>bank</option><option>lawyer</option><option>gov</option><option>business</option><option>friend</option><option>student</option><option selected>neutral</option></select>
+        <label>Namerenie</label>
+        <select id="v_intent"><option selected>letter</option><option>update</option><option>request</option><option>reminder</option><option>apology</option></select>
+        <label>Prefiks</label><input id="v_prefix" type="text" placeholder="Kollegi,">
+        <label>Podpis</label><input id="v_sign" type="text" placeholder="Owner">
+        <label>Teplo (0..1)</label><input id="v_w" type="text" value="0.3">
+        <label>Kratkost (0..1)</label><input id="v_b" type="text" value="0.6">
+        <label>Formalnost (0..1)</label><input id="v_f" type="text" value="0.8">
+      </div>
+      <div>
+        <label>Fakty</label>
+        <textarea id="v_content" placeholder="Tekst pisma/mysl..."></textarea>
+        <div style="margin-top:8px;"><button id="v_preview">Predprosmotr</button></div>
+      </div>
+      <div>
+        <label>Rezultat</label>
+        <pre id="v_out"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Presety -->
+  <div class="panel" id="panel-presets">
+    <div class="row">
+      <div>
+        <label>Spisok presetov</label>
+        <pre id="p_list">(zagruzka...)</pre>
+      </div>
+      <div>
+        <label>Klyuch preseta</label><input id="p_key" type="text" placeholder="bank.transfer_status">
+        <label>Fakty (JSON)</label><textarea id="p_facts" placeholder='{"date":"02.10.2025","amount":"1 250 EUR","reference":"TR-84921"}'></textarea>
+        <div style="margin-top:8px;"><button id="p_compose">Sobrat</button></div>
+      </div>
+      <div>
+        <label>Rezultat</label>
+        <pre id="p_out"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marshrutizatsiya -->
+  <div class="panel" id="panel-route">
+    <div class="row">
+      <div>
+        <label>Avto-auditoriya (vklyuchit avtoinferens pri pustoy/neytralnoy)</label>
+        <input id="r_auto" type="checkbox" checked>
+        <label>Kanal (opts.)</label><select id="r_channel"><option></option><option>whatsapp</option><option>telegram</option></select>
+        <label>Poluchatel (opts.)</label><input id="r_to" type="text" placeholder="1555... ili chat_id">
+        <label>Auditoriya (opts.)</label><input id="r_aud" type="text" placeholder="bank/lawyer/...">
+        <label>Namerenie</label><select id="r_intent"><option>letter</option><option selected>update</option><option>request</option><option>reminder</option><option>apology</option></select>
+      </div>
+      <div>
+        <label>Kontent</label>
+        <textarea id="r_content" placeholder="Napishite tekst..."></textarea>
+        <div style="margin-top:8px;"><button id="r_send">Otpravit (dry-run)</button></div>
+      </div>
+      <div>
+        <label>Otvet</label>
+        <pre id="r_out"></pre>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+  const $ = s => document.querySelector(s);
+  // Tabs
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active'); $('#panel-'+t.dataset.id).classList.add('active');
+  }));
+  // Mail preview
+  $('#m_preview').addEventListener('click', async ()=>{
+    const r = await fetch('/mail/compose/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({audience:$('#m_aud').value,intent:$('#m_intent').value,content:$('#m_content').value})});
+    $('#m_out').textContent = (await r.json()).text || 'oshibka';
+  });
+  // Voice preview
+  $('#v_preview').addEventListener('click', async ()=>{
+    const r = await fetch('/voice/api/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({audience:$('#v_aud').value,intent:$('#v_intent').value,content:$('#v_content').value,voice:{warmth:parseFloat($('#v_w').value),brevity:parseFloat($('#v_b').value),formality:parseFloat($('#v_f').value),prefix:$('#v_prefix').value,signature:$('#v_sign').value}})});
+    $('#v_out').textContent = (await r.json()).text || 'oshibka';
+  });
+  // Presets
+  async function loadPresets(){
+    const r = await fetch('/presetsx/list'); const j = await r.json();
+    $('#p_list').textContent = JSON.stringify(j.groups,null,2);
+  } loadPresets();
+  $('#p_compose').addEventListener('click', async ()=>{
+    let facts = {}; try{ facts = JSON.parse($('#p_facts').value||'{}'); }catch(e){ alert('Nevernyy JSON faktov'); return; }
+    const r = await fetch('/presetsx/compose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({preset:$('#p_key').value,facts})});
+    $('#p_out').textContent = JSON.stringify(await r.json(),null,2);
+  });
+  // Routing
+  $('#r_send').addEventListener('click', async ()=>{
+    const body = { channel: $('#r_channel').value||null, to: $('#r_to').value||null, audience: $('#r_aud').value||null, intent: $('#r_intent').value, content: $('#r_content').value, source_id:'console-'+Date.now() };
+    const r = await fetch('/proactive/dispatch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    $('#r_out').textContent = JSON.stringify(await r.json(),null,2);
+  });
+</script>
+</body>
+</html>

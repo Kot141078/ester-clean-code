@@ -1,0 +1,331 @@
+openapi: 3.0.3
+info:
+  title: Ester API
+  version: "1.0.0"
+  description: >
+    Drop-in OpenAPI-speka dlya HTML adminki i smoke-testov.
+    Deystviya vypolnyayutsya cherez JWT Bearer (RBAC na urovne API).
+servers:
+  - url: /
+paths:
+  /providers/status:
+    get:
+      summary: Tekuschiy status provayderov i aktivnogo provaydera
+      tags: [providers]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProvidersStatus"
+
+  /providers/select:
+    post:
+      summary: Vybrat aktivnogo provaydera
+      tags: [providers]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProviderSelectRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProviderSelectResponse"
+
+  /ops/backup/run:
+    post:
+      summary: Zapusk rezervnogo kopirovaniya
+      tags: [ops]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Zapusk vypolnen
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BackupOperationResponse"
+
+  /ops/backup/verify:
+    post:
+      summary: Proverka tselostnosti rezervnoy kopii
+      tags: [ops]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Proverka vypolnena
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BackupOperationResponse"
+
+  /ops/backup/restore:
+    post:
+      summary: Vosstanovlenie iz rezervnoy kopii
+      tags: [ops]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Vosstanovlenie vypolneno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BackupOperationResponse"
+
+  /chat/message:
+    post:
+      tags: [chat]
+      summary: Chat entrypoint (JWT optional)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatMessageRequest"
+      responses:
+        "200":
+          description: Chat response payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatMessageResponse"
+        "400":
+          description: Invalid message payload
+        "401":
+          description: JWT required or invalid token
+        "500":
+          description: Chat processing failed
+
+  /mem/hypothesis:
+    get:
+      summary: Spisok gipotez
+      tags: [memory]
+      parameters:
+        - name: topic
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Spisok gipotez
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Hypothesis"
+                additionalProperties: false
+    post:
+      summary: Sozdat gipotezu
+      tags: [memory]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HypothesisCreate"
+      responses:
+        "200":
+          description: Sozdano
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hypothesis"
+
+  /mem/hypothesis/{id}:
+    put:
+      summary: Obnovit gipotezu
+      tags: [memory]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HypothesisUpdate"
+      responses:
+        "200":
+          description: Obnovleno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hypothesis"
+    delete:
+      summary: Udalit gipotezu
+      tags: [memory]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Udaleno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                additionalProperties: true
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Hypothesis:
+      type: object
+      properties:
+        id: { type: string }
+        topic: { type: string }
+        text: { type: string }
+        score:
+          type: number
+          format: float
+      required: [id, topic, text]
+      additionalProperties: true
+
+    HypothesisCreate:
+      type: object
+      properties:
+        topic: { type: string }
+        text: { type: string }
+        score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+      required: [topic, text]
+      additionalProperties: false
+
+    HypothesisUpdate:
+      type: object
+      properties:
+        topic: { type: string }
+        text: { type: string }
+        score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+      additionalProperties: false
+
+    ProvidersStatus:
+      type: object
+      properties:
+        active:
+          type: string
+          nullable: true
+        providers:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              status: { type: string }
+              latency_ms:
+                type: number
+                format: float
+                nullable: true
+            additionalProperties: true
+      additionalProperties: true
+
+    ProviderSelectRequest:
+      type: object
+      properties:
+        name: { type: string }
+      required: [name]
+      additionalProperties: false
+
+    ProviderSelectResponse:
+      type: object
+      properties:
+        ok: { type: boolean }
+        active: { type: string }
+      additionalProperties: true
+
+    BackupOperationResponse:
+      type: object
+      properties:
+        ok: { type: boolean }
+        op:
+          type: string
+          description: run|verify|restore
+        trace_id: { type: string }
+      additionalProperties: true
+
+    ChatMessageRequest:
+      type: object
+      properties:
+        sid: { type: string }
+        session_id: { type: string }
+        chat_id: { type: string }
+        message: { type: string }
+        text: { type: string }
+        query: { type: string }
+        mode: { type: string }
+        engine: { type: string }
+        temperature:
+          type: number
+          format: float
+        rag: { type: boolean }
+        use_rag: { type: boolean }
+      anyOf:
+        - required: [message]
+        - required: [text]
+        - required: [query]
+      additionalProperties: true
+
+    ChatMessageResponse:
+      type: object
+      properties:
+        ok: { type: boolean }
+        answer: { type: string }
+        response: { type: string }
+        reply: { type: string }
+        error: { type: string }
+        provider: { type: string }
+        mode: { type: string }
+        sid: { type: string }
+        history:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      additionalProperties: true

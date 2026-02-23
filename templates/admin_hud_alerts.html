@@ -1,0 +1,52 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — HUD Alerts</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:960px}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  img{max-width:100%;border:1px solid #ddd;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:120px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+  .blink{animation:blink 1s linear infinite}
+  @keyframes blink{0%{opacity:1}50%{opacity:.25}100%{opacity:1}}
+</style>
+<h2>HUD Alerts (Latency / Fail rate)</h2>
+<div class="row">
+  p90_ms <input id="p90" type="number" value="800">
+  fail_rate <input id="fr" type="number" step="0.01" value="0.15">
+  <label><input id="aud" type="checkbox"> allow audio</label>
+  <button onclick="cfg()">Save</button>
+  <button onclick="ena(true)">Enable</button>
+  <button onclick="ena(false)">Disable</button>
+</div>
+<div class="row">
+  Use N <input id="n" type="number" value="200">
+  <button onclick="build()">Build overlay</button>
+  <button onclick="stat()">Status</button>
+  <button onclick="beep()">Beep test</button>
+</div>
+<div id="alert" style="display:none;padding:10px;border-radius:8px;font-weight:700">ALERT</div>
+<img id="img">
+<pre id="out"></pre>
+<script>
+let ctx=null, osc=null;
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+async function cfg(){ out(await j('POST','/hud_alerts/config',{"p90_ms":+p90.value,"fail_rate":+fr.value,"allow_audio":aud.checked})); }
+async function ena(v){ out(await j('POST','/hud_alerts/enable',{"enabled":v})); }
+async function build(){ const r=await j('POST','/hud_alerts/build',{"n":+n.value||200}); if(r.ok){ img.src='data:image/png;base64,'+r.png_b64; showAlert(r.alert, r.allow_audio); } out(r); }
+async function stat(){ out(await j('GET','/hud_alerts/status')); }
+function showAlert(on, allowAudio){ const el=document.getElementById('alert'); el.style.display=on?'block':'none'; el.className=on?'blink':''; el.style.background=on?'#d33':'#2a4'; el.textContent=on?'ALERT: thresholds exceeded':'OK'; if(on && allowAudio){ playBeep(); } }
+function beep(){
+  playBeep();
+}
+function playBeep(){
+  try{
+    ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();
+    osc=ctx.createOscillator(); const g=ctx.createGain();
+    osc.frequency.value=880; osc.connect(g); g.connect(ctx.destination);
+    g.gain.value=0.05; osc.start();
+    setTimeout(()=>{ osc.stop(); }, 300);
+  }catch(e){}
+}
+</script>

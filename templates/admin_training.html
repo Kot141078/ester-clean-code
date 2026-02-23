@@ -1,0 +1,49 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Training Scenarios</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  textarea{width:100%;min-height:140px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:120px;white-space:pre-wrap}
+</style>
+
+<h2>Training Scenarios</h2>
+<div class="row">
+  Peers <input id="peers" placeholder="ip:port,ip:port" style="min-width:360px">
+  Mode <select id="mode"><option>iplay</option><option>playlist</option></select>
+</div>
+
+<textarea id="steps">[
+{"title":"Otkryt menyu","action":{"type":"hotkey","seq":"ALT+F"},"check":{"kind":"ocr_contains","text":"Fayl","lang":"rus+eng"},"timeout_ms":4000},
+{"title":"Save","action":{"type":"hotkey","seq":"CTRL+S"},"check":{},"timeout_ms":2000}
+]</textarea>
+
+<div class="row">
+  <button onclick="demo()">Load demo</button>
+  <button onclick="start()">Start</button>
+  <button onclick="stop()">Stop</button>
+</div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent = JSON.stringify(x,null,2); }
+
+function peersList(){ const s=(peers.value||'').trim(); return s? s.split(',').map(x=>x.trim()).filter(Boolean):[]; }
+
+function demo(){
+  steps.value='['+
+    '{"title":"Otkryt menyu","action":{"type":"hotkey","seq":"ALT+F"},"check":{"kind":"ocr_contains","text":"Fayl","lang":"rus+eng"},"timeout_ms":4000},'+
+    '{"title":"Save","action":{"type":"hotkey","seq":"CTRL+S"},"check":{},"timeout_ms":2000}'+
+  ']';
+}
+
+async function start(){
+  const spec={peers:peersList(), mode:mode.value, steps:JSON.parse(steps.value||"[]")};
+  out(await j('POST','/training/start',spec));
+}
+async function stop(){ out(await j('POST','/training/stop',{})); }
+</script>

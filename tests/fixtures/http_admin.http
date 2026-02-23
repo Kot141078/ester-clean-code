@@ -1,0 +1,23 @@
+### S0/tests/fixtures/http_admin.http — shablon zaprosov dlya VS Code REST Client
+# Mosty:
+# - Yavnyy: Enderton (logika) — proveryaemye predikaty zaprosov (GET /admin c/bez tokena).
+# - Skrytyy #1: Ashbi (kibernetika) — minimalnyy regulyator: dva zaprosa dostatochno dlya bazovoy diagnostiki.
+# - Skrytyy #2: Cover & Thomas — minimalnyy «signal» dlya razlicheniya sostoyaniy RBAC.
+# Zemnoy abzats (inzheneriya): ruchnoy smouk bez instrumentov — udobno pri lokalnoy gonke.
+# c=a+b
+
+@base = http://127.0.0.1:8080
+@jwt  = {{jwt}}   # podstav syuda token ili ispolzuy peremennye REST Client
+
+### /live
+GET {{base}}/live
+
+### /ready
+GET {{base}}/ready
+
+### /admin bez tokena (ozhidaetsya 401/403/302)
+GET {{base}}/admin
+
+### /admin s tokenom (ozhidaetsya 200/302)
+GET {{base}}/admin
+Authorization: Bearer {{jwt}}

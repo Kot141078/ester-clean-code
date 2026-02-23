@@ -1,0 +1,20 @@
+# Matchim vneshnie sobytiya i myagko podtalkivaem podskazki/refleksiyu
+- name: ingest_links_with_dreams
+  match:
+    type: ingest.*
+  actions:
+    - type: emit
+      event_type: notify.request
+      payload:
+        channel: "ui"
+        message: "📥 Ingest postupil: {{ payload.path or payload.source or 'unknown' }} — podsoznanie slushaet."
+
+- name: security_events_prompt_reflect
+  match:
+    type: security.*
+  actions:
+    - type: emit
+      event_type: planner.suggest
+      payload:
+        message: "Svyazhi poslednie «sny» s intsidentom {{ payload.reason or payload.path or payload.sha256 }}"
+        fingerprint: "{{ payload.sha256 or payload.path or trace_id }}"

@@ -1,0 +1,102 @@
+{{- if .Values.failover.webhook.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ester.fullname" . }}-dr-webhook
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+data:
+  dr_webhook.py: |
+    from __future__ import annotations
+    import os, json
+    from flask import Flask, request, jsonify
+    from kubernetes import client, config
+
+    app = Flask(__name__)
+    TOKEN = os.getenv('DR_SECRET', '')
+    TARGET_KIND = os.getenv('DR_TARGET_KIND','Service')  # Service|Ingress
+    TARGET_NAME = os.getenv('DR_TARGET_NAME','ester')
+    TARGET_NS = os.getenv('DR_TARGET_NS','ester')
+    IDENT = os.getenv('DR_SET_IDENTIFIER','ester-primary')
+
+    def _patch_annotations(meta):
+        ann = getattr(meta, "annotations", {}) or {}
+        ann['external-dns.alpha.kubernetes.io/set-identifier'] = IDENT
+        ann['external-dns.alpha.kubernetes.io/aws-weight'] = os.getenv('DR_WEIGHT','0')
+        meta.annotations = ann
+
+    @app.post('/alert')
+    def alert():
+        if TOKEN and request.headers.get('X-Auth-Token') != TOKEN:
+            return jsonify({'ok': False, 'err':'unauthorized'}), 401
+        payload = request.json or {}
+        alerts = payload.get('alerts', [])
+        should_failover = any(a.get('status')=='firing' and a.get('labels',{}).get('action')=='failover' for a in alerts)
+        if not should_failover:
+            return jsonify({'ok': True, 'skipped': True}), 200
+
+        config.load_incluster_config()
+        if TARGET_KIND == 'Service':
+            api = client.CoreV1Api()
+            obj = api.read_namespaced_service(TARGET_NAME, TARGET_NS)
+            _patch_annotations(obj.metadata)
+            api.patch_namespaced_service(TARGET_NAME, TARGET_NS, obj)
+        else:
+            api = client.NetworkingV1Api()
+            obj = api.read_namespaced_ingress(TARGET_NAME, TARGET_NS)
+            _patch_annotations(obj.metadata)
+            api.patch_namespaced_ingress(TARGET_NAME, TARGET_NS, obj)
+
+        return jsonify({'ok': True, 'failover': True})
+
+    if __name__ == '__main__':
+        app.run(host='0.0.0.0', port=8080)
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ester.fullname" . }}-dr-webhook
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: {{ include "ester.fullname" . }}-dr-webhook }
+  template:
+    metadata:
+      labels: { app: {{ include "ester.fullname" . }}-dr-webhook }
+    spec:
+      serviceAccountName: {{ include "ester.fullname" . }}-dr-webhook
+      containers:
+      - name: srv
+        image: python:3.11-slim
+        imagePullPolicy: IfNotPresent
+        ports: [{ containerPort: 8080 }]
+        env:
+        - name: DR_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "ester.fullname" . }}-dr-webhook
+              key: token
+        - { name: DR_TARGET_KIND, value: {{ .Values.failover.webhook.targetKind | quote }} }
+        - { name: DR_TARGET_NAME, value: {{ .Values.failover.webhook.targetName | quote }} }
+        - { name: DR_TARGET_NS, value: {{ .Values.failover.webhook.targetNamespace | quote }} }
+        - { name: DR_SET_IDENTIFIER, value: {{ .Values.failover.webhook.setIdentifier | quote }} }
+        - { name: DR_WEIGHT, value: {{ .Values.failover.webhook.weight | quote }} }
+        command: ["bash","-lc","pip install --no-cache-dir flask kubernetes && python /app/dr_webhook.py"]
+        volumeMounts:
+        - { name: code, mountPath: /app }
+      volumes:
+      - name: code
+        configMap: { name: {{ include "ester.fullname" . }}-dr-webhook }
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "ester.fullname" . }}-dr-webhook
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+stringData:
+  token: {{ .Values.failover.webhook.token | default "CHANGE_ME" | quote }}
+{{- end }}

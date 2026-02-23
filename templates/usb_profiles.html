@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — USB-profili</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .ok{color:#9BE28D}.err{color:#ff8a8a}.muted{color:#9aa9bd}
+  </style>
+  <!--
+  Mosty:
+    • Yavnyy: redaktirovanie/eksport/import profiley.
+    • Skrytyy 1: JSON-model perenosima mezhdu uzlami (kopipast tekstom).
+    • Skrytyy 2: bezopasno — nikakoy avtomaticheskoy zapisi na nositeli.
+  Zemnoy abzats:
+    Eto «karta prednastroek»: dobavil — i vse knopki sborki znayut, chto podstavit.
+  -->
+</head>
+<body>
+  <h1>USB-profili</h1>
+
+  <section>
+    <div class="row">
+      <button onclick="load()">Obnovit</button>
+      <span id="flag" class="chip muted">–</span>
+      <a href="/admin/usb/make" style="margin-left:auto;color:#9aa9bd">← k knopke «Sozdat fleshku»</a>
+    </div>
+    <table id="tbl"><thead><tr><th>Imya</th><th>Metka</th><th>Release</th><th>State</th><th>Dump(s)</th><th></th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section>
+    <h3>Redaktor</h3>
+    <div class="row"><input id="id" placeholder="id (pusto — novyy)" class="mono" style="min-width:260px"/></div>
+    <div class="row">
+      <input id="name" placeholder="Imya profilya" style="min-width:260px"/>
+      <input id="label" placeholder="Metka (papka /...)" value="ESTER"/>
+      <label><input type="checkbox" id="with_release" checked/> Vklyuchit reliz</label>
+      <label><input type="checkbox" id="include_state" checked/> Vklyuchit ~/.ester</label>
+    </div>
+    <div class="row">
+      <input id="dump_paths" placeholder="Puti k dampam, cherez zapyatuyu" class="mono" style="min-width:420px"/>
+      <input id="notes" placeholder="Zametki" style="min-width:260px"/>
+      <button onclick="save()">Save</button>
+    </div>
+    <div class="row">
+      <button onclick="exp()">Eksport vybrannogo → JSON</button>
+      <button onclick="imp()">Import iz JSON</button>
+    </div>
+    <pre id="out" class="mono">—</pre>
+  </section>
+
+<script>
+let cur = "";
+
+async function load(){
+  const r = await fetch('/admin/usb/profiles/list');
+  const j = await r.json().catch(()=>({ok:false,error:'bad json'}));
+  document.getElementById('flag').textContent = j.ok?'OK':'ERR';
+  document.getElementById('flag').className = 'chip ' + (j.ok?'ok':'err');
+  const tb = document.querySelector('#tbl tbody'); tb.innerHTML='';
+  (j.items||[]).forEach(p=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${p.name}</td>
+      <td class="mono">${p.label}</td>
+      <td>${p.with_release?'da':'net'}</td>
+      <td>${p.include_state?'da':'net'}</td>
+      <td class="mono">${(p.dump_paths||[]).join(', ')}</td>
+      <td><button>Vybrat</button> <button data-del>Udalit</button></td>`;
+    tr.querySelector('button').onclick = ()=>fill(p);
+    tr.querySelector('button[data-del]').onclick = ()=>del(p.id);
+    tb.appendChild(tr);
+  });
+}
+
+function fill(p){
+  cur = p.id;
+  document.getElementById('id').value = p.id||'';
+  document.getElementById('name').value = p.name||'';
+  document.getElementById('label').value = p.label||'ESTER';
+  document.getElementById('with_release').checked = !!p.with_release;
+  document.getElementById('include_state').checked = !!p.include_state;
+  document.getElementById('dump_paths').value = (p.dump_paths||[]).join(', ');
+  document.getElementById('notes').value = p.notes||'';
+}
+
+async function save(){
+  const fd = new FormData();
+  fd.append('id', document.getElementById('id').value.trim());
+  fd.append('name', document.getElementById('name').value.trim());
+  fd.append('label', document.getElementById('label').value.trim()||'ESTER');
+  if(document.getElementById('with_release').checked) fd.append('with_release','1');
+  if(document.getElementById('include_state').checked) fd.append('include_state','1');
+  fd.append('dump_paths', document.getElementById('dump_paths').value.trim());
+  fd.append('notes', document.getElementById('notes').value.trim());
+  const r = await fetch('/admin/usb/profiles/save', {method:'POST', body: fd});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  load();
+}
+
+async function del(id){
+  if(!confirm('Udalit profil?')) return;
+  const fd = new FormData(); fd.append('id', id);
+  const r = await fetch('/admin/usb/profiles/delete', {method:'POST', body: fd});
+  await r.json().catch(()=>({}));
+  load();
+}
+
+async function exp(){
+  if(!cur){ alert('Snachala vyberite profil'); return; }
+  const r = await fetch('/admin/usb/profiles/export?id='+encodeURIComponent(cur));
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+
+async function imp(){
+  const s = prompt('Vstavte JSON profilya');
+  if(!s) return;
+  const fd = new FormData(); fd.append('json', s);
+  const r = await fetch('/admin/usb/profiles/import', {method:'POST', body: fd});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  load();
+}
+
+// init
+load().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

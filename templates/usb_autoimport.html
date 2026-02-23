@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Avto-import s doverennoy fleshki</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .muted{color:#9aa9bd}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Vklyuchi avtoimport, pri neobkhodimosti progoni «Skanirovat seychas», posmotri stamps — chto uzhe bylo primeneno.
+    Mosty:
+      • Yavnyy — doverennye nositeli + rezhim iz manifesta.
+      • Skrytye — stamps (zaschita ot povtorov) i AB-rezhim (v A vse bezopasno).
+  -->
+</head>
+<body>
+  <h1>Avto-import s doverennoy fleshki <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <div class="row">
+      <button onclick="refresh()">Status</button>
+      <button onclick="scan()">Skanirovat seychas</button>
+      <a class="chip" href="/admin/backup">Backup/Replica →</a>
+      <a class="chip" href="/admin/usb/trust">Doverennye USB →</a>
+    </div>
+    <pre id="out">—</pre>
+  </section>
+
+  <section>
+    <h3>Tseli (toma)</h3>
+    <div class="row">
+      <button onclick="targets()">Obnovit spisok tomov</button>
+      <select id="mount"></select>
+      <button onclick="scanOne()">Skanirovat vybrannyy</button>
+    </div>
+    <pre id="log">—</pre>
+  </section>
+
+<script>
+async function refresh(){
+  const r = await fetch('/admin/usb/autoimport/status'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+async function scan(){
+  const r = await fetch('/admin/usb/autoimport/scan',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+async function targets(){
+  const r = await fetch('/admin/usb/autoimport/status'); const j = await r.json().catch(()=>({ok:false}));
+  const sel=document.getElementById('mount'); sel.innerHTML='';
+  (j.targets||[]).forEach(t=>{
+    const o=document.createElement('option'); o.value=t.mount; o.textContent=(t.mount+' — '+(t.label||'')+' ('+(t.fs||'?')+')');
+    sel.appendChild(o);
+  });
+}
+async function scanOne(){
+  const m=document.getElementById('mount').value;
+  const r = await fetch('/admin/usb/autoimport/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount:m})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('log').textContent = JSON.stringify(j, null, 2);
+}
+refresh().catch(()=>{}); targets().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

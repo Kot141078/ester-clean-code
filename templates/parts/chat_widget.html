@@ -1,0 +1,30 @@
+<div id="chat" class="card" style="max-width:960px;margin-top:1rem;">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <h3 style="margin:0;">Chat</h3>
+    <div>
+      <label for="chat-provider">provider:</label>
+      <select id="chat-provider">
+        <option value="auto" selected>auto</option>
+        <option value="local">local</option>
+        <option value="lmstudio">lmstudio</option>
+        <option value="cloud">cloud</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="chat-log"
+       style="height:360px;overflow:auto;margin-top:10px;padding:12px;border:1px solid var(--border,#333);border-radius:8px;background:rgba(0,0,0,.15);">
+    <div style="opacity:.7;">Istoriya zagruzitsya avtomaticheski…</div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-top:10px;">
+    <input id="chat-input" type="text" placeholder="Vvedite soobschenie i nazhmite Enter"
+           style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border,#333);">
+    <button id="chat-send" class="btn">Otpravit</button>
+  </div>
+
+  <div id="chat-hint" style="margin-top:6px;font-size:12px;opacity:.7;">
+    <b>Podskazka:</b> POST na <code>/chat/message</code>. Esli otkryt URL brauzerom
+    (GET), uvidite «405 – metod ne razreshen» — eto normalno.
+  </div>
+</div>

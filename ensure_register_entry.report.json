@@ -1,0 +1,3688 @@
+{
+  "root": "D:\\ester-project\\routes",
+  "processed": 613,
+  "patched": 11,
+  "shim_flask": 10,
+  "shim_fastapi": 0,
+  "kept": 602,
+  "files": [
+    {
+      "file": "routes\\abslot_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\action_safety_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\actions_registry_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\actions_routes.py",
+      "patched": true,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\actions_workbench_ab_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\adapt_triggers_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\adaptive_quota_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_acceptance.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_blueprints.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_compat.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_compliance_exchange.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_compliance_snapshots.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_diag_sync.py",
+      "patched": false,
+      "bp": "bp_diagui",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_diagnostics.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_env_panel.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_health.py",
+      "patched": false,
+      "bp": "bp_health",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_hybrid.py",
+      "patched": false,
+      "bp": "bp_hybrid",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_hybrid_fav.py",
+      "patched": false,
+      "bp": "bp_fav",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_index.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_integrations.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_jobs.py",
+      "patched": false,
+      "bp": "bp_jobs",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_judge.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_judge_ab.py",
+      "patched": false,
+      "bp": "bp_admin_judge_ab",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_keys.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_lan_catalog.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_llm.py",
+      "patched": false,
+      "bp": "bp_admin_llm",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_lmstudio.py",
+      "patched": false,
+      "bp": "bp_lms",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_lmstudio_discovery.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_mem_cron.py",
+      "patched": false,
+      "bp": "bp_mem_maintenance",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_messaging.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\admin_p2p.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\admin_peers.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_portable.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_portable_checklist.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_portable_compliance.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_portable_firststart.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_portable_oneclick.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_proj_build.py",
+      "patched": false,
+      "bp": "bp_pb",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_registry.py",
+      "patched": false,
+      "bp": "bp_reg",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_reports.py",
+      "patched": false,
+      "bp": "bp_reports",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_reports_routes.py",
+      "patched": true,
+      "bp": "admin_reports_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_scheduler.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_selfcare.py",
+      "patched": false,
+      "bp": "bp_sc",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_telegram.py",
+      "patched": false,
+      "bp": "bp_tg",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_telegram_jobs.py",
+      "patched": false,
+      "bp": "bp_tgj",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_ui_routes.py",
+      "patched": true,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_usb_boot.py",
+      "patched": false,
+      "bp": "bp_usb",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_usb_catalog.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_usb_runner.py",
+      "patched": false,
+      "bp": "bp_usb",
+      "router": null
+    },
+    {
+      "file": "routes\\admin_webhooks_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\affect_reflect_routes.py",
+      "patched": false,
+      "bp": "bp_aff",
+      "router": null
+    },
+    {
+      "file": "routes\\affect_routes.py",
+      "patched": false,
+      "bp": "bp_aff",
+      "router": null
+    },
+    {
+      "file": "routes\\after_response_sanity2.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\agency_routes.py",
+      "patched": false,
+      "bp": "bp_agcy",
+      "router": null
+    },
+    {
+      "file": "routes\\agent_loop_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\agent_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\agent_run_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\agents_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\aid_routes.py",
+      "patched": false,
+      "bp": "bp_aid",
+      "router": null
+    },
+    {
+      "file": "routes\\app_discover_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\app_routes_inspect.py",
+      "patched": false,
+      "bp": "bp_rinspect",
+      "router": null
+    },
+    {
+      "file": "routes\\assign_hints_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\attention_journal_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\attention_playlist_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\attention_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\audio_drama_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\audio_stt_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\audit_recplay_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\auth_rbac_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\auth_roles_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\auth_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\auth_ui_routes.py",
+      "patched": false,
+      "bp": "auth_ui_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\auto_calibrate_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\auto_cases_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\auto_jwt_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\auto_login.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\auto_template_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\autofix_routes.py",
+      "patched": false,
+      "bp": "autofix_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\autonomy_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\awareness_routes.py",
+      "patched": false,
+      "bp": "bp_aware",
+      "router": null
+    },
+    {
+      "file": "routes\\backup_and_clone.py",
+      "patched": false,
+      "bp": "bp_backup",
+      "router": null
+    },
+    {
+      "file": "routes\\backup_restore.py",
+      "patched": false,
+      "bp": "bp_backup",
+      "router": null
+    },
+    {
+      "file": "routes\\backup_routes.py",
+      "patched": false,
+      "bp": "bp_bkp",
+      "router": null
+    },
+    {
+      "file": "routes\\backup_ui_routes.py",
+      "patched": false,
+      "bp": "backup_ui_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\beacons_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\bind_stt_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\bind_watch_media_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\board_advisor_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\board_assignments_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\board_channels_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\board_ops_home.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\board_roles_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\board_trace_overlay.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\bootstrap_routes.py",
+      "patched": false,
+      "bp": "bp_boot",
+      "router": null
+    },
+    {
+      "file": "routes\\bridge_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\capabilities_routes.py",
+      "patched": false,
+      "bp": "bp_cap",
+      "router": null
+    },
+    {
+      "file": "routes\\capmap_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\caution_pill_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\caution_routes.py",
+      "patched": false,
+      "bp": "bp_caution",
+      "router": null
+    },
+    {
+      "file": "routes\\cautious_bootstrap_routes.py",
+      "patched": false,
+      "bp": "bp_caut_boot",
+      "router": null
+    },
+    {
+      "file": "routes\\cautious_freedom_routes.py",
+      "patched": false,
+      "bp": "bp_caution",
+      "router": null
+    },
+    {
+      "file": "routes\\channel_ingest_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\chaos_routes.py",
+      "patched": false,
+      "bp": "bp_chaos",
+      "router": null
+    },
+    {
+      "file": "routes\\chat_boot_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\chat_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\chat_ui_routes.py",
+      "patched": false,
+      "bp": "chat_ui_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\coach_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\codegate_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\computer_use_anchor_curator.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\computer_use_heatmap_export.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\computer_use_macro.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\computer_use_recorder.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\computer_use_replay.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\computer_use_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\computer_use_visual_anchor.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\consent_gate_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\consent_policy_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\consent_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\content_guard_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\context_inspector_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\context_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\control_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\coop_missions_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\coop_sync_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\cost_fence_routes.py",
+      "patched": false,
+      "bp": "bp_cost",
+      "router": null
+    },
+    {
+      "file": "routes\\crawl_policy_routes.py",
+      "patched": false,
+      "bp": "bp_crawl",
+      "router": null
+    },
+    {
+      "file": "routes\\creator_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\cron_nightly_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\cron_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\dashboard_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\data_govern_routes.py",
+      "patched": false,
+      "bp": "bp_dg",
+      "router": null
+    },
+    {
+      "file": "routes\\debug_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\debug_thinking.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\demo_installer_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\desktop_driver_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\desktop_metrics_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\desktop_rpa_actions_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\desktop_rpa_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\desktop_rpa_ui_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\desktop_rpa_vision_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\desktop_vision_plus_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\desktop_vision_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\desktop_window_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\dev_encoding_probe.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\dev_encoding_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\dev_local_bypass.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\diag_ok_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\diag_routes.py",
+      "patched": false,
+      "bp": "bp_diag",
+      "router": null
+    },
+    {
+      "file": "routes\\director_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\discover_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\discovery_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\dmin_env_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\docs_env_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\docs_routes.py",
+      "patched": false,
+      "bp": "bp_docs",
+      "router": null
+    },
+    {
+      "file": "routes\\docs_ui_routes.py",
+      "patched": false,
+      "bp": "docs_ui_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\dr321_routes.py",
+      "patched": false,
+      "bp": "bp_dr",
+      "router": null
+    },
+    {
+      "file": "routes\\dreams_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\economy_routes.py",
+      "patched": false,
+      "bp": "bp_economy",
+      "router": null
+    },
+    {
+      "file": "routes\\email_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\emotion_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\empathy_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\entity_board_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\env_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\error_capture_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\error_heatmap_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\error_helpers.py",
+      "patched": false,
+      "bp": "bp_error",
+      "router": null
+    },
+    {
+      "file": "routes\\ethics_guard_routes.py",
+      "patched": false,
+      "bp": "bp_eth",
+      "router": null
+    },
+    {
+      "file": "routes\\eval_routes.py",
+      "patched": false,
+      "bp": "bp_eval",
+      "router": null
+    },
+    {
+      "file": "routes\\events_debug_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\events_routes.py",
+      "patched": true,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\events_secure_routes.py",
+      "patched": false,
+      "bp": "bp_events_secure",
+      "router": null
+    },
+    {
+      "file": "routes\\explain_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\export_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\favicon_alias2.py",
+      "patched": false,
+      "bp": "_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\favicon_alias_safe.py",
+      "patched": false,
+      "bp": "_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\favicon_fallback_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\favicon_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\favicon_routes_alias.py",
+      "patched": false,
+      "bp": "_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\favicon_routes_alias2.py",
+      "patched": false,
+      "bp": "_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\feed_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\finance_learn_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\finance_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\first_run_wizard.py",
+      "patched": false,
+      "bp": "bp_first_run",
+      "router": null
+    },
+    {
+      "file": "routes\\fleet_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\flight_review_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\forms_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\front_routes.py",
+      "patched": false,
+      "bp": "front_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\game_binding_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\game_profiles_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\game_sync_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\garage_jobs_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\garage_ops_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\garage_pipeline_routes.py",
+      "patched": false,
+      "bp": "garage_pipeline_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\garage_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\github_publish_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\graph_routes.py",
+      "patched": false,
+      "bp": "bp_graph",
+      "router": null
+    },
+    {
+      "file": "routes\\guardian_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\guide_export_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\guide_ffmpeg_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\health_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\health_ui_routes.py",
+      "patched": false,
+      "bp": "health_ui_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\healthz_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\hold_routes.py",
+      "patched": false,
+      "bp": "bp_hold_routes",
+      "router": null
+    },
+    {
+      "file": "routes\\hub_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\hud_alerts_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\hw_routes.py",
+      "patched": false,
+      "bp": "bp_hw",
+      "router": null
+    },
+    {
+      "file": "routes\\hybrid_search_routes.py",
+      "patched": false,
+      "bp": "bp_hybrid",
+      "router": null
+    },
+    {
+      "file": "routes\\hypotheses_ui_routes.py",
+      "patched": false,
+      "bp": "hyp_ui_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\hypothesis_routes.py",
+      "patched": false,
+      "bp": "hypothesis_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\idle_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\imprint_routes.py",
+      "patched": false,
+      "bp": "bp_imprint",
+      "router": null
+    },
+    {
+      "file": "routes\\index_ops.py",
+      "patched": false,
+      "bp": "index_ops_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\ingest_backpressure.py",
+      "patched": false,
+      "bp": "bp_ingest_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\ingest_backpressure_routes.py",
+      "patched": false,
+      "bp": "bp_ingest_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\ingest_control_ui.py",
+      "patched": true,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\ingest_crdt_adapter_routes.py",
+      "patched": false,
+      "bp": "bp_ingest_crdt_adapter",
+      "router": null
+    },
+    {
+      "file": "routes\\ingest_fair_routes.py",
+      "patched": false,
+      "bp": "bp_ingest",
+      "router": null
+    },
+    {
+      "file": "routes\\ingest_guard_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\ingest_proxy_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\ingest_quota_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\ingest_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\init.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\install_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\instructor_hotpatch_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\instructor_hud_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\instructor_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\intent_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\interactive_playback_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\invoice_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\jwt_owner_routes.py",
+      "patched": false,
+      "bp": "_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\kg_admin_routes.py",
+      "patched": false,
+      "bp": "kg_admin_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\kg_autolink_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\kg_entity_linker_routes.py",
+      "patched": false,
+      "bp": "bp_kg_linker",
+      "router": null
+    },
+    {
+      "file": "routes\\kg_link_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\kg_linker_routes.py",
+      "patched": false,
+      "bp": "bp_kg_link",
+      "router": null
+    },
+    {
+      "file": "routes\\kg_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\knowledge_ops_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\lan_catalog.py",
+      "patched": false,
+      "bp": "bp_lanc",
+      "router": null
+    },
+    {
+      "file": "routes\\lan_diagnostics.py",
+      "patched": false,
+      "bp": "bp_landiag",
+      "router": null
+    },
+    {
+      "file": "routes\\lan_export.py",
+      "patched": false,
+      "bp": "bp_lanexp",
+      "router": null
+    },
+    {
+      "file": "routes\\lan_hub_routes.py",
+      "patched": false,
+      "bp": "_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\lan_jobs.py",
+      "patched": false,
+      "bp": "bp_lanj",
+      "router": null
+    },
+    {
+      "file": "routes\\lan_mesh.py",
+      "patched": false,
+      "bp": "bp_lan",
+      "router": null
+    },
+    {
+      "file": "routes\\lan_overview.py",
+      "patched": false,
+      "bp": "bp_lanov",
+      "router": null
+    },
+    {
+      "file": "routes\\lan_packages.py",
+      "patched": false,
+      "bp": "bp_lanpkg",
+      "router": null
+    },
+    {
+      "file": "routes\\lan_reply.py",
+      "patched": false,
+      "bp": "bp_lan",
+      "router": null
+    },
+    {
+      "file": "routes\\lan_sync.py",
+      "patched": false,
+      "bp": "bp_lan",
+      "router": null
+    },
+    {
+      "file": "routes\\lan_tasks.py",
+      "patched": false,
+      "bp": "bp_lantasks",
+      "router": null
+    },
+    {
+      "file": "routes\\legal_guard_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\lexicon_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\llm_autoconfig.py",
+      "patched": false,
+      "bp": "bp_llm",
+      "router": null
+    },
+    {
+      "file": "routes\\llm_broker_routes.py",
+      "patched": false,
+      "bp": "bp_llm",
+      "router": null
+    },
+    {
+      "file": "routes\\llm_routes.py",
+      "patched": false,
+      "bp": "bp_llm",
+      "router": null
+    },
+    {
+      "file": "routes\\lm_bootstrap.py",
+      "patched": false,
+      "bp": "bp_lmb",
+      "router": null
+    },
+    {
+      "file": "routes\\lmstudio_bridge.py",
+      "patched": false,
+      "bp": "bp_lms",
+      "router": null
+    },
+    {
+      "file": "routes\\lmstudio_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\macro_learn_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\macro_recorder_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mail_compose_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\market_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mass_tuner_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mass_tuner_weighted_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\media_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\media_watch_routes.py",
+      "patched": false,
+      "bp": "bp_watch",
+      "router": null
+    },
+    {
+      "file": "routes\\mem_affect_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mem_boot_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mem_entity_linker_routes.py",
+      "patched": false,
+      "bp": "bp_mem_link",
+      "router": null
+    },
+    {
+      "file": "routes\\mem_entity_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mem_hypothesis_routes.py",
+      "patched": false,
+      "bp": "mem_hypo_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mem_ingest_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mem_kg_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\mem_maint_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mem_mm_lint_routes.py",
+      "patched": false,
+      "bp": "bp_mmlint",
+      "router": null
+    },
+    {
+      "file": "routes\\mem_passport_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mem_prov_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mem_provenance_routes.py",
+      "patched": false,
+      "bp": "bp_mem_prov",
+      "router": null
+    },
+    {
+      "file": "routes\\mem_retro_linker_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mem_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_backup_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_cycle_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_explorer.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_graph_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_hud_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_linker_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_maintenance_routes.py",
+      "patched": false,
+      "bp": "bp_mem_maint",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_meta_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_nav_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_passport_routes.py",
+      "patched": false,
+      "bp": "bp_mem_pass",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_policy_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_qa_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_summary_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_timeline_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\memory_ui.py",
+      "patched": false,
+      "bp": "bp_mem",
+      "router": null
+    },
+    {
+      "file": "routes\\mentor_ab_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mentor_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mentor_to_workflow_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mesh_bloom_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mesh_quorum_routes.py",
+      "patched": false,
+      "bp": "bp_quorum",
+      "router": null
+    },
+    {
+      "file": "routes\\mesh_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\messaging_console.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\messaging_health_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\messaging_register_all.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\messaging_register_all_max.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\messaging_register_all_plus.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\messaging_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\metrics_ingest_bp_routes.py",
+      "patched": false,
+      "bp": "bp_metrics_ingest_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\metrics_memory_maintenance_routes.py",
+      "patched": false,
+      "bp": "bp_metrics_mem_maint",
+      "router": null
+    },
+    {
+      "file": "routes\\metrics_mind_routes.py",
+      "patched": false,
+      "bp": "bp_metrics_mind",
+      "router": null
+    },
+    {
+      "file": "routes\\metrics_mm_guard.py",
+      "patched": false,
+      "bp": "bp_mm_metrics",
+      "router": null
+    },
+    {
+      "file": "routes\\metrics_prom.py",
+      "patched": false,
+      "bp": "bp_metrics_prom",
+      "router": null
+    },
+    {
+      "file": "routes\\metrics_routes.py",
+      "patched": true,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\metrics_ui.py",
+      "patched": false,
+      "bp": "bp_metrics_ui",
+      "router": null
+    },
+    {
+      "file": "routes\\metrics_ui_routes.py",
+      "patched": true,
+      "bp": "metrics_ui_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\metrics_usb.py",
+      "patched": false,
+      "bp": "bp_metrics_usb",
+      "router": null
+    },
+    {
+      "file": "routes\\metrics_video_extended.py",
+      "patched": false,
+      "bp": "bp_metrics_video_ex",
+      "router": null
+    },
+    {
+      "file": "routes\\metrics_video_routes.py",
+      "patched": false,
+      "bp": "bp_metrics_video",
+      "router": null
+    },
+    {
+      "file": "routes\\migrate_to_safe_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\misrec_guard_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\missions_plus_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\missions_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mm_audit_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mm_enforcer_routes.py",
+      "patched": false,
+      "bp": "bp_mm",
+      "router": null
+    },
+    {
+      "file": "routes\\mm_guard_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mm_lint_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mmgate_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\model_registry_routes.py",
+      "patched": false,
+      "bp": "bp_models",
+      "router": null
+    },
+    {
+      "file": "routes\\money_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\mtls_guard.py",
+      "patched": false,
+      "bp": "bp_mtls",
+      "router": null
+    },
+    {
+      "file": "routes\\multi_leader_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\net_playback_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\netbird_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\network_overview.py",
+      "patched": false,
+      "bp": "bp_net",
+      "router": null
+    },
+    {
+      "file": "routes\\node_info.py",
+      "patched": false,
+      "bp": "bp_node",
+      "router": null
+    },
+    {
+      "file": "routes\\nopush_guard_routes.py",
+      "patched": false,
+      "bp": "bp_nopush",
+      "router": null
+    },
+    {
+      "file": "routes\\nudges_board.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\nudges_board_agents.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\nudges_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\observa_routes.py",
+      "patched": false,
+      "bp": "bp_obs",
+      "router": null
+    },
+    {
+      "file": "routes\\observer_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\opps_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\ops_cron_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\ops_help_routes.py",
+      "patched": false,
+      "bp": "ops_help_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\ops_hiring_routes.py",
+      "patched": false,
+      "bp": "bp_hiring",
+      "router": null
+    },
+    {
+      "file": "routes\\ops_mtls_guarded.py",
+      "patched": false,
+      "bp": "bp_ops_guard",
+      "router": null
+    },
+    {
+      "file": "routes\\ops_p2p_diff_routes.py",
+      "patched": false,
+      "bp": "bp_ops_p2p_diff",
+      "router": null
+    },
+    {
+      "file": "routes\\ops_p2p_routes.py",
+      "patched": false,
+      "bp": "bp_ops_p2p",
+      "router": null
+    },
+    {
+      "file": "routes\\ops_ping.py",
+      "patched": false,
+      "bp": "bp_ops_ping",
+      "router": null
+    },
+    {
+      "file": "routes\\ops_probe_usb.py",
+      "patched": false,
+      "bp": "bp_ops_probe_usb",
+      "router": null
+    },
+    {
+      "file": "routes\\ops_routes.py",
+      "patched": false,
+      "bp": "bp_ops",
+      "router": null
+    },
+    {
+      "file": "routes\\ops_summary_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\outreach_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\p2p_bloom_routes.py",
+      "patched": false,
+      "bp": "bp_p2p_bloom",
+      "router": null
+    },
+    {
+      "file": "routes\\p2p_consensus_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\p2p_crdt_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\p2p_filter_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\p2p_guard_adapter.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\p2p_memory_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\p2p_probe.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\p2p_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\p2p_sync_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\p2p_tasks_routes.py",
+      "patched": false,
+      "bp": "bp_p2p_tasks",
+      "router": null
+    },
+    {
+      "file": "routes\\p2p_test_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\p2p_transport.py",
+      "patched": false,
+      "bp": "bp_p2p",
+      "router": null
+    },
+    {
+      "file": "routes\\panels_routes.py",
+      "patched": false,
+      "bp": "bp_panels",
+      "router": null
+    },
+    {
+      "file": "routes\\papa_policy_routes.py",
+      "patched": false,
+      "bp": "bp_papa_pol",
+      "router": null
+    },
+    {
+      "file": "routes\\papa_routes.py",
+      "patched": false,
+      "bp": "bp_papa",
+      "router": null
+    },
+    {
+      "file": "routes\\papa_support_routes.py",
+      "patched": false,
+      "bp": "bp_papa_sup",
+      "router": null
+    },
+    {
+      "file": "routes\\passport_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\pay_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\peer_rpa_proxy_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\pending_export_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\pending_import_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\pill_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\plain_ping.py",
+      "patched": false,
+      "bp": "_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\plan_apply_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\playbook_routes.py",
+      "patched": false,
+      "bp": "bp_pb",
+      "router": null
+    },
+    {
+      "file": "routes\\policy_pill_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\policy_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\portable_replica.py",
+      "patched": false,
+      "bp": "bp_pr",
+      "router": null
+    },
+    {
+      "file": "routes\\portable_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\portable_usb_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\portal_alias_safe.py",
+      "patched": false,
+      "bp": "_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\portal_media.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\portal_mind_routes.py",
+      "patched": false,
+      "bp": "bp_portal_mind",
+      "router": null
+    },
+    {
+      "file": "routes\\portal_routes.py",
+      "patched": false,
+      "bp": "portal_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\portal_routes_alias.py",
+      "patched": false,
+      "bp": "_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\portal_routes_alias2.py",
+      "patched": false,
+      "bp": "_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\portal_safe_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\portal_video_routes.py",
+      "patched": false,
+      "bp": "bp_portal_video",
+      "router": null
+    },
+    {
+      "file": "routes\\portfolio_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\presets_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\presets_routes_plus.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\proactive_dispatch_auto_patch.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\proactive_dispatch_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\proactive_routes.py",
+      "patched": true,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\proactive_video_routes.py",
+      "patched": false,
+      "bp": "bp_proactive_video",
+      "router": null
+    },
+    {
+      "file": "routes\\proactive_will_hook_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\probe_routes.py",
+      "patched": false,
+      "bp": "bp_probe",
+      "router": null
+    },
+    {
+      "file": "routes\\profile_mix_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\project_share.py",
+      "patched": false,
+      "bp": "bp_project_share",
+      "router": null
+    },
+    {
+      "file": "routes\\projects.py",
+      "patched": false,
+      "bp": "bp_proj",
+      "router": null
+    },
+    {
+      "file": "routes\\prompt_lab.py",
+      "patched": false,
+      "bp": "bp_pl",
+      "router": null
+    },
+    {
+      "file": "routes\\provenance_network_routes.py",
+      "patched": false,
+      "bp": "bp_prov_net",
+      "router": null
+    },
+    {
+      "file": "routes\\provenance_routes.py",
+      "patched": false,
+      "bp": "bp_provenance",
+      "router": null
+    },
+    {
+      "file": "routes\\providers_models.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\providers_probe.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\providers_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\providers_status.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\providers_ui_routes.py",
+      "patched": false,
+      "bp": "providers_ui_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\quality_guard_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\quarantine_routes.py",
+      "patched": false,
+      "bp": "bp_quar",
+      "router": null
+    },
+    {
+      "file": "routes\\quest_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\rag_hybrid_routes.py",
+      "patched": false,
+      "bp": "bp_hybrid",
+      "router": null
+    },
+    {
+      "file": "routes\\rag_query.py",
+      "patched": false,
+      "bp": "rag_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\rag_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\rate_limiter_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\rbac_admin_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\rbac_routes.py",
+      "patched": false,
+      "bp": "bp_rbac",
+      "router": null
+    },
+    {
+      "file": "routes\\ready_routes.py",
+      "patched": false,
+      "bp": "bp_ready",
+      "router": null
+    },
+    {
+      "file": "routes\\recovery_usb.py",
+      "patched": false,
+      "bp": "bp_rec",
+      "router": null
+    },
+    {
+      "file": "routes\\register_all.py",
+      "patched": true,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\register_ui.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\release_routes.py",
+      "patched": false,
+      "bp": "bp_rel",
+      "router": null
+    },
+    {
+      "file": "routes\\releases_routes.py",
+      "patched": false,
+      "bp": "releases_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\replication_guarded_test.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\replication_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\research_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\resilience_boot_routes.py",
+      "patched": false,
+      "bp": "bp_boot",
+      "router": null
+    },
+    {
+      "file": "routes\\resilience_health_routes.py",
+      "patched": false,
+      "bp": "bp_health",
+      "router": null
+    },
+    {
+      "file": "routes\\resilience_rollback_routes.py",
+      "patched": false,
+      "bp": "bp_rb",
+      "router": null
+    },
+    {
+      "file": "routes\\resource_scheduler.py",
+      "patched": false,
+      "bp": "bp_rsch",
+      "router": null
+    },
+    {
+      "file": "routes\\retire_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\roles_clarify.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\roles_edges_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\roles_graph_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\roles_overrides.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\roles_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\root_fallback.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\root_minimal.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\root_routes.py",
+      "patched": false,
+      "bp": "root_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\root_to_portal.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\routes_index.py",
+      "patched": false,
+      "bp": "bp_routes_index",
+      "router": null
+    },
+    {
+      "file": "routes\\routes_rules.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\routes_trace.py",
+      "patched": false,
+      "bp": "trace_blueprint",
+      "router": null
+    },
+    {
+      "file": "routes\\routes_ui_routes.py",
+      "patched": false,
+      "bp": "routes_ui_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\rpa_record_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\rpa_tasks_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\rpa_workflows_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\rulehub_export_routes.py",
+      "patched": false,
+      "bp": "bp_rulehub_export",
+      "router": null
+    },
+    {
+      "file": "routes\\rulehub_presets_routes.py",
+      "patched": false,
+      "bp": "bp_rulehub_presets",
+      "router": null
+    },
+    {
+      "file": "routes\\rulehub_routes.py",
+      "patched": false,
+      "bp": "bp_rulehub",
+      "router": null
+    },
+    {
+      "file": "routes\\runtime_ab_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\safe_diag_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\safe_error_pages.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\safe_scenarios_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\safe_windows_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\sandbox_routes.py",
+      "patched": false,
+      "bp": "bp_sbx",
+      "router": null
+    },
+    {
+      "file": "routes\\scheduler_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\search_hybrid_routes.py",
+      "patched": false,
+      "bp": "bp_search_hybrid",
+      "router": null
+    },
+    {
+      "file": "routes\\secret_routes.py",
+      "patched": false,
+      "bp": "bp_sec",
+      "router": null
+    },
+    {
+      "file": "routes\\security_middleware.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\security_rbac_guard.py",
+      "patched": false,
+      "bp": "bp_rbac",
+      "router": null
+    },
+    {
+      "file": "routes\\security_rbac_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\security_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\self_archives_routes.py",
+      "patched": false,
+      "bp": "p2p_self_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\self_awareness_routes.py",
+      "patched": false,
+      "bp": "bp_aw",
+      "router": null
+    },
+    {
+      "file": "routes\\self_capabilities_routes.py",
+      "patched": false,
+      "bp": "bp_self_caps",
+      "router": null
+    },
+    {
+      "file": "routes\\self_catalog_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\self_codegen_routes.py",
+      "patched": false,
+      "bp": "bp_codegen",
+      "router": null
+    },
+    {
+      "file": "routes\\self_control_routes.py",
+      "patched": false,
+      "bp": "self_ctrl_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\self_creed_bootstrap.py",
+      "patched": false,
+      "bp": "bp_creed_boot",
+      "router": null
+    },
+    {
+      "file": "routes\\self_creed_integrity_routes.py",
+      "patched": false,
+      "bp": "bp_creed_int",
+      "router": null
+    },
+    {
+      "file": "routes\\self_creed_routes.py",
+      "patched": false,
+      "bp": "bp_creed",
+      "router": null
+    },
+    {
+      "file": "routes\\self_edit_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\self_extension_watcher_routes.py",
+      "patched": false,
+      "bp": "bp_ext_watch",
+      "router": null
+    },
+    {
+      "file": "routes\\self_extensions_bootstrap.py",
+      "patched": false,
+      "bp": "bp_self_boot",
+      "router": null
+    },
+    {
+      "file": "routes\\self_forge_guarded_routes.py",
+      "patched": false,
+      "bp": "bp_forge_guard",
+      "router": null
+    },
+    {
+      "file": "routes\\self_forge_routes.py",
+      "patched": false,
+      "bp": "bp_forge",
+      "router": null
+    },
+    {
+      "file": "routes\\self_manifest_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\self_papa_routes.py",
+      "patched": false,
+      "bp": "bp_papa",
+      "router": null
+    },
+    {
+      "file": "routes\\self_plan_routes.py",
+      "patched": false,
+      "bp": "bp_self_plan",
+      "router": null
+    },
+    {
+      "file": "routes\\self_replicate_routes.py",
+      "patched": false,
+      "bp": "bp_selfx",
+      "router": null
+    },
+    {
+      "file": "routes\\self_sign_routes.py",
+      "patched": false,
+      "bp": "bp_sig",
+      "router": null
+    },
+    {
+      "file": "routes\\selfcheck.py",
+      "patched": false,
+      "bp": "bp_sc",
+      "router": null
+    },
+    {
+      "file": "routes\\selfdrive_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\selfevo_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\selfmap_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\semantics_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\sense_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\sensors_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\session_guardian_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\share_bridge_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\showtime_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\signals_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\simple_login_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\sisters_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\skillforge_routes.py",
+      "patched": false,
+      "bp": "bp_forge",
+      "router": null
+    },
+    {
+      "file": "routes\\smoke_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\social_kit_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\social_ledger_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\social_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\social_upload_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\sos_routes.py",
+      "patched": true,
+      "bp": "bp_sos",
+      "router": null
+    },
+    {
+      "file": "routes\\sources_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\spread_guard_routes.py",
+      "patched": false,
+      "bp": "bp_spread",
+      "router": null
+    },
+    {
+      "file": "routes\\storage_admin_page.py",
+      "patched": false,
+      "bp": "storage_admin_page_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\storage_targets_routes.py",
+      "patched": false,
+      "bp": "storage_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\stream_mjpeg_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\stream_overlay_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\studio_avatar_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\studio_drama_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\studio_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\studio_video_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\subconscious_routes.py",
+      "patched": false,
+      "bp": "bp_subcon",
+      "router": null
+    },
+    {
+      "file": "routes\\survival_routes.py",
+      "patched": false,
+      "bp": "bp_survival",
+      "router": null
+    },
+    {
+      "file": "routes\\sync_cursor_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\sync_keyboard_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\sync_profiles.py",
+      "patched": false,
+      "bp": "bp_sync_profiles",
+      "router": null
+    },
+    {
+      "file": "routes\\synergy_api_v2_mount.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\synergy_assign_advisor.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\synergy_board_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\synergy_board_stream.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\synergy_forwarder.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\synergy_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\synergy_routes_plus.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\synergy_trace_extras.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\synergy_trace_overlay.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\sys_autoreg_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\task_tutor_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\telegram_admin_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\telegram_control_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\telegram_control_ui_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\telegram_feed.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\telegram_feed_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\telegram_feed_ui_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\telegram_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\telegram_send_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\telegram_sync.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\telegram_webhook.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\telegram_webhook_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\test_research_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\text_guess_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\think_boot_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\thinking\\ping.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\thinking_actions_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\thinking_autonomy_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\thinking_cascade_routes.py",
+      "patched": false,
+      "bp": "bp_cascade",
+      "router": null
+    },
+    {
+      "file": "routes\\thinking_guard_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\thinking_pipelines_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\thinking_proxy_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\thinking_reflection_routes.py",
+      "patched": false,
+      "bp": "bp_reflect",
+      "router": null
+    },
+    {
+      "file": "routes\\thinking_registry_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\thinking_rules_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\thinking_video_bridge.py",
+      "patched": false,
+      "bp": "bp_thinking_video",
+      "router": null
+    },
+    {
+      "file": "routes\\thinking_web_context_routes.py",
+      "patched": false,
+      "bp": "bp_wc",
+      "router": null
+    },
+    {
+      "file": "routes\\timekeeper_routes.py",
+      "patched": false,
+      "bp": "bp_time",
+      "router": null
+    },
+    {
+      "file": "routes\\training_scenarios_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\transport_status.py",
+      "patched": false,
+      "bp": "bp_transport",
+      "router": null
+    },
+    {
+      "file": "routes\\triggers_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\trust_routes.py",
+      "patched": false,
+      "bp": "bp_trust",
+      "router": null
+    },
+    {
+      "file": "routes\\ui_cases_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\ui_portal.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\ui_routes.py",
+      "patched": false,
+      "bp": "ui_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\ui_think_console.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\undo_suggester_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\upload.py",
+      "patched": true,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\upload_ui_routes.py",
+      "patched": false,
+      "bp": "upload_ui_bp",
+      "router": null
+    },
+    {
+      "file": "routes\\uploader_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\usb_agent.py",
+      "patched": false,
+      "bp": "bp_usb_agent",
+      "router": null
+    },
+    {
+      "file": "routes\\usb_agent_tuning.py",
+      "patched": false,
+      "bp": "bp_usb_tuning",
+      "router": null
+    },
+    {
+      "file": "routes\\usb_autoimport.py",
+      "patched": false,
+      "bp": "bp_usbai",
+      "router": null
+    },
+    {
+      "file": "routes\\usb_autostart.py",
+      "patched": false,
+      "bp": "bp_usb_autostart",
+      "router": null
+    },
+    {
+      "file": "routes\\usb_deploy.py",
+      "patched": false,
+      "bp": "bp_ud",
+      "router": null
+    },
+    {
+      "file": "routes\\usb_flash_maker.py",
+      "patched": false,
+      "bp": "bp_make",
+      "router": null
+    },
+    {
+      "file": "routes\\usb_make.py",
+      "patched": false,
+      "bp": "bp_usb_make",
+      "router": null
+    },
+    {
+      "file": "routes\\usb_packages.py",
+      "patched": false,
+      "bp": "bp_pkg",
+      "router": null
+    },
+    {
+      "file": "routes\\usb_profiles.py",
+      "patched": false,
+      "bp": "bp_usb_profiles",
+      "router": null
+    },
+    {
+      "file": "routes\\usb_recovery.py",
+      "patched": false,
+      "bp": "bp_ur",
+      "router": null
+    },
+    {
+      "file": "routes\\usb_trust.py",
+      "patched": false,
+      "bp": "bp_usb_trust",
+      "router": null
+    },
+    {
+      "file": "routes\\usb_zc_deploy.py",
+      "patched": false,
+      "bp": "bp_zc",
+      "router": null
+    },
+    {
+      "file": "routes\\utf8_json_patch.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\utf8_json_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    },
+    {
+      "file": "routes\\vector_reconcile_routes.py",
+      "patched": false,
+      "bp": "bp_vec_reconcile",
+      "router": null
+    },
+    {
+      "file": "routes\\video_health_routes.py",
+      "patched": false,
+      "bp": "bp_video_health",
+      "router": null
+    },
+    {
+      "file": "routes\\video_index_routes.py",
+      "patched": false,
+      "bp": "bp_vid_index",
+      "router": null
+    },
+    {
+      "file": "routes\\video_ingest_routes.py",
+      "patched": false,
+      "bp": "bp_video",
+      "router": null
+    },
+    {
+      "file": "routes\\video_ingest_ui_routes.py",
+      "patched": false,
+      "bp": "bp_video_ui",
+      "router": null
+    },
+    {
+      "file": "routes\\video_sources_capmap.py",
+      "patched": false,
+      "bp": "bp_video_capmap",
+      "router": null
+    },
+    {
+      "file": "routes\\video_subs_routes.py",
+      "patched": false,
+      "bp": "bp_video_subs",
+      "router": null
+    },
+    {
+      "file": "routes\\video_subs_ui_routes.py",
+      "patched": false,
+      "bp": "bp_video_subs_ui",
+      "router": null
+    },
+    {
+      "file": "routes\\video_thinking_routes.py",
+      "patched": false,
+      "bp": "bp_thinking_video",
+      "router": null
+    },
+    {
+      "file": "routes\\video_universal_routes.py",
+      "patched": false,
+      "bp": "bp_vid_uni",
+      "router": null
+    },
+    {
+      "file": "routes\\viz_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\vm_admin_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\voice_api_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\voice_webrtc_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\volition_routes.py",
+      "patched": false,
+      "bp": "bp_vol",
+      "router": null
+    },
+    {
+      "file": "routes\\wa_style_admin.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\watch_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\web_search_routes.py",
+      "patched": false,
+      "bp": "bp_web_search",
+      "router": null
+    },
+    {
+      "file": "routes\\webhook_probe.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\webrtc_dc_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\whatsapp_control_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\whatsapp_feed_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\whatsapp_send_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\whatsapp_templates_routes.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\whatsapp_webhook.py",
+      "patched": false,
+      "bp": null,
+      "router": "router"
+    },
+    {
+      "file": "routes\\whatsapp_webhook_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\will_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\window_watch_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\workbench_routes.py",
+      "patched": false,
+      "bp": "bp",
+      "router": null
+    },
+    {
+      "file": "routes\\wsgi_guard_alias.py",
+      "patched": false,
+      "bp": null,
+      "router": null
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+# rulehub.yaml — politika prioritetov i kvot (bezopasnye defolty).
+# Primechanie: kvota=0 oznachaet "bez ogranicheniya".
+# Mozhno rasshiryat spisok actions: summarize, classify, http_post, search, plan, reflect, index, notify, ...
+priorities:
+  summarize: 10
+  classify: 8
+  plan: 7
+  http_post: 6
+  search: 6
+  reflect: 5
+  index: 4
+  notify: 3
+
+quotas_per_min:
+  summarize: 0
+  classify: 0
+  plan: 0
+  http_post: 30
+  search: 15
+  reflect: 10
+  index: 20
+  notify: 30
+
+# Mosty:
+# - Yavnyy: (Kibernetika ↔ Planirovanie) chislovye prioritety i kvoty — "ruchki" regulyatora.
+# - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) edinyy fayl-istochnik politiki — menshe rassinkhrona.
+# - Skrytyy #2: (Memory ↔ Myshlenie) limity na index/reflect balansiruyut zapis v pamyat i vychisleniya.
+
+# Zemnoy abzats: eto "profilea" na stanki: skolko operatsiy v minutu i chey vyzov vazhnee.
+
+# c=a+b

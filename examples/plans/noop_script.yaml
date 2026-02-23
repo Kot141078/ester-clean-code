@@ -1,0 +1,44 @@
+run_id: research_run_06
+branch_id: main
+context_init:
+  spec: "Protestirovat bezopasnyy script i noop bez LLM."
+  items:
+    - {file: "x.txt"}
+    - {file: "y.txt"}
+
+nodes:
+  - id: prepare
+    type: script
+    update:
+      greeting: "Nachinaem obrabotku: {{ctx.spec}}"
+      stamp: "ts={{ctx.__now__}}"  # __now__ ne zadan, budet strokoy kak est — demonstratsiya bezoshibochnosti
+    template: "Vsego elementov: {{ctx.items}}"
+    out: "header"
+    depends: []
+
+  - id: fork
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["prepare"]
+
+  - id: annotate
+    type: script
+    update:
+      note: "Fayl: {{ctx.item.file}} / header={{ctx.header}} / greet={{ctx.greeting}}"
+    depends: ["fork"]
+
+  - id: noop_finish
+    type: noop
+    depends: ["annotate"]
+
+  - id: gather_dict
+    type: join
+    from: "fork"
+    out: "joined_meta"
+    select:
+      file: "{{item.file}}"
+      note: "{{ctx.note}}"
+    mode: dict
+    key_field: "{{item.file}}"
+    await_nodes: ["noop_finish"]
+    depends: ["noop_finish"]

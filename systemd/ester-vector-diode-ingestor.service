@@ -1,0 +1,27 @@
+# systemd/ester-vector-diode-ingestor.service — demon inzhestora "data diode"
+[Unit]
+Description=Ester Vector Diode Ingestor (append-only vector store writer)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ester
+Group=ester
+WorkingDirectory=/opt/ester
+Environment=PYTHONUNBUFFERED=1
+# Peremennye, vklyuchaya VECTOR_DIODE_CFG, — cherez EnvironmentFile
+EnvironmentFile=-/etc/ester/ester.env
+ExecStart=/usr/bin/python3 -m modules.storage.vector_diode_ingestor
+Restart=always
+RestartSec=1s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/ester /var/log/ester /var/ester /var/diode /var/vector_store
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

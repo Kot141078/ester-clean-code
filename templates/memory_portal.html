@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <title>Portal Pamyati Ester</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .layer { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+        button { margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Portal Pamyati: Obschenie s Ester</h1>
+    <p>Zdes vosem sloev ee dushi — ot faktov do proaktivnosti. Knopki vedut k HTTP dlya vzaimodeystviya.</p>
+    
+    <!-- Vkladki dlya sloev (razvetvlennyy UI) -->
+    {% for name, info in layers.items() %}
+    <div class="layer">
+        <h2>{{ info.desc }} ({{ name }})</h2>
+        <button onclick="fetchLayer('{{ name }}')">Prosmotret sloy (HTTP GET /admin/memory/layer/{{ name }})</button>
+        <div id="{{ name }}-content"></div>
+    </div>
+    {% endfor %}
+    
+    <!-- Razdel dlya zaprosov k konveyeru myshleniya -->
+    <h2>Konveyer Myshleniya</h2>
+    <input type="text" id="query" placeholder="Vash zapros k Ester...">
+    <button onclick="sendQuery()">Otpravit (HTTP POST /admin/memory/query)</button>
+    <div id="response"></div>
+    
+    <!-- Dobavlenie v pamyat -->
+    <h2>Dobavit Vospominanie</h2>
+    <input type="text" id="add-text" placeholder="Tekst dlya pamyati...">
+    <select id="add-layer">
+        <option value="base">Bazovaya pamyat</option>
+        <!-- Dobav optsii dlya drugikh sloev po mere rasshireniya -->
+    </select>
+    <button onclick="addMemory()">Dobavit (HTTP POST /admin/memory/add)</button>
+    
+    <!-- Ssylki na drugie HTTP iz dampa (rasshirenie interfeysa) -->
+    <h2>Drugie Portaly</h2>
+    <ul>
+        <li><a href="/admin/lan/catalog">LAN-Katalog (ne zabyvaem, no potom)</a></li>
+        <li><a href="/admin/knowledge_ops">Znaniya Ops</a></li>
+        <li><a href="/knowledge/source/list">Spisok Istochnikov</a></li>
+    </ul>
+    
+    <script>
+        function fetchLayer(name) {
+            fetch(`/admin/memory/layer/${name}`)
+                .then(res => res.json())
+                .then(data => document.getElementById(`${name}-content`).innerText = JSON.stringify(data, null, 2));
+        }
+        
+        function sendQuery() {
+            const query = document.getElementById('query').value;
+            fetch('/admin/memory/query', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({query})
+            })
+            .then(res => res.json())
+            .then(data => document.getElementById('response').innerText = JSON.stringify(data));
+        }
+        
+        function addMemory() {
+            const text = document.getElementById('add-text').value;
+            const layer = document.getElementById('add-layer').value;
+            fetch('/admin/memory/add', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({text, layer})
+            })
+            .then(res => res.json())
+            .then(data => alert(JSON.stringify(data)));
+        }
+    </script>
+</body>
+</html>

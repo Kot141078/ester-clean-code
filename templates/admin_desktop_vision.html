@@ -1,0 +1,60 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Desktop Vision</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  input,button,textarea{padding:8px;border:1px solid #ccc;border-radius:8px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:10px;white-space:pre-wrap}
+  .card{border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0}
+</style>
+
+<h2>Desktop Vision — yakorya i poisk</h2>
+
+<section class="card">
+  <div class="row">
+    <button onclick="probe()">Probe</button>
+    <button onclick="listA()">List anchors</button>
+    <button onclick="sample()">Add sample anchor</button>
+  </div>
+  <pre id="info"></pre>
+</section>
+
+<section class="card">
+  <h3>Add / Remove anchor</h3>
+  <div class="row">
+    <input id="name" placeholder="name (ok_button)">
+    <input id="roi" placeholder='roi JSON [x,y,w,h] (opts.)' style="width:260px">
+    <input id="tpl" placeholder='template path (opts.)' style="width:260px">
+    <button onclick="add()">Add</button>
+    <button onclick="rem()">Remove</button>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Detect</h3>
+  <div class="row">
+    <input id="img" placeholder='/tmp/ester_screenshot.png (macOS)'>
+    <input id="an"  placeholder='anchor (ok_button)'>
+    <button onclick="detect_()">Detect on path</button>
+  </div>
+  <pre id="out"></pre>
+</section>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function set(id,obj){ document.getElementById(id).textContent = JSON.stringify(obj,null,2); }
+
+async function probe(){ set('info', await (await fetch('/desktop/vision/probe')).json()); }
+async function listA(){ set('info', await (await fetch('/desktop/vision/anchors')).json()); }
+async function sample(){ set('info', await j('POST','/desktop/vision/add_sample',{})); }
+async function add(){
+  let r=null; try{ r=roi.value?JSON.parse(roi.value):null }catch(e){ alert('ROI JSON error'); return; }
+  set('info', await j('POST','/desktop/vision/anchors/add',{"name":name.value||'ok_button',"roi":r,"template":tpl.value||null}));
+}
+async function rem(){ set('info', await j('POST','/desktop/vision/anchors/remove',{"name":name.value||'ok_button'})); }
+async function detect_(){
+  set('out', await j('POST','/desktop/vision/detect',{"image_path":img.value||'/tmp/ester_screenshot.png',"anchor":an.value||'ok_button'}));
+}
+probe();
+</script>

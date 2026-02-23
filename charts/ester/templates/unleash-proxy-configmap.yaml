@@ -1,0 +1,13 @@
+{{- if and (.Values.unleash.enabled) (.Values.unleash.standalone | default false) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ester.fullname" . }}-unleash-proxy
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+data:
+  UNLEASH_PROXY_URL: {{ .Values.unleash.proxy.url | quote }}
+  UNLEASH_CLIENT_KEYS: {{ .Values.unleash.proxy.clientKey | quote }}
+  UNLEASH_APP_NAME: {{ .Values.unleash.proxy.appName | quote }}
+  UNLEASH_METRICS_INTERVAL: {{ .Values.unleash.proxy.metricsInterval | quote }}
+{{- end }}

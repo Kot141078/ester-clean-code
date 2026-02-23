@@ -1,0 +1,12 @@
+# config/messaging_policies.yaml — politiki perepiski i proaktivnosti
+# MOSTY:
+# - (Yavnyy) Porog chastoty i opt-in po umolchaniyu.
+# - (Skrytyy #1) Startovye privetstviya v lyubom kanale.
+# - (Skrytyy #2) Profili tona (stels), pereklyuchaemye ENV.
+
+optin_required: true
+proactive_rate_per_h: 6
+welcome:
+  - "Rada podklyuchitsya. Napishite, chem zanyatsya v pervuyu ochered."
+  - "Gotova pomoch. Sformuliruyte zadachu odnim predlozheniem."
+persona: gentle

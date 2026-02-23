@@ -1,0 +1,52 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Action Safety</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+  input,button,textarea{padding:8px;border:1px solid #ccc;border-radius:8px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:10px;white-space:pre-wrap}
+  .card{border:1px solid #eee;border-radius:10px;padding:10px;margin:8px 0}
+  label{font-size:12px;color:#555}
+</style>
+
+<h2>Bezopasnost deystviy</h2>
+
+<section class="card">
+  <h3>Nastroyki</h3>
+  <div class="row">
+    <label>risk_tol</label><input id="tol" type="number" step="0.01" value="0.35" style="width:100px">
+    <label>budget/day</label><input id="bud" type="number" value="100" style="width:120px">
+    <button onclick="save()">Save</button>
+    <button onclick="show()">Show</button>
+    <span id="budg" style="margin-left:auto"></span>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Proverka deystviya</h3>
+  <div class="row">
+    <input id="action" placeholder="action (napr. install_software)" style="width:280px">
+    <textarea id="meta" rows="3" style="width:520px" placeholder='meta JSON: {"requires_admin":true,"irreversible":false,"steps":3}'></textarea>
+  </div>
+  <div class="row">
+    <button onclick="evaluate_()">Dry-run</button>
+    <button onclick="simulate_()">Simulate</button>
+    <button onclick="decide_()">Commit / Decide</button>
+  </div>
+</section>
+
+<h3>Vyvod</h3>
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function out(x){document.getElementById('out').textContent=JSON.stringify(x,null,2);}
+async function save(){out(await j('POST','/thinking/action_safety/config',{"risk_tol":+tol.value||0.35,"cost_budget_daily":+bud.value||100})) ; show();}
+async function show(){const c=await (await fetch('/thinking/action_safety/config')).json(); const b=await (await fetch('/thinking/action_safety/budget')).json(); document.getElementById('budg').textContent=`budget: ${b.spent_today}/${b.budget_daily}`; out(c);}
+function parseMeta(){ try{ return JSON.parse(meta.value||'{}') }catch(e){ alert('meta: ne validnyy JSON'); throw e; } }
+async function evaluate_(){ out(await j('POST','/thinking/action_safety/evaluate',{"action":action.value||'open_url',"meta":parseMeta()})); }
+async function simulate_(){ out(await j('POST','/thinking/action_safety/simulate',{"action":action.value||'open_url',"meta":parseMeta(),"trials":60}));}
+async function decide_(){ out(await j('POST','/thinking/action_safety/decide',{"action":action.value||'open_url',"meta":parseMeta()})); show(); }
+show();
+</script>

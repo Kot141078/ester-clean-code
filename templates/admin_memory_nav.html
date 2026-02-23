@@ -1,0 +1,89 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Memory Navigator</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1300px}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:1100px){.grid{grid-template-columns:1fr}}
+  .card{border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0}
+  .small{font-size:12px;color:#666}
+  .tag{display:inline-block;background:#eef;border:1px solid #dde;border-radius:6px;padding:2px 6px;margin:2px}
+</style>
+
+<h2>Memory Navigator — taymlayn, poisk, artefakty</h2>
+<div style="margin:10px 0 6px;">
+  <strong>Retention telemetry</strong>
+</div>
+<pre id="retention"></pre>
+<div class="row">
+  <button onclick="probe()">Probe</button>
+  <button onclick="counts()">Counts</button>
+  <button onclick="demo()">Quick demo</button>
+</div>
+<pre id="info"></pre>
+
+<div class="grid">
+  <section class="card">
+    <h3>Timeline</h3>
+    <div class="row">
+      <input id="sess" placeholder="session_id (opts.)" style="width:220px">
+      <input id="scn"  placeholder="scenario_id (opts.)" style="width:220px">
+      <button onclick="loadTl()">Load</button>
+    </div>
+    <div id="tl"></div>
+  </section>
+
+  <section class="card">
+    <h3>Search</h3>
+    <div class="row">
+      <input id="q" placeholder="primer: kind:click_text agent:desktop text:Privet" style="width:520px">
+      <button onclick="find()">Search</button>
+    </div>
+    <pre id="out"></pre>
+  </section>
+</div>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function show(id,obj){ document.getElementById(id).textContent = JSON.stringify(obj,null,2); }
+function outRetention(x){ document.getElementById('retention').textContent = JSON.stringify(x,null,2); }
+
+async function probe(){ show('info', await (await fetch('/mem/probe')).json()); }
+async function counts(){ show('info', await (await fetch('/mem/counts')).json()); }
+async function demo(){ show('info', await j('POST','/mem/quick_demo',{})); loadTl(); }
+
+function card(item){
+  const a=item.artifacts||{};
+  return `
+    <div class="card">
+      <div><span class="tag">${new Date((item.ts||0)*1000).toLocaleString()}</span>
+           <span class="tag">${item.type}</span>
+           <span class="tag">${item.agent}/${item.kind}</span>
+           ${item.scenario_id?`<span class="tag">scn:${item.scenario_id}</span>`:''}
+           ${item.step_id?`<span class="tag">step:${item.step_id}</span>`:''}
+      </div>
+      <div class="small">${item.text||''}</div>
+      ${a.screenshot?`<div class="small">screenshot: ${a.screenshot}</div>`:''}
+      ${a.annot?`<div class="small">annot: ${a.annot}</div>`:''}
+      ${a.heatmap?`<div class="small">heatmap: ${a.heatmap}</div>`:''}
+    </div>
+  `;
+}
+async function loadTl(){
+  const url = `/mem/timeline?session=${encodeURIComponent(sess.value||'')}&scenario=${encodeURIComponent(scn.value||'')}`;
+  const r = await (await fetch(url)).json();
+  tl.innerHTML = (r.items||[]).map(card).join('');
+}
+async function find(){
+  show('out', await (await fetch('/mem/search?q='+encodeURIComponent(q.value||''))).json());
+}
+async function status_(){
+  const s = await j('GET','/memory/status');
+  outRetention(s&&s.retention?s.retention:s);
+}
+probe(); counts(); loadTl();
+status_();
+</script>

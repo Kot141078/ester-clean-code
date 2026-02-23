@@ -1,0 +1,20 @@
+# config/video_extractors.yaml — parametry universalnogo videokonveyera (optsionalno).
+# Esli fayl otsutstvuet — ispolzuyutsya ENV i vstroennye defolty.
+#
+# Parametry:
+#   ab_slot: A | B
+#   prefer_lang: 'ru'
+#   asr_model: 'base'
+#
+# Mosty:
+# - Yavnyy: (Inzheneriya ↔ Ekspluatatsiya) edinyy konfig bez pravki koda.
+# - Skrytyy #1: (Kibernetika ↔ Volya) svyazka s RuleHub (pereklyuchenie slotov/yazyka).
+# - Skrytyy #2: (Memory ↔ Video) soglasovanie normalizatsii subtitrov i yazyka.
+
+ab_slot: B
+prefer_lang: 'ru'
+asr_model: 'base'
+
+# Zemnoy abzats: eto «shildik na pulte» — kakoy slot vklyuchen i na kakom yazyke zhdem subtitry.
+
+# c=a+b

@@ -1,0 +1,52 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Interactive Playback</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:960px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  textarea{width:100%;min-height:160px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:120px;white-space:pre-wrap}
+</style>
+
+<h2>Interactive Playback</h2>
+
+<div class="row">
+  <button onclick="loadDemo()">Load demo</button>
+  <button onclick="loadJson()">Load JSON</button>
+</div>
+<textarea id="json">[
+{"title":"Otkryt menyu","action":{"type":"hotkey","seq":"ALT+F"},"check":{"kind":"ocr_contains","text":"Fayl","lang":"rus+eng"},"timeout_ms":5000},
+{"title":"Save","action":{"type":"hotkey","seq":"CTRL+S"},"check":{"kind":"template_match","template_b64":"...","threshold":0.78},"timeout_ms":3000}
+]</textarea>
+
+<div class="row">
+  <button onclick="start()">Start</button>
+  <button onclick="pause()">Pause</button>
+  <button onclick="resume()">Resume</button>
+  <button onclick="prev()">Back</button>
+  <button onclick="next()">Next</button>
+  <button onclick="stop()">Stop</button>
+  <button onclick="stat()">Status</button>
+</div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent = JSON.stringify(x,null,2); }
+
+async function loadDemo(){
+  const steps=[{"title":"Otkryt menyu","action":{"type":"hotkey","seq":"ALT+F"},"check":{"kind":"ocr_contains","text":"Fayl","lang":"rus+eng"},"timeout_ms":4000},{"title":"Save","action":{"type":"hotkey","seq":"CTRL+S"},"check":{},"timeout_ms":2000}];
+  out(await j('POST','/iplay/load',{"steps":steps}));
+}
+async function loadJson(){ const steps=JSON.parse(document.getElementById('json').value||"[]"); out(await j('POST','/iplay/load',{"steps":steps})); }
+async function start(){ out(await j('POST','/iplay/start',{})); }
+async function pause(){ out(await j('POST','/iplay/pause',{})); }
+async function resume(){ out(await j('POST','/iplay/resume',{})); }
+async function prev(){ out(await j('POST','/iplay/prev',{})); }
+async function next(){ out(await j('POST','/iplay/next',{})); }
+async function stop(){ out(await j('POST','/iplay/stop',{})); }
+async function stat(){ out(await j('GET','/iplay/status')); }
+</script>
+ 

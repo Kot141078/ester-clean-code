@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Ester Demo Feed</title>
+    <link>https://example.local/ester</link>
+    <description>Demo RSS dlya ingensta</description>
+    <item>
+      <title>Zagolovok 1</title>
+      <link>https://example.local/a</link>
+      <description><![CDATA[<p>Korotkoe <b>opisanie</b> A</p>]]></description>
+      <pubDate>Mon, 01 Jan 2024 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Zagolovok 2</title>
+      <link>https://example.local/b</link>
+      <description>Korotkoe opisanie B</description>
+      <pubDate>Tue, 02 Jan 2024 00:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

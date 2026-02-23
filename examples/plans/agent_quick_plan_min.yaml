@@ -1,0 +1,45 @@
+# Mini-plan pod bystrye zelenye zadachi
+# Mosty:
+# - Yavnyy: (LLM/Plan ↔ UX) — struktura sovmestima s suschestvuyuschim dvizhkom i adminkoy kaskada.
+# - Skrytyy #1: (Memory ↔ Plan) — fiksiruem namerenie v profilee.
+# - Skrytyy #2: (Plan ↔ RuleHub) — mozhet byt podkhvachen politikoy dlya kontrolya prevyu/zapisi.
+
+run_id: agent_quick_plan_min
+branch_id: main
+context_init:
+  spec: "Korotkiy plan pod zelenuyu tsel polzovatelya."
+  items:
+    - {file: "instructions.md"}
+    - {file: "metrics.md"}
+
+nodes:
+  - id: outline
+    type: llm.generate
+    prompt: "Sformiruy kratkuyu instruktsiyu pod tsel: {{ctx.spec}}. Do 5 punktov, bez vody."
+    out: "outline"
+    depends: []
+
+  - id: fanout
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["outline"]
+
+  - id: draft
+    type: llm.generate
+    prompt: |
+      Sformiruy {{ctx.item.file}} na osnove outline={{ctx.outline}}.
+      Korotko, s shagami izmereniya (CO₂e, kWh, otkhody).
+    out: "branch_out"
+    depends: ["fanout"]
+
+  - id: join
+    type: join
+    from: "fanout"
+    out: "scaffold"
+    select:
+      file: "{{item.file}}"
+      text: "{{ctx.branch_out}}"
+    mode: list
+    await_nodes: ["draft"]
+    depends: ["draft"]
+# c=a+b

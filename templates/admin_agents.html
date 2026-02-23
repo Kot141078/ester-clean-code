@@ -1,0 +1,100 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — IO Agents</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  input,textarea,button,select{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:10px;white-space:pre-wrap}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:1000px){.grid{grid-template-columns:1fr}}
+  .card{border:1px solid #eee;border-radius:10px;padding:12px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  .meta{font-size:12px;color:#666}
+</style>
+
+<h2>IO Agents — aktivnye pomoschniki</h2>
+<div class="meta">Vse deystviya prokhodyat cherez safety. Po umolchaniyu — simulirovano (bez realnogo vvoda).</div>
+
+<div class="grid">
+  <section class="card">
+    <h3>Desktop</h3>
+    <div class="row">
+      <select id="dkind">
+        <option value="open_app">open_app</option>
+        <option value="type_text">type_text</option>
+        <option value="open_url">open_url</option>
+        <option value="focus_app">focus_app</option>
+        <option value="screenshot">screenshot</option>
+      </select>
+      <input id="dmeta" placeholder='meta JSON (naprimer {"app":"notepad"} )' style="width:340px">
+      <button onclick="enqueue('desktop', dkind.value, dmeta.value)">Enqueue</button>
+    </div>
+    <div class="row">
+      <button onclick="openNotes()">Open Notes (dry-run)</button>
+      <button onclick="listQ('desktop')">Refresh</button>
+    </div>
+    <pre id="dout"></pre>
+  </section>
+
+  <section class="card">
+    <h3>Installer</h3>
+    <div class="row">
+      <input id="app" placeholder="app (VLC)">
+      <select id="src"><option>winget</option><option>apt</option><option>manual</option></select>
+      <button onclick="enqueue('installer','plan_install', JSON.stringify({app:app.value||'VLC',source:src.value}))">Plan</button>
+      <button onclick="listQ('installer')">Refresh</button>
+    </div>
+    <pre id="iout"></pre>
+  </section>
+
+  <section class="card">
+    <h3>Game Mate</h3>
+    <div class="row">
+      <button onclick="ttt()">Suggest move (tic-tac-toe)</button>
+      <button onclick="listQ('game')">Refresh</button>
+    </div>
+    <pre id="gout"></pre>
+  </section>
+</div>
+
+<h3>Dry-run & Commit</h3>
+<div class="row">
+  <select id="which"><option>desktop</option><option>installer</option><option>game</option></select>
+  <input id="aid" placeholder="action id">
+  <button onclick="dry()">Dry-run</button>
+  <button onclick="commit_()">Commit</button>
+</div>
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+async function enqueue(agent, kind, meta){
+  try{ meta = typeof meta==='string' && meta ? JSON.parse(meta) : (meta||{}); }catch(e){ alert('meta JSON error'); return; }
+  const res = await j('POST', `/agents/${agent}/enqueue`, {"kind":kind, "meta":meta});
+  document.getElementById('out').textContent = JSON.stringify(res,null,2);
+}
+async function listQ(agent){
+  const r=await (await fetch(`/agents/list?agent=${agent}`)).json();
+  (agent==='desktop') && (dout.textContent=JSON.stringify(r,null,2));
+  (agent==='installer') && (iout.textContent=JSON.stringify(r,null,2));
+  (agent==='game') && (gout.textContent=JSON.stringify(r,null,2));
+}
+async function dry(){
+  const r=await j('POST','/agents/dry_run',{"agent":which.value,"id":aid.value});
+  out.textContent=JSON.stringify(r,null,2);
+}
+async function commit_(){
+  const r=await j('POST','/agents/commit',{"agent":which.value,"id":aid.value});
+  out.textContent=JSON.stringify(r,null,2);
+}
+async function openNotes(){
+  const e=await j('POST','/agents/desktop/enqueue',{"kind":"open_app","meta":{"app":"notepad"}});
+  aid.value=e.id; which.value='desktop'; 
+  out.textContent=JSON.stringify(e,null,2);
+}
+async function ttt(){
+  const e=await j('POST','/agents/game/enqueue',{"kind":"ttt_suggest","meta":{"board":[" "," "," "," "," "," "," "," "," "],"me":"X"}});
+  aid.value=e.id; which.value='game';
+  out.textContent=JSON.stringify(e,null,2);
+}
+</script>

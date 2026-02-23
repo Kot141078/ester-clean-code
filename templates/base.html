@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ester — Lokalnyy kompanon</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}"/>
+</head>
+<body class="ester-body">
+  <header class="topbar" role="banner">
+    <div class="topbar-inner">
+      <span id="status-dot" class="status-dot unknown" title="Status: neizvesten"></span>
+      <span id="status-title" class="status-title">neizvesten</span>
+
+      <div class="spacer"></div>
+
+      <div class="providers-ui" aria-label="LLM providers and models">
+        <!-- Provayder -->
+        <label class="providers-ui__item">
+          <span class="label">Provayder</span>
+          <select id="provider-select" class="input" title="Tekuschiy provayder" aria-label="Vybor provaydera LLM">
+            <!-- Bezopasnaya zaglushka zapolnitsya JS pri pustote -->
+          </select>
+        </label>
+
+        <!-- Model: fiks-shirina + podpis «aktualno do …» -->
+        <label class="providers-ui__item stack">
+          <div class="row">
+            <span class="label">Model</span>
+            <select id="model-select" class="input" title="Modeli ne zagruzheny" aria-label="Vybor modeli">
+              <option value="">—</option>
+            </select>
+          </div>
+          <div id="model-cache-note" class="model-cache-note" aria-live="polite"></div>
+        </label>
+
+        <button id="refresh-status" class="btn" type="button" title="Obnovit status provayderov">Status</button>
+        <button id="refresh-models" class="btn" type="button" title="Obnovit spisok modeley">Modeli</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout" role="main">
+    <section class="content">
+      <div id="app-root"></div>
+    </section>
+
+    <aside class="trace-aside" aria-label="Trace">
+      {% include 'partials/trace_panel.html' %}
+      <div class="trace-status-mini" id="trace-status-mini"
+           aria-live="polite"
+           title="Nazhmite «Modeli», chtoby pokazat srok kesha modeley"></div>
+      <div id="trace-copy-toolbar" class="trace-copy-toolbar" hidden>
+        <button id="trace-copy-all" class="btn btn-xxs" type="button" title="Skopirovat ves log">Kopirovat log</button>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Skript zagruzhaetsya v samom kontse body, kak i trebuetsya -->
+  <script src="{{ url_for('static', filename='js/header_utf8_safe.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

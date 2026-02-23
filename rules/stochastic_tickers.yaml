@@ -1,0 +1,15 @@
+- kind: "dream_tick"
+  min_sec: 1200        # 20 minut
+  max_sec: 3600        # 60 minut
+  jitter_sec: 120
+  active_hours: [7, 24]
+  daily_budget: 32
+  tags: ["subconscious"]
+
+- kind: "reflect_tick"
+  min_sec: 2400        # 40 minut
+  max_sec: 7200        # 120 minut
+  jitter_sec: 90
+  active_hours: [8, 23]
+  daily_budget: 18
+  tags: ["reflection"]

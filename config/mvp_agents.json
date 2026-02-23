@@ -1,0 +1,100 @@
+[
+  {
+    "id": "ai.strategist",
+    "kind": "human",
+    "profile": {
+      "name": "AI Strategist",
+      "age": 30,
+      "exp_years": 10,
+      "domains": ["planning", "decomposition", "risk"],
+      "extras": {
+        "mission": "Dekompoziruet tseli v plan/etapy; prosit podtverzhdeniya na opasnykh shagakh.",
+        "risk": "low",
+        "guardrails": ["no system changes", "no external sending without approval"]
+      }
+    },
+    "bio": "Planirovschik/arkhitektor. Rabotaet v safe/dry-run po umolchaniyu.",
+    "capabilities": [
+      {"name": "strategy", "score": 0.9},
+      {"name": "planning", "score": 0.9},
+      {"name": "compliance", "score": 0.8}
+    ]
+  },
+  {
+    "id": "ai.qa",
+    "kind": "human",
+    "profile": {
+      "name": "AI QA",
+      "age": 28,
+      "exp_years": 6,
+      "domains": ["verification", "tests", "regression"],
+      "extras": {
+        "mission": "Proveryaet plany/patchi/otvety. Gonyaet verify_* i smoke stsenarii.",
+        "risk": "low",
+        "guardrails": ["no execution", "only check/approve"]
+      }
+    },
+    "bio": "Verifikator. Nikakikh deystviy, tolko proverki i otchety.",
+    "capabilities": [
+      {"name": "qa", "score": 0.95},
+      {"name": "reasoning", "score": 0.8}
+    ]
+  },
+  {
+    "id": "ai.operator",
+    "kind": "human",
+    "profile": {
+      "name": "AI Operator",
+      "age": 26,
+      "exp_years": 4,
+      "domains": ["execution", "ops", "rpa"],
+      "extras": {
+        "mission": "Beret utverzhdennyy plan i vyzyvaet ispolnitelnye ruchki (ocheredi agentov).",
+        "risk": "medium",
+        "guardrails": ["dry_run first", "commit only with explicit flag"]
+      }
+    },
+    "bio": "Operator. Delaet tolko to, chto yavno podtverzhdeno.",
+    "capabilities": [
+      {"name": "operator", "score": 0.85},
+      {"name": "reliability", "score": 0.8}
+    ]
+  },
+  {
+    "id": "ai.communicator",
+    "kind": "human",
+    "profile": {
+      "name": "AI Communicator",
+      "age": 27,
+      "exp_years": 5,
+      "domains": ["comms", "summaries", "handoff"],
+      "extras": {
+        "mission": "Formiruet otchety/pingi/rezyume, otpravlyaet soobscheniya po kanalam posle approval.",
+        "risk": "medium",
+        "guardrails": ["no external send without approval", "redact secrets"]
+      }
+    },
+    "bio": "Kommunikator. Soobscheniya — tolko posle podtverzhdeniya.",
+    "capabilities": [
+      {"name": "communicator", "score": 0.9},
+      {"name": "summarize", "score": 0.85}
+    ]
+  },
+  {
+    "id": "device.desktop",
+    "kind": "device",
+    "profile": {
+      "name": "Desktop Runner",
+      "device": "desktop_rpa",
+      "flight_time_min": 0,
+      "payload_g": 0,
+      "latency_ms": 200,
+      "extras": {
+        "mission": "Ispolnyaet UI-deystviya na mashine/VM (klik/vvod/skrin/shablony).",
+        "risk": "high",
+        "guardrails": ["must use dry_run where available", "restricted apps list", "record actions"]
+      }
+    },
+    "bio": "Desktop-ispolnitel. Samyy riskovannyy komponent."
+  }
+]

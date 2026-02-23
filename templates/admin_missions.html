@@ -1,0 +1,57 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Uchebnye missii</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+  h2,h3{margin:12px 0}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  table{border-collapse:collapse;width:100%} th,td{border:1px solid #e1e1e1;padding:6px 8px}
+  img{max-width:100%;border:1px solid #ddd;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:100px;white-space:pre-wrap}
+  .pill{padding:4px 8px;border-radius:999px;border:1px solid #bbb}
+</style>
+
+<h2>Uchebnye missii</h2>
+
+<div class="row">
+  <button onclick="loadList()">Spisok</button>
+  <button onclick="progress()">Progress</button>
+  <span id="stat" class="pill">—</span>
+</div>
+
+<table id="tbl"><thead><tr><th>ID</th><th>Nazvanie</th><th>Shagov</th><th>Deystvie</th></tr></thead><tbody></tbody></table>
+
+<h3>Shag missii</h3>
+<div class="row">
+  Missiya: <input id="mid" type="text" value="notepad_intro">
+  Shag #: <input id="sidx" type="number" value="0">
+  <button onclick="start()">Start</button>
+  <button onclick="step()">Shag</button>
+  <button onclick="done()">Zavershit</button>
+</div>
+<img id="ov" alt="Overlay">
+<h3>Log</h3>
+<pre id="log"></pre>
+
+<script>
+function log(x){ const e=document.getElementById('log'); e.textContent += JSON.stringify(x)+"\n"; e.scrollTop=e.scrollHeight; }
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function drawRows(items){
+  const tb=document.querySelector('#tbl tbody'); tb.innerHTML='';
+  (items||[]).forEach(it=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${it.id}</td><td>${it.title}</td><td>${it.steps}</td><td><button onclick="run('${it.id}')">Zapustit</button></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+async function loadList(){ const r=await j('GET','/missions/list'); drawRows(r.items); log(r); }
+async function progress(){ const r=await j('GET','/missions/progress'); document.getElementById('stat').textContent='done: '+Object.keys(r.done||{}).length; log(r); }
+async function run(id){ document.getElementById('mid').value=id; await start(); }
+async function start(){ const r=await j('POST','/missions/start',{id: document.getElementById('mid').value}); log(r); }
+async function step(){ const r=await j('POST','/missions/step',{id: document.getElementById('mid').value, index:+document.getElementById('sidx').value}); if(r.ok && r.kind==='overlay' && r.overlay_b64){ document.getElementById('ov').src='data:image/png;base64,'+r.overlay_b64; } log(r); }
+async function done(){ const r=await j('POST','/missions/complete',{id: document.getElementById('mid').value}); log(r); await progress(); }
+
+loadList(); progress();
+</script>

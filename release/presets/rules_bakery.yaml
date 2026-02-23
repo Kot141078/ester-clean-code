@@ -1,0 +1,21 @@
+version: 1
+name: bakery_smallbiz
+description: "Smeny, zakazy, chek-listy, utrenniy otchet"
+triggers:
+  - kind: scheduler.tick
+    when: "CRON: 0 5 * * *"
+    actions:
+      - type: pull_docs_from_folder
+        path: "./uploads/orders"
+      - type: ocr_and_parse
+      - type: generate_morning_report
+        sections: ["orders","inventory","staff"]
+      - type: notify
+        channel: "telegram"
+  - kind: chat.intent
+    match: ["smena","zakaz","ostatki"]
+    actions:
+      - type: retrieve_kg
+      - type: answer_with_checklist
+guardrails:
+  require_ack_for_critical: true

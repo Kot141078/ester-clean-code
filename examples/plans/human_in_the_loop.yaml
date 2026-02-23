@@ -1,0 +1,51 @@
+run_id: research_run_05
+branch_id: main
+context_init:
+  spec: "Rassmotret tri istochnika i cherez human.review utverdit tezisy; zatem sobrat obschiy svod."
+  items:
+    - {file: "Istochnik_A.md"}
+    - {file: "Istochnik_B.md"}
+    - {file: "Istochnik_C.md"}
+
+nodes:
+  - id: outline
+    type: llm.generate
+    prompt: "Sformiruy perechen zadach po TZ: {{ctx.spec}}. Day 5–7 punktov."
+    out: "outline"
+    depends: []
+
+  - id: fork
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["outline"]
+
+  - id: analyze
+    type: llm.generate
+    prompt: "Analiz {{ctx.item.file}} s uchetom obschego outline={{ctx.outline}}. Verni 3–5 predlozheniy."
+    out: "analysis"
+    depends: ["fork"]
+
+  - id: human_check
+    type: human.review
+    message: "Prover i soglasuy analiz {{ctx.item.file}}. Otvet: OK/popravki."
+    out: "approval"
+    depends: ["analyze"]
+
+  - id: finalize
+    type: llm.generate
+    prompt: "Soberi finalnuyu versiyu dlya {{ctx.item.file}} iz analysis={{ctx.analysis}} i approval={{ctx.approval}}."
+    out: "final_branch"
+    depends: ["human_check"]
+
+  - id: gather_text
+    type: join
+    from: "fork"
+    out: "final_report"
+    select:
+      file: "{{item.file}}"
+      verdict: "{{ctx.approval}}"
+      text: "{{ctx.final_branch}}"
+    mode: text
+    separator: "\n---\n"
+    await_nodes: ["finalize"]
+    depends: ["finalize"]

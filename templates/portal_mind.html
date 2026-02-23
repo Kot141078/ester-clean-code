@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Poslednie myslitelnye sobytiya</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:24px;line-height:1.46}
+    .muted{color:#666}
+    table{border-collapse:collapse;width:100%}
+    th,td{border:1px solid #ddd;padding:8px;text-align:left;vertical-align:top}
+    th{background:#fafafa}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef;margin-right:6px}
+    .wrap{white-space:pre-wrap}
+    .hdr{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+    input,select{padding:6px;border:1px solid #ccc;border-radius:8px}
+    a.btn{padding:6px 10px;border-radius:10px;background:#111;color:#fff;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="hdr">
+    <h2 style="margin:0">Poslednie myslitelnye sobytiya</h2>
+    <a class="btn" href="/rulehub/export.ndjson?limit=200" target="_blank">NDJSON</a>
+    <a class="btn" href="/rulehub/export.csv?limit=200" target="_blank">CSV</a>
+    <a class="btn" href="/admin/mind/rules" target="_blank">Panel RuleHub</a>
+  </div>
+  <p class="muted">Istochnik: <code>data/rulehub/log.jsonl</code> (RuleHub). Parametry: <code>?limit=</code>, <code>?status=ok|err|blocked</code>.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>ts</th>
+        <th>status</th>
+        <th>actions</th>
+        <th>duration_ms</th>
+        <th>input_len</th>
+        <th>blocked</th>
+        <th>info</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.ts }}</td>
+        <td><span class="pill">{{ r.status }}</span></td>
+        <td>{{ ", ".join(r.actions or []) }}</td>
+        <td>{{ r.duration_ms or 0 }}</td>
+        <td>{{ r.input_len or 0 }}</td>
+        <td class="wrap">{{ ", ".join(r.blocked or []) }}</td>
+        <td class="wrap">
+          {% if r.error %}
+            <span class="muted">err:</span> {{ r.error }}
+          {% else %}
+            {{ r.result_hint }}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <script src="/static/portal_mind.js"></script>
+</body>
+</html>

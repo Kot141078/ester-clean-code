@@ -1,0 +1,25 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Context Inspector (Heatmap)</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:980px}
+  button{padding:8px 12px;border:1px solid #ccc;border-radius:8px;cursor:pointer}
+  img{max-width:100%;border:1px solid #ddd;border-radius:8px}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+</style>
+<h2>Context Heatmap</h2>
+<div class="row">
+  N <input id="n" type="number" value="200">
+  <button onclick="build()">Build heatmap</button>
+</div>
+<div id="meta"></div>
+<img id="img" />
+
+<script>
+async function build(){
+  const r = await fetch('/context/heatmap/build',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({n:+n.value})});
+  const j = await r.json();
+  if(j.ok){ img.src='data:image/png;base64,'+j.png_b64; meta.textContent=`Points: ${j.count}, ${j.w}x${j.h}`; }
+  else meta.textContent='Error: '+(j.error||'');
+}
+</script>

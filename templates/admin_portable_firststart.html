@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Portable / First Start</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px;cursor:pointer}
+    button:hover{filter:brightness(1.1)}
+    code,pre{background:#0b121d;color:#e6eef7;padding:6px;border-radius:8px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .muted{opacity:.7}
+    table{width:100%;border-collapse:collapse}
+    td,th{border-bottom:1px solid #273244;padding:6px;text-align:left;font-size:13px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Master pervogo vklyucheniya: pokazyvaet profil uzla, gotovit recommend.env i «vizitku» (rukopozhatie) dlya obmena cherez Telegram.
+    Mosty: yavnyy — status/apply/telegram; skrytye — offlayn, stdlib, zapis tolko pri AB=B.
+  -->
+</head>
+<body>
+  <h1>First Start <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <h3>Profile uzla</h3>
+    <div id="sys">—</div>
+  </section>
+
+  <section>
+    <h3>Rekomendovannyy ENV</h3>
+    <pre id="env">—</pre>
+    <div style="margin-top:8px">
+      <button onclick="applyEnv()">Primenit (zapisat v ESTER/portable)</button>
+      <span id="apply_res" class="chip">—</span>
+      <span class="muted">V AB=A — dry, nichego ne pishem.</span>
+    </div>
+  </section>
+
+  <section>
+    <h3>Svyaz s kopiyami (cherez Telegram, offlayn)</h3>
+    <p class="muted">Budet sgenerirovan korotkiy kod i payload-fayl v <code>ESTER/payloads/outbox</code>. Tekst mozhno prosto pereslat sebe v «Izbrannoe».</p>
+    <textarea id="meta" placeholder='{"hint":"lyuboy komment"}' style="width:100%;min-height:80px"></textarea>
+    <div style="margin-top:8px">
+      <button onclick="makeHello()">Sdelat «rukopozhatie»</button>
+      <span id="hello_res" class="chip">—</span>
+    </div>
+    <pre id="hello_msg">—</pre>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+async function jget(u,opts){const r=await fetch(u,opts);return await r.json().catch(()=>({ok:false}))}
+function esc(s){return (s??"").toString().replace(/</g,"&lt;")}
+function table(obj){
+  const rows = Object.entries(obj||{}).map(([k,v])=>`<tr><td><b>${esc(k)}</b></td><td>${esc(v)}</td></tr>`).join("");
+  return `<table>${rows}</table>`;
+}
+async function loadStatus(){
+  const j=await jget('/admin/portable/firststart/status');
+  document.getElementById('raw').textContent=JSON.stringify(j,null,2);
+  if(!j.ok) return;
+  document.getElementById('sys').innerHTML = table(j.system||{});
+  document.getElementById('env').textContent = j.env_preview||"";
+}
+async function applyEnv(){
+  const j=await jget('/admin/portable/firststart/apply',{method:'POST'});
+  document.getElementById('raw').textContent=JSON.stringify(j,null,2);
+  document.getElementById('apply_res').textContent = j.ok ? "OK" : "ERR";
+}
+async function makeHello(){
+  let meta={}; try{ meta=JSON.parse(document.getElementById('meta').value||"{}"); }catch(e){ alert("Nekorrektnyy JSON"); return; }
+  const j=await jget('/admin/portable/firststart/telegram',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({meta})});
+  document.getElementById('raw').textContent=JSON.stringify(j,null,2);
+  document.getElementById('hello_res').textContent = j.ok ? "OK" : "ERR";
+  document.getElementById('hello_msg').textContent = j.ok ? (j.result.message || "(net)") : "(oshibka)";
+}
+loadStatus().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

@@ -1,0 +1,33 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Showtime Presets</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:960px}
+  button,select{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:160px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
+</style>
+<h2>Showtime — gotovye demonstratsii</h2>
+<div class="row">
+  <select id="preset"></select>
+  <button onclick="run()">Run</button>
+  <button onclick="load()">Reload list</button>
+  <a href="/admin/agent_run" target="_blank">Open Runner</a>
+</div>
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+
+async function load(){
+  const r=await fetch('/showtime/list'); const j=await r.json();
+  const s=document.getElementById('preset'); s.innerHTML='';
+  (j.presets||[]).forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=p; s.appendChild(o); });
+}
+async function run(){
+  const n=document.getElementById('preset').value;
+  out(await j('POST','/showtime/run',{"name":n}));
+}
+load();
+</script>

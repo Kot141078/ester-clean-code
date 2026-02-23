@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester · Golos avtora</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root { --fg:#111; --bg:#fff; --muted:#666; --line:#eee; --accent:#0a7; }
+    body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; color:var(--fg); background:var(--bg); }
+    header { padding:16px 20px; border-bottom:1px solid var(--line); }
+    main { max-width:960px; margin:0 auto; padding:20px; display:grid; gap:16px; }
+    .card { border:1px solid var(--line); border-radius:12px; padding:16px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+    label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+    select, textarea, input[type=text], input[type=number], input[type=range] { width:100%; padding:10px; border:1px solid var(--line); border-radius:10px; font-size:15px; }
+    textarea { min-height:200px; }
+    button { padding:10px 14px; border:0; border-radius:10px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; }
+    pre { white-space:pre-wrap; background:#f9f9f9; border:1px dashed #ddd; padding:12px; border-radius:10px; }
+    .row { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+    .muted { color:var(--muted); font-size:13px; }
+  </style>
+</head>
+<body>
+<header><strong>Golos avtora</strong> · Ester</header>
+<main>
+  <div class="row">
+    <div class="card">
+      <label>Auditoriya</label>
+      <select id="audience">
+        <option value="lawyer">Advokat</option>
+        <option value="bank">Bank</option>
+        <option value="gov">Gosorgan</option>
+        <option value="business">Biznes</option>
+        <option value="friend">Drug</option>
+        <option value="student">Student</option>
+        <option value="neutral" selected>Neytralno</option>
+      </select>
+    </div>
+    <div class="card">
+      <label>Namerenie</label>
+      <select id="intent">
+        <option value="letter" selected>Pismo</option>
+        <option value="update">Obnovlenie</option>
+        <option value="request">Prosba</option>
+        <option value="reminder">Napominanie</option>
+        <option value="apology">Izvinenie</option>
+      </select>
+    </div>
+    <div class="card">
+      <label>Prefiks</label>
+      <input id="prefix" type="text" placeholder="Napr.: Kollegi," value="{{ prefix }}">
+      <label style="margin-top:10px;">Podpis</label>
+      <input id="signature" type="text" placeholder="Napr.: Owner" value="{{ signature }}">
+      <div class="muted">Eti polya ne sokhranyayutsya — prosto dlya predprosmotra.</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="card">
+      <label>Tekst/fakty</label>
+      <textarea id="content" placeholder="Opishite mysl chelovecheskimi slovami."></textarea>
+      <div style="display:grid; gap:8px; margin-top:12px;">
+        <label>Teplo: <span id="warmthVal">{{ warmth }}</span></label>
+        <input id="warmth" type="range" min="0" max="1" step="0.05" value="{{ warmth }}">
+        <label>Kratkost: <span id="brevityVal">{{ brevity }}</span></label>
+        <input id="brevity" type="range" min="0" max="1" step="0.05" value="{{ brevity }}">
+        <label>Formalnost: <span id="formalityVal">{{ formality }}</span></label>
+        <input id="formality" type="range" min="0" max="1" step="0.05" value="{{ formality }}">
+        <button id="btn">Predprosmotr</button>
+      </div>
+    </div>
+    <div class="card">
+      <label>Rezultat</label>
+      <pre id="out">(zdes poyavitsya tekst)</pre>
+    </div>
+  </div>
+</main>
+<script>
+  const $ = s => document.querySelector(s);
+  function bindRange(id, lbl){ $(id).addEventListener('input', e=>$(lbl).textContent=e.target.value); }
+  bindRange('#warmth','#warmthVal'); bindRange('#brevity','#brevityVal'); bindRange('#formality','#formalityVal');
+  $('#btn').addEventListener('click', async ()=>{
+    const body = {
+      audience: $('#audience').value,
+      intent: $('#intent').value,
+      content: $('#content').value,
+      voice: {
+        warmth: parseFloat($('#warmth').value),
+        brevity: parseFloat($('#brevity').value),
+        formality: parseFloat($('#formality').value),
+        signature: $('#signature').value,
+        prefix: $('#prefix').value
+      }
+    };
+    const r = await fetch('/voice/api/preview', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const j = await r.json();
+    $('#out').textContent = j.text || JSON.stringify(j,null,2);
+  });
+</script>
+</body>
+</html>

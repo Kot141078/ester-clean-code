@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Checklist (vetka B)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .muted{opacity:.7}
+    .ok{color:#7fd87f}.warn{color:#ffcc66}.bad{color:#ff8a8a}
+    .card{background:#0e1521;border:1px solid #283244;border-radius:12px;padding:12px}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Odin ekran "pered otdachey fleshki": struktura, ocheredi, LAN, lock i knopki: zapisat lock, polozhit mini-installer, sverit env s dampom.
+    Mosty: yavnyy — /status ↔ /lock_write|/installer_seed|/compat_check; skrytye — dry AB, offlayn.
+  -->
+</head>
+<body>
+  <h1>Checklist (vetka B) <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <div class="grid" id="cards">—</div>
+    <div class="grid" style="margin-top:8px">
+      <div class="card">
+        <b>Deystviya</b>
+        <div class="muted">Lock i installer pishutsya v <code>ESTER/</code> na fleshke (AB=A → dry).</div>
+        <div style="margin-top:8px">
+          <button onclick="writeLock()">Zapisat lock (manifest_lock.json)</button>
+          <button onclick="seedInstaller()">Polozhit mini-installer</button>
+        </div>
+      </div>
+      <div class="card">
+        <b>Sovmestimost s dampom</b>
+        <div class="muted">Proverka env po <code>ESTER/compat/ester_manifest.json</code> (esli est).</div>
+        <div style="margin-top:8px">
+          <button onclick="compatCheck()">Proverit</button>
+        </div>
+      </div>
+    </div>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+async function jget(url, body){
+  const opts = body ? {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)} : {};
+  const r = await fetch(url, opts);
+  return await r.json().catch(()=>({ok:false}));
+}
+function esc(s){return (s??"").toString().replace(/</g,"&lt;")}
+function card(k, v, hint){
+  return `<div class="card"><b>${esc(k)}</b><div style="font-size:22px;margin:6px 0">${esc(v)}</div><div class="muted">${esc(hint||"")}</div></div>`;
+}
+function yesno(b){ return b ? '<span class="ok">da</span>' : '<span class="bad">net</span>'; }
+async function load(){
+  const s = await jget('/admin/portable/checklist/status');
+  document.getElementById('raw').textContent = JSON.stringify(s, null, 2);
+  if(!s.ok) return;
+  const ex = s.usb_info?.exists||{};
+  const cards = [];
+  cards.push(card("USB", s.usb? "nayden" : "ne nayden", s.usb || "—"));
+  cards.push(card("ESTER/jobs", yesno(!!ex.jobs), "ochered: "+(s.jobs_queue||0)));
+  cards.push(card("ESTER/reports", yesno(!!ex.reports), ""));
+  cards.push(card("ESTER/payloads", yesno(!!ex.payloads), "import cherez USB"));
+  cards.push(card("USB Catalog", s.catalog_items||0, "elementov"));
+  cards.push(card("LAN", (s.lan_peers||0)+" / "+(s.lan_items||0), "uzlov / elementov"));
+  cards.push(card("Lock preview", (s.lock_preview?.files||[]).length+" faylov", "manifest_lock.json"));
+  cards.push(card("Compat manifest", yesno(!!s.compat_manifest_presence), "ESTER/compat/ester_manifest.json"));
+  document.getElementById('cards').innerHTML = cards.join("");
+}
+async function writeLock(){
+  const r = await jget('/admin/portable/lock_write',{});
+  alert(r.ok!==false ? "OK" : "ERR");
+  await load();
+}
+async function seedInstaller(){
+  const r = await jget('/admin/portable/installer_seed',{});
+  alert(r.ok!==false ? "OK" : "ERR");
+  await load();
+}
+async function compatCheck(){
+  const r = await jget('/admin/portable/compat_check',{});
+  document.getElementById('raw').textContent = JSON.stringify(r, null, 2);
+  alert(r.ok!==false ? ("OK, env_missing: "+(r.result?.env_missing?.length||0)) : "ERR");
+}
+load().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

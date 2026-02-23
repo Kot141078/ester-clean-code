@@ -1,0 +1,749 @@
+openapi: 3.0.3
+info:
+  title: Ester API
+  version: "2.0.0"
+  description: >
+    Obnovlennyy OpenAPI dlya «Ester v2.0».
+    Dobavleny marshruty:
+      - /mem/kg/* — graf znaniy (uzly/rebra, eksport/import)
+      - /mem/hypothesis — khranilische gipotez (list/add/feedback)
+      - Aliasy pamyati pod /mem/* (flashback/alias/compact)
+      - /dreams/* — zapusk «Snov»
+      - /events/* — publikatsiya/lenta sobytiy; /tasks/* — planirovschik
+      - /ingest/* — OCR/ASR/Image Caption/Code Scan/Dedup/Bulk
+      - /ops/* — GDPR eksport/udalenie personalnykh dannykh
+servers:
+  - url: /
+    description: Relative server (behind reverse proxy)
+tags:
+  - name: Memory
+    description: Structured memory (flashback/alias/compact)
+  - name: KnowledgeGraph
+    description: Knowledge Graph (nodes/edges, import/export)
+  - name: Hypothesis
+    description: Hypotheses store (dreams/proactive insights)
+  - name: Dreams
+    description: Dreaming engine (cluster → hypotheses → KG)
+  - name: Events
+    description: Events bus & scheduler
+  - name: Ingest
+    description: OCR/ASR/Image Caption/Code ingest
+  - name: Ops
+    description: "GDPR: eksport/udalenie personalnykh dannykh"
+
+security:
+  - bearerAuth: []
+
+paths:
+  # -------- MEMORY (originalnye + aliasy pod /mem)
+  /memory/flashback:
+    get:
+      tags: [Memory]
+      summary: Flashback — poluchit poslednie zapisi pamyati (po tekstovomu filtru)
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string, default: "*" }
+        - in: query
+          name: k
+          schema: { type: integer, default: 50, minimum: 1, maximum: 1000 }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/MemoryFlashbackResponse" }}}}
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /memory/alias:
+    post:
+      tags: [Memory]
+      summary: "Sozdat alias (skleyka): pometit, chto src — eto alias dst"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AliasRequest" }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/AliasResponse" }}}}
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /memory/compact:
+    post:
+      tags: [Memory]
+      summary: Kompakt pamyati (udalenie dubley po text); dry-run podderzhivaetsya
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CompactRequest" }
+      responses:
+        "200": { description: Itog kompakta, content: { application/json: { schema: { $ref: "#/components/schemas/CompactResponse" }}}}
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /mem/flashback:
+    get:
+      tags: [Memory]
+      summary: (Alias) Flashback — to zhe, chto /memory/flashback
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string, default: "*" }
+        - in: query
+          name: k
+          schema: { type: integer, default: 50, minimum: 1, maximum: 1000 }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/MemoryFlashbackResponse" }}}}
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /mem/alias:
+    post:
+      tags: [Memory]
+      summary: (Alias) Sozdat alias — to zhe, chto /memory/alias
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AliasRequest" }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/AliasResponse" }}}}
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /mem/compact:
+    post:
+      tags: [Memory]
+      summary: (Alias) Kompakt pamyati — to zhe, chto /memory/compact
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CompactRequest" }
+      responses:
+        "200": { description: Itog kompakta, content: { application/json: { schema: { $ref: "#/components/schemas/CompactResponse" }}}}
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  # -------- KNOWLEDGE GRAPH
+  /mem/kg/upsert:
+    post:
+      tags: [KnowledgeGraph]
+      summary: Upsert uzlov i/ili reber grafa znaniy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/KGUpsertRequest" }
+      responses:
+        "200": { description: Kolichestvo sokhranennykh suschnostey, content: { application/json: { schema: { $ref: "#/components/schemas/KGUpsertResponse" }}}}
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /mem/kg/query:
+    get:
+      tags: [KnowledgeGraph]
+      summary: Poisk v grafe — libo uzly (q/type), libo rebra (rel/src/dst)
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: type
+          schema: { type: string }
+        - in: query
+          name: rel
+          schema: { type: string }
+        - in: query
+          name: src
+          schema: { type: string }
+        - in: query
+          name: dst
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 100 }
+        - in: query
+          name: include_edges
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: Rezultaty poiska
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/KGQueryNodesResponse"
+                  - $ref: "#/components/schemas/KGQueryEdgesResponse"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /mem/kg/export:
+    get:
+      tags: [KnowledgeGraph]
+      summary: Eksport vsego grafa (uzly i rebra)
+      responses:
+        "200": { description: Polnyy damp grafa, content: { application/json: { schema: { $ref: "#/components/schemas/KGExportResponse" }}}}
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /mem/kg/import:
+    post:
+      tags: [KnowledgeGraph]
+      summary: Import grafa (merdzh po LWW/merge-politikam)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/KGExportResponse" }
+      responses:
+        "200": { description: Rezultat importa, content: { application/json: { schema: { $ref: "#/components/schemas/KGImportResponse" }}}}
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  # -------- HYPOTHESIS STORE
+  /mem/hypothesis:
+    get:
+      tags: [Hypothesis]
+      summary: Poluchit spisok gipotez (optsionalno — po topic)
+      parameters:
+        - in: query
+          name: topic
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 100 }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/HypothesisListResponse" }}}}
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    post:
+      tags: [Hypothesis]
+      summary: Dobavit/obnovit gipotezu (idempotentno po (text, topic))
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/HypothesisAddRequest" }
+      responses:
+        "200": { description: Sozdano/obnovleno, content: { application/json: { schema: { $ref: "#/components/schemas/OKSavedResponse" }}}}
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /mem/hypothesis/feedback:
+    post:
+      tags: [Hypothesis]
+      summary: Feedback po gipoteze (used/Δscore)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id: { type: string }
+                used: { type: boolean }
+                delta_score: { type: number }
+      responses:
+        "200": { description: OK }
+        "404": { description: Not found }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  # -------- DREAMS
+  /dreams/run:
+    post:
+      tags: [Dreams]
+      summary: Ruchnoy zapusk «Snov»
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rules:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      query: { type: string, default: "*" }
+                      k: { type: integer, default: 200 }
+                      ngram: { type: integer, default: 3 }
+                      min_cluster_size: { type: integer, default: 2 }
+                      max_hypotheses_per_cluster: { type: integer, default: 2 }
+                      topic_hint: { type: string }
+      responses:
+        "200": { description: Otchet, content: { application/json: { schema: { type: object }}}}
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /dreams/last_report:
+    get:
+      tags: [Dreams]
+      summary: Poluchit posledniy otchet po «Snam»
+      responses:
+        "200": { description: OK }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  # -------- EVENTS & TASKS
+  /events/publish:
+    post:
+      tags: [Events]
+      summary: Publikatsiya sobytiya v shinu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [kind]
+              properties:
+                kind: { type: string }
+                payload: { type: object, additionalProperties: true }
+      responses:
+        "200": { description: OK }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /events/feed:
+    get:
+      tags: [Events]
+      summary: Poluchit sobytiya iz shiny
+      parameters:
+        - in: query
+          name: since
+          schema: { type: number, default: 0.0 }
+        - in: query
+          name: kind
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 100 }
+      responses:
+        "200": { description: OK }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /tasks/list:
+    get:
+      tags: [Events]
+      summary: Spisok zadach planirovschika
+      responses:
+        "200": { description: OK }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /tasks/cancel:
+    post:
+      tags: [Events]
+      summary: Otklyuchit zadachu planirovschika
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id: { type: string }
+      responses:
+        "200": { description: OK }
+        "404": { description: Not found }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /tasks/run_tick:
+    post:
+      tags: [Events]
+      summary: Ruchnoy zapusk «tika» planirovschika (dev/CI)
+      responses:
+        "200": { description: OK }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  # -------- INGEST 2.0
+  /ingest/ocr:
+    post:
+      tags: [Ingest]
+      summary: OCR dlya PDF/izobrazheniy
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+                lang: { type: string, default: "eng+rus" }
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, default: "scan.pdf" }
+                data_b64: { type: string }
+                lang: { type: string, default: "eng+rus" }
+      responses:
+        "200": { description: Tekst OCR, content: { application/json: { schema: { type: object }}}}
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /ingest/asr:
+    post:
+      tags: [Ingest]
+      summary: ASR dlya audio (WAV 16-bit PCM)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+                lang: { type: string, default: "ru" }
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, default: "audio.wav" }
+                data_b64: { type: string }
+                lang: { type: string, default: "ru" }
+      responses:
+        "200": { description: Transkriptsiya, content: { application/json: { schema: { type: object }}}}
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /ingest/caption:
+    post:
+      tags: [Ingest]
+      summary: Podpis (captioning) dlya izobrazheniy
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, default: "image.png" }
+                data_b64: { type: string }
+      responses:
+        "200": { description: Caption, content: { application/json: { schema: { type: object }}}}
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /ingest/code_scan:
+    post:
+      tags: [Ingest]
+      summary: Postroit graf importov koda (direktoriya)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [root]
+              properties:
+                root: { type: string }
+      responses:
+        "200": { description: OK }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /ingest/dedup_check:
+    post:
+      tags: [Ingest]
+      summary: Proverka fayla na dublikat (bez zapisi)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+          application/json:
+            schema:
+              type: object
+              required: [data_b64]
+              properties:
+                name: { type: string }
+                data_b64: { type: string }
+      responses:
+        "200": { description: OK }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /ingest/scan_dir:
+    post:
+      tags: [Ingest]
+      summary: Paketnaya obrabotka direktorii (text/ocr/caption)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [dir]
+              properties:
+                dir: { type: string }
+                mode: { type: string, enum: ["text","ocr","caption"], default: "text" }
+                glob: { type: string, default: "*" }
+                lang: { type: string, default: "eng+rus" }
+      responses:
+        "200": { description: Otchet o paketnoy obrabotke }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  # -------- OPS (GDPR)
+  /ops/export_personal_data:
+    post:
+      tags: [Ops]
+      summary: Eksport personalnykh dannykh po tekstovomu zaprosu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query: { type: string, description: "Poisk po podstroke (case-insensitive)" }
+                download: { type: boolean, default: false }
+      responses:
+        "200": { description: JSON s dannymi ili fayl (esli download=true) }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /ops/delete_personal_data:
+    post:
+      tags: [Ops]
+      summary: Udalenie personalnykh dannykh po zaprosu (best-effort)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query: { type: string }
+                dry_run: { type: boolean, default: true }
+      responses:
+        "200": { description: Otchet ob udalenii/sukhom zapuske }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /chat/message:
+    post:
+      tags: [Chat]
+      summary: Vkhodnoy chat (JWT optional)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatMessageRequest"
+      responses:
+        "200":
+          description: Otvet chata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatMessageResponse"
+        "400":
+          description: Nekorrektnyy zapros
+        "401":
+          description: JWT neobkhodim ili neveren
+        "500":
+          description: Oshibka generatsii otveta
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    Unauthorized:
+      description: Trebuetsya avtorizatsiya (Bearer JWT)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    BadRequest:
+      description: Nevernyy zapros (validatsiya ne proydena)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        ok: { type: boolean, example: false }
+        error: { type: string, example: "text required" }
+
+    StructuredRecord:
+      type: object
+      additionalProperties: true
+      properties:
+        id: { type: string }
+        text: { type: string }
+        tags: { type: array, items: { type: string } }
+        weight: { type: number }
+        mtime: { type: number }
+
+    MemoryFlashbackResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/StructuredRecord" }
+
+    AliasRequest:
+      type: object
+      required: [src, dst]
+      properties:
+        src: { type: string }
+        dst: { type: string }
+
+    AliasResponse:
+      type: object
+      properties:
+        ok: { type: boolean, example: true }
+        doc_id: { type: string }
+        alias: { type: string }
+
+    CompactRequest:
+      type: object
+      properties:
+        dry_run: { type: boolean, default: false }
+        dry: { type: boolean }
+        by_text: { type: boolean, default: true }
+
+    CompactResponse:
+      type: object
+      properties:
+        ok: { type: boolean, example: true }
+        before: { type: integer, example: 125 }
+        after: { type: integer, example: 97 }
+        dry: { type: boolean, example: false }
+
+    KGNode:
+      type: object
+      required: [id, type, label]
+      properties:
+        id: { type: string }
+        type: { type: string }
+        label: { type: string }
+        props: { type: object, additionalProperties: true }
+        mtime: { type: number }
+        version: { type: integer }
+
+    KGEdge:
+      type: object
+      required: [src, rel, dst]
+      properties:
+        id: { type: string }
+        src: { type: string }
+        rel: { type: string }
+        dst: { type: string }
+        weight: { type: number }
+        props: { type: object, additionalProperties: true }
+        mtime: { type: number }
+        version: { type: integer }
+
+    KGUpsertRequest:
+      type: object
+      properties:
+        nodes: { type: array, items: { $ref: "#/components/schemas/KGNode" } }
+        edges: { type: array, items: { $ref: "#/components/schemas/KGEdge" } }
+
+    KGUpsertResponse:
+      type: object
+      properties:
+        ok: { type: boolean, example: true }
+        nodes: { type: integer, example: 2 }
+        edges: { type: integer, example: 1 }
+
+    KGQueryNodesResponse:
+      type: object
+      properties:
+        nodes: { type: array, items: { $ref: "#/components/schemas/KGNode" } }
+
+    KGQueryEdgesResponse:
+      type: object
+      properties:
+        edges: { type: array, items: { $ref: "#/components/schemas/KGEdge" } }
+
+    KGExportResponse:
+      type: object
+      properties:
+        nodes: { type: array, items: { $ref: "#/components/schemas/KGNode" } }
+        edges: { type: array, items: { $ref: "#/components/schemas/KGEdge" } }
+
+    KGImportResponse:
+      type: object
+      properties:
+        ok: { type: boolean, example: true }
+        nodes: { type: integer, example: 12 }
+        edges: { type: integer, example: 25 }
+
+    HypothesisItem:
+      type: object
+      properties:
+        id: { type: string }
+        text: { type: string }
+        topic: { type: string }
+        tags: { type: array, items: { type: string } }
+        score: { type: number }
+        mtime: { type: number }
+
+    HypothesisListResponse:
+      type: object
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/HypothesisItem" } }
+
+    HypothesisAddRequest:
+      type: object
+      required: [text]
+      properties:
+        text: { type: string }
+        topic: { type: string }
+        tags: { type: array, items: { type: string } }
+        score: { type: number, default: 0.5 }
+
+    OKSavedResponse:
+      type: object
+      properties:
+        ok: { type: boolean, example: true }
+        saved: { type: boolean, example: true }
+
+    ChatMessageRequest:
+      type: object
+      properties:
+        sid: { type: string }
+        session_id: { type: string }
+        chat_id: { type: string }
+        message: { type: string }
+        text: { type: string }
+        query: { type: string }
+        mode: { type: string }
+        engine: { type: string }
+        temperature:
+          type: number
+          format: float
+        rag: { type: boolean }
+        use_rag: { type: boolean }
+      anyOf:
+        - required: [message]
+        - required: [text]
+        - required: [query]
+      additionalProperties: true
+
+    ChatMessageResponse:
+      type: object
+      properties:
+        ok: { type: boolean }
+        answer: { type: string }
+        response: { type: string }
+        reply: { type: string }
+        error: { type: string }
+        provider: { type: string }
+        mode: { type: string }
+        sid: { type: string }
+        history:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      additionalProperties: true

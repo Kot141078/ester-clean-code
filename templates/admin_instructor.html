@@ -1,0 +1,34 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Instructor Mode</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  .pill{padding:4px 8px;border:1px solid #bbb;border-radius:999px}
+  table{border-collapse:collapse;width:100%} th,td{border:1px solid #e1e1e1;padding:6px 8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:120px;white-space:pre-wrap}
+</style>
+
+<h2>Instructor Mode</h2>
+<div class="row">
+  Peers <input id="peers" placeholder="ip:port,ip:port" style="min-width:360px">
+  <button onclick="startC()">Start class</button>
+  <button onclick="stopC()">Stop</button>
+  <button onclick="stat()">Status</button>
+  <span id="rdy" class="pill">—</span>
+</div>
+
+<table id="tbl"><thead><tr><th>Peer</th><th>Ready</th></tr></thead><tbody></tbody></table>
+
+<h3>Last confirms</h3>
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function peersList(){ const s=(peers.value||'').trim(); return s? s.split(',').map(x=>x.trim()).filter(Boolean):[]; }
+function draw(s){ const tb=document.querySelector('#tbl tbody'); tb.innerHTML=''; Object.entries(s.ready||{}).forEach(([p,v])=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${p}</td><td>${v?'✓':''}</td>`; tb.appendChild(tr); }); document.getElementById('rdy').textContent=`${s.ready_count||0}/${(s.peers||[]).length}`; document.getElementById('out').textContent=JSON.stringify(s.confirms||[],null,2); }
+async function startC(){ await j('POST','/instructor/start',{"peers":peersList()}); stat(); }
+async function stopC(){ await j('POST','/instructor/stop',{}); stat(); }
+async function stat(){ const s=await j('GET','/instructor/status'); draw(s); }
+</script>

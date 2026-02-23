@@ -1,0 +1,50 @@
+SHELL := /bin/bash
+
+.PHONY: help install dev docker-up docker-down smoke smoke-jwt gen-keys mint-admin mint-operator mint-user openapi
+
+help:
+	@echo "Targets:"
+	@echo "  install       - pip install sprint0 deps"
+	@echo "  dev           - run wsgi_secure.py locally"
+	@echo "  docker-up     - docker compose up"
+	@echo "  docker-down   - docker compose down"
+	@echo "  gen-keys      - generate Ed25519 keys and print master key"
+	@echo "  mint-admin    - print JWT for admin"
+	@echo "  mint-operator - print JWT for operator"
+	@echo "  mint-user     - print JWT for user"
+	@echo "  smoke         - run basic smoke"
+	@echo "  smoke-jwt     - run RBAC smoke (requires server running, RBAC_ENABLE=1)"
+	@echo "  openapi       - echo OpenAPI path"
+
+install:
+	pip install -r requirements-sprint0.txt
+
+dev:
+	python wsgi_secure.py
+
+docker-up:
+	docker compose up --build -d
+
+docker-down:
+	docker compose down
+
+gen-keys:
+	python scripts/gen_keys.py
+
+mint-admin:
+	python scripts/mint_jwt.py admin
+
+mint-operator:
+	python scripts/mint_jwt.py operator
+
+mint-user:
+	python scripts/mint_jwt.py user
+
+smoke:
+	bash scripts/smoke.sh
+
+smoke-jwt:
+	bash scripts/smoke_jwt.sh
+
+openapi:
+	@echo docs/OpenAPI.yaml

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Lokalnye LLM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .muted{color:#9aa9bd}.ok{color:#9BE28D}.err{color:#ff8a8a}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    pre{white-space:pre-wrap}
+    .banner{background:#0e1522;border:1px dashed #3b4a63;border-radius:12px;padding:12px;margin-bottom:12px}
+  </style>
+  <!--
+  Mosty:
+    • Yavnyy (Kibernetika ↔ UX): banner na /admin/llm podskazyvaet primenit A/B k Judge.
+    • Skrytyy 1 (Infoteoriya ↔ Kontrakty): ispolzuem suschestvuyuschiy /admin/judge/ab/suggest.
+    • Skrytyy 2 (Praktika ↔ Bezopasnost): nichego ne primenyaetsya avtomaticheski.
+  Zemnoy abzats:
+    Na stranitse modeley srazu vidno, chto predlozheno dlya Judge, i est akkuratnaya ssylka na primenenie.
+  -->
+</head>
+<body>
+  <h1>Lokalnye LLM (LM Studio / Ollama)</h1>
+
+  <div id="ab_banner" class="banner" hidden>
+    <div class="row">
+      <strong>Podskazka dlya Judge A/B</strong>
+      <span id="flag" class="chip muted">–</span>
+      <a href="/admin/judge/ab" class="chip">Otkryt Judge A/B</a>
+    </div>
+    <div class="row mono" id="ab_summary" style="white-space:pre-wrap">—</div>
+  </div>
+
+  <section>
+    <div class="row">
+      <button onclick="loadList()">Obnovit spisok</button>
+      <span id="cnt" class="chip muted">–</span>
+    </div>
+    <table id="tbl">
+      <thead><tr><th>BASE</th><th>Modeli</th><th>Bench</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="row">
+      <span class="muted">AB_MODE (ENV): vliyaet na dlinu mikrobencha (A — korotkiy, B — dlinnee).</span>
+    </div>
+    <div class="row">
+      <span class="muted">Mozhno zadat LMSTUDIO_BASE_URL/OPENAI_BASE_URL i klyuch LMSTUDIO_API_KEY/OPENAI_API_KEY.</span>
+    </div>
+  </section>
+
+<script>
+async function loadAB(){
+  try{
+    const r = await fetch('/admin/judge/ab/suggest?bench=1');
+    const j = await r.json();
+    const ban = document.getElementById('ab_banner');
+    if(!j.ok){ ban.hidden=false; document.getElementById('flag').className='chip err'; document.getElementById('flag').textContent='ERR'; document.getElementById('ab_summary').textContent=j.error||'error'; return; }
+    const s = j.suggestion||{};
+    const a = s.slotA||{}; const b = s.slotB||{};
+    document.getElementById('ab_summary').textContent = `A: ${a.base_url||'-'} • ${a.model||'-'}\nB: ${b.base_url||'-'} • ${b.model||'-'}`;
+    document.getElementById('flag').className = 'chip ok';
+    document.getElementById('flag').textContent='OK';
+    ban.hidden = false;
+  }catch(_){}
+}
+
+async function loadList(){
+  const r = await fetch('/admin/llm/list');
+  const j = await r.json().catch(()=>({ok:false,error:'bad json'}));
+  const tb = document.querySelector('#tbl tbody'); tb.innerHTML='';
+  if(!j.ok){ tb.innerHTML = `<tr><td colspan="3" class="err">${j.error||'error'}</td></tr>`; return; }
+  const cands = j.candidates||[];
+  document.getElementById('cnt').textContent = `${cands.length} endpointov`;
+  cands.forEach((c,i)=>{
+    const base = c.base_url||c.base||'-';
+    const models = (c.models||[]).map(m=>m.id).slice(0,16);
+    const tr = document.createElement('tr');
+    const selId = 'sel_'+i;
+    tr.innerHTML = `
+      <td class="mono">${base}</td>
+      <td>
+        <select id="${selId}" style="min-width:260px">
+          ${(models.length?models:['—']).map(x=>`<option value="${x}">${x}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <button data-i="${i}">Proverit skorost</button>
+        <pre id="rep_${i}" class="mono muted">—</pre>
+      </td>`;
+    tr.querySelector('button').onclick = ()=>bench(i, base, document.getElementById(selId).value);
+    tb.appendChild(tr);
+  });
+}
+
+async function bench(idx, base, model){
+  const fd = new FormData();
+  fd.append('base', base);
+  fd.append('model', model);
+  const r = await fetch('/admin/llm/bench', {method:'POST', body: fd});
+  const j = await r.json().catch(()=>({ok:false,error:'bad json'}));
+  const el = document.getElementById('rep_'+idx);
+  el.textContent = JSON.stringify(j, null, 2);
+  el.className = 'mono ' + (j.ok?'ok':'err');
+}
+
+// init
+loadAB().catch(()=>{});
+loadList().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

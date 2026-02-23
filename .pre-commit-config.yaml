@@ -1,0 +1,69 @@
+# .pre-commit-config.yaml — lintery/formattery i gvardy
+# MOSTY:
+# - (Yavnyy) ruff/black/isort/mypy + bazovye tekstovye fiksatory.
+# - (Skrytyy #1) trufflehog + git-secrets (lokalnyy) — zaschita ot utechki sekretov.
+# - (Skrytyy #2) pre-push guard «eksport-sanktsiy» — blokiruet publikatsiyu privatnykh putey na GitHub.
+# ZEMNOY ABZATs:
+# Odin `pre-commit run -a` derzhit kachestvo koda i zaschischaet repozitoriy ot sluchaynykh slivov. c=a+b
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+      - id: ruff-format
+
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks:
+      - id: black
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.2
+    hooks:
+      - id: mypy
+
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: python-check-blanket-noqa
+      - id: python-no-log-warn
+      - id: text-unicode-replacement-char
+
+  - repo: https://github.com/trufflesecurity/trufflehog
+    rev: v3.78.5
+    hooks:
+      - id: trufflehog
+        args: ["filesystem","--fail","--no-update","--json","."]
+        stages: [pre-commit, pre-push]
+
+  # Lokalnyy khuk git-secrets (trebuet ustanovlennogo binarnika git-secrets)
+  - repo: local
+    hooks:
+      - id: git-secrets
+        name: git-secrets
+        entry: bash -lc 'git secrets --scan -r || exit 1'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, pre-push]
+
+      - id: export-guard
+        name: export-guard
+        entry: scripts/hooks/prepush_export_guard.sh
+        language: script
+        pass_filenames: false
+        stages: [pre-push]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace

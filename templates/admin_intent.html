@@ -1,0 +1,86 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Intents & Consent</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:900px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  input[type="text"]{min-width:320px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:6px;min-height:120px;white-space:pre-wrap}
+  .pill{padding:4px 8px;border-radius:999px;border:1px solid #bbb}
+</style>
+
+<h2>Intenty i soglasiya</h2>
+
+<div class="row">
+  Zapros: <input id="q" type="text" value="pokazhi kak polzovatsya notepad">
+  <button onclick="parse()">Parse</button>
+  <button onclick="run()">Run</button>
+  Consent: 
+  <select id="consent">
+    <option value="">(sprosit)</option>
+    <option value="allow">allow</option>
+    <option value="ask_once">ask_once</option>
+    <option value="deny">deny</option>
+  </select>
+</div>
+
+<h3>Proverka/ustanovka</h3>
+<div class="row">
+  App: <input id="app" type="text" value="chrome">
+  <button onclick="check()">check</button>
+  <button onclick="plan()">plan</button>
+  Source: <input id="src" type="text" placeholder="D:\\Installers\\ChromeSetup.exe">
+  <button onclick="runInstall()">install.run</button>
+</div>
+
+<h3>Kooperativ (peer)</h3>
+<div class="row">
+  Host: <input id="peer" type="text" value="127.0.0.1:8000">
+  Path: <input id="ppath" type="text" value="/desktop/rpa/open">
+  Payload(JSON): <input id="ppay" type="text" value='{"app":"notepad"}'>
+  <button onclick="peer()">Send</button>
+</div>
+
+<h3>Otvet</h3>
+<pre id="out"></pre>
+
+<script>
+function log(x){ document.getElementById('out').textContent = JSON.stringify(x,null,2); }
+function jwtHeader(){ const t=localStorage.getItem('jwt')||''; return t?{'Authorization':'Bearer '+t}:{ }; }
+
+async function parse(){
+  const r = await fetch('/intent/parse',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:document.getElementById('q').value})});
+  log(await r.json());
+}
+async function run(){
+  const consent=document.getElementById('consent').value;
+  const r = await fetch('/intent/parse_run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:document.getElementById('q').value, consent})});
+  log(await r.json());
+}
+async function check(){
+  const app=document.getElementById('app').value;
+  const r = await fetch('/install/check?app='+encodeURIComponent(app));
+  log(await r.json());
+}
+async function plan(){
+  const app=document.getElementById('app').value;
+  const r = await fetch('/install/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({app})});
+  log(await r.json());
+}
+async function runInstall(){
+  const app=document.getElementById('app').value;
+  const source=document.getElementById('src').value;
+  const consent=document.getElementById('consent').value;
+  const r = await fetch('/install/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({app,source,consent})});
+  log(await r.json());
+}
+async function peer(){
+  const host=document.getElementById('peer').value;
+  const path=document.getElementById('ppath').value;
+  let payload={}; try{payload=JSON.parse(document.getElementById('ppay').value||'{}')}catch(e){}
+  const r = await fetch('/peer/proxy',{method:'POST',headers:{'Content-Type':'application/json',...jwtHeader()},body:JSON.stringify({host,path,payload})});
+  log(await r.json());
+}
+</script>
+

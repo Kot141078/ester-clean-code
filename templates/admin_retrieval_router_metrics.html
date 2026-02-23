@@ -1,0 +1,172 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
+    <h2 style="margin:0">Retrieval Router · Metriki</h2>
+    <span class="chip">/telemetry/retrieval_router</span>
+    <span class="chip">/metrics/retrieval_router</span>
+    <div class="spacer"></div>
+    <button class="btn" onclick="refresh()">Obnovit</button>
+    <button class="btn" onclick="openNew('/metrics/retrieval_router')">Otkryt Prometheus</button>
+    <button class="btn" onclick="snapshotNow()">Snapshot now</button>
+    <button class="btn" onclick="openNew('/metrics/retrieval_router_snapshots.jsonl')">JSONL</button>
+    <button class="btn" onclick="openNew('/metrics/retrieval_router_snapshots.csv')">CSV</button>
+  </div>
+</section>
+
+<section class="grid" style="grid-template-columns:2fr 1fr;gap:12px">
+  <div class="card">
+    <h3 style="margin-top:0">Grafiki</h3>
+    <div class="box" style="padding:10px">
+      <canvas id="chartCalls" height="140" style="width:100%"></canvas>
+    </div>
+    <div class="box" style="padding:10px;margin-top:10px">
+      <canvas id="chartHits" height="180" style="width:100%"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Snimok</h3>
+    <div class="stack">
+      <div class="row"><span class="chip">calls</span><span id="m_calls">0</span></div>
+      <div class="row"><span class="chip">doc_queries</span><span id="m_doc">0</span></div>
+      <div class="row"><span class="chip">summary_hits</span><span id="m_sum">0</span></div>
+      <div class="row"><span class="chip">chunk_hits</span><span id="m_chunk">0</span></div>
+      <div class="row"><span class="chip">flashback_hits</span><span id="m_flash">0</span></div>
+      <div class="row"><span class="chip">cards_hits</span><span id="m_cards">0</span></div>
+      <div class="row"><span class="chip">provenance</span><span id="m_prov">0</span></div>
+      <div class="row"><span class="chip">last_ts</span><span id="m_ts">0</span></div>
+    </div>
+    <pre id="raw" class="log box" style="height:220px;margin-top:10px"></pre>
+  </div>
+</section>
+
+<section class="card" style="margin-top:12px">
+  <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
+    <h3 style="margin:0">Logi Router (pamyat)</h3>
+    <button class="btn right" onclick="loadLogs()">Obnovit logi</button>
+  </div>
+  <pre id="logs" class="log box" style="height:240px"></pre>
+</section>
+
+<script>
+  const hist = {
+    calls: [],
+    summary: [],
+    chunk: [],
+    flash: [],
+    cards: [],
+    prov: [],
+    max: 40
+  };
+
+  function push(arr, v){
+    arr.push(v);
+    if(arr.length > hist.max) arr.shift();
+  }
+
+  function setText(id, v){ document.getElementById(id).textContent = String(v ?? 0); }
+
+  function drawLine(ctx, data, color){
+    const w = ctx.canvas.width, h = ctx.canvas.height;
+    ctx.clearRect(0,0,w,h);
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    ctx.beginPath();
+    const max = Math.max(1, ...data);
+    data.forEach((v,i)=>{
+      const x = (i/(Math.max(1,data.length-1))) * (w-10) + 5;
+      const y = h - (v/max) * (h-20) - 10;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    ctx.fillStyle = '#888';
+    ctx.fillText(`max: ${max}`, 8, 14);
+  }
+
+  function drawBars(ctx, series){
+    const w = ctx.canvas.width, h = ctx.canvas.height;
+    ctx.clearRect(0,0,w,h);
+    const keys = Object.keys(series);
+    const max = Math.max(1, ...keys.map(k=>Math.max(0, ...series[k])));
+    const cols = keys.length;
+    const pad = 10;
+    const bw = (w - pad*2) / (hist.max * cols);
+    keys.forEach((k, ki)=>{
+      const data = series[k];
+      ctx.fillStyle = ['#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f'][ki%5];
+      data.forEach((v,i)=>{
+        const x = pad + (i*cols + ki) * bw;
+        const hh = (v/max) * (h-20);
+        ctx.fillRect(x, h-10-hh, bw*0.9, hh);
+      });
+    });
+    ctx.fillStyle = '#888';
+    ctx.fillText(`max: ${max}`, 8, 14);
+  }
+
+  async function refresh(){
+    const r = await $fetch('/telemetry/retrieval_router');
+    const j = await r.json().catch(()=> ({}));
+    const m = j.metrics || {};
+
+    setText('m_calls', m.calls_total);
+    setText('m_doc', m.doc_queries);
+    setText('m_sum', m.summary_hits);
+    setText('m_chunk', m.chunk_hits);
+    setText('m_flash', m.flashback_hits);
+    setText('m_cards', m.cards_hits);
+    setText('m_prov', m.provenance_items);
+    setText('m_ts', m.last_ts);
+    document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+
+    push(hist.calls, m.calls_total||0);
+    push(hist.summary, m.summary_hits||0);
+    push(hist.chunk, m.chunk_hits||0);
+    push(hist.flash, m.flashback_hits||0);
+    push(hist.cards, m.cards_hits||0);
+    push(hist.prov, m.provenance_items||0);
+
+    const c1 = document.getElementById('chartCalls').getContext('2d');
+    drawLine(c1, hist.calls, '#4e79a7');
+
+    const c2 = document.getElementById('chartHits').getContext('2d');
+    drawBars(c2, {
+      summary: hist.summary,
+      chunk: hist.chunk,
+      flash: hist.flash,
+      cards: hist.cards,
+      prov: hist.prov
+    });
+  }
+
+  async function loadLogs(){
+    const r = await $fetch('/memory/router_logs?limit=80');
+    const j = await r.json().catch(()=> ({}));
+    const items = (j.items||[]).map(x=>{
+      const ts = x.ts ? new Date(x.ts*1000).toISOString() : '';
+      return `${ts}  ${x.text || ''}`;
+    });
+    document.getElementById('logs').textContent = items.join('\n');
+  }
+
+  async function snapshotNow(){
+    try{
+      const r = await $fetch('/metrics/retrieval_router_snapshot_now', {method:'POST'});
+      const j = await r.json().catch(()=> ({}));
+      if(j && j.ok){
+        alert('Snapshot sokhranen');
+      }else{
+        alert('Snapshot oshibka: ' + (j.error || 'unknown'));
+      }
+      await loadLogs();
+      await refresh();
+    }catch(e){}
+  }
+
+  refresh();
+  loadLogs();
+  setInterval(refresh, 5000);
+</script>
+
+{% endblock %}

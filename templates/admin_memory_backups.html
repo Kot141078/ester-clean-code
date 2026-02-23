@@ -1,0 +1,73 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Backups</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1000px}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px;margin-right:8px}
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+  th,td{border:1px solid #eee;padding:8px;text-align:left}
+  .ok{color:#0a0}
+  .bad{color:#a00}
+</style>
+
+<h2>Rezervnye kopii pamyati Ester</h2>
+
+<div style="margin:10px 0 6px;">
+  <strong>Retention telemetry</strong>
+</div>
+<pre id="retention"></pre>
+
+<div>
+  <input id="label" placeholder="metka (neobyazatelno)">
+  <button onclick="create()">Create</button>
+  <button onclick="list_()">Refresh</button>
+  <button onclick="autoStart()">Auto Start</button>
+  <button onclick="autoStop()">Auto Stop</button>
+  <input id="keep" type="number" value="20" style="width:80px">
+  <input id="age" type="number" value="90" style="width:80px">
+  <button onclick="purge()">Purge</button>
+</div>
+
+<table id="tbl">
+  <thead><tr><th>ID</th><th>Size</th><th>SHA256</th><th>Actions</th></tr></thead>
+  <tbody></tbody>
+</table>
+
+<pre id="out"></pre>
+
+<script>
+function out(x){ document.getElementById('out').textContent = typeof x === 'string' ? x : JSON.stringify(x,null,2); }
+function outRetention(x){ document.getElementById('retention').textContent = typeof x === 'string' ? x : JSON.stringify(x,null,2); }
+
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return t} }
+
+async function create(){
+  out(await j('POST','/memory/backup/create', {"label": document.getElementById('label').value || undefined}));
+  list_();
+}
+
+async function list_(){
+  const res=await fetch('/memory/backup/list'); const j=await res.json();
+  const body=document.querySelector('#tbl tbody'); body.innerHTML='';
+  (j.items||[]).reverse().forEach(it=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${it.id}</td><td>${(it.size/1024).toFixed(1)} KB</td><td>${(it.sha256||'').slice(0,16)}…</td>
+      <td>
+        <button onclick="verify_('${it.id}')">Verify</button>
+        <button onclick="restore_('${it.id}','replace')">Restore</button>
+        <button onclick="restore_('${it.id}','merge')">Merge</button>
+      </td>`;
+    body.appendChild(tr);
+  });
+}
+
+async function verify_(id){ out(await j('POST','/memory/backup/verify',{"id":id})); }
+async function restore_(id, mode){ out(await j('POST','/memory/backup/restore',{"id":id,"mode":mode})); }
+async function purge(){ out(await j('POST','/memory/backup/purge',{"keep":+keep.value||20,"max_age_days":+age.value||90})); }
+async function autoStart(){ out(await j('POST','/memory/backup/auto/start',{"period_sec":21600})); }
+async function autoStop(){ out(await j('POST','/memory/backup/auto/stop',{})); }
+async function status_(){ const s=await j('GET','/memory/status'); outRetention(s&&s.retention?s.retention:s); }
+
+list_();
+status_();
+</script>

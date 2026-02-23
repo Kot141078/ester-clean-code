@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Portable Builder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .muted{opacity:.7}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+    .card{background:#0e1521;border:1px solid #283244;border-radius:12px;padding:12px}
+    .kpi{font-size:22px;font-weight:700}
+    .warn{color:#ffcc66}
+  </style>
+  </head>
+<body>
+  <h1>Portable Builder <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <h3>HUB — obzor i bystrye deystviya</h3>
+    <div class="grid" id="hub">
+      <div class="card">
+        <b>USB</b>
+        <div class="kpi" id="k_usb">—</div>
+        <div class="muted" id="k_usb_hint">—</div>
+        <div class="row" style="margin-top:8px">
+          <button onclick="oneclick()">One-Click Bootstrap</button>
+          <button onclick="openPage('/admin/portable')">Otkryt</button>
+        </div>
+      </div>
+      <div class="card">
+        <b>USB Jobs</b>
+        <div class="kpi" id="k_jobs">—</div>
+        <div class="muted">ochered zadach</div>
+        <div class="row" style="margin-top:8px">
+          <button onclick="runJobs()">Vypolnit USB-ochered</button>
+          <button onclick="openPage('/admin/usb_runner')">Otkryt</button>
+        </div>
+      </div>
+      <div class="card">
+        <b>USB Catalog</b>
+        <div class="kpi" id="k_cat">—</div>
+        <div class="muted">elementov v kataloge</div>
+        <div class="row" style="margin-top:8px">
+          <button onclick="openPage('/admin/usb_catalog')">Predprosmotr</button>
+        </div>
+      </div>
+      <div class="card">
+        <b>LAN</b>
+        <div class="kpi"><span id="k_lan_peers">—</span> / <span id="k_lan_items">—</span></div>
+        <div class="muted">uzlov / elementov</div>
+        <div class="row" style="margin-top:8px">
+          <button onclick="lanPlan()">Sobrat LAN-plan</button>
+          <button onclick="lanPlanToUSB()">Plan → USB Jobs</button>
+          <button onclick="openPage('/admin/lan_catalog')">Otkryt</button>
+        </div>
+      </div>
+      <div class="card">
+        <b>Bootable</b>
+        <div class="muted">sdelat fleshku zagruzochnoy</div>
+        <div class="row" style="margin-top:8px">
+          <button onclick="bootPlan()">Plan</button>
+          <button onclick="bootApply()">Vypolnit</button>
+        </div>
+      </div>
+    </div>
+    <pre id="hub_raw" class="muted">—</pre>
+  </section>
+  
+  <section class="grid">
+    <div>
+      <h3>Nositeli</h3>
+      <button onclick="loadStatus()">Nayti nositeli</button>
+      <div class="row" style="margin-top:6px">
+        <input id="mount" placeholder="/media/USER/USB ili D:\" style="width:100%"/>
+      </div>
+      <pre id="status">—</pre>
+      <small class="muted">Ostav pusto — sistema podberet avtomaticheski.</small>
+    </div>
+
+    <div>
+      <h3>Profile okruzheniya</h3>
+      <div class="row">
+        <select id="profile"></select>
+        <button onclick="loadPresetEnv()">Podstavit ENV iz preseta</button>
+        <span id="rec" class="chip">rekomendatsiya: —</span>
+      </div>
+      <pre id="presetEnv">—</pre>
+    </div>
+
+    <div>
+      <h3>Plan sborki</h3>
+      <button onclick="plan()">Postroit plan</button>
+      <pre id="plan">—</pre>
+    </div>
+
+    <div>
+      <h3>Sborka</h3>
+      <textarea id="env" style="width:100%;min-height:120px" placeholder='{"AB_MODE":"B","TELEGRAM_ENABLE":"1","HYBRID_QUEUE_ENABLE":"1","REGISTRY_ENABLE":"1"}'></textarea>
+      <button onclick="build()">Sozdat fleshku</button>
+      <pre id="build">—</pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>One-Click Bootstrap</h3>
+    <div class="row">
+      <button onclick="ocStatus()">Status</button>
+      <label>Profile
+        <select id="oc_profile">
+          <option>linux_desktop</option>
+          <option>linux_headless</option>
+          <option>windows_workstation</option>
+          <option>macos_portable</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="oc_force"/> Perezapisat suschestvuyuschuyu self/</label>
+      <label><input type="checkbox" id="oc_acfg" checked/> Avtokonfig LM Studio</label>
+      <button onclick="ocPrepare()">Podgotovit chistyy uzel</button>
+    </div>
+    <pre id="oc_out">—</pre>
+  </section>
+
+  <section>
+    <h3>USB Hot-Ask <small class="muted">(rezhim iz <code>USB_HOTASK_MODE</code>)</small></h3>
+    <div class="row">
+      <button onclick="hotaskStatus()">Obnovit</button>
+      <span id="mode" class="chip">mode: —</span>
+    </div>
+    <div class="grid" style="margin-top:8px">
+      <div>
+        <h4 class="warn">Ozhidayut podtverzhdeniya</h4>
+        <div id="pending">—</div>
+      </div>
+      <div>
+        <h4>Logi</h4>
+        <pre id="logs">—</pre>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h3>Proverka fleshki</h3>
+    <div class="row">
+      <label><input type="checkbox" id="autofix" checked/> Avtopochinka</label>
+      <label><input type="checkbox" id="rewrite" checked/> Perepisat launchery run_ester.*</label>
+      <button onclick="healthStatus()">Status</button>
+      <button onclick="healthCheck(false)">Proverit</button>
+      <button onclick="healthCheck(true)">Proverit i ispravit</button>
+    </div>
+    <pre id="health">—</pre>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+// --- Helpers ---
+function openPage(p){ window.open(p, "_blank"); }
+async function fetchJSON(url, body){
+  const opts = body ? {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)} : {};
+  const r = await fetch(url, opts);
+  return await r.json().catch(()=>({ok:false}));
+}
+
+// --- HUB ---
+async function refreshHub(){
+  const j = await fetchJSON('/admin/portable/summary');
+  document.getElementById('hub_raw').textContent = JSON.stringify(j, null, 2);
+  if(!j.ok) return;
+  const usb = j.usb||{}, jobs=j.jobs||{}, cat=j.catalog||{}, lan=j.lan||{};
+  document.getElementById('k_usb').textContent = (usb.mounts||[]).length;
+  document.getElementById('k_usb_hint').textContent = usb.suggest_mount ? ("suggest: "+usb.suggest_mount) : "nositel ne nayden";
+  document.getElementById('k_jobs').textContent = jobs.queue ?? "—";
+  document.getElementById('k_cat').textContent  = cat.items ?? "—";
+  document.getElementById('k_lan_peers').textContent = lan.peers ?? "—";
+  document.getElementById('k_lan_items').textContent = lan.items ?? "—";
+}
+async function oneclick(){
+  const s = await fetchJSON('/admin/portable/bootstrap_status');
+  const m = (s.suggest_mount || (s.mounts||[])[0] || "");
+  const prof = s.recommended_profile || "";
+  const res = await fetchJSON('/admin/portable/bootstrap_prepare',{mount:m, profile:prof});
+  alert(res.ok!==false ? "OK" : "ERR");
+  await refreshHub();
+}
+async function runJobs(){
+  const res = await fetchJSON('/admin/usb_runner/execute',{limit:50});
+  alert(res.ok!==false ? ("vypolneno: "+(res.processed||0)) : "ERR");
+  await refreshHub();
+}
+async function bootPlan(){
+  const st = await fetchJSON('/admin/portable/status');
+  const m = st.suggest_mount || (st.mounts||[])[0] || "";
+  const res = await fetchJSON('/admin/portable/bootable_plan',{mount:m,label:'ESTER',mode:'fat-uefi'});
+  alert(res.ok!==false ? "Plan gotov (sm. RAW nizhe)" : "ERR");
+  document.getElementById('hub_raw').textContent = JSON.stringify(res, null, 2);
+}
+async function bootApply(){
+  const plan = await fetchJSON('/admin/portable/bootable_plan',{label:'ESTER',mode:'fat-uefi'});
+  const res = await fetchJSON('/admin/portable/bootable_apply',{plan, allow_dangerous:false});
+  alert(res.ok!==false ? "Vypolneno (bez opasnykh shagov)" : "ERR");
+  await refreshHub();
+}
+async function lanPlan(){
+  const body={nodes:[],kinds:undefined,tags:undefined};
+  const res = await fetchJSON('/admin/lan_catalog/plan', body);
+  document.getElementById('hub_raw').textContent = JSON.stringify(res, null, 2);
+  alert(res.ok!==false ? "Plan poluchen" : "ERR");
+}
+async function lanPlanToUSB(){
+  const plan = await fetchJSON('/admin/lan_catalog/plan', {nodes:[]});
+  if(plan.ok===false){ alert("net plana"); return; }
+  const res = await fetchJSON('/admin/lan_catalog/plan_to_usb', {plan, stage:true, clean_jobs:false, noop_for_remote:true});
+  alert(res.ok!==false ? "USB ochered sgenerirovana" : "ERR");
+  await refreshHub();
+}
+
+// --- Builder ---
+async function loadStatus(){
+  const j = await fetchJSON('/admin/portable/status');
+  document.getElementById('status').textContent = JSON.stringify(j, null, 2);
+  if(j.suggest_mount && !document.getElementById('mount').value){ document.getElementById('mount').value = j.suggest_mount; }
+  if(j.default_env) document.getElementById('env').value = JSON.stringify(j.default_env||{}, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  await loadPresets();
+}
+async function loadPresets(){
+  const j = await fetchJSON('/admin/portable/presets');
+  const sel = document.getElementById('profile'); sel.innerHTML="";
+  const ps = j.presets||[];
+  const rec = j.recommended || (ps[0]||"");
+  for(const p of ps){
+    const o = document.createElement('option'); o.value=p; o.textContent=p; sel.appendChild(o);
+    if(p===rec) o.selected=true;
+  }
+  document.getElementById('rec').textContent = "rekomendatsiya: " + rec;
+  await loadPresetEnv();
+}
+async function loadPresetEnv(){
+  const prof = document.getElementById('profile').value;
+  const j = await fetchJSON('/admin/portable/preset_env',{profile:prof});
+  document.getElementById('presetEnv').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function plan(){
+  const body={mount: document.getElementById('mount').value.trim() || undefined, profile: document.getElementById('profile').value || undefined};
+  const j = await fetchJSON('/admin/portable/plan', body);
+  document.getElementById('plan').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function build(){
+  let env={}; try{ env = JSON.parse(document.getElementById('env').value||'{}'); }catch(e){ alert('Plokhoy JSON v ENV'); return; }
+  const body={mount: document.getElementById('mount').value.trim() || undefined, env, profile: document.getElementById('profile').value || undefined};
+  const j = await fetchJSON('/admin/portable/build', body);
+  document.getElementById('build').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+
+// --- One-Click Bootstrap ---
+async function ocStatus(){
+  const j = await fetchJSON('/admin/portable/bootstrap_status');
+  if(j.recommended_profile){
+    const sel = document.getElementById('oc_profile');
+    for(const o of sel.options){ if(o.value===j.recommended_profile){ o.selected=true; break; } }
+  }
+  document.getElementById('oc_out').textContent = JSON.stringify(j, null, 2);
+}
+async function ocPrepare(){
+  const body={
+    mount: document.getElementById('mount').value.trim() || undefined,
+    profile: document.getElementById('oc_profile').value,
+    force: document.getElementById('oc_force').checked,
+    autoconfig_lmstudio: document.getElementById('oc_acfg').checked
+  };
+  const j = await fetchJSON('/admin/portable/bootstrap_prepare', body);
+  document.getElementById('oc_out').textContent = JSON.stringify(j, null, 2);
+}
+
+// --- Hot-Ask ---
+function renderPending(list){
+  if(!list || !list.items || !list.items.length) return "<p class='muted'>Net zaprosov</p>";
+  let h="";
+  for(const it of list.items){
+    h += `<div style="border:1px solid #273244;border-radius:10px;padding:8px;margin:6px 0">
+            <div>Fleshka: <code>${it.mount}</code></div>
+            <div>Deystvie: <b>${it.action}</b></div>
+            <div class="row" style="margin-top:6px">
+              <button onclick="hotaskConfirm('${it.id}','yes')">Da</button>
+              <button onclick="hotaskConfirm('${it.id}','no')">Net</button>
+            </div>
+           </div>`;
+  }
+  return h;
+}
+async function hotaskStatus(){
+  const j = await fetchJSON('/admin/portable/hotask_status');
+  document.getElementById('mode').textContent = "mode: " + (j.mode||"-");
+  document.getElementById('pending').innerHTML = renderPending(j.pending||{items:[]});
+  document.getElementById('logs').textContent = JSON.stringify(j.logs||{}, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function hotaskConfirm(id, answer){
+  await fetchJSON('/admin/portable/hotask_confirm', {id,answer});
+  await hotaskStatus();
+}
+
+// --- Healthcheck ---
+async function healthStatus(){
+  const j = await fetchJSON('/admin/portable/health_status');
+  document.getElementById('health').textContent = JSON.stringify(j, null, 2);
+  if(j.suggest_mount && !document.getElementById('mount').value){ document.getElementById('mount').value = j.suggest_mount; }
+}
+async function healthCheck(useFix){
+  const body={
+    mount: document.getElementById('mount').value.trim() || undefined,
+    autofix: useFix && document.getElementById('autofix').checked || false,
+    rewrite_launchers: useFix && document.getElementById('rewrite').checked || false
+  };
+  const j = await fetchJSON('/admin/portable/health_check', body);
+  document.getElementById('health').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+
+// --- Initial Load ---
+refreshHub().catch(()=>{});
+loadStatus().catch(()=>{});
+hotaskStatus().catch(()=>{});
+</script>
+</body>
+</html>

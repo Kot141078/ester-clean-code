@@ -1,0 +1,19 @@
+[Unit]
+Description=Ester P2P CRDT Sync Loop
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/ester
+Environment=PYTHONUNBUFFERED=1
+# Ukazhi peremennye okruzheniya dlya uzla
+# Environment=ESTER_PEER_ID=peer-%H
+# Environment=ESTER_P2P_HMAC=change_me_shared_secret
+# Environment=ESTER_P2P_STATIC=http://10.0.0.11:5000,http://10.0.0.12:5000
+ExecStart=/usr/bin/python3 -m scheduler.sync_job
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,27 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — OCR Text Guesser</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:900px}
+  textarea,button,input{padding:8px;border:1px solid #ccc;border-radius:8px}
+  textarea{width:100%;min-height:160px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:140px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+</style>
+<h2>Guess OCR Text from Replay</h2>
+<div class="row">
+  <button onclick="demo()">Load sample</button>
+  window_ms <input id="wm" type="number" value="1200">
+  <button onclick="run()">Guess</button>
+</div>
+<textarea id="src">[
+{"ts":1700000000.000,"kind":"ocr_ok","desc":"Save fayl"},
+{"ts":1700000001.000,"kind":"template_ok","desc":"Export PDF"}
+]</textarea>
+<pre id="out"></pre>
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+function demo(){ /* sample uzhe v textarea */ }
+async function run(){ out(await j('POST','/text_guess/guess',{"events":JSON.parse(src.value||"[]"),"window_ms":+wm.value||1200})); }
+</script>

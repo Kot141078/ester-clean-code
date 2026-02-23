@@ -1,0 +1,36 @@
+<!--
+Mosty:
+- Yavnyy: (UI ↔ REST) knopka dergaet /admin/p2p/smoke/run.
+- Skrytyy #1: (UX ↔ Diagnostika) rezultat — strukturirovannyy JSON, srazu vidno gde upalo.
+- Skrytyy #2: (Dok/Kod ↔ Operatsii) stranitsa prosta i samodostatochna, goditsya dlya run-book.
+
+Zemnoy abzats:
+Obychnaya pribornaya panel: odna krupnaya knopka «Proverit P2P», nizhe — zhivoy protokol shagov.
+
+c=a+b
+-->
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester · P2P Smoke</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;margin:20px;}
+    .btn{padding:10px 16px;border-radius:12px;border:1px solid #ddd;cursor:pointer}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    pre{background:#f7f7f7;border:1px solid #eee;border-radius:12px;padding:12px;overflow:auto}
+    .ok{color:#0a0}
+    .err{color:#a00}
+  </style>
+</head>
+<body>
+  <h2>P2P Smoke</h2>
+  <p>Proverka «status → eksport → merge(ekho)» na lokalnom uzle.</p>
+  <button id="run" class="btn">Run P2P Smoke</button>
+  <span id="st"></span>
+  <pre id="out">{ }</pre>
+
+  <script src="/static/admin_p2p_smoke.js"></script>
+</body>
+</html>

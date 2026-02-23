@@ -1,0 +1,3 @@
+line	text
+46	C:\Python310\lib\site-packages\pydantic\_internal\_config.py:383: UserWarning: Valid config keys have changed in V2:
+48	  warnings.warn(message, UserWarning)

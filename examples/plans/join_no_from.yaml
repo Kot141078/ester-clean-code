@@ -1,0 +1,43 @@
+run_id: research_run_07
+branch_id: main
+context_init:
+  spec: "Primer join bez parametra 'from' — sobiraem vsekh potomkov tekuschey vetki."
+  items:
+    - {file: "p1.md"}
+    - {file: "p2.md"}
+    - {file: "p3.md"}
+
+nodes:
+  - id: prepare
+    type: script
+    update:
+      banner: "Obrabotka: {{ctx.spec}}"
+    depends: []
+
+  - id: fork
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["prepare"]
+
+  - id: analyze
+    type: llm.generate
+    prompt: "Korotkiy analiz {{ctx.item.file}}. Uchityvay banner={{ctx.banner}}."
+    out: "analysis"
+    depends: ["fork"]
+
+  - id: finalize
+    type: script
+    update:
+      final_branch: "OK {{ctx.item.file}} :: {{ctx.analysis}}"
+    depends: ["analyze"]
+
+  # Fan-in bez ukazaniya from: soberet vsekh potomkov vetki 'main' (main#01, main#02, ...)
+  - id: gather_all
+    type: join
+    out: "joined_all"
+    select:
+      file: "{{item.file}}"
+      final: "{{ctx.final_branch}}"
+    mode: list
+    await_nodes: ["finalize"]
+    depends: ["finalize"]

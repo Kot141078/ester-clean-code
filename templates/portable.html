@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Portable</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Panel portable-rezhima: vidim USB, «Primenit sebya» i «Obnovit LM Studio resursy».
+    Mosty:
+      • Yavnyy — UX poverkh env/overlay.
+      • Skrytye — dry(A)/real(B); offlayn JSON; polzovatelskaya oblast ~/.ester.
+  -->
+</head>
+<body>
+  <h1>Portable Mode <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid">
+    <div>
+      <h3>Status</h3>
+      <button onclick="loadStatus()">Obnovit</button>
+      <pre id="st">—</pre>
+    </div>
+    <div>
+      <h3>Primenenie na etom uzle</h3>
+      <div class="row">
+        <input id="root" placeholder="(opts.) put do portable-USB (esli ne nayden avtomaticheski)" style="width:100%"/>
+      </div>
+      <button onclick="applySelf()">Primenit sebya na etom uzle</button>
+      <pre id="apply">—</pre>
+    </div>
+    <div>
+      <h3>LM Studio resursy</h3>
+      <button onclick="applyLM()">Obnovit iz USB → ~/.ester/lmstudio_resources.json</button>
+      <pre id="lm">—</pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+async function loadStatus(){
+  const r = await fetch('/admin/portable/status'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('st').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function applySelf(){
+  const root=document.getElementById('root').value.trim()||null;
+  const r = await fetch('/admin/portable/apply_self',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({root})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('apply').textContent = JSON.stringify(j, null, 2);
+}
+async function applyLM(){
+  const root=document.getElementById('root').value.trim()||null;
+  const r = await fetch('/admin/portable/apply_lmstudio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({root})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('lm').textContent = JSON.stringify(j, null, 2);
+}
+loadStatus().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

@@ -1,0 +1,30 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Pending Template Export</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:900px}
+  textarea,button,input{padding:8px;border:1px solid #ccc;border-radius:8px}
+  textarea{width:100%;min-height:160px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:140px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+</style>
+<h2>Export pending_add → JSON</h2>
+<div class="row">
+  Filename <input id="fname" value="pending_templates.json">
+  <button onclick="normalize_()">Normalize</button>
+  <button onclick="export_()">Export .json</button>
+</div>
+<textarea id="src">[
+  {"name":"Button A","bbox":{"left":100,"top":200,"width":120,"height":48},"threshold":0.86,"lang":"eng+rus"},
+  {"name":"Button B","bbox":{"left":300,"top":400,"width":120,"height":48}}
+]</textarea>
+<pre id="out"></pre>
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+async function normalize_(){ out(await j('POST','/pending_export/normalize',{"items":JSON.parse(src.value||"[]")})); }
+async function export_(){
+  const r=await fetch('/pending_export/file',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({"items":JSON.parse(src.value||"[]"),"filename":fname.value||"pending_templates.json"})});
+  const blob=await r.blob(); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fname.value||'pending_templates.json'; a.click();
+}
+</script>

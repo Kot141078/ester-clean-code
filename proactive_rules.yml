@@ -1,0 +1,46 @@
+# Ester — Proactive Rules (YAML)
+# Peremennye okruzheniya podderzhivayutsya vida ${JUDGE_MODEL}
+# Primer: export JUDGE_MODEL="lmstudio/Meta-Llama-3-8B-Instruct"
+
+rules:
+  - id: r1
+    name: "Dlinnyy zapros → sammari"
+    when:
+      min_words: 80
+    action:
+      type: summarize
+      judge: "${JUDGE_MODEL}"
+      prompt: |
+        Ty — strogiy redaktor. Sozhmi tekst do 5–7 punktov s klyuchevymi faktami.
+        Dobav finalnuyu 1–2 stroki «Chto dalshe?» konkretnymi shagami.
+        Pishi na yazyke iskhodnogo teksta.
+
+  - id: r2
+    name: "Org-klassifikator"
+    when:
+      any_keywords: ["plan", "dedlayn", "vstrech", "sozvon", "spisok zadach", "roadmap", "task", "todo"]
+    action:
+      type: classify
+      labels: ["plan","sroki","vstrecha","spisok","prochee"]
+
+  - id: r3
+    name: "Inzhest / RAG podskazka"
+    when:
+      any_keywords: ["pdf","dokument","fayl","ingest","inzhest","zagruzi","RAG"]
+    action:
+      type: suggest
+      text: "Dobav fayly cherez /ingest (ili UI) → budet razbor, razbienie na chanki, embeddingi i tegi istochnikov."
+
+  - id: r4
+    name: "Refleksiya po pamyati"
+    when:
+      any_keywords: ["refleksiya","obnovi pamyat","memory reflect","recall"]
+    action:
+      type: reflect
+      judge: "${JUDGE_MODEL}"
+      prompt: |
+        Ty — pomoschnik-khranitel pamyati «Ester». Sdelay korotkuyu refleksiyu (5–8 strok):
+        * Chto vazhno sokhranit?
+        * Kakie tegi/aliasy?
+        * Kak eto svyazano s tekuschey sessiey?
+        Pishi na yazyke iskhodnogo teksta.

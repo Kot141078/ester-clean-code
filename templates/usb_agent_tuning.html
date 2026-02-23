@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — nastroyka USB-skanirovaniya (umnyy rezhim)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .ok{color:#9BE28D}.err{color:#ff8a8a}.muted{color:#9aa9bd}.warn{color:#f5c542}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    a.link{color:#9aa9bd;text-decoration:none}
+  </style>
+  <!--
+    Mosty:
+      • Yavnyy: vybor rezhima i parametrov, pokaz otsenki intervala i pitaniya.
+      • Skrytyy 1: podskazka pro avtozapusk — gde «primenit navsegda».
+      • Skrytyy 2: nichego opasnogo — tolko konfig v STATE_DIR.
+    Zemnoy abzats:
+      Vklyuchil «Eko/Balans/Bystro» — i agent sam podstroit chastotu obkhodov. Na bataree — berezhno, ot seti — bystree.
+  -->
+</head>
+<body>
+  <h1>USB-skanirovanie (umnyy rezhim) <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <div class="row">
+      <label>Rezhim:
+        <select id="mode">
+          <option value="off">off (fiks. interval)</option>
+          <option value="eco">eco (ekonomiya)</option>
+          <option value="balanced" selected>balanced</option>
+          <option value="fast">fast (maks. reaktsiya)</option>
+        </select>
+      </label>
+      <label>MIN (sek): <input type="number" id="min" class="mono" value="3" min="1" style="width:100px"/></label>
+      <label>MAX (sek): <input type="number" id="max" class="mono" value="45" min="2" style="width:100px"/></label>
+      <label>AC boost (0.1..1.0): <input type="number" id="boost" class="mono" value="0.5" step="0.1" min="0.1" max="1.0" style="width:100px"/></label>
+      <button onclick="save()">Save</button>
+      <a class="link" href="/admin/usb/autostart" style="margin-left:auto">Avtozapusk →</a>
+    </div>
+  </section>
+
+  <section>
+    <h3>Sostoyanie</h3>
+    <div class="row">
+      <span class="chip">Pitanie: <b id="ac">—</b></span>
+      <span class="chip">Batareya: <b id="batt">—</b></span>
+      <span class="chip">Otsenka intervala: <b id="est">—</b> sek</span>
+    </div>
+    <pre id="out">—</pre>
+  </section>
+
+<script>
+async function refresh(){
+  const r = await fetch('/admin/usb/agent/tuning/status'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok){ document.getElementById('out').textContent='Oshibka'; return; }
+  const c=j.config||{};
+  document.getElementById('mode').value = c.mode||'balanced';
+  document.getElementById('min').value = c.min_s||3;
+  document.getElementById('max').value = c.max_s||45;
+  document.getElementById('boost').value = c.ac_boost||0.5;
+  const p=j.power||{};
+  document.getElementById('ac').textContent = (p.on_ac===true?'AC':(p.on_ac===false?'BAT':'?'));
+  document.getElementById('batt').textContent = (p.battery_percent!=null?(p.battery_percent+'%'):'—');
+  document.getElementById('est').textContent = j.estimated_interval;
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+async function save(){
+  const body = {
+    mode: document.getElementById('mode').value,
+    min_s: parseInt(document.getElementById('min').value,10),
+    max_s: parseInt(document.getElementById('max').value,10),
+    ac_boost: parseFloat(document.getElementById('boost').value)
+  };
+  const r = await fetch('/admin/usb/agent/tuning/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  refresh();
+}
+refresh().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

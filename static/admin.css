@@ -1,0 +1,66 @@
+/* admin.css — bazovye stili, sovmestimy s inline-stilyami iz _admin_base.html.
+   Minimalnyy reset/tipografika/podsvetka koda i utility. */
+
+/* Reset / normalizatsiya */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+img, svg, video { display: block; max-width: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+
+/* Tipografika */
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+code, pre, kbd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.95em;
+}
+
+/* Ssylki */
+a { color: var(--accent); }
+a:hover { text-decoration: underline; }
+
+/* Tablitsy */
+table { border-collapse: collapse; }
+th, td { border-color: var(--border); }
+
+/* Formy */
+input::placeholder, textarea::placeholder { color: var(--muted); }
+
+/* Knopki/chipy — legkie effekty */
+.btn { transition: filter .12s ease, transform .02s ease; }
+.btn:active { transform: translateY(1px); }
+.chip { user-select: none; }
+
+/* Logi i kod-bloki */
+.log {
+  background: var(--bg);
+  color: var(--fg);
+  overflow: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Podsvetka dlya grubykh JSON-otvetov (best-effort) */
+.log .k { color: #7c3aed; }     /* key */
+.log .s { color: #059669; }     /* string */
+.log .n { color: #2563eb; }     /* number */
+.log .b { color: #d97706; }     /* boolean */
+.log .nl { color: #6b7280; }    /* null */
+
+/* Uvedomleniya/notice */
+.notice { color: var(--muted); }
+
+/* DnD */
+.drop { transition: background .15s ease, border-color .15s ease; }
+.drop.drag { background: rgba(99,102,241,0.06); border-color: var(--accent); }
+
+/* Prochie mikro-utility */
+.hidden { display: none !important; }
+.center { display:grid; place-items:center; }
+.right { margin-left: auto; }

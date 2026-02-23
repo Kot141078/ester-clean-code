@@ -1,0 +1,42 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Sync Cursor</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:920px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  canvas{border:1px solid #ddd;border-radius:8px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  .pill{padding:4px 8px;border:1px solid #bbb;border-radius:999px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:100px;white-space:pre-wrap}
+</style>
+
+<h2>Sync Cursor (Leader)</h2>
+<div class="row">
+  Peers: <input id="peers" placeholder="ip:port,ip:port" style="min-width:360px">
+  <button onclick="savePeers()">Save peers</button>
+  <button onclick="enableSync(true)">Start</button>
+  <button onclick="enableSync(false)">Stop</button>
+  <span id="stat" class="pill">—</span>
+</div>
+
+<p>Dvigay myshyu po kholstu nizhe — sobytiya otpravyatsya na peers. Klik — peredastsya kak nazhatie LKM.</p>
+<canvas id="cv" width="800" height="450"></canvas>
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent+=JSON.stringify(x)+"\n"; }
+async function savePeers(){ const arr=(peers.value||'').split(',').map(x=>x.trim()).filter(Boolean); out(await j('POST','/sync/peers',{"peers":arr})); }
+async function enableSync(on){ const r=await j('POST','/sync/enable',{"enabled":on,"throttle_ms":20}); document.getElementById('stat').textContent=r.enabled?'on':'off'; out(r); }
+
+const cv=document.getElementById('cv'); const ctx=cv.getContext('2d');
+let lastSend=0;
+function draw(x,y){ ctx.clearRect(0,0,cv.width,cv.height); ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2); ctx.stroke(); }
+cv.addEventListener('mousemove', async (e)=>{
+  const r=cv.getBoundingClientRect(); const x=e.clientX-r.left, y=e.clientY-r.top; draw(x,y);
+  const now=performance.now(); if(now-lastSend<20) return; lastSend=now;
+  await j('POST','/sync/leader/move',{"x":Math.round(x),"y":Math.round(y)});
+});
+cv.addEventListener('mousedown', async (e)=>{ await j('POST','/sync/leader/click',{"btn":"left","down":true}); });
+cv.addEventListener('mouseup', async (e)=>{ await j('POST','/sync/leader/click',{"btn":"left","down":false}); });
+</script>

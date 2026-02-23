@@ -1,0 +1,26 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "ester.fullname" . }}
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+spec:
+  hosts:
+    - {{ .Values.istio.host | quote }}
+  gateways:
+    - {{ .Values.istio.gateway | default "istio-system/ingressgateway" | quote }}
+  http:
+    - name: primary
+      route:
+        - destination:
+            host: {{ include "ester.fullname" . }}
+            port:
+              number: {{ .Values.service.port }}
+      {{- if .Values.istio.mirror.enabled }}
+      mirror:
+        host: {{ .Values.istio.mirror.host }}
+      mirrorPercentage:
+        value: {{ .Values.istio.mirror.percent }}
+      {{- end }}
+{{- end }}

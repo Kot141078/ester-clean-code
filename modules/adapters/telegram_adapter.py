@@ -142,7 +142,7 @@ def process_message(msg):
 
 def telegram_loop():
     global LAST_PROCESSED_ID
-    print(f"[TG] Adapter started. Token ending: ...{TG_TOKEN[-4:] if TG_TOKEN else 'NONE'}")
+    print(f"[TG] Adapter started. Telegram token configured: {'yes' if bool(TG_TOKEN) else 'no'}")
     try:
         _mirror_background_event(
             "[TG_ADAPTER_START]",

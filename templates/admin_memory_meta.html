@@ -1,0 +1,37 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — MetaMemory</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:960px}
+  button{padding:8px;border:1px solid #ccc;border-radius:8px;margin-right:6px}
+  pre{background:#0b0b0b;color:#9f9;padding:10px;border-radius:8px;white-space:pre-wrap}
+  .bar{height:10px;border-radius:4px;background:#ccc;margin:2px 0}
+</style>
+
+<h2>Meta-pamyat Ester</h2>
+
+<div style="margin:10px 0 6px;">
+  <strong>Retention telemetry</strong>
+</div>
+<pre id="retention"></pre>
+
+<div>
+  <button onclick="evaluate()">Scan weights</button>
+  <button onclick="decay()">Decay / Forget</button>
+  <button onclick="consolidate()">Consolidate</button>
+  <button onclick="stats()">Stats</button>
+</div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function out(x){document.getElementById('out').textContent=JSON.stringify(x,null,2);}
+function outRetention(x){document.getElementById('retention').textContent=JSON.stringify(x,null,2);}
+async function evaluate(){out(await j('POST','/memory/meta/evaluate',{}));}
+async function decay(){out(await j('POST','/memory/meta/decay',{}));}
+async function consolidate(){out(await j('POST','/memory/meta/consolidate',{}));}
+async function stats(){out(await j('GET','/memory/meta/stats')); }
+async function status_(){const s=await j('GET','/memory/status');outRetention(s&&s.retention?s.retention:s);}
+status_();
+</script>

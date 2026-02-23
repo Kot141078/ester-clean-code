@@ -1,0 +1,53 @@
+name: release-preview
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+      - "v*-preview"
+      - "v0.1-preview"
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate CHANGELOG
+        run: |
+          python3 scripts/changelog_from_commits.py > CHANGELOG.md
+          echo "Generated CHANGELOG.md"
+
+      - name: Install Syft (for SBOM)
+        uses: anchore/sbom-action/download-syft@v0
+        with:
+          syft-version: v1.7.0
+
+      - name: Create SBOM (SPDX JSON)
+        run: |
+          syft packages dir:. -o spdx-json > "sbom-${GITHUB_REF_NAME}.spdx.json" || echo '{}' > "sbom-${GITHUB_REF_NAME}.spdx.json"
+
+      - name: Pack artifact
+        run: |
+          TAR="ester-${GITHUB_REF_NAME}.tar.gz"
+          tar --exclude=".git" --exclude="**/__pycache__" --exclude="**/.pytest_cache" -czf "$TAR" .
+          echo "TAR_NAME=$TAR" >> $GITHUB_ENV
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          prerelease: true
+          files: |
+            CHANGELOG.md
+            sbom-${{ github.ref_name }}.spdx.json
+            ${{ env.TAR_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

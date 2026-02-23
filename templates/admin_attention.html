@@ -1,0 +1,71 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Attention & Live Playbuffer</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  input[type="text"]{min-width:280px}
+  input[type="number"]{width:100px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  img{max-width:100%;border:1px solid #ddd;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:100px;white-space:pre-wrap}
+  .pill{padding:4px 8px;border-radius:999px;border:1px solid #bbb}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:1080px){.grid{grid-template-columns:1fr}}
+</style>
+
+<h2>Attention & Live Playbuffer</h2>
+
+<div class="grid">
+  <div>
+    <h3>Live Playbuffer</h3>
+    <div class="row">
+      Interval (ms): <input id="intv" type="number" value="800">
+      <button onclick="wStart()">Start</button>
+      <button onclick="wStop()">Stop</button>
+      <button onclick="wStat()">Status</button>
+      <span id="winfo" class="pill">—</span>
+    </div>
+    <div class="row">
+      Title contains: <input id="tt" type="text" placeholder="privyazhi profili/miksy k zagolovku okna">
+      <button onclick="apply()">Apply now</button>
+    </div>
+  </div>
+  <div>
+    <h3>Attention (Co-op)</h3>
+    <div class="row">
+      Peers (comma): <input id="peers" type="text" value="">
+    </div>
+    <div class="row">
+      Arrow: X1 <input id="ax1" type="number" value="300"> Y1 <input id="ay1" type="number" value="200">
+      → X2 <input id="ax2" type="number" value="420"> Y2 <input id="ay2" type="number" value="240">
+      Label <input id="al" type="text" value="Syuda">
+      <button onclick="arrow()">Draw</button>
+    </div>
+    <div class="row">
+      Box: L <input id="bx" type="number" value="100"> T <input id="by" type="number" value="100">
+      W <input id="bw" type="number" value="220"> H <input id="bh" type="number" value="80">
+      Label <input id="bl" type="text" value="Pole">
+      <button onclick="box()">Draw</button>
+    </div>
+  </div>
+</div>
+
+<h3>Preview</h3>
+<img id="ov" alt="Overlay">
+<h3>Log</h3>
+<pre id="log"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function log(x){ const e=document.getElementById('log'); e.textContent += JSON.stringify(x)+"\n"; e.scrollTop=e.scrollHeight; }
+
+async function wStart(){ const r=await j('POST','/window/watch/start',{interval_ms:+document.getElementById('intv').value}); document.getElementById('winfo').textContent='running'; log(r); }
+async function wStop(){ const r=await j('POST','/window/watch/stop',{}); document.getElementById('winfo').textContent='stopped'; log(r); }
+async function wStat(){ const r=await j('GET','/window/watch/status'); document.getElementById('winfo').textContent=(r.running?'on':'off')+' last:'+ (r.last_title||'-'); log(r); }
+async function apply(){ const title=document.getElementById('tt').value; log(await j('POST','/profiles/mix/apply',{title})); }
+
+function peers(){ const s=(document.getElementById('peers').value||'').trim(); return s? s.split(',').map(x=>x.trim()).filter(Boolean):[]; }
+async function arrow(){ const p={from:[+ax1.value,+ay1.value], to:[+ax2.value,+ay2.value], label:al.value, peers:peers()}; const r=await j('POST','/attention/arrow',p); if(r.ok&&r.overlay_b64){ document.getElementById('ov').src='data:image/png;base64,'+r.overlay_b64; } log(r); }
+async function box(){ const p={box:{left:+bx.value,top:+by.value,width:+bw.value,height:+bh.value}, label:bl.value, peers:peers()}; const r=await j('POST','/attention/box',p); if(r.ok&&r.overlay_b64){ document.getElementById('ov').src='data:image/png;base64,'+r.overlay_b64; } log(r); }
+</script>

@@ -1,0 +1,44 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Semantic Summaries</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1000px}
+  button{padding:8px;border:1px solid #ccc;border-radius:8px;margin-right:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;white-space:pre-wrap}
+  .card{border:1px solid #ddd;border-radius:10px;padding:10px;margin:6px 0}
+  .meta{font-size:12px;color:#666}
+</style>
+
+<h2>Svodki i dnevniki Ester</h2>
+
+<div>
+  <button onclick="gen('day')">Generate daily</button>
+  <button onclick="gen('week')">Generate weekly</button>
+  <button onclick="list_()">List summaries</button>
+</div>
+
+<div style="margin-top:10px;">
+  <strong>Retention telemetry</strong>
+</div>
+<pre id="retention"></pre>
+
+<div id="list"></div>
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function out(x){document.getElementById('out').textContent=JSON.stringify(x,null,2);}
+function outRetention(x){document.getElementById('retention').textContent=JSON.stringify(x,null,2);}
+async function gen(mode){out(await j('POST','/memory/summary/generate',{"mode":mode})); list_();}
+async function list_(){
+  const r=await fetch('/memory/summary/list'); const j=await r.json();
+  const box=document.getElementById('list'); box.innerHTML='';
+  (j.items||[]).forEach(it=>{
+    const d=new Date(it.ts*1000).toLocaleString();
+    box.insertAdjacentHTML('beforeend',`<div class="card"><div class="meta">${d} (${it.meta.mode})</div><div>${it.text}</div></div>`);
+  });
+}
+async function status_(){const s=await j('GET','/memory/status');outRetention(s&&s.retention?s.retention:s);}
+status_();
+list_();
+</script>

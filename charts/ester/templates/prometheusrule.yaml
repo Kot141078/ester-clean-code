@@ -1,0 +1,73 @@
+{{- if .Values.prometheusRule.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "ester.fullname" . }}-slo
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+spec:
+  groups:
+    - name: ester-slo
+      rules:
+        # 4-okna burn-rate (MWMB-4)
+        - alert: EsterErrorBudgetBurn
+          annotations:
+            summary: "Ester: bystryy raskhod byudzhet oshibok"
+            runbook_url: {{ .Values.prometheusRule.runbookURL | default "https://example.com/runbooks/ester" | quote }}
+          expr: |
+            (
+              sum(rate(http_requests_total{job="{{ include "ester.name" . }}", code=~"5.."}[{{ .Values.prometheusRule.slo.windows.fastShort }}]))
+              /
+              sum(rate(http_requests_total{job="{{ include "ester.name" . }}"}[{{ .Values.prometheusRule.slo.windows.fastShort }}]))
+            ) > {{ .Values.prometheusRule.slo.errorRate.fast }}
+            and
+            (
+              sum(rate(http_requests_total{job="{{ include "ester.name" . }}", code=~"5.."}[{{ .Values.prometheusRule.slo.windows.fastLong }}]))
+              /
+              sum(rate(http_requests_total{job="{{ include "ester.name" . }}"}[{{ .Values.prometheusRule.slo.windows.fastLong }}]))
+            ) > {{ .Values.prometheusRule.slo.errorRate.fast }}
+            and
+            (
+              sum(rate(http_requests_total{job="{{ include "ester.name" . }}", code=~"5.."}[{{ .Values.prometheusRule.slo.windows.slowShort }}]))
+              /
+              sum(rate(http_requests_total{job="{{ include "ester.name" . }}"}[{{ .Values.prometheusRule.slo.windows.slowShort }}]))
+            ) > {{ .Values.prometheusRule.slo.errorRate.slow }}
+            and
+            (
+              sum(rate(http_requests_total{job="{{ include "ester.name" . }}", code=~"5.."}[{{ .Values.prometheusRule.slo.windows.slowLong }}]))
+              /
+              sum(rate(http_requests_total{job="{{ include "ester.name" . }}"}[{{ .Values.prometheusRule.slo.windows.slowLong }}]))
+            ) > {{ .Values.prometheusRule.slo.errorRate.slow }}
+          for: {{ .Values.prometheusRule.slo.for | default "5m" }}
+          labels:
+            severity: page
+
+        - alert: EsterHighLatencyP99
+          annotations:
+            summary: "Ester: vysokiy p99"
+          expr: |
+            histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{job="{{ include "ester.name" . }}"}[5m])) by (le))
+              > {{ .Values.prometheusRule.latency.p99Threshold }}
+          for: 10m
+          labels:
+            severity: ticket
+
+        - alert: EsterBackupTooOld
+          annotations:
+            summary: "Ester: backup ustarel"
+          expr: |
+            time() - max(ester_backup_last_success_timestamp_seconds{job="{{ include "ester.name" . }}"})
+              > {{ mul .Values.prometheusRule.slo.backupMaxAgeHours 3600 }}
+          for: 10m
+          labels:
+            severity: ticket
+
+        - alert: EsterBackupMissing
+          annotations:
+            summary: "Ester: ne nablyudayutsya metriki backup"
+          expr: |
+            absent(ester_backup_last_success_timestamp_seconds{job="{{ include "ester.name" . }}"})
+          for: 30m
+          labels:
+            severity: warning
+{{- end }}

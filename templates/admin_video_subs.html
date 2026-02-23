@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Podpiski video</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:24px;line-height:1.45}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .card{border:1px solid #ddd;border-radius:12px;padding:16px;max-width:1100px}
+    input,select{padding:8px;border:1px solid #ccc;border-radius:8px}
+    table{border-collapse:collapse;width:100%;margin-top:12px}
+    th,td{border:1px solid #ddd;padding:8px;text-align:left}
+    th{background:#fafafa}
+    .muted{color:#666}
+    button{padding:8px 12px;border:0;border-radius:10px;background:#111;color:#fff;cursor:pointer}
+    button[disabled]{opacity:.5;cursor:not-allowed}
+    .btn-danger{background:#b00020}
+    .btn-alt{background:#2e6f9e}
+    .btn-run{background:#0f6c3a}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef; margin-right:4px}
+  </style>
+</head>
+<body>
+  <h2>Podpiski video</h2>
+  <div class="card">
+    <div class="row">
+      <input id="id" placeholder="id (unikalnyy)" style="min-width:220px">
+      <select id="kind">
+        <option value="rss">rss</option>
+        <option value="direct">direct</option>
+        <option value="ytsearch">ytsearch</option>
+      </select>
+      <input id="url" placeholder="url (dlya rss/direct)" style="min-width:280px">
+      <input id="query" placeholder="query (dlya ytsearch)" style="min-width:260px">
+      <input id="limit" type="number" value="3" min="1" max="25" style="width:90px">
+      <input id="tags" placeholder="tags (cherez zapyatuyu)" style="min-width:220px">
+      <label><input id="enabled" type="checkbox"> enabled</label>
+      <button id="save">Save</button>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:16px">
+    <button id="reload" class="btn-alt">Obnovit spisok</button>
+    <button id="run" class="btn-run">Zapustit obkhod</button>
+    <span class="muted">REST: /proactive/video/subs*, /proactive/video/run</span>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <table>
+      <thead>
+        <tr><th>id</th><th>enabled</th><th>kind</th><th>url/query</th><th>limit</th><th>tags</th><th>ops</th></tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3>Otchet</h3>
+    <pre id="out" class="muted" style="max-height:50vh;overflow:auto">Gotovo…</pre>
+  </div>
+
+  <script src="/static/admin_video_subs.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Sdelat fleshku proekta</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Master zapisi fleshki: ukazhi tochku montirovaniya i proekt — poluchish nositel s plan.json.
+    Mosty:
+      • Yavnyy — UX poverkh modulya bootstrap.
+      • Skrytye — AB-predokhranitel; chitaemye plany; offlayn.
+  -->
+</head>
+<body>
+  <h1>Sdelat fleshku proekta <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid">
+    <div>
+      <h3>Parametry</h3>
+      <div class="row">
+        <input id="mount" placeholder="/media/USB" style="width:100%"/>
+      </div>
+      <div class="row">
+        <input id="proj" placeholder="/path/to/project" style="width:100%"/>
+      </div>
+      <div class="row">
+        <label>layout
+          <select id="layout">
+            <option value="files" selected>files (kopiya proekta)</option>
+          </select>
+        </label>
+        <label class="row"><input type="checkbox" id="publish" checked/> Sborka+publikatsiya na tselevom uzle</label>
+        <label class="row"><input type="checkbox" id="runner" checked/> Polozhit run_local.py</label>
+      </div>
+      <button onclick="make()">Sdelat fleshku</button>
+      <pre id="out">—</pre>
+    </div>
+    <div>
+      <h3>Podskazka</h3>
+      <p>Na tselevom PK dostatochno zapuschennogo saydkara s <code>USB_RECOVERY_ENABLE=1</code> (ili <code>USB_AUTORUN_ENABLE=1</code>). V <b>AB=A</b> deystviya ne vypolnyayutsya.</p>
+    </div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+async function make(){
+  const body={
+    mount: document.getElementById('mount').value.trim(),
+    project_dir: document.getElementById('proj').value.trim(),
+    layout: document.getElementById('layout').value,
+    publish_on_target: document.getElementById('publish').checked,
+    include_runner: document.getElementById('runner').checked
+  };
+  if(!body.mount || !body.project_dir){ alert('Ukazhi mount i project_dir'); return; }
+  const r = await fetch('/admin/usb_boot/make',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+</script>
+</body>
+</html>
+<!-- c=a+b -->

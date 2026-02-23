@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — RuleHub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:24px;line-height:1.46}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .card{border:1px solid #ddd;border-radius:12px;padding:16px;max-width:1200px}
+    button{padding:8px 12px;border:0;border-radius:10px;background:#111;color:#fff;cursor:pointer}
+    button[disabled]{opacity:.5;cursor:not-allowed}
+    pre{background:#0b1020;color:#e7eaf6;padding:12px;border-radius:10px;overflow:auto;max-height:46vh}
+    table{border-collapse:collapse;width:100%}
+    th,td{border:1px solid #ddd;padding:8px;text-align:left;vertical-align:top}
+    th{background:#fafafa}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef;margin-right:6px}
+    .muted{color:#666}
+    textarea{width:100%;height:180px;border:1px solid #ccc;border-radius:8px;padding:8px}
+  </style>
+</head>
+<body>
+  <h2>RuleHub — nablyudaemost myshleniya</h2>
+
+  <div class="card">
+    <div class="row">
+      <button id="toggle">Vklyuchit/Vyklyuchit</button>
+      <a href="/metrics/mind" target="_blank"><span class="pill">Metriki</span></a>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div id="state" class="muted">Zagruzka...</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="row"><button id="reload">Obnovit sobytiya</button></div>
+    <table style="margin-top:10px">
+      <thead>
+        <tr><th>ts</th><th>status</th><th>actions</th><th>duration_ms</th><th>info</th></tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3>Konfiguratsiya</h3>
+    <div class="row">
+      <button id="load_cfg">Zagruzit YAML</button>
+      <button id="save_cfg">Save YAML</button>
+    </div>
+    <textarea id="cfg"></textarea>
+    <div id="cfg_out" class="muted" style="margin-top:8px"></div>
+  </div>
+
+  <script src="/static/admin_rulehub.js"></script>
+</body>
+</html>

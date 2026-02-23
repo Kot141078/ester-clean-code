@@ -1,0 +1,121 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Lenta pamyati</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  input,select,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+  .card{border:1px solid #ddd;border-radius:10px;padding:10px;margin:8px 0}
+  .meta{color:#666;font-size:12px}
+  .tag{display:inline-block;padding:2px 6px;border-radius:999px;border:1px solid #bbb;margin-right:6px;font-size:12px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:1000px){.grid{grid-template-columns:1fr}}
+  .hl{background:#fffbcc}
+</style>
+
+<h2>Lenta pamyati Ester</h2>
+
+<div style="margin:10px 0 6px;">
+  <strong>Retention telemetry</strong>
+</div>
+<pre id="retention"></pre>
+
+<div class="row">
+  <input id="q" placeholder="poisk (tekst ili smysl)..." style="width:280px">
+  <select id="type">
+    <option value="">type: any</option>
+    <option>dialog</option><option>event</option><option>fact</option><option>dream</option><option>goal</option>
+  </select>
+  <select id="source">
+    <option value="">source: any</option>
+    <option>web</option><option>telegram</option><option>file</option><option>thought</option>
+  </select>
+  <input id="start" placeholder="start ts" style="width:120px">
+  <input id="end" placeholder="end ts" style="width:120px">
+  <button onclick="load_()">Refresh</button>
+  <button onclick="export_()">Export JSON</button>
+</div>
+
+<div id="stats" class="meta"></div>
+<div id="list"></div>
+
+<script>
+let offset=0, limit=50, lastQuery=null;
+
+function stamp(ts){
+  if(!ts) return '';
+  const d=new Date(ts*1000); 
+  return d.toISOString().replace('T',' ').replace('.000Z','Z');
+}
+
+function tag(t){ return `<span class="tag">${t}</span>`; }
+
+function row(r,q){
+  const txt=r.text||'';
+  const hl = q && txt.toLowerCase().includes(q.toLowerCase()) ? ' hl' : '';
+  const meta=r.meta||{};
+  const src=meta.source||'-';
+  const em=meta.emotion||'';
+  const len=meta.length||txt.length;
+  return `<div class="card${hl}">
+    <div class="meta">${stamp(r.ts)} ${tag(r.type)} ${tag('src:'+src)} ${em?tag('emo:'+em):''} ${tag('len:'+len)}</div>
+    <div>${txt.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+  </div>`;
+}
+
+async function fetchPage(qs, append=false){
+  const r=await fetch('/memory/timeline?'+qs+'&limit='+limit+'&offset='+offset);
+  const j=await r.json();
+  const list=document.getElementById('list');
+  const q = new URLSearchParams(qs).get('q')||'';
+  if(!append) list.innerHTML='';
+  (j.items||[]).forEach(it=> list.insertAdjacentHTML('beforeend', row(it,q)));
+  document.getElementById('stats').textContent=`total: ${j.total} • showing: ${j.items?.length||0} • offset: ${j.offset}`;
+  return j;
+}
+
+function buildQS(){
+  const q=document.getElementById('q').value.trim();
+  const type=document.getElementById('type').value;
+  const source=document.getElementById('source').value;
+  const start=document.getElementById('start').value.trim();
+  const end=document.getElementById('end').value.trim();
+  const params=new URLSearchParams();
+  if(q) params.set('q', q);
+  if(type) params.set('type', type);
+  if(source) params.set('source', source);
+  if(start) params.set('start', start);
+  if(end) params.set('end', end);
+  return params.toString();
+}
+
+async function load_(append=false){
+  const qs=buildQS();
+  lastQuery=qs;
+  if(!append) offset=0;
+  const j=await fetchPage(qs, append);
+  if(j.items && j.items.length===limit){ // est esche
+    const btn = document.createElement('button');
+    btn.textContent='Load more';
+    btn.onclick=()=>{ offset+=limit; load_(true); btn.remove(); };
+    document.getElementById('list').appendChild(btn);
+  }
+}
+
+async function export_(){
+  const qs=lastQuery||buildQS();
+  const r=await fetch('/memory/timeline/export?'+qs+'&limit=10000');
+  const j=await r.json();
+  const blob=new Blob([JSON.stringify(j,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='ester_timeline.json'; a.click();
+}
+
+async function status_(){
+  const r=await fetch('/memory/status');
+  const j=await r.json().catch(()=> ({}));
+  document.getElementById('retention').textContent = JSON.stringify(j.retention || j, null, 2);
+}
+
+load_();
+status_();
+</script>

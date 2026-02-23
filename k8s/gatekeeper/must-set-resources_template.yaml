@@ -1,0 +1,20 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata: { name: k8smustsetresources }
+spec:
+  crd:
+    spec:
+      names: { kind: K8sMustSetResources }
+  targets:
+  - target: admission.k8s.gatekeeper.sh
+    rego: |
+      package k8smustsetresources
+      violation[{
+        "msg": "containers must set resources.requests and resources.limits"
+      }] {
+        containers := input.review.object.spec.template.spec.containers
+        c := containers[_]
+        not c.resources
+        or not c.resources.limits
+        or not c.resources.requests
+      }

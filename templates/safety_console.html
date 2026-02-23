@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Bezopasnost i Ostorozhnost</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:24px;line-height:1.46;background:#0b1020;color:#e7eaf6}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .card{background:#0f1430;border:1px solid #223;border-radius:12px;padding:14px;margin-top:12px;max-width:1100px}
+    input,button{padding:10px 12px;border-radius:10px;border:1px solid #334;background:#0f1530;color:#e7eaf6}
+    button{background:#1e293b;border:1px solid #3b82f6}
+    a{color:#82aaff}
+    pre{white-space:pre-wrap;max-height:50vh;overflow:auto}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#16213e;color:#cdd6f4;margin-right:6px}
+  </style>
+</head>
+<body>
+  <h2>Svobodna, no ne navredi Pape</h2>
+  <div class="card">
+    <div class="row">
+      <a class="pill" href="/policy/caution/status" target="_blank">status</a>
+      <a class="pill" href="/policy/caution/charter" target="_blank">khartiya</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Nastroyka</h3>
+    <div class="row">
+      <input id="enabled" placeholder="enabled 0/1" value="1">
+      <input id="tol" placeholder="risk_tolerance 0..1" value="0.25">
+      <button id="btnSet">Save</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button id="btnArm">Tabletka (5 min)</button>
+      <button id="btnDisarm">Snyat tabletku</button>
+    </div>
+    <pre id="out">Gotovo.</pre>
+  </div>
+
+  <script src="/static/safety_console.js"></script>
+</body>
+</html>
+<!-- c=a+b -->

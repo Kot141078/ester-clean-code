@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Portable / Compliance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .card{background:#0e1521;border:1px solid #283244;border-radius:12px;padding:12px}
+    .kpi{font-size:22px;font-weight:700}
+    .muted{opacity:.7}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    button{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px;cursor:pointer}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    a.btn{display:inline-block;text-decoration:none}
+    .banner{border:1px dashed #4a5974;background:#0b121d;padding:12px;border-radius:12px}
+    .banner b{color:#ffd27d}
+  </style>
+  </head>
+<body>
+  <h1>Portable / Compliance <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section id="firststart_banner" class="banner" style="display:none">
+    <div><b>Pervyy start ne zavershen:</b> na nositele net <code>ESTER/portable/profile.json</code>.</div>
+    <div style="margin-top:8px">
+      <a class="btn" href="/admin/portable/firststart" target="_blank"><button>Otkryt «Pervyy start»</button></a>
+      <a class="btn" href="/admin/portable/oneclick" target="_blank"><button>One-Click USB</button></a>
+      <button onclick="applyPreset()">Primenit preset (recommend.env)</button>
+      <span id="preset_res" class="chip">—</span>
+    </div>
+    <div class="muted" style="margin-top:6px">AB=A — dry, nichego ne pishem. AB=B — sozdadim <code>ESTER/portable/recommend.env</code>.</div>
+  </section>
+
+  <section>
+    <h3>Svodka</h3>
+    <div class="grid" id="cards">
+      <div class="card"><b>ENV otsutstvuyut</b><div class="kpi" id="k_env">—</div><div class="muted">iz manifesta</div></div>
+      <div class="card"><b>Marshruty / Dublikaty</b><div class="kpi"><span id="k_routes">—</span> / <span id="k_rdups">—</span></div><div class="muted">v iskhodnikakh</div></div>
+      <div class="card"><b>Baseline Δ</b><div class="kpi"><span id="k_bmiss">—</span> / <span id="k_bextra">—</span></div><div class="muted">missing / extra</div></div>
+      <div class="card"><b>Whitelist</b><div class="kpi"><span id="k_wl_ok">—</span> / <span id="k_wl_all">—</span></div><div class="muted">suschestvuyut / korney</div></div>
+      <div class="card"><b>USB Jobs (plokhie)</b><div class="kpi" id="k_jobs_bad">—</div><div class="muted">dest/src vne belogo ili src otsutstvuet</div></div>
+      <div class="card"><b>USB Catalog (plokhie)</b><div class="kpi" id="k_cat_bad">—</div><div class="muted">naznachenie vne whitelist</div></div>
+      <div class="card"><b>LAN rekomendatsii (plokhie)</b><div class="kpi" id="k_lan_bad">—</div><div class="muted">naznachenie vne whitelist</div></div>
+      <div class="card"><b>LM Studio alias’y (bitye)</b><div class="kpi" id="k_alias_bad">—</div><div class="muted">modeli ne naydeny</div></div>
+      <div class="card"><b>Perezapisi / Multizapisi</b><div class="kpi"><span id="k_ow">—</span> / <span id="k_mw">—</span></div><div class="muted">dry-diff</div></div>
+      <div class="card"><b>Portable</b><div class="kpi"><span id="k_prof">—</span> / <span id="k_rec">—</span></div><div class="muted">profile.json / recommend.env</div></div>
+    </div>
+    <div style="margin-top:8px">
+      <button onclick="refresh()">Obnovit svodku</button>
+      <a class="btn" href="/admin/compat" target="_blank"><button>Otkryt Compat</button></a>
+      <a class="btn" href="/admin/diagnostics" target="_blank"><button>Otkryt Diagnostics</button></a>
+      <span class="muted">Vse operatsii — offlayn, zapisi tolko pod AB=B.</span>
+    </div>
+    <pre id="raw" class="muted">—</pre>
+  </section>
+
+<script>
+async function jget(u,opts){ const r = await fetch(u,opts); return await r.json().catch(()=>({ok:false})); }
+function yesno(b){ return b ? "✓" : "—"; }
+async function refresh(){
+  const j = await jget('/admin/portable/compliance_summary');
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  if(!j.ok) return;
+  const c = j.compat||{}, w=j.whitelist||{}, d=j.diagnostics||{}, x=j.collisions||{}, p=j.portable||{};
+  document.getElementById('k_env').textContent = c.env_missing ?? "—";
+  document.getElementById('k_routes').textContent = c.routes_count ?? "—";
+  document.getElementById('k_rdups').textContent = c.routes_duplicates ?? "—";
+  document.getElementById('k_bmiss').textContent = c.baseline_missing ?? "—";
+  document.getElementById('k_bextra').textContent = c.baseline_extra ?? "—";
+  document.getElementById('k_wl_ok').textContent = w.roots_exist ?? "—";
+  document.getElementById('k_wl_all').textContent = w.roots ?? "—";
+  document.getElementById('k_jobs_bad').textContent = d.jobs_bad ?? "—";
+  document.getElementById('k_cat_bad').textContent = d.catalog_bad ?? "—";
+  document.getElementById('k_lan_bad').textContent = d.lan_rec_bad ?? "—";
+  document.getElementById('k_alias_bad').textContent = d.aliases_bad ?? "—";
+  document.getElementById('k_ow').textContent = x.overwrites ?? "—";
+  document.getElementById('k_mw').textContent = x.multiwrites ?? "—";
+  document.getElementById('k_prof').textContent = yesno(p.profile);
+  document.getElementById('k_rec').textContent  = yesno(p.recommend_env);
+  // Banner «Pervyy start»
+  const showBanner = !p.profile;
+  document.getElementById('firststart_banner').style.display = showBanner ? "block" : "none";
+}
+async function applyPreset(){
+  const j = await jget('/admin/portable/compliance/apply_preset',{method:'POST'});
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('preset_res').textContent = j.ok ? "OK" : "ERR";
+  await refresh();
+}
+refresh().catch(()=>{});
+</script>
+</body>
+</html>

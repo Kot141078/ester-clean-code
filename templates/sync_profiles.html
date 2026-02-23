@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Profili sinkhronizatsii</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .ok{color:#9BE28D}.err{color:#ff8a8a}.muted{color:#9aa9bd}
+  </style>
+  <!--
+  Mosty:
+    • Yavnyy: redaktor profiley (release_dest/dump_dest).
+    • Skrytyy 1: JSON eksport/import — obmen skhemami raskladki.
+    • Skrytyy 2: bezopasno — tolko konfiguratsiya, bez I/O.
+  Zemnoy abzats:
+    Karta sklada: gde budut lezhat relizy i dampy raznykh proektov.
+  -->
+</head>
+<body>
+  <h1>Profili sinkhronizatsii</h1>
+
+  <section>
+    <div class="row">
+      <button onclick="load()">Obnovit</button>
+      <a href="/admin/lan" style="margin-left:auto;color:#9aa9bd">← k LAN-sshivke</a>
+    </div>
+    <table id="tbl"><thead><tr><th>Imya</th><th>release_dest</th><th>dump_dest</th><th>Zametki</th><th></th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section>
+    <h3>Redaktor</h3>
+    <div class="row">
+      <input id="id" placeholder="id (pusto — novyy)" class="mono" style="min-width:260px"/>
+      <input id="name" placeholder="Imya profilya" style="min-width:260px"/>
+    </div>
+    <div class="row">
+      <input id="release_dest" class="mono" style="min-width:420px" placeholder="releases/{project}/{ts}/"/>
+      <input id="dump_dest" class="mono" style="min-width:420px" placeholder="inbox/projects/{project}/"/>
+    </div>
+    <div class="row">
+      <input id="notes" placeholder="Zametki" style="min-width:420px"/>
+      <button onclick="save()">Save</button>
+      <button onclick="exp()">Eksport</button>
+      <button onclick="imp()">Import</button>
+    </div>
+    <pre id="out" class="mono">—</pre>
+  </section>
+
+<script>
+let cur="";
+async function load(){
+  const r = await fetch('/admin/sync-profiles/list');
+  const j = await r.json().catch(()=>({ok:false}));
+  const tb = document.querySelector('#tbl tbody'); tb.innerHTML='';
+  (j.items||[]).forEach(p=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${p.name}</td><td class="mono">${p.release_dest}</td><td class="mono">${p.dump_dest}</td><td>${p.notes||''}</td><td><button data-sel>Vybrat</button> <button data-del>Udalit</button></td>`;
+    tr.querySelector('button[data-sel]').onclick=()=>fill(p);
+    tr.querySelector('button[data-del]').onclick=()=>del(p.id);
+    tb.appendChild(tr);
+  });
+}
+function fill(p){
+  cur=p.id||"";
+  document.getElementById('id').value=p.id||"";
+  document.getElementById('name').value=p.name||"";
+  document.getElementById('release_dest').value=p.release_dest||"";
+  document.getElementById('dump_dest').value=p.dump_dest||"";
+  document.getElementById('notes').value=p.notes||"";
+}
+async function save(){
+  const fd=new FormData();
+  fd.append('id',document.getElementById('id').value.trim());
+  fd.append('name',document.getElementById('name').value.trim());
+  fd.append('release_dest',document.getElementById('release_dest').value.trim());
+  fd.append('dump_dest',document.getElementById('dump_dest').value.trim());
+  fd.append('notes',document.getElementById('notes').value.trim());
+  const r=await fetch('/admin/sync-profiles/save',{method:'POST',body:fd});
+  const j=await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent=JSON.stringify(j,null,2);
+  load();
+}
+async function del(id){
+  if(!confirm('Udalit profil?')) return;
+  const fd=new FormData(); fd.append('id',id);
+  await fetch('/admin/sync-profiles/delete',{method:'POST',body:fd});
+  load();
+}
+async function exp(){
+  if(!cur){ alert('Vyberite profil'); return; }
+  const r=await fetch('/admin/sync-profiles/export?id='+encodeURIComponent(cur));
+  const j=await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent=JSON.stringify(j,null,2);
+}
+async function imp(){
+  const s=prompt('Vstavte JSON profilya'); if(!s) return;
+  const fd=new FormData(); fd.append('json',s);
+  const r=await fetch('/admin/sync-profiles/import',{method:'POST',body:fd});
+  const j=await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent=JSON.stringify(j,null,2);
+  load();
+}
+load().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

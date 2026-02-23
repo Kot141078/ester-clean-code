@@ -1,0 +1,67 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Panel</title>
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 24px; }
+  h1 { margin: 0 0 8px; }
+  .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin: 12px 0; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+  pre { background: #fafafa; padding: 12px; border-radius: 8px; overflow: auto; }
+  button { padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; }
+  button:hover { background: #f5f5f5; }
+  input[type="text"] { padding: 8px; border-radius: 8px; border: 1px solid #ccc; width: 60%; }
+</style>
+<h1>Panel upravleniya Ester</h1>
+
+<div class="card">
+  <h3>Samosoznanie</h3>
+  <button onclick="fetchJSON('/self/awareness/status')">Skan faylov</button>
+  <button onclick="fetchJSON('/self/awareness/graph')">Graf</button>
+</div>
+
+<div class="card">
+  <h3>Multimedia</h3>
+  <input id="url" type="text" placeholder="URL ili put k faylu">
+  <button onclick="postJSON('/media/probe',{source:val('url')})">Profile</button>
+  <button onclick="postJSON('/media/subs',{source:val('url'),prefer:'ru'})">Subtitry</button>
+  <button onclick="postJSON('/media/outline',{source:val('url'),k:8})">Konspekt</button>
+  <button onclick="postJSON('/media/ingest',{source:val('url'),prefer:'ru',k:8})">V pamyat</button>
+</div>
+
+<div class="card">
+  <h3>Memory i poisk</h3>
+  <input id="q" type="text" placeholder="Zapros">
+  <button onclick="postJSON('/rag/hybrid/search',{q:val('q'),k:10})">Gibridnyy poisk</button>
+  <button onclick="postJSON('/mem/passport/sweep',{query:'*',limit:200})">Profileizatsiya</button>
+</div>
+
+<div class="card">
+  <h3>Nochnye protsedury</h3>
+  <button onclick="getJSON('/cron/jobs')">Spisok</button>
+  <button onclick="postJSON('/cron/run',{jobs:['passport','kg_link','heal','compact']})">Zapusk</button>
+</div>
+
+<div class="card">
+  <h3>Diskaver/Registratsiya</h3>
+  <button onclick="getJSON('/app/discover/scan')">Skan moduley</button>
+  <input id="mod" type="text" placeholder="routes.media_routes">
+  <button onclick="postJSON('/app/discover/register',{modules:[val('mod')]})">Registratsiya</button>
+  <button onclick="getJSON('/app/routes/map')">Karta marshrutov</button>
+  <button onclick="postJSON('/app/routes/verify',{})">Proverka konfliktov</button>
+</div>
+
+<div class="card">
+  <h3>Ekonomika i Papa</h3>
+  <button onclick="getJSON('/economy/ledger/status')">Balans</button>
+  <button onclick="getJSON('/papa/priority')">Prioritety Papy</button>
+</div>
+
+<div id="out" class="card"><h3>Vyvod</h3><pre id="pre">{}</pre></div>
+
+<script>
+const pre = document.getElementById('pre'); const val = id => document.getElementById(id).value;
+const show = obj => pre.textContent = JSON.stringify(obj, null, 2);
+const fetchJSON = (p) => fetch(p).then(r=>r.json()).then(show).catch(e=>show({error:''+e}));
+const getJSON = fetchJSON;
+const postJSON = (p, body) => fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})}).then(r=>r.json()).then(show).catch(e=>show({error:''+e}));
+</script>
+<!-- c=a+b -->

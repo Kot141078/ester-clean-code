@@ -1,0 +1,174 @@
+# rules/automation_rules.yaml
+# Iteratsiya B — edinyy fayl YAML-pravil avtomations.
+# Sovmestim s rule_engine.py (istochniki → paypy → usloviya → vykhody).
+# Pri neobkhodimosti rasshiryay — validator dolzhen propustit kak bazovyy keys.
+
+version: 1
+defaults:
+  tz: "UTC"
+  locale: "ru-RU"
+  user: "Owner"
+
+sources:
+  # Istochniki dannykh dlya avtomatizatsiy
+  - id: flashback_recent
+    kind: flashback
+    params:
+      lookback_hours: 12
+  - id: sse_events
+    kind: sse
+    params:
+      topics:
+        - "chat.message.user"
+        - "ingest.*"
+        - "scheduler.*"
+        - "security.*"
+        - "subconscious.*"
+  - id: queue_ingest
+    kind: queue
+    params:
+      name: ingest
+  - id: beacon
+    kind: beacon
+
+pipes:
+  - id: summarize
+    steps:
+      - kind: llm
+        provider: "local"
+        prompt: |
+          Summarizuy vkhod (kratko, 5–8 bulletov), vydeli klyuchevye tegi i klyuchi.
+          Verni JSON: {"summary": "...", "tags": [...], "keys": [...], "risk": 0..1}
+      - kind: parse_json
+  - id: suggest
+    steps:
+      - kind: llm
+        provider: "local"
+        prompt: |
+          Predlozhi 3–5 sleduyuschikh shagov po SMART na osnove konteksta i pamyati.
+          Verni JSON: {"suggestions":[{"title":"...","why":"...","impact":0..1,"effort":0..1}]}
+      - kind: parse_json
+  - id: reflect
+    steps:
+      - kind: llm
+        provider: "local"
+        prompt: |
+          Provedi korotkuyu refleksiyu (maks 120 slov), vydeli neopredelennosti i riski.
+          Verni JSON: {"reflection":"...", "uncertainties":[...], "risk": 0..1}
+      - kind: parse_json
+
+rules:
+
+# Polzovatel pishet — zazhigaem gipotezu
+- when: type == "chat.message.user"
+  then:
+    - action: run_pipe
+      pipe: summarize
+    - action: emit
+      event_type: "mind.summary"
+      payload:
+        summary: "{{ output.summary }}"
+        tags: "{{ output.tags }}"
+        keys: "{{ output.keys }}"
+    - action: run_pipe
+      pipe: suggest
+    - action: emit
+      event_type: "planner.suggest"
+      payload:
+        items: "{{ output.suggestions }}"
+        context: "chat.message.user"
+
+# Ingest prishel — fiksiruem v KG i zovem refleksiyu
+- when: type in ["ingest.file.accepted","ingest.text.accepted"]
+  then:
+    - action: emit
+      event_type: "kg.persist.request"
+      payload:
+        node_type: "Document"
+        text: "{{ payload.text or payload.path }}"
+        source: "{{ payload.source }}"
+    - action: run_pipe
+      pipe: reflect
+    - action: emit
+      event_type: "mind.reflection"
+      payload:
+        reflection: "{{ output.reflection }}"
+        risk: "{{ output.risk }}"
+        uncertainties: "{{ output.uncertainties }}"
+
+# Dream tick — zovem podsoznanie
+- when: type == "scheduler.fired" and payload.kind == "dream_tick"
+  then:
+    - action: emit
+      event_type: "subconscious.dream.generate"
+      payload:
+        seed: "{{ payload.seed }}"
+        reason: "tick"
+
+# Sgenerirovan son — klassifitsiruem i fiksiruem
+- when: type == "subconscious.dream.generated"
+  then:
+    - action: run_pipe
+      pipe: summarize
+    - action: emit
+      event_type: "subconscious.dream.record"
+      payload:
+        title: "{{ output.summary }}"
+        tags: "{{ output.tags }}"
+        keys: "{{ output.keys }}"
+        class: "dream"
+    - action: notify
+      channel: "ui"
+      message: "💤 Novyy son: {{ output.summary }}"
+
+# Spam/opasnye sny — karantin
+- when: type == "subconscious.dream.generated" and output.risk > 0.7
+  then:
+    - action: emit
+      event_type: "subconscious.dream.quarantined"
+      payload:
+        title: "{{ output.summary }}"
+        risk: "{{ output.risk }}"
+        notes: "Avtokarantin po porogu"
+        fingerprint: "{{ payload.fingerprint }}"
+    - action: notify
+      channel: "ui"
+      message: "⚠️ Son pomechen riskovym ({{ output.risk }}): {{ output.summary }}"
+
+# Fiksatsiya sna
+- when: type == "subconscious.dream.record"
+  then:
+    - action: persist_to_kg
+      node_type: "Dream"
+      props:
+        title: "{{ payload.title }}"
+        tags: "{{ payload.tags }}"
+        keys: "{{ payload.keys }}"
+        class: "{{ payload.class }}"
+    - action: notify
+      channel: "ui"
+      message: "💡 Son zafiksirovan: {{ payload.title }}"
+
+# Karantin riskovykh snov
+- when: type == "subconscious.dream.quarantined"
+  then:
+    - action: notify
+      channel: "ui"
+      message: "🧩 Son pomeschen v karantin: {{ payload.title }} (risk={{ payload.risk }})"
+    - action: persist_to_kg
+      node_type: "DreamQuarantined"
+      props:
+        title: "{{ payload.title }}"
+        risk: "{{ payload.risk }}"
+        notes: "{{ payload.notes }}"
+        fingerprint: "{{ payload.fingerprint }}"
+
+# Lyuboy high-impact zapros oborachivaem v kvorum
+- when: type in ["scheduler.cancel","kg.delete","system.shutdown.request"]
+  then:
+    - action: emit
+      event_type: "high_impact.request"
+      payload:
+        target_type: "{{ type }}"
+        target_payload: "{{ payload }}"
+    - action: drop   # iskhodnyy ne ispolnyaem napryamuyu

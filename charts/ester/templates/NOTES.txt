@@ -1,0 +1,33 @@
+Ester ustanovlen.
+
+1) Servis:
+   NAME: {{ include "ester.fullname" . }}
+   PORT: {{ .Values.service.port }}
+
+2) Proba gotovnosti/zhivosti:
+   /ready, /live
+
+3) Metriki:
+   ServiceMonitor: {{ ternary "enabled" "disabled" .Values.serviceMonitor.enabled }}
+   jobLabel: app.kubernetes.io/name -> {{ include "ester.name" . }}
+
+4) Progressivnye relizy:
+   Canary:     {{ ternary "ON" "OFF" .Values.progressive.canary.enabled }}
+   Blue-Green: {{ ternary "ON" "OFF" .Values.progressive.blueGreen.enabled }}
+
+5) Unleash:
+   {{- if .Values.unleash.enabled }}
+   Proxy {{ ternary "standalone" "sidecar" (.Values.unleash.standalone | default false) }}
+   {{- else }}
+   Disabled
+   {{- end }}
+
+6) Istio:
+   {{- if .Values.istio.enabled }}
+   VirtualService: {{ include "ester.fullname" . }}
+   Host: {{ .Values.istio.host }}
+   {{- else }}
+   Disabled
+   {{- end }}
+
+Udachnykh relizov. «Ester» — pamyat + myshlenie + set.

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>WA Style Admin · Ester</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root { --fg:#111; --bg:#fff; --muted:#666; --accent:#0a7; --line:#eee; }
+    body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; color:var(--fg); background:var(--bg); }
+    header { padding:16px 20px; border-bottom:1px solid var(--line); }
+    main { max-width:920px; margin:0 auto; padding:20px; }
+    .row { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px; }
+    .card { border:1px solid var(--line); border-radius:12px; padding:16px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+    label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+    input[type=text], select, textarea { width:100%; padding:10px; border:1px solid var(--line); border-radius:10px; font-size:15px; }
+    textarea { min-height:120px; }
+    button { padding:10px 14px; border:0; border-radius:10px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; }
+    button.secondary { background:#444; }
+    pre { white-space:pre-wrap; background:#f9f9f9; border:1px dashed #ddd; padding:12px; border-radius:10px; }
+    .col { flex:1 1 280px; }
+    .muted { color:var(--muted); font-size:13px; }
+  </style>
+</head>
+<body>
+  <header><strong>WhatsApp Style Admin</strong> · Ester</header>
+  <main>
+    <div class="row">
+      <div class="card col">
+        <label>Auditoriya</label>
+        <select id="audience">
+          <option value="lawyer">Advokat</option>
+          <option value="student">Shkolnik/student</option>
+          <option value="friend">Drug</option>
+          <option value="business">Biznes</option>
+          <option value="neutral" selected>Neytralno</option>
+        </select>
+      </div>
+      <div class="card col">
+        <label>Namerenie</label>
+        <select id="intent">
+          <option value="letter">Pismo</option>
+          <option value="update" selected>Obnovlenie</option>
+          <option value="reminder">Napominanie</option>
+          <option value="apology">Izvinenie</option>
+          <option value="request">Prosba</option>
+        </select>
+      </div>
+      <div class="card col">
+        <label>Nomer poluchatelya (dlya otpravki)</label>
+        <input id="to" type="text" placeholder="15551234567">
+        <div class="muted">Dlya dry-run realnyy otpravki ne budet.</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="card col">
+        <label>Smysl / fakty</label>
+        <textarea id="content" placeholder="Napishite, chto imenno nuzhno skazat..."></textarea>
+        <div class="row" style="margin-top:12px;">
+          <button id="btnPreview">Predprosmotr</button>
+          <button id="btnSend" class="secondary">Otpravit (dry-run)</button>
+        </div>
+      </div>
+      <div class="card col">
+        <label>Predprosmotr</label>
+        <pre id="preview">(zdes poyavitsya tekst)</pre>
+        <label>Otvet otpravki</label>
+        <pre id="sendres">(poka pusto)</pre>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const $ = sel => document.querySelector(sel);
+    async function preview() {
+      const body = {
+        audience: $('#audience').value,
+        intent: $('#intent').value,
+        content: $('#content').value
+      };
+      const r = await fetch('/wa/ctrl/api/style/preview', {
+        method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+      });
+      const j = await r.json();
+      $('#preview').textContent = j.render || JSON.stringify(j, null, 2);
+    }
+    async function sendDry() {
+      const body = {
+        to: $('#to').value.trim() || '15551234567',
+        audience: $('#audience').value,
+        intent: $('#intent').value,
+        content: $('#content').value
+      };
+      const r = await fetch('/wa/send?dry_run=1', {
+        method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+      });
+      const j = await r.json();
+      $('#sendres').textContent = JSON.stringify(j, null, 2);
+    }
+    $('#btnPreview').addEventListener('click', preview);
+    $('#btnSend').addEventListener('click', sendDry);
+  </script>
+</body>
+</html>

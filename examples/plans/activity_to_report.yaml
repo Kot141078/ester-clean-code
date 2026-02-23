@@ -1,0 +1,55 @@
+# Skhema: peredat outline/kontekst v LLM i poluchit chernovik otcheta.
+# Mosty:
+# - Yavnyy: (LLM/Plan ↔ UX) — zapuskaetsya temi zhe ruchkami /thinking/cascade/execute (sovmestimo s admin_cascade.js).
+# - Skrytyy #1: (Memory ↔ Plan) — fiksiruem start v profilee.
+# - Skrytyy #2: (Plan ↔ Eksport) — rezultat prigoden dlya skleyki v Markdown/HTML bez izmeneniya API.
+
+run_id: activity_to_report
+branch_id: main
+context_init:
+  spec: "Chernovoy otchet iz nedavney aktivnosti (Builder/KIT/Report)."
+  items:
+    - {file: "digest.md"}
+
+nodes:
+  - id: outline
+    type: llm.generate
+    prompt: |
+      Na osnove predostavlennogo konteksta sformiruy kratkiy otchet:
+      - khronologiya klyuchevykh sobytiy,
+      - vyvody,
+      - sleduyuschie shagi.
+      Korotko i strukturirovano.
+    out: "outline"
+    depends: []
+
+  - id: passport
+    type: script
+    update:
+      passport_note: "ACTIVITY→REPORT: start mini-plana"
+    depends: ["outline"]
+
+  - id: fanout
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["passport"]
+
+  - id: draft
+    type: llm.generate
+    prompt: |
+      Podgotov {{ctx.item.file}} na osnove outline={{ctx.outline}}.
+      Dobav blok «Metriki/kontrol kachestva» (CO₂e, kWh, otkhody).
+    out: "branch_out"
+    depends: ["fanout"]
+
+  - id: join
+    type: join
+    from: "fanout"
+    out: "scaffold"
+    select:
+      file: "{{item.file}}"
+      text: "{{ctx.branch_out}}"
+    mode: list
+    await_nodes: ["draft"]
+    depends: ["draft"]
+# c=a+b

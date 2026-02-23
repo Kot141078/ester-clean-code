@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Sborka fleshki</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    textarea{width:100%;height:80px}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .muted{color:#9aa9bd}
+    input[type="text"]{min-width:260px}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Master sozdaet na vybrannoy fleshke katalogi ESTER/, portable/, manifest auto.deploy i startovye skripty — sovmestimo s avtodeploem.
+    Mosty:
+      • Yavnyy — upakovka → dostavka v offlayn-uzly.
+      • Skrytye — checksums, okno bezopasnosti i dry-run cherez AB_MODE.
+  -->
+</head>
+<body>
+  <h1>Sborka fleshki Ester <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <h3>Nastroyki</h3>
+    <div class="row">
+      <label><input type="checkbox" id="models"/> Vklyuchit *.gguf modeli</label>
+      <label>Compression
+        <select id="comp"><option value="zip">zip</option><option value="dir">dir</option></select>
+      </label>
+      <label><input type="checkbox" id="hashes" checked/> Pisat checksums</label>
+      <label>Label <input type="text" id="label" value="Ester Portable"/></label>
+      <label><input type="checkbox" id="trust" checked/> Pometit fleshku doverennoy</label>
+      <label>Window (sec) <input type="number" id="win" value="3600" style="width:120px"/></label>
+      <label>Base dir <input type="text" id="base" value="~/.ester/portable"/></label>
+    </div>
+    <div class="row" style="width:100%">
+      <label style="width:100%">Paths for models (one per line)</label>
+      <textarea id="paths"></textarea>
+    </div>
+    <div class="row">
+      <button onclick="save()">Save</button>
+      <button onclick="status()">Status</button>
+    </div>
+    <pre id="cfg">—</pre>
+  </section>
+
+  <section>
+    <h3>Sborka</h3>
+    <div class="row">
+      <button onclick="probe()">Proba tomov</button>
+      <select id="mount"></select>
+      <button onclick="plan()">Plan</button>
+      <button onclick="apply()">Sobrat</button>
+    </div>
+    <pre id="out">—</pre>
+  </section>
+
+<script>
+function toLines(arr){return (arr||[]).join('\n');}
+function fromLines(s){return (s||'').split('\n').map(x=>x.trim()).filter(Boolean);}
+
+async function status(){
+  const r = await fetch('/admin/usb/make/status'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok) { document.getElementById('cfg').textContent='Oshibka'; return; }
+  const s=j.settings||{};
+  document.getElementById('models').checked=!!s.include_models;
+  document.getElementById('comp').value=s.compression||'zip';
+  document.getElementById('hashes').checked=!!s.hashes;
+  document.getElementById('label').value=s.label||'Ester Portable';
+  document.getElementById('trust').checked=!!s.trust_mark;
+  document.getElementById('win').value=s.window_s||3600;
+  document.getElementById('base').value=s.base_dir||'~/.ester/portable';
+  document.getElementById('paths').value=toLines(s.search_paths||[]);
+  // targets
+  const sel=document.getElementById('mount'); sel.innerHTML='';
+  (j.targets||[]).forEach(t=>{
+    const o=document.createElement('option'); o.value=t.mount; o.textContent=(t.mount+' — '+(t.label||'')+' ('+(t.fs||'?')+')');
+    sel.appendChild(o);
+  });
+  document.getElementById('cfg').textContent=JSON.stringify(j,null,2);
+}
+async function save(){
+  const body={
+    include_models: document.getElementById('models').checked,
+    search_paths: fromLines(document.getElementById('paths').value),
+    compression: document.getElementById('comp').value,
+    hashes: document.getElementById('hashes').checked,
+    label: document.getElementById('label').value.trim(),
+    trust_mark: document.getElementById('trust').checked,
+    window_s: parseInt(document.getElementById('win').value,10),
+    base_dir: document.getElementById('base').value.trim()
+  };
+  const r = await fetch('/admin/usb/make/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('cfg').textContent=JSON.stringify(j,null,2);
+}
+async function probe(){
+  const r = await fetch('/admin/usb/make/probe'); const j = await r.json().catch(()=>({ok:false}));
+  const sel=document.getElementById('mount'); sel.innerHTML='';
+  (j.targets||[]).forEach(t=>{
+    const o=document.createElement('option'); o.value=t.mount; o.textContent=(t.mount+' — '+(t.label||'')+' ('+(t.fs||'?')+')');
+    sel.appendChild(o);
+  });
+}
+async function plan(){
+  const m=document.getElementById('mount').value;
+  const r = await fetch('/admin/usb/make/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount:m})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent=JSON.stringify(j,null,2);
+}
+async function apply(){
+  const m=document.getElementById('mount').value;
+  const r = await fetch('/admin/usb/make/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount:m})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent=JSON.stringify(j,null,2);
+}
+status().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

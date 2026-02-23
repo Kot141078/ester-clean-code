@@ -1,0 +1,38 @@
+# config/messaging_rules.yaml — rasshirennyy routing dlya proaktivnosti Ester
+# Klyuchi mogut byt kak audience, tak i audience:intent (bolee prioritetnye).
+
+routes:
+  # Bank i finansy
+  bank:              { channel: whatsapp, to: "15550001122" }
+  bank:letter:       { channel: whatsapp, to: "15550001122" }
+  bank:update:       { channel: whatsapp, to: "15550001122" }
+
+  # Advokat
+  lawyer:            { channel: whatsapp, to: "15551234567" }
+  lawyer:letter:     { channel: whatsapp, to: "15551234567" }
+  lawyer:request:    { channel: whatsapp, to: "15551234567" }
+
+  # Gosorgan
+  gov:               { channel: whatsapp, to: "15559990000" }
+  gov:request:       { channel: whatsapp, to: "15559990000" }
+
+  # Medik
+  medic:             { channel: whatsapp, to: "15558887766" }
+  medic:reminder:    { channel: whatsapp, to: "15558887766" }
+
+  # Inzhener / ispolniteli
+  engineer:          { channel: telegram, to: 777001 }
+  engineer:update:   { channel: telegram, to: 777001 }
+
+  # Uchitel / shkola
+  teacher:           { channel: whatsapp, to: "15557771234" }
+  student:           { channel: telegram, to: 777002 }
+
+  # Investor / biznes
+  investor:          { channel: whatsapp, to: "15553334444" }
+  business:          { channel: whatsapp, to: "15554443333" }
+
+  # Po umolchaniyu
+  neutral:           { channel: whatsapp, to: "15550000000" }
+
+# c=a+b

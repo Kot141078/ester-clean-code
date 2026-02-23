@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Otpravit proekt</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    textarea{min-width:360px;min-height:140px}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .muted{color:#9aa9bd}.ok{color:#9BE28D}.err{color:#ff8a8a}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+  </style>
+  <!--
+  Mosty:
+    • Yavnyy (Kibernetika ↔ UX): odin ekran sobiraet konvert i shlet po vybrannomu kanalu.
+    • Skrytyy 1 (Infoteoriya ↔ Kontrakty): JSON-konvert standartizovan; transport vybiraetsya vnutri.
+    • Skrytyy 2 (Praktika ↔ Bezopasnost): TTL po umolchaniyu, bez skrytykh sayd-effektov.
+  Zemnoy abzats:
+    Minimum poley — maksimum prakticheskoy polzy; podkhodit dlya «bystrogo obmena» proektami mezhdu uzlami.
+  -->
+</head>
+<body>
+  <h1>Otpravit proekt</h1>
+
+  <section>
+    <div class="row">
+      <label>Kanal:
+        <select id="mode"><option value="lan">LAN (vsem iz reestra)</option><option value="telegram">Telegram (fallback)</option></select>
+      </label>
+      <label>TTL (sek): <input id="ttl" type="number" value="3600" min="1"/></label>
+      <button onclick="send()">Otpravit</button>
+      <span id="flag" class="chip muted">–</span>
+    </div>
+  </section>
+
+  <section>
+    <h3>Proekt (JSON)</h3>
+    <textarea id="proj" class="mono" placeholder='{"id":"P1","name":"Demo","summary":"...","tags":[""],"data":{}}'></textarea>
+  </section>
+
+  <section>
+    <h3>Otvet</h3>
+    <pre id="out">—</pre>
+  </section>
+
+<script>
+async function send(){
+  const fd = new FormData();
+  fd.append('mode', document.getElementById('mode').value);
+  fd.append('ttl',  document.getElementById('ttl').value);
+  fd.append('project_json', document.getElementById('proj').value || '{}');
+  const r = await fetch('/admin/project/share/send', {method:'POST', body: fd});
+  const j = await r.json().catch(()=>({ok:false,error:'bad json'}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('flag').textContent = j.ok?'OK':'ERR';
+  document.getElementById('flag').className = 'chip ' + (j.ok?'ok':'err');
+}
+</script>
+</body>
+</html>
+<!-- c=a+b -->

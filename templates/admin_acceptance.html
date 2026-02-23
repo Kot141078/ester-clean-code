@@ -1,0 +1,42 @@
+{#
+Most (yavnyy):
+- (Inzheneriya UI ↔ Kontrol) Yavnaya knopka «Snyat snapshot», rezhim A/B na vidu.
+
+Mosty (skrytye):
+- (Grafy ↔ Operatsii) Chek-list — eto «put» cherez graf funktsiy i tochek kontrolya.
+- (Chelovek ↔ Avtomat) Odin klik — odin artefakt otcheta, bez fonovykh demonov.
+
+Zemnoy abzats:
+Panel priemki: pokazyvaem chek-list, formiruem finalnyy otchet.
+V A — tolko prevyu, v B — zapis `ESTER/reports/final_compliance.json`.
+
+c=a+b
+#}
+{% extends "_admin_base.html" %}
+
+{% block content %}
+<h2>Finalnaya priemka</h2>
+<p>Rezhim: <b>{{ ab_mode }}</b> (A=dry, B=zapis)</p>
+
+<div style="margin:10px 0;">
+  <button id="btnShot">Snyat snapshot</button>
+</div>
+
+<h3>Chek-list</h3>
+<pre style="white-space:pre-wrap; background:#fafafa; padding:8px;">{{ checklist_md }}</pre>
+
+<h3>Rezultat</h3>
+<pre id="out" style="white-space:pre-wrap;"></pre>
+
+<script>
+async function postJSON(url, payload){
+  const r = await fetch(url,{method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload||{})});
+  return await r.json();
+}
+document.getElementById("btnShot").onclick = async () => {
+  const r = await postJSON("{{ url_for('admin_acceptance.api_snapshot') }}", {});
+  document.getElementById("out").textContent = JSON.stringify(r, null, 2);
+};
+</script>
+{% endblock %}
+<!-- c=a+b -->

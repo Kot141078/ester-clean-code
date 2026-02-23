@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+# Matrichnaya politika RBAC po umolchaniyu.
+# Esli prilozhenie podderzhivaet chtenie iz config/rbac_matrix.yaml — eta matritsa dast strogie pravila dlya kritichnykh ruchek.
+# Roli:
+#   admin — polnyy dostup
+#   ops — operatsii /ops/*
+#   provider_manager — vybor provaydera /providers/select
+#   ingest — operatsii zagruzki /ingest/*
+
+roles:
+  admin:
+    allow:
+      - "*"
+  ops:
+    allow:
+      - "/ops/*"
+  provider_manager:
+    allow:
+      - "/providers/select"
+  ingest:
+    allow:
+      - "/ingest/*"
+
+rules:
+  "/ops/*":
+    require_any_role: ["admin", "ops"]
+  "/providers/select":
+    require_any_role: ["admin", "provider_manager"]
+  "/ingest/*":
+    require_any_role: ["admin", "ingest"]

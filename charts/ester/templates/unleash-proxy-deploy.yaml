@@ -1,0 +1,43 @@
+{{- if and (.Values.unleash.enabled) (.Values.unleash.standalone | default false) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ester.fullname" . }}-unleash
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ester.name" . }}-unleash
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "ester.name" . }}-unleash
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: unleash-proxy
+        image: {{ .Values.unleash.proxy.image }}
+        envFrom:
+        - configMapRef: { name: {{ include "ester.fullname" . }}-unleash-proxy }
+        ports: [{ name: http, containerPort: 4242 }]
+        readinessProbe: { httpGet: { path: /proxy/health, port: http } }
+        livenessProbe:  { httpGet: { path: /proxy/health, port: http } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ester.fullname" . }}-unleash
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "ester.name" . }}-unleash
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  ports:
+  - name: http
+    port: 4242
+    targetPort: 4242
+{{- end }}

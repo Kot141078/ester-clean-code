@@ -1,0 +1,108 @@
+# -*- coding: utf-8 -*-
+"""
+tools/show_experience_profile_http.py
+
+Utilita dlya prosmotra profilya opyta Ester cherez HTTP-endpoint
+/memory/experience/profile.
+
+Osobennosti:
+- Nikakikh zavisimostey krome standartnoy biblioteki.
+- BASE_URL beretsya iz peremennoy okruzheniya ili ukazannoy vruchnuyu.
+- Bezopasno obrabatyvaet setevye/HTTP-oshibki.
+- Format vyvoda druzhelyuben dlya ruchnoy diagnostiki i CI.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+from typing import Any, Dict
+
+from urllib import request, error
+from modules.memory.facade import memory_add, ESTER_MEM_FACADE
+
+
+def get_base_url() -> str:
+    # Prioritet: ENV BASE_URL, zatem defoltnyy lokalnyy server.
+    base = os.getenv("BASE_URL") or "http://127.0.0.1:8080"
+    return base.rstrip("/")
+
+
+def fetch_profile(base_url: str) -> Dict[str, Any]:
+    url = f"{base_url}/memory/experience/profile"
+    req = request.Request(url, method="GET")
+    try:
+        with request.urlopen(req, timeout=10) as resp:
+            data = resp.read().decode("utf-8", errors="replace")
+            try:
+                return json.loads(data)
+            except json.JSONDecodeError:
+                return {
+                    "ok": False,
+                    "error": "invalid_json",
+                    "raw": data[:4000],
+                }
+    except error.HTTPError as e:
+        body = ""
+        try:
+            body = e.read().decode("utf-8", errors="replace")
+        except Exception:
+            pass
+        return {
+            "ok": False,
+            "error": "http_error",
+            "status": e.code,
+            "body": body[:4000],
+        }
+    except error.URLError as e:
+        return {
+            "ok": False,
+            "error": "url_error",
+            "reason": getattr(e, "reason", str(e)),
+        }
+    except Exception as e:  # pragma: no cover - zaschitnyy sloy
+        return {"ok": False, "error": "unexpected_error", "detail": str(e)}
+
+
+def print_human(profile_resp: Dict[str, Any]) -> None:
+    ok = profile_resp.get("ok", False)
+    profile = profile_resp.get("profile") or {}
+
+    print(json.dumps(profile_resp, ensure_ascii=False, indent=2))
+
+    # Kratkaya svodka nizhe JSON — udobno glazami smotret.
+    print("\n--- summary ---")
+
+    if not ok:
+        err = profile_resp.get("error") or profile.get("error")
+        if err == "experience_profile_not_implemented":
+            print("Profile opyta poka ne realizovan v backend. "
+                  "Alias rabotaet, no modul experience ne daet dannykh.")
+        elif err == "no_insights":
+            print("Profile est, no esche net insaytov: nuzhen khotya by odin uspeshnyy nochnoy tsikl.")
+        elif err:
+            print(f"Oshibka profilya opyta: {err}")
+        else:
+            print("ok == False, detaley oshibki net.")
+    else:
+        total = profile.get("total_insights")
+        top_terms = profile.get("top_terms") or []
+        print(f"Profile opyta aktiven. Insaytov: {total}.")
+        if top_terms:
+            head = ", ".join(map(str, top_terms[:10]))
+            print(f"Klyuchevye terminy: {head}")
+
+
+def main() -> int:
+    base_url = get_base_url()
+    profile_resp = fetch_profile(base_url)
+
+    print(f"[experience] BASE_URL={base_url}")
+    print_human(profile_resp)
+
+    return 0 if profile_resp.get("ok") else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

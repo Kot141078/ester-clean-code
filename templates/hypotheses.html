@@ -1,0 +1,190 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+
+<section class="row" style="margin-bottom:12px">
+  <h2 style="margin:0">Sny / Initsiativy</h2>
+  <span class="chip right">/hypotheses</span>
+</section>
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:10px;align-items:flex-start">
+    <input id="hTitle" class="input" style="min-width:320px" placeholder="Zagolovok gipotezy…" />
+    <input id="hTags" class="input" placeholder="tegi cherez zapyatuyu (opts.)" />
+    <select id="hPriority" class="input">
+      <option value="normal">normal</option>
+      <option value="low">low</option>
+      <option value="high">high</option>
+      <option value="urgent">urgent</option>
+    </select>
+    <button class="btn" onclick="createHyp()">Sozdat</button>
+    <div class="spacer"></div>
+    <input id="hFilter" class="input" placeholder="filtr…" oninput="renderHyp()" />
+    <button class="btn" onclick="loadHyp()">Obnovit</button>
+  </div>
+</section>
+
+<section class="card">
+  <div class="row" style="margin-bottom:6px">
+    <h3 style="margin:0">Spisok</h3>
+    <span class="muted right">Klik po polyu — redaktirovanie; Enter — sokhranit</span>
+  </div>
+  <div class="box" style="overflow:auto">
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">ID</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Zagolovok</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Tegi</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Prioritet</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Status</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Deystviya</th>
+        </tr>
+      </thead>
+      <tbody id="hypBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+  let H = [];
+
+  function asArrayTags(s){
+    if(Array.isArray(s)) return s;
+    if(!s) return [];
+    return String(s).split(',').map(x=>x.trim()).filter(Boolean);
+  }
+
+  function normalizeHyp(o){
+    const id = o.id || o._id || o.uid || o.key || o.uuid;
+    return {
+      id,
+      title: o.title || o.name || o.text || o.summary || '',
+      tags: asArrayTags(o.tags || o.labels || o.keywords),
+      priority: o.priority || o.prio || 'normal',
+      status: o.status || o.state || 'new',
+      raw: o
+    };
+  }
+
+  async function fetchFirstJson(urls, opts){
+    let lastErr=null;
+    for(const u of urls){
+      try{
+        const r=await $fetch(u, opts||{});
+        const j=await r.json();
+        return j;
+      }catch(e){ lastErr=e; }
+    }
+    throw lastErr||new Error('No JSON');
+  }
+
+  async function loadHyp(){
+    // staraemsya podderzhat raznye bekend-ruchki
+    const data = await fetchFirstJson(
+      ['/hypotheses/json?limit=200','/hypotheses/list?limit=200','/hypotheses?format=json&limit=200','/api/hypotheses?limit=200'],
+      { method:'GET' }
+    ).catch(()=> null);
+
+    const items = data ? (Array.isArray(data)?data:(data.items||data.hypotheses||[])) : [];
+    H = items.map(normalizeHyp);
+    renderHyp();
+  }
+
+  function renderHyp(){
+    const body = document.getElementById('hypBody');
+    const q = (document.getElementById('hFilter').value||'').toLowerCase();
+    body.innerHTML='';
+    for(const h of H){
+      if(q && !(`${h.id} ${h.title} ${h.tags.join(' ')} ${h.priority} ${h.status}`.toLowerCase().includes(q))) continue;
+
+      const tr=document.createElement('tr');
+      const td=(t)=>{ const x=document.createElement('td'); x.style.padding='8px 6px'; x.style.borderBottom='1px solid var(--border)'; x.innerHTML=t; return x; };
+
+      tr.appendChild(td(`<code>${h.id||'—'}</code>`));
+
+      const tTitle=td('');
+      const inpTitle=document.createElement('input'); inpTitle.className='input'; inpTitle.value=h.title; inpTitle.style.minWidth='260px';
+      inpTitle.onkeydown=(e)=>{ if(e.key==='Enter'){ updateHypField(h.id,'title',inpTitle.value); } };
+      tTitle.appendChild(inpTitle); tr.appendChild(tTitle);
+
+      const tTags=td('');
+      const inpTags=document.createElement('input'); inpTags.className='input'; inpTags.value=h.tags.join(', ');
+      inpTags.onkeydown=(e)=>{ if(e.key==='Enter'){ updateHypField(h.id,'tags',inpTags.value); } };
+      tTags.appendChild(inpTags); tr.appendChild(tTags);
+
+      const tPrio=td('');
+      const sel=document.createElement('select'); sel.className='input';
+      ['low','normal','high','urgent'].forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=p; if(p===h.priority) o.selected=true; sel.appendChild(o); });
+      sel.onchange=()=> updateHypField(h.id,'priority',sel.value);
+      tPrio.appendChild(sel); tr.appendChild(tPrio);
+
+      const tStatus=td('');
+      const selS=document.createElement('select'); selS.className='input';
+      ['new','accepted','in_progress','done','rejected','paused'].forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; if(s===h.status) o.selected=true; selS.appendChild(o); });
+      selS.onchange=()=> updateHypField(h.id,'status',selS.value);
+      tStatus.appendChild(selS); tr.appendChild(tStatus);
+
+      const tAct=td('');
+      const bDel=document.createElement('button'); bDel.className='btn'; bDel.textContent='Udalit';
+      bDel.onclick=()=> delHyp(h.id);
+      tAct.appendChild(bDel);
+      tr.appendChild(tAct);
+
+      body.appendChild(tr);
+    }
+  }
+
+  async function createHyp(){
+    const title=(document.getElementById('hTitle').value||'').trim();
+    if(!title){ alert('Nuzhen zagolovok'); return; }
+    const tags=asArrayTags(document.getElementById('hTags').value||'');
+    const priority=(document.getElementById('hPriority').value||'normal');
+
+    const payload={title, tags, priority};
+    const targets=['/hypotheses','/hypotheses/create','/api/hypotheses'];
+    let ok=false, data=null;
+    for(const u of targets){
+      try{
+        const r=await $fetch(u,{method:'POST', body:JSON.stringify(payload)});
+        data=await r.json(); ok=r.ok && (data.ok===undefined || data.ok);
+        if(ok) break;
+      }catch(e){ /* try next */ }
+    }
+    if(ok){
+      document.getElementById('hTitle').value=''; document.getElementById('hTags').value='';
+      await loadHyp();
+    }else{
+      alert('Ne udalos sozdat (prover roli JWT)');
+    }
+  }
+
+  async function updateHypField(id, field, value){
+    if(!id){ alert('Net ID'); return; }
+    const payload={id}; payload[field]=value;
+    const targets=[`/hypotheses/${encodeURIComponent(id)}`, '/hypotheses/update', '/api/hypotheses/update'];
+    for(const u of targets){
+      try{
+        const r=await $fetch(u,{method: (u.includes('/update')?'POST':'PUT'), body: JSON.stringify(payload)});
+        if(r.ok){ return; }
+      }catch(e){ /* next */ }
+    }
+    alert('Ne udalos obnovit');
+  }
+
+  async function delHyp(id){
+    if(!id) return;
+    if(!confirm('Udalit gipotezu '+id+'?')) return;
+    const targets=[`/hypotheses/${encodeURIComponent(id)}`, '/hypotheses/delete', '/api/hypotheses/delete'];
+    for(const u of targets){
+      try{
+        const r=await $fetch(u,{method: (u.includes('/delete')?'POST':'DELETE'), body: JSON.stringify({id})});
+        if(r.ok){ loadHyp(); return; }
+      }catch(e){ /* next */ }
+    }
+    alert('Ne udalos udalit');
+  }
+
+  document.addEventListener('DOMContentLoaded', loadHyp);
+</script>
+
+{% endblock %}

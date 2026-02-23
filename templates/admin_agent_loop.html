@@ -1,0 +1,40 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Agent Loop (Full)</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:160px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
+  .pill{padding:2px 8px;border-radius:999px;border:1px solid #aaa}
+</style>
+<h2>Agent Loop — Sense → Think → Plan → Act</h2>
+
+<div class="row">
+  Goal <input id="goal" style="width:360px" placeholder="naprimer: otkryt bloknot i sokhranit fayl">
+  Interval(s) <input id="intv" type="number" value="5" style="width:80px">
+  Max steps <input id="msteps" type="number" value="50" style="width:80px">
+  Max run(s) <input id="mrun" type="number" value="120" style="width:90px">
+  Idle break(s) <input id="idle" type="number" value="20" style="width:90px">
+  <button onclick="start()">Start</button>
+  <button onclick="stop()">Stop</button>
+  <button onclick="tick()">Tick once</button>
+  <button onclick="stat()">Status</button>
+  <span id="flag" class="pill">enabled: false</span>
+</div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+function setFlag(on){ document.getElementById('flag').textContent='enabled: '+on; }
+
+async function start(){
+  const d={"goal":document.getElementById('goal').value||"", "interval_sec":+intv.value||5, "max_steps":+msteps.value||50, "max_run_sec":+mrun.value||120, "idle_break_sec":+idle.value||20};
+  const r=await j('POST','/agent/loop/start', d); setFlag((r||{}).enabled); out(r);
+}
+async function stop(){ const r=await j('POST','/agent/loop/stop',{}); out(r); setFlag(false); }
+async function tick(){ out(await j('POST','/agent/loop/tick',{})); }
+async function stat(){ const r=await fetch('/agent/loop/status'); const jv=await r.json(); out(jv); setFlag((jv||{}).enabled); }
+</script>

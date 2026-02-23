@@ -1,0 +1,31 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Undo Suggester</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:980px}
+  textarea{width:100%;min-height:160px}
+  button{padding:8px 12px;border:1px solid #ccc;border-radius:8px;cursor:pointer}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:120px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+</style>
+<h2>Undo Suggester</h2>
+<div class="row">
+  <button onclick="demo()">Load demo</button>
+  <button onclick="suggest()">Suggest</button>
+  <button onclick="patch()">Patch</button>
+</div>
+<textarea id="steps">[
+{"title":"Otkryt menyu","do":{"type":"hotkey","seq":"ALT+F"}},
+{"title":"Save","do":{"type":"workflow","name":"save_file"}}
+]</textarea>
+<pre id="out"></pre>
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+function demo(){ steps.value='['+
+'{"title":"Otkryt menyu","do":{"type":"hotkey","seq":"ALT+F"}},'+
+'{"title":"Save","do":{"type":"workflow","name":"save_file"}}'+
+']'; }
+async function suggest(){ out(await j('POST','/undo/suggest',{"steps":JSON.parse(steps.value||"[]")})); }
+async function patch(){ out(await j('POST','/undo/patch',{"steps":JSON.parse(steps.value||"[]")})); }
+</script>

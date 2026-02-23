@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — One-Click Green Agent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{ --bg:#0b0c10; --fg:#e5e7eb; --accent:#34d399; --muted:#9ca3af; --border:#374151; }
+    body{ background:var(--bg); color:var(--fg); font:14px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; margin:0; }
+    .wrap{ max-width:1100px; margin:0 auto; padding:20px; }
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    .card{ border:1px solid var(--border); border-radius:10px; padding:14px; background:#0f1115; }
+    input,button,select,textarea{ width:100%; box-sizing:border-box; }
+    input,select{ background:#0f1115; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:8px; }
+    textarea{ min-height:180px; background:#0f1115; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:8px; }
+    button{ background:#1f2937; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:10px; cursor:pointer; }
+    button:hover{ filter:brightness(1.08) }
+    pre{ white-space:pre-wrap; word-break:break-word; border:1px solid var(--border); border-radius:8px; padding:10px; background:#0b0e14; }
+    .row{ display:flex; gap:8px; align-items:center; }
+    .row>*{ flex:1; }
+    .muted{ color:var(--muted); font-size:12px; }
+    label.row span{ flex:0 0 auto; }
+  </style>
+</head>
+<body>
+  <!--
+    Mosty:
+    - Yavnyy: (UX ↔ Mysli/Kaskad) — /thinking/act (oneclick.green.*) i /thinking/cascade/execute.
+    - Skrytyy #1: (UX ↔ Avtorizatsiya) — JWT beretsya iz obschego admin.js.
+    - Skrytyy #2: (UX ↔ Pravila) — status RuleHub pokazyvaetsya spravochno.
+
+    Zemnoy abzats:
+    Vvedite tsel — nazhmite «One-Click»: Ester soberet spec, plan, fayly i otchet. Po umolchaniyu — prevyu; zapis — tolko pri yavnom razreshenii i politikakh bezopasnosti.
+    c=a+b
+  -->
+  <div class="wrap">
+    <h1>One-Click Green Agent</h1>
+    <p class="muted">Rabotaet poverkh suschestvuyuschikh API: <code>/thinking/act</code>, <code>/thinking/cascade/*</code>. JWT — obschiy (kak v adminke).</p>
+
+    <div class="card">
+      <h3>JWT</h3>
+      <div class="row">
+        <input id="jwtInput" placeholder="JWT">
+        <button id="saveJwtBtn">Save</button>
+        <button id="clearJwtBtn">Ochistit</button>
+      </div>
+      <div class="grid" style="margin-top:12px;">
+        <div class="card">
+          <h4>Okruzhenie</h4>
+          <button id="btnEnv">Proverit okruzhenie</button>
+          <pre id="state" class="muted">{}</pre>
+        </div>
+        <div class="card">
+          <h4>RuleHub (status)</h4>
+          <pre id="rule" class="muted">{}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px;">
+      <div class="card">
+        <h3>Parametry</h3>
+        <input id="goal" placeholder="Tsel (napr. Ekologicheskiy sovetnik dlya SMB)">
+        <div class="row">
+          <input id="audience" placeholder="Auditoriya (napr. SMB)">
+          <input id="domain" placeholder="Domen (napr. sustainability)">
+        </div>
+        <input id="name" placeholder="Imya agenta (optsionalno)">
+        <div class="row" style="margin-top:8px;">
+          <button id="btnOne">One-Click</button>
+          <button id="btnPlan">Vypolnit plan</button>
+        </div>
+        <label class="row" style="margin-top:8px;">
+          <span class="muted">Razreshit zapis</span>
+          <input id="write" type="checkbox">
+          <button id="btnApply">Primenit fayly</button>
+        </label>
+        <div class="row" style="margin-top:8px;">
+          <button id="btnDL">Skachat bundle (JSON)</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Bundle (prevyu)</h3>
+        <textarea id="bundle" placeholder='{"spec":{...},"plan":{...},"files":[...],"report":{...}}'></textarea>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h3>Vyvod</h3>
+      <pre id="out">{}</pre>
+      <h3>Log</h3>
+      <pre id="log"></pre>
+    </div>
+  </div>
+
+  <script src="../static/admin.js"></script>
+  <script src="../static/admin_oneclick_green.js"></script>
+</body>
+</html>
+<!-- c=a+b -->

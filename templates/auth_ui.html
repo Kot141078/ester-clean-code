@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Generatsiya JWT — Ester</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif;
+         margin:0;padding:24px;line-height:1.5;background:#0b0e11;color:#e6eef7}
+    .card{max-width:760px;margin:0 auto;background:#131a22;border:1px solid #263241;border-radius:12px;padding:20px}
+    h1{font-size:20px;margin:0 0 12px}
+    label{display:block;margin:10px 0 6px}
+    input[type="text"]{width:100%;padding:10px;border-radius:8px;border:1px solid #334254;background:#0b0e11;color:#e6eef7}
+    button{margin-top:12px;padding:10px 14px;border-radius:10px;border:1px solid #3a83f6;background:#1a73e8;color:white;cursor:pointer}
+    button.secondary{background:#0b0e11;border-color:#3a83f6;color:#cfe1ff}
+    .row{display:flex;gap:8px;align-items:center}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .token{white-space:pre-wrap;word-break:break-all;background:#0b0e11;border:1px dashed #334254;border-radius:8px;padding:12px;margin-top:10px}
+    small{color:#a7b8cc}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #2a3346;background:#0a0f16;color:#b7c5d7;font-size:12px;margin-left:8px}
+    .ok{color:#86f0ab;border-color:#2e6b45;background:#0f1a15}
+    .err{color:#f39bb4;border-color:#6b2e3b;background:#1a0f15}
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>JWT po imeni polzovatelya</h1>
+  <p><small>Knopka generiruet vnutrenniy JWT (HS256) dlya RBAC. Esli vvedete «Owner», roli budut <code>admin,user</code>. Takzhe token generiruetsya avtomaticheski pri vvode imeni.</small></p>
+
+  <label for="name">Imya polzovatelya (ili tg_id):</label>
+  <div class="row">
+    <input id="name" type="text" placeholder="naprimer: Owner" />
+    <button id="gen">Sgenerirovat JWT</button>
+    <button id="clear" class="secondary">Ochistit</button>
+    <span id="st" class="badge">—</span>
+  </div>
+
+  <div id="out" style="display:none">
+    <p class="mono">sub: <span id="sub"></span></p>
+    <p class="mono">roles: <span id="roles"></span></p>
+    <div class="token mono" id="tok"></div>
+    <div class="row">
+      <button id="copy">Skopirovat token</button>
+    </div>
+  </div>
+</div>
+
+<script>
+async function mint(name){
+  const res = await fetch('/auth/ui/mint', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({username: name || ''})
+  });
+  if(!res.ok){ throw new Error('HTTP '+res.status) }
+  return await res.json();
+}
+const $ = sel => document.querySelector(sel);
+function status(msg, ok){
+  const st = $('#st');
+  st.textContent = msg;
+  st.className = 'badge ' + (ok === true ? 'ok' : ok === false ? 'err' : '');
+}
+async function runMint(){
+  const name = $('#name').value.trim();
+  try{
+    status('minting…');
+    const j = await mint(name);
+    if(!j.ok) throw new Error(j.error || 'mint failed');
+    $('#out').style.display = '';
+    $('#sub').textContent = j.sub;
+    $('#roles').textContent = (j.roles||[]).join(',');
+    $('#tok').textContent = j.token;
+    try{ localStorage.setItem('jwt', j.token); }catch(e){}
+    status('gotovo', true);
+  }catch(e){
+    status('oshibka: '+e.message, false);
+  }
+}
+$('#gen').addEventListener('click', runMint);
+$('#clear').addEventListener('click', ()=>{
+  $('#name').value = '';
+  $('#out').style.display = 'none';
+  $('#tok').textContent = '';
+  $('#sub').textContent = '';
+  $('#roles').textContent = '';
+  status('ochischeno');
+});
+$('#copy').addEventListener('click', async ()=>{
+  const t = $('#tok').textContent;
+  try{ await navigator.clipboard.writeText(t); status('skopirovano', true); }catch(e){ status('ne udalos skopirovat', false); }
+});
+// Avtogeneratsiya po vvodu imeni (debounce 500 ms)
+let _deb = null;
+$('#name').addEventListener('input', ()=>{
+  if(_deb) clearTimeout(_deb);
+  _deb = setTimeout(runMint, 500);
+});
+</script>
+</body>
+</html>

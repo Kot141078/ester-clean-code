@@ -1,0 +1,54 @@
+# Mini-plan generatsii chernovogo otcheta
+# Mosty:
+# - Yavnyy: (LLM/Plan ↔ UX) — zapuskaetsya cherez /thinking/cascade/execute (kak v admin_cascade.js).
+# - Skrytyy #1: (Memory ↔ Plan) — fiksiruet sobytie v profilee.
+# - Skrytyy #2: (Plan ↔ Eksport) — rezultatom stanovyatsya sektsii, gotovye k skleyke v Markdown.
+
+run_id: report_min
+branch_id: main
+context_init:
+  spec: "Chernovik otcheta po tseli polzovatelya."
+  items:
+    - {file: "summary.md"}
+    - {file: "actions.md"}
+
+nodes:
+  - id: outline
+    type: llm.generate
+    prompt: |
+      Sformiruy kratkiy summary po tseli: {{ctx.spec}}. Do 8 punktov, po delu.
+    out: "outline"
+    depends: []
+
+  - id: passport
+    type: script
+    update:
+      passport_note: "REPORT: start mini-plana"
+    depends: ["outline"]
+
+  - id: fanout
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["passport"]
+
+  - id: draft
+    type: llm.generate
+    prompt: |
+      Podgotov {{ctx.item.file}} na osnove outline={{ctx.outline}}:
+      - izmerimye shagi (CO₂e, kWh, otkhody);
+      - kontrolnye tochki i otvetstvennye;
+      - do 200 strok.
+    out: "branch_out"
+    depends: ["fanout"]
+
+  - id: join
+    type: join
+    from: "fanout"
+    out: "scaffold"
+    select:
+      file: "{{item.file}}"
+      text: "{{ctx.branch_out}}"
+    mode: list
+    await_nodes: ["draft"]
+    depends: ["draft"]
+# c=a+b

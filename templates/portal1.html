@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ester · Admin · Safe Portal</title>
+  <style>
+    :root { --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --fg:#e5e7eb; --acc:#60a5fa; }
+    html,body{height:100%;}
+    body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, Helvetica, "Apple Color Emoji","Segoe UI Emoji";}
+    .wrap{max-width:1100px;margin:20px auto;padding:16px;}
+    h1{margin:0 0 16px 0;font-size:20px;}
+    .grid{display:grid;grid-template-columns: 2fr 1fr; gap:16px;}
+    .card{background:var(--panel);border-radius:12px;padding:12px;box-shadow:0 0 0 1px rgba(255,255,255,.06) inset;}
+    .muted{color:var(--muted);}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+    .col{display:flex;flex-direction:column;gap:8px;}
+    select,input,button,textarea{background:#0b1020;color:var(--fg);border:1px solid #1f2937;border-radius:10px;padding:8px 10px;outline:none}
+    button{cursor:pointer}
+    textarea{min-height:88px;resize:vertical}
+    .chat-log{height:420px;overflow:auto;border-radius:10px;background:#0a0f1d;padding:8px;border:1px solid #1f2937}
+    .m{padding:8px 10px;border-radius:10px;margin:8px 0;white-space:pre-wrap}
+    .m-user{background:#12223f}
+    .m-bot{background:#142c25}
+    .tag{font-size:12px;padding:2px 8px;border-radius:999px;background:#0b1020;border:1px solid #1f2937}
+    .pill{font-size:12px;padding:2px 8px;border-radius:999px;background:#0b1020;border:1px solid #1f2937;color:var(--muted)}
+    .ok{color:#22c55e}.bad{color:#ef4444}
+    .kbd{font:12px monospace;background:#0b1020;border:1px solid #1f2937;border-radius:6px;padding:2px 6px}
+    a{color:var(--acc);text-decoration:none}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Ester · Admin · Safe Portal <span id="pProvider" class="pill">…</span></h1>
+
+  <div class="grid">
+    <div class="card col">
+      <div class="row">
+        <label>Rezhim</label>
+        <select id="pMode">
+          <option value="lmstudio" selected>lmstudio (po umolchaniyu)</option>
+          <option value="local">local (zaglushka)</option>
+          <option value="cloud" disabled>cloud (poka otklyucheno)</option>
+          <option value="judge" disabled>judge (poka otklyucheno)</option>
+        </select>
+        <label class="row" style="gap:6px;margin-left:auto;">
+          <input type="checkbox" id="pRag"> RAG
+        </label>
+        <label class="row" style="gap:6px;">
+          temp <input id="pTemp" type="number" step="0.1" value="0.2" style="width:84px">
+        </label>
+        <button id="pClear">Ochistit</button>
+      </div>
+
+      <div id="pChatLog" class="chat-log" aria-live="polite"></div>
+
+      <div class="row">
+        <textarea id="pInput" placeholder="Sprosi Ester… (JWT ne obyazatelen)"></textarea>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button id="pSend">Otpravit</button>
+      </div>
+    </div>
+
+    <div class="card col">
+      <b>Podskazki</b>
+      <ul class="muted">
+        <li>GET <span class="kbd">/chat/health</span> pokazyvaet aktivnyy provayder.</li>
+        <li>POST <span class="kbd">/chat/message</span> prinimaet <span class="kbd">{ message, mode, rag, temperature, sid? }</span>.</li>
+        <li>Rezhimy <i>cloud</i> i <i>judge</i> poka ne podklyucheny — vklyuchen fallback.</li>
+      </ul>
+
+      <div class="muted" style="margin-top:8px">
+        Esli v PowerShell peremennaya <span class="kbd">$env:LMSTUDIO_BASE</span> ispolzuetsya v URL,
+        pishite ee v kavychkakh: <span class="kbd">curl "$env:LMSTUDIO_BASE/v1/models"</span>.
+      </div>
+      <div class="muted" style="margin-top:8px">
+        Tekuschaya papka dannykh: <span id="pDataDir" class="tag">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Prostaya obertka — odinakovo rabotaet i pri 4xx/5xx
+  async function $fetch(url, opts={}){
+    const r = await fetch(url, Object.assign({headers:{'Content-Type':'application/json'}}, opts));
+    return r;
+  }
+  const log = document.getElementById('pChatLog');
+  function logLine(text, cls){ const div=document.createElement('div'); div.className='m '+(cls||''); div.textContent=text; log.appendChild(div); log.scrollTop=log.scrollHeight; }
+  function logCode(obj, cls){ logLine(typeof obj==='string'?obj:JSON.stringify(obj, null, 2), cls); }
+
+  async function refreshHealth(){
+    try{
+      const r=await $fetch('/chat/health'); const j=await r.json();
+      const provider = (j && j.provider) ? j.provider : 'unknown';
+      document.getElementById('pProvider').textContent = 'provider: '+provider;
+      const sel = document.getElementById('pMode');
+      // esli bekend uzhe v lmstudio — vystavim selekt avtomaticheski
+      if (['lmstudio','local','cloud','judge'].includes(provider)) { sel.value = provider; }
+      document.getElementById('pDataDir').textContent = (j && j.data_dir) ? j.data_dir : '—';
+      return j;
+    }catch(e){ document.getElementById('pProvider').textContent='provider: —'; }
+  }
+
+  async function sendMsg(){
+    const s = document.getElementById('pInput').value.trim(); if(!s) return;
+    document.getElementById('pInput').value='';
+    logLine(s, 'm-user');
+    const mode = document.getElementById('pMode').value;
+    const rag  = document.getElementById('pRag').checked;
+    const temperature = parseFloat(document.getElementById('pTemp').value || '0.2');
+    try{
+      const r = await $fetch('/chat/message', {method:'POST', body: JSON.stringify({message:s, mode, rag, temperature, sid:'ui'})});
+      const j = await r.json().catch(()=>({}));
+      if(!r.ok || j.ok===false){ logLine('Oshibka: '+(j.error || r.statusText || r.status), 'm-bot'); return; }
+      logLine(j.answer || j.message || JSON.stringify(j), 'm-bot');
+    }catch(e){ logLine('Oshibka seti: '+e.message, 'm-bot'); }
+  }
+
+  document.getElementById('pSend').onclick=sendMsg;
+  document.getElementById('pClear').onclick=()=>{ log.innerHTML=''; };
+  document.getElementById('pInput').addEventListener('keydown', (ev)=>{
+    if(ev.key==='Enter' && !ev.shiftKey){ ev.preventDefault(); sendMsg(); }
+  });
+
+  // Avtodetekt provaydera
+  refreshHealth();
+</script>
+</body>
+</html>

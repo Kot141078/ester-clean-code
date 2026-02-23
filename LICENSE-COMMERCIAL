@@ -1,0 +1,31 @@
+﻿Ester Commercial License (EULA)
+Version: 1.0
+Effective date: 2025-09-25
+Licensor: Ester Project Maintainers
+Address for notices: [To be defined by publisher]
+Legal email: ester.legal@proton.me
+Controlling law & venue: [To be defined by publisher]
+Controlling language: English
+
+1. Definitions.
+   ""Software"" means Ester commercial modules, installers, and related materials (""Pro"").
+   ""CE"" refers to the open-source core under AGPL-3.0-or-later.
+
+2. License Grant.
+   Non-exclusive, non-transferable; limited by seats and nodes. Source, where provided, may be
+   modified for internal use.
+
+3. Scope & Restrictions.
+   No resale, no sublicensing outside Corporate Group, no public hosted SaaS without a separate
+   Commercial Hosting License; do not remove notices; no reverse engineering of Pro (except as allowed by law).
+   CE rights per AGPL remain intact; CE deployments over a network must comply with AGPL.
+
+4. Updates/Support/SLA. With active subscription: security fixes and minor updates; SLA per agreement (8×5/24×7).
+5. Fees/Taxes. Fees per plan; taxes extra; late payments may suspend support.
+6. Confidentiality/GDPR. Self-hosted by default; DPA for cloud components.
+7. ""AS IS"" warranty; 8. Liability capped by fees paid in last 12 months; no indirect damages.
+9. Termination for breach; perpetual use of then-current version if purchased; updates need active subscription.
+10. Trademarks. ""Ester"" and the Ester logo are trademarks of Ester Project Maintainers.
+11. Notices: Email ester.legal@proton.me | Post [To be defined by publisher]
+12. Entire Agreement.
+(c) 2025 Ester Project Maintainers. All rights reserved.

@@ -1,0 +1,25 @@
+Povtornyy vyzov bezopasen.
+
+## 3) Vebkhuki
+- **Telegram**: ustanovite vebkhuk na `https://<host>/api/telegram/webhook` (ukazhite `secret_token` = `TELEGRAM_SECRET_TOKEN`).
+- **WhatsApp**: v Meta App Dashboard nastroyte Webhook na `https://<host>/api/whatsapp/webhook`, verify token = `WHATSAPP_VERIFY_TOKEN`.
+
+## 4) Proverki
+- Health: `GET /messaging/health`
+- Readiness: `GET /messaging/readiness`
+- Liveness: `GET /messaging/liveness`
+- Metriki: `GET /metrics/messaging` (Prometheus scrape)
+
+## 5) Marshrutizatsiya i «volya»
+- Vysokourovnevaya «volya» shlet sobytiya v `POST /proactive/hook/will`:
+  ```json
+  {"event":"bank.transfer_status_check","facts":{"date":"02.10.2025","amount":"1250 EUR","reference":"TR-84921"},"source_id":"uuid-1"}
+
+
+┌──────────┐   webhooks    ┌─────────────────────────┐
+│ Telegram │───► /api/tg ─►│ ester (Flask/FastAPI)   │──► /tg/send → Telegram API
+└──────────┘               │ + /wa/* /proactive/*    │──► /wa/send → WhatsApp Graph API
+┌──────────┐   webhooks    │ + /mail/compose/*       │
+│ WhatsApp │───► /api/wa ─►│ + /messaging/health     │
+└──────────┘               │ + /metrics/messaging    │
+                           └─────────────────────────┘

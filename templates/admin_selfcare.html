@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Self-Care planirovschik</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Avto-ukhod: periodicheskiy self-check, pravila «esli-to», ruchnoy zapusk i sbor «tiketa» dlya razborov.
+    Mosty:
+      • Yavnyy — UX poverkh planirovschika, pravil i tiketov.
+      • Skrytye — dry-run v A; tekstovye otchety/pravila; offlayn-sovmestimost.
+  -->
+</head>
+<body>
+  <h1>Self-Care <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid">
+    <div>
+      <h3>Status</h3>
+      <button onclick="status()">Obnovit</button>
+      <pre id="st">—</pre>
+    </div>
+    <div>
+      <h3>Ruchnoy zapusk</h3>
+      <button onclick="run()">Zapustit seychas</button>
+      <pre id="run">—</pre>
+    </div>
+    <div>
+      <h3>Sobrat tiket</h3>
+      <input id="mount" placeholder="/media/USB" style="width:100%"/>
+      <button onclick="ticket()">Sobrat</button>
+      <pre id="tk">—</pre>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div>
+      <h3>Pravila (JSON)</h3>
+      <textarea id="rules" style="width:100%;min-height:260px"></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="loadRules()">Zagruzit</button>
+        <button onclick="saveRules()">Save</button>
+      </div>
+    </div>
+    <div>
+      <h3>Khvost istorii</h3>
+      <pre id="tail">—</pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+async function status(){
+  const r = await fetch('/admin/selfcare/status'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('st').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('tail').textContent = JSON.stringify(j.tail, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function run(){
+  const r = await fetch('/admin/selfcare/run_once',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('run').textContent = JSON.stringify(j, null, 2);
+}
+async function loadRules(){
+  const r = await fetch('/admin/selfcare/rules',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({op:'get'})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('rules').value = JSON.stringify(j, null, 2);
+}
+async function saveRules(){
+  let obj={}; try{ obj = JSON.parse(document.getElementById('rules').value||'{}'); }catch(e){ alert('Plokhoy JSON'); return; }
+  const r = await fetch('/admin/selfcare/rules',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({op:'set', rules: obj})});
+  const j = await r.json().catch(()=>({ok:false}));
+  alert(j.ok ? 'Sokhraneno' : 'Oshibka');
+}
+async function ticket(){
+  const mount=document.getElementById('mount').value.trim() || null;
+  const r = await fetch('/admin/selfcare/ticket',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('tk').textContent = JSON.stringify(j, null, 2);
+}
+status().catch(()=>{});
+loadRules().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

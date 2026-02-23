@@ -1,0 +1,44 @@
+# Avtonomiya: paket tseley (primer YAML-plana s uzlami)
+# Mosty:
+# - Yavnyy: (LLM/Plan ↔ UX) — zapuskaetsya temi zhe ruchkami /thinking/cascade/execute.
+# - Skrytyy #1: (Memory ↔ Plan) — fiksiruem start v profilee (vidno v konsoli aktivnosti).
+# - Skrytyy #2: (Plan ↔ Builder/Kit/Report) — uzly opirayutsya na uzhe dobavlennye deystviya.
+
+run_id: autonomy_green_batch
+branch_id: main
+context_init:
+  spec: "Obrabotat paket zelenykh tseley."
+  items:
+    - {goal: "Snizit potreblenie elektroenergii na 15% za 6 mes"}
+    - {goal: "Sokratit otkhody i povysit pererabotku na meropriyatiyakh"}
+
+nodes:
+  - id: passport
+    type: script
+    update:
+      passport_note: "AUTONOMY: start batcha zelenykh tseley"
+    depends: []
+
+  - id: fanout
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["passport"]
+
+  - id: build
+    type: llm.generate
+    prompt: |
+      Na osnove tseli={{ctx.item.goal}} podgotov kratkiy plan (5–7 shagov) i metriki (CO₂e, kWh, otkhody).
+    out: "branch_out"
+    depends: ["fanout"]
+
+  - id: join
+    type: join
+    from: "fanout"
+    out: "scaffold"
+    select:
+      goal: "{{item.goal}}"
+      plan: "{{ctx.branch_out}}"
+    mode: list
+    await_nodes: ["build"]
+    depends: ["build"]
+# c=a+b

@@ -1,0 +1,31 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Agent Runner</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:160px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
+</style>
+<h2>Agent — Runner (Plan → Act)</h2>
+
+<div class="row">
+  max_steps <input id="ms" type="number" value="200">
+  step_timeout_ms <input id="tm" type="number" value="4000">
+  <button onclick="run()">Run</button>
+  <button onclick="stop()">Stop</button>
+  <button onclick="stat()">Status</button>
+  <a href="/admin/agent_plan" target="_blank">Open Planner</a>
+  <a href="/admin/autonomy" target="_blank">Open Autonomy</a>
+</div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+
+async function run(){ out(await j('POST','/agent/run',{"max_steps":+ms.value||200,"step_timeout_ms":+tm.value||4000})); }
+async function stop(){ out(await j('POST','/agent/stop',{})); }
+async function stat(){ const r=await fetch('/agent/status'); out(await r.json()); }
+</script>

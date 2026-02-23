@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Ester · Panel v1.0+</title>
+  <style>
+    :root{--bg:#0b0e12;--bg2:#0f141b;--card:#111722;--muted:#9aa7b2;--txt:#e6edf3;--acc:#4da3ff;--ok:#27d796;--warn:#ffb020;--err:#ff5d5d;--br:#1b2330}
+    html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);font:14px/1.5 Inter,system-ui,Segoe UI,Roboto,Arial}
+    a{color:var(--acc);text-decoration:none}
+    .wrap{display:grid;grid-template-columns:340px 1fr;gap:16px;padding:16px}
+    .col{display:flex;flex-direction:column;gap:16px}
+    .card{background:var(--card);border:1px solid var(--br);border-radius:16px;box-shadow:0 2px 18px rgba(0,0,0,.25)}
+    .card h3{margin:0;padding:14px 16px;border-bottom:1px solid var(--br);font-size:14px;color:#c7d1db;display:flex;align-items:center;justify-content:space-between}
+    .card .body{padding:12px 16px}
+    .row{display:flex;gap:8px;align-items:center}
+    input,select,button,textarea{background:#0c1219;border:1px solid var(--br);color:var(--txt);border-radius:12px;padding:10px 12px;font:inherit}
+    button{background:linear-gradient(180deg,#1a4c8f,#123a6d);border-color:#184277;cursor:pointer}
+    button.ghost{background:#0c1219}
+    textarea{min-height:88px;resize:vertical}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    .grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+    .log{background:#0c1219;border:1px dashed var(--br);border-radius:12px;padding:8px;white-space:pre-wrap;max-height:320px;overflow:auto}
+    .pill{display:inline-flex;gap:6px;align-items:center;background:#0c1219;border:1px solid var(--br);padding:4px 8px;border-radius:999px}
+    .ok{color:var(--ok)} .warn{color:var(--warn)} .err{color:var(--err)}
+    .list{display:flex;flex-direction:column;gap:8px}
+    .list .item{padding:8px;border:1px solid var(--br);border-radius:10px;background:#0c1219}
+    .muted{color:var(--muted)}
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+         background:#0b0e12;border:1px solid var(--br);border-radius:6px;padding:1px 6px;color:#bcd}
+    .badge{background:#102238;border:1px solid #1e3a5f;padding:2px 6px;border-radius:6px;color:#9cc6ff}
+    .sep{height:1px;background:var(--br);margin:8px 0}
+    .right{display:flex;gap:8px;justify-content:flex-end}
+    .stack{display:flex;flex-direction:column;gap:6px}
+    .hint{font-size:12px;color:#93a8bd}
+    .drop{border:2px dashed #214061;border-radius:14px;padding:12px;text-align:center}
+    .drop.drag{background:#0f1a28}
+    .small{font-size:12px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="col">
+    <div class="card">
+      <h3>Autentifikatsiya<span class="small muted">JWT</span></h3>
+      <div class="body">
+        <div class="list">
+          <div class="item">
+            <div class="row">
+              <input id="apiBase" placeholder="API base (naprimer, http://127.0.0.1:8080)" style="width:100%">
+            </div>
+            <div class="grid2" style="margin-top:8px">
+              <input id="loginUser" placeholder="Login">
+              <input id="loginPass" type="password" placeholder="Parol">
+            </div>
+            <div class="right" style="margin-top:8px">
+              <button onclick="login()">Poluchit JWT</button>
+            </div>
+            <div class="sep"></div>
+            <div class="row">
+              <input id="jwt" placeholder="Bearer JWT..." style="width:100%">
+              <button class="ghost" onclick="saveCfg()">Save</button>
+            </div>
+            <div class="muted" style="margin-top:6px">Token khranitsya v <span class="kbd">localStorage</span> i ispolzuetsya vsemi vyzovami nizhe.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Provaydery<span class="small muted">/providers</span></h3>
+      <div class="body">
+        <div class="row">
+          <button onclick="providersStatus()">/providers/status</button>
+          <select id="providerName"></select>
+          <button onclick="providerSelect()">Vybrat</button>
+        </div>
+        <div id="providersLog" class="log" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Memory • Flashback<span class="small muted">/mem/flashback</span></h3>
+      <div class="body">
+        <div class="grid2">
+          <input id="flashQuery" placeholder="zapros (naprimer, replikatsiya)">
+          <input id="flashK" type="number" value="10">
+        </div>
+        <div class="right" style="margin-top:8px">
+          <button onclick="flashback()">GET /mem/flashback</button>
+        </div>
+        <div id="flashLog" class="log" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Telegram-lenta<span class="small muted">read-only</span></h3>
+      <div class="body">
+        <div class="muted">Otobrazhenie poslednikh 10 kartochek/vospominaniy (tegi <span class="kbd">tg</span>, <span class="kbd">dream</span>, <span class="kbd">proactive</span>).</div>
+        <div id="tgFeed" class="list" style="margin-top:8px"></div>
+        <div class="right"><button class="ghost" onclick="loadTgFeed()">Obnovit</button></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Share Bridge<span class="small muted">/share/capture</span></h3>
+      <div class="body">
+        <div class="stack">
+          <input id="bridgeBase" placeholder="Bridge base (naprimer, http://127.0.0.1:18081)" />
+          <div class="grid2">
+            <input id="capUrl" placeholder="URL (neobyazatelno)">
+            <input id="capTitle" placeholder="Zagolovok">
+          </div>
+          <div class="grid2">
+            <input id="capTags" placeholder="tags: comma,separated">
+            <input id="capNote" placeholder="Zametka (note)">
+          </div>
+          <textarea id="capText" placeholder="Tekst (esli net HTML)"></textarea>
+          <div class="row">
+            <input id="capHtmlFile" type="file" accept=".html,text/html">
+            <button onclick="shareSingle()">Otpravit</button>
+          </div>
+          <div class="sep"></div>
+          <div class="muted">Batch (JSON): massiv obektov {url,title,html|text,tags,note}. HTML mozhno zagruzit kak fayl nizhe.</div>
+          <textarea id="capBatchJson" placeholder='[{"title":"Zametka","text":"Privet Ester!"}]'></textarea>
+          <div class="row">
+            <input id="capBatchHtmlFiles" type="file" accept=".html,text/html" multiple>
+            <button class="ghost" onclick="shareBatch()">Otpravit batch</button>
+          </div>
+          <div id="bridgeLog" class="log"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <h3>Chat (local / cloud / judge)<span class="small muted">/chat/message</span></h3>
+      <div class="body">
+        <div class="grid3">
+          <select id="mode">
+            <option>local</option>
+            <option>cloud</option>
+            <option>judge</option>
+          </select>
+          <label class="pill"><input type="checkbox" id="useRag" checked style="accent-color:#4da3ff;margin-right:6px">use_rag</label>
+          <select id="temperature">
+            <option value="0.0">temp 0.0</option>
+            <option value="0.9">temp 0.9</option>
+          </select>
+        </div>
+        <textarea id="query" placeholder="Vash zapros..."></textarea>
+        <div class="right">
+          <button onclick="sendChat()">POST /chat/message</button>
+        </div>
+        <div id="chatLog" class="log" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Zagruzka faylov (odin/paket)<span class="small muted">/ingest/*</span></h3>
+      <div class="body">
+        <div class="row">
+          <input id="files" type="file" multiple>
+          <button onclick="upload()">POST /ingest/file</button>
+        </div>
+        <div class="drop" id="dropZone">Peretaschite fayly syuda dlya paketnoy zagruzki</div>
+        <div id="ingestLog" class="log" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Sessiya (nablyudenie) <span class="small muted">klientskaya otsenka konteksta</span></h3>
+      <div class="body">
+        <div class="muted">Grubaya klientskaya otsenka «tokenov» po dline teksta. Dlya polnoty rekomenduetsya servernyy SessionGuardian.</div>
+        <div class="grid3">
+          <input id="ctxMax" type="number" value="8192" title="maks. tokenov">
+          <input id="ctxWarn" type="number" value="7000" title="porog WARN">
+          <input id="ctxHard" type="number" value="7900" title="porog HARD">
+        </div>
+        <textarea id="ctxBuf" placeholder="Vstavte istoriyu/fragment dlya otsenki…"></textarea>
+        <div class="right">
+          <button onclick="estimateCtx()">Otsenit</button>
+        </div>
+        <div id="ctxLog" class="log"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Replikatsiya i bekapy<span class="small muted">/replication, /ops/backup</span></h3>
+      <div class="body">
+        <div class="grid2">
+          <button onclick="snapshot()">GET /replication/snapshot</button>
+          <button onclick="backupRun()">POST /ops/backup/run</button>
+        </div>
+        <div class="grid2" style="margin-top:8px">
+          <button onclick="backupVerify()">/ops/backup/verify</button>
+          <button onclick="backupRestore()">/ops/backup/restore</button>
+        </div>
+        <div id="opsLog" class="log" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const $ = sel => document.querySelector(sel);
+  const api = () => ($('#apiBase').value || localStorage.getItem('apiBase') || '').replace(/\/+$/,'');
+  const hdr = () => ({ 'Authorization': 'Bearer ' + ($('#jwt').value || localStorage.getItem('jwt') || '') });
+
+  function saveCfg(){
+    localStorage.setItem('apiBase',$('#apiBase').value||'');
+    localStorage.setItem('jwt',$('#jwt').value||'');
+    localStorage.setItem('bridgeBase',$('#bridgeBase').value||'');
+  }
+  (function restore(){
+    $('#apiBase').value = localStorage.getItem('apiBase') || '';
+    $('#jwt').value = localStorage.getItem('jwt') || '';
+    $('#bridgeBase').value = localStorage.getItem('bridgeBase') || 'http://127.0.0.1:18081';
+  })();
+
+  async function login(){
+    const u=$('#loginUser').value,p=$('#loginPass').value;
+    const r = await fetch(api()+"/auth/token",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+    const j = await r.json().catch(()=>({}));
+    if(j.token){ $('#jwt').value=j.token; saveCfg(); }
+    log('#providersLog', j);
+  }
+
+  function log(sel, obj){
+    const el = $(sel);
+    el.textContent = (typeof obj === 'string') ? obj : JSON.stringify(obj,null,2);
+  }
+
+  async function providersStatus(){
+    const r = await fetch(api()+"/providers/status",{headers:hdr()});
+    const j = await r.json().catch(()=>({}));
+    log('#providersLog', j);
+    const sel = $('#providerName');
+    sel.innerHTML='';
+    (j.providers||[]).forEach(p=>{
+      const o=document.createElement('option'); o.textContent=p; o.value=p; sel.appendChild(o);
+    });
+    if(j.active){ sel.value=j.active; }
+  }
+  async function providerSelect(){
+    const name=$('#providerName').value;
+    const r = await fetch(api()+"/providers/select",{method:'POST',headers:Object.assign({'Content-Type':'application/json'},hdr()),body:JSON.stringify({name})});
+    log('#providersLog', await r.json().catch(()=>({})));
+  }
+
+  async function flashback(){
+    const q = $('#flashQuery').value || '*';
+    const k = parseInt($('#flashK').value||'10',10);
+    const r = await fetch(api()+"/mem/flashback?query="+encodeURIComponent(q)+"&k="+k,{headers:hdr()});
+    log('#flashLog', await r.json().catch(()=>({})));
+  }
+
+  async function sendChat(){
+    const body = {
+      query: $('#query').value,
+      mode: $('#mode').value,
+      use_rag: $('#useRag').checked,
+      temperature: parseFloat($('#temperature').value)
+    };
+    const r = await fetch(api()+"/chat/message",{method:'POST',headers:Object.assign({'Content-Type':'application/json'},hdr()),body:JSON.stringify(body)});
+    log('#chatLog', await r.json().catch(()=>({})));
+  }
+
+  // ---- Ingest (single/multi + DnD) ----
+  const drop = document.getElementById('dropZone');
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag'); });
+  drop.addEventListener('dragleave', e => { e.preventDefault(); drop.classList.remove('drag'); });
+  drop.addEventListener('drop', async e => {
+    e.preventDefault(); drop.classList.remove('drag');
+    const files = e.dataTransfer.files;
+    await uploadFiles(files);
+  });
+
+  async function upload(){
+    const fs = $('#files').files;
+    await uploadFiles(fs);
+  }
+
+  async function uploadFiles(fs){
+    if(!fs || !fs.length) return;
+    for(const f of fs){
+      const fd = new FormData();
+      fd.append('file', f, f.name);
+      const r = await fetch(api()+"/ingest/file",{method:'POST',headers:hdr(),body:fd});
+      const j = await r.json().catch(()=>({}));
+      log('#ingestLog', j);
+      if(j && j.id){
+        // opros statusa do DONE
+        let tries=0;
+        while(tries++<120){
+          const s = await fetch(api()+"/ingest/status?id="+encodeURIComponent(j.id),{headers:hdr()});
+          const sj = await s.json().catch(()=>({}));
+          log('#ingestLog', sj);
+          if((sj.status||'').toUpperCase()==='DONE' || (sj.done===true)) break;
+          await new Promise(r=>setTimeout(r,1000));
+        }
+      }
+    }
+  }
+
+  // ---- Telegram feed (via memory flashback tags) ----
+  async function loadTgFeed(){
+    try{
+      const r = await fetch(api()+"/mem/flashback?query="+encodeURIComponent("*")+"&k=50",{headers:hdr()});
+      const j = await r.json();
+      const arr = (j.results||j.flashback||[]).filter(x=>{
+        const t=(x.tags||[]).map(s=>String(s).toLowerCase());
+        return t.includes('tg')||t.includes('dream')||t.includes('proactive');
+      }).slice(0,10);
+      const feed = $('#tgFeed'); feed.innerHTML='';
+      arr.forEach(x=>{
+        const d = document.createElement('div'); d.className='item';
+        const tags = (x.tags||[]).map(t=>`<span class="badge">${t}</span>`).join(' ');
+        d.innerHTML = `<div>${tags}</div><div style="margin-top:6px">${(x.text||'').replace(/\n/g,'<br>')}</div>`;
+        feed.appendChild(d);
+      });
+      if(!arr.length){ $('#tgFeed').innerHTML='<div class="muted">Net zapisey c tegami tg/dream/proactive</div>'; }
+    }catch(e){
+      $('#tgFeed').innerHTML='<div class="muted">Net dannykh</div>';
+    }
+  }
+
+  // ---- Share Bridge (single + batch) ----
+  function bridge(){ return ($('#bridgeBase').value || localStorage.getItem('bridgeBase') || '').replace(/\/+$/,''); }
+
+  async function shareSingle(){
+    const htmlFile = $('#capHtmlFile').files[0];
+    let html = '';
+    if(htmlFile){
+      html = await htmlFile.text();
+    }
+    const payload = {
+      url: $('#capUrl').value,
+      title: $('#capTitle').value || 'untitled',
+      html: html,
+      text: $('#capText').value || '',
+      selection: '',
+      tags: ($('#capTags').value||'').split(',').map(s=>s.trim()).filter(Boolean),
+      note: $('#capNote').value || null
+    };
+    const r = await fetch(bridge()+"/share/capture",{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const j = await r.json().catch(()=>({}));
+    log('#bridgeLog', j);
+  }
+
+  async function shareBatch(){
+    // Podderzhka JSON massiva + podstanovka soderzhimogo HTML-faylov (po imeni title -> file match)
+    let batch = [];
+    try{
+      const raw = $('#capBatchJson').value.trim();
+      if(raw){ batch = JSON.parse(raw); }
+      if(!Array.isArray(batch)) throw new Error('Ozhidalsya massiv elementov');
+    }catch(e){
+      return log('#bridgeLog', {error: 'Nekorrektnyy JSON batcha', detail: String(e)});
+    }
+    // Sopostavim po title imya fayla .html
+    const files = $('#capBatchHtmlFiles').files || [];
+    const map = {};
+    for(const f of files){ map[f.name] = await f.text(); }
+    for(const it of batch){
+      if(!it.html && it.title && map[it.title]){ it.html = map[it.title]; }
+      if(!it.text && !it.html){ it.text = ''; }
+      if(!it.title){ it.title = 'untitled'; }
+      if(!Array.isArray(it.tags)){ it.tags = []; }
+    }
+    const r = await fetch(bridge()+"/share/capture",{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({items: batch})
+    });
+    const j = await r.json().catch(()=>({}));
+    log('#bridgeLog', j);
+  }
+
+  // ---- Session (client-side) ----
+  function approxTokens(s){ if(!s) return 0; return Math.max(Math.floor(s.length/4), 1); }
+  function estimateCtx(){
+    const max = parseInt($('#ctxMax').value||'8192',10);
+    const warn = parseInt($('#ctxWarn').value||'7000',10);
+    const hard = parseInt($('#ctxHard').value||'7900',10);
+    const used = approxTokens($('#ctxBuf').value||'');
+    const rem = Math.max(max - used, 0);
+    let state = 'OK';
+    if(used >= hard) state = 'HARD';
+    else if(used >= warn) state = 'WARN';
+    log('#ctxLog', {max, warn, hard, used, remaining: rem, state});
+  }
+
+  // ---- Ops ----
+  async function snapshot(){
+    const tok = localStorage.getItem('replToken') || prompt('X-REPL-TOKEN (dlya snapshot)');
+    if(!tok) return;
+    const r = await fetch(api()+"/replication/snapshot",{headers:Object.assign({'X-REPL-TOKEN':tok},hdr())});
+    const b = await r.blob();
+    log('#opsLog', {status:r.status,'X-Signature':r.headers.get('X-Signature')});
+  }
+
+  async function backupRun(){
+    const r = await fetch(api()+"/ops/backup/run",{method:'POST',headers:hdr()});
+    log('#opsLog', await r.json().catch(()=>({})));
+  }
+  async function backupVerify(){
+    const r = await fetch(api()+"/ops/backup/verify",{method:'POST',headers:hdr()});
+    log('#opsLog', await r.json().catch(()=>({})));
+  }
+  async function backupRestore(){
+    const r = await fetch(api()+"/ops/backup/restore",{method:'POST',headers:hdr(),body:'{}'});
+    log('#opsLog', await r.json().catch(()=>({})));
+  }
+</script>
+</body>
+</html>

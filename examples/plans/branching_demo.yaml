@@ -1,0 +1,37 @@
+run_id: research_run_01
+branch_id: main
+context_init:
+  spec: "Podgotovit chernovik 'podsoznanie kak gromootvod' i sobrat finalnye tezisy."
+  items:
+    - {file: "Son_kanal_A.md"}
+    - {file: "Son_kanal_B.md"}
+
+nodes:
+  - id: outline
+    type: llm.generate
+    prompt: "Kratko perechisli punkty TZ: {{ctx.spec}}. Do 7 punktov."
+    out: "outline"
+    depends: []
+
+  - id: fork
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["outline"]
+
+  - id: analyze
+    type: llm.generate
+    prompt: "Analiz {{ctx.item.file}}. Uchityvay obschiy outline={{ctx.outline}}. Verni kratkiy vyvod (3-5 predlozheniy)."
+    out: "analysis"
+    depends: ["fork"]
+
+  - id: human_check
+    type: human.review
+    message: "Prover analiz dlya {{ctx.item.file}}. Napishi OK/popravki."
+    out: "approval"
+    depends: ["analyze"]
+
+  - id: finalize
+    type: llm.generate
+    prompt: "Soberi final vetki {{ctx.item.file}} iz analysis={{ctx.analysis}} i approval={{ctx.approval}}."
+    out: "final_branch"
+    depends: ["human_check"]

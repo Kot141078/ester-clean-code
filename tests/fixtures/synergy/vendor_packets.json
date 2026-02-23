@@ -1,0 +1,22 @@
+{
+  "acme_uav": {
+    "payload": { "latency": 0.045, "flight": { "remain_s": 1200 }, "payload_kg": 0.2 },
+    "expect": { "latency_ms": 45.0, "flight_time_min": 20.0, "payload_g": 200.0 }
+  },
+  "neo": {
+    "payload": { "t_ms": 80, "battery_min": 22, "max_payload_g": 350 },
+    "expect": { "latency_ms": 80.0, "flight_time_min": 22.0, "payload_g": 350.0 }
+  },
+  "ugv_mk1": {
+    "payload": { "t_ms": 150, "runtime_min": 40, "cargo_kg": 0.5 },
+    "expect": { "latency_ms": 150.0, "flight_time_min": 40.0, "payload_g": 500.0 }
+  },
+  "robarm": {
+    "payload": { "latency_ms": 60, "hold_weight_g": 1200 },
+    "expect": { "latency_ms": 60.0, "flight_time_min": 0.0, "payload_g": 1200.0 }
+  },
+  "sim": {
+    "payload": { "latency_ms": 99, "flight_time_min": 11, "payload_g": 123 },
+    "expect": { "latency_ms": 99.0, "flight_time_min": 11.0, "payload_g": 123.0 }
+  }
+}

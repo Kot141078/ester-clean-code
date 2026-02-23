@@ -1,0 +1,5 @@
+[
+  {"id": "cfgA", "prior_success": 1, "prior_fail": 1, "meta": {"desc": "baseline"}},
+  {"id": "cfgB", "prior_success": 1, "prior_fail": 1, "meta": {"desc": "consensus+rag4"}},
+  {"id": "cfgC", "prior_success": 1, "prior_fail": 1, "meta": {"desc": "temp0.3+rerank"}}
+]

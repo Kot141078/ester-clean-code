@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{margin:0;background:#0b0f14;color:#e5e7eb;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    header{padding:12px 16px;background:#0f1620;border-bottom:1px solid #1f2937;color:#93c5fd}
+    .item{padding:10px 12px;border-bottom:1px solid #1f2937}
+    .meta{font-size:12px;opacity:.7;margin-bottom:4px}
+    .text{white-space:pre-wrap}
+  </style>
+</head>
+<body>
+  <header>{{ title }}</header>
+  {% for it in items %}
+    <div class="item">
+      <div class="meta">{{ it.ts or '' }} • {{ it.direction or 'msg' }} • {{ it.from or it.user or '' }} → {{ it.to or '' }}</div>
+      <div class="text">{{ (it.text or it.message or '') }}</div>
+    </div>
+  {% endfor %}
+</body>
+</html>

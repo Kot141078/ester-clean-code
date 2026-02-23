@@ -1,0 +1,32 @@
+run_id: research_run_10
+branch_id: main
+context_init:
+  spec: "Demonstratsiya join bez select — poluchaem bazovye polya."
+  items:
+    - {file: "samp_1.md"}
+    - {file: "samp_2.md"}
+
+nodes:
+  - id: fork
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: []
+
+  - id: tag
+    type: script
+    update:
+      note: "BR={{ctx.item.file}}"
+    depends: ["fork"]
+
+  - id: done
+    type: noop
+    depends: ["tag"]
+
+  - id: gather
+    type: join
+    from: "fork"
+    out: "joined_default"
+    # select ne ukazan — budet branch/item/context_keys
+    mode: list
+    await_nodes: ["done"]
+    depends: ["done"]

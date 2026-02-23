@@ -1,0 +1,25 @@
+# deploy/systemd/ester.service — unit-fayl systemd
+# MOSTY:
+# - (Yavnyy) Zapuskaet uvicorn asgi.app_main:app pod zadannym polzovatelem.
+# - (Skrytyy #1) Chitaet peremennye iz /etc/ester.env (sozdayte kopiey .env).
+# - (Skrytyy #2) Restart=always + simple health-logika cherez systemd.
+
+[Unit]
+Description=Ester Synergy Service
+After=network.target
+
+[Service]
+Type=simple
+User=%i
+EnvironmentFile=/etc/ester.env
+WorkingDirectory=/opt/ester
+ExecStart=/usr/bin/python -m uvicorn asgi.app_main:app --host ${HOST:-0.0.0.0} --port ${PORT:-8080} --workers ${WORKERS:-2} --log-level ${LOG_LEVEL:-info}
+Restart=always
+RestartSec=5
+
+# Zhurnaly
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ester · Dashbord</title>
+  <link rel="stylesheet" href="/static/ester.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Ester <span class="ver">v2 dashboard</span></div>
+    <nav class="nav">
+      <a href="#" data-tab="chat" class="active">Chat</a>
+      <a href="#" data-tab="feed">Lenta</a>
+      <a href="#" data-tab="ingest">Zagruzka</a>
+      <a href="#" data-tab="status">Status</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- CHAT TAB -->
+    <section class="tab active" id="tab-chat">
+      <div class="panel panel-chat">
+        <div class="chat-log" id="chat-log"></div>
+        <form id="chat-form" class="chat-form">
+          <select id="mode">
+            <option value="judge">judge</option>
+            <option value="local">local</option>
+            <option value="cloud">cloud</option>
+          </select>
+          <label><input type="checkbox" id="use_rag" checked /> RAG</label>
+          <input type="text" id="query" placeholder="Sprosi Ester..." />
+          <button type="submit">Otpravit</button>
+        </form>
+      </div>
+      <aside class="panel panel-side">
+        <h3>Proaktiv</h3>
+        <ul id="agenda"></ul>
+        <h3>Emotsii</h3>
+        <pre id="emotions" class="mono"></pre>
+      </aside>
+    </section>
+
+    <!-- FEED TAB -->
+    <section class="tab" id="tab-feed">
+      <div class="panel">
+        <div class="row">
+          <label>Tegi</label>
+          <input type="text" id="feed-tags" value="tg,dream,proactive,share" />
+          <label>Limit</label>
+          <input type="number" id="feed-limit" min="1" max="100" value="20" />
+          <button id="feed-refresh">Obnovit</button>
+        </div>
+        <div id="feed-list" class="feed-list"></div>
+      </div>
+    </section>
+
+    <!-- INGEST TAB -->
+    <section class="tab" id="tab-ingest">
+      <div class="panel">
+        <h3>Zagruzka faylov</h3>
+        <form id="upload-form">
+          <input type="file" id="file-input" multiple />
+          <button type="submit">Zagruzit</button>
+        </form>
+        <div id="upload-status" class="mono"></div>
+
+        <h3>Bystryy sharing stranitsy</h3>
+        <p class="hint">Ustanovi bukmarklet/yuzerskript iz repozitoriya. Ili vstav HTML/tekst:</p>
+        <textarea id="share-html" placeholder="Vstav HTML ili tekst..." rows="8"></textarea>
+        <div class="row">
+          <input type="text" id="share-title" placeholder="Zagolovok" />
+          <input type="text" id="share-url" placeholder="URL (opts.)" />
+          <button id="share-send">Otpravit v Bridge</button>
+        </div>
+        <div id="share-report" class="mono"></div>
+      </div>
+    </section>
+
+    <!-- STATUS TAB -->
+    <section class="tab" id="tab-status">
+      <div class="panel">
+        <h3>SessionGuardian</h3>
+        <pre id="guardian-status" class="mono"></pre>
+        <h3>Providers</h3>
+        <pre id="providers-status" class="mono"></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>© Ester • UI temnoy temy • Sovmestimo s API proekta</div>
+  </footer>
+
+  <script src="/static/ester.js"></script>
+</body>
+</html>

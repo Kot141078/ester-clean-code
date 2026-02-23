@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Recovery USB</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    label.inline{display:flex;gap:8px;align-items:center;margin:4px 0}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Odin ekran dlya sborki oflayn-fleshki: vybiraem USB-tom, chto vklyuchat, zhmem «Sobrat» — na nositele poyavlyaetsya ESTER/ s run-skriptami.
+    Mosty:
+      • Yavnyy — UX poverkh faylovykh operatsiy i planirovschika paketov.
+      • Skrytye — dry-plan v A; kross-OS skripty; ploskie fayly.
+  -->
+</head>
+<body>
+  <h1>Recovery USB <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid">
+    <div>
+      <h3>Toma (USB)</h3>
+      <select id="mount"></select>
+      <button onclick="refresh()">Obnovit</button>
+      <div id="usb">—</div>
+    </div>
+    <div>
+      <h3>Optsii sborki</h3>
+      <label class="inline"><input type="checkbox" id="inc_pkgs" checked/> Vklyuchit lokalnye pakety</label>
+      <label class="inline"><input type="checkbox" id="inc_inst" checked/> Vklyuchit installyatory LM Studio (esli naydeny)</label>
+      <label class="inline"><input type="checkbox" id="autorun" checked/> Dobavit autorun.inf (Windows, bez avtozapuska)</label>
+      <label class="inline">AB po umolchaniyu:
+        <select id="defab"><option>B</option><option>A</option></select>
+      </label>
+      <div style="margin-top:8px">
+        <button onclick="plan()">Plan</button>
+        <button onclick="build()">Sobrat</button>
+      </div>
+    </div>
+    <div>
+      <h3>Lokalnye resursy</h3>
+      <pre id="local">—</pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>Plan / Rezultat</h3>
+    <pre id="out">—</pre>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+function spec(){
+  return {
+    include_packages: document.getElementById('inc_pkgs').checked,
+    include_installers: document.getElementById('inc_inst').checked,
+    write_autorun: document.getElementById('autorun').checked,
+    default_ab: document.getElementById('defab').value
+  };
+}
+async function refresh(){
+  const r = await fetch('/admin/recovery/status'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok) return;
+  const m=document.getElementById('mount'); m.innerHTML='';
+  (j.usb||[]).forEach(t=>{
+    const o=document.createElement('option'); o.value=t.mount; o.textContent=(t.mount+' — '+(t.label||'')+' ('+(t.fs||'?')+')');
+    m.appendChild(o);
+  });
+  document.getElementById('local').textContent = JSON.stringify(j.local, null, 2);
+  document.getElementById('usb').textContent = JSON.stringify(j.usb, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function plan(){
+  const mount=document.getElementById('mount').value; if(!mount){ alert('Net toma'); return; }
+  const r = await fetch('/admin/recovery/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount, options: spec()})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+async function build(){
+  const mount=document.getElementById('mount').value; if(!mount){ alert('Net toma'); return; }
+  const r = await fetch('/admin/recovery/build',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount, options: spec()})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  await refresh();
+}
+refresh().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

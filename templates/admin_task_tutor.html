@@ -1,0 +1,78 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — TaskTutor</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1200px}
+  input,textarea,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;white-space:pre-wrap}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:1000px){.grid{grid-template-columns:1fr}}
+  .card{border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0}
+  .small{font-size:12px;color:#666}
+</style>
+
+<h2>TaskTutor — «Pokazhi kak sdelat X»</h2>
+
+<div class="grid">
+  <section class="card">
+    <h3>Sozdat stsenariy</h3>
+    <div class="row">
+      <input id="title" placeholder="Zagolovok" style="width:320px">
+      <input id="intent" placeholder="Namerenie (naprimer: otkryt bloknot i napisat 'Privet')" style="width:520px">
+      <button onclick="create()">New from intent</button>
+    </div>
+    <pre id="create_out"></pre>
+  </section>
+
+  <section class="card">
+    <h3>Stsenarii</h3>
+    <div class="row">
+      <button onclick="loadList()">Refresh</button>
+      <input id="sid" placeholder="id stsenariya" style="width:220px">
+      <button onclick="get()">Load</button>
+      <button onclick="validate_()">Validate</button>
+      <button onclick="playA()">Play (A)</button>
+      <button onclick="playB()">Play (B)</button>
+    </div>
+    <pre id="list"></pre>
+  </section>
+</div>
+
+<section class="card">
+  <h3>Redaktor shagov</h3>
+  <div class="row">
+    <input id="idx" type="number" value="0" style="width:80px">
+    <input id="step" placeholder='JSON shaga, napr. {"agent":"desktop","kind":"click_text","meta":{"text":"OK"}}' style="width:680px">
+    <button onclick="append_()">Append</button>
+    <button onclick="insert_()">Insert</button>
+    <button onclick="delete_()">Delete</button>
+  </div>
+  <pre id="editor_out"></pre>
+</section>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function set(id,obj){ document.getElementById(id).textContent = JSON.stringify(obj,null,2); }
+
+async function loadList(){ set('list', await (await fetch('/tutor/list')).json()); }
+async function create(){ set('create_out', await j('POST','/tutor/create',{"title":title.value||'', "intent":intent.value||''})); loadList(); }
+async function get(){ const s=document.getElementById('sid').value; set('list', await (await fetch('/tutor/get?id='+encodeURIComponent(s))).json()); }
+async function validate_(){ const s=document.getElementById('sid').value; set('list', await j('POST','/tutor/validate',{"id":s})); }
+async function playA(){ const s=document.getElementById('sid').value; set('list', await j('POST','/tutor/play',{"id":s,"mode":"A"})); }
+async function playB(){ const s=document.getElementById('sid').value; set('list', await j('POST','/tutor/play',{"id":s,"mode":"B"})); }
+
+async function append_(){
+  let st=null; try{ st=JSON.parse(step.value) }catch(e){ alert('step JSON error'); return; }
+  set('editor_out', await j('POST','/tutor/append_step',{"id":sid.value,"step":st}));
+}
+async function insert_(){
+  let st=null; try{ st=JSON.parse(step.value) }catch(e){ alert('step JSON error'); return; }
+  set('editor_out', await j('POST','/tutor/insert_step',{"id":sid.value,"idx": +idx.value || 0,"step":st}));
+}
+async function delete_(){
+  set('editor_out', await j('POST','/tutor/delete_step',{"id":sid.value,"idx": +idx.value || 0}));
+}
+
+loadList();
+</script>

@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  ester:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: ester:latest
+    container_name: ester
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8080
+      - ENABLE_SIMPLE_LOGIN=1
+      - JWT_ALG=HS256
+      - JWT_SECRET=devsecret
+      - RBAC_MODE=matrix
+      - REPL_TOKEN=testtoken
+      - REPL_HMAC_KEY=secretkey
+      - BACKUP_HMAC_KEY=backupsecret
+      - PERSIST_DIR=/data
+      - CORS_ALLOW_ORIGINS=*
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped

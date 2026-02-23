@@ -1,0 +1,18 @@
+[
+  {
+    "agent_id": "device.drone1",
+    "vendor": "acme_uav",
+    "payload": { "latency": 0.045, "flight": { "remain_s": 1200 }, "payload_kg": 0.2 },
+    "latency_ms": 45.0,
+    "flight_time_min": 20.0,
+    "payload_g": 200.0
+  },
+  {
+    "agent_id": "device.drone1",
+    "vendor": "neo",
+    "payload": { "t_ms": 80, "battery_min": 22, "max_payload_g": 350 },
+    "latency_ms": 80.0,
+    "flight_time_min": 22.0,
+    "payload_g": 350.0
+  }
+]

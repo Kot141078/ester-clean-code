@@ -1,0 +1,4 @@
+flags:
+  proactive_v2: true
+  kg_repair: false
+  enable_docs_auth: false

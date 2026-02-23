@@ -1,0 +1,25 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Macro Learning</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:960px}
+  button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:160px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
+</style>
+<h2>Macro Learning — obuchenie iz deystviy</h2>
+<div class="row">
+  <button onclick="prev()">Preview</button>
+  <button onclick="exp()">Export pending_add</button>
+  <button onclick="appl()">Apply triggers</button>
+  <a href="/admin/macro_recorder" target="_blank">Recorder</a>
+</div>
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+async function prev(){ out(await j('GET','/macro_learn/preview')); }
+async function exp(){ out(await j('POST','/macro_learn/export',{})); }
+async function appl(){ out(await j('POST','/macro_learn/apply',{})); }
+</script>

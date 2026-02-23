@@ -1,0 +1,56 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Desktop Driver</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  input,textarea,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:10px;white-space:pre-wrap}
+  .card{border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0}
+</style>
+
+<h2>Desktop Driver — pesochnitsa i whitelist</h2>
+
+<section class="card">
+  <div class="row">
+    <button onclick="probe()">Check</button>
+    <button onclick="wl()">Whitelist</button>
+  </div>
+  <pre id="info"></pre>
+</section>
+
+<section class="card">
+  <h3>Whitelist</h3>
+  <div class="row">
+    <input id="name" placeholder="name (e.g., TextEdit)" style="width:240px">
+    <input id="cmd"  placeholder="command/binary (path)" style="width:420px">
+    <button onclick="add()">Add</button>
+    <button onclick="rem()">Remove</button>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Quick actions</h3>
+  <div class="row">
+    <button onclick="planNotes()">Open Notes (dry-run)</button>
+    <button onclick="execNotes()">Commit</button>
+  </div>
+  <pre id="out"></pre>
+</section>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+async function probe(){document.getElementById('info').textContent=JSON.stringify(await (await fetch('/desktop/driver/probe')).json(),null,2);}
+async function wl(){document.getElementById('info').textContent=JSON.stringify(await (await fetch('/desktop/driver/whitelist')).json(),null,2);}
+async function add(){document.getElementById('info').textContent=JSON.stringify(await j('POST','/desktop/driver/whitelist/add',{"name":name.value,"cmd":cmd.value,"kind":"app"}),null,2);}
+async function rem(){document.getElementById('info').textContent=JSON.stringify(await j('POST','/desktop/driver/whitelist/remove',{"name":name.value,"kind":"app"}),null,2);}
+async function planNotes(){
+  const plan=[{"do":"launch","app":name.value||"TextEdit","args":[]}];
+  document.getElementById('out').textContent=JSON.stringify(await j('POST','/desktop/driver/plan_to_commands',{"plan":plan}),null,2);
+}
+async function execNotes(){
+  const plan=[{"do":"launch","app":name.value||"TextEdit","args":[]}];
+  document.getElementById('out').textContent=JSON.stringify(await j('POST','/desktop/driver/execute',{"plan":plan,"dry_run":false}),null,2);
+}
+probe();
+</script>

@@ -51,3 +51,13 @@ python -m compileall modules
 - [ ] There are staged changes to commit.
 - [ ] Commit message is exact and auditable.
 - [ ] Push only after every gate reports PASS.
+
+## Iter12 Release Record (v0.2.0)
+
+- Tag: `v0.2.0`
+- Commit hash: `<fill-after-commit>`
+- Release URL: `<fill-after-release>`
+- Security hardening items:
+  - JWT hardcoded fallback removed
+  - Telegram token-tail logging removed
+  - Private LAN default removed from role router defaults

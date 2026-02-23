@@ -1,0 +1,17 @@
+# -*- coding: utf-8 -*-
+# rules/model_registry.yaml — reestr attestatsii modeley.
+
+models:
+  - id: "local:Qwen2.5-Coder-7B"
+    kind: "gguf"
+    path: "/models/qwen2.5/7b-coder.gguf"
+    sha256: "ab12deadbeefcafebabefeedfaceabcd1234567890abcdef1234567890abcd"
+    allowed_roles: ["core", "owner"]
+    status: "approved"
+
+  - id: "api:openai:gpt-4o-mini"
+    kind: "api"
+    endpoint: "openai"
+    version: "2025-09-01"
+    attested_by: "owner@node-01"
+    status: "approved"

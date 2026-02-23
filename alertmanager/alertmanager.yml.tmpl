@@ -1,0 +1,24 @@
+route:
+  receiver: default
+  group_by: [alertname]
+  routes:
+    - matchers: [ severity="page" ]
+      receiver: pager
+    - matchers: [ severity="ticket" ]
+      receiver: telegram
+receivers:
+- name: pager
+  pagerduty_configs:
+  - routing_key: ${PAGERDUTY_ROUTING_KEY}
+    severity: error
+- name: telegram
+  telegram_configs:
+  - bot_token: ${ALERT_TELEGRAM_BOT_TOKEN}
+    chat_id: ${ALERT_TELEGRAM_CHAT_ID}
+- name: default
+  email_configs:
+  - to: ${ALERT_EMAIL_TO}
+    from: ${ALERT_EMAIL_FROM}
+    smarthost: ${ALERT_SMTP_HOST}:${ALERT_SMTP_PORT}
+    auth_username: ${ALERT_SMTP_USER}
+    auth_password: ${ALERT_SMTP_PASS}

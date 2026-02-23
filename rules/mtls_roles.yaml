@@ -1,0 +1,9 @@
+# rules/mtls_roles.yaml — karta DN → role dlya mTLS-garda
+map:
+  - dn_regex: "CN=node-\\d+,OU=core,O=Ester"
+    role: replicator
+  - dn_regex: "CN=ops-.*"
+    role: ops
+  # pri neobkhodimosti: adminskie sertifikaty (primer):
+  # - dn_regex: "CN=admin-.*"
+  #   role: admin

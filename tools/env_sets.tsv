@@ -1,0 +1,6 @@
+line	text
+42	PS D:\ester-project> $env:ESTER_HOST='127.0.0.1'
+43	PS D:\ester-project> $env:ESTER_PORT='8080'
+44	PS D:\ester-project> $env:ESTER_DATA_ROOT=(Resolve-Path .\data).Path
+2189	PS D:\ester-project> $env:PERSIST_DIR=$data
+2190	PS D:\ester-project> $env:ESTER_DATA_ROOT=$data

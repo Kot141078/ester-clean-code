@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Set uzlov</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .ok{color:#9BE28D}.err{color:#ff8a8a}.muted{color:#9aa9bd}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    input[type="text"]{min-width:240px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Svodnaya panel po lokalke: kto ryadom, chto u nikh s vorkerami/ocheredyami, i knopki «hello / info / ping-zadacha».
+    Mosty:
+      • Yavnyy — nablyudaemost seti + dispetcherskie deystviya.
+      • Skrytye — HMAC-podpis i AB-rezhim dlya bezopasnoy diagnostiki.
+  -->
+</head>
+<body>
+  <h1>Set uzlov <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <h3>Deystviya</h3>
+    <div class="row">
+      <button onclick="hello()">Otpravit hello (LAN)</button>
+      <button onclick="inforeq()">Zaprosit info u vsekh</button>
+      <input id="ip" placeholder="IP uzla (opts.)"/>
+      <button onclick="inforeqOne()">Zaprosit info u IP</button>
+      <button onclick="pingTask()">task.ping → IP</button>
+      <span class="chip"><a href="/admin/lan" style="color:#9aa9bd;text-decoration:none">LAN-nastroyki →</a></span>
+      <span class="chip"><a href="/admin/lan/tasks" style="color:#9aa9bd;text-decoration:none">LAN-zadachi →</a></span>
+      <button style="margin-left:auto" onclick="clearCache()">Ochistit info-kesh</button>
+    </div>
+  </section>
+
+  <section>
+    <h3>Lokalnyy vorker/ochered</h3>
+    <pre id="local">—</pre>
+  </section>
+
+  <section>
+    <h3>Sosedi (multikast)</h3>
+    <table id="peers"><thead><tr><th>IP</th><th>ID/Imya</th><th>Podpis</th><th>Port</th><th>Poslednee</th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section>
+    <h3>Poslednie info-otvety</h3>
+    <table id="info"><thead><tr><th>IP</th><th>Vremya</th><th>Proverka</th><th>AB</th><th>Ocheredi</th><th>Vork.</th><th>Uzel/OS</th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section>
+    <div class="row">
+      <button onclick="status()">Status</button>
+    </div>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+async function hello(){
+  const r = await fetch('/admin/network/hello',{method:'POST'}); const j=await r.json().catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j,null,2);
+}
+async function inforeq(){
+  const r = await fetch('/admin/network/info-request',{method:'POST'}); const j=await r.json().catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j,null,2);
+}
+async function inforeqOne(){
+  const ip=document.getElementById('ip').value.trim();
+  const r = await fetch('/admin/network/info-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ip})});
+  const j=await r.json().catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j,null,2);
+}
+async function pingTask(){
+  const ip=document.getElementById('ip').value.trim();
+  const r = await fetch('/admin/network/task-ping',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ip,priority:7})});
+  const j=await r.json().catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j,null,2);
+}
+async function clearCache(){
+  const r = await fetch('/admin/network/clear-cache',{method:'POST'}); const j=await r.json().catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j,null,2);
+}
+function td(s){const e=document.createElement('td'); e.innerHTML=s; return e;}
+async function status(){
+  const r = await fetch('/admin/network/status'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j,null,2);
+  if(!j.ok) return;
+  document.getElementById('local').textContent = JSON.stringify(j.tasks, null, 2);
+  const pt=document.querySelector('#peers tbody'); pt.innerHTML='';
+  const peers=(j.peers||{}).peers||{};
+  Object.keys(peers).sort().forEach(ip=>{
+    const p=peers[ip]||{};
+    const tr=document.createElement('tr');
+    tr.appendChild(td(ip));
+    tr.appendChild(td((p.id||'?')+'<div class="muted">'+(p.name||'')+'</div>'));
+    tr.appendChild(td(p.verified?'<span class="ok">verified</span>':'<span class="muted">unsigned</span>'));
+    tr.appendChild(td(p.port||''));
+    tr.appendChild(td(new Date((p.last_seen||0)*1000).toLocaleString()+'<div class="muted">'+(p.last_t||'')+(p.has_passport?' / passport':'')+'</div>'));
+    pt.appendChild(tr);
+  });
+  const it=document.querySelector('#info tbody'); it.innerHTML='';
+  const ic=(j.info_cache||{}).peers||{};
+  Object.keys(ic).sort().forEach(ip=>{
+    const rec=ic[ip]||{}; const d=rec.data||{}; const t=rec.ts||0;
+    const ab=(d.ab||'?'); const counts=((d.tasks||{}).counts||{});
+    const cfg=(d.tasks||{}).cfg||{};
+    const inv=((d.passport||{}).inventory||{});
+    const tr=document.createElement('tr');
+    tr.appendChild(td(ip));
+    tr.appendChild(td(new Date((t||0)*1000).toLocaleString()));
+    tr.appendChild(td(rec.verified?'<span class="ok">verified</span>':'<span class="muted">unsigned</span>'));
+    tr.appendChild(td(ab));
+    tr.appendChild(td(JSON.stringify(counts)));
+    tr.appendChild(td((cfg.enable?'on':'off')+', max='+ (cfg.max_active||1)));
+    tr.appendChild(td((inv.node||'?')+'<div class="muted">'+((inv.os||{}).system||'')+'</div>'));
+    it.appendChild(tr);
+  });
+}
+status().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

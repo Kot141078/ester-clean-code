@@ -1,0 +1,50 @@
+run_id: research_run_02
+branch_id: main
+context_init:
+  spec: "Issledovat dva kanala snov i sobrat edinyy itog."
+  items:
+    - {file: "Kanal_A.md"}
+    - {file: "Kanal_B.md"}
+
+nodes:
+  - id: outline
+    type: llm.generate
+    prompt: "Summiruy TZ: {{ctx.spec}}. Day spisok shagov (do 7)."
+    out: "outline"
+    depends: []
+
+  - id: fork
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["outline"]
+
+  - id: analyze
+    type: llm.generate
+    prompt: "Analiz {{ctx.item.file}} s uchetom obschego outline={{ctx.outline}}. Day vyvod v 3–5 predlozheniyakh."
+    out: "analysis"
+    depends: ["fork"]
+
+  - id: human_check
+    type: human.review
+    message: "Prover analiz dlya {{ctx.item.file}}. Napishi OK/popravki."
+    out: "approval"
+    depends: ["analyze"]
+
+  - id: finalize
+    type: llm.generate
+    prompt: "Soberi final vetki {{ctx.item.file}} iz analysis={{ctx.analysis}} i approval={{ctx.approval}}."
+    out: "final_branch"
+    depends: ["human_check"]
+
+  # Fan-in: sobiraem rezultaty vsekh dochernikh vetok
+  - id: gather
+    type: join
+    from: "fork"          # sobrat detey, porozhdennykh uzlom fork
+    out: "joined"         # sokhranit v kontekst osnovnoy vetki
+    select:               # kakie polya vytaschit iz kazhdoy vetki
+      file: "{{item.file}}"
+      approval: "{{ctx.approval}}"
+      summary: "{{ctx.final_branch}}"
+    mode: list            # itog: spisok slovarey
+    await_nodes: ["finalize"]  # v dochkakh zhdat zaversheniya finalize
+    depends: ["finalize"]

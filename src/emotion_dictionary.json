@@ -1,0 +1,26 @@
+{
+  "joy": {
+    "nouns": ["schaste", "radost"],
+    "adjectives": ["schastlivyy", "radostnyy"],
+    "verbs": ["radovatsya", "ulybatsya"],
+    "adverbs": ["radostno", "veselo"],
+    "idioms": ["na sedmom nebe"],
+    "slang": ["kruto", "zashibis"]
+  },
+  "anxiety": {
+    "nouns": ["trevoga", "strakh"],
+    "adjectives": ["trevozhnyy", "strashnyy"],
+    "verbs": ["bespokoitsya", "boyatsya"],
+    "adverbs": ["trevozhno", "strashno"],
+    "idioms": ["koshki skrebut na dushe"],
+    "slang": ["paranoyya", "nervyak"]
+  },
+  "interest": {
+    "nouns": ["interes", "lyubopytstvo"],
+    "adjectives": ["interesnyy", "lyubopytnyy"],
+    "verbs": ["interesovatsya", "rassprashivat"],
+    "adverbs": ["interesno", "lyubopytno"],
+    "idioms": ["glaza zagorelis"],
+    "slang": ["klevo", "zatsepilo"]
+  }
+}

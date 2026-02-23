@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Trust & Consent Console</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:24px;line-height:1.46;background:#0b1020;color:#e7eaf6}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .card{background:#0f1430;border:1px solid #223;border-radius:12px;padding:14px;margin-top:12px;max-width:1200px}
+    input,button,textarea{padding:10px 12px;border-radius:10px;border:1px solid #334;background:#0f1530;color:#e7eaf6}
+    textarea{width:100%;min-height:120px}
+    button{background:#1e293b;border:1px solid #3b82f6}
+    a{color:#82aaff}
+    pre{white-space:pre-wrap;max-height:50vh;overflow:auto}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:1000px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <h2>Doverie i priglasheniya</h2>
+
+  <div class="card">
+    <div class="row">
+      <a href="/trust/local" class="pill" target="_blank">lokalnyy klyuch</a>
+      <a href="/trust/peers" class="pill" target="_blank">doverennye uzly</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Dobavit pira</h3>
+      <div class="row">
+        <input id="pid" placeholder="id" value="sister-1">
+        <input id="pname" placeholder="name" value="Sister Node #1">
+        <input id="alg" placeholder="alg" value="ed25519">
+      </div>
+      <textarea id="pub" placeholder="pubkey (BASE64)"></textarea>
+      <button id="btnAdd">Dobavit</button>
+      <pre id="outPeers">Gotovo.</pre>
+    </div>
+
+    <div class="card">
+      <h3>Priglashenie</h3>
+      <div class="row">
+        <input id="sub" placeholder="sub" value="self.deploy">
+        <input id="scope" placeholder="scope" value="approve">
+        <input id="ttl" placeholder="ttl_sec" value="600">
+        <input id="archsha" placeholder="archive sha256 (opts.)">
+        <input id="aud" placeholder="aud" value="local">
+      </div>
+      <button id="btnIssue">Sformirovat</button>
+      <button id="btnVerify">Proverit</button>
+      <pre id="outInv">Gotovo.</pre>
+    </div>
+
+    <div class="card">
+      <h3>Podpis arkhiva</h3>
+      <div class="row">
+        <input id="arch" placeholder="ester_snapshot_*.tar.gz">
+        <button id="btnSign">Podpisat</button>
+        <button id="btnCheck">Proverit</button>
+      </div>
+      <pre id="outSig">Gotovo.</pre>
+    </div>
+  </div>
+
+  <script src="/static/trust_console.js"></script>
+</body>
+</html>
+<!-- c=a+b -->

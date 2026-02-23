@@ -1,0 +1,105 @@
+{# 
+Mosty (yavnyy):
+- (Inzheneriya UI ↔ Nadezhnost) Prozrachnye knopki Scan/Apply s yavnym AB-rezhimom snizhayut veroyatnost neprednamerennoy zapisi.
+
+Mosty (skrytye):
+- (Grafy ↔ Operatsii) Tablitsa kak minimalnyy graf sootvetstviy «port → alias → URL».
+- (Chelovek ↔ Avtomat) Ruchnaya validatsiya pered primeneniem = chelovecheskiy kontrol nad avtomatizatsiey.
+
+Zemnoy abzats:
+Stranitsa pozvolyaet offlayn nayti lokalnye LM Studio (porty/modeli) i v rezhime B zapisat aliasy v recommend.env.
+#}
+{% extends "_admin_base.html" %}
+
+{% block content %}
+<h2>LM Studio — avtopoisk i aliasy</h2>
+<p>Rezhim: <b>{{ ab_mode }}</b> (A = dry-run, B = zapis)</p>
+
+<div style="margin:12px 0;">
+  <button id="btnScan">Skanirovat</button>
+  <button id="btnApply">Primenit (v B)</button>
+</div>
+
+<div id="scanStatus" style="margin:8px 0; font-family:monospace;"></div>
+
+<h3>Tekuschie peremennye (ESTER/portable/recommend.env)</h3>
+<table border="1" cellpadding="6" cellspacing="0">
+  <thead>
+    <tr><th>KEY</th><th>VALUE</th></tr>
+  </thead>
+  <tbody>
+    {% for k, v in recommend_env.items() %}
+      <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h3>Naydennye servery / predlozheniya aliasov</h3>
+<div id="scanResult"></div>
+
+<script>
+async function postJSON(url, payload) {
+  const r = await fetch(url, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: payload ? JSON.stringify(payload) : "{}"
+  });
+  return await r.json();
+}
+
+function renderScan(data) {
+  const el = document.getElementById("scanResult");
+  if (!data || !data.ok) {
+    el.innerHTML = "<div>Net dannykh.</div>";
+    return;
+  }
+
+  let html = "";
+  html += "<h4>Servers</h4>";
+  html += "<table border='1' cellpadding='6' cellspacing='0'><thead><tr><th>base</th><th>alive</th></tr></thead><tbody>";
+  for (const s of (data.servers || [])) {
+    html += `<tr><td>${s.base}</td><td>${s.alive}</td></tr>`;
+  }
+  html += "</tbody></table>";
+
+  html += "<h4>Suggested Aliases</h4>";
+  html += "<table border='1' cellpadding='6' cellspacing='0'><thead><tr><th>KEY</th><th>VALUE</th></tr></thead><tbody>";
+  const a = data.suggested_aliases || {};
+  for (const k of Object.keys(a).sort()) {
+    html += `<tr><td>${k}</td><td>${a[k]}</td></tr>`;
+  }
+  html += "</tbody></table>";
+
+  const models = data.models || [];
+  html += `<p>Modeley (lokalnykh *.gguf) naydeno: <b>${models.length}</b></p>`;
+
+  el.innerHTML = html;
+}
+
+document.getElementById("btnScan").onclick = async () => {
+  const s = document.getElementById("scanStatus");
+  s.textContent = "Skaniruyu…";
+  try {
+    const data = await postJSON("{{ url_for('admin_lmstudio_discovery.api_scan') }}");
+    renderScan(data);
+    s.textContent = "Gotovo.";
+  } catch (e) {
+    s.textContent = "Oshibka: " + e;
+  }
+};
+
+document.getElementById("btnApply").onclick = async () => {
+  const s = document.getElementById("scanStatus");
+  s.textContent = "Primenyayu (ili dry-run v A)…";
+  try {
+    const data = await postJSON("{{ url_for('admin_lmstudio_discovery.api_apply') }}");
+    s.textContent = "Status: ok=" + data.ok + ", added=" + (data.added || []).join(", ");
+    // Posle primeneniya mozhno povtorno skanirovat dlya obnovleniya tablitsy env.
+  } catch (e) {
+    s.textContent = "Oshibka: " + e;
+  }
+};
+</script>
+{% endblock %}
+
+<!-- c=a+b -->

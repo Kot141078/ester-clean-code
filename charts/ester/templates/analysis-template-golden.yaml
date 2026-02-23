@@ -1,0 +1,17 @@
+{{- if .Values.probes.golden.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "ester.fullname" . }}-golden
+spec:
+  metrics:
+  - name: golden-web
+    interval: {{ .Values.probes.golden.interval | default "1m" }}
+    count: {{ .Values.probes.golden.count | default 3 }}
+    successCondition: result == 1
+    failureLimit: 1
+    provider:
+      web:
+        url: {{ printf "http://%s:%d/ops/probe/golden" (include "ester.fullname" .) (int .Values.port) | quote }}
+        timeoutSeconds: 5
+{{- end }}

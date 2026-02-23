@@ -1,0 +1,77 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+<section class="card" style="margin-bottom:12px">
+  <div class="row">
+    <h3 style="margin:0">Keys Vault</h3>
+    <span class="chip right">AB={{ ab_mode }}</span>
+  </div>
+  <p class="muted" style="margin-top:6px">
+    DPAPI vault: klyuchi ne vozvraschayutsya iz API, v UI viden tolko status i last4.
+  </p>
+  <pre class="box" style="margin-top:8px">{{ vault|tojson(indent=2) }}</pre>
+</section>
+
+<section class="grid" style="grid-template-columns:1fr;gap:10px">
+  {% for provider in providers %}
+  <article class="card">
+    <div class="row">
+      <strong>{{ provider }}</strong>
+      <span class="chip right" id="status-{{ provider }}">unknown</span>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <input class="input grow" id="input-{{ provider }}" placeholder="new key value" />
+      <button class="btn" onclick="setKey('{{ provider }}')">Set</button>
+      <button class="btn" onclick="unsetKey('{{ provider }}')">Unset</button>
+    </div>
+  </article>
+  {% endfor %}
+</section>
+
+<pre id="out" class="log box" style="height:220px;margin-top:12px"></pre>
+
+<script>
+const PROVIDERS = {{ providers|tojson }};
+
+function showStatus(rows){
+  const list = (rows && rows.providers) ? rows.providers : [];
+  for (const row of list){
+    const el = document.getElementById('status-' + row.provider);
+    if (!el){ continue; }
+    if (row.set){
+      el.textContent = 'stored (' + (row.last4 || '') + ')';
+      el.style.borderColor = 'var(--ok)';
+      el.style.color = 'var(--ok)';
+    }else{
+      el.textContent = 'not set';
+      el.style.borderColor = 'var(--border)';
+      el.style.color = 'var(--muted)';
+    }
+  }
+}
+
+async function refreshStatus(){
+  const r = await $fetch('/admin/keys/vault/status');
+  const j = await r.json().catch(()=>({ok:false,error:'bad_json'}));
+  showStatus(j);
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+
+async function setKey(provider){
+  const value = document.getElementById('input-' + provider).value || '';
+  const r = await $fetch('/admin/keys/vault/set', {method:'POST', body:{provider, value}});
+  const j = await r.json().catch(()=>({ok:false,error:'bad_json'}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  await refreshStatus();
+}
+
+async function unsetKey(provider){
+  const r = await $fetch('/admin/keys/vault/unset', {method:'POST', body:{provider}});
+  const j = await r.json().catch(()=>({ok:false,error:'bad_json'}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  await refreshStatus();
+}
+
+document.addEventListener('DOMContentLoaded', refreshStatus);
+</script>
+{% endblock %}
+

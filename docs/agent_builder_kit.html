@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Sustainability Kit Console</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{ --bg:#0b0c10; --fg:#e5e7eb; --accent:#10b981; --muted:#9ca3af; --border:#374151; }
+    body{ background:var(--bg); color:var(--fg); font:14px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; margin:0; }
+    .wrap{ max-width:1100px; margin:0 auto; padding:20px; }
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    .card{ border:1px solid var(--border); border-radius:10px; padding:14px; background:#0f1115; }
+    input,button,select,textarea{ width:100%; box-sizing:border-box; }
+    input,select{ background:#0f1115; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:8px; }
+    textarea{ min-height:120px; background:#0f1115; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:8px; }
+    button{ background:#1f2937; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:10px; cursor:pointer; }
+    button:hover{ filter:brightness(1.1) }
+    pre{ white-space:pre-wrap; word-break:break-word; border:1px solid var(--border); border-radius:8px; padding:10px; background:#0b0e14; }
+    .row{ display:flex; gap:8px; align-items:center; }
+    .row>*{ flex:1; }
+    .muted{ color:var(--muted); font-size:12px; }
+  </style>
+</head>
+<body>
+  <!--
+    Mosty:
+    - Yavnyy: (UX ↔ Mysli/Kaskad) — eta stranitsa vyzyvaet /thinking/act i /thinking/cascade/execute.
+    - Skrytyy #1: (UX ↔ Avtorizatsiya) — JWT beretsya iz obschego admin.js.
+    - Skrytyy #2: (UX ↔ RuleHub) — sostoyanie pokazyvaetsya spravochno, bez izmeneniy.
+
+    Zemnoy abzats:
+    Eto «pult» zelenykh zadach: dostat cheklist, sveritsya s metrikami, sobrat brif i zapustit mini-plan.
+    Standartiziruet deystviya polzovatelya, nichego ne lomaya v API.
+    c=a+b
+  -->
+  <div class="wrap">
+    <h1>Sustainability Kit Console</h1>
+    <p class="muted">Rabotaet poverkh suschestvuyuschikh API: <code>/thinking/act</code>, <code>/thinking/cascade/*</code>, JWT — kak v obschey adminke.</p>
+
+    <div class="card">
+      <h3>JWT</h3>
+      <div class="row">
+        <input id="jwtInput" placeholder="JWT">
+        <button id="saveJwtBtn">Save</button>
+        <button id="clearJwtBtn">Ochistit</button>
+      </div>
+      <div class="grid" style="margin-top:12px;">
+        <div class="card">
+          <h4>Okruzhenie</h4>
+          <button id="btnEnv">Proverit okruzhenie</button>
+          <pre id="state" class="muted">{}</pre>
+        </div>
+        <div class="card">
+          <h4>RuleHub (status)</h4>
+          <pre id="rulehub" class="muted">{}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px;">
+      <div class="card">
+        <h3>Cheklisty</h3>
+        <div class="row">
+          <button id="btnList">Spisok cheklistov</button>
+          <select id="checklistId"></select>
+          <button id="btnGet">Pokazat cheklist</button>
+        </div>
+        <div style="margin-top:8px;">
+          <button id="btnMetrics">Metriki CO₂e</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Brif</h3>
+        <input id="goal" placeholder="Tsel (napr. snizit CO₂e na 30% za 12 mes)">
+        <input id="sector" placeholder="Sektor/kontekst (napr. SMB: e-commerce)">
+        <button id="btnBrief">Sobrat brif</button>
+        <textarea id="brief" placeholder='{"outline":[...],"hints":{...}}'></textarea>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px;">
+      <div class="card">
+        <h3>Mini-plan kaskada</h3>
+        <div class="row">
+          <button id="btnBuild">Sobrat mini-plan</button>
+          <button id="btnExec">Vypolnit plan</button>
+        </div>
+        <textarea id="plan" placeholder='{"ok":true,"goal":"...","steps":[...]}'></textarea>
+      </div>
+      <div class="card">
+        <h3>Vyvod</h3>
+        <pre id="out">{}</pre>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h3>Log</h3>
+      <pre id="log"></pre>
+    </div>
+  </div>
+
+  <!-- obschiy helper (JWT + apiFetch) -->
+  <script src="../static/admin.js"></script>
+  <!-- nash pult -->
+  <script src="../static/admin_agent_kit.js"></script>
+</body>
+</html>
+<!-- c=a+b -->

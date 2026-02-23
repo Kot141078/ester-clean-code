@@ -1,0 +1,18 @@
+/* Dopolnitelnye stili dlya paneli */
+#trace-box {
+  background: rgba(255,255,255,.02);
+  border: 1px solid #253043;
+  border-radius: 12px;
+  padding: 10px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.trace-item {
+  font-size: 12px;
+  color: #9fb1c1;
+  padding: 2px 0;
+  border-bottom: 1px dashed rgba(37,48,67,.4);
+}
+.trace-item:last-child {
+  border-bottom: none;
+}

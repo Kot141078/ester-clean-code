@@ -1,0 +1,24 @@
+{% extends "_admin_base.html" %}
+{% block title %}Ester Admin — Providers{% endblock %}
+{% block content %}
+  <h1>Provaydery</h1>
+  <div class="row">
+    <button onclick="reloadProviders()">Obnovit</button>
+    <input id="prov_name" placeholder="name" />
+    <button onclick="selectProvider()">Smenit active</button>
+  </div>
+  <pre id="out" class="out"></pre>
+  <script>
+    async function reloadProviders(){
+      const res = await apiFetch('/providers/status');
+      document.getElementById('out').textContent = JSON.stringify(res, null, 2);
+    }
+    async function selectProvider(){
+      const name = document.getElementById('prov_name').value.trim();
+      const res = await apiFetch('/providers/select', {method:'POST', body: JSON.stringify({name})});
+      document.getElementById('out').textContent = JSON.stringify(res, null, 2);
+      reloadProviders();
+    }
+    reloadProviders();
+  </script>
+{% endblock %}

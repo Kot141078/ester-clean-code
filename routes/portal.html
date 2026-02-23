@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>{{ display_name }} — Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    html,body { height:100%; margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#0b0f14; color:#e5e7eb; }
+    .root { display:grid; grid-template-columns: 280px 1fr 360px; grid-template-rows: 56px 1fr; height:100%; }
+    header { grid-column: 1 / 4; display:flex; align-items:center; padding:0 16px; border-bottom:1px solid #1f2937; background:#0f1620; }
+    header h1 { font-size:18px; margin:0; color:#93c5fd; }
+    .left { border-right:1px solid #1f2937; padding:12px; overflow:auto; }
+    .center { display:flex; flex-direction:column; }
+    .chat { flex:1; overflow:auto; padding:16px; }
+    .composer { display:flex; gap:8px; padding:12px; border-top:1px solid #1f2937; background:#0f1620; }
+    .composer textarea { flex:1; resize:vertical; min-height:54px; max-height:320px; background:#0b1220; color:#e5e7eb; border:1px solid #1f2937; border-radius:8px; padding:10px; }
+    .composer button { padding:10px 16px; border:1px solid #1f2937; background:#111827; color:#e5e7eb; border-radius:8px; cursor:pointer; }
+    .composer button:hover { background:#1f2937; }
+    .bubble { margin:8px 0; padding:10px 12px; border-radius:10px; max-width:80%; line-height:1.4; }
+    .user { background:#1f2937; align-self:flex-end; }
+    .assistant { background:#0b1220; border:1px solid #1f2937; }
+    .system { background:#0b1220; opacity:0.8; font-style:italic; }
+    .right { border-left:1px solid #1f2937; padding:12px; overflow:auto; }
+    .mode { display:flex; gap:8px; margin:8px 0 16px; }
+    .mode button { padding:8px 10px; border:1px solid #1f2937; background:#0b1220; color:#e5e7eb; border-radius:8px; cursor:pointer; }
+    .mode button.active { background:#172554; border-color:#1d4ed8; }
+    .nav a { display:block; color:#93c5fd; text-decoration:none; padding:6px 8px; border-radius:6px; margin:2px 0; }
+    .nav a:hover { background:#0b1220; }
+    .upload { margin-top:12px; }
+    .status { margin-top:16px; font-size:13px; background:#0f1620; border:1px solid #1f2937; border-radius:8px; padding:10px; }
+    .status .row { display:flex; justify-content:space-between; margin:2px 0; }
+    .pill { display:inline-block; padding:2px 6px; border-radius:999px; border:1px solid #1f2937; }
+    .ok { background:#083344; color:#93c5fd; }
+    .warn { background:#3f1d1d; color:#fecaca; }
+  </style>
+</head>
+<body>
+  <div class="root">
+    <header>
+      <h1>Portal — {{ display_name }}</h1>
+    </header>
+
+    <aside class="left">
+      <div class="mode">
+        <button data-mode="judge">Judge</button>
+        <button data-mode="local">Local</button>
+        <button data-mode="cloud">Cloud</button>
+      </div>
+
+<!-- dobavit vnutri <aside class="left">, pod blokom statusa integratsiy -->
+      <div class="nav" style="margin-top:12px;">
+        <div style="opacity:.85; margin-bottom:6px;">Launcher</div>
+        <a href="/mem/explorer" target="_blank">Memory — Obozrevatel</a>
+        <a href="/entities/board" target="_blank">Suschnosti — Doska</a>
+        <a href="/feeds/telegram" target="_blank">Lenta Telegram</a>
+        <a href="/feeds/whatsapp" target="_blank">Lenta WhatsApp</a>
+        <a href="/providers/status" target="_blank">Provaydery LLM</a>
+        <a href="/graph/summary" target="_blank">Graf: Summary</a>
+        <a href="/backup/status" target="_blank">Bekapy</a>
+        <a href="/portable/status" target="_blank">Portable</a>
+        <a href="/publish/status" target="_blank">Publikatsii</a>
+        <a href="/env/status" target="_blank">.env — Status</a>
+      </div>
+
+      <div class="nav" style="margin:8px 0;">
+        <div style="opacity:.85; margin-bottom:6px;">Model</div>
+        <select id="modelSel" style="width:100%; background:#0b1220; color:#e5e7eb; border:1px solid #1f2937; border-radius:8px; padding:8px 10px;"></select>
+        <button id="modelApply" style="margin-top:6px; width:100%;">Primenit</button>
+      </div>
+
+      <div class="nav">
+        <a href="/feeds/telegram" target="_blank">Lenta Telegram</a>
+        <a href="/feeds/whatsapp" target="_blank">Lenta WhatsApp</a>
+      </div>
+
+      <div class="nav" style="margin-top:8px;">
+        <a href="/admin/integrations/check" target="_blank">Proverka integratsiy</a>
+        <a href="/providers/status" target="_blank">Provaydery LLM</a>
+      </div>
+
+      <div class="upload">
+        <label>Zagruzit fayl v Ester:
+          <input type="file" id="fileInput">
+        </label>
+        <button id="btnUpload">Otpravit</button>
+      </div>
+
+      <div class="status" id="statusBox">
+        <div style="opacity:.8;margin-bottom:6px;">Status integratsiy</div>
+        <div class="row"><span>Active LLM</span><span id="stLLM" class="pill">—</span></div>
+        <div class="row"><span>LM Studio</span><span id="stLM" class="pill">—</span></div>
+        <div class="row"><span>Telegram</span><span id="stTG" class="pill">—</span></div>
+        <div class="row"><span>WhatsApp</span><span id="stWA" class="pill">—</span></div>
+      </div>
+    </aside>
+
+    <main class="center">
+      <div id="chat" class="chat"></div>
+      <div class="composer">
+        <textarea id="text" placeholder="Napishite zdes... (podderzhivayutsya dlinnye soobscheniya)"></textarea>
+        <button id="send">Otpravit</button>
+      </div>
+    </main>
+
+    <aside class="right">
+      <div style="opacity:.9; font-size:14px;">Bystrye deystviya</div>
+      <div class="nav" style="margin-top:6px;">
+        <a href="/mem/search?q=Ester" target="_blank">Memory: poisk</a>
+        <a href="/kg/status" target="_blank">KG: status</a>
+        <a href="/graph/summary" target="_blank">Graf: summary</a>
+        <a href="/health" target="_blank">Zdorove (Flask)</a>
+        <a href="/metrics/prom" target="_blank">Metriki (Prom)</a>
+        <a href="/api/v2/health" target="_blank">ASGI /api/v2/health</a>
+      </div>
+    </aside>
+  </div>
+
+  <script src="/static/js/portal_chat.js"></script>
+</body>
+</html>

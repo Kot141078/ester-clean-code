@@ -1,0 +1,26 @@
+# config/public_manifest.yaml — manifest «public-safe» eksporta
+include:
+  - app.py
+  - asgi/**
+  - routes/**
+  - modules/**
+  - templates/**
+  - static/**
+  - tools/**
+  - verify_routes.py
+  - README*.md
+  - LICENSE*
+exclude:
+  - .git/**
+  - .venv/**
+  - __pycache__/**
+  - node_modules/**
+  - data/**
+  - logs/**
+  - state/**
+  - "*.log"
+  - "*.tmp"
+  - "*.cache"
+  - "**/*.pyc"
+redact_env: true
+# c=a+b

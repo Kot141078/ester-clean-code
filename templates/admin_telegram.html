@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Telegram fallback</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    small{opacity:.7}
+  </style>
+  <!-- Zemnoy abzats:
+       Pult telegrafa: nastroil token/chat, «ping», otpravka fayla (tiketa/paketa) s razbieniem na chasti.
+       Mosty: yavnyy — UX↔API; skrytye — dry(A), prostye JSON-otvety. -->
+</head>
+<body>
+  <h1>Telegram fallback <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid">
+    <div>
+      <h3>Nastroyki</h3>
+      <input id="tok" placeholder="bot_token (123456:ABC...)" style="width:100%"/>
+      <input id="chat" placeholder="chat_id (naprimer, svoy user id)" style="width:100%;margin-top:6px"/>
+      <button onclick="save()">Save</button>
+      <button onclick="ping()">Ping</button>
+      <pre id="status">—</pre>
+      <small>Vklyuchenie slushatelya: <code>TELEGRAM_ENABLE=1</code> (saydkar).</small>
+    </div>
+    <div>
+      <h3>Otpravka fayla</h3>
+      <div class="row">
+        <input id="path" placeholder="/path/to/file.zip" style="width:100%"/>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <select id="kind">
+          <option value="package">package</option>
+          <option value="ticket">ticket</option>
+          <option value="report">report</option>
+        </select>
+        <button onclick="send()">Otpravit</button>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <button onclick="pickTicket()">Podstavit posledniy tiket</button>
+        <button onclick="pickPackage()">Podstavit posledniy paket</button>
+      </div>
+      <pre id="sendout">—</pre>
+    </div>
+    <div>
+      <h3>Vkhodyaschie</h3>
+      <button onclick="loadInbox()">Obnovit</button>
+      <pre id="inbox">—</pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+async function loadStatus(){
+  const r = await fetch('/admin/telegram/status'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('status').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function save(){
+  const body = {token: document.getElementById('tok').value.trim() || undefined,
+                chat_id: document.getElementById('chat').value.trim() || undefined};
+  const r = await fetch('/admin/telegram/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  await loadStatus();
+}
+async function ping(){
+  const r = await fetch('/admin/telegram/ping',{method:'POST'});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('status').textContent = JSON.stringify(j, null, 2);
+}
+async function send(){
+  const path=document.getElementById('path').value.trim(); if(!path){ alert('Ukazhi put k faylu'); return; }
+  const kind=document.getElementById('kind').value;
+  const r = await fetch('/admin/telegram/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path, kind})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('sendout').textContent = JSON.stringify(j, null, 2);
+}
+async function loadInbox(){
+  const r = await fetch('/admin/telegram/inbox'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('inbox').textContent = JSON.stringify(j, null, 2);
+}
+async function pickTicket(){
+  const r = await fetch('/admin/telegram/status'); const j = await r.json().catch(()=>({ok:false}));
+  const p = j?.inbox?.last_ticket || null;
+}
+async function pickPackage(){
+  // uproschenno — polzovatel sam podstavlyaet put; podskazki mozhno dobavit pozzhe
+  alert('Podskazhi put k poslednemu paketu v ~/.ester/packages/out/');
+}
+loadStatus().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

@@ -1,0 +1,25 @@
+{
+  "title": "Ester Judge Result (minimal schema)",
+  "type": "object",
+  "properties": {
+    "verdict": { "type": "string", "enum": ["approve", "allow", "ok", "defer", "reject"] },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "risk": { "type": "number", "minimum": 0, "maximum": 1 },
+    "rationale": { "type": "string" },
+    "proposals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "action":   { "type": "string" },
+          "payload":  { "type": "object" },
+          "priority": { "type": "integer" },
+          "rationale":{ "type": "string" },
+          "silent":   { "type": "boolean" }
+        },
+        "required": ["action"]
+      }
+    }
+  },
+  "required": ["verdict", "confidence", "risk"]
+}

@@ -1,0 +1,18 @@
+# Kadr myshleniya gotov → uvedomim UI i zakinem artefakt v KG.
+- name: triune_frame_to_kg_and_notify
+  match:
+    type: mind.frame.ready
+  actions:
+    - type: emit
+      event_type: kg.persist.request
+      payload:
+        node_type: "MindFrame"
+        title: "Kadr myshleniya (score={{ payload.score }})"
+        content: "{{ payload.dream.title }}"
+        tags: "{{ payload.dream.tags }}"
+        keys: "{{ payload.perception.keys }}"
+    - type: emit
+      event_type: notify.request
+      payload:
+        channel: "ui"
+        message: "🧠 Novyy kadr myshleniya (score={{ payload.score }}): {{ payload.dream.title }}"

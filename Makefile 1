@@ -1,0 +1,107 @@
+# Makefile — «odna knopka» dlya Ester (offlayn, stdlib)
+# Mosty:
+# - Yavnyy: Enderton — tseli Make kak proveryaemye predikaty (kazhdaya komanda → determinirovannyy artefakt).
+# - Skrytyy #1: Ashbi — A/B-sloty cherez ENV (ustoychivyy katbek v A), bez fonovykh demonov.
+# - Skrytyy #2: Cover & Thomas — minimalnyy «signal»: only nuzhnye artefakty (JSON/MD/HTML/metrics).
+# Zemnoy abzats: Unifitsirovannye tseli dlya lokalnoy korobki: plan (Cortex), ispolnenie, portal, smouki, reliz.
+# c=a+b
+
+# ---- Parametry (mozhno pereopredelyat: `make run R4_MODE=B`) ----
+PY ?= python
+PERSIST_DIR ?= ./data
+
+R2_MODE ?= A
+R3_MODE ?= A
+R4_MODE ?= A
+R5_MODE ?= A
+R6_MODE ?= A
+R7_MODE ?= A
+R8_MODE ?= A
+U1_MODE ?= A
+U2_MODE ?= A
+
+U1_RULES ?= tests/fixtures/rules_config.json
+U1_INGEST_CONFIG ?= tests/fixtures/ingest_config.json
+SLO_CONFIG ?= tests/fixtures/slo_config.json
+CORTEX_POLICY ?= tests/fixtures/cortex_policy.json
+
+EXPORT_ENV = PERSIST_DIR=$(PERSIST_DIR) \
+	R2_MODE=$(R2_MODE) R3_MODE=$(R3_MODE) R4_MODE=$(R4_MODE) R5_MODE=$(R5_MODE) \
+	R6_MODE=$(R6_MODE) R7_MODE=$(R7_MODE) R8_MODE=$(R8_MODE) U1_MODE=$(U1_MODE) U2_MODE=$(U2_MODE) \
+	U1_RULES=$(U1_RULES) U1_INGEST_CONFIG=$(U1_INGEST_CONFIG)
+
+.SILENT:
+
+.PHONY: help print-env plan run portal ingest index score rerank digest rules render advice slo release secret-scan smoke clean clean-portal
+
+help:
+	echo "Ester Make targets:"
+	echo "  make plan         - sukhoy plan ot Cortex (U2)"
+	echo "  make run          - vypolnit plan (U2) i sgenerirovat portal"
+	echo "  make portal       - sobrat daydzhest + render HTML (R5)"
+	echo "  make ingest       - trigger ingensta (R2)"
+	echo "  make index        - postroit TF-IDF indeks (R3)"
+	echo "  make score        - demo-skoring TF-IDF (R3)"
+	echo "  make rerank       - demo-rerank (R4, lokalnyy LMStudio optsionalen)"
+	echo "  make digest       - sobrat daydzhest po planu (R5)"
+	echo "  make rules        - primenit pravila/diversity (R6)"
+	echo "  make render       - render portala (R5)"
+	echo "  make advice       - sovetnik (U1): temy→daydzhest→sovet"
+	echo "  make slo          - otchet SLO (R7)"
+	echo "  make secret-scan  - skan vozmozhnykh sekretov (R8)"
+	echo "  make release      - sobrat reliz-bandl (R8)"
+	echo "  make smoke        - obschiy myagkiy progon smoukov R2–R8, U1, U2"
+	echo "  make print-env    - pokazat aktivnye ENV"
+	echo "  make clean-portal - udalit portal/index.html (artefakt)"
+
+print-env:
+	echo "$(EXPORT_ENV)"
+
+plan:
+	$(EXPORT_ENV) $(PY) tools/u2_cortex.py --policy $(CORTEX_POLICY) --dry-run
+
+run:
+	$(EXPORT_ENV) $(PY) tools/u2_cortex.py --policy $(CORTEX_POLICY)
+
+portal: digest render
+
+ingest:
+	$(EXPORT_ENV) $(PY) tools/r2_trigger.py --config $(U1_INGEST_CONFIG)
+	$(EXPORT_ENV) $(PY) tools/r2_audit_report.py --out ingest_audit.md
+
+index:
+	$(EXPORT_ENV) $(PY) tools/r3_index_build.py
+
+score:
+	$(EXPORT_ENV) $(PY) tools/r3_score_cli.py --query "demo opisanie" --top 5
+
+rerank:
+	$(EXPORT_ENV) R4_MODE=B $(PY) tools/r4_rerank_cli.py --query "demo opisanie" --top 5
+
+digest:
+	$(EXPORT_ENV) $(PY) tools/r5_digest_build.py --plan tests/fixtures/digest_plan.json
+
+rules:
+	$(EXPORT_ENV) $(PY) tools/r6_apply_rules.py --rules $(U1_RULES)
+
+render:
+	$(EXPORT_ENV) $(PY) tools/r5_portal_render.py --out portal/index.html
+	[ -f portal/index.html ] && echo "portal/index.html gotov." || true
+
+advice:
+	$(EXPORT_ENV) $(PY) tools/u1_advisor.py --top 6 --rules $(U1_RULES) --ingest-config $(U1_INGEST_CONFIG)
+
+slo:
+	$(EXPORT_ENV) $(PY) tools/r7_slo_report.py --config $(SLO_CONFIG) --out obs_report.md
+
+secret-scan:
+	$(EXPORT_ENV) $(PY) tools/r8_secret_scan.py --out sec_report.md
+
+release:
+	$(EXPORT_ENV) $(PY) tools/r8_release_bundle.py --out release/ester_bundle.tar.gz
+
+smoke:
+	$(EXPORT_ENV) $(PY) tools/run_all_smoke.py
+
+clean-portal:
+	rm -f portal/index.html || true

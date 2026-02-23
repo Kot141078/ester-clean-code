@@ -1,0 +1,14 @@
+# systemd/ester-vector-diode-sync.timer — periodicheskiy zapusk sinkhronizatsii "data diode"
+[Unit]
+Description=Ester Data Diode Sync Timer
+
+[Timer]
+# Zapusk cherez 5 sekund posle starta i zatem kazhdye 15 sekund
+OnBootSec=5s
+OnUnitActiveSec=15s
+AccuracySec=2s
+Persistent=true
+Unit=ester-vector-diode-sync.service
+
+[Install]
+WantedBy=timers.target

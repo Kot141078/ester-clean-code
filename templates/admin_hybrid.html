@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Gibridnaya ochered (LAN→TG) + Podskazka + LAN-otvety</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+    table{width:100%;border-collapse:collapse}
+    td,th{border-bottom:1px solid #273244;padding:6px;text-align:left;font-size:13px}
+    .muted{opacity:.7}
+    .warn{color:#ffcc66}
+  </style>
+  </head>
+<body>
+  <h1>Gibridnaya ochered <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid">
+    <div>
+      <h3>Dobavit zadanie</h3>
+      <div class="row">
+        <label>Tip
+          <select id="type">
+            <option value="proj_build_publish">proj_build_publish</option>
+            <option value="build_ticket">build_ticket</option>
+          </select>
+        </label>
+        <label>Politika
+          <select id="policy">
+            <option value="lan_then_tg">lan_then_tg</option>
+            <option value="tg_only">tg_only</option>
+            <option value="prefer_registry_suggestion" selected>prefer_registry_suggestion</option>
+          </select>
+        </label>
+      </div>
+      <textarea id="args" style="width:100%;min-height:110px" placeholder='{"project_dir":"/path/on/remote","publish":true}'></textarea>
+      <details style="margin-top:6px"><summary>Tseli (mozhno pusto — podstavim podskazku)</summary>
+        <pre class="muted">Primer:
+{"lan":{"node":"node-123"},"tg":{"chat_id":123456789}}</pre>
+      </details>
+      <textarea id="targets" style="width:100%;min-height:70px" placeholder='{}'></textarea>
+      <div class="row" style="margin-top:6px">
+        <button onclick="suggest()">Poluchit podskazku</button>
+        <button onclick="enqueueSuggest()">Postavit po podskazke</button>
+        <button onclick="enqueue()">Postavit</button>
+      </div>
+      <pre id="enq">—</pre>
+    </div>
+
+    <div>
+      <h3>Tekuschee sostoyanie</h3>
+      <button onclick="refresh()">Obnovit</button>
+      <div id="tbl">—</div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div>
+      <h3>LAN-otvety</h3>
+      <button onclick="loadReceipts()">Obnovit</button>
+      <pre id="receipts">—</pre>
+    </div>
+    <div>
+      <h3>Prinyat kvitantsiyu</h3>
+      <textarea id="receipt" style="width:100%;min-height:140px" placeholder='{"schema":"ester.lan.reply/1","uid":"...","state":"done","details":{"took_sec":12},"sender":{"node_id":"node-abc"},"ts":1700000000,"sig":"..."}'></textarea>
+      <div class="row" style="margin-top:6px">
+        <input id="uid" placeholder="ili UID zadachi" style="flex:1"/>
+        <button onclick="applyReceipt()">Prinyat</button>
+      </div>
+      <pre id="apply">—</pre>
+      <small class="muted">Esli zadan i JSON, i UID — ispolzuetsya JSON.</small>
+    </div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+function esc(s){return (s||"").toString().replace(/</g,"&lt;")}
+function table(items){
+  if(!items || !items.length) return "<p class='muted'>Pusto</p>";
+  let h="<table><tr><th>uid</th><th>state</th><th>lan</th><th>tg</th><th>actions</th></tr>";
+  for(const it of items){
+    const lan = it.lan ? `a:${it.lan.attempts||0} ${it.lan.last_error?(" err:"+esc(it.lan.last_error)):""}` : "";
+    const tg  = it.tg  ? `uid:${esc(it.tg.uid||"")} a:${it.tg.attempts||0} ${it.tg.last_error?(" err:"+esc(it.tg.last_error)):""}` : "";
+    let act = "";
+    if(it.state==="lan_sent") act = `<button onclick="nudge('${esc(it.uid)}')">Na rezerv (TG)</button>`;
+    h+=`<tr><td><code>${esc(it.uid)}</code></td><td>${esc(it.state)}</td><td>${lan}</td><td>${tg}</td><td>${act}</td></tr>`;
+  }
+  h+="</table>";
+  return h;
+}
+async function refresh(){
+  const r = await fetch('/admin/hybrid/status'); const j = await r.json().catch(()=>({ok:false}));
+  const items = (j.outbox||[]);
+  document.getElementById('tbl').innerHTML = table(items);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function enqueue(){
+  let args={}, targets={};
+  try{ args = JSON.parse(document.getElementById('args').value||'{}'); }catch(e){ alert('args: plokhoy JSON'); return; }
+  try{ targets = JSON.parse(document.getElementById('targets').value||'{}'); }catch(e){ alert('targets: plokhoy JSON'); return; }
+  const body={type: document.getElementById('type').value, args, targets, policy: document.getElementById('policy').value};
+  const r = await fetch('/admin/hybrid/enqueue',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('enq').textContent = JSON.stringify(j, null, 2);
+  await refresh();
+}
+async function enqueueSuggest(){
+  let args={}, targets={};
+  try{ args = JSON.parse(document.getElementById('args').value||'{}'); }catch(e){ alert('args: plokhoy JSON'); return; }
+  try{ targets = JSON.parse(document.getElementById('targets').value||'{}'); }catch(e){ alert('targets: plokhoy JSON'); return; }
+  const body={type: document.getElementById('type').value, args, targets};
+  const r = await fetch('/admin/hybrid/enqueue_suggest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('enq').textContent = JSON.stringify(j, null, 2);
+  await refresh();
+}
+async function suggest(){
+  let args={}; try{ args = JSON.parse(document.getElementById('args').value||'{}'); }catch(e){ alert('args: plokhoy JSON'); return; }
+  const r = await fetch('/admin/registry/suggest_targets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({job_type:document.getElementById('type').value,args})});
+  const j = await r.json().catch(()=>({ok:false}));
+  const t = JSON.stringify(j.targets||{}, null, 2);
+  document.getElementById('targets').value = t;
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function nudge(uid){
+  const r = await fetch('/admin/hybrid/nudge_tg',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid})});
+  const j = await r.json().catch(()=>({ok:false}));
+  await refresh();
+}
+
+// --- LAN-otvety ---
+async function loadReceipts(){
+  const r = await fetch('/admin/hybrid/lan_receipts'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('receipts').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function applyReceipt(){
+  let obj=null;
+  const txt = document.getElementById('receipt').value.trim();
+  if(txt){
+    try{ obj = JSON.parse(txt); }catch(e){ alert('Plokhoy JSON kvitantsii'); return; }
+  }
+  const uid = document.getElementById('uid').value.trim() || undefined;
+  const r = await fetch('/admin/hybrid/lan_apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj?{receipt:obj}:{uid})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('apply').textContent = JSON.stringify(j, null, 2);
+  await refresh();
+}
+refresh().catch(()=>{});
+loadReceipts().catch(()=>{});
+</script>
+</body>
+</html>

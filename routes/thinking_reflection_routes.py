@@ -1,0 +1,103 @@
+# -*- coding: utf-8 -*-
+"""
+routes/thinking_reflection_routes.py - HTTP-ruchki dlya affect-aware ocheredi refleksii.
+
+Endpointy:
+  • POST /thinking/reflection/enqueue {"item":{...}} → {"ok":true,"score":...,"size":...}
+  • POST /thinking/reflection/pop {"n":1}           → {"ok":true,"items":[{"id",...,"_score":...}]}
+  • GET  /metrics/reflection_affect                 → Prometheus text 0.0.4
+
+Mosty:
+- Yavnyy: (Memory ↔ Myshlenie) pozvolyaet RuleHub pinat refleksiyu po prioritetu.
+- Skrytyy #1: (Infoteoriya ↔ Nablyudaemost) metriki ocheredi dostupny iz Prometheus.
+- Skrytyy #2: (UX ↔ Kontrol) prostoy REST bez izmeneniya suschestvuyuschikh payplaynov.
+
+Zemnoy abzats (inzheneriya/anatomiya):
+Eto «ruchka upravleniya ocheredyu»: mozhno podat kartochku s emotsiyami i zabrat top-N na obdumyvanie.
+Prostaya trubka: vkhod - JSON, vykhod - determinirovannyy otvet/metriki, nichego lishnego.
+
+# c=a+b
+"""
+from __future__ import annotations
+
+from typing import Any, Dict, List
+
+from flask import Blueprint, jsonify, request, Response
+from modules.memory.facade import memory_add, ESTER_MEM_FACADE
+
+bp_reflect = Blueprint("reflect_affect", __name__)
+
+# Myagkiy import yadra ocheredi
+try:  # pragma: no cover
+    from modules.thinking.affect_reflection import enqueue as _enqueue, pop as _pop  # type: ignore
+    # tolko dlya proverki importa:
+    from modules.thinking.affect_reflection import score_item as _score_item  # type: ignore  # noqa: F401
+except Exception:  # pragma: no cover
+    _enqueue = _pop = None  # type: ignore
+
+QSTATE: Dict[str, int] = {"enqueued_total": 0, "popped_total": 0}
+
+
+def register(app) -> None:  # pragma: no cover
+    app.register_blueprint(bp_reflect)
+
+
+def init_app(app) -> None:  # pragma: no cover
+    register(app)
+
+
+@bp_reflect.post("/thinking/reflection/enqueue")
+def api_enqueue():
+    """Polozhit element v ochered refleksii (affect-aware)."""
+    if _enqueue is None:
+        return jsonify({"ok": False, "error": "affect_queue_unavailable"}), 500
+    data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
+    item = dict(data.get("item") or {})
+    try:
+        rep = _enqueue(item)  # type: ignore[misc]
+        # Ozhidaem slovar; esli net - privodim
+        if not isinstance(rep, dict):
+            rep = {"ok": True, "result": rep}
+        rep.setdefault("ok", True)
+        QSTATE["enqueued_total"] += 1
+        return jsonify(rep)
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@bp_reflect.post("/thinking/reflection/pop")
+def api_pop():
+    """Zabrat N luchshikh elementov iz ocheredi refleksii."""
+    if _pop is None:
+        return jsonify({"ok": False, "error": "affect_queue_unavailable"}), 500
+    data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
+    try:
+        n = int(data.get("n") or 1)
+    except Exception:
+        n = 1
+    n = max(1, min(n, 100))
+    try:
+        items: List[Dict[str, Any]] = _pop(n)  # type: ignore[misc]
+        QSTATE["popped_total"] += len(items)
+        return jsonify({"ok": True, "items": items})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@bp_reflect.get("/metrics/reflection_affect")
+def metrics():
+    """Prometheus-tekst s tekuschimi schetchikami ocheredi."""
+    body = (
+        f"reflection_affect_enqueued_total {QSTATE['enqueued_total']}\n"
+        f"reflection_affect_popped_total {QSTATE['popped_total']}\n"
+    )
+    return Response(body, headers={"Content-Type": "text/plain; version=0.0.4; charset=utf-8"})
+
+
+__all__ = ["bp_reflect", "register", "init_app"]
+# c=a+b
+
+
+def register(app):
+    app.register_blueprint(bp_reflect)
+    return app

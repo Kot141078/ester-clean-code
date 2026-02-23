@@ -1,0 +1,34 @@
+{{- if .Values.recordingRules.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "ester.fullname" . }}-rr
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+spec:
+  groups:
+    - name: ester-rec-rules
+      interval: 30s
+      rules:
+        # Oshibki v dolyakh (burn-friendly)
+        - record: job:ester:http_errors:rate5m
+          expr: |
+            clamp_max(
+              sum(rate(http_requests_total{job="{{ include "ester.name" . }}", code=~"5.."}[5m]))
+              /
+              clamp_min(sum(rate(http_requests_total{job="{{ include "ester.name" . }}"}[5m])), 1),
+            1)
+        - record: job:ester:http_errors:rate1h
+          expr: |
+            clamp_max(
+              sum(rate(http_requests_total{job="{{ include "ester.name" . }}", code=~"5.."}[1h]))
+              /
+              clamp_min(sum(rate(http_requests_total{job="{{ include "ester.name" . }}"}[1h])), 1),
+            1)
+
+        # Kvantilnaya latentnost
+        - record: job:ester:http_p95:5m
+          expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="{{ include "ester.name" . }}"}[5m])) by (le))
+        - record: job:ester:http_p99:5m
+          expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{job="{{ include "ester.name" . }}"}[5m])) by (le))
+{{- end }}

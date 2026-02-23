@@ -1,0 +1,197 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
+    <h2 style="margin:0">Dokumentatsiya API</h2>
+    <span class="chip">/docs</span>
+    <span class="chip">/openapi.json</span>
+    <div class="spacer"></div>
+    <button class="btn" onclick="openNew('/docs')">Otkryt /docs</button>
+    <button class="btn" onclick="openNew('/openapi.json')">Otkryt openapi.json</button>
+    <a class="navlink" href="/portal" title="Portal">← Nazad v /portal</a>
+  </div>
+</section>
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:8px;align-items:center;margin-bottom:8px">
+    <h3 style="margin:0">Swagger UI</h3>
+    <button class="btn right" onclick="reloadDocs()">Perezagruzit</button>
+  </div>
+  <div class="box" style="padding:0">
+    <iframe id="docsFrame" src="/docs" style="width:100%;border:0;display:block;min-height:540px"></iframe>
+  </div>
+</section>
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:8px;align-items:center;margin-bottom:8px">
+    <h3 style="margin:0">OpenAPI · Poisk i obzor</h3>
+    <input id="q" class="input" placeholder="filtr po puti/metodu/tegam/opisaniyu…" oninput="renderList()">
+    <select id="m" class="input" onchange="renderList()">
+      <option value="">vse metody</option><option>GET</option><option>POST</option><option>PUT</option>
+      <option>PATCH</option><option>DELETE</option><option>OPTIONS</option><option>HEAD</option>
+    </select>
+    <input id="tag" class="input" placeholder="teg OpenAPI…" oninput="renderList()">
+    <button class="btn" onclick="loadSpec()">Obnovit</button>
+    <div class="spacer"></div>
+    <button class="btn" onclick="copySpec()">Kopirovat JSON</button>
+  </div>
+  <div class="grid">
+    <div class="box" style="overflow:auto;max-height:420px">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Metod</th>
+            <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Put</th>
+            <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Tegi</th>
+            <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Opisanie</th>
+            <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Deystviya</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="box">
+      <strong>Raw openapi.json</strong>
+      <pre id="raw" class="log" style="height:420px;margin-top:6px"></pre>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
+    <h3 style="margin:0">Try — otpravit zapros</h3>
+    <span class="muted right">JWT beretsya iz <code>localStorage.jwt</code></span>
+  </div>
+  <div class="box">
+    <div class="row" style="gap:8px;margin-bottom:8px">
+      <select id="tMethod" class="input">
+        <option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option>
+        <option>DELETE</option><option>OPTIONS</option><option>HEAD</option>
+      </select>
+      <input id="tUrl" class="input" style="min-width:420px" placeholder="/api/endpoint ili polnyy URL">
+      <button class="btn" onclick="prefill()">Iz spiska</button>
+      <div class="spacer"></div>
+      <button class="btn" onclick="sendTry()">Otpravit</button>
+    </div>
+    <textarea id="tBody" class="textarea" placeholder="Telo JSON (dlya ne-GET)…"></textarea>
+    <pre id="tOut" class="log box" style="height:240px;margin-top:8px"></pre>
+  </div>
+</section>
+
+<script>
+  // ===== Swagger iframe utils
+  function reloadDocs(){
+    const fr=document.getElementById('docsFrame');
+    fr.src = fr.src.split('#')[0];
+  }
+
+  // ===== OpenAPI render
+  let SPEC=null, ROWS=[], SELECTED=null;
+
+  function buildRowsFromSpec(spec){
+    const out=[];
+    const paths=spec.paths||{};
+    for(const p in paths){
+      const ops=paths[p];
+      for(const k in ops){
+        const M=k.toUpperCase();
+        const meta=ops[k]||{};
+        const tags=meta.tags||[];
+        const summary=meta.summary||meta.description||'';
+        out.push({method:M, path:p, tags, summary});
+      }
+    }
+    return out.sort((a,b)=> a.path.localeCompare(b.path) || a.method.localeCompare(b.method));
+  }
+
+  async function loadSpec(){
+    try{
+      const r=await $fetch('/openapi.json'); const j=await r.json();
+      SPEC=j; ROWS=buildRowsFromSpec(j);
+      document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+      renderList();
+    }catch(e){
+      document.getElementById('raw').textContent = 'Oshibka zagruzki spetsifikatsii: '+e;
+      ROWS=[]; renderList();
+    }
+  }
+
+  function renderList(){
+    const body=document.getElementById('rows'); body.innerHTML='';
+    const q=(document.getElementById('q').value||'').toLowerCase();
+    const m=(document.getElementById('m').value||'').toUpperCase();
+    const tg=(document.getElementById('tag').value||'').toLowerCase();
+    for(const it of ROWS){
+      if(m && it.method!==m) continue;
+      if(q){
+        const blob=(it.method+' '+it.path+' '+(it.tags||[]).join(' ')+' '+(it.summary||'')).toLowerCase();
+        if(!blob.includes(q)) continue;
+      }
+      if(tg && !(it.tags||[]).some(x=> String(x).toLowerCase().includes(tg))) continue;
+
+      const tr=document.createElement('tr');
+      const td=(t)=>{ const x=document.createElement('td'); x.style.padding='8px 6px'; x.style.borderBottom='1px solid var(--border)'; x.innerHTML=t; return x; };
+
+      tr.appendChild(td(`<span class="chip" style="border-color:var(--accent);color:var(--accent)">${it.method}</span>`));
+      tr.appendChild(td(`<code>${it.path}</code>`));
+      tr.appendChild(td((it.tags||[]).map(x=> `<span class="chip" style="margin-right:4px">${x}</span>`).join('')));
+      tr.appendChild(td(it.summary||''));
+
+      const act = td('');
+      const bOpen=document.createElement('button'); bOpen.className='btn'; bOpen.textContent='Otkryt'; bOpen.disabled = (it.method!=='GET');
+      bOpen.onclick = ()=> window.open(it.path, '_blank', 'noopener');
+      const bTry=document.createElement('button'); bTry.className='btn'; bTry.style.marginLeft='6px'; bTry.textContent='Try';
+      bTry.onclick = ()=> { SELECTED=it; document.getElementById('tMethod').value=it.method; document.getElementById('tUrl').value=it.path; document.getElementById('tBody').value=(it.method!=='GET')?'{\n  \n}':''; document.getElementById('tOut').textContent=''; };
+      act.appendChild(bOpen); act.appendChild(bTry);
+      tr.appendChild(act);
+
+      tr.onclick = ()=> { SELECTED=it; };
+      body.appendChild(tr);
+    }
+  }
+
+  function prefill(){
+    if(!SELECTED) return;
+    document.getElementById('tMethod').value = SELECTED.method;
+    document.getElementById('tUrl').value = SELECTED.path;
+    document.getElementById('tBody').value = (SELECTED.method!=='GET') ? '{\n  \n}' : '';
+    document.getElementById('tOut').textContent = '';
+  }
+
+  function copySpec(){
+    const txt=document.getElementById('raw').innerText||'';
+    navigator.clipboard.writeText(txt).catch(()=>{});
+  }
+
+  // ===== Try panel
+  async function sendTry(){
+    const method=(document.getElementById('tMethod').value||'GET').toUpperCase();
+    let url=(document.getElementById('tUrl').value||'').trim();
+    if(!url){ alert('URL?'); return; }
+    if(!url.startsWith('/') && !/^https?:\/\//i.test(url)){ url='/'+url; }
+
+    let body=undefined; const raw=(document.getElementById('tBody').value||'').trim();
+    if(raw && !['GET','HEAD','OPTIONS'].includes(method)){
+      try{ body=JSON.stringify(JSON.parse(raw)); }catch(e){ body=raw; }
+    }
+
+    const t0=performance.now();
+    try{
+      const r=await $fetch(url,{method, body});
+      const ct=r.headers.get('content-type')||'';
+      let txt='';
+      if(ct.includes('application/json')){ const j=await r.json(); txt=JSON.stringify(j,null,2); }
+      else{ txt=await r.text(); }
+      const ms=Math.round(performance.now()-t0);
+      document.getElementById('tOut').textContent = `HTTP ${r.status} (${ms} ms)\n\n` + txt;
+    }catch(e){
+      document.getElementById('tOut').textContent = 'Oshibka zaprosa: '+e;
+    }
+  }
+
+  // init
+  document.addEventListener('DOMContentLoaded', loadSpec);
+</script>
+
+{% endblock %}

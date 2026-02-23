@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodic Ester CRDT Snapshot (every 30 min)
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=30min
+Unit=ester-crdt-snapshot.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target

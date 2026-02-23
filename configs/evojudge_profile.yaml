@@ -1,0 +1,17 @@
+llm:
+  temperature: 0.3
+  top_p: 0.9
+  max_tokens: 512
+  stop: []
+rag:
+  k: 4
+  similarity: cosine
+  rerank: false
+judge:
+  mode: consensus
+  weight_local: 1.5
+  weight_cloud: 1.0
+tools:
+  enable_web: false
+  enable_code: true
+  enable_calc: true

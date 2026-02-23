@@ -1,0 +1,44 @@
+run_id: agent_builder_bootstrap_01
+branch_id: main
+context_init:
+  spec: "Sobrat opisanie i chernovik faylov dlya novogo agenta pod tsel."
+  items:
+    - {file: "instructions.md"}
+    - {file: "capabilities.json"}
+    - {file: "ui_notes.md"}
+
+nodes:
+  # 1) Korotkiy nabrosok trebovaniy
+  - id: outline
+    type: llm.generate
+    prompt: "Kratko raspishi trebovaniya k agentu iz TZ: {{ctx.spec}}. Do 5–7 punktov."
+    out: "outline"
+    depends: []
+
+  # 2) Vetka na elementy (instruktsii/vozmozhnosti/UI)
+  - id: fork
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["outline"]
+
+  # 3) Generatsiya po kazhdomu elementu
+  - id: draft
+    type: llm.generate
+    prompt: |
+      Sformiruy soderzhimoe {{ctx.item.file}} na osnove outline={{ctx.outline}}.
+      Korotko, strukturirovano, bez vody.
+    out: "final_branch"
+    depends: ["fork"]
+
+  # 4) Sbor v edinyy spisok
+  - id: gather
+    type: join
+    from: "fork"
+    out: "agent_scaffold"
+    select:
+      file: "{{item.file}}"
+      text: "{{ctx.final_branch}}"
+    mode: list
+    await_nodes: ["draft"]
+    depends: ["draft"]
+# c=a+b

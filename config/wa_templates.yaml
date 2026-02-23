@@ -1,0 +1,54 @@
+# config/wa_templates.yaml — rasshirennaya biblioteka WA-shablonov s predprosmotrom
+# MOSTY:
+# - (Yavnyy) Nabor tipovykh stsenariev: napominaniya, podtverzhdeniya, sbor dokumentov, follou-ap, «myagkiy tolchok».
+# - (Skrytyy #1) Peremennye {{1}}, {{2}}, ...; opisaniya variables — dlya podskazok operatoru.
+# - (Skrytyy #2) Language/namespace mogut byt zadany ENV-om (WA_TEMPLATE_LANG/WA_TEMPLATE_NAMESPACE).
+
+templates:
+  reminder_deadline:
+    lang: ru
+    namespace: ""
+    body: "Napominanie: srok po zadache «{{1}}» istekaet {{2}}. Otvette «OK», esli vse idet po planu."
+    variables: ["Nazvanie zadachi", "kogda (segodnya/zavtra/data)"]
+
+  followup_meeting:
+    lang: ru
+    namespace: ""
+    body: "Podtverdite vstrechu {{1}} v {{2}}. Esli vremya neudobno — predlozhite drugoe."
+    variables: ["data (zavtra/data)", "vremya (chch:mm)"]
+
+  doc_request:
+    lang: ru
+    namespace: ""
+    body: "Nuzhen dokument: {{1}}. Mozhno prislat v otvet foto ili PDF. Spasibo!"
+    variables: ["kakoy dokument"]
+
+  gentle_nudge:
+    lang: ru
+    namespace: ""
+    body: "Korotkoe napominanie po teme «{{1}}». Esli trebuetsya pomosch — napishite odnim predlozheniem, chto meshaet."
+    variables: ["tema"]
+
+  recap_after_call:
+    lang: ru
+    namespace: ""
+    body: "Kratkoe rezyume sozvona: {{1}}. Sleduyuschie shagi — {{2}}. Esli chto-to propustil, napishite."
+    variables: ["osnovnye resheniya", "shagi"]
+
+  delivery_eta:
+    lang: ru
+    namespace: ""
+    body: "Dostavka po zakazu {{1}} ozhidaetsya {{2}}. Kurer svyazhetsya za 30 minut do pribytiya."
+    variables: ["nomer zakaza", "data/vremya"]
+
+  payment_reminder:
+    lang: ru
+    namespace: ""
+    body: "Napominanie ob oplate po schetu {{1}} do {{2}}. Esli oplatili — prosto ignoriruyte eto soobschenie."
+    variables: ["nomer scheta", "srok"]
+
+  invite_feedback:
+    lang: ru
+    namespace: ""
+    body: "Kak proshel opyt s «{{1}}»? Otsenite po shkale 1–5 i, esli mozhno, odnim predlozheniem — chto uluchshit."
+    variables: ["nazvanie uslugi/produkta"]

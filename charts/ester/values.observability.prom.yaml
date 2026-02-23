@@ -1,0 +1,7 @@
+# values.observability.prom.yaml — override dlya ServiceMonitor, chtoby skrapit tekstovye metriki
+serviceMonitor:
+  enabled: true
+  path: /metrics/prom
+  interval: 15s
+  scrapeTimeout: 5s
+  scheme: http

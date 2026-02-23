@@ -1,0 +1,45 @@
+run_id: research_run_03
+branch_id: main
+context_init:
+  spec: "Issledovat materialy i sobrat svodnyy otchet s klyuchom = imya fayla."
+  items:
+    - {file: "alpha.md"}
+    - {file: "beta.md"}
+    - {file: "gamma.md"}
+
+nodes:
+  - id: outline
+    type: llm.generate
+    prompt: "Kratko raspishi plan rabot po TZ: {{ctx.spec}}. Do 5–7 punktov."
+    out: "outline"
+    depends: []
+
+  - id: fork
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["outline"]
+
+  - id: analyze
+    type: llm.generate
+    prompt: "Sdelay analiz {{ctx.item.file}}. Uchityvay obschiy outline={{ctx.outline}}. Day fakty i vyvod."
+    out: "analysis"
+    depends: ["fork"]
+
+  - id: finalize
+    type: llm.generate
+    prompt: "Sformiruy itog dlya {{ctx.item.file}} na baze analysis={{ctx.analysis}}."
+    out: "final_branch"
+    depends: ["analyze"]
+
+  # Fan-in: slovar { <item.file>: {...} }
+  - id: gather
+    type: join
+    from: "fork"
+    out: "joined_dict"
+    select:
+      file: "{{item.file}}"
+      summary: "{{ctx.final_branch}}"
+    mode: dict
+    key_field: "{{item.file}}"
+    await_nodes: ["finalize"]
+    depends: ["finalize"]

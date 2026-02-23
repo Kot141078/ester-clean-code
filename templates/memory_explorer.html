@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Memory — Obozrevatel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin:0; background:#0b0f14; color:#e5e7eb; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; }
+    header { padding:12px 16px; border-bottom:1px solid #1f2937; background:#0f1620; color:#93c5fd; display:flex; gap:8px; align-items:center; }
+    input,button,select { background:#0b1220; color:#e5e7eb; border:1px solid #1f2937; border-radius:8px; padding:8px 10px; }
+    main { display:grid; grid-template-columns: 520px 1fr; height: calc(100vh - 56px); }
+    .list { overflow:auto; border-right:1px solid #1f2937; }
+    .item { padding:10px 12px; border-bottom:1px solid #1f2937; cursor:pointer; }
+    .item:hover { background:#0b1220; }
+    .id { font-size:12px; opacity:.7 }
+    .preview { opacity:.85 }
+    .pane { padding:12px; overflow:auto; display:grid; grid-template-rows: auto auto 1fr; gap:12px; }
+    pre { white-space: pre-wrap; background:#0b1220; padding:10px; border-radius:8px; border:1px solid #1f2937; }
+    .card { background:#0f1620; border:1px solid #1f2937; border-radius:8px; padding:10px; }
+    .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>Memory — Obozrevatel</div>
+    <input id="q" placeholder="zapros..." style="min-width:360px">
+    <button id="go">Iskat</button>
+    <a href="/entities/board" target="_blank" style="margin-left:auto;color:#93c5fd;text-decoration:none">Suschnosti →</a>
+  </header>
+  <main>
+    <div class="list" id="list"></div>
+    <div class="pane" id="pane">
+      <div class="card" id="linker">
+        <div style="opacity:.9;margin-bottom:6px;">Linkovka</div>
+        <div class="row">
+          <label>doc_id: <input id="docId" readonly style="min-width:320px"></label>
+        </div>
+        <div class="row">
+          <select id="etype">
+            <option value="person">person</option>
+            <option value="org">org</option>
+            <option value="doc" selected>doc</option>
+            <option value="task">task</option>
+          </select>
+          <input id="eid" placeholder="entity_id (esli est)">
+          <input id="ename" placeholder="ili imya — sozdat novuyu">
+          <select id="rel">
+            <option value="mentions" selected>mentions</option>
+            <option value="about">about</option>
+            <option value="authored_by">authored_by</option>
+            <option value="references">references</option>
+          </select>
+          <button id="btnLink">Svyazat</button>
+        </div>
+        <div id="linkNote" style="font-size:12px; opacity:.8; margin-top:6px;"></div>
+      </div>
+      <div class="card">
+        <div style="opacity:.9;margin-bottom:6px;">Kartochka</div>
+        <pre id="pre">Vyberite zapis sleva…</pre>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  const list = document.getElementById('list');
+  const pane = document.getElementById('pane');
+  const q = document.getElementById('q'); const go = document.getElementById('go');
+
+  const pre = document.getElementById('pre');
+  const docId = document.getElementById('docId');
+  const etype = document.getElementById('etype');
+  const eid = document.getElementById('eid');
+  const ename = document.getElementById('ename');
+  const rel = document.getElementById('rel');
+  const btnLink = document.getElementById('btnLink');
+  const linkNote = document.getElementById('linkNote');
+
+  function el(tag, cls, txt){ const e=document.createElement(tag); if(cls) e.className=cls; if(txt) e.textContent=txt; return e; }
+
+  async function search() {
+    list.innerHTML = '';
+    const r = await fetch('/mem/search?q=' + encodeURIComponent(q.value || ''));
+    const j = await r.json();
+    if (!j.ok || !Array.isArray(j.items)) { list.textContent='Oshibka poiska'; return; }
+    for (const it of j.items) {
+      const d = el('div','item');
+      d.appendChild(el('div', 'id', `${it.layer} • ${it.kind} • ${it.id}`));
+      d.appendChild(el('div', 'preview', (it.text||'').slice(0,200)));
+      d.addEventListener('click', () => openItem(it.id));
+      list.appendChild(d);
+    }
+  }
+  async function openItem(id) {
+    const r = await fetch('/mem/get/' + encodeURIComponent(id));
+    const j = await r.json();
+    if (!j.ok) { pre.textContent='Ne naydeno'; return; }
+    pre.textContent = JSON.stringify(j.doc, null, 2);
+    docId.value = j.doc.id || '';
+    linkNote.textContent = '';
+  }
+
+  async function linkNow() {
+    if (!docId.value) { linkNote.textContent='Snachala vyberite zapis'; return; }
+    let entity_id = (eid.value||'').trim();
+    const entity_type = etype.value;
+    const name = (ename.value||'').trim();
+    // esli net id, no est imya — sozdadim suschnost
+    if (!entity_id && name) {
+      const r = await fetch('/mem/linker/create_entity', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({type: entity_type, name})});
+      const j = await r.json();
+      if (!j.ok) { linkNote.textContent='Ne udalos sozdat suschnost'; return; }
+      entity_id = j.entity.id;
+      eid.value = entity_id;
+    }
+    if (!entity_id) { linkNote.textContent='Ukazhite entity_id ili imya'; return; }
+    const r2 = await fetch('/mem/linker/link', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
+      doc_id: docId.value, entity_id, entity_type, rel: rel.value
+    })});
+    const j2 = await r2.json();
+    linkNote.textContent = j2.ok ? `OK: svyazali ${docId.value} ⇄ ${entity_type}:${entity_id}` : (j2.error || 'Oshibka');
+  }
+
+  go.addEventListener('click', search);
+  q.addEventListener('keydown', e => { if(e.key==='Enter'){ search(); }});
+  btnLink.addEventListener('click', linkNow);
+
+  </script>
+</body>
+</html>

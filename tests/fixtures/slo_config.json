@@ -1,0 +1,15 @@
+{
+  "window_days": 14,
+  "targets": [
+    {
+      "name": "Index build",
+      "match": { "cmd_has": "tools/r3_index_build.py" },
+      "slo": { "success_rate": 0.95, "p95_ms": 5000 }
+    },
+    {
+      "name": "Digest build",
+      "match": { "cmd_has": "tools/r5_digest_build.py" },
+      "slo": { "success_rate": 0.95, "p95_ms": 7000 }
+    }
+  ]
+}

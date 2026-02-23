@@ -1,0 +1,7 @@
+{
+  "title": "Daydzhest Ester (demo)",
+  "sections": [
+    { "query": "demo opisanie", "tags": ["rss_demo","inbox_demo"], "top": 5 },
+    { "query": "ingenst", "top": 5 }
+  ]
+}

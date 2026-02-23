@@ -1,0 +1,16 @@
+# packaging/systemd/ester-lan-discovery.service
+# Yunit LAN discovery-agenta.
+
+[Unit]
+Description=Ester LAN Discovery Agent
+After=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/ester-lan-discovery
+ExecStart=/usr/bin/env python3 -m listeners.lan_discovery_agent
+Restart=on-failure
+RestartSec=2s
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,79 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Auth & Audit</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:880px}
+  h2,h3{margin:12px 0}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  input[type="password"],input[type="text"]{min-width:260px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:6px;min-height:120px;white-space:pre-wrap}
+  table{border-collapse:collapse;margin-top:10px;width:100%}
+  td,th{border:1px solid #e1e1e1;padding:6px 10px}
+  .pill{padding:4px 8px;border-radius:999px;border:1px solid #bbb}
+</style>
+
+<h2>Autentifikatsiya (oflayn)</h2>
+<div class="row">
+  <button onclick="check()">Status</button>
+  <span id="init" class="pill">init: ?</span>
+</div>
+<div class="row">
+  <input id="pwd" type="password" placeholder="PIN/parol operatora">
+  <button onclick="init()">Initsializatsiya/Sbros</button>
+  <button onclick="login()">Vkhod</button>
+  <button onclick="rotate()">Rotatsiya JWT</button>
+</div>
+
+<h3>Audit RPA</h3>
+<div class="row">
+  <input id="tail" type="text" value="200">
+  <button onclick="audit()">Pokazat</button>
+</div>
+<table>
+  <thead><tr><th>ts</th><th>level</th><th>msg</th></tr></thead>
+  <tbody id="tbody"></tbody>
+</table>
+
+<h3>Otvet</h3>
+<pre id="log"></pre>
+
+<script>
+function log(x){ const e=document.getElementById('log'); e.textContent = JSON.stringify(x,null,2); }
+function setInit(b){ document.getElementById('init').textContent = 'init: '+(b?'yes':'no'); }
+function jwtHeader(){ const t=localStorage.getItem('jwt')||''; return t?{'Authorization':'Bearer '+t}:{ }; }
+
+async function check(){
+  const r=await fetch('/auth/status'); const j=await r.json(); setInit(j.initialized); log(j);
+}
+async function init(){
+  const pwd=document.getElementById('pwd').value;
+  const r=await fetch('/auth/init',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});
+  log(await r.json()); await check();
+}
+async function login(){
+  const pwd=document.getElementById('pwd').value;
+  const r=await fetch('/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});
+  const j=await r.json(); log(j);
+  if(j.ok && j.token){ localStorage.setItem('jwt', j.token); alert('JWT sokhranen v LocalStorage'); }
+}
+async function rotate(){
+  const r=await fetch('/auth/rotate',{method:'POST',headers:{'Content-Type':'application/json',...jwtHeader()}});
+  log(await r.json());
+}
+async function audit(){
+  const tail=document.getElementById('tail').value||'200';
+  const r=await fetch('/audit/rpa?tail='+encodeURIComponent(tail),{headers:{...jwtHeader()}});
+  const j=await r.json(); log(j);
+  const tb=document.getElementById('tbody'); tb.innerHTML='';
+  if(j.ok && Array.isArray(j.items)){
+    j.items.forEach(it=>{
+      const tr=document.createElement('tr');
+      const td1=document.createElement('td'); td1.textContent=(it.ts||'');
+      const td2=document.createElement('td'); td2.textContent=(it.level||'');
+      const td3=document.createElement('td'); td3.textContent=(it.msg||it.raw||'');
+      tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tb.appendChild(tr);
+    });
+  }
+}
+</script>

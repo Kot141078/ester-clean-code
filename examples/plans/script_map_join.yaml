@@ -1,0 +1,48 @@
+run_id: research_run_04
+branch_id: main
+context_init:
+  spec: "Podgotovit nabroski dlya trekh elementov i sobrat tekstovyy konsolidirovannyy vyvod."
+  items:
+    - {file: "doc_1.txt"}
+    - {file: "doc_2.txt"}
+    - {file: "doc_3.txt"}
+
+nodes:
+  # Podgotovim obschiy shablon prompta i zagolovok cherez bezopasnyy script
+  - id: prepare
+    type: script
+    update:
+      prompt_stub: "Obschiy kontekst: {{ctx.spec}}. Sleduy strukture: vvod, analiz, vyvod."
+    template: "Start obrabotki nabora iz {{ctx.items}}"
+    out: "header"
+    depends: []
+
+  - id: fork
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["prepare"]
+
+  - id: analyze
+    type: llm.generate
+    prompt: "Dlya {{ctx.item.file}}. {{ctx.prompt_stub}} Sformuliruy 3–5 predlozheniy."
+    out: "analysis"
+    depends: ["fork"]
+
+  - id: polish
+    type: llm.generate
+    prompt: "Otredaktiruy i sozhmi analiz po {{ctx.item.file}}: {{ctx.analysis}}"
+    out: "final_branch"
+    depends: ["analyze"]
+
+  # Soberem v edinyy tekst
+  - id: gather_text
+    type: join
+    from: "fork"
+    out: "consolidated_text"
+    select:
+      file: "{{item.file}}"
+      text: "{{ctx.final_branch}}"
+    mode: text
+    separator: "\n---\n"
+    await_nodes: ["polish"]
+    depends: ["polish"]

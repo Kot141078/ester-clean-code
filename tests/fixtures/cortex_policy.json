@@ -1,0 +1,10 @@
+{
+  "ingest_max_age_h": 12,
+  "digest_max_age_h": 8,
+  "reindex_if_ingested": true,
+  "render_always_after_digest": true,
+  "apply_rules": true,
+  "emit_slo_report": true,
+  "slo_every_h": 24,
+  "release_enabled": false
+}

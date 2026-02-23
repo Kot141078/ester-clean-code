@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — LAN zadachi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    input[type="text"]{min-width:300px}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Dispetcher seti: stav zadachi «zabrat/otdat», smotri statusy i kvoty; v AB=A vse bez zapisi.
+    Mosty:
+      • Yavnyy — UX-pult ocheredi.
+      • Skrytye — logika kvot/QPS i prozrachnaya JSON-ochered.
+  -->
+</head>
+<body>
+<h1>LAN zadachi <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+<section>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <input id="peer" type="text" placeholder="http://192.168.1.50:8000"/>
+    <input id="pri" type="number" value="100" style="width:100px"/>
+    <button onclick="enqueuePull()">Zabrat</button>
+    <button onclick="enqueueOffer()">Otdavat</button>
+    <button onclick="clearDone()">Ochistit zavershennye</button>
+    <a class="chip" href="/admin/lan/catalog">Katalog uzlov →</a>
+  </div>
+</section>
+
+<section>
+  <h3>Ochered</h3>
+  <pre id="q">—</pre>
+</section>
+
+<script>
+async function refresh(){
+  const r = await fetch('/admin/lan/jobs/status'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('q').textContent = JSON.stringify(j, null, 2);
+}
+async function enqueuePull(){
+  const peer = document.getElementById('peer').value.trim();
+  const pri  = parseInt(document.getElementById('pri').value, 10) || 100;
+  const r = await fetch('/admin/lan/jobs/enqueue_pull',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({peer, pri})});
+  await refresh();
+}
+async function enqueueOffer(){
+  const pri  = parseInt(document.getElementById('pri').value, 10) || 100;
+  const r = await fetch('/admin/lan/jobs/enqueue_offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pri})});
+  await refresh();
+}
+async function clearDone(){
+  const r = await fetch('/admin/lan/jobs/clear',{method:'POST'});
+  await refresh();
+}
+refresh().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

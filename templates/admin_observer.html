@@ -1,0 +1,27 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Observer Mode</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:980px}
+  button{padding:8px 12px;border:1px solid #ccc;border-radius:8px;cursor:pointer}
+  img{max-width:100%;border:1px solid #ddd;border-radius:8px}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+  ul{margin:0 0 10px 18px}
+</style>
+<h2>Observer Mode</h2>
+<div class="row">
+  <button onclick="build()">Build overlay</button>
+  <button onclick="en(true)">Enable</button>
+  <button onclick="en(false)">Disable</button>
+  <button onclick="st()">Status</button>
+</div>
+<img id="img">
+<h3>Hints</h3>
+<ul id="hints"></ul>
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); return r.json(); }
+async function build(){ const r=await j('POST','/observer/build',{}); if(r.ok){ img.src='data:image/png;base64,'+r.png_b64; renderHints(r.hints||[]);} }
+async function en(v){ await j('POST','/observer/enable',{"enabled":v}); }
+async function st(){ const r=await j('GET','/observer/status'); renderHints(r.hints||[]); }
+function renderHints(arr){ const ul=document.getElementById('hints'); ul.innerHTML=''; (arr||[]).forEach(t=>{ const li=document.createElement('li'); li.textContent=t; ul.appendChild(li); }); }
+</script>

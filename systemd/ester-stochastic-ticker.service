@@ -1,0 +1,21 @@
+[Unit]
+Description=Ester Stochastic Ticker
+After=network.target ester-events.service
+
+[Service]
+Type=simple
+Environment=LOG_LEVEL=INFO
+Environment=STOCHASTIC_TICKERS_PATH=%h/ester/rules/stochastic_tickers.yaml
+Environment=ESTER_EVENTS_POST_URL=http://127.0.0.1:5000/events/publish
+WorkingDirectory=%h/ester
+ExecStart=%h/ester/.venv/bin/python -m modules.mind.stochastic_ticker
+Restart=on-failure
+RestartSec=2
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=yes
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

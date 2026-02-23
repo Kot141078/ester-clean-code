@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — LAN-zadachi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    textarea{width:100%;height:120px}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    .muted{color:#9aa9bd}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Stav zadachi sosedyam po lokalke: ping, digest teksta, pri nalichii LM Studio — korotkiy llm.chat.
+    Mosty:
+      • Yavnyy — orkestratsiya vychisleniy.
+      • Skrytye — AB-rezhim i HMAC cherez obschiy klyuch (sm. /admin/lan).
+  -->
+</head>
+<body>
+  <h1>LAN-zadachi <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <h3>Nastroyki vorkera</h3>
+    <div class="row">
+      <label><input type="checkbox" id="enable"/> Enable</label>
+      <label>Port <input type="number" id="port" value="54546" style="width:120px"/></label>
+      <label>Interval <input type="number" id="interval" value="10" style="width:120px"/></label>
+      <label>Max active <input type="number" id="max_active" value="1" style="width:120px"/></label>
+      <label>Accept <input id="accept" value="ping,text.digest,llm.chat" style="min-width:260px"/></label>
+      <button onclick="save()">Save</button>
+      <a class="chip" href="/admin/lan" style="margin-left:auto">LAN-mesh →</a>
+    </div>
+  </section>
+
+  <section>
+    <h3>Novaya zadacha</h3>
+    <div class="row">
+      <select id="type">
+        <option value="ping">ping</option>
+        <option value="text.digest">text.digest</option>
+        <option value="llm.chat">llm.chat (do 500 simvolov)</option>
+      </select>
+      <label>Priority <input type="number" id="prio" value="5" min="0" max="9" style="width:100px"/></label>
+      <label>Target IP (opts.) <input id="toip" placeholder="pusto = broadcast"/></label>
+      <button onclick="submitTask()">Otpravit</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <textarea id="params" class="mono" placeholder='{"text":"hello"}  ili  {"prompt":"hi","model":"local"}'></textarea>
+    </div>
+    <pre id="out1">—</pre>
+  </section>
+
+  <section>
+    <h3>Ochered</h3>
+    <div class="row">
+      <button onclick="status()">Status</button>
+      <button onclick="clearDone()">Ochistit done</button>
+    </div>
+    <table><thead><tr><th>Razdel</th><th>Schetchik</th><th>Pervye elementy</th></tr></thead>
+      <tbody id="tbl"></tbody></table>
+    <pre id="out2">—</pre>
+  </section>
+
+<script>
+async function status(){
+  const r = await fetch('/admin/lan/tasks/status'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok){ document.getElementById('out2').textContent='Oshibka'; return; }
+  const c=j.cfg||{};
+  document.getElementById('enable').checked = !!c.enable;
+  document.getElementById('port').value = c.port||54546;
+  document.getElementById('interval').value = c.interval||10;
+  document.getElementById('max_active').value = c.max_active||1;
+  document.getElementById('accept').value = (c.accept||[]).join(',');
+  const tb=document.getElementById('tbl'); tb.innerHTML='';
+  const names=["outbox","inbox","active","done"];
+  names.forEach(n=>{
+    const peek=(j.peek||{})[n]||[];
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${n}</td><td>${(j.counts||{})[n]||0}</td><td class="mono">${JSON.stringify(peek)}</td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('out2').textContent = JSON.stringify(j, null, 2);
+}
+async function save(){
+  const body = {
+    enable: document.getElementById('enable').checked,
+    port: parseInt(document.getElementById('port').value,10),
+    interval: parseInt(document.getElementById('interval').value,10),
+    max_active: parseInt(document.getElementById('max_active').value,10),
+    accept: (document.getElementById('accept').value||'').split(',').map(s=>s.trim()).filter(Boolean)
+  };
+  const r = await fetch('/admin/lan/tasks/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out2').textContent = JSON.stringify(j, null, 2);
+}
+async function submitTask(){
+  let p={}; try{ p=JSON.parse(document.getElementById('params').value||'{}'); }catch(e){ p={}; }
+  const body = {type: document.getElementById('type').value, params: p,
+                priority: parseInt(document.getElementById('prio').value,10),
+                to_ip: document.getElementById('toip').value.trim()};
+  const r = await fetch('/admin/lan/tasks/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out1').textContent = JSON.stringify(j, null, 2);
+}
+async function clearDone(){
+  const r = await fetch('/admin/lan/tasks/clear',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out2').textContent = JSON.stringify(j, null, 2);
+}
+status().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

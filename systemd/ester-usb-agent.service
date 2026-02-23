@@ -1,0 +1,26 @@
+# packaging/systemd/ester-usb-agent.service
+# systemd-yunit dlya agenta «odin vopros» pri vstavke fleshki.
+
+# Mosty:
+# - Yavnyy (Ekspluatatsiya ↔ Arkhitektura): standartnyy sposob avtozapuska v Linux.
+# - Skrytyy 1 (Nadezhnost ↔ Infoteoriya): perezapusk po sboyu — uderzhivaem «signal» zhivym.
+# - Skrytyy 2 (Praktika ↔ Bezopasnost): otdelnyy fayl ENV, chtoby ne trogat yunit.
+
+# Zemnoy abzats:
+# Rabotaet kak demon, sledit za fleshkami i vypolnyaet idempotent-deystviya.
+
+[Unit]
+Description=Ester USB One-Question Agent
+After=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/ester-usb-agent
+ExecStart=/usr/bin/env python3 -m listeners.usb_one_question_agent
+Restart=on-failure
+RestartSec=2s
+# Optsionalno: rabochaya direktoriya, esli nuzhno
+# WorkingDirectory=/opt/ester
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,31 @@
+run_id: research_run_11
+branch_id: main
+context_init:
+  spec: "DICT join bez key_field — klyuchi kak imena vetok (main#NN)."
+  items:
+    - {file: "memo_A.md"}
+    - {file: "memo_B.md"}
+
+nodes:
+  - id: fork
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: []
+
+  - id: annotate
+    type: script
+    update:
+      mark: "M={{ctx.item.file}}"
+    depends: ["fork"]
+
+  - id: gather
+    type: join
+    from: "fork"
+    out: "joined_dict"
+    select:
+      file: "{{item.file}}"
+      mark: "{{ctx.mark}}"
+    mode: dict
+    # key_field ne ukazan — imena vetok budut klyuchami
+    await_nodes: ["annotate"]
+    depends: ["annotate"]

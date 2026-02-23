@@ -1,0 +1,221 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+
+<section class="grid" style="margin-bottom:14px">
+  <div class="card">
+    <h3>Bystryy dostup</h3>
+    <div class="stack">
+      <button class="btn" onclick="openNew('/admin')">/admin</button>
+      <button class="btn" onclick="openNew('/admin/portal')">/admin/portal</button>
+      <button class="btn" onclick="openNew('/admin/ingest')">/admin/ingest</button>
+      <button class="btn" onclick="openNew('/providers')">/providers</button>
+      <button class="btn" onclick="openNew('/ops/backup')">/ops/backup</button>
+      <button class="btn" onclick="openNew('/hypotheses')">/hypotheses</button>
+      <button class="btn" onclick="openNew('/docs')">/docs</button>
+      <button class="btn" onclick="openNew('/openapi.json')">/openapi.json</button>
+      <button class="btn" onclick="openNew('/routes')">/routes</button>
+    </div>
+    <p class="muted" style="margin-top:8px">Vse ssylki otkryvayutsya v novykh vkladkakh. JWT beretsya iz <code>localStorage.jwt</code>.</p>
+  </div>
+
+  <div class="card">
+    <h3>Sostoyanie</h3>
+    <div class="stack">
+      <button class="btn" onclick="checkHealth()">/health</button>
+      <button class="btn" onclick="openNew('/metrics')">/metrics</button>
+      <button class="btn" onclick="loadProviders()">/providers/status</button>
+    </div>
+    <pre id="stateOut" class="box" style="margin-top:10px;max-height:180px;overflow:auto"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Retention</h3>
+    <div class="stack">
+      <button class="btn" onclick="loadRetention()">/memory/status</button>
+      <button class="btn" onclick="openNew('/memory/admin')">/memory/admin</button>
+    </div>
+    <pre id="retentionOut" class="box" style="margin-top:10px;max-height:180px;overflow:auto"></pre>
+  </div>
+
+  <div class="card">
+    <h3>Retrieval Router</h3>
+    <div class="stack">
+      <button class="btn" onclick="loadRouter()">/telemetry/retrieval_router</button>
+      <button class="btn" onclick="openNew('/metrics/retrieval_router')">/metrics/retrieval_router</button>
+      <button class="btn" onclick="openNew('/admin/retrieval_router')">/admin/retrieval_router</button>
+      <button class="btn" onclick="openNew('/admin/branch_residue')">/admin/branch_residue</button>
+    </div>
+    <pre id="routerOut" class="box" style="margin-top:10px;max-height:180px;overflow:auto"></pre>
+  </div>
+</section>
+
+<section class="console" style="margin-bottom:16px">
+  <!-- Konsol: chat -->
+  <div class="pane">
+    <div class="row" style="margin-bottom:8px">
+      <h3 style="margin:0">Konsol (chat)</h3>
+      <span class="right chip">/chat/message</span>
+    </div>
+    <div id="chatLog" class="log box"></div>
+    <div class="box" style="margin-top:8px">
+      <div class="row" style="margin-bottom:6px">
+        <select id="mode" class="input">
+          <option value="local">local</option>
+          <option value="cloud">cloud</option>
+          <option value="judge">judge</option>
+        </select>
+        <label class="stack" style="align-items:center">
+          <input id="useRag" type="checkbox" checked />
+          <span>RAG</span>
+        </label>
+        <label class="stack" style="align-items:center">
+          <span class="muted">temp</span>
+          <input id="temp" type="range" min="0" max="1" step="0.05" value="0.2" />
+        </label>
+        <button class="btn right" onclick="clearChat()">Ochistit</button>
+      </div>
+      <textarea id="chatInput" class="textarea" placeholder="Sprosi Ester… (nuzhno JWT: USER/OPERATOR/ADMIN)"></textarea>
+      <div class="row" style="margin-top:6px">
+        <button class="btn" onclick="sendChat()">Otpravit</button>
+        <span class="muted">Podderzhivayutsya rezhimy «local/cloud/judge», RAG-kontekst iz tvoey BZ.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Konsol: zagruzka faylov -->
+  <div class="pane">
+    <div class="row" style="margin-bottom:8px">
+      <h3 style="margin:0">Zagruzka faylov</h3>
+      <span class="right chip">POST /ingest/file</span>
+    </div>
+
+    <div id="drop" class="drop box">
+      Peretaschi fayly syuda ili <label class="btn" style="margin-left:6px">
+        vybrat<input id="fileInput" type="file" multiple style="display:none">
+      </label>
+      <div class="row" style="margin-top:10px">
+        <input id="collection" class="input" placeholder="collection (optsionalno)">
+        <button class="btn" onclick="flushFiles()">Ochistit spisok</button>
+      </div>
+      <div class="filelist" id="fileList"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // ===== Sostoyanie
+  async function checkHealth(){
+    const r = await $fetch('/health'); document.getElementById('stateOut').textContent = (await r.text());
+  }
+  async function loadProviders(){
+    const r = await $fetch('/providers/status');
+    document.getElementById('stateOut').textContent = JSON.stringify(await r.json(), null, 2);
+  }
+  async function loadRetention(){
+    const r = await $fetch('/memory/status');
+    const data = await r.json().catch(()=> ({}));
+    document.getElementById('retentionOut').textContent = JSON.stringify(data.retention || data, null, 2);
+  }
+  async function loadRouter(){
+    const r = await $fetch('/telemetry/retrieval_router');
+    const data = await r.json().catch(()=> ({}));
+    document.getElementById('routerOut').textContent = JSON.stringify(data.metrics || data, null, 2);
+  }
+  loadRetention();
+  loadRouter();
+
+  // ===== Chat
+  const chatLog = document.getElementById('chatLog');
+  function logMsg(kind, text){
+    const div = document.createElement('div');
+    div.className = 'msg ' + (kind==='user'?'m-user':'m-bot');
+    div.textContent = text;
+    chatLog.appendChild(div); chatLog.scrollTop = chatLog.scrollHeight;
+  }
+  function clearChat(){ chatLog.innerHTML=''; }
+  async function sendChat(){
+    const text = document.getElementById('chatInput').value.trim();
+    if(!text){ return; }
+    logMsg('user', text);
+    document.getElementById('chatInput').value = '';
+    const mode = document.getElementById('mode').value;
+    const use_rag = document.getElementById('useRag').checked;
+    const temperature = parseFloat(document.getElementById('temp').value || '0.2');
+
+    try{
+      const r = await $fetch('/chat/message', {
+        method:'POST',
+        body: JSON.stringify({ message:text, mode, use_rag, temperature })
+      });
+      const data = await r.json();
+      if(!r.ok || data.ok===false){
+        logMsg('bot', 'Oshibka: ' + (data.error || r.statusText));
+        return;
+      }
+      const ans = data.answer || data.message || JSON.stringify(data);
+      logMsg('bot', ans);
+      if(data.rag && Array.isArray(data.rag.hits) && data.rag.hits.length){
+        logMsg('bot', 'RAG: ' + data.rag.hits.map(h=> (h.meta?.locator || h.id || h.doc_id)).slice(0,5).join(' • '));
+      }
+      if(Array.isArray(data.provenance) && data.provenance.length){
+        const src = data.provenance.map(p=> `doc_id=${p.doc_id||''} path=${p.path||''} page=${p.page??'?'} offset=${p.offset??'?'}`).slice(0,6).join(' • ');
+        logMsg('bot', 'Istochniki: ' + src);
+      } else {
+        logMsg('bot', 'Istochniki: n/a');
+      }
+    }catch(e){
+      logMsg('bot','Set/oshibka: '+e);
+    }
+  }
+
+  // ===== Upload (drag & drop + batch)
+  const drop = document.getElementById('drop');
+  const inp = document.getElementById('fileInput');
+  const list = document.getElementById('fileList');
+
+  ;['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e=>{e.preventDefault();e.stopPropagation();drop.classList.add('drag')} ));
+  ;['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e=>{e.preventDefault();e.stopPropagation();drop.classList.remove('drag')} ));
+
+  drop.addEventListener('drop', e => {
+    const files = e.dataTransfer.files; if(files && files.length){ handleFiles(files); }
+  });
+  inp.addEventListener('change', e => { if(inp.files) handleFiles(inp.files); });
+
+  function flushFiles(){ list.innerHTML=''; }
+
+  async function handleFiles(files){
+    const coll = (document.getElementById('collection').value || '').trim();
+    for(const file of files){
+      const row = document.createElement('div');
+      row.textContent = '→ '+file.name+' ';
+      const p = document.createElement('div'); p.className='progress'; p.style.margin='6px 0';
+      const bar = document.createElement('div'); bar.className='bar'; p.appendChild(bar);
+      row.appendChild(p);
+      list.appendChild(row);
+
+      const fd = new FormData();
+      fd.append('file', file, file.name);
+      if(coll) fd.append('collection', coll);
+
+      try{
+        const r = await $fetch('/ingest/file', { method:'POST', body:fd });
+        const data = await r.json().catch(()=> ({}));
+        if(r.ok && (data.ok===undefined || data.ok)){
+          bar.style.width='100%'; bar.classList.add('ok');
+          const tail = document.createElement('span'); tail.textContent = ' OK';
+          row.appendChild(tail);
+        }else{
+          bar.style.width='100%'; bar.classList.add('err');
+          const tail = document.createElement('span'); tail.textContent = ' Oshibka: '+(data.error || r.statusText);
+          row.appendChild(tail);
+        }
+      }catch(e){
+        bar.style.width='100%'; bar.classList.add('err');
+        const tail = document.createElement('span'); tail.textContent = ' Set: '+e;
+        row.appendChild(tail);
+      }
+    }
+  }
+</script>
+
+{% endblock %}

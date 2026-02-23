@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Self-Check</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .ok{color:#98e08b}.bad{color:#f2a3a3}.warn{color:#f5c06f}
+    label{display:inline-flex;align-items:center;gap:6px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Diagnostika uzla: versii, moduli, diski, prava, port. V A-rezhime — tolko plan, v B — bezopasnye fiksy.
+    Mosty:
+      • Yavnyy — vidimost + deystvie.
+      • Skrytye — ENV/JSON kak istochniki pravdy.
+  -->
+</head>
+<body>
+  <h1>Self-Check <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid" id="cards"></section>
+
+  <section>
+    <h3>Fiksy (bezopasnye)</h3>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <label><input type="checkbox" id="mk"/> Sozdat direktorii</label>
+      <label><input type="checkbox" id="cb"/> Prava base_dir = 700</label>
+      <label><input type="checkbox" id="cc"/> Prava cas_dir = 700</label>
+      <label><input type="checkbox" id="tt"/> Test-fayl v base_dir</label>
+      <label><input type="checkbox" id="cl"/> Udalit test-fayl</label>
+      <button onclick="applyFixes()">Primenit</button>
+      <button onclick="refresh()">Pereproverit</button>
+    </div>
+    <pre id="out">—</pre>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+function card(title, body, ok=true){
+  return `<div style="border:1px solid #243042;border-radius:12px;padding:12px">
+    <div style="font-weight:600">${title} ${ok?'<span class="ok">OK</span>':'<span class="bad">ISSUE</span>'}</div>
+    <div style="margin-top:8px"><pre>${body}</pre></div>
+  </div>`;
+}
+async function refresh(){
+  const r = await fetch('/admin/selfcheck/status'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok) return;
+  const d = j.checks||{};
+  const cards = [];
+  cards.push(card('Python', JSON.stringify(d.python,null,2), !!d.python?.ok));
+  cards.push(card('Modules', JSON.stringify(d.modules,null,2), !!d.modules?.ok));
+  cards.push(card('Dirs', JSON.stringify(d.dirs,null,2), !!d.dirs?.ok));
+  cards.push(card('Disk', JSON.stringify(d.disk,null,2), !!d.disk?.ok));
+  cards.push(card('HTTP Port', JSON.stringify(d.http_port,null,2), !!(d.http_port?.ok)));
+  cards.push(card('Env', JSON.stringify(d.env,null,2), true));
+  document.getElementById('cards').innerHTML = cards.join('');
+  document.getElementById('raw').textContent = JSON.stringify(j,null,2);
+}
+async function applyFixes(){
+  const body = {
+    make_dirs: document.getElementById('mk').checked,
+    chmod_base: document.getElementById('cb').checked ? 700 : undefined,
+    chmod_cas: document.getElementById('cc').checked ? 700 : undefined,
+    touch_test: document.getElementById('tt').checked,
+    cleanup_test: document.getElementById('cl').checked
+  };
+  const r = await fetch('/admin/selfcheck/fix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j,null,2);
+  await refresh();
+}
+refresh().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

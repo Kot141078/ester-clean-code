@@ -1,0 +1,7 @@
+# Pravila dlya orkestratora sinergii
+max_roles_per_agent: 2
+incompat:
+  - ["operator","strategist"]   # luchshe razdelyat
+required_for_purpose:
+  "aerorazvedka": ["strategist","operator","platform"]
+# c=a+b

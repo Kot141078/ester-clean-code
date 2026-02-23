@@ -1,0 +1,76 @@
+<!-- templates/telegram_feed.html -->
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Claire · Lenta Telegram</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <!--
+    Shapka (Zemnoy abzats):
+    Prostaya dvukhpanelnaya stranitsa. Sleva — spisok chatov, sprava — lenta i pole vvoda.
+    Nablyudaemost vyshe — operator vidit, kto i chto pishet, i mozhet otvetit.
+
+    Mosty:
+    - Yavnyy: UI ↔ JSON-ruchki /chat/telegram/* (interfeys k zhurnalu).
+    - Skrytyy 1: razdelenie UI/dannykh snizhaet svyazannost i shum izmeneniy.
+    - Skrytyy 2: kak kortiko-spinalnaya duga — vzglyad (lenta) → deystvie (knopka otpravki).
+    c=a+b
+  -->
+
+  <style>
+    :root{
+      --bg:#0b0e11; --panel:#121821; --muted:#8aa0b4; --txt:#e6eef7; --line:#243140;
+      --acc:#4cc9f0; --ok:#7ae582; --bad:#ef476f; --br:16px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 -apple-system,BlinkMacSystemFont,Inter,Segoe UI,Roboto,sans-serif}
+    .wrap{display:grid;grid-template-columns:280px 1fr;gap:12px;max-width:1200px;margin:0 auto;padding:16px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--br);padding:12px}
+    h1{margin:0 0 10px}
+    .chat-list{list-style:none;margin:0;padding:0;max-height:calc(100vh - 120px);overflow:auto}
+    .chat-item{padding:10px;border-radius:12px;border:1px solid #1b2430;margin-bottom:8px;cursor:pointer}
+    .chat-item:hover{border-color:#2a3a50}
+    .chat-title{font-weight:600}
+    .chat-meta{color:var(--muted);font-size:12px;margin-top:2px}
+    .muted{color:var(--muted)}
+    .msgs{display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 220px);overflow:auto;padding-right:4px}
+    .row{display:flex;gap:8px;align-items:center}
+    .msg{padding:10px 12px;border-radius:12px;max-width:70%}
+    .msg.in{background:#0b0f15;border:1px solid #1b2430;align-self:flex-start}
+    .msg.out{background:#0b151c;border:1px solid #2a3a50;align-self:flex-end}
+    input,button{border-radius:12px;border:1px solid #2a3a50;background:#0b0f15;color:var(--txt);padding:10px 12px;font:inherit}
+    input:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px rgba(76,201,240,.12)}
+    #input{width:100%}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #2a3244;background:#11151c;color:#a1a7b1;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Telegram</h1>
+      <div class="muted" style="margin-bottom:8px">JWT (esli est) — polozhi v <code>localStorage("jwt")</code>. Otpravka soobscheniy dostupna dlya roley admin/ops.</div>
+      <ul id="chats" class="chat-list"></ul>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:8px">
+        <div>
+          <div id="chatTitle" style="font-weight:600">—</div>
+          <div id="chatMeta" class="muted"></div>
+        </div>
+        <a class="badge" href="/tg/ctrl/ui" title="Panel bota">Panel bota</a>
+      </div>
+
+      <div id="msgs" class="msgs"></div>
+
+      <div class="row" style="margin-top:8px">
+        <input id="input" placeholder="Napisat soobschenie… (Shift+Enter — perenos)"/>
+        <button id="send">Otpravit</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/telegram_feed.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# config/nudges.yaml — pravila generatsii nudzhey + eskalatsiy.
+# MOSTY:
+# - (Yavnyy) rules po tipam sobytiy, intent_tpl i intent_tpl_escalation, sla_soon_min.
+# - (Skrytyy #1) Eskalatsii aktiviruyutsya na shagakh SLA-tsepochki s m<0 (overdue) i napravlyayutsya na tegi iz ENV `NUDGES_ESCALATE_TAGS`.
+# - (Skrytyy #2) Esli ENV ne zadan — mozhno yavno propisat tegi v rules.<Event>.escalate_tags.
+
+rules:
+  AssignmentPlanned:
+    kind: friend
+    sla_soon_min: 120
+    intent_tpl: "Napominayu pro zadachu «{summary}». Dedlayn cherez ~{mins} min. Vse ok?"
+    intent_tpl_escalation: "Prosrochka po «{summary}» ~{mins_over} min. Nuzhna pomosch dlya razblokirovki."
+    escalate_tags: ["manager"]
+  OutcomeReported:
+    kind: neutral
+    intent_tpl: "Spasibo za rezultat po «{summary}». Korotko: {outcome}. Nuzhen post-mortem?"
+  AssignmentRequested:
+    kind: neutral
+    intent_tpl: "Prinyal zapros «{summary}». Vernus s planom v blizhayshee vremya."
+
+# Primer polzovatelskogo sobytiya s sobstvennoy eskalatsiey:
+  CustomIncident:
+    kind: lawyer
+    intent_tpl: "Intsident: {summary}. Nuzhna otsenka riskov i plan sderzhivaniya."
+    intent_tpl_escalation: "Intsident vse esche aktiven: {summary}. Nuzhna eskalatsiya."
+    escalate_tags: ["oncall","manager"]

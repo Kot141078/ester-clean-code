@@ -1,0 +1,14 @@
+{{- if .Values.failover.webhook.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ester.fullname" . }}-dr-webhook
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+spec:
+  selector: { app: {{ include "ester.fullname" . }}-dr-webhook }
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+{{- end }}

@@ -1,0 +1,79 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Missions+</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1200px}
+  input,select,button,textarea{padding:8px;border:1px solid #ccc;border-radius:8px}
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+  th,td{border:1px solid #eee;padding:8px;text-align:left}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+  .ok{color:#0a0}.warn{color:#a60}.bad{color:#a00}
+  .meta{font-size:12px;color:#666}
+</style>
+
+<h2>Dolgie missii Ester</h2>
+
+<div class="row">
+  <select id="priority">
+    <option>normal</option><option>high</option><option>low</option>
+  </select>
+  <input id="goal" placeholder="tsel (primer: Navesti poryadok v faylakh ~/Docs)" style="width:400px">
+  <input id="sched" placeholder='raspisanie (primer: @daily 04:20 ili pusto)'>
+  <select id="template"><option>cascade</option><option>pipeline</option></select>
+  <input id="params" placeholder='params JSON (opts.)' style="width:280px">
+  <button onclick="create()">Create mission</button>
+</div>
+
+<div class="row">
+  <button onclick="start()">Start scheduler</button>
+  <button onclick="stop()">Stop</button>
+  <button onclick="stat()">Status</button>
+  <button onclick="load()">Refresh list</button>
+</div>
+
+<table id="tbl">
+  <thead>
+    <tr><th>ID</th><th>Priority</th><th>Goal</th><th>Schedule</th><th>Status</th><th>Next</th><th>Progress</th><th>Actions</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+<div class="meta" id="status"></div>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function fmtTs(ts){ if(!ts) return '-'; const d=new Date(ts*1000); return d.toLocaleString(); }
+
+async function create(){
+  try{ JSON.parse(params.value||'{}'); }catch(e){ alert('params: ne validnyy JSON'); return; }
+  await j('POST','/thinking/missions/create',{"goal":goal.value,"priority":priority.value,"schedule":sched.value,"template":template.value,"params":JSON.parse(params.value||'{}')});
+  load();
+}
+async function start(){ await j('POST','/thinking/missions/start_scheduler',{}); stat(); }
+async function stop(){ await j('POST','/thinking/missions/stop_scheduler',{}); stat(); }
+async function stat(){
+  const s=await (await fetch('/thinking/missions/status')).json();
+  status.textContent = `enabled: ${s.enabled} • running: ${s.running} • count: ${s.count} • workers: ${s.workers} • last_tick: ${fmtTs(s.last_tick)}`;
+}
+async function load(){
+  const jres=await (await fetch('/thinking/missions/list')).json();
+  const body=document.querySelector('#tbl tbody'); body.innerHTML='';
+  (jres.items||[]).forEach(m=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${m.id}</td><td>${m.priority}</td><td>${m.goal}</td><td>${m.schedule||'-'}</td><td>${m.status}</td><td>${fmtTs(m.next_ts)}</td>
+      <td>ticks:${m.progress.ticks} ok:${m.progress.success} fail:${m.progress.fail}<br><span class="meta">${m.progress.last_msg||''}</span></td>
+      <td>
+        <button onclick="pause('${m.id}')">Pause</button>
+        <button onclick="resume('${m.id}')">Resume</button>
+        <button onclick="finalize_('${m.id}')">Finalize</button>
+        <button onclick="cancel('${m.id}')">Cancel</button>
+      </td>`;
+    body.appendChild(tr);
+  });
+}
+async function pause(id){ await j('POST','/thinking/missions/pause',{"id":id}); load(); }
+async function resume(id){ await j('POST','/thinking/missions/resume',{"id":id}); load(); }
+async function cancel(id){ await j('POST','/thinking/missions/cancel',{"id":id}); load(); }
+async function finalize_(id){ const note=prompt('Final note (optional)')||''; await j('POST','/thinking/missions/finalize',{"id":id,"note":note}); load(); }
+
+stat(); load();
+</script>

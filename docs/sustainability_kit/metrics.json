@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "units": "kgCO2e",
+  "electricity": {
+    "grid_generic_kg_per_kwh": 0.40,
+    "note": "Srednee znachenie dlya smeshannoy generatsii; zamenite lokalnym faktorom pri nalichii."
+  },
+  "fuels": {
+    "gasoline_kg_per_l": 2.31,
+    "diesel_kg_per_l": 2.68,
+    "lng_kg_per_kg": 2.75
+  },
+  "shipping": {
+    "van_city_kg_per_km": 0.25,
+    "truck_rigid_kg_per_km": 0.9,
+    "sea_container_kg_per_tkm": 0.015,
+    "air_kg_per_pkm": 0.115
+  },
+  "materials": {
+    "paper_kg_per_kg": 1.3,
+    "cardboard_kg_per_kg": 0.8,
+    "pet_plastic_kg_per_kg": 2.7,
+    "aluminum_kg_per_kg": 10.0
+  },
+  "water": {
+    "supply_kg_per_m3": 0.34,
+    "wastewater_kg_per_m3": 0.70
+  },
+  "_hints": {
+    "source": "Generic factors for estimation; replace with local certified data when possible.",
+    "usage": "Umnozhayte aktivnost (kWh, litry, km, kg) na sootvetstvuyuschiy faktor."
+  },
+  "__final": "c=a+b"
+}

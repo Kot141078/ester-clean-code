@@ -1,0 +1,18 @@
+# systemd/ester-proactive-consumer.service
+[Unit]
+Description=Ester — Proactive 2.0 consumer (oneshot)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+Environment=ESTER_DIR=/opt/ester
+WorkingDirectory=%E{ESTER_DIR}
+ExecStart=/usr/bin/env bash -lc 'cd "${ESTER_DIR:-/opt/ester}" && PERSIST_DIR="${PERSIST_DIR:-${ESTER_DIR:-/opt/ester}/data}" python3 scripts/proactive_consume_once.py'
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ester-proactive-consumer
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=read-only

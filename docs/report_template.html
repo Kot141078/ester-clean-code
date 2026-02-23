@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>{{TITLE}}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{ --bg:#0b0c10; --fg:#e5e7eb; --border:#374151; --muted:#9ca3af; }
+    body{ background:var(--bg); color:var(--fg); font:14px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; margin:0; padding:24px; }
+    header{ margin-bottom:16px; }
+    h1{ margin:0 0 8px; color:#93c5fd; }
+    .muted{ color:var(--muted); }
+    pre{ white-space:pre-wrap; word-break:break-word; border:1px solid var(--border); border-radius:8px; padding:12px; background:#0f1115; }
+    @media print {
+      body{ background:#fff; color:#111827; }
+      pre{ background:#fff; border-color:#d1d5db; }
+      h1{ color:#111827; }
+    }
+  </style>
+</head>
+<body>
+  <!--
+    Mosty:
+    - Yavnyy: (Dokumentatsiya ↔ UX) — etot shablon napolnyaetsya iz deystviy report.compose.html.
+    - Skrytyy #1: (UX ↔ Pechat) — brauzer pechataet v PDF bez servernykh zavisimostey.
+    - Skrytyy #2: (Mysli ↔ Memory) — fayly sokhranyayutsya cherez guarded_apply (esli razresheno).
+
+    Zemnoy abzats:
+    Gotovaya obertka: vstav kontent — nazhmi «Pechat v PDF». Nikakikh novykh endpointov, prosto udobnyy eksport.
+    c=a+b
+  -->
+  <header>
+    <h1>{{TITLE}}</h1>
+    <div class="muted">Sgenerirovano Ester</div>
+  </header>
+  <pre>{{CONTENT_PRE}}</pre>
+</body>
+</html>
+<!-- c=a+b -->

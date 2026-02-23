@@ -1,0 +1,42 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Desktop Vision++</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  input,textarea,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;white-space:pre-wrap}
+  .card{border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0}
+</style>
+
+<h2>Desktop Vision++ — OCR / klik po tekstu / annotatsii</h2>
+
+<section class="card">
+  <div class="row">
+    <button onclick="probe()">Probe</button>
+    <input id="img" placeholder="/tmp/ester_screenshot.png" style="width:320px">
+    <button onclick="ocr()">OCR on path</button>
+  </div>
+  <pre id="info"></pre>
+</section>
+
+<section class="card">
+  <h3>Find text & annotate</h3>
+  <div class="row">
+    <input id="key" placeholder="klyuch (napr. OK)" style="width:180px">
+    <button onclick="find_()">Find</button>
+    <button onclick="findAnn()">Find & Annotate</button>
+  </div>
+  <pre id="out"></pre>
+</section>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function set(id,obj){ document.getElementById(id).textContent = JSON.stringify(obj,null,2); }
+
+async function probe(){ set('info', await (await fetch('/desktop/visionpp/probe')).json()); }
+async function ocr(){ set('info', await j('POST','/desktop/visionpp/ocr',{"image_path":img.value||'/tmp/ester_screenshot.png'})); }
+async function find_(){ set('out', await j('POST','/desktop/visionpp/find_text',{"image_path":img.value||'/tmp/ester_screenshot.png',"key":key.value||'OK'})); }
+async function findAnn(){ set('out', await j('POST','/desktop/visionpp/find_and_annot',{"image_path":img.value||'/tmp/ester_screenshot.png',"key":key.value||'OK'})); }
+probe();
+</script>

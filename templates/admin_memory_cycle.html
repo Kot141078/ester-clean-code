@@ -1,0 +1,39 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Daily Memory Cycle</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:960px}
+  button{padding:8px;border:1px solid #ccc;border-radius:8px;margin-right:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;white-space:pre-wrap}
+  .meta{color:#666;font-size:12px;margin-bottom:8px}
+</style>
+
+<h2>Sutochnyy tsikl pamyati</h2>
+<div class="meta">Poryadok: QA → Backup → Summary → Meta (evaluate/decay/consolidate)</div>
+
+<div style="margin:10px 0 6px;">
+  <strong>Retention telemetry</strong>
+</div>
+<pre id="retention"></pre>
+
+<div>
+  <button onclick="runNow()">Start now</button>
+  <button onclick="schedStart()">Enable scheduler</button>
+  <button onclick="schedStop()">Disable scheduler</button>
+  <button onclick="stat()">Status</button>
+</div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function out(x){document.getElementById('out').textContent=JSON.stringify(x,null,2);}
+function outRetention(x){document.getElementById('retention').textContent=JSON.stringify(x,null,2);}
+async function runNow(){ out(await j('POST','/memory/cycle/run_now',{})); }
+async function schedStart(){ out(await j('POST','/memory/cycle/scheduler_start',{})); }
+async function schedStop(){ out(await j('POST','/memory/cycle/scheduler_stop',{})); }
+async function stat(){ out(await j('GET','/memory/cycle/status')); }
+async function status_(){ const s=await j('GET','/memory/status'); outRetention(s&&s.retention?s.retention:s); }
+stat();
+status_();
+</script>

@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Sam Prometheus
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Ester lokalno (Flask dev/prod), put /metrics/prom
+  - job_name: 'ester'
+    metrics_path: /metrics/prom
+    scheme: http
+    static_configs:
+      - targets:
+          - 'host.docker.internal:5000'  # Linux: rabotaet s extra_hosts: host-gateway

@@ -1,0 +1,23 @@
+[Unit]
+Description=Ester Canary Watchdog (deception & quarantine)
+After=network.target
+
+[Service]
+Type=simple
+Environment=CANARY_SCAN_SEC=5
+Environment=LOG_LEVEL=INFO
+# pri neobkhodimosti dobav ESTER_EVENTS_URL/ESTER_EVENTS_TOKEN
+WorkingDirectory=%h/ester
+ExecStart=%h/ester/.venv/bin/python -m modules.security.canary_watchdog
+Restart=on-failure
+RestartSec=2
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=yes
+ProtectSystem=full
+LockPersonality=true
+MemoryDenyWriteExecute=true
+
+[Install]
+WantedBy=multi-user.target

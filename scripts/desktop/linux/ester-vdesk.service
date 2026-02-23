@@ -1,0 +1,17 @@
+# scripts/desktop/linux/ester-vdesk.service
+# Systemd unit: Xvfb + fluxbox + x11vnc + noVNC + RPA
+[Unit]
+Description=Ester virtual desktop (Linux headless) + RPA
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/bash /opt/ester/scripts/desktop/linux/ester_vdesk.sh
+Restart=always
+RestartSec=2
+Environment=USER_NAME=ester DISPLAY_NUM=99 GEOM=1920x1080x24 VNC_PORT=5901 NOVNC_PORT=6080
+
+[Install]
+WantedBy=multi-user.target

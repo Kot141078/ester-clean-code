@@ -1,0 +1,59 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Proactive Thinking</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  input,textarea,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:10px;white-space:pre-wrap}
+  .card{border:1px solid #eee;border-radius:10px;padding:10px}
+</style>
+
+<h2>Proaktivnoe myshlenie Ester</h2>
+
+<div class="row">
+  <button onclick="enable()">Enable Proactive</button>
+  <button onclick="disable()">Disable</button>
+  <button onclick="stat()">Status</button>
+</div>
+
+<section class="card">
+  <h3>Yavnyy zapusk kaskada</h3>
+  <div class="row">
+    <input id="goal" placeholder="tsel kaskada" style="width:360px">
+    <button onclick="test()">Run test cascade</button>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Trigger</h3>
+  <div class="row">
+    <input id="tname" placeholder="imya pravila" value="weekly_plan">
+    <input id="tgoal" placeholder="goal (optsionalno)" style="width:420px">
+    <button onclick="runTrig()">Run trigger</button>
+  </div>
+</section>
+
+<h3>Vyvod</h3>
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function out(x){document.getElementById('out').textContent=JSON.stringify(x,null,2);}
+async function enable(){out(await j('POST','/thinking/autonomy/enable',{}));}
+async function disable(){out(await j('POST','/thinking/autonomy/disable',{}));}
+async function stat(){out(await j('GET','/thinking/autonomy/status'));}
+
+async function test(){
+  const g=document.getElementById('goal').value||'otkryt bloknot, napisat i sokhranit';
+  out(await j('POST','/thinking/autonomy/test_cascade',{"goal":g}));
+}
+
+async function runTrig(){
+  const name=document.getElementById('tname').value||'weekly_plan';
+  const goal=document.getElementById('tgoal').value||'Sformirovat nedelnyy plan';
+  out(await j('POST','/thinking/autonomy/run_trigger',{"name":name,"goal":goal,"params":{}}));
+}
+
+stat();
+</script>

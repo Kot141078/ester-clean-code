@@ -1,0 +1,38 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Pseudo WebRTC DC</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:900px}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  textarea{width:100%;min-height:120px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:160px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:10px 0}
+</style>
+<h2>Pseudo DataChannel (SSE)</h2>
+<div class="row">
+  Room <input id="room" value="test">
+  Client <input id="client" value="alice">
+  <button onclick="openRoom()">Open room</button>
+</div>
+<div class="row">
+  <textarea id="payload">{ "type":"hotkey", "seq":"CTRL+S" }</textarea>
+  <button onclick="sendDC()">Send</button>
+</div>
+<pre id="log"></pre>
+<script>
+let es=null;
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); return r.json(); }
+function log(x){ const el=document.getElementById('log'); el.textContent+= (typeof x==='string'? x: JSON.stringify(x))+"\n"; }
+async function openRoom(){
+  const r=room.value, c=client.value;
+  await j('POST','/webrtc/dc/open',{"room":r,"client":c});
+  if(es) es.close();
+  es=new EventSource(`/webrtc/dc/recv?room=${encodeURIComponent(r)}&client=${encodeURIComponent(c)}`);
+  es.onmessage=e=>log(e.data);
+  setInterval(()=>j('POST','/webrtc/dc/hb',{"room":r,"client":c}), 15000);
+}
+async function sendDC(){
+  try{ var o=JSON.parse(payload.value); }catch(e){ return log('bad json'); }
+  log(await j('POST','/webrtc/dc/send',{"room":room.value,"client":client.value,"data":o,"broadcast":true}));
+}
+</script>

@@ -1,0 +1,54 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester - Channel Ingest</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:900px}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:10px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  .card{border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0}
+</style>
+
+<h2>Channel Ingest - Input Channel Test Panel</h2>
+
+<section class="card">
+  <h3>Message</h3>
+  <div class="row">
+    <input id="src" value="telegram" style="width:120px">
+    <input id="usr" value="owner" style="width:120px">
+    <input id="txt" value="Hello, Ester!" style="width:300px">
+    <button onclick="sendMsg()">Send</button>
+  </div>
+</section>
+
+<section class="card">
+  <h3>File</h3>
+  <div class="row">
+    <input id="srcF" value="browser" style="width:120px">
+    <input id="usrF" value="owner" style="width:120px">
+    <input id="pthF" value="docs/test.txt" style="width:260px">
+    <button onclick="sendFile()">Send</button>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Event</h3>
+  <div class="row">
+    <input id="srcE" value="web" style="width:120px">
+    <input id="usrE" value="owner" style="width:120px">
+    <input id="kndE" value="click_button" style="width:160px">
+    <input id="metaE" value='{"id":"ok"}' style="width:260px">
+    <button onclick="sendEvt()">Send</button>
+  </div>
+</section>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function set(o){ document.getElementById('out').textContent = JSON.stringify(o,null,2); }
+
+async function sendMsg(){ set(await j('POST','/ingest/message',{"source":src.value,"user":usr.value,"text":txt.value})); }
+async function sendFile(){ set(await j('POST','/ingest/file',{"source":srcF.value,"user":usrF.value,"path":pthF.value})); }
+async function sendEvt(){ let m={}; try{m=JSON.parse(metaE.value)}catch(e){alert('meta JSON error');return;} set(await j('POST','/ingest/event',{"source":srcE.value,"user":usrE.value,"kind":kndE.value,"meta":m})); }
+</script>

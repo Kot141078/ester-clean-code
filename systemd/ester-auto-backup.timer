@@ -1,0 +1,17 @@
+[Unit]
+Description=Ester — schedule daily auto-backup push
+Documentation=man:systemd.timer(5)
+
+[Timer]
+# Kazhdyy den v 03:17 lokalnogo vremeni
+OnCalendar=*-*-* 03:17:00
+# Razmazhem start do 30 minut, chtoby ne bitsya s drugimi zadachami
+RandomizedDelaySec=30m
+# Vypolnit propuschennye zadaniya, esli mashina byla vyklyuchena
+Persistent=true
+# Kakuyu service dergaem
+Unit=ester-auto-backup.service
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

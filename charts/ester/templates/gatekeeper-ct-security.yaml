@@ -1,0 +1,86 @@
+{{- if .Values.gatekeeper.enabled }}
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8ssecuritybaseline
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sSecurityBaseline
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            requireNonRoot:
+              type: boolean
+            forbidPrivEsc:
+              type: boolean
+            dropAllCaps:
+              type: boolean
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8ssecuritybaseline
+
+        default requireNonRoot := true
+        default forbidPrivEsc := true
+        default dropAllCaps := true
+
+        violation[{"msg": msg, "details": {"container": c.name}}] {
+          kind := input.review.kind.kind
+          kind == "Deployment" or kind == "StatefulSet" or kind == "DaemonSet" or kind == "Rollout"
+
+          spec := input.review.object.spec.template.spec
+          c := spec.containers[_]
+
+          rn := input.parameters.requireNonRoot
+          rn
+          not (has_field(c, "securityContext") and has_field(c.securityContext, "runAsNonRoot") and c.securityContext.runAsNonRoot == true)
+          msg := sprintf("container %q must set securityContext.runAsNonRoot=true", [c.name])
+        }
+
+        violation[{"msg": msg, "details": {"container": c.name}}] {
+          kind := input.review.kind.kind
+          kind == "Deployment" or kind == "StatefulSet" or kind == "DaemonSet" or kind == "Rollout"
+
+          spec := input.review.object.spec.template.spec
+          c := spec.containers[_]
+
+          fpe := input.parameters.forbidPrivEsc
+          fpe
+          not (has_field(c, "securityContext") and has_field(c.securityContext, "allowPrivilegeEscalation") and c.securityContext.allowPrivilegeEscalation == false)
+          msg := sprintf("container %q must set securityContext.allowPrivilegeEscalation=false", [c.name])
+        }
+
+        violation[{"msg": msg, "details": {"container": c.name}}] {
+          kind := input.review.kind.kind
+          kind == "Deployment" or kind == "StatefulSet" or kind == "DaemonSet" or kind == "Rollout"
+
+          spec := input.review.object.spec.template.spec
+          c := spec.containers[_]
+
+          dac := input.parameters.dropAllCaps
+          dac
+          not (has_field(c, "securityContext") and has_field(c.securityContext, "capabilities") and
+               has_field(c.securityContext.capabilities, "drop") and contains_all(c.securityContext.capabilities.drop, ["ALL"]))
+          msg := sprintf("container %q must drop ALL capabilities", [c.name])
+        }
+
+        contains_all(arr, subset) {
+          not exists_missing(arr, subset)
+        }
+
+        exists_missing(arr, subset) {
+          s := subset[_]
+          not contains(arr, s)
+        }
+
+        contains(arr, v) {
+          arr[_] == v
+        }
+
+        has_field(obj, field) {
+          obj[field]
+        }
+{{- end }}

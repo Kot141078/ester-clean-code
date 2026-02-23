@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Pervyy zapusk</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:10px 14px}
+    button:hover{filter:brightness(1.1)}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .muted{color:#9aa9bd}.ok{color:#9BE28D}.err{color:#ff8a8a}.warn{color:#f5c542}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    .banner{background:#0e1522;border:1px dashed #3b4a63;border-radius:12px;padding:12px;margin-bottom:12px}
+  </style>
+  <!--
+  Mosty:
+    • Yavnyy (Kibernetika ↔ UX): banner svyazyvaet nablyudenie (host/LLM/USB) i deystvie («Primenit sloty»).
+    • Skrytyy 1 (Infoteoriya ↔ Kontrakty): berem /admin/judge/ab/suggest — bez novykh API.
+    • Skrytyy 2 (Logika ↔ Bezopasnost): yavnyy POST na /admin/judge/ab/apply, nikakoy skrytoy magii.
+  Zemnoy abzats:
+    Odin ekran «Pervogo zapuska» teper podskazyvaet A/B dlya Judge i pozvolyaet srazu sokhranit overlay-fayl.
+  -->
+</head>
+<body>
+  <h1>Master pervogo zapuska</h1>
+
+  <div id="ab_banner" class="banner" hidden>
+    <div class="row">
+      <strong>Rekomendovannye sloty Judge A/B</strong>
+      <span id="ab_flag" class="chip muted">–</span>
+      <a href="/admin/judge/ab" class="chip">Otkryt Judge A/B</a>
+    </div>
+    <div class="row">
+      <div class="mono" id="ab_summary" style="white-space:pre-wrap">—</div>
+    </div>
+    <div class="row">
+      <input id="ab_out" class="mono" placeholder="~/.ester/judge_slots.json" style="min-width:360px"/>
+      <button onclick="applyAB()">Primenit (zapisat overlay)</button>
+    </div>
+  </div>
+
+  <section>
+    <div class="row">
+      <button onclick="apply()">Avtonastroyka</button>
+      <label><input type="checkbox" id="bench" checked> Korotkiy bench LM Studio</label>
+      <label><input type="checkbox" id="agent" checked> Zapustit USB-agenta</label>
+      <label><input type="checkbox" id="headless"> Headless</label>
+      <button onclick="load()">Obnovit status</button>
+      <span id="flag" class="chip muted">–</span>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div>
+      <h3>Khost</h3>
+      <pre id="host">—</pre>
+    </div>
+    <div>
+      <h3>LM Studio / modeli</h3>
+      <pre id="llm">—</pre>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div>
+      <h3>USB zdorove</h3>
+      <pre id="usb">—</pre>
+    </div>
+    <div>
+      <h3>Otchet deystviya</h3>
+      <pre id="apply">—</pre>
+    </div>
+  </section>
+
+<script>
+async function load(){
+  const r = await fetch('/first-run/status');
+  const j = await r.json().catch(()=>({ok:false,error:'bad json'}));
+  document.getElementById('flag').textContent = j.ok?'OK':'ERR';
+  document.getElementById('flag').className = 'chip ' + (j.ok?'ok':'err');
+  document.getElementById('host').textContent = JSON.stringify(j.host||{}, null, 2);
+  document.getElementById('llm').textContent  = JSON.stringify(j.llm||{},  null, 2);
+  document.getElementById('usb').textContent  = JSON.stringify(j.usb||{},  null, 2);
+  loadAB().catch(()=>{});
+}
+
+async function apply(){
+  const fd = new FormData();
+  if(document.getElementById('bench').checked)   fd.append('bench','1');
+  if(document.getElementById('agent').checked)   fd.append('start_agent','1');
+  if(document.getElementById('headless').checked)fd.append('headless','1');
+  const r = await fetch('/first-run/apply', {method:'POST', body: fd});
+  const j = await r.json().catch(()=>({ok:false,error:'bad json'}));
+  document.getElementById('apply').textContent = JSON.stringify(j, null, 2);
+  load();
+}
+
+async function loadAB(){
+  const r = await fetch('/admin/judge/ab/suggest?bench=1');
+  const j = await r.json().catch(()=>({ok:false,error:'bad json'}));
+  const ban = document.getElementById('ab_banner');
+  if(!j.ok){ ban.hidden=false; document.getElementById('ab_flag').className='chip err'; document.getElementById('ab_flag').textContent='ERR'; document.getElementById('ab_summary').textContent=j.error||'error'; return; }
+  const s = j.suggestion||{};
+  const a = s.slotA||{}; const b = s.slotB||{};
+  const txt = `A: ${a.base_url||'-'} • ${a.model||'-'}\nB: ${b.base_url||'-'} • ${b.model||'-'}`;
+  document.getElementById('ab_summary').textContent = txt;
+  document.getElementById('ab_flag').className='chip ok';
+  document.getElementById('ab_flag').textContent='OK';
+  document.getElementById('ab_banner').hidden = false;
+}
+
+async function applyAB(){
+  const fd = new FormData();
+  const out = (document.getElementById('ab_out').value||'').trim();
+  if(out) fd.append('out', out);
+  fd.append('bench','1');
+  const r = await fetch('/admin/judge/ab/apply', {method:'POST', body: fd});
+  const j = await r.json().catch(()=>({ok:false,error:'bad json'}));
+  alert(j.ok ? ('Sokhraneno: '+(j.saved_to||'')) : ('Oshibka: '+(j.error||'')));
+}
+
+// init
+load().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

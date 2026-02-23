@@ -1,0 +1,33 @@
+#!/bin/sh
+# tools/no_push/pre-push — universalnyy pre-push guard dlya Git (POSIX sh).
+# Mosty:
+# - Yavnyy: (Inzheneriya ↔ Bezopasnost) blokiruet git push po umolchaniyu, poka ne dano yavnoe razreshenie.
+# - Skrytyy #1: (Kibernetika ↔ Volya) odnorazovyy overrayd cherez ALLOW_PUSH=1.
+# - Skrytyy #2: (UX ↔ Prozrachnost) chitaet .nopush/.allow_push i pechataet ponyatnoe obyasnenie.
+# Zemnoy abzats:
+# Eto «stop-knopka» u stanka: poka ne razblokiruesh, stanok (push) ne zapustitsya.
+# c=a+b
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+FLAG_NOPUSH="$REPO_ROOT/.nopush"
+FLAG_ALLOW="$REPO_ROOT/.allow_push"
+
+# allow if explicitly permitted
+if [ "${ALLOW_PUSH:-0}" = "1" ] || [ -f "$FLAG_ALLOW" ]; then
+  exit 0
+fi
+
+# block if .nopush exists (default after install) OR by policy default
+if [ -f "$FLAG_NOPUSH" ] || [ "${NOPUSH_DEFAULT_BLOCK:-1}" = "1" ]; then
+  echo >&2 "✋ push disabled by NoPush guard"
+  if [ -n "${NOPUSH_REASON:-}" ]; then
+    echo >&2 "reason: $NOPUSH_REASON"
+  fi
+  echo >&2 "tip: ALLOW_PUSH=1 git push   # one-time override"
+  echo >&2 "     touch .allow_push       # persistent allow (remove to re-lock)"
+  echo >&2 "     rm -f .nopush           # remove block flag"
+  exit 1
+fi
+
+# fallback allow
+exit 0

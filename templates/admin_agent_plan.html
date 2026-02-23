@@ -1,0 +1,39 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Agent Plan (Think→Plan)</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+  input,button,textarea{padding:8px;border:1px solid #ccc;border-radius:8px}
+  textarea{width:100%;min-height:120px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:160px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
+</style>
+<h2>Agent — Think → Plan (no Act)</h2>
+
+<div class="row">
+  Goal <input id="goal" value="otkryt bloknot i sokhranit fayl">
+  <button onclick="plan()">Plan</button>
+  <button onclick="showq()">Show queue</button>
+  <button onclick="clearq()">Clear queue</button>
+  <button onclick="demo()">Demo goals</button>
+</div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+
+async function plan(){ out(await j('POST','/agent/step',{"goal":document.getElementById('goal').value||''})); }
+async function showq(){ const r=await fetch('/agent/queue'); out(await r.json()); }
+async function clearq(){ out(await j('POST','/agent/clear',{})); }
+function demo(){
+  const samples=[
+    "otkryt bloknot i sokhranit fayl",
+    "TextEdit: sozdat fayl i sokhranit na rabochiy stol",
+    "otkroy brauzer https://example.com",
+    "naydi nastroyki printera"
+  ];
+  document.getElementById('goal').value = samples[Math.floor(Math.random()*samples.length)];
+}
+</script>

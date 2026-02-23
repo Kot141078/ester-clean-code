@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Diagnostics (whitelist, aliases, collisions)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    table{width:100%;border-collapse:collapse}
+    td,th{border-bottom:1px solid #273244;padding:6px;text-align:left;font-size:13px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .ok{color:#7fd87f}.bad{color:#ff8a8a}.muted{opacity:.7}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+  </style>
+  </head>
+<body>
+  <h1>Diagnostics <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <h3>Whitelist</h3>
+    <div id="wl">—</div>
+    <div class="muted">Korni berutsya iz <code>USB_RUNNER_DEST_WHITELIST</code> (cherez <code>;</code>).</div>
+  </section>
+
+  <section>
+    <h3>Proverka</h3>
+    <div style="margin-bottom:8px">
+      <button onclick="scan()">Skanirovat vse</button>
+      <span id="sum" class="chip">—</span>
+    </div>
+    <h4>USB Jobs (copy)</h4>
+    <div id="jobs">—</div>
+    <h4>USB Catalog</h4>
+    <div id="catalog">—</div>
+    <h4>LAN katalogi (rekomendatsii naznacheniya)</h4>
+    <div id="lan">—</div>
+    <h4>LM Studio aliases</h4>
+    <div id="aliases">—</div>
+    <div style="margin-top:8px">
+      <textarea id="fixmap" placeholder='{"chat_quality":"/home/user/.ester/imports/models/llm-7b-q4.gguf"}' style="width:100%;min-height:100px"></textarea>
+      <button onclick="applyFix()">Primenit fiksy alias’ov</button>
+      <span class="muted">Zapis proizoydet tolko v <code>AB_MODE=B</code>.</span>
+      <span id="fixres" class="chip">—</span>
+    </div>
+  </section>
+
+  <section>
+    <h3>Collisions & Overwrites (dry-diff)</h3>
+    <div style="margin-bottom:8px">
+      <button onclick="scanColl()">Scan collisions</button>
+      <button onclick="applyProtect()">Apply protect plan</button>
+      <span id="col_sum" class="chip">—</span>
+    </div>
+    <h4>Overwrites</h4>
+    <div id="overwrites">—</div>
+    <h4>Multi-writes</h4>
+    <div id="multi">—</div>
+    <h4>Protect plan</h4>
+    <pre id="protect">—</pre>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+function esc(s){return (s??"").toString().replace(/</g,"&lt;")}
+function bool(b){return b?'<span class="ok">ok</span>':'<span class="bad">bad</span>'}
+
+// --- from admin_diagnostics.html ---
+function wlView(wl){
+  const rows = (wl.resolved||[]).map((p,i)=>`<tr><td>${esc(p)}</td><td>${esc(wl.exists?.[i]?'da':'net')}</td></tr>`).join("");
+  return `<table><tr><th>path</th><th>exists</th></tr>${rows||""}</table>`;
+}
+function jobsView(j){
+  if(!j.count) return "<p class='muted'>net copy-zadach</p>";
+  let h="<table><tr><th>job</th><th>src</th><th>src_ok</th><th>dest</th><th>dest_ok</th><th>notes</th></tr>";
+  for(const it of (j.items||[])){
+    h+=`<tr><td><code>${esc(it.job_file)}</code></td><td><code>${esc(it.src_rel||"-")}</code></td><td>${bool(it.src_ok)}</td><td><code>${esc(it.dest||"-")}</code></td><td>${bool(it.dest_ok)}</td><td>${esc((it.notes||[]).join(","))}</td></tr>`;
+  }
+  h+="</table>";
+  return h;
+}
+function catView(c){
+  if(!c.count) return "<p class='muted'>katalog pust</p>";
+  let h="<table><tr><th>uid</th><th>kind</th><th>title</th><th>dest</th><th>dest_ok</th><th>recommend</th><th>rec_ok</th></tr>";
+  for(const it of (c.items||[])){
+    h+=`<tr><td>${esc(it.uid||"-")}</td><td>${esc(it.kind||"-")}</td><td>${esc(it.title||"-")}</td><td><code>${esc(it.dest||"-")}</code></td><td>${bool(it.dest_ok)}</td><td><code>${esc(it.recommend||"-")}</code></td><td>${bool(it.rec_ok)}</td></tr>`;
+  }
+  h+="</table>";
+  return h;
+}
+function lanView(l){
+  if(!l.count) return "<p class='muted'>net LAN-elementov</p>";
+  let h="<table><tr><th>node</th><th>uid</th><th>kind</th><th>title</th><th>recommend</th><th>rec_ok</th></tr>";
+  for(const it of (l.items||[])){
+    h+=`<tr><td>${esc(it.source_node||"-")}</td><td>${esc(it.uid||"-")}</td><td>${esc(it.kind||"-")}</td><td>${esc(it.title||"-")}</td><td><code>${esc(it.recommend||"-")}</code></td><td>${bool(it.rec_ok)}</td></tr>`;
+  }
+  h+="</table>";
+  return h;
+}
+function aliasView(a){
+  if(!a.count) return "<p class='muted'>net alias’ov</p>";
+  let h="<table><tr><th>alias</th><th>path</th><th>exists</th><th>suggest</th><th>score</th></tr>";
+  for(const it of (a.items||[])){
+    h+=`<tr><td>${esc(it.alias)}</td><td><code>${esc(it.path)}</code></td><td>${bool(it.exists)}</td><td><code>${esc(it.suggest||"-")}</code></td><td>${esc(it.suggest_score||"-")}</td></tr>`;
+  }
+  h+="</table>";
+  return h;
+}
+async function loadStatus(){
+  const j = await fetch('/admin/diagnostics/status').then(r=>r.json()).catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  if(!j.ok) return;
+  document.getElementById('wl').innerHTML = wlView(j.whitelist||{});
+}
+async function scan(){
+  const j = await fetch('/admin/diagnostics/scan',{method:'POST'}).then(r=>r.json()).catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  if(!j.ok) return;
+  document.getElementById('jobs').innerHTML = jobsView(j.jobs||{});
+  document.getElementById('catalog').innerHTML = catView(j.catalog||{});
+  document.getElementById('lan').innerHTML = lanView(j.lan||{});
+  document.getElementById('aliases').innerHTML = aliasView(j.aliases||{});
+  const s=j.summary||{};
+  document.getElementById('sum').textContent = `jobs_bad:${s.jobs_bad||0} | catalog_bad:${s.catalog_bad||0} | lan_rec_bad:${s.lan_rec_bad||0} | aliases_bad:${s.aliases_bad||0}`;
+}
+async function applyFix(){
+  let m={}; try{ m=JSON.parse(document.getElementById('fixmap').value||"{}"); }catch(e){ alert("Nekorrektnyy JSON"); return; }
+  const r = await fetch('/admin/diagnostics/alias_fix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mapping:m})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('fixres').textContent = j.ok ? "OK" : "ERR";
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  await scan();
+}
+loadStatus().catch(()=>{});
+
+// --- from admin_diagnostics.html1 ---
+function owView(list){
+  if(!list||!list.length) return "<p class='muted'>net perezapisey</p>";
+  [cite_start]let h="<table><tr><th>job</th><th>dest</th><th>kind</th></tr>"; [cite: 6]
+  for(const it of list){
+    h+=`<tr><td><code>${esc(it.job_file)}</code></td><td><code>${esc(it.dest)}</code></td><td>${esc(it.kind)}</td></tr>`;
+  }
+  h+="</table>";
+  return h;
+}
+function mwView(list){
+  if(!list||!list.length) return "<p class='muted'>net multizapisey</p>";
+  let h="<table><tr><th>dest</th><th>kind</th><th>writers</th></tr>";
+  [cite_start]for(const it of list){ [cite: 8]
+    const wr=(it.writers||[]).map(w=>`${w.job_file} ← ${w.src}`).join("<br/>");
+    h+=`<tr><td><code>${esc(it.dest)}</code></td><td>${esc(it.kind)}</td><td>${wr}</td></tr>`;
+  }
+  h+="</table>";
+  return h;
+}
+async function scanColl(){
+  const r = await fetch('/admin/diagnostics/collisions_scan',{method:'POST'});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  [cite_start]if(!j.ok) return; [cite: 10]
+  const rep = j.report||{};
+  const ow = rep.overwrites||[];
+  const mw = rep.conflicts||[];
+  document.getElementById('overwrites').innerHTML = owView(ow);
+  document.getElementById('multi').innerHTML = mwView(mw);
+  [cite_start]document.getElementById('protect').textContent = JSON.stringify(j.protect_plan||{}, null, 2); [cite: 11]
+  document.getElementById('col_sum').textContent = `overwrite:${ow.length} | multi:${mw.length}`;
+}
+async function applyProtect(){
+  const text = document.getElementById('protect').textContent||"";
+  let plan=null;
+  try{ plan=JSON.parse(text);}catch(e){ alert("Net plana"); return; [cite_start]} [cite: 12]
+  const r = await fetch('/admin/diagnostics/collisions_apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan})});
+  const j = await r.json().catch(()=>({ok:false}));
+  [cite_start]document.getElementById('raw').textContent = JSON.stringify(j, null, 2); [cite: 13]
+  alert(j.ok!==false ? "OK" : "ERR");
+  await scanColl();
+}
+</script>
+</body>
+</html>

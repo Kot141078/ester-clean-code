@@ -1,0 +1,23 @@
+<!-- widgets_mind_recent.html — mini-vidzhet poslednikh myslitelnykh sobytiy -->
+<style>
+  .mind-list{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;line-height:1.4}
+  .mind-item{border-bottom:1px solid #eee;padding:8px 0}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef;margin-right:6px}
+  .muted{color:#666}
+  .wrap{white-space:pre-wrap}
+</style>
+<div class="mind-list">
+  {% for r in rows %}
+  <div class="mind-item">
+    <div><span class="pill">{{ r.status }}</span> <span class="muted">ts={{ r.ts }} · {{ r.duration_ms or 0 }}ms</span></div>
+    <div class="wrap"><strong>actions:</strong> {{ ", ".join(r.actions or []) }}</div>
+    {% if r.error %}
+      <div class="wrap"><strong>err:</strong> {{ r.error }}</div>
+    {% elif r.result_hint %}
+      <div class="wrap"><strong>result:</strong> {{ r.result_hint }}</div>
+    {% else %}
+      <div class="muted">net podrobnostey</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>

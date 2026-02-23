@@ -1,0 +1,125 @@
+{#
+Most (yavnyy):
+- (Inzheneriya UI ↔ Kontrol) Yavnye knopki statusa doveriya + vidimost AB-rezhima umenshayut risk oshibochnykh deystviy.
+
+Mosty (skrytye):
+- (Grafy ↔ Operatsii) Tablitsa pirov — eto yavnaya proektsiya grafa doveriya.
+- (Chelovek ↔ Avtomat) Ruchnoy import rukopozhatiya derzhit polzovatelya v konture prinyatiya resheniy.
+
+Zemnoy abzats:
+Stranitsa daet oflayn-upravlenie reestrom doveriya dlya P2P-obmena: importiruy chuzhoy pablik+fingerprint,
+ustanovi status doveriya i eksportiruy svoe rukopozhatie dlya drugikh uzlov.
+
+c=a+b
+#}
+{% extends "_admin_base.html" %}
+
+{% block content %}
+<h2>Piry (uzly)</h2>
+<p>Rezhim: <b>{{ ab_mode }}</b> (A = dry-run, B = zapis)</p>
+
+<div style="margin:10px 0;">
+  <button id="btnScan">Obnovit spisok</button>
+</div>
+
+<div id="status" style="margin:8px 0; font-family:monospace;"></div>
+
+<h3>Reestr pirov</h3>
+<table border="1" cellpadding="6" cellspacing="0">
+  <thead>
+    <tr>
+      <th>fingerprint</th>
+      <th>trust</th>
+      <th>name</th>
+      <th>seen</th>
+      <th>actions</th>
+    </tr>
+  </thead>
+  <tbody id="peersBody">
+  {% for fpr, rec in (snap.peers or {}).items() %}
+    <tr>
+      <td style="font-family:monospace">{{ fpr }}</td>
+      <td>{{ rec.trust }}</td>
+      <td>{{ rec.name }}</td>
+      <td>{{ rec.seen_count or 0 }} (last {{ rec.last_seen or 0 }})</td>
+      <td>
+        <button onclick="setTrust('{{ fpr }}','trusted')">Doveryat</button>
+        <button onclick="setTrust('{{ fpr }}','unknown')">Neizvesten</button>
+        <button onclick="setTrust('{{ fpr }}','blocked')">Ne doveryat</button>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h3>Import rukopozhatiya</h3>
+<textarea id="hs" rows="8" style="width:100%;" placeholder='Vstavte JSON rukopozhatiya tut...'></textarea>
+<div style="margin:6px 0;">
+  <button id="btnImport">Import</button>
+</div>
+
+<h3>Eksport rukopozhatiya</h3>
+<pre id="exportBox">{{ export|tojson(indent=2) }}</pre>
+<div style="margin:6px 0;">
+  <button id="btnExport">Obnovit eksport</button>
+</div>
+
+<script>
+async function postJSON(url, payload){
+  const r = await fetch(url,{method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload||{})});
+  return await r.json();
+}
+async function getJSON(url){
+  const r = await fetch(url);
+  return await r.json();
+}
+function renderPeers(data){
+  const body = document.getElementById("peersBody");
+  const peers = (data.peers||{});
+  let html = "";
+  Object.keys(peers).sort().forEach(fpr => {
+    const rec = peers[fpr];
+    html += `<tr>
+      <td style="font-family:monospace">${fpr}</td>
+      <td>${rec.trust}</td>
+      <td>${rec.name||""}</td>
+      <td>${rec.seen_count||0} (last ${rec.last_seen||0})</td>
+      <td>
+        <button onclick="setTrust('${fpr}','trusted')">Doveryat</button>
+        <button onclick="setTrust('${fpr}','unknown')">Neizvesten</button>
+        <button onclick="setTrust('${fpr}','blocked')">Ne doveryat</button>
+      </td>
+    </tr>`;
+  });
+  body.innerHTML = html || "<tr><td colspan='5'>Net zapisey.</td></tr>";
+}
+document.getElementById("btnScan").onclick = async () => {
+  const s = document.getElementById("status"); s.textContent = "Skaniruyu…";
+  const data = await postJSON("{{ url_for('admin_peers.api_scan') }}", {});
+  renderPeers(data);
+  s.textContent = "Gotovo.";
+};
+async function setTrust(fpr, trust){
+  const s = document.getElementById("status"); s.textContent = "Menyayu status…";
+  const data = await postJSON("{{ url_for('admin_peers.api_trust') }}", {fpr, trust});
+  const scan = await postJSON("{{ url_for('admin_peers.api_scan') }}", {});
+  renderPeers(scan);
+  s.textContent = "Gotovo.";
+}
+document.getElementById("btnImport").onclick = async () => {
+  const s = document.getElementById("status"); s.textContent = "Importiruyu… (ili dry v A)";
+  const raw = document.getElementById("hs").value || "";
+  const data = await postJSON("{{ url_for('admin_peers.api_import') }}", {handshake: raw});
+  const scan = await postJSON("{{ url_for('admin_peers.api_scan') }}", {});
+  renderPeers(scan);
+  s.textContent = data.ok ? "Importirovano." : ("Oshibka: "+(data.error||""));
+};
+document.getElementById("btnExport").onclick = async () => {
+  const s = document.getElementById("status"); s.textContent = "Gotovlyu eksport…";
+  const data = await getJSON("{{ url_for('admin_peers.api_export') }}");
+  document.getElementById("exportBox").textContent = JSON.stringify(data, null, 2);
+  s.textContent = data.ok ? "Gotovo." : ("Oshibka: "+(data.error||""));
+};
+</script>
+{% endblock %}
+<!-- c=a+b -->

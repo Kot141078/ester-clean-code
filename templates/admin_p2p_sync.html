@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester • P2P Sync</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:24px;color:#111}
+    input,button,textarea{padding:8px 12px;border:1px solid #ddd;border-radius:10px}
+    .row{display:flex;gap:12px;margin:12px 0;flex-wrap:wrap}
+    textarea{width:100%;min-height:100px}
+    pre{background:#f7f7f7;padding:10px;border-radius:10px;max-height:60vh;overflow:auto}
+  </style>
+</head>
+<body>
+  <h1>P2P Knowledge Sync</h1>
+
+  <div class="row">
+    <button onclick="loadSum()">Summary</button>
+  </div>
+
+  <h3>Pull</h3>
+  <div class="row">
+    <input id="root" placeholder="remote root hash (ili pusto)"/>
+    <input id="max" type="number" value="200"/>
+    <button onclick="pull()">Pull</button>
+  </div>
+
+  <h3>Push / Merge</h3>
+  <div class="row">
+    <textarea id="items" placeholder='JSON items, naprimer [{"id":"x1","value":{"text":"hello"}}]'></textarea>
+  </div>
+  <div class="row">
+    <button onclick="merge()">Merge</button>
+  </div>
+
+  <pre id="out">—</pre>
+
+<script>
+async function loadSum(){
+  const r=await fetch('/p2p_sync/summary'); document.getElementById('out').textContent=JSON.stringify(await r.json(),null,2);
+}
+async function pull(){
+  const r=await fetch('/p2p_sync/pull',{method:'POST',headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({root: document.getElementById('root').value, max_items: parseInt(document.getElementById('max').value||'200')})});
+  document.getElementById('out').textContent=JSON.stringify(await r.json(),null,2);
+}
+async function merge(){
+  const r=await fetch('/p2p_sync/merge',{method:'POST',headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({items: JSON.parse(document.getElementById('items').value||'[]')})});
+  document.getElementById('out').textContent=JSON.stringify(await r.json(),null,2);
+}
+loadSum();
+</script>
+</body>
+</html>
+<!-- finalnaya stroka -->
+c=a+b

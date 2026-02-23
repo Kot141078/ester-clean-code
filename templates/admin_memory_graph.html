@@ -1,0 +1,72 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Memory Graph</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px}
+input,button{padding:6px;border:1px solid #ccc;border-radius:8px}
+#viz{width:100%;height:600px;border:1px solid #ccc;border-radius:8px}
+</style>
+
+<h2>Graf pamyati Ester</h2>
+<div>
+  <input id="q" placeholder="poisk..." style="width:260px">
+  <button onclick="load()">Search</button>
+</div>
+<div style="margin:10px 0 6px;">
+  <strong>Retention telemetry</strong>
+</div>
+<pre id="retention"></pre>
+<svg id="viz"></svg>
+
+<script>
+const svg=d3.select("#viz"),width=+svg.attr("width")||900,height=+svg.attr("height")||600;
+let sim,links,nodes;
+function outRetention(x){document.getElementById('retention').textContent=JSON.stringify(x,null,2);}
+
+async function load(){
+  const q=document.getElementById('q').value;
+  const u=q?'/memory_graph/search?q='+encodeURIComponent(q):'/memory_graph/data';
+  const r=await fetch(u); const j=await r.json(); render(j);
+}
+async function status_(){
+  const r=await fetch('/memory/status');
+  const j=await r.json().catch(()=> ({}));
+  outRetention(j.retention || j);
+}
+
+function render(data){
+  svg.selectAll("*").remove();
+  sim=d3.forceSimulation(data.nodes)
+    .force("link",d3.forceLink(data.links).id(d=>d.id).distance(80))
+    .force("charge",d3.forceManyBody().strength(-200))
+    .force("center",d3.forceCenter(width/2,height/2));
+
+  const link=svg.append("g").selectAll("line").data(data.links).enter().append("line")
+    .attr("stroke","#999").attr("stroke-opacity",0.6);
+
+  const node=svg.append("g").selectAll("circle").data(data.nodes).enter().append("circle")
+    .attr("r",6).attr("fill",d=>color(d.type))
+    .call(drag(sim)).on("click",(e,d)=>alert(d.label));
+
+  const label=svg.append("g").selectAll("text").data(data.nodes).enter().append("text")
+    .text(d=>d.label).attr("font-size",10).attr("dx",8).attr("dy",".35em");
+
+  sim.on("tick",()=>{
+    link.attr("x1",d=>d.source.x).attr("y1",d=>d.source.y)
+        .attr("x2",d=>d.target.x).attr("y2",d=>d.target.y);
+    node.attr("cx",d=>d.x).attr("cy",d=>d.y);
+    label.attr("x",d=>d.x).attr("y",d=>d.y);
+  });
+}
+
+function drag(sim){
+  function start(e){if(!e.active)sim.alphaTarget(0.3).restart(); e.subject.fx=e.subject.x; e.subject.fy=e.subject.y;}
+  function drag(e){e.subject.fx=e.x; e.subject.fy=e.y;}
+  function end(e){if(!e.active)sim.alphaTarget(0); e.subject.fx=null; e.subject.fy=null;}
+  return d3.drag().on("start",start).on("drag",drag).on("end",end);
+}
+function color(t){return {"fact":"#66f","event":"#6f6","dialog":"#f66","dream":"#fc3","goal":"#999"}[t]||"#ccc";}
+load();
+status_();
+</script>

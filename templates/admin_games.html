@@ -1,0 +1,83 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Game Profiles / Roles / Stream Overlay</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  h2,h3{margin:12px 0}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  input[type="text"]{min-width:300px}
+  textarea{width:100%;min-height:100px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  table{border-collapse:collapse;width:100%} th,td{border:1px solid #e1e1e1;padding:6px 8px}
+  img{max-width:100%;border:1px solid #ddd;border-radius:8px}
+  .pill{padding:4px 8px;border-radius:999px;border:1px solid #bbb}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:1080px){.grid{grid-template-columns:1fr}}
+</style>
+
+<h2>Game Profiles / Roles / Stream Overlay</h2>
+
+<div class="grid">
+  <div>
+    <h3>Profiles</h3>
+    <div class="row">
+      <button onclick="listProfiles()">List</button>
+      Preset: <select id="preset"><option>FPS_basic</option><option>RTS_basic</option><option>Editor_notepad</option></select>
+      <button onclick="installPreset()">Install preset</button>
+    </div>
+    <div class="row">
+      Title contains: <input id="ptitle" type="text" placeholder="chast zagolovka okna">
+      Profile: <input id="pprofile" type="text" value="FPS_basic">
+      <button onclick="bindProfile()">Bind</button>
+      <button onclick="applyHotkeys()">Apply hotkey set</button>
+    </div>
+    <pre id="profiles"></pre>
+  </div>
+
+  <div>
+    <h3>Roles</h3>
+    <div class="row">
+      Role: <select id="role"><option>leader</option><option>assistant</option><option>observer</option></select>
+      <button onclick="setRole()">Set</button>
+      <button onclick="roleStatus()">Status</button>
+    </div>
+    <div class="row">
+      Peer host: <input id="peer" type="text" value="127.0.0.1:8000">
+      <button onclick="addPeer()">Add</button>
+      <button onclick="dropPeer()">Drop</button>
+    </div>
+    <pre id="rstat"></pre>
+  </div>
+</div>
+
+<h3>Stream Overlay (VNC/noVNC)</h3>
+<div class="row">
+  PNG (base64): <input id="png" type="text" placeholder="vstav b64 kadra...">
+</div>
+<div class="row">
+  <button onclick="arrow()">Overlay arrow</button>
+  <button onclick="box()">Overlay box</button>
+</div>
+<img id="ov" alt="Overlay result">
+
+<h3>Log</h3>
+<pre id="log"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function log(x){ const e=document.getElementById('log'); e.textContent += JSON.stringify(x)+"\n"; e.scrollTop=e.scrollHeight; }
+
+async function listProfiles(){ const r=await j('GET','/games/profiles/list'); document.getElementById('profiles').textContent=JSON.stringify(r.profiles,null,2); log(r); }
+async function installPreset(){ const name=document.getElementById('preset').value; log(await j('POST','/games/profiles/install',{name})); await listProfiles(); }
+async function bindProfile(){ const title=document.getElementById('ptitle').value; const profile=document.getElementById('pprofile').value; log(await j('POST','/games/profiles/bind',{title,profile})); }
+async function applyHotkeys(){ const title=document.getElementById('ptitle').value; log(await j('POST','/games/profiles/apply_hotkeys',{title})); }
+
+async function setRole(){ const role=document.getElementById('role').value; log(await j('POST','/roles/set',{role})); }
+async function roleStatus(){ const r=await j('GET','/roles/status'); document.getElementById('rstat').textContent=JSON.stringify(r,null,2); log(r); }
+async function addPeer(){ const host=document.getElementById('peer').value; log(await j('POST','/roles/add',{host})); }
+async function dropPeer(){ const host=document.getElementById('peer').value; log(await j('POST','/roles/drop',{host})); }
+
+async function arrow(){ const png_b64=document.getElementById('png').value; const r=await j('POST','/stream/overlay/arrow',{png_b64,from:[40,40],to:[200,120],label:'Syuda'}); if(r.ok&&r.png_b64){ document.getElementById('ov').src='data:image/png;base64,'+r.png_b64; } log(r); }
+async function box(){ const png_b64=document.getElementById('png').value; const r=await j('POST','/stream/overlay/box',{png_b64,box:{left:100,top:100,width:220,height:80},label:'Pole'}); if(r.ok&&r.png_b64){ document.getElementById('ov').src='data:image/png;base64,'+r.png_b64; } log(r); }
+</script>
+

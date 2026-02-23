@@ -1,0 +1,13 @@
+{
+  "iterations": 200,
+  "concurrency": 5,
+  "sleep_ms": 50,
+  "allowed_statuses": [200, 201, 202, 204, 400, 401, 403, 404],
+  "thresholds": { "p95_ms": 2000, "p99_ms": 5000, "fail_rate": 0.01 },
+  "endpoints": [
+    { "method": "GET", "path": "/health" },
+    { "method": "GET", "path": "/routes" },
+    { "method": "GET", "path": "/providers/status" },
+    { "method": "GET", "path": "/mem/kg/neighbors?limit=5&k=3" }
+  ]
+}

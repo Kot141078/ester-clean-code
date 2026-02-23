@@ -1,0 +1,13 @@
+version: '3.9'
+services:
+  ester:
+    image: ghcr.io/OWNER/REPO:latest
+    environment:
+      - PORT=5000
+    ports: ["5000:5000"]
+  peer:
+    build: .
+    environment:
+      - ESTER_PORT=5000
+      - ESTER_PEER_NAME=ester-$$HOSTNAME
+    network_mode: host

@@ -1,0 +1,200 @@
+art_scheduler</td></tr><tr><td><code>/thinking/missions/status</code></td><td>GET</td><td>m
+issions_plus_routes.status</td></tr><tr><td><code>/thinking/missions/stop_scheduler</code><
+/td><td>POST</td><td>missions_plus_routes.stop_scheduler</td></tr><tr><td><code>/thinking/m
+issions/update</code></td><td>POST</td><td>missions_plus_routes.update</td></tr><tr><td><co
+de>/thinking/pipelines/admin</code></td><td>GET</td><td>thinking_pipelines_routes.admin</td
+></tr><tr><td><code>/thinking/pipelines/builtins</code></td><td>GET</td><td>thinking_pipeli
+nes_routes.builtins</td></tr><tr><td><code>/thinking/pipelines/run</code></td><td>POST</td>
+<td>thinking_pipelines_routes.run</td></tr><tr><td><code>/thinking/presets</code></td><td>G
+ET</td><td>rulehub_presets.list_presets</td></tr><tr><td><code>/thinking/presets/get</code>
+</td><td>GET</td><td>rulehub_presets.get_preset</td></tr><tr><td><code>/thinking/reflection
+/enqueue</code></td><td>POST</td><td>reflect_affect.api_enqueue</td></tr><tr><td><code>/thi
+nking/reflection/pop</code></td><td>POST</td><td>reflect_affect.api_pop</td></tr><tr><td><c
+ode>/thinking/rules/evaluate</code></td><td>POST</td><td>thinking_rules_routes.api_evaluate
+</td></tr><tr><td><code>/thinking/rules/list</code></td><td>GET</td><td>thinking_rules_rout
+es.api_list</td></tr><tr><td><code>/thinking/rules/set</code></td><td>POST</td><td>thinking
+_rules_routes.api_set</td></tr><tr><td><code>/thinking/selfdrive/admin</code></td><td>GET</
+td><td>selfdrive_routes.admin</td></tr><tr><td><code>/thinking/selfdrive/disable</code></td
+><td>POST</td><td>selfdrive_routes.disable</td></tr><tr><td><code>/thinking/selfdrive/enabl
+e</code></td><td>POST</td><td>selfdrive_routes.enable</td></tr><tr><td><code>/thinking/self
+drive/log</code></td><td>GET</td><td>selfdrive_routes.log</td></tr><tr><td><code>/thinking/
+selfdrive/run_once</code></td><td>POST</td><td>selfdrive_routes.run_once</td></tr><tr><td><
+code>/thinking/selfdrive/status</code></td><td>GET</td><td>selfdrive_routes.status</td></tr
+><tr><td><code>/thinking/video/autosearch</code></td><td>POST</td><td>thinking_video.api_au
+tosearch</td></tr><tr><td><code>/thinking/web_context/expand</code></td><td>POST</td><td>we
+b_context.api_expand</td></tr><tr><td><code>/timekeeper/mark</code></td><td>POST</td><td>ti
+mekeeper.api_mark</td></tr><tr><td><code>/timekeeper/note</code></td><td>POST</td><td>timek
+eeper.api_note</td></tr><tr><td><code>/timekeeper/status</code></td><td>GET</td><td>timekee
+per.api_status</td></tr><tr><td><code>/tools/smoke/run</code></td><td>POST</td><td>smoke_ro
+utes.api_run</td></tr><tr><td><code>/tools/smoke/status</code></td><td>GET</td><td>smoke_ro
+utes.api_status</td></tr><tr><td><code>/tools/smoke/tests</code></td><td>GET</td><td>smoke_
+routes.api_tests</td></tr><tr><td><code>/trace/item</code></td><td>GET</td><td>trace.get_it
+em</td></tr><tr><td><code>/trace/recent</code></td><td>GET</td><td>trace.get_recent</td></t
+r><tr><td><code>/training/admin</code></td><td>GET</td><td>training_scenarios_routes.admin<
+/td></tr><tr><td><code>/training/start</code></td><td>POST</td><td>training_scenarios_route
+s.start</td></tr><tr><td><code>/training/stop</code></td><td>POST</td><td>training_scenario
+s_routes.stop</td></tr><tr><td><code>/trigger_plan/admin</code></td><td>GET</td><td>plan_ap
+ply_routes.admin</td></tr><tr><td><code>/trigger_plan/apply</code></td><td>POST</td><td>pla
+n_apply_routes.ap</td></tr><tr><td><code>/trigger_plan/dry_run</code></td><td>POST</td><td>
+plan_apply_routes.dr</td></tr><tr><td><code>/triggers/add</code></td><td>POST</td><td>trigg
+ers_routes.add</td></tr><tr><td><code>/triggers/admin</code></td><td>GET</td><td>triggers_r
+outes.admin</td></tr><tr><td><code>/triggers/clear</code></td><td>POST</td><td>triggers_rou
+tes.clr</td></tr><tr><td><code>/triggers/list</code></td><td>GET</td><td>triggers_routes.ls
+t</td></tr><tr><td><code>/triggers/start</code></td><td>POST</td><td>triggers_routes.start<
+/td></tr><tr><td><code>/triggers/status</code></td><td>GET</td><td>triggers_routes.status</
+td></tr><tr><td><code>/triggers/stop</code></td><td>POST</td><td>triggers_routes.stop</td><
+/tr><tr><td><code>/trust/invite/issue</code></td><td>POST</td><td>trust.api_inv_issue</td><
+/tr><tr><td><code>/trust/invite/verify</code></td><td>POST</td><td>trust.api_inv_verify</td
+></tr><tr><td><code>/trust/key/init</code></td><td>POST</td><td>trust.api_key_init</td></tr
+><tr><td><code>/trust/key/status</code></td><td>GET</td><td>trust.api_key_status</td></tr><
+tr><td><code>/trust/local</code></td><td>GET</td><td>trust.api_local</td></tr><tr><td><code
+>/trust/peers</code></td><td>GET</td><td>trust.api_peers</td></tr><tr><td><code>/trust/peer
+s/add</code></td><td>POST</td><td>trust.api_peers_add</td></tr><tr><td><code>/trust/sign</c
+ode></td><td>POST</td><td>trust.api_sign</td></tr><tr><td><code>/trust/verify</code></td><t
+d>POST</td><td>trust.api_verify_sig</td></tr><tr><td><code>/tutor/admin</code></td><td>GET<
+/td><td>task_tutor_routes.admin</td></tr><tr><td><code>/tutor/append_step</code></td><td>PO
+ST</td><td>task_tutor_routes.append_step</td></tr><tr><td><code>/tutor/create</code></td><t
+d>POST</td><td>task_tutor_routes.create</td></tr><tr><td><code>/tutor/delete_step</code></t
+d><td>POST</td><td>task_tutor_routes.delete_step</td></tr><tr><td><code>/tutor/get</code></
+td><td>GET</td><td>task_tutor_routes.get</td></tr><tr><td><code>/tutor/insert_step</code></
+td><td>POST</td><td>task_tutor_routes.insert_step</td></tr><tr><td><code>/tutor/list</code>
+</td><td>GET</td><td>task_tutor_routes.list_</td></tr><tr><td><code>/tutor/play</code></td>
+<td>POST</td><td>task_tutor_routes.play</td></tr><tr><td><code>/tutor/remove</code></td><td
+>POST</td><td>task_tutor_routes.remove</td></tr><tr><td><code>/tutor/save</code></td><td>PO
+ST</td><td>task_tutor_routes.save</td></tr><tr><td><code>/tutor/validate</code></td><td>POS
+T</td><td>task_tutor_routes.validate</td></tr><tr><td><code>/ui</code></td><td>GET</td><td>
+ui_min.ui</td></tr><tr><td><code>/ui</code></td><td>GET</td><td>root.ui_alias</td></tr><tr>
+<td><code>/ui/</code></td><td>GET</td><td>root.ui_alias</td></tr><tr><td><code>/ui/autofix<
+/code></td><td>GET</td><td>ui.ui_autofix</td></tr><tr><td><code>/ui/cases/add</code></td><t
+d>POST</td><td>ui_cases_routes.add</td></tr><tr><td><code>/ui/cases/admin</code></td><td>GE
+T</td><td>ui_cases_routes.admin</td></tr><tr><td><code>/ui/cases/clear</code></td><td>POST<
+/td><td>ui_cases_routes.clr</td></tr><tr><td><code>/ui/cases/export</code></td><td>GET</td>
+<td>ui_cases_routes.exp</td></tr><tr><td><code>/ui/cases/list</code></td><td>GET</td><td>ui
+_cases_routes.lst</td></tr><tr><td><code>/ui/cases/run</code></td><td>POST</td><td>ui_cases
+_routes.run</td></tr><tr><td><code>/ui/chat/feed</code></td><td>GET</td><td>ui_portal.chat_
+feed</td></tr><tr><td><code>/ui/chat/send</code></td><td>POST</td><td>ui_portal.chat_send</
+td></tr><tr><td><code>/ui/chat/upload</code></td><td>POST</td><td>ui_portal.chat_upload</td
+></tr><tr><td><code>/ui/lm</code></td><td>GET</td><td>lmstudio_console.ui_lm_console</td></
+tr><tr><td><code>/ui/mode</code></td><td>POST</td><td>ui_portal.modes_set</td></tr><tr><td>
+<code>/ui/modes</code></td><td>GET</td><td>ui_portal.modes_get</td></tr><tr><td><code>/ui/p
+ing</code></td><td>GET</td><td>dev_local_bypass.ui_ping</td></tr><tr><td><code>/ui/video/qa
+</code></td><td>GET</td><td>video_timeline_index.ui_video_qa</td></tr><tr><td><code>/undo/a
+dmin</code></td><td>GET</td><td>undo_suggester_routes.admin</td></tr><tr><td><code>/undo/pa
+tch</code></td><td>POST</td><td>undo_suggester_routes.p</td></tr><tr><td><code>/undo/sugges
+t</code></td><td>POST</td><td>undo_suggester_routes.s</td></tr><tr><td><code>/upload/ui</co
+de></td><td>GET</td><td>upload_ui.upload_ui_index</td></tr><tr><td><code>/upload/ui/</code>
+</td><td>GET</td><td>upload_ui.upload_ui_index_slash</td></tr><tr><td><code>/uploader/prepa
+re</code></td><td>POST</td><td>uploader_routes.api_prepare</td></tr><tr><td><code>/verify</
+code></td><td>POST</td><td>backup.backup_verify</td></tr><tr><td><code>/video/index/build</
+code></td><td>POST</td><td>video_timeline_index.api_build</td></tr><tr><td><code>/video/ind
+ex/chapters</code></td><td>GET</td><td>video_timeline_index.api_chapters</td></tr><tr><td><
+code>/video/index/dumps</code></td><td>GET</td><td>video_timeline_index.api_dumps</td></tr>
+<tr><td><code>/video/index/from_source</code></td><td>POST</td><td>video_timeline_index.api
+_from_source</td></tr><tr><td><code>/video/index/summarize_window</code></td><td>POST</td><
+td>video_timeline_index.api_summarize_window</td></tr><tr><td><code>/video/qa/search</code>
+</td><td>POST</td><td>video_timeline_index.api_qa_search</td></tr><tr><td><code>/vision/err
+or/report</code></td><td>POST</td><td>error_capture_routes.rep</td></tr><tr><td><code>/viz/
+admin</code></td><td>GET</td><td>viz_routes.admin</td></tr><tr><td><code>/viz/plan</code></
+td><td>POST</td><td>viz_routes.plan</td></tr><tr><td><code>/viz/probe</code></td><td>GET</t
+d><td>viz_routes.probe</td></tr><tr><td><code>/vm/checkpoint</code></td><td>POST</td><td>vm
+_admin.vm_checkpoint</td></tr><tr><td><code>/vm/list</code></td><td>GET</td><td>vm_admin.vm
+_list</td></tr><tr><td><code>/vm/restore</code></td><td>POST</td><td>vm_admin.vm_restore</t
+d></tr><tr><td><code>/vm/start</code></td><td>POST</td><td>vm_admin.vm_start</td></tr><tr><
+td><code>/vm/status</code></td><td>POST</td><td>vm_admin.vm_status</td></tr><tr><td><code>/
+vm/stop</code></td><td>POST</td><td>vm_admin.vm_stop</td></tr><tr><td><code>/voice/admin</c
+ode></td><td>GET</td><td>voice_api.voice_admin</td></tr><tr><td><code>/voice/admin</code></
+td><td>GET</td><td>voice_webrtc_routes.admin</td></tr><tr><td><code>/voice/answer</code></t
+d><td>POST</td><td>voice_webrtc_routes.answer_set</td></tr><tr><td><code>/voice/answer</cod
+e></td><td>GET</td><td>voice_webrtc_routes.answer_get</td></tr><tr><td><code>/voice/api/pre
+view</code></td><td>POST</td><td>voice_api.voice_preview</td></tr><tr><td><code>/voice/offe
+r</code></td><td>POST</td><td>voice_webrtc_routes.offer_set</td></tr><tr><td><code>/voice/o
+ffer</code></td><td>GET</td><td>voice_webrtc_routes.offer_get</td></tr><tr><td><code>/volit
+ion/pulse/config</code></td><td>GET</td><td>volition_routes.api_get_cfg</td></tr><tr><td><c
+ode>/volition/pulse/config</code></td><td>POST</td><td>volition_routes.api_set_cfg</td></tr
+><tr><td><code>/volition/pulse/status</code></td><td>GET</td><td>volition_routes.api_status
+</td></tr><tr><td><code>/volition/pulse/tick</code></td><td>POST</td><td>volition_routes.ap
+i_tick</td></tr><tr><td><code>/wa/ctrl/api/style/preview</code></td><td>POST</td><td>whatsa
+pp_control_routes.wa_style_preview</td></tr><tr><td><code>/wa/send</code></td><td>POST</td>
+<td>whatsapp_send_routes.wa_send</td></tr><tr><td><code>/wa/style/admin</code></td><td>GET<
+/td><td>wa_style_admin.admin_page</td></tr><tr><td><code>/watch/config/set</code></td><td>P
+OST</td><td>watch_routes.api_config_set</td></tr><tr><td><code>/watch/scan</code></td><td>P
+OST</td><td>watch_routes.api_scan</td></tr><tr><td><code>/watch/status</code></td><td>GET</
+td><td>watch_routes.api_status</td></tr><tr><td><code>/webrtc/dc/admin</code></td><td>GET</
+td><td>webrtc_dc_routes.admin</td></tr><tr><td><code>/webrtc/dc/hb</code></td><td>POST</td>
+<td>webrtc_dc_routes.hb</td></tr><tr><td><code>/webrtc/dc/open</code></td><td>POST</td><td>
+webrtc_dc_routes.open_</td></tr><tr><td><code>/webrtc/dc/recv</code></td><td>GET</td><td>we
+brtc_dc_routes.recv</td></tr><tr><td><code>/webrtc/dc/send</code></td><td>POST</td><td>webr
+tc_dc_routes.send_</td></tr><tr><td><code>/will/append</code></td><td>POST</td><td>will_rou
+tes.append</td></tr><tr><td><code>/will/set</code></td><td>POST</td><td>will_routes.set_all
+</td></tr><tr><td><code>/will/status</code></td><td>GET</td><td>will_routes.status</td></tr
+><tr><td><code>/window/watch/start</code></td><td>POST</td><td>window_watch_routes.start</t
+d></tr><tr><td><code>/window/watch/status</code></td><td>GET</td><td>window_watch_routes.st
+atus</td></tr><tr><td><code>/window/watch/stop</code></td><td>POST</td><td>window_watch_rou
+tes.stop</td></tr><tr><td><code>/workbench/list</code></td><td>GET</td><td>workbench_routes
+.api_list</td></tr><tr><td><code>/workbench/scaffold</code></td><td>POST</td><td>workbench_
+routes.api_scaffold</td></tr><tr><td><code>/workbench/write</code></td><td>POST</td><td>wor
+kbench_routes.api_write</td></tr></tbody></table>
+
+
+PS D:\ester-project> $data=(Resolve-Path .\data).Path
+PS D:\ester-project> $env:PERSIST_DIR=$data
+PS D:\ester-project> $env:ESTER_DATA_ROOT=$data
+PS D:\ester-project>
+PS D:\ester-project> # strukturnaya pamyat
+PS D:\ester-project> New-Item -ItemType Directory -Force -Path "$data\structured_mem" | Out-Null
+PS D:\ester-project> if (!(Test-Path "$data\structured_mem\store.json")) { '{}'  | Set-Content "$data\structured_mem\store.json" -Encoding UTF8 }
+PS D:\ester-project>
+PS D:\ester-project> # cards (esli ispolzuetsya)
+PS D:\ester-project> if (!(Test-Path "$data\ester_cards.json")) { '[]'  | Set-Content "$data\ester_cards.json" -Encoding UTF8 }
+PS D:\ester-project>
+PS D:\ester-project> # yakornyy fayl dlya StructuredMemory (kak ozhidaet kod)
+PS D:\ester-project> if (!(Test-Path "$data\ester_memory.json")) { '{}' | Set-Content "$data\ester_memory.json" -Encoding UTF8 }
+PS D:\ester-project> # zdorove mosta
+PS D:\ester-project> irm -Method GET  "$BASE/ester/chat/health"
+
+
+ok              : True
+active_provider : lmstudio
+lmstudio_base   : http://127.0.0.1:1234/v1
+model           : gpt-4o-mini
+lmstudio_probe  : True
+
+
+
+PS D:\ester-project>
+PS D:\ester-project> # dobavlenie fakta
+PS D:\ester-project> irm -Method POST "$BASE/memory/add" -ContentType "application/json" -Body (@{
+>>   type="fact"; text="Testovaya zapis pamyati"
+>> } | ConvertTo-Json)
+
+  ok record
+  -- ------
+True @{id=5a2e4e9e-f9c2-4da7-9f3a-53831e1c1d3f; type=fact; text=???????? ?????? ??????; ...
+
+
+PS D:\ester-project>
+PS D:\ester-project> # poisk
+PS D:\ester-project> iwr -UseBasicParsing "$BASE/memory/search?q=Testovaya" | % Content
+iwr : Traceback (most recent call last):
+  File "C:\Python310\lib\site-packages\flask\app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Python310\lib\site-packages\flask\app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignor
+e[no-any-return]
+  File "D:\ester-project\routes\memory_routes.py", line 39, in search_
+    res = store.query(q) if q else []
+  File "D:\ester-project\modules\memory\store.py", line 58, in query
+    results = search(vec, list(_MEM.values()), top_k=top_k)
+  File "D:\ester-project\modules\memory\vector.py", line 31, in search
+    scored.append((cos(vec,v),r))
+  File "D:\ester-project\modules\memory\vector.py", line 26, in cos
+    return float(np.dot(a,b)/(math.sqrt((a**2).sum())*math.sqrt((b**2).sum())))
+ValueError: shapes (16,) and (22,) not aligned: 16 (dim 0) != 22 (dim 0)
+stroka:1 znak:1
++ iwr -UseBasicParsing "$BASE/memory/search?q=Testovaya" | % Content
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest)
+    [Invoke-WebRequest], WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.
+   InvokeWebRequestCommand
+PS D:\ester-project>"

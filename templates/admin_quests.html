@@ -1,0 +1,23 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Quest Generator</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:980px}
+  button{padding:8px 12px;border:1px solid #ccc;border-radius:8px;cursor:pointer}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:140px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+</style>
+<h2>Quest Generator</h2>
+<div class="row">
+  <button onclick="mine()">Mine</button>
+  <button onclick="prev()">Preview</button>
+  <button onclick="exp()">Export</button>
+</div>
+<pre id="out"></pre>
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); return r.json(); }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+async function mine(){ out(await j('POST','/quests/mine',{"N":300})); }
+async function prev(){ out(await j('GET','/quests/preview')); }
+async function exp(){ out(await j('GET','/quests/export')); }
+</script>

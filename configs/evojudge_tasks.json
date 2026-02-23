@@ -1,0 +1,21 @@
+[
+  {
+    "id": "sum-1",
+    "input": "add 2 and 2",
+    "expected": {
+      "contains": [
+        "4"
+      ]
+    }
+  },
+  {
+    "id": "hello-1",
+    "input": "say hello in russian",
+    "expected": {
+      "contains": [
+        "privet",
+        "zdravstvuyte"
+      ]
+    }
+  }
+]

@@ -1,0 +1,24 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+<section class="card" style="margin-bottom:12px">
+  <div class="row">
+    <h3 style="margin:0">Settings</h3>
+    <span class="chip right">AB={{ ab_mode }}</span>
+  </div>
+  <p class="muted" style="margin-top:6px">
+    Dinamicheskie nastroyki (non-secret). Zapis tolko po whitelist registry.
+  </p>
+</section>
+
+<section class="grid">
+  {% for g in groups %}
+  <article class="card">
+    <h3 style="margin-top:0">{{ g.name }}</h3>
+    <p class="muted">Poley: {{ g.count }} · restart: {{ g.requires_restart }}</p>
+    <p class="muted">Zapolneno: {{ g.filled }}</p>
+    <a class="btn" href="/admin/settings/{{ g.name }}">Otkryt gruppu</a>
+  </article>
+  {% endfor %}
+</section>
+{% endblock %}
+

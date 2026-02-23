@@ -1,0 +1,48 @@
+# config/rulehub_presets.yaml — presety pravil myshleniya (read-only, drop-in).
+# Obnovleno: dobavlen preset affect_aware_reflection.
+#
+# Mosty:
+# - Yavnyy: (Myshlenie ↔ Memory) refleksiya s uchetom affekta povyshaet tsennost otbora.
+# - Skrytyy #1: (Infoteoriya ↔ Kachestvo) signaly emotsiy vliyayut na chastotu i ves zapisi.
+# - Skrytyy #2: (Kibernetika ↔ Planirovanie) cron-integratsiya + kvoty RuleHub.
+#
+# Zemnoy abzats: «vazhnye emotsii — v pervuyu ochered na polku».
+
+presets:
+  - id: video_autosearch_on_topic
+    title: "Avtopoisk video po teme i vyzhimka"
+    tags: ['video','search','summarize']
+    rule:
+      name: "video_autosearch_on_topic"
+      when: {"kind":"text_contains_topic","min_len":8}
+      actions: [{"kind":"http_post","url":"/thinking/video/autosearch","json":{"topic":"{{topic}}","limit":2}},{"kind":"summarize","hint":"video"}]
+
+  - id: daily_memory_reflection
+    title: "Ezhednevnaya refleksiya pamyati (korotkaya)"
+    tags: ['memory','reflect']
+    rule:
+      name: "daily_memory_reflection"
+      when: {"kind":"cron","spec":"0 22 * * *"}  # 22:00 ezhednevno
+      actions: [{"kind":"reflect","hint":"short"},{"kind":"index"}]
+
+  - id: proactive_video_subs_hourly
+    title: "Obkhod video-podpisok ezhechasno"
+    tags: ['video','proactive']
+    rule:
+      name: "proactive_video_subs_hourly"
+      when: {"kind":"cron","spec":"0 * * * *"}  # kazhdyy chas
+      actions: [{"kind":"http_post","url":"/proactive/video/run","json":{"mode":"subs"}},{"kind":"summarize","hint":"video"}]
+
+  - id: affect_aware_reflection
+    title: "Refleksiya s uchetom emotsiy (prioritet vysokikh affektov)"
+    tags: ['memory','reflect','affect']
+    rule:
+      name: "affect_aware_reflection"
+      when: {"kind":"cron","spec":"*/30 * * * *"}  # kazhdye 30 minut legkaya proverka
+      actions: [
+        {"kind":"search","hint":"events_with_affect>=0.7","limit":20},
+        {"kind":"summarize","hint":"affect-priority"},
+        {"kind":"index"}
+      ]
+
+# c=a+b

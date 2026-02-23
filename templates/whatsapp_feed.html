@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Lenta WhatsApp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin:0; background:#0b0f14; color:#e5e7eb; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    header { padding:12px 16px; border-bottom:1px solid #1f2937; background:#0f1620; color:#93c5fd; }
+    .chat { padding:16px; display:flex; flex-direction:column; gap:8px; }
+    .msg { padding:10px 12px; border-radius:10px; max-width:80%; line-height:1.4; }
+    .user { background:#1f2937; align-self:flex-end; }
+    .assistant { background:#0b1220; border:1px solid #1f2937; }
+    .system { background:#0b1220; opacity:.8; font-style:italic; align-self:center; }
+    .ts { opacity:.6; font-size:12px; margin-bottom:4px; }
+  </style>
+</head>
+<body>
+  <header>Lenta WhatsApp (tolko chtenie)</header>
+  <div class="chat">
+    {% if not items %}
+      <div class="msg system">Net soobscheniy. Proverte MESSAGING_DB_PATH i tokeny WhatsApp Cloud.</div>
+    {% endif %}
+    {% for m in items %}
+    <div class="msg {{ m.role }}">
+      <div class="ts">{{ m.role }} • {{ m.ts | float | round(0) }}</div>
+      <div>{{ m.text }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</body>
+</html>

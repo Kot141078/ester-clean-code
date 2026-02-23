@@ -1,0 +1,62 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester GTA Copilot</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+  .row{display:flex;gap:10px;align-items:center;margin:10px 0;flex-wrap:wrap}
+  input,button,textarea{padding:8px;border:1px solid #ccc;border-radius:8px}
+  textarea{width:100%;min-height:130px}
+  pre{background:#0a0a0a;color:#9efc9e;padding:12px;border-radius:10px;min-height:180px;white-space:pre-wrap}
+</style>
+<h2>GTA Copilot</h2>
+<div class="row">
+  <button onclick="status()">Status</button>
+  <button onclick="last()">Last</button>
+  <button onclick="sendSample()">Send sample + ask</button>
+</div>
+<div class="row">
+  <input id="sid" value="gta-v" placeholder="sid">
+  <input id="user" value="owner" placeholder="user_name">
+  <input id="prompt" style="min-width:460px" placeholder="optional prompt">
+</div>
+<textarea id="state">{
+  "wanted": 2,
+  "hp": 88,
+  "armor": 40,
+  "in_vehicle": true,
+  "vehicle": "Kuruma",
+  "speed_kmh": 92,
+  "zone": "Downtown",
+  "objective": "Reach mission marker safely"
+}</textarea>
+<pre id="out"></pre>
+<script>
+async function req(method, url, body){
+  const r = await fetch(url, {
+    method,
+    headers: {"Content-Type":"application/json"},
+    body: body ? JSON.stringify(body) : null
+  });
+  const t = await r.text();
+  try { return JSON.parse(t); } catch(e){ return {ok:false, raw:t}; }
+}
+function log(x){
+  const el = document.getElementById("out");
+  el.textContent += JSON.stringify(x, null, 2) + "\n\n";
+}
+async function status(){ log(await req("GET","/gta/status")); }
+async function last(){ log(await req("GET","/gta/last")); }
+async function sendSample(){
+  let s = {};
+  try { s = JSON.parse(document.getElementById("state").value || "{}"); }
+  catch(e){ return log({ok:false, error:"bad_state_json"}); }
+  const body = {
+    sid: (document.getElementById("sid").value || "gta-v"),
+    user_name: (document.getElementById("user").value || "owner"),
+    prompt: (document.getElementById("prompt").value || ""),
+    ask: true,
+    state: s
+  };
+  log(await req("POST","/gta/ingest", body));
+}
+</script>

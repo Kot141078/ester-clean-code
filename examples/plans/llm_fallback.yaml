@@ -1,0 +1,42 @@
+run_id: research_run_08
+branch_id: main
+context_init:
+  spec: "Demonstratsiya llm.generate s vyklyuchennym vneshnim LLM — budet ispolzovatsya bezopasnyy evristicheskiy fallback."
+  items:
+    - {file: "demo_a.txt"}
+    - {file: "demo_b.txt"}
+
+nodes:
+  - id: outline
+    type: llm.generate
+    prompt: "Opishi kratkiy plan rabot: {{ctx.spec}} (do 5 punktov)."
+    out: "outline"
+    depends: []
+
+  - id: fork
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["outline"]
+
+  - id: analyze
+    type: llm.generate
+    prompt: "Sdelay korotkiy razbor {{ctx.item.file}} s uchetom outline={{ctx.outline}}."
+    out: "analysis"
+    depends: ["fork"]
+
+  - id: finalize
+    type: llm.generate
+    prompt: "Soberi itog dlya {{ctx.item.file}} iz analysis={{ctx.analysis}}."
+    out: "final_branch"
+    depends: ["analyze"]
+
+  - id: gather
+    type: join
+    from: "fork"
+    out: "joined"
+    select:
+      file: "{{item.file}}"
+      text: "{{ctx.final_branch}}"
+    mode: list
+    await_nodes: ["finalize"]
+    depends: ["finalize"]

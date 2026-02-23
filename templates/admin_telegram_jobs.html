@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Telegram Jobs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Porucheniya cherez Telegram: vybiraem tip zadaniya, JSON-argumenty, otpravlyaem; sprava — otvety i prilozhennye fayly.
+    Mosty:
+      • Yavnyy — UX nad jobs_rpc.
+      • Skrytye — AB-predokhranitel; chistye JSON.
+  -->
+</head>
+<body>
+  <h1>Telegram Jobs <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid">
+    <div>
+      <h3>Otpravit poruchenie</h3>
+      <div class="row">
+        <label>Tip
+          <select id="type">
+            <option value="proj_build_publish">proj_build_publish</option>
+            <option value="build_ticket">build_ticket</option>
+          </select>
+        </label>
+        <label>Ozhidanie
+          <select id="expect">
+            <option value="json" selected>json</option>
+            <option value="file">file (+json)</option>
+          </select>
+        </label>
+      </div>
+      <textarea id="args" style="width:100%;min-height:120px" placeholder='{"project_dir":"/path/on/remote","publish":true}'></textarea>
+      <button onclick="send()">Otpravit zapros</button>
+      <pre id="sendout">—</pre>
+      <p><small>Podskazki:</small></p>
+      <ul>
+        <li><code>proj_build_publish</code>: trebuetsya <code>project_dir</code> puti na tselevom uzle.</li>
+        <li><code>build_ticket</code>: bez argumentov ili <code>{"copy_to_mount":"/media/USB"}</code>.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Otvety</h3>
+      <button onclick="loadInbox()">Obnovit otvety</button>
+      <pre id="inbox">—</pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+async function send(){
+  let args={}; try{ args = JSON.parse(document.getElementById('args').value||'{}'); }catch(e){ alert('Plokhoy JSON'); return; }
+  const body={type: document.getElementById('type').value, args, expect: document.getElementById('expect').value};
+  const r = await fetch('/admin/telegram_jobs/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('sendout').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function loadInbox(){
+  const r = await fetch('/admin/telegram_jobs/inbox'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('inbox').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+loadInbox().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

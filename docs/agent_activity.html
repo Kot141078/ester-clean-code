@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Activity Console</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{ --bg:#0b0c10; --fg:#e5e7eb; --accent:#f59e0b; --muted:#9ca3af; --border:#374151; }
+    body{ background:var(--bg); color:var(--fg); font:14px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; margin:0; }
+    .wrap{ max-width:1100px; margin:0 auto; padding:20px; }
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    .card{ border:1px solid var(--border); border-radius:10px; padding:14px; background:#0f1115; }
+    input,button,select,textarea{ width:100%; box-sizing:border-box; }
+    input,select{ background:#0f1115; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:8px; }
+    textarea{ min-height:120px; background:#0f1115; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:8px; }
+    button{ background:#1f2937; color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:10px; cursor:pointer; }
+    button:hover{ filter:brightness(1.08) }
+    pre{ white-space:pre-wrap; word-break:break-word; border:1px solid var(--border); border-radius:8px; padding:10px; background:#0b0e14; }
+    .row{ display:flex; gap:8px; align-items:center; }
+    .row>*{ flex:1; }
+    .muted{ color:var(--muted); font-size:12px; }
+  </style>
+</head>
+<body>
+  <!--
+    Mosty:
+    - Yavnyy: (UX ↔ Mysli/Kaskad/Pravila) — stranitsa vyzyvaet /thinking/act, /thinking/cascade/execute i chitaet /rulehub/last.
+    - Skrytyy #1: (UX ↔ Avtorizatsiya) — JWT beretsya iz static/admin.js (obschiy helper).
+    - Skrytyy #2: (UX ↔ Memory) — pokazyvaem sobytiya iz faylov pamyati (cherez actions_agent_activity).
+
+    Zemnoy abzats:
+    Eto «chernyy yaschik» Ester: vidno, chto delalos agentami i planami. Uskoryaet otladku i audit, ne menyaya suschestvuyuschie kontrakty.
+    c=a+b
+  -->
+  <div class="wrap">
+    <h1>Activity Console</h1>
+    <p class="muted">Rabotaet poverkh suschestvuyuschikh API: <code>/thinking/act</code>, <code>/thinking/cascade/*</code>, <code>/rulehub/last</code>. JWT — obschiy (kak v adminke).</p>
+
+    <div class="card">
+      <h3>JWT</h3>
+      <div class="row">
+        <input id="jwtInput" placeholder="JWT">
+        <button id="saveJwtBtn">Save</button>
+        <button id="clearJwtBtn">Ochistit</button>
+      </div>
+      <div class="grid" style="margin-top:12px;">
+        <div class="card">
+          <h4>Okruzhenie</h4>
+          <button id="btnEnv">Proverit okruzhenie</button>
+          <pre id="state" class="muted">{}</pre>
+        </div>
+        <div class="card">
+          <h4>RuleHub — poslednie sobytiya</h4>
+          <pre id="rule" class="muted">{}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px;">
+      <div class="card">
+        <h3>Skanirovanie logov</h3>
+        <div class="row">
+          <input id="q" placeholder="Filtr (napr. EkoRazum | AgentBuilder)">
+          <input id="limit" placeholder="Limit" value="50">
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <button id="btnScan">Skanirovat</button>
+          <button id="btnStats">Statistika</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Daydzhest</h3>
+        <input id="title" placeholder="Zagolovok (napr. Daydzhest aktivnosti: nedelya)">
+        <div class="row">
+          <button id="btnDigest">Sformirovat daydzhest-plan</button>
+          <button id="btnExec">Vypolnit plan</button>
+        </div>
+        <textarea id="plan" placeholder='{"ok":true,"goal":"...","steps":[...]}'></textarea>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h3>Vyvod</h3>
+      <pre id="out">{}</pre>
+      <h3>Log</h3>
+      <pre id="log"></pre>
+    </div>
+  </div>
+
+  <script src="../static/admin.js"></script>
+  <script src="../static/admin_agent_activity.js"></script>
+</body>
+</html>
+<!-- c=a+b -->

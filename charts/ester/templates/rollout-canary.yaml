@@ -1,0 +1,97 @@
+{{- if .Values.progressive.canary.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "ester.fullname" . }}
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ester.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  strategy:
+    canary:
+      stableService: {{ include "ester.fullname" . }}
+      canaryService: {{ include "ester.fullname" . }}-canary
+      {{- if .Values.istio.enabled }}
+      trafficRouting:
+        istio:
+          virtualService:
+            name: {{ include "ester.fullname" . }}
+            routes: ["ester-route"]
+      {{- end }}
+      steps:
+      {{- $step := .Values.progressive.canary.trafficStepPercent | default 20 }}
+      {{- $max := (.Values.progressive.canary.maxSteps | int) | default 5 }}
+      {{- range until $max }}
+      - setWeight: {{ $step }}
+      - pause: { duration: 60 }
+      {{- end }}
+      {{- if and .Values.rollouts .Values.rollouts.analysis .Values.rollouts.analysis.enabled }}
+      analysis:
+        templates:
+        - templateName: {{ include "ester.fullname" . }}-slo
+        startingStep: 1
+        args:
+        - name: prom
+          value: {{ .Values.rollouts.analysis.provider.prometheusAddress | quote }}
+      {{- end }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "ester.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ include "ester.serviceAccountName" . }}
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: ester
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports: [{ name: http, containerPort: {{ .Values.port }} }]
+        env:
+        - { name: TZ, value: {{ .Values.env.TZ | quote }} }
+        - { name: LOG_LEVEL, value: {{ .Values.env.LOG_LEVEL | quote }} }
+        - name: JWT_SECRET
+          valueFrom: { secretKeyRef: { name: {{ include "ester.fullname" . }}-env, key: JWT_SECRET } }
+        - name: ENCRYPTION_MASTER_KEY_BASE64
+          valueFrom: { secretKeyRef: { name: {{ include "ester.fullname" . }}-env, key: ENCRYPTION_MASTER_KEY_BASE64 } }
+        - { name: OPENAPI_SPEC_PATH, value: {{ .Values.env.OPENAPI_SPEC_PATH | quote }} }
+        {{- range .Values.extraEnv }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+        readinessProbe: { httpGet: { path: /ready, port: http }, initialDelaySeconds: 10, periodSeconds: 10, timeoutSeconds: 2, failureThreshold: 3 }
+        livenessProbe:  { httpGet: { path: /live,  port: http }, initialDelaySeconds: 10, periodSeconds: 10, timeoutSeconds: 2, failureThreshold: 3 }
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        securityContext:
+{{ toYaml .Values.securityContext | indent 10 }}
+      {{- if and (.Values.unleash.enabled) (not (.Values.unleash.standalone | default false)) }}
+      - name: unleash-proxy
+        image: {{ .Values.unleash.proxy.image }}
+        env:
+        - { name: UNLEASH_PROXY_URL, value: {{ .Values.unleash.proxy.url | quote }} }
+        - { name: UNLEASH_CLIENT_KEYS, value: {{ .Values.unleash.proxy.clientKey | quote }} }
+        - { name: UNLEASH_APP_NAME, value: {{ .Values.unleash.proxy.appName | quote }} }
+        - { name: UNLEASH_METRICS_INTERVAL, value: {{ .Values.unleash.proxy.metricsInterval | quote }} }
+        ports: [{ name: unleash, containerPort: 4242 }]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ester.fullname" . }}-canary
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "ester.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  ports:
+  - name: http
+    port: {{ .Values.service.port }}
+    targetPort: {{ .Values.port }}
+{{- end }}

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — P2P (Telegram)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    textarea{width:100%;height:120px}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .ok{color:#9BE28D}.err{color:#ff8a8a}.muted{color:#9aa9bd}.warn{color:#f5c542}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    a.link{color:#9aa9bd;text-decoration:none}
+    label{display:flex;flex-direction:column;gap:4px}
+    input[type="text"]{width:420px}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+  </style>
+  </head>
+<body>
+  <h1>P2P (Telegram) <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <div class="row">
+      <label><span>Enable</span><input type="checkbox" id="enable"/></label>
+      <label><span>Bot Token</span><input type="text" id="token" class="mono" placeholder="123456:ABC..."/></label>
+      <label><span>Chat ID</span><input type="text" id="chat" class="mono" placeholder="-1001234567890"/></label>
+      <label><span>Shared Key (HMAC)</span><input type="text" id="key" class="mono" placeholder="optional-but-recommended"/></label>
+      <label><span>Poll interval (sec)</span><input type="number" id="poll" class="mono" value="10" min="3" style="width:120px"/></label>
+      <button onclick="save()">Save</button>
+      <a class="link" href="/admin/usb/trust" style="margin-left:auto">Zero-Click USB →</a>
+    </div>
+  </section>
+
+  <section>
+    <div class="row">
+      <button onclick="status()">Status</button>
+      <button onclick="testsend()">Test-otpravka</button>
+      <button onclick="poll()">Poll vkhodyaschie</button>
+      <span id="q" class="chip muted">—</span>
+    </div>
+    <pre id="out">—</pre>
+  </section>
+
+  <section>
+    <h3>Marshrutizatsiya (allow-list)</h3>
+    <div class="row">
+      <button onclick="addCurrent()">Dobavit tekuschiy Chat ID</button>
+      <input id="dest" class="mono" placeholder="telegram:-1001234567890" style="width:320px"/>
+      <button onclick="add()">Dobavit</button>
+    </div>
+    <table id="allowed"><thead><tr><th>Razreshennye</th><th></th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section>
+    <h3>Ruchnoy eksport/import (air-gap)</h3>
+    <div class="row">
+      <label><span>Project</span><input id="m_project" class="mono" value="manual"/></label>
+      <label><span>Profile</span><input id="m_profile" class="mono" placeholder="sync_profile_id (opts.)"/></label>
+      <label><span>Note</span><input id="m_note" class="mono" placeholder=""/></label>
+      <button onclick="m_export()">Sformirovat JSON</button>
+    </div>
+    <pre id="m_out">—</pre>
+    <div class="row" style="margin-top:8px">
+      <label style="flex:1"><span>Vstav JSON dlya importa</span><textarea id="m_in" class="mono" placeholder='{"type":"...","payload":{...}}'></textarea></label>
+      <button onclick="m_import()">Importirovat</button>
+    </div>
+    <pre id="m_log">—</pre>
+  </section>
+
+<script>
+async function status(){
+  const r = await fetch('/admin/p2p/status'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok){ document.getElementById('out').textContent='Oshibka'; return; }
+  const s=j.settings||{};
+  document.getElementById('enable').checked = !!s.enable;
+  document.getElementById('token').value = s.tg_bot_token||'';
+  document.getElementById('chat').value = s.tg_chat_id||'';
+  document.getElementById('key').value = s.shared_key||'';
+  document.getElementById('poll').value = s.poll_interval||10;
+  document.getElementById('q').textContent = `out:${j.queues.outbox} in:${j.queues.inbox} sent:${j.queues.sent} failed:${j.queues.failed}`;
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  // allow-list
+  const tb=document.querySelector('#allowed tbody'); tb.innerHTML='';
+  ((j.routing||{}).allow||[]).forEach(dest=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td class="mono">${dest}</td><td><button data-rm>Udalit</button></td>`;
+    tr.querySelector('button[data-rm]').onclick = async()=>{
+      await fetch('/admin/p2p/routing/remove',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dest})});
+      status();
+    };
+    tb.appendChild(tr);
+  });
+}
+async function save(){
+  const body = {
+    enable: document.getElementById('enable').checked,
+    tg_bot_token: document.getElementById('token').value.trim(),
+    tg_chat_id: document.getElementById('chat').value.trim(),
+    shared_key: document.getElementById('key').value.trim(),
+    poll_interval: parseInt(document.getElementById('poll').value,10)
+  };
+  const r = await fetch('/admin/p2p/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  status();
+}
+async function testsend(){
+  const r = await fetch('/admin/p2p/test-send',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  status();
+}
+async function poll(){
+  const r = await fetch('/admin/p2p/poll',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  status();
+}
+async function addCurrent(){
+  await fetch('/admin/p2p/routing/add_current',{method:'POST'});
+  status();
+}
+async function add(){
+  const dest = document.getElementById('dest').value.trim();
+  if(!dest){ return; }
+  await fetch('/admin/p2p/routing/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dest})});
+  document.getElementById('dest').value='';
+  status();
+}
+async function m_export(){
+  const body = {project: document.getElementById('m_project').value.trim(), profile: document.getElementById('m_profile').value.trim(), note: document.getElementById('m_note').value.trim()};
+  const r = await fetch('/admin/p2p/manual/export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('m_out').textContent = JSON.stringify(j.envelope || {}, null, 2);
+}
+async function m_import(){
+  const txt = document.getElementById('m_in').value;
+  const r = await fetch('/admin/p2p/manual/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({json_text: txt})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('m_log').textContent = JSON.stringify(j, null, 2);
+}
+status().catch(()=>{});
+</script>
+</body>
+</html>

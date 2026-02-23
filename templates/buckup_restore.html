@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Backup / Restore / USB-replika</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    textarea{width:100%;height:160px}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    a.link{color:#9aa9bd;text-decoration:none}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+  </style>
+  <!--
+    Mosty:
+      • Yavnyy: bekap/vosstanovlenie i zapis repliki — v odnom meste.
+      • Skrytyy 1: AB_MODE viden; v A vse bezopasno — tolko plan.
+      • Skrytyy 2: replika sovmestima s portable-deploem (kind="dump" v manifeste).
+    Zemnoy abzats:
+      Eto servisnyy «pult»: snyal kopiyu, zapisal na fleshku, vosstanovil na drugom kompyutere.
+  -->
+</head>
+<body>
+  <h1>Backup / Restore / USB-replika <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <h3>Eksport nastroek</h3>
+    <div class="row">
+      <button onclick="doExport()">Sformirovat bekap</button>
+    </div>
+    <pre id="bk">—</pre>
+  </section>
+
+  <section>
+    <h3>Import nastroek</h3>
+    <div class="row">
+      <select id="mode">
+        <option value="merge">merge (obedinit)</option>
+        <option value="replace">replace (zamenit)</option>
+      </select>
+      <button onclick="doImport()">Importirovat</button>
+    </div>
+    <textarea id="in" class="mono" placeholder='Vstav syuda JSON-bekap'></textarea>
+    <pre id="imp">—</pre>
+  </section>
+
+  <section>
+    <h3>Sozdat fleshku-repliku</h3>
+    <div class="row">
+      <button onclick="targets()">Obnovit spisok tomov</button>
+      <select id="mount"></select>
+      <button onclick="replica()">Sozdat</button>
+      <a class="link" href="/admin/usb/trust" style="margin-left:auto">Doverennye USB →</a>
+    </div>
+    <pre id="rep">—</pre>
+  </section>
+
+<script>
+async function doExport(){
+  const r = await fetch('/admin/backup/export'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('bk').textContent = j.ok ? JSON.stringify(j.backup, null, 2) : 'Oshibka';
+}
+async function doImport(){
+  const body = {json_text: document.getElementById('in').value, mode: document.getElementById('mode').value};
+  const r = await fetch('/admin/backup/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('imp').textContent = JSON.stringify(j, null, 2);
+}
+async function targets(){
+  const r = await fetch('/admin/backup/targets'); const j = await r.json().catch(()=>({ok:false}));
+  const sel = document.getElementById('mount'); sel.innerHTML='';
+  (j.targets||[]).forEach(t=>{
+    const o=document.createElement('option'); o.value=t.mount; o.textContent=(t.mount+' — '+(t.label||'')+' ('+(t.fs||'?')+')');
+    sel.appendChild(o);
+  });
+}
+async function replica(){
+  const m = document.getElementById('mount').value;
+  const r = await fetch('/admin/backup/usb/replica',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount:m})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('rep').textContent = JSON.stringify(j, null, 2);
+}
+targets().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

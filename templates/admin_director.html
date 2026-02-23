@@ -1,0 +1,90 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Live Director & Co-op</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  input[type="text"]{min-width:320px}
+  textarea{width:100%;min-height:100px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  .col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  img{max-width:100%;border:1px solid #ddd;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:120px;white-space:pre-wrap}
+  table{border-collapse:collapse;width:100%} th,td{border:1px solid #e1e1e1;padding:6px 8px}
+  .pill{padding:4px 8px;border-radius:999px;border:1px solid #bbb}
+</style>
+
+<h2>Live Director</h2>
+<div class="row">
+  Tema: <input id="topic" type="text" value="pokazhi kak polzovatsya notepad">
+  <button onclick="start()">Generate</button>
+  <span id="sid" class="pill">session: —</span>
+</div>
+
+<div class="col">
+  <div>
+    <h3>Mini-chat</h3>
+    <div class="row">
+      <input id="msg" type="text" placeholder="Naprimer: sdelay esche shag s sokhraneniem">
+      <button onclick="say()">Send</button>
+      <button onclick="auto()">Suggest</button>
+    </div>
+    <pre id="chat"></pre>
+  </div>
+  <div>
+    <h3>Shagi</h3>
+    <table id="tbl"><thead><tr><th>#</th><th>Tip</th><th>Zagolovok</th><th>Ops</th></tr></thead><tbody></tbody></table>
+  </div>
+</div>
+
+<h3>Overlay/Run</h3>
+<div class="row">
+  Index: <input id="idx" type="number" value="0">
+  Templ(b64, opts.): <input id="tb64" type="text" placeholder="...">
+  Thr: <input id="thr" type="number" value="0.78" step="0.01" min="0" max="1">
+  <button onclick="overlay()">Overlay</button>
+  <button onclick="run()">Run</button>
+</div>
+<img id="ov" alt="Overlay">
+
+<h2>Co-op (veduschiy → vedomyy)</h2>
+<div class="row">
+  Host vedomogo: <input id="peer" type="text" value="127.0.0.1:8000">
+  <button onclick="bind()">Bind</button>
+  Missiya: <input id="mid" type="text" value="notepad_intro">
+  <button onclick="startCoop()">Start mission</button>
+  <button onclick="nextCoop()">Next</button>
+</div>
+<pre id="log"></pre>
+
+<script>
+let SID=null, STEPS=[];
+function sidText(){ document.getElementById('sid').textContent='session: '+(SID||'—'); }
+function draw(){ const tb=document.querySelector('#tbl tbody'); tb.innerHTML=''; (STEPS||[]).forEach((s,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${i}</td><td>${s.type||''}</td><td>${s.title||''}</td><td><button onclick="pick(${i})">Pick</button></td>`; tb.appendChild(tr); }); }
+function pick(i){ document.getElementById('idx').value=i; }
+function log(x){ const e=document.getElementById('log'); e.textContent += JSON.stringify(x)+"\n"; e.scrollTop=e.scrollHeight; }
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+
+async function start(){ const r=await j('POST','/director/start',{topic:document.getElementById('topic').value}); SID=r.session; STEPS=r.steps||[]; sidText(); draw(); log(r); }
+async function say(){ const r=await j('POST','/director/chat',{session:SID,text:document.getElementById('msg').value}); document.getElementById('chat').textContent += "Vy: "+document.getElementById('msg').value+"\n"+JSON.stringify(r.suggestions)+"\n"; log(r); }
+async function auto(){ const r=await j('POST','/director/suggest',{session:SID}); document.getElementById('chat').textContent += "Suggest: "+JSON.stringify(r.step)+"\n"; log(r); }
+async function overlay(){ const r=await j('POST','/director/overlay',{session:SID,index:+document.getElementById('idx').value,template_b64:document.getElementById('tb64').value||null,threshold:+document.getElementById('thr').value}); if(r.ok && r.overlay_b64){ document.getElementById('ov').src='data:image/png;base64,'+r.overlay_b64; } log(r); }
+async function run(){ const r=await j('POST','/director/run',{session:SID,index:+document.getElementById('idx').value}); log(r); }
+
+let PEER=null, COOP={id:null, index:0};
+async function bind(){ PEER=document.getElementById('peer').value; log({bind:PEER}); }
+async function startCoop(){ const mid=document.getElementById('mid').value; COOP.id=mid; COOP.index=0; 
+  // start u sebya
+  await j('POST','/missions/start',{id:mid});
+  // start u vedomogo
+  log(await j('POST','/peer/proxy',{host:PEER,path:'/missions/start',payload:{id:mid}}));
+}
+async function nextCoop(){ const idx=COOP.index;
+  // shag u sebya
+  log(await j('POST','/missions/step',{id:COOP.id,index:idx}));
+  // shag u vedomogo
+  log(await j('POST','/peer/proxy',{host:PEER,path:'/missions/step',payload:{id:COOP.id,index:idx}}));
+  COOP.index = idx+1;
+}
+</script>
+

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light" data-variant="A">
+<head>
+  <!--
+    Ester · Admin Base
+
+    Mosty:
+    - Yavnyy: UI ↔ API — cherez $fetch s podstanovkoy JWT (Authorization: Bearer …).
+    - Skrytyy #1: Sreda ↔ UI — tema/variant v localStorage (theme, ui_variant), ustoychivost k perezapusku.
+    - Skrytyy #2: Diagnostika ↔ Ekspluatatsiya — bezopasnye GET k /_where, /health, /routes (no-cache).
+
+    Zemnoy abzats (inzheneriya):
+    Kak v elektroschite: bazovaya panel — eto raspredelitelnaya korobka. $fetch — «magistral» s avtomatom zaschity:
+    dobavlyaet token, ne keshiruet diagnosticheskie linii i gasit ekho-utechki. A/B-sloty — kak rezervnaya liniya:
+    pri oshibkakh triggeryat avtopereklyuchenie na stabilnyy variant bez uchastiya operatora.
+
+    c=a+b
+  -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ester · Adminka</title>
+
+  <!-- bazovye stili proekta -->
+  <link rel="stylesheet" href="/static/admin.css" />
+
+  <style>
+    /* Temy cherez CSS-peremennye — ne lomaem suschestvuyuschiy admin.css */
+    :root{
+      --bg:#ffffff; --fg:#0b1020; --muted:#6b7280; --card:#f5f7fb; --accent:#2563eb;
+      --accent2:#7c3aed; --ok:#059669; --warn:#d97706; --danger:#dc2626; --border:#e5e7eb;
+      --chip:#eef2ff;
+    }
+    html[data-theme="dark"]{
+      --bg:#0b1020; --fg:#e5e7eb; --muted:#9aa3b2; --card:#111827; --accent:#60a5fa;
+      --accent2:#8b5cf6; --ok:#34d399; --warn:#f59e0b; --danger:#f87171; --border:#1f2937;
+      --chip:#0f172a;
+    }
+    body{margin:0;background:var(--bg);color:var(--fg);
+         font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;}
+    .topbar{display:flex;align-items:center;gap:14px;padding:12px 16px;
+            border-bottom:1px solid var(--border);background:var(--bg);
+            position:sticky;top:0;z-index:20}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+    .brand svg,.brand img{width:28px;height:28px;display:block}
+    .brand-title{font-size:18px}
+    .spacer{flex:1}
+    .btn{cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--fg);
+         padding:8px 10px;border-radius:10px;font-size:14px}
+    .btn:hover{filter:brightness(0.97)}
+    .chip{padding:6px 8px;border:1px solid var(--border);border-radius:999px;background:var(--chip);font-size:12px}
+    .stack{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .nav{display:flex;gap:8px;flex-wrap:wrap}
+    .input{border:1px solid var(--border);background:var(--bg);color:var(--fg);
+           padding:8px 10px;border-radius:10px;min-width:240px}
+    main{max-width:1100px;margin:18px auto;padding:0 16px}
+    .notice{font-size:12px;color:var(--muted)}
+    a.navlink{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);
+              background:var(--card);padding:8px 10px;border-radius:10px;text-decoration:none;color:var(--fg)}
+    a.navlink:hover{filter:brightness(0.97)}
+    /* kartochki/setka */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
+    .card h3{margin:0 0 8px 0;font-size:16px}
+    /* konsol */
+    .console{display:flex;gap:16px;flex-wrap:wrap}
+    .console .pane{flex:1 1 360px;min-height:260px}
+    .box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px}
+    .log{height:360px;overflow:auto;border:1px solid var(--border);border-radius:8px;
+         padding:10px;background:var(--bg)}
+    .msg{padding:8px 10px;border-radius:10px;margin:6px 0;max-width:92%}
+    .m-user{background:var(--chip)}
+    .m-bot{background:#0ea5e9;color:white}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .row>*{flex:0 0 auto}
+    .row .grow{flex:1 1 auto}
+    .textarea{width:100%;min-height:72px;border:1px solid var(--border);border-radius:10px;
+              background:var(--bg);color:var(--fg);padding:8px 10px}
+    /* upload */
+    .drop{border:2px dashed var(--border);border-radius:16px;padding:18px;text-align:center;background:var(--bg)}
+    .drop.drag{background:rgba(99,102,241,0.06)}
+    .filelist{font-size:13px;color:var(--muted);max-height:220px;overflow:auto;margin-top:8px}
+    .progress{height:8px;background:var(--border);border-radius:999px;overflow:hidden}
+    .bar{height:100%;width:0%}
+    .bar.ok{background:var(--ok)} .bar.err{background:var(--danger)}
+    /* melochi */
+    .muted{color:var(--muted)} .right{margin-left:auto}
+    /* globalnaya poloska oshibok */
+    #globalErr{display:none;margin:10px 16px 0 16px;padding:8px 10px;border-radius:8px;
+               background:#fee2e2;color:#7f1d1d;border:1px solid #fecaca;font-size:13px}
+    html[data-variant="B"] .brand-title::after{content:" · beta";color:var(--muted);font-weight:400}
+  </style>
+  <script src="/static/js/header_utf8_safe.js"></script>
+
+  <script>
+    // ==== A/B-sloty s avto-otkatom =======================================================
+    (function(){
+      try{
+        const keyVar='ui_variant', keyErr='ui_error_count';
+        const saved = localStorage.getItem(keyVar);
+        const variant = (saved==='B'||saved==='A') ? saved : 'A';
+        document.documentElement.setAttribute('data-variant', variant);
+
+        // avto-otkat: esli 3 poslednikh zagruzki lovili onerror -> pereklyuchaemsya na 'A'
+        const errs = parseInt(localStorage.getItem(keyErr)||'0',10);
+        window.addEventListener('error', function(){
+          const n = (parseInt(localStorage.getItem(keyErr)||'0',10) || 0) + 1;
+          localStorage.setItem(keyErr, String(n));
+          if(n>=3){ localStorage.setItem(keyVar,'A'); localStorage.setItem(keyErr,'0'); }
+        });
+        window.addEventListener('load', function(){
+          // uspeshnaya zagruzka — sbrasyvaem schetchik
+          localStorage.setItem(keyErr,'0');
+        });
+        window.switchVariant = function(){
+          const cur = document.documentElement.getAttribute('data-variant')||'A';
+          const next = (cur==='A') ? 'B' : 'A';
+          document.documentElement.setAttribute('data-variant', next);
+          localStorage.setItem(keyVar, next);
+          location.reload();
+        }
+      }catch(_){}
+    })();
+
+    // ==== Tema (persist) =================================================================
+    (function(){
+      try{
+        const saved = localStorage.getItem('theme');
+        if(saved){ document.documentElement.setAttribute('data-theme', saved); }
+        window.toggleTheme = function(){
+          const cur = document.documentElement.getAttribute('data-theme') || 'light';
+          const next = cur === 'light' ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', next);
+          localStorage.setItem('theme', next);
+        };
+      }catch(_){}
+    })();
+
+    // ==== JWT utils ======================================================================
+    function base64urlToJson(b64url){
+      try{
+        const pad = '='.repeat((4 - (b64url.length % 4)) % 4);
+        const b64 = (b64url.replace(/-/g,'+').replace(/_/g,'/') + pad);
+        const txt = atob(b64);
+        const utf8 = decodeURIComponent(escape(txt));
+        return JSON.parse(utf8);
+      }catch(_){ return null; }
+    }
+    function parseJWT(jwt){
+      if(!jwt || typeof jwt!=='string' || !jwt.includes('.')) return null;
+      const parts = jwt.split('.');
+      const payload = base64urlToJson(parts[1] || '');
+      return payload || null;
+    }
+    function updateRoleChip(){
+      try{
+        const el = document.getElementById('roleChip');
+        if(!el) return;
+        const jwt = localStorage.getItem('jwt') || '';
+        if(!jwt){
+          el.textContent = 'anon';
+          el.style.borderColor = 'var(--border)';
+          el.style.color = 'var(--muted)';
+          return;
+        }
+        const p = parseJWT(jwt) || {};
+        const roles = p.roles || p.role || p.scopes || p.permissions || p.perms || [];
+        let text = '';
+        if(Array.isArray(roles)){ text = roles.join(', ') || 'token'; }
+        else if(typeof roles === 'string'){ text = roles; }
+        else { text = (p.sub ? String(p.sub) : 'token'); }
+        el.textContent = text;
+        const t = text.toLowerCase();
+        if(t.includes('admin')){ el.style.borderColor='var(--danger)'; el.style.color='var(--danger)'; }
+        else if(t.includes('operator') || t.includes('op')){ el.style.borderColor='var(--warn)'; el.style.color='var(--warn)'; }
+        else { el.style.borderColor='var(--accent)'; el.style.color='var(--accent)'; }
+      }catch(_){}
+    }
+    function saveJWT(){
+      const v = (document.getElementById('jwtInput')||{}).value || '';
+      if(v){ localStorage.setItem('jwt', v.trim()); updateRoleChip(); }
+    }
+    function loadJWTIntoInput(){
+      const el = document.getElementById('jwtInput');
+      if(el){ el.value = localStorage.getItem('jwt') || ''; }
+      updateRoleChip();
+    }
+    document.addEventListener('DOMContentLoaded', loadJWTIntoInput);
+
+    // ==== Anti-echo/Quarantine + $fetch polyfill =========================================
+    (function(){
+      const maskHeaders = (h)=>{
+        // ne daem utech Authorization v UI/konsol
+        if(h && h['Authorization']) h['Authorization'] = 'Bearer ***';
+        return h;
+      };
+
+      // Polifill $fetch (esli ne opredelen)
+      if(typeof window.$fetch !== 'function'){
+        window.$fetch = async function(url, opts){
+          opts = opts || {};
+          const jwt = localStorage.getItem('jwt');
+          const hs = window.__EsterHeaderSafe || {};
+          const entriesFn = (typeof hs.toHeaderEntries === 'function')
+            ? hs.toHeaderEntries
+            : function(input){
+                const out = [];
+                if(!input) return out;
+                try{
+                  if(input instanceof Headers){
+                    input.forEach((v,k)=>out.push([k,v]));
+                    return out;
+                  }
+                }catch(_){}
+                if(Array.isArray(input)) return input;
+                if(typeof input === 'object'){
+                  Object.keys(input).forEach((k)=>out.push([k, input[k]]));
+                }
+                return out;
+              };
+          const setHeaderSafe = (typeof hs.setHeaderUtf8Safe === 'function')
+            ? hs.setHeaderUtf8Safe
+            : function(headers, name, value){
+                if(value==null) return;
+                try{ headers.set(String(name), String(value)); }catch(_){}
+              };
+          const headers = new Headers();
+          for(const [k, v] of entriesFn(opts.headers || {})){
+            setHeaderSafe(headers, k, v);
+          }
+          if(jwt){ setHeaderSafe(headers, 'Authorization', 'Bearer ' + jwt); }
+          setHeaderSafe(headers, 'Accept', 'application/json');
+          if(!(opts.body instanceof FormData) && (opts.method||'GET').toUpperCase()!=='GET'){
+            setHeaderSafe(headers, 'Content-Type', 'application/json');
+          }
+          // Optional user identity hints for routes that rely on headers:
+          // non-Latin values are redirected to X-Subject-B64 / X-User-B64.
+          if(typeof opts.subject === 'string'){ setHeaderSafe(headers, 'X-Subject', opts.subject); }
+          if(typeof opts.user === 'string'){ setHeaderSafe(headers, 'X-User', opts.user); }
+
+          const reqOpts = Object.assign({}, opts);
+          delete reqOpts.subject;
+          delete reqOpts.user;
+          delete reqOpts.headers;
+
+          const noCache = (reqOpts.noCache===true);
+          const finalUrl = (noCache && url && url.indexOf('?')===-1) ? (url+'?t='+(Date.now())) : url;
+          let body = reqOpts.body;
+          if(body && !(body instanceof FormData) && typeof body!=='string'){
+            body = JSON.stringify(body);
+          }
+          try{
+            const res = await fetch(finalUrl, {...reqOpts, headers, body});
+            return res;
+          }catch(err){
+            // Globalnaya oshibka seti — pokazyvaem v poloske, bez utechki chuvstvitelnykh dannykh
+            const box = document.getElementById('globalErr');
+            if(box){
+              box.style.display='block';
+              try{
+                box.textContent = 'Set/soedinenie nedostupno ('+ String(err).replace(/Authorization:\s*Bearer\s+[A-Za-z0-9\.\-_]+/g,'Authorization: Bearer ***') +')';
+              }catch(_){ box.textContent = 'Set/soedinenie nedostupno'; }
+            }
+            throw err;
+          }
+        };
+      }
+      // vspomogatelnaya obertka: poluchit JSON s obrabotkoy oshibok
+      window.$json = async function(url, opts){
+        const res = await window.$fetch(url, opts||{});
+        const ct = res.headers.get('content-type') || '';
+        if(!res.ok){
+          const text = ct.includes('application/json') ? JSON.stringify(await res.json()).slice(0,1024)
+                                                      : (await res.text()).slice(0,1024);
+          throw new Error('HTTP '+res.status+' — '+text);
+        }
+        return ct.includes('application/json') ? res.json() : res.text();
+      };
+      window._maskHeaders = maskHeaders; // na vsyakiy sluchay dlya lokalnoy diagnostiki
+    })();
+
+    // ==== Otkrytie v novoy vkladke =======================================================
+    function openNew(url){ window.open(url, '_blank','noopener'); }
+  </script>
+</head>
+<body>
+  <div id="globalErr"></div>
+
+  <div class="topbar">
+    <div class="brand" onclick="openNew('/admin')" style="cursor:pointer" title="Domoy">
+      <!-- Esli predpochitaesh statik-fayl, zameni SVG na <img src="/static/img/ester_logo.svg" alt="E+"> -->
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#22c1ee"/><stop offset="1" stop-color="#5863ff"/>
+          </linearGradient>
+        </defs>
+        <rect x="4" y="4" width="56" height="56" rx="12" fill="url(#g)"/>
+        <path d="M20 22a2 2 0 0 1 2-2h16a2 2 0 1 1 0 4H24v6h11a2 2 0 1 1 0 4H24v6h14a2 2 0 1 1 0 4H22a2 2 0 0 1-2-2V22z" fill="#fff"/>
+        <rect x="44" y="28" width="12" height="4" rx="2" fill="#fff"/>
+        <rect x="48" y="24" width="4" height="12" rx="2" fill="#fff"/>
+      </svg>
+      <span class="brand-title">Ester · Admin</span>
+      <span class="chip" title="UI-variant" onclick="switchVariant()" style="user-select:none">v2</span>
+    </div>
+
+    <div class="nav spacer">
+      <a class="navlink" href="#" onclick="openNew('/admin')">Panel</a>
+      <a class="navlink" href="#" onclick="openNew('/providers')">Provaydery</a>
+      <a class="navlink" href="#" onclick="openNew('/ops/backup')">Bekap</a>
+      <a class="navlink" href="#" onclick="openNew('/hypotheses')">Sny/initsiativy</a>
+      <a class="navlink" href="#" onclick="openNew('/docs')">Swagger</a>
+      <a class="navlink" href="#" onclick="openNew('/openapi.json')">OpenAPI</a>
+      <a class="navlink" href="#" onclick="openNew('/routes')">Routes</a>
+      <a class="navlink" href="#" onclick="openNew('/portal')">Portal</a>
+    </div>
+
+    <div class="stack">
+      <span class="chip" id="roleChip" title="Role/kleymy iz JWT">anon</span>
+      <input id="jwtInput" class="input" type="text" placeholder="JWT (Bearer …)" />
+      <button class="btn" onclick="saveJWT()">Save JWT</button>
+      <button class="btn" onclick="toggleTheme()" title="Temnaya/svetlaya">Tema</button>
+    </div>
+  </div>
+
+  <main>
+    {% block content %}{% endblock %}
+    <p class="notice muted">
+      Esli GET na nekotorye stranitsy vernet «rbac deny», sgeneriruy JWT roley USER/OPERATOR/ADMIN, vstav v pole i nazhmi «Save JWT».
+      Panel i konsol budut khodit s tokenom.
+    </p>
+  </main>
+</body>
+</html>

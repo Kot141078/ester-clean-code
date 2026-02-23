@@ -1,0 +1,25 @@
+[Unit]
+Description=Ester Subconscious Engine
+After=network.target ester-events.service
+
+[Service]
+Type=simple
+Environment=LOG_LEVEL=INFO
+Environment=SUBCONSCIOUS_POLICIES_PATH=%h/ester/rules/subconscious_policies.yaml
+Environment=SUBCONSCIOUS_MEMORY_PATH=%h/ester/var/subconscious/recent_dreams.json
+Environment=ESTER_EVENTS_FEED_URL=http://127.0.0.1:5000/events/feed
+Environment=ESTER_EVENTS_POST_URL=http://127.0.0.1:5000/events/publish
+WorkingDirectory=%h/ester
+ExecStart=%h/ester/.venv/bin/python -m modules.subconscious.engine
+Restart=on-failure
+RestartSec=2
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=yes
+ProtectSystem=full
+LockPersonality=true
+MemoryDenyWriteExecute=true
+
+[Install]
+WantedBy=multi-user.target

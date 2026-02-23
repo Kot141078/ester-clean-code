@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Profile uzla</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .ok{color:#9BE28D}.err{color:#ff8a8a}.muted{color:#9aa9bd}.warn{color:#f5c542}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Profile uzla — eto korotkiy JSON s OS/zhelezom/dvizhkami. Ego mozhno otpravit po P2P ili polozhit na fleshku.
+    Mosty:
+      • Yavnyy — nablyudaemost → orkestratsiya (profile kak artefakt).
+      • Skrytye — sovmestimost s P2P/USB i AB-rezhim (sukhie plany).
+  -->
+</head>
+<body>
+  <h1>Profile uzla <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <div class="row">
+      <button onclick="refresh()">Obnovit</button>
+      <a class="chip" href="/admin/node/export">Skachat JSON</a>
+      <span id="hint" class="muted">LM Studio (127.0.0.1:1234), Ollama (127.0.0.1:11434) — probuem avtomaticheski.</span>
+    </div>
+    <pre id="inv">—</pre>
+  </section>
+
+  <section>
+    <h3>Otpravka po P2P</h3>
+    <div class="row">
+      <button onclick="p2p()">Otpravit profile</button>
+      <span id="p2plog" class="chip muted">—</span>
+      <a class="link" href="/admin/p2p" style="margin-left:auto">Nastroit P2P →</a>
+    </div>
+  </section>
+
+  <section>
+    <h3>Zapis na fleshku</h3>
+    <div class="row">
+      <button onclick="probe()">Obnovit spisok tomov</button>
+      <select id="mount"></select>
+      <button onclick="writeUSB()">Zapisat</button>
+      <a class="link" href="/admin/usb/trust" style="margin-left:auto">Doverennye USB →</a>
+    </div>
+    <pre id="usblog">—</pre>
+  </section>
+
+<script>
+async function refresh(){
+  const r = await fetch('/admin/node/status'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('inv').textContent = j.ok? JSON.stringify(j.inventory, null, 2) : 'Oshibka';
+}
+async function p2p(){
+  const r = await fetch('/admin/node/p2p-send',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('p2plog').textContent = j.ok? 'ok' : (j.error||'error');
+}
+async function probe(){
+  const r = await fetch('/admin/node/probe'); const j = await r.json().catch(()=>({ok:false}));
+  const sel=document.getElementById('mount'); sel.innerHTML='';
+  (j.targets||[]).forEach(t=>{
+    const o=document.createElement('option'); o.value=t.mount; o.textContent=(t.mount+' — '+(t.label||'')+' ('+(t.fs||'?')+')');
+    sel.appendChild(o);
+  });
+}
+async function writeUSB(){
+  const m=document.getElementById('mount').value;
+  const r = await fetch('/admin/node/usb-write',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount:m})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('usblog').textContent = JSON.stringify(j, null, 2);
+}
+refresh().catch(()=>{}); probe().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

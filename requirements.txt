@@ -1,0 +1,43 @@
+# requirements.txt
+# Mosty:
+#  • (Infrastruktura ↔ Prilozhenie) — bazovye zavisimosti vyneseny v odin fayl, kotoryy chitayut dev/ci/prod.
+# Skrytye mosty:
+#  • (Constraints ↔ Runtime) — vse stroki prokhodyat cherez -c requirements/constraints.txt.
+#  • (Parsery ↔ RAG) — nabor I/O-bibliotek stabilen dlya payplayna ingest→index→query.
+# Zemnoy abzats: eto «osnovnoy sklad detaley» — tolko to, bez chego servis ne zapuskaetsya.
+# c=a+b
+
+-c requirements/constraints.txt
+
+# --- Core web ---
+flask>=3.0.0
+flask-cors>=4.0.0
+flask-jwt-extended>=4.6.0
+werkzeug>=3.0.0
+python-dotenv>=1.0.1
+requests==2.32.5
+gunicorn>=22.0.0
+python-json-logger>=2.0.7
+ruamel.yaml>=0.18.5
+PyYAML>=6.0.1
+
+# --- Parsing/Docs/Media ---
+pypdf>=4.2.0
+pdfminer.six>=20220524
+python-docx>=1.1.0
+docx2txt>=0.8
+python-pptx>=0.6
+openpyxl>=3.1
+xlrd==1.2.0
+ebooklib>=0.18
+beautifulsoup4>=4.12
+mutagen>=1.47
+
+# --- NLP ---
+sentence-transformers==2.7.0
+
+# --- Security (Ed25519/HMAC utils) ---
+PyNaCl>=1.5.0
+tokenizers==0.20.3
+transformers==4.45.2
+python-telegram-bot>=20.0,<22

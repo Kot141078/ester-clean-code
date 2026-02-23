@@ -1,0 +1,29 @@
+[Unit]
+Description=Ester — push latest archives to configured storage targets
+Documentation=man:systemd.service(5)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+# Put do kataloga proekta mozhno pereopredelit cherez Environment=ESTER_DIR=/path/to/ester
+Environment=ESTER_DIR=/opt/ester
+# Mozhno takzhe pereopredelit direktoriyu dannykh: Environment=PERSIST_DIR=/var/lib/ester
+# Nikakikh opasnykh privilegiy ne trebuetsya; pri neobkhodimosti zadayte polzovatelya/gruppu:
+# User=ester
+# Group=ester
+
+# Vypolnyaem skript avtopublikatsii arkhivov.
+# Po umolchaniyu on chitaet targety iz modules.storage.targets i arkhivy iz self/archives.
+ExecStart=/usr/bin/env bash -lc 'cd "${ESTER_DIR:-/opt/ester}" && PERSIST_DIR="${PERSIST_DIR:-${ESTER_DIR:-/opt/ester}/data}" python3 scripts/auto_backup.py'
+
+# Udobnyy vyvod v zhurnal
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ester-auto-backup
+
+# Nikakikh restartov ne nuzhno dlya oneshot
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

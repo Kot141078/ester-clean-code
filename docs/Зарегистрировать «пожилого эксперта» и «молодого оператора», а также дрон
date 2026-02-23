@@ -1,0 +1,16 @@
+curl -s -X POST -H 'Content-Type: application/json' -d '{
+  "id":"human.expert", "kind":"human",
+  "profile":{"name":"Sergey","age":62,"exp_years":35,"domains":["aerorazvedka","taktika"]},
+  "bio":"veteran, strateg", "channels":{"telegram":777010}
+}' http://127.0.0.1:8080/synergy/agents/register | jq
+
+curl -s -X POST -H 'Content-Type: application/json' -d '{
+  "id":"human.pilot", "kind":"human",
+  "profile":{"name":"Maksim","age":24,"exp_years":3,"domains":["upravlenie","drony"]},
+  "bio":"bystrye reaktsii", "channels":{"whatsapp":"15551234567"}
+}' http://127.0.0.1:8080/synergy/agents/register | jq
+
+curl -s -X POST -H 'Content-Type: application/json' -d '{
+  "id":"device.drone1","kind":"device",
+  "profile":{"name":"Scout-01","device":"drone","flight_time_min":28,"payload_g":200,"latency_ms":40}
+}' http://127.0.0.1:8080/synergy/agents/register | jq

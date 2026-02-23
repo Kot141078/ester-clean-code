@@ -1,0 +1,72 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+<section class="card" style="margin-bottom:12px">
+  <div class="row">
+    <h3 style="margin:0">Settings / {{ group }}</h3>
+    <span class="chip right">AB={{ ab_mode }}</span>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <a class="btn" href="/admin/settings">Nazad k gruppam</a>
+    <button class="btn" onclick="saveGroup()">Save gruppu</button>
+  </div>
+</section>
+
+<section class="grid" style="grid-template-columns:1fr;gap:10px">
+  {% for s in settings %}
+  <article class="card">
+    <div class="row">
+      <strong>{{ s.key }}</strong>
+      {% if s.requires_restart %}
+      <span class="chip" style="border-color:var(--warn);color:var(--warn)">requires restart</span>
+      {% endif %}
+      <span class="chip right">{{ s.type }}</span>
+    </div>
+    <p class="muted" style="margin:6px 0 10px 0">{{ s.description }}</p>
+    {% if s.type == "bool" %}
+      <label class="row">
+        <input type="checkbox" id="{{ s.key }}" {% if s.value %}checked{% endif %} />
+        <span>enabled</span>
+      </label>
+    {% elif s.type == "choice" %}
+      <select id="{{ s.key }}" class="input">
+        {% for c in s.choices %}
+        <option value="{{ c }}" {% if s.value == c %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    {% else %}
+      <input id="{{ s.key }}" class="input" value="{{ s.value }}" />
+    {% endif %}
+    <p class="muted" style="margin-top:8px">
+      default: <code>{{ s.default }}</code>
+      {% if s.min is not none %} · min: <code>{{ s.min }}</code>{% endif %}
+      {% if s.max is not none %} · max: <code>{{ s.max }}</code>{% endif %}
+    </p>
+  </article>
+  {% endfor %}
+</section>
+
+<pre id="out" class="log box" style="height:200px;margin-top:12px"></pre>
+
+<script>
+const SETTINGS = {{ settings|tojson }};
+const GROUP = {{ group|tojson }};
+
+function readValue(item){
+  const el = document.getElementById(item.key);
+  if (!el){ return null; }
+  if (item.type === 'bool'){ return !!el.checked; }
+  return el.value;
+}
+
+async function saveGroup(){
+  const payload = {values: {}};
+  for (const item of SETTINGS){
+    payload.values[item.key] = readValue(item);
+  }
+  const r = await $fetch('/admin/settings/' + encodeURIComponent(GROUP), {method: 'POST', body: payload});
+  const j = await r.json().catch(()=>({ok:false,error:'bad_json'}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+</script>
+{% endblock %}
+

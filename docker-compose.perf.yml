@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  influxdb:
+    image: influxdb:1.8
+    container_name: ester-influxdb
+    restart: unless-stopped
+    environment: [ INFLUXDB_DB=k6, INFLUXDB_HTTP_AUTH_ENABLED=false ]
+    ports: [ "8086:8086" ]
+    volumes: [ influxdb-data:/var/lib/influxdb ]
+
+  grafana:
+    image: grafana/grafana:10.4.3
+    container_name: ester-grafana
+    restart: unless-stopped
+    depends_on: [ influxdb ]
+    ports: [ "3000:3000" ]
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_DEFAULT_THEME=light
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+
+volumes:
+  influxdb-data:
+  grafana-data:

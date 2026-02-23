@@ -1,0 +1,33 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Multi-Leader</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:820px}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:120px;white-space:pre-wrap}
+</style>
+<h2>Multi-Leader</h2>
+<div class="row">
+  Room <input id="room" value="test">
+  Leader <input id="leader" value="alice">
+  <button onclick="create_()">Create room</button>
+</div>
+<div class="row">
+  Add user <input id="user" value="bob">
+  <button onclick="add_()">Add</button>
+  Baton to <input id="to" value="bob">
+  <button onclick="baton()">Give baton</button>
+  <button onclick="rotate()">Rotate</button>
+  <button onclick="stat()">Status</button>
+</div>
+<pre id="out"></pre>
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); return r.json(); }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+async function create_(){ out(await j('POST','/multi_leader/create',{"room":room.value,"leader":leader.value})); }
+async function add_(){ out(await j('POST','/multi_leader/add',{"room":room.value,"user":user.value})); }
+async function baton(){ out(await j('POST','/multi_leader/baton',{"room":room.value,"to":to.value})); }
+async function rotate(){ out(await j('POST','/multi_leader/rotate',{"room":room.value})); }
+async function stat(){ const r=await fetch('/multi_leader/status?room='+encodeURIComponent(room.value)); out(await r.json()); }
+</script>

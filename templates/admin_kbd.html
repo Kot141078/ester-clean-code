@@ -1,0 +1,36 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Keyboard Sync</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  textarea{width:100%;min-height:100px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:120px;white-space:pre-wrap}
+</style>
+<h2>Keyboard Sync (Leader)</h2>
+<div class="row">
+  Peers <input id="peers" placeholder="ip:port,ip:port" style="min-width:360px">
+  <button onclick="savePeers()">Save</button>
+  <button onclick="toggle(true)">Start</button>
+  <button onclick="toggle(false)">Stop</button>
+</div>
+
+<div class="row">
+  Hotkey <input id="hk" placeholder="CTRL+S" value="CTRL+S">
+  <button onclick="sendHK()">Send</button>
+</div>
+
+<textarea id="txt" placeholder="Text to broadcast"></textarea>
+<div class="row"><button onclick="sendTX()">Send Text</button></div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent += JSON.stringify(x)+"\n"; }
+async function savePeers(){ const arr=(peers.value||'').split(',').map(s=>s.trim()).filter(Boolean); out(await j('POST','/sync/kbd/peers',{"peers":arr})); }
+async function toggle(v){ out(await j('POST','/sync/kbd/enable',{"enabled":v})); }
+async function sendHK(){ out(await j('POST','/sync/kbd/hotkey',{"seq":hk.value||""})); }
+async function sendTX(){ out(await j('POST','/sync/kbd/text',{"value":txt.value||""})); }
+</script>

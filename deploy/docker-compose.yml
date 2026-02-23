@@ -1,0 +1,30 @@
+# deploy/docker-compose.yml — bystryy zapusk Ester lokalno
+# MOSTY:
+# - (Yavnyy) Odin servis ester + imenovannyy tom dlya data/.
+# - (Skrytyy #1) Probros .env; menyayte porty/WORKERS cherez env.
+# - (Skrytyy #2) Healthcheck pinguet endpoint bordy.
+
+version: "3.9"
+
+services:
+  ester:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: ester
+    env_file:
+      - ../.env
+    ports:
+      - "${PORT:-8080}:8080"
+    volumes:
+      - ester_data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/synergy/board/aggregate?team_id=Recon%20A || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  ester_data: {}

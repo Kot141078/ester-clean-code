@@ -1,0 +1,9 @@
+{
+  "team_id": "Recon A",
+  "roles": ["strategist", "operator", "platform"],
+  "overrides": {
+    "mapping": {
+      "operator": "human.pilot"
+    }
+  }
+}

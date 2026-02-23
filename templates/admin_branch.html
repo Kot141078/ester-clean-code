@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester • Branch</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:24px;color:#111}
+    textarea{width:100%;min-height:120px;padding:10px;border:1px solid #ddd;border-radius:10px}
+    button{padding:10px 14px;border-radius:10px;border:1px solid #ddd;cursor:pointer}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+    .card{background:#fafafa;border:1px solid #eee;border-radius:12px;padding:12px}
+    pre{background:#f7f7f7;padding:10px;border-radius:10px;max-height:50vh;overflow:auto}
+  </style>
+</head>
+<body>
+  <h1>Vetvlenie rassuzhdeniy</h1>
+  <textarea id="task" placeholder="Opishite zadachu..."></textarea>
+  <div style="margin-top:12px;"><button onclick="run()">Podumay</button></div>
+  <div class="grid">
+    <div class="card">
+      <h3>Stsenarii</h3>
+      <pre id="cands">—</pre>
+    </div>
+    <div class="card">
+      <h3>Vybor</h3>
+      <pre id="pick">—</pre>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px;">
+    <h3>Sketch</h3>
+    <pre id="sketch">—</pre>
+  </div>
+
+<script>
+async function run(){
+  const r = await fetch('/branch/run',{method:'POST',headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({task: document.getElementById('task').value, k:3})});
+  const j = await r.json();
+  document.getElementById('cands').textContent = JSON.stringify(j.candidates || [], null, 2);
+  document.getElementById('pick').textContent = JSON.stringify(j.pick || {}, null, 2);
+  document.getElementById('sketch').textContent = JSON.stringify(j.sketch || {}, null, 2);
+}
+</script>
+</body>
+</html>
+<!-- finalnaya stroka -->
+c=a+b

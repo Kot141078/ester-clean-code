@@ -1,0 +1,14 @@
+# config/messaging_rules.example.yaml
+# Deklarativnye pravila marshrutizatsii proaktivnykh soobscheniy
+# Klyuch — audience[:intent], znachenie — kanal i poluchatel po umolchaniyu.
+
+routes:
+  lawyer:          { channel: whatsapp, to: "15551234567" }   # advokat → WhatsApp
+  student:         { channel: telegram, to: 777000 }          # student → Telegram chat_id
+  friend:update:   { channel: whatsapp, to: "15559876543" }
+  business:        { channel: whatsapp, to: "15550001122" }
+  neutral:         { channel: whatsapp, to: "15550000000" }
+
+# Esli ukazat audience:intent yavnym klyuchom — on perekryvaet obschiy audience
+
+# c=a+b

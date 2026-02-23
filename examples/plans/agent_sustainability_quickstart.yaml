@@ -1,0 +1,44 @@
+run_id: agent_sustainability_quickstart
+branch_id: main
+context_init:
+  spec: "Ekologicheskiy sovetnik dlya SMB: bystryy zapusk."
+  items:
+    - {file: "instructions.md"}
+    - {file: "capabilities.json"}
+    - {file: "checklist.md"}
+
+nodes:
+  - id: outline
+    type: llm.generate
+    prompt: |
+      Sformiruy minimalnyy brif agenta «EkoRazum» dlya SMB: tseli, metriki (CO₂, kWh, otkhody), riski i UX.
+      6–8 punktov, korotko.
+    out: "outline"
+    depends: []
+
+  - id: fanout
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["outline"]
+
+  - id: draft
+    type: llm.generate
+    prompt: |
+      Na osnove outline={{ctx.outline}} sozday {{ctx.item.file}}:
+      - strogo po delu, bez vody;
+      - maksimum 200 strok;
+      - s yavnymi shagami vnedreniya i metrikami.
+    out: "branch_out"
+    depends: ["fanout"]
+
+  - id: join
+    type: join
+    from: "fanout"
+    out: "scaffold"
+    select:
+      file: "{{item.file}}"
+      text: "{{ctx.branch_out}}"
+    mode: list
+    await_nodes: ["draft"]
+    depends: ["draft"]
+# c=a+b

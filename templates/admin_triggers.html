@@ -1,0 +1,83 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Triggers / Content Guard / Attention Log</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  h2,h3{margin:12px 0}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  input[type="text"]{min-width:300px}
+  textarea{width:100%;min-height:100px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  table{border-collapse:collapse;width:100%} th,td{border:1px solid #e1e1e1;padding:6px 8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:120px;white-space:pre-wrap}
+  .pill{padding:4px 8px;border-radius:999px;border:1px solid #bbb}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:1080px){.grid{grid-template-columns:1fr}}
+</style>
+
+<h2>Screen Triggers</h2>
+<div class="row">
+  <button onclick="list()">List</button>
+  <button onclick="clearAll()">Clear</button>
+  Interval(ms): <input id="intv" type="number" value="800">
+  <button onclick="start()">Start</button>
+  <button onclick="stop()">Stop</button>
+  <span id="stat" class="pill">—</span>
+</div>
+
+<div class="grid">
+  <div>
+    <h3>Add OCR trigger</h3>
+    Text: <input id="ocr_text" type="text" value="Privet">
+    Lang: <input id="ocr_lang" type="text" value="eng+rus">
+    Action macro(name): <input id="m_name" type="text" value="type_text">
+    Args(JSON): <input id="m_args" type="text" value='{"text":"OK"}'>
+    <button onclick="addOCR()">Add</button>
+  </div>
+  <div>
+    <h3>Add Template trigger</h3>
+    Template(b64): <input id="tb64" type="text" placeholder="...">
+    Thr: <input id="thr" type="number" value="0.78" step="0.01" min="0" max="1">
+    Action hotkey: <input id="hk" type="text" value="CTRL+S">
+    <button onclick="addTmpl()">Add</button>
+  </div>
+</div>
+
+<h3>Content Guard</h3>
+<div class="row">
+  min_fps: <input id="fps" type="number" value="25">
+  require_visible: <input id="vis" type="checkbox" checked>
+  manual_pause: <input id="man" type="checkbox">
+  <button onclick="guardSet()">Set</button>
+  <button onclick="guardStat()">Status</button>
+  <span id="gstat" class="pill">—</span>
+</div>
+
+<h3>Attention Journal</h3>
+<div class="row">
+  <button onclick="logList()">List last</button>
+  <button onclick="appendDemo()">Append demo</button>
+</div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ const e=document.getElementById('out'); e.textContent = JSON.stringify(x,null,2); }
+async function list(){ out(await j('GET','/triggers/list')); }
+async function clearAll(){ out(await j('POST','/triggers/clear',{})); }
+async function start(){ const r=await j('POST','/triggers/start',{interval_ms:+document.getElementById('intv').value}); document.getElementById('stat').textContent='running'; out(r); }
+async function stop(){ const r=await j('POST','/triggers/stop',{}); document.getElementById('stat').textContent='stopped'; out(r); }
+async function addOCR(){
+  const spec={kind:'ocr_contains', cond:{text:document.getElementById('ocr_text').value, lang:document.getElementById('ocr_lang').value}, action:{type:'macro', name:document.getElementById('m_name').value, args: JSON.parse(document.getElementById('m_args').value||'{}')}};
+  out(await j('POST','/triggers/add', spec));
+}
+async function addTmpl(){
+  const spec={kind:'template_match', cond:{template_b64:document.getElementById('tb64').value, threshold:+document.getElementById('thr').value}, action:{type:'hotkey', seq:document.getElementById('hk').value}};
+  out(await j('POST','/triggers/add', spec));
+}
+async function guardSet(){ out(await j('POST','/guard/set',{min_fps:+document.getElementById('fps').value, require_visible:document.getElementById('vis').checked, manual_pause:document.getElementById('man').checked})); }
+async function guardStat(){ const r=await j('GET','/guard/status'); document.getElementById('gstat').textContent=(r.allowed?'allowed':'paused')+(r.reason?':'+r.reason:''); out(r); }
+async function logList(){ out(await j('GET','/attention/journal/list?n=50')); }
+async function appendDemo(){ out(await j('POST','/attention/journal/append',{event:'demo', detail:{msg:'hello'}})); }
+</script>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Claire · JWT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    :root{
+      --bg:#0b0e11; --panel:#121821; --muted:#8aa0b4; --txt:#e6eef7; --line:#243140;
+      --acc:#4cc9f0; --ok:#7ae582; --bad:#ef476f; --br:16px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 -apple-system,BlinkMacSystemFont,Inter,Segoe UI,Roboto,sans-serif}
+    .wrap{max-width:760px;margin:0 auto;padding:16px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--br);padding:16px}
+    h1{margin:0 0 10px}
+    label{display:block;color:var(--muted);font-size:12px;margin:8px 0 4px}
+    input,select,button,textarea{border-radius:12px;border:1px solid #2a3a50;background:#0b0f15;color:var(--txt);padding:10px 12px;font:inherit}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px rgba(76,201,240,.12)}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    textarea{min-height:140px;width:100%;resize:vertical;font-family:ui-monospace,Consolas,Menlo,monospace}
+    .muted{color:var(--muted)}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #2a3244;background:#11151c;color:#a1a7b1;font-size:12px}
+    .ok{color:#86f0ab;border-color:#2e6b45;background:#0f1a15}
+    .err{color:#f39bb4;border-color:#6b2e3b;background:#1a0f15}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Vypusk JWT</h1>
+      <p class="muted">Vvedi imya polzovatelya (naprimer, «Owner») i sgeneriruy token. Esli imya perechisleno v <span class="badge">ADMIN_USERNAMES</span>, roli budut <span class="badge ok">admin,user</span>.</p>
+
+      <label for="user">Imya polzovatelya</label>
+      <input id="user" placeholder="Owner" value="Owner"/>
+
+      <label for="role">Role (optsionalno)</label>
+      <select id="role">
+        <option value="">(ne ukazyvat)</option>
+        <option value="admin">admin</option>
+        <option value="user">user</option>
+        <option value="ops">ops</option>
+      </select>
+
+      <div class="row" style="margin-top:8px">
+        <button id="gen">Sgenerirovat</button>
+        <button id="who" class="badge">/auth/me</button>
+        <a class="badge" href="/routes_index.html">Marshruty</a>
+        <a class="badge" href="/chat/telegram">Lenta Telegram</a>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h2>Token</h2>
+      <textarea id="tok" placeholder="— tut poyavitsya JWT —" spellcheck="false"></textarea>
+      <p class="muted">Token avtomaticheski sokhranen v <code>localStorage("jwt")</code> i budet primenyatsya na stranitsakh UI.</p>
+      <p class="muted">Primer zagolovka: <code>Authorization: Bearer &lt;token&gt;</code></p>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h2>Otvet servera</h2>
+      <pre id="log" style="white-space:pre-wrap;max-height:280px;overflow:auto"></pre>
+    </div>
+  </div>
+
+  <script>
+    const $ = (s) => document.querySelector(s);
+    function setJwt(tok){ try{ localStorage.setItem("jwt", tok||""); }catch{} }
+    function getJwt(){ try{ return localStorage.getItem("jwt")||""; }catch{ return ""; } }
+    async function jfetch(url, opt){
+      const headers = Object.assign({"Content-Type":"application/json"}, getJwt()?{"Authorization":"Bearer "+getJwt()}:{});
+      const resp = await fetch(url, Object.assign({method:"GET", headers}, opt||{}));
+      const raw = await resp.text(); let js=null; try{ js=JSON.parse(raw);}catch{}
+      return {ok:resp.ok, status:resp.status, json:js, raw};
+    }
+    $("#gen").addEventListener("click", async ()=>{
+      const user = ($("#user").value||"").trim()||"user";
+      const role = ($("#role").value||"").trim();
+      const r = await jfetch("/auth/login", {method:"POST", body:JSON.stringify({user, role})});
+      $("#log").textContent = (r.json?JSON.stringify(r.json,null,2):r.raw);
+      if (r.ok && r.json && r.json.access_token){
+        $("#tok").value = r.json.access_token;
+        setJwt(r.json.access_token);
+      }
+    });
+    $("#who").addEventListener("click", async ()=>{
+      const r = await jfetch("/auth/me");
+      $("#log").textContent = (r.json?JSON.stringify(r.json,null,2):r.raw);
+    });
+    // pokazat tekuschiy token
+    const tok = getJwt(); if (tok) $("#tok").value = tok;
+  </script>
+</body>
+</html>

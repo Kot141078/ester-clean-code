@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — LAN-katalog paketov</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Eto «lokalnaya polka»: publikuem spisok lokalnykh ZIP, sosedi zabirayut. Ty — zabiraesh ikh. Vse v predelakh LAN i s predokhranitelyami.
+    Mosty:
+      • Yavnyy — UI poverkh indeksa/skachivaniya/importa.
+      • Skrytye — ACL (podseti), throttle (pominutnyy limit), verify pered import.
+  -->
+</head>
+<body>
+  <h1>LAN-katalog paketov <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid">
+    <div>
+      <h3>Lokalnyy indeks (to, chto vidyat sosedi)</h3>
+      <button onclick="loadLocal()">Obnovit</button>
+      <pre id="local">—</pre>
+    </div>
+    <div>
+      <h3>Poluchit s pira</h3>
+      <input id="base" placeholder="http://192.168.1.10:5000" style="width:100%"/>
+      <button onclick="getIndex()">Poluchit indeks</button>
+      <div id="remoteList" style="margin-top:8px">—</div>
+    </div>
+    <div>
+      <h3>Operatsii</h3>
+      <div>Vybrannyy ZIP: <code id="sel">—</code></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button onclick="fetchZip(false)">Fetch+Verify</button>
+        <select id="mode">
+          <option value="merge">merge</option>
+          <option value="skip">skip</option>
+        </select>
+        <button onclick="fetchZip(true)">Fetch+Verify+Import</button>
+      </div>
+      <pre id="out">—</pre>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div>
+      <h3>Piry (spisok)</h3>
+      <pre id="peers">—</pre>
+    </div>
+    <div>
+      <h3>Redaktor pirov</h3>
+      <textarea id="peersEdit" placeholder='["http://192.168.1.10:5000","http://192.168.1.11:5000"]'></textarea>
+      <div><button onclick="savePeers()">Save</button> <button onclick="loadPeers()">Obnovit</button></div>
+    </div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+let currentIndex=null, selectedName=null;
+
+async function loadLocal(){
+  const r = await fetch('/lan/packages/index'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('local').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+function selectName(n){ selectedName=n; document.getElementById('sel').textContent=n||'—'; }
+function renderRemoteList(j){
+  currentIndex=j;
+  const items=(j?.index?.items||j?.items||[]);
+  if(!items.length){ document.getElementById('remoteList').textContent='—'; return; }
+  const rows = items.map(i=>`<div style="display:flex;gap:8px;align-items:center;margin:4px 0">
+    <code>${i.name}</code> <span style="opacity:.7">${i.size} bayt</span>
+    <button onclick="selectName('${i.name.replaceAll('\\','\\\\')}')">Vybrat</button>
+  </div>`).join('');
+  document.getElementById('remoteList').innerHTML = rows;
+}
+async function getIndex(){
+  const base=document.getElementById('base').value.trim(); if(!base) return;
+  try{
+    const r = await fetch(base+'/lan/packages/index'); const j = await r.json();
+    renderRemoteList(j);
+    document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  }catch(e){
+    document.getElementById('remoteList').textContent='Oshibka zaprosa indeksa.';
+  }
+}
+async function fetchZip(withImport){
+  const base=document.getElementById('base').value.trim(); if(!base || !selectedName){ alert('Vyberite pir i ZIP'); return; }
+  const body={base_url: base, name: selectedName, import: !!withImport, mode: document.getElementById('mode').value};
+  const r = await fetch('/lan/packages/fetch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+async function loadPeers(){
+  const r = await fetch('/lan/packages/peers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({op:'get'})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('peers').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('peersEdit').value = JSON.stringify(j.items||[], null, 2);
+}
+async function savePeers(){
+  let arr=[]; try{ arr=JSON.parse(document.getElementById('peersEdit').value||'[]'); }catch(e){ alert('bad JSON'); return; }
+  const r = await fetch('/lan/packages/peers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({op:'set', items: arr})});
+  await loadPeers();
+}
+loadLocal().catch(()=>{});
+loadPeers().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

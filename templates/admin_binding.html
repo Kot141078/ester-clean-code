@@ -1,0 +1,31 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — ML↔Game Binding</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:860px}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:140px;white-space:pre-wrap}
+</style>
+<h2>Bind Multi-Leader to Game</h2>
+<div class="row">
+  Room <input id="room" value="test">
+  Leader <input id="leader" value="alice">
+  Tick <input id="tick" type="number" value="20">
+  Quota <input id="quota" type="number" value="5">
+  <button onclick="bind_()">Bind</button>
+</div>
+<div class="row">
+  <label><input id="flw" type="checkbox" checked onchange="follow()"> Follow ML</label>
+  <button onclick="refresh()">Refresh</button>
+  <button onclick="stat()">Status</button>
+</div>
+<pre id="out"></pre>
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent+=JSON.stringify(x)+"\n"; }
+async function bind_(){ out(await j('POST','/binding/bind',{"room":room.value,"leader":leader.value,"tick_rate":+tick.value,"quota":+quota.value})); }
+async function follow(){ out(await j('POST','/binding/follow',{"flag":flw.checked})); }
+async function refresh(){ out(await j('POST','/binding/refresh',{"room":room.value})); }
+async function stat(){ const r=await fetch('/binding/status'); out(await r.json()); }
+</script>

@@ -1,0 +1,37 @@
+# Karta sobytiy «voli» Ester → auditoriya/namerenie/(optsionalno kanal/poluchatel/preset).
+# Esli channel/to ne zadany — oni berutsya iz config/messaging_rules.yaml cherez /proactive/dispatch.
+
+map:
+  bank.statement_check_due:
+    audience: bank
+    intent: request
+    preset: bank.statement_request
+    # channel: whatsapp
+    # to: "15550001122"
+
+  bank.transfer_status_check:
+    audience: bank
+    intent: letter
+    preset: bank.transfer_status
+
+  lawyer.send_documents:
+    audience: lawyer
+    intent: letter
+    preset: lawyer.documents_submit
+
+  gov.appointment_request:
+    audience: gov
+    intent: request
+    preset: gov.appointment_request
+
+  medic.reschedule_visit:
+    audience: medic
+    intent: reminder
+    preset: medic.visit_reschedule
+
+  engineer.ticket_update:
+    audience: engineer
+    intent: update
+    preset: engineer.ticket_update
+
+# c=a+b

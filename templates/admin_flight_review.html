@@ -1,0 +1,33 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Flight Review</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:980px}
+  textarea,button,input{padding:8px;border:1px solid #ccc;border-radius:8px}
+  textarea{width:100%;min-height:160px}
+  img{max-width:100%;border:1px solid #ddd;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:140px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+</style>
+<h2>Flight Review</h2>
+<div class="row">
+  <button onclick="demo()">Load sample</button>
+  <button onclick="an()">Analyze</button>
+  <button onclick="ov()">Overlay</button>
+  <button onclick="rp()">Replay</button>
+</div>
+<textarea id="src">[
+{"ts":1700000000.000,"kind":"input","desc":"CTRL+S"},
+{"ts":1700000000.400,"kind":"ocr_ok","desc":"Save"},
+{"ts":1700000001.000,"kind":"template_fail","box":{"left":620,"top":340,"width":110,"height":40}}
+]</textarea>
+<img id="pic" />
+<pre id="out"></pre>
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+function demo(){ /* ostavlyaem sample v textarea */ }
+async function an(){ out(await j('POST','/flight_review/analyze',{"events":JSON.parse(src.value||"[]")})); }
+async function ov(){ const r=await j('POST','/flight_review/overlay',{"events":JSON.parse(src.value||"[]"),"w":1280,"h":720}); if(r.ok){ pic.src='data:image/png;base64,'+r.png_b64; } out(r); }
+async function rp(){ out(await j('POST','/flight_review/replay',{"events":JSON.parse(src.value||"[]"),"speed":1.0})); }
+</script>

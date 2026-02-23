@@ -1,0 +1,40 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — MediaMind+</title>
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 24px; }
+  .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin: 12px 0; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+  pre { background: #fafafa; padding: 12px; border-radius: 8px; overflow: auto; }
+  input,button { padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc; }
+  input { width: 60%; }
+  button { background: #fff; cursor: pointer; }
+  button:hover { background: #f5f5f5; }
+</style>
+<h2>MediaMind+</h2>
+<div class="card">
+  <h3>Probe URL/Path</h3>
+  <input id="u" placeholder="https://… ili /path/file.mp4">
+  <button onclick="post('/media/probe',{path_or_url:v('u')})">Proba</button>
+</div>
+<div class="card">
+  <h3>Ingest</h3>
+  <input id="u2" placeholder="https://… ili /path/file.mp4">
+  <label><input type="checkbox" id="s1" checked> Subtitry</label>
+  <label><input type="checkbox" id="s2"> ASR</label>
+  <button onclick="post('/media/ingest',{path_or_url:v('u2'),want_subtitles:g('s1'),want_stt:g('s2'),tags:['panel']})">Ingest</button>
+</div>
+<div class="card">
+  <h3>Watcher</h3>
+  <input id="dirs" placeholder="ingest,downloads">
+  <button onclick="post('/media/watch/config',{dirs:v('dirs').split(',').map(x=>x.trim()).filter(Boolean)})">Save</button>
+  <button onclick="post('/media/watch/tick',{})">Tick</button>
+</div>
+<div class="card"><pre id="out">{}</pre></div>
+<script>
+const out = document.getElementById('out');
+const v=id=>document.getElementById(id).value;
+const g=id=>document.getElementById(id).checked;
+function show(x){ out.textContent=JSON.stringify(x,null,2); }
+function post(p,b){ fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{})}).then(r=>r.json()).then(show).catch(e=>show({error:''+e})); }
+</script>
+<!-- c=a+b -->

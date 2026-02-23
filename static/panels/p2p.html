@@ -1,0 +1,37 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — P2P Bloom</title>
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 24px; }
+  .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin: 12px 0; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+  pre { background: #fafafa; padding: 12px; border-radius: 8px; overflow: auto; }
+  input[type="text"] { padding: 8px; border-radius: 8px; border: 1px solid #ccc; width: 60%; }
+  button { padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; }
+  button:hover { background: #f5f5f5; }
+</style>
+<h2>P2P Bloom-filtr</h2>
+<div class="card">
+  <button onclick="fetchJSON('/p2p/filter/status')">Status</button>
+</div>
+<div class="card">
+  <h3>Announce</h3>
+  <input id="ids1" type="text" placeholder="id1,id2,id3">
+  <button onclick="postJSON('/p2p/filter/announce',{ids:split('ids1')})">Otpravit</button>
+</div>
+<div class="card">
+  <h3>Import (ot partnera)</h3>
+  <input id="ids2" type="text" placeholder="id1,id2,id3">
+  <button onclick="postJSON('/p2p/filter/import',{ids:split('ids2')})">Import</button>
+</div>
+<div class="card">
+  <h3>Vyvod</h3>
+  <pre id="out">{}</pre>
+</div>
+<script>
+const out = document.getElementById('out');
+const show = x => out.textContent = JSON.stringify(x,null,2);
+const fetchJSON = p => fetch(p).then(r=>r.json()).then(show).catch(e=>show({error:''+e}));
+const postJSON  = (p,b) => fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{})}).then(r=>r.json()).then(show).catch(e=>show({error:''+e}));
+const split = id => document.getElementById(id).value.split(',').map(s=>s.trim()).filter(Boolean);
+</script>
+<!-- c=a+b -->

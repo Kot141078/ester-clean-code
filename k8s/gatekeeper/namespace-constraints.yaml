@@ -1,0 +1,35 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels
+metadata: { name: ns-must-have-owner }
+spec:
+  match:
+    kinds: [{ apiGroups: [""], kinds: ["Namespace"] }]
+  parameters: { labels: ["owner","env"] }
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sMustHaveProbes
+metadata: { name: dep-must-have-probes }
+spec:
+  match:
+    kinds: [{ apiGroups: ["apps"], kinds: ["Deployment"] }]
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sMustSetResources
+metadata: { name: dep-must-set-resources }
+spec:
+  match:
+    kinds: [{ apiGroups: ["apps"], kinds: ["Deployment"] }]
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sDropCaps
+metadata: { name: dep-drop-caps }
+spec:
+  match:
+    kinds: [{ apiGroups: ["apps"], kinds: ["Deployment"] }]
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sDisallowRoot
+metadata: { name: dep-disallow-root }
+spec:
+  match:
+    kinds: [{ apiGroups: ["apps"], kinds: ["Deployment"] }]

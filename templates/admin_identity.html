@@ -1,0 +1,97 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+<section class="card" style="margin-bottom:12px">
+  <div class="row">
+    <h3 style="margin:0">Identity</h3>
+    <span class="chip right">AB={{ ab_mode }}</span>
+  </div>
+  <p class="muted" style="margin-top:6px">Profile and anchor are stored in state-dir outside the source tree.</p>
+</section>
+
+<section class="grid" style="grid-template-columns:1fr;gap:12px">
+  <article class="card">
+    <h3 style="margin-top:0">Profile</h3>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
+      <label>Entity Name
+        <input id="entity_name" class="input" value="{{ profile.entity_name }}" />
+      </label>
+      <label>Owner Name
+        <input id="human_name" class="input" value="{{ profile.human_name }}" />
+      </label>
+      <label>Language
+        <input id="language" class="input" value="{{ profile.language }}" />
+      </label>
+      <label>Timezone
+        <input id="timezone" class="input" value="{{ profile.timezone }}" />
+      </label>
+      <label>Owner Aliases (CSV)
+        <input id="owner_aliases" class="input" value="{{ profile.owner_aliases }}" />
+      </label>
+      <label>Owner Birth Date
+        <input id="owner_birth_date" class="input" value="{{ profile.owner_birth_date }}" />
+      </label>
+      <label>Owner Personal Code
+        <input id="owner_personal_code" class="input" value="{{ profile.owner_personal_code }}" />
+      </label>
+      <label>Owner Birth Place
+        <input id="owner_birth_place" class="input" value="{{ profile.owner_birth_place }}" />
+      </label>
+      <label>Owner Citizenship (CSV)
+        <input id="owner_citizenship" class="input" value="{{ profile.owner_citizenship }}" />
+      </label>
+      <label>Anchor Terms (CSV)
+        <input id="anchor_terms" class="input" value="{{ profile.anchor_terms }}" />
+      </label>
+    </div>
+    <label style="display:block;margin-top:8px">Owner Priority Statement
+      <textarea id="owner_priority_statement" class="textarea" style="min-height:90px">{{ profile.owner_priority_statement }}</textarea>
+    </label>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" onclick="saveProfile()">Save Profile</button>
+      <span class="muted">updated_at: <code id="profileUpdated">{{ profile.updated_at }}</code></span>
+    </div>
+  </article>
+
+  <article class="card">
+    <h3 style="margin-top:0">Anchor</h3>
+    <textarea id="anchor" class="textarea" style="min-height:220px">{{ anchor }}</textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" onclick="saveAnchor()">Save Anchor</button>
+      <span class="muted">Local state only, no network operations.</span>
+    </div>
+  </article>
+</section>
+
+<pre id="out" class="log box" style="height:180px;margin-top:12px"></pre>
+
+<script>
+async function saveProfile(){
+  const payload = {
+    entity_name: (document.getElementById('entity_name').value || '').trim(),
+    human_name: (document.getElementById('human_name').value || '').trim(),
+    language: (document.getElementById('language').value || '').trim(),
+    timezone: (document.getElementById('timezone').value || '').trim(),
+    owner_aliases: (document.getElementById('owner_aliases').value || '').trim(),
+    owner_birth_date: (document.getElementById('owner_birth_date').value || '').trim(),
+    owner_personal_code: (document.getElementById('owner_personal_code').value || '').trim(),
+    owner_birth_place: (document.getElementById('owner_birth_place').value || '').trim(),
+    owner_citizenship: (document.getElementById('owner_citizenship').value || '').trim(),
+    owner_priority_statement: (document.getElementById('owner_priority_statement').value || '').trim(),
+    anchor_terms: (document.getElementById('anchor_terms').value || '').trim(),
+  };
+  const r = await $fetch('/admin/identity/profile', {method:'POST', body: payload});
+  const j = await r.json().catch(()=>({ok:false,error:'bad_json'}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  if (j.profile && j.profile.updated_at){
+    document.getElementById('profileUpdated').textContent = j.profile.updated_at;
+  }
+}
+
+async function saveAnchor(){
+  const payload = {anchor: document.getElementById('anchor').value || ''};
+  const r = await $fetch('/admin/identity/anchor', {method:'POST', body: payload});
+  const j = await r.json().catch(()=>({ok:false,error:'bad_json'}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+</script>
+{% endblock %}

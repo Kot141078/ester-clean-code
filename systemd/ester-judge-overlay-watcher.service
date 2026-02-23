@@ -1,0 +1,24 @@
+# packaging/systemd/ester-judge-overlay-watcher.service
+# Yunit storozha overlay-fayla Judge.
+
+# Mosty:
+# - Yavnyy (Ekspluatatsiya ↔ Orkestratsiya): podderzhivaet «zhivoy» kontur primeneniya podskazok.
+# - Skrytyy 1 (Bezopasnost ↔ Praktika): komanda perezagruzki zadaetsya snaruzhi (ENV) i mozhet byt pustoy.
+# - Skrytyy 2 (Infoteoriya ↔ Nadezhnost): prostaya pull-model — menshe tochek otkaza.
+
+# Zemnoy abzats:
+# Demon chitaet ~/.ester/judge_slots.json i pri izmenenii vyzyvaet komandu perezapuska Judge (esli zadana).
+
+[Unit]
+Description=Ester Judge Overlay Watcher
+After=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/ester-judge-overlay-watcher
+ExecStart=/usr/bin/env python3 -m scripts.judge_overlay_watch
+Restart=on-failure
+RestartSec=2s
+
+[Install]
+WantedBy=multi-user.target

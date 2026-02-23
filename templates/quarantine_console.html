@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Quarantine Console</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:24px;line-height:1.46;background:#0b1020;color:#e7eaf6}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .card{background:#0f1430;border:1px solid #223;border-radius:12px;padding:14px;margin-top:12px;max-width:1200px}
+    input,button,textarea{padding:10px 12px;border-radius:10px;border:1px solid #334;background:#0f1530;color:#e7eaf6}
+    textarea{width:100%;min-height:120px}
+    button{background:#1e293b;border:1px solid #3b82f6}
+    pre{white-space:pre-wrap;max-height:50vh;overflow:auto}
+  </style>
+</head>
+<body>
+  <h2>Karantin artefaktov</h2>
+  <div class="card">
+    <h3>Ingest</h3>
+    <input id="qpath" placeholder="dest path" value="extensions/enabled/hello.py">
+    <textarea id="qtext" placeholder="kod ili tekst fayla"></textarea>
+    <div class="row">
+      <button id="btnIngest">Otpravit</button>
+      <button id="btnScan">Pereskanirovat</button>
+      <button id="btnRelease">Vypustit v staging</button>
+    </div>
+    <pre id="out">Gotovo.</pre>
+  </div>
+  <script src="/static/quarantine_console.js"></script>
+</body>
+</html>
+<!-- c=a+b -->

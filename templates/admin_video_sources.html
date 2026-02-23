@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Istochniki video (universalnyy konveyer)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:24px;line-height:1.46}
+    .muted{color:#666}
+    .card{border:1px solid #ddd;border-radius:12px;padding:16px;max-width:1100px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    table{border-collapse:collapse;width:100%}
+    th,td{border:1px solid #ddd;padding:8px;text-align:left;vertical-align:top}
+    th{background:#fafafa}
+    input,button{padding:8px 10px;border:1px solid #ccc;border-radius:10px}
+    button{background:#111;color:#fff;border:0}
+    code{background:#f6f8fa;padding:2px 6px;border-radius:6px}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef;margin-right:6px}
+  </style>
+</head>
+<body>
+  <h2>Universalnyy videokonveyer — istochniki i vozmozhnosti</h2>
+  <div class="card">
+    <div id="caps" class="muted">Zagruzka vozmozhnostey...</div>
+    <div class="row" style="margin-top:8px">
+      <a href="/metrics/video_ex" target="_blank"><span class="pill">Metriki video_ex</span></a>
+      <a href="/portal/video" target="_blank"><span class="pill">Portal video</span></a>
+      <a href="/admin/mind/rules" target="_blank"><span class="pill">RuleHub</span></a>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3>Proverka istochnika</h3>
+    <div class="row">
+      <input id="url" placeholder="https://... ili put k faylu">
+      <button id="btnProbe">Probe</button>
+      <button id="btnFetch">Fetch</button>
+    </div>
+    <pre id="out" style="background:#0b1020;color:#e7eaf6;padding:12px;border-radius:10px;white-space:pre-wrap;max-height:48vh;overflow:auto"></pre>
+  </div>
+
+  <script src="/static/admin_video_sources.js"></script>
+</body>
+</html>

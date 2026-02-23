@@ -1,0 +1,9 @@
+FROM python:3.11-slim
+WORKDIR /app
+COPY . /app
+RUN pip install --no-cache-dir flask pyyaml prometheus-client
+ENV DISPATCH_AUTO_AUDIENCE=1 \
+    PROACTIVE_RULES_PATH=config/messaging_rules.yaml \
+    WILL_MAP_PATH=config/will_messaging_map.yaml
+EXPOSE 8080
+CMD ["python","-m","your_app_entrypoint"]  # gde sozdaetsya Flask app i vyzyvaetsya register_messaging_max(...)

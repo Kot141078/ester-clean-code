@@ -1,0 +1,27 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — UI Lexicon Builder</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:960px}
+  textarea,button,input{padding:8px;border:1px solid #ccc;border-radius:8px}
+  textarea{width:100%;min-height:140px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:140px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+</style>
+<h2>UI Lexicon (OCR primer)</h2>
+<div class="row">
+  <button onclick="mine()">Mine (journal)</button>
+  <button onclick="merge()">Merge (replay guess)</button>
+  <button onclick="prev()">Preview</button>
+  <button onclick="exp()">Export JSON</button>
+</div>
+<textarea id="src">{"candidates":[{"text":"Save","confidence":0.8},{"text":"Export","confidence":0.6}]}</textarea>
+<pre id="out"></pre>
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+async function mine(){ out(await j('POST','/lexicon/mine',{"N":500})); }
+async function merge(){ out(await j('POST','/lexicon/merge',JSON.parse(src.value||"{}"))); }
+async function prev(){ const r=await fetch('/lexicon/preview?top=200'); out(await r.json()); }
+async function exp(){ const r=await fetch('/lexicon/export'); out(await r.json()); }
+</script>

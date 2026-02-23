@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Claire · Upravlenie botom</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    :root{
+      --bg:#0b0e11; --panel:#121821; --muted:#8aa0b4; --txt:#e6eef7; --line:#243140;
+      --acc:#4cc9f0; --ok:#7ae582; --bad:#ef476f; --br:16px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 -apple-system,BlinkMacSystemFont,Inter,Segoe UI,Roboto,sans-serif}
+    .wrap{max-width:880px;margin:0 auto;padding:16px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--br);padding:16px;margin-top:16px}
+    h1,h2{margin:0 0 10px}
+    label{display:block;color:var(--muted);font-size:12px;margin:8px 0 4px}
+    input,button,textarea{border-radius:12px;border:1px solid #2a3a50;background:#0b0f15;color:var(--txt);padding:10px 12px;font:inherit}
+    input:focus,textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px rgba(76,201,240,.12)}
+    textarea{min-height:120px;width:100%;resize:vertical;font-family:ui-monospace,Consolas,Menlo,monospace}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .muted{color:var(--muted)}
+    .btn{cursor:pointer}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .mono{font-family:ui-monospace,Consolas,Menlo,monospace}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #2a3244;background:#11151c;color:#a1a7b1;font-size:12px}
+    .ok{color:var(--ok)}
+    .bad{color:var(--bad)}
+    .hint{font-size:12px;color:#9ab}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Upravlenie Telegram-botom</h1>
+      <div class="muted">JWT beretsya iz <code>localStorage("jwt")</code>. Esli net — otkroy <a class="badge" href="/auth/auto">/auth/auto</a> i vvedi imya (Owner → roli admin,user).</div>
+      <div style="margin-top:8px" class="row">
+        <button id="btnRefresh" class="btn badge">Obnovit «kto ya»</button>
+        <span id="who" class="badge">…</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Profile bota</h2>
+      <div class="grid">
+        <div>
+          <label>Imya (publichnoe)</label>
+          <input id="name" placeholder="Claire" value="Claire"/>
+          <div class="hint">Eto imya vidyat polzovateli. Mozhno ostavit Claire.</div>
+        </div>
+        <div>
+          <label>Korotkoe opisanie</label>
+          <input id="short" placeholder="Assistant & memory (Claire)"/>
+        </div>
+      </div>
+      <label>Polnoe opisanie</label>
+      <textarea id="desc" placeholder="Kto ona, chem pomogaet, kak nachat…"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button id="btnApplyProfile" class="btn badge">Primenit profil</button>
+        <span id="profileStatus" class="muted"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Komandy</h2>
+      <label>JSON spisok komand</label>
+      <textarea id="commands" class="mono" placeholder='[
+  {"command":"start","description":"Nachat"},
+  {"command":"help","description":"Spravka"}
+]'></textarea>
+      <div class="row" style="margin-top:8px">
+        <button id="btnLoadCommands" class="btn badge">Zagruzit tekuschie</button>
+        <button id="btnApplyCommands" class="btn badge">Primenit komandy</button>
+        <span id="cmdStatus" class="muted"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Logi</h2>
+      <pre id="log" class="mono" style="white-space:pre-wrap;max-height:300px;overflow:auto"></pre>
+    </div>
+  </div>
+
+  <script>
+    const $ = (s)=>document.querySelector(s);
+    function jwt(){ try{ return localStorage.getItem("jwt")||""; }catch{ return "" } }
+    async function jfetch(url, opt){
+      const headers = Object.assign({"Content-Type":"application/json"}, jwt()?{"Authorization":"Bearer "+jwt()}:{});
+      const resp = await fetch(url, Object.assign({method:"GET", headers}, opt||{}));
+      const raw = await resp.text(); let js=null; try{ js=JSON.parse(raw);}catch{}
+      return {ok:resp.ok, status:resp.status, json:js, raw};
+    }
+    function log(o){ const s = typeof o==="string"?o:JSON.stringify(o,null,2); $("#log").textContent = s + "\n"; }
+
+    async function refreshWho(){
+      const r = await jfetch("/tg/ctrl/api/get_me");
+      if (r.ok && r.json && r.json.me){
+        const me = r.json.me.result || r.json.me;
+        $("#who").textContent = (me.username?("@"+me.username):"") + " · " + (me.first_name||me.name||"bot");
+        log(r.json);
+      } else {
+        $("#who").textContent = "net dostupa";
+        log(r.raw);
+      }
+    }
+
+    async function loadCommands(){
+      const r = await jfetch("/tg/ctrl/api/get_me");
+      if (r.ok && r.json && r.json.commands && r.json.commands.result){
+        $("#commands").value = JSON.stringify(r.json.commands.result, null, 2);
+      }
+      $("#cmdStatus").textContent = r.ok ? "zagruzheny" : "oshibka";
+      log(r.json||r.raw);
+    }
+
+    async function applyProfile(){
+      const body = {
+        name: ($("#name").value||"").trim(),
+        short_description: ($("#short").value||"").trim(),
+        description: ($("#desc").value||"").trim()
+      };
+      const r = await jfetch("/tg/ctrl/api/set_profile", {method:"POST", body:JSON.stringify(body)});
+      $("#profileStatus").textContent = r.ok ? "primeneno" : ("oshibka "+r.status);
+      log(r.json||r.raw);
+    }
+
+    async function applyCommands(){
+      let cmdsTxt = ($("#commands").value||"").trim();
+      if (!cmdsTxt) { $("#cmdStatus").textContent = "pusto"; return; }
+      const r = await jfetch("/tg/ctrl/api/set_commands", {method:"POST", body:JSON.stringify({commands:cmdsTxt})});
+      $("#cmdStatus").textContent = r.ok ? "primeneno" : ("oshibka "+r.status);
+      log(r.json||r.raw);
+    }
+
+    $("#btnRefresh").addEventListener("click", refreshWho);
+    $("#btnApplyProfile").addEventListener("click", applyProfile);
+    $("#btnLoadCommands").addEventListener("click", loadCommands);
+    $("#btnApplyCommands").addEventListener("click", applyCommands);
+
+    // init
+    refreshWho();
+  </script>
+</body>
+</html>

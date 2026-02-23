@@ -1,0 +1,38 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — UI Visual Tests</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  input[type="text"]{min-width:240px}
+  textarea{width:100%;min-height:120px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:140px;white-space:pre-wrap}
+  table{border-collapse:collapse;width:100%} th,td{border:1px solid #e1e1e1;padding:6px 8px}
+</style>
+
+<h2>UI Visual Tests</h2>
+
+<div class="row">
+  Name <input id="nm" value="Menu has 'Fayl'">
+  Kind <select id="kind"><option>ocr_contains</option><option>template_match</option></select>
+  Params(JSON) <input id="p" value='{"text":"Fayl","lang":"rus+eng"}'>
+  Timeout(ms) <input id="to" type="number" value="2000">
+  <button onclick="add()">Add</button>
+  <button onclick="clr()">Clear</button>
+  <button onclick="list()">List</button>
+  <button onclick="run()">Run all</button>
+  <button onclick="exp()">Export JSON</button>
+</div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent = JSON.stringify(x,null,2); }
+async function add(){ out(await j('POST','/ui/cases/add',{"name":nm.value,"kind":kind.value,"params":JSON.parse(p.value||"{}"),"timeout_ms":+to.value})); }
+async function clr(){ out(await j('POST','/ui/cases/clear',{})); }
+async function list(){ out(await j('GET','/ui/cases/list')); }
+async function run(){ out(await j('POST','/ui/cases/run',{})); }
+async function exp(){ out(await j('GET','/ui/cases/export')); }
+</script>

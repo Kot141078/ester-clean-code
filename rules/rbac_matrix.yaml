@@ -1,0 +1,35 @@
+# RBAC Matrix — rezhim 'matrix' po umolchaniyu.
+# Sovmestim s attach_app() iz security.rbac: roli i regex-marshrutov.
+mode: matrix
+
+roles:
+  admin:
+    allow:
+      - ".*"             # polnyy dostup
+
+  user:
+    allow:
+      - "^/$"
+      - "^/portal$"
+      - "^/chat($|/.*)"
+      - "^/providers($|/.*)"
+      - "^/ingest($|/.*)"
+      - "^/docs($|/.*)"
+      - "^/openapi.json$"
+      - "^/metrics($|/.*)"
+    deny:
+      - "^/ops($|/.*)"
+      - "^/replication($|/.*)"
+
+  guest:
+    allow:
+      - "^/$"
+      - "^/live$"
+      - "^/ready$"
+      - "^/docs$"
+      - "^/openapi.json$"
+    deny:
+      - "^/admin($|/.*)"
+      - "^/ops($|/.*)"
+      - "^/replication($|/.*)"
+      - "^/providers/select$"

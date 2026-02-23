@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Ester · Admin · Safe Portal</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Helvetica Neue', Arial, 'Apple Color Emoji','Segoe UI Emoji'; background:#0f1115; color:#e6e6e6;}
+    header{display:flex; gap:.5rem; align-items:center; padding:14px 16px; background:#0b0d12; position:sticky; top:0; z-index:10; border-bottom:1px solid #1b2030}
+    main{padding:16px; max-width:1200px; margin:0 auto;}
+    .row{display:flex; gap:16px; flex-wrap:wrap}
+    .card{background:#12151d; border:1px solid #1b2030; border-radius:14px; padding:14px; flex:1}
+    .controls{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    select,input[type=checkbox]{background:#0f1320; color:#e6e6e6; border:1px solid #28324a; border-radius:10px; padding:6px 10px}
+    textarea{width:100%; min-height:160px; background:#0f1320; color:#e6e6e6; border:1px solid #28324a; border-radius:12px; padding:10px 12px}
+    button{background:#1f6feb; color:white; border:0; border-radius:12px; padding:10px 14px; cursor:pointer}
+    button[disabled]{opacity:.5; cursor:not-allowed}
+    pre{white-space:pre-wrap; background:#0b0f1a; border:1px solid #1b2030; padding:12px; border-radius:12px; min-height:180px}
+    .hint{font-size:12px; opacity:.8}
+    .ok{color:#8be28b} .bad{color:#ff6b6b}
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Ester · Admin · Safe Portal</strong>
+    <span style="opacity:.7">provider: <span id="prov">—</span></span>
+    <span id="jwtState" class="hint"></span>
+  </header>
+  <main>
+    <div class="card controls">
+      <label>Mode:
+        <select id="mode">
+          <option value="lmstudio">lmstudio (default)</option>
+          <option value="openai">openai (cloud)</option>
+          <option value="gemini">gemini</option>
+          <option value="xai">xai</option>
+          <option value="judge">judge</option>
+          <option value="local">local (stub)</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="rag" checked> RAG</label>
+      <label>temp <input type="range" id="temp" min="0" max="2" step="0.1" value="0.2"></label>
+      <button id="send">Send</button>
+      <button id="saveJwt">Save JWT</button>
+    </div>
+
+    <div class="row">
+      <div class="card" style="flex:2">
+        <textarea id="q" placeholder="Ask Ester... (JWT is optional for /chat/message)"></textarea>
+      </div>
+      <div class="card" style="flex:3">
+        <pre id="out">...</pre>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="card">
+        <div class="hint">
+          • GET <code>/chat/health</code> shows active provider.<br>
+          • POST <code>/chat/message</code> accepts <code>{ message, mode, rag, temperature, sid? }</code>.<br>
+          • Global provider switch: <code>POST /providers/select</code> (requires JWT).<br>
+          • Current data directory: <code id="datadir">—</code>.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const $ = (s)=>document.querySelector(s);
+    const out = $("#out");
+    const prov = $("#prov");
+    const datadir = $("#datadir");
+    const jwtState = $("#jwtState");
+
+    async function jget(url){
+      const h = {"Accept":"application/json"};
+      const jwt = localStorage.getItem("jwt");
+      if (jwt) h["Authorization"] = "Bearer " + jwt;
+      return fetch(url,{headers:h, cache:"no-store"});
+    }
+    async function jpost(url, body){
+      const h = {"Content-Type":"application/json"};
+      const jwt = localStorage.getItem("jwt");
+      if (jwt) h["Authorization"] = "Bearer " + jwt;
+      return fetch(url,{method:"POST", headers:h, body:JSON.stringify(body)});
+    }
+
+    async function refreshHealth(){
+      try{
+        const r = await jget("/chat/health");
+        const js = await r.json();
+        prov.textContent = js.provider || "—";
+        datadir.textContent = js.data_dir || "—";
+      }catch(_e){ prov.textContent = "n/a"; }
+    }
+
+    async function checkJwt(){
+      try{
+        const r = await jget("/_jwt/status");
+        const js = await r.json();
+        jwtState.textContent = js.ok ? "JWT ok" : "JWT n/a";
+        jwtState.className = "hint " + (js.ok ? "ok":"bad");
+      }catch{ jwtState.textContent = ""; }
+    }
+
+    $("#send").onclick = async ()=>{
+      const body = {
+        message: $("#q").value || "ping",
+        mode: $("#mode").value,
+        rag: $("#rag").checked,
+        temperature: parseFloat($("#temp").value || "0.2"),
+        sid: "ui"
+      };
+      out.textContent = "...";
+      const r = await jpost("/chat/message", body);
+      try{
+        const js = await r.json();
+        out.textContent = JSON.stringify(js, null, 2);
+      }catch{ out.textContent = await r.text(); }
+      refreshHealth();
+    };
+
+    $("#saveJwt").onclick = async ()=>{
+      const subject = prompt("Subject/user for token (default: owner):","owner");
+      if(subject===null) return;
+      try{
+        const r = await jpost("/auth/ui/mint", {subject: subject||"owner", role:"ADMIN"});
+        const js = await r.json();
+        const token = js.jwt || js.token || "";
+        if(token){
+          localStorage.setItem("jwt", token);
+          alert("JWT saved to localStorage.jwt");
+        }else{
+          alert("Unable to mint jwt: " + JSON.stringify(js));
+        }
+      }catch(e){ alert("JWT error: " + e); }
+      checkJwt();
+    };
+
+    refreshHealth();
+    checkJwt();
+  </script>
+</body>
+</html>

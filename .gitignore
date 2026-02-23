@@ -1,48 +1,14 @@
-# Default deny posture: allow only explicitly listed release files and trees.
-/*
+# Environment and secrets
+.env
+.env.*
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
 
-# Root metadata and legal documents
-!/.gitignore
-!/.gitattributes
-!/.editorconfig
-!/LICENSE
-!/NOTICE
-!/README.md
-!/SECURITY.md
-!/CONTRIBUTING.md
-!/CODE_OF_CONDUCT.md
-!/CHANGELOG.md
-!/CITATION.cff
-!/AUTHORS.md
-!/TRADEMARK.md
-
-# Documentation allowlist
-!/docs/
-/docs/*
-!/docs/README.md
-!/docs/QUICKSTART.md
-!/docs/ARCHITECTURE.md
-!/docs/L4W_ALIGNMENT.md
-!/docs/THREAT_MODEL.md
-!/docs/RELEASE_CHECKLIST.md
-
-# Tooling allowlist
-!/tools/
-/tools/*
-!/tools/scan_repo.ps1
-!/tools/write_public_docs.py
-
-# Branding assets
-!/logo/
-!/logo/**
-
-# Public source targets
-!/ESTER/
-!/ESTER/**
-!/modules/
-!/modules/**
-
-# Runtime/state exclusions (including inside allowed trees)
+# Runtime/state data (not for public repository)
 data/
 state/
 logs/
@@ -59,24 +25,43 @@ _ESTER_DUMP/
 _tmp_corefacts_home/
 artifacts/
 private/
+Virtual Desktop for Ester/
+models--*/
 
-# Local secrets and environment
-.env
-.env.*
-secrets/
-*.pem
-*.key
-*.p12
-*.pfx
-
-# Build caches and binary/runtime artifacts
+# Build/system caches
 __pycache__/
 *.py[cod]
 *.so
 *.dll
+*.dylib
+.venv/
+venv/
+env/
+node_modules/
+.mypy_cache/
+.pytest_cache/
+.tox/
+dist/
+build/
+
+# Databases and vector artifacts
 *.db
 *.sqlite
 *.sqlite3
 *.jsonl
+*.parquet
+*.bin
+
+# Logs/temp
 *.log
 *.pid
+*.tmp
+*.temp
+
+# Archives
+*.zip
+*.gz
+*.tar
+*.7z
+*.rar
+*.run

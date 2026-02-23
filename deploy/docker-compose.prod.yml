@@ -1,0 +1,23 @@
+version: '3.9'
+services:
+  ester:
+    build: .
+    image: ghcr.io/OWNER/REPO:latest
+    restart: always
+    environment:
+      - TZ=UTC
+      - LOG_LEVEL=INFO
+      - JWT_SECRET=${JWT_SECRET}
+      - ENCRYPTION_MASTER_KEY_BASE64=${ENCRYPTION_MASTER_KEY_BASE64}
+    ports: ["5000:5000"]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:5000/ready"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+    read_only: true
+    tmpfs: [ "/tmp:rw,noexec,nosuid,size=64m" ]
+    security_opt:
+      - no-new-privileges:true
+    ulimits:
+      nofile: 65536

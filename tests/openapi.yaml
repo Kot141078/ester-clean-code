@@ -1,0 +1,528 @@
+openapi: 3.0.3
+info:
+  title: Ester API
+  version: "2.0.0"
+  description: >
+    Obnovlennyy OpenAPI dlya «Ester v2.0». Dobavleny marshruty:
+    - /mem/kg/* — graf znaniy (uzly/rebra, eksport/import)
+    - /mem/hypothesis — khranilische gipotez (list/add)
+    - Aliasy dlya pamyati pod /mem/* (flashback/alias/compact)
+    Vse ruchki zaschischeny JWT (Bearer). Sovmestimo s kanonnym dampom v1 (drop-in).
+servers:
+  - url: /
+    description: Relative server (behind reverse proxy)
+tags:
+  - name: Memory
+    description: Structured memory (flashback/alias/compact)
+  - name: KnowledgeGraph
+    description: Knowledge Graph (nodes/edges, import/export)
+  - name: Hypothesis
+    description: Hypotheses store (dreams/proactive insights)
+security:
+  - bearerAuth: []
+
+paths:
+  ############################################
+  # MEMORY (originalnye + aliasy pod /mem)
+  ############################################
+
+  /memory/flashback:
+    get:
+      tags: [Memory]
+      summary: Flashback — poluchit poslednie zapisi pamyati (po tekstovomu filtru)
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string, default: "*" }
+          description: Filtr po podstroke v pole text (ili "*" dlya vsekh)
+        - in: query
+          name: k
+          schema: { type: integer, default: 50, minimum: 1, maximum: 1000 }
+          description: Limit kolichestva vozvraschaemykh zapisey
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemoryFlashbackResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /memory/alias:
+    post:
+      tags: [Memory]
+      summary: Sozdat alias (skleyka): pometit, chto src — eto alias dst
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AliasRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AliasResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /memory/compact:
+    post:
+      tags: [Memory]
+      summary: Kompakt pamyati (udalenie dubley po text); dry-run podderzhivaetsya
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompactRequest"
+      responses:
+        "200":
+          description: Itog kompakta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompactResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  # Aliasy tekh zhe ruchek pod /mem/* (reestr marshrutov dublirovan)
+  /mem/flashback:
+    get:
+      tags: [Memory]
+      summary: (Alias) Flashback — to zhe, chto /memory/flashback
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string, default: "*" }
+        - in: query
+          name: k
+          schema: { type: integer, default: 50, minimum: 1, maximum: 1000 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemoryFlashbackResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /mem/alias:
+    post:
+      tags: [Memory]
+      summary: (Alias) Sozdat alias — to zhe, chto /memory/alias
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AliasRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AliasResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /mem/compact:
+    post:
+      tags: [Memory]
+      summary: (Alias) Kompakt pamyati — to zhe, chto /memory/compact
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompactRequest"
+      responses:
+        "200":
+          description: Itog kompakta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompactResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  ############################################
+  # KNOWLEDGE GRAPH
+  ############################################
+
+  /mem/kg/upsert:
+    post:
+      tags: [KnowledgeGraph]
+      summary: Upsert uzlov i/ili reber grafa znaniy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KGUpsertRequest"
+            examples:
+              upsertNodesAndEdges:
+                summary: Primer uzlov i rebra
+                value:
+                  nodes:
+                    - { id: "topic::replication", type: "topic", label: "Replication CRDT", props: { area: "p2p" } }
+                    - { id: "hypo::h_1234abcd", type: "artifact", label: "Klasternyy signal: crdt", props: { kind: "hypothesis" } }
+                  edges:
+                    - { src: "topic::replication", rel: "supports", dst: "hypo::h_1234abcd", weight: 0.7, props: { source: "dreams_v2" } }
+      responses:
+        "200":
+          description: Kolichestvo sokhranennykh suschnostey
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KGUpsertResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /mem/kg/query:
+    get:
+      tags: [KnowledgeGraph]
+      summary: Poisk v grafe — libo uzly (q/type), libo rebra (rel/src/dst)
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+          description: Filtr po label (uzly). Ignoriruetsya, esli ukazan rel/src/dst.
+        - in: query
+          name: type
+          schema: { type: string }
+          description: Filtr po tipu uzla (topic/entity/actor/artifact/...)
+        - in: query
+          name: rel
+          schema: { type: string }
+          description: Otnoshenie dlya filtratsii reber (supports/contradicts/refines/mentions/...)
+        - in: query
+          name: src
+          schema: { type: string }
+          description: Istochnik rebra
+        - in: query
+          name: dst
+          schema: { type: string }
+          description: Priemnik rebra
+        - in: query
+          name: limit
+          schema: { type: integer, default: 100, minimum: 1, maximum: 1000 }
+          description: Limit rezultatov
+      responses:
+        "200":
+          description: Rezultaty poiska
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/KGQueryNodesResponse"
+                  - $ref: "#/components/schemas/KGQueryEdgesResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /mem/kg/export:
+    get:
+      tags: [KnowledgeGraph]
+      summary: Eksport vsego grafa (uzly i rebra)
+      responses:
+        "200":
+          description: Polnyy damp grafa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KGExportResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /mem/kg/import:
+    post:
+      tags: [KnowledgeGraph]
+      summary: Import grafa (merdzh po LWW/merge-politikam)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KGExportResponse"
+      responses:
+        "200":
+          description: Rezultat importa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KGImportResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  ############################################
+  # HYPOTHESIS STORE
+  ############################################
+
+  /mem/hypothesis:
+    get:
+      tags: [Hypothesis]
+      summary: Poluchit spisok gipotez (optsionalno — po topic)
+      parameters:
+        - in: query
+          name: topic
+          schema: { type: string }
+          description: Filtr po teme
+        - in: query
+          name: limit
+          schema: { type: integer, default: 100, minimum: 1, maximum: 1000 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HypothesisListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [Hypothesis]
+      summary: Dobavit/obnovit gipotezu (idempotentno po (text, topic))
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HypothesisAddRequest"
+            examples:
+              addHypothesis:
+                value:
+                  text: "Klasternyy signal: crdt"
+                  topic: "replication"
+                  tags: ["dream"]
+                  score: 0.72
+      responses:
+        "200":
+          description: Sozdano/obnovleno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OKSavedResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    Unauthorized:
+      description: Trebuetsya avtorizatsiya (Bearer JWT)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    BadRequest:
+      description: Nevernyy zapros (validatsiya ne proydena)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        ok: { type: boolean, example: false }
+        error: { type: string, example: "text required" }
+
+    ############################
+    # Memory (flashback/alias/compact)
+    ############################
+    StructuredRecord:
+      type: object
+      description: Zapis v structured memory (minimalnaya kontraktnaya skhema; dopuskaet proizvolnye polya)
+      additionalProperties: true
+      properties:
+        id: { type: string, description: "Vnutrenniy identifikator (esli est)" }
+        text: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+        weight: { type: number }
+        mtime: { type: number, description: "Unix time (sec)" }
+
+    MemoryFlashbackResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/StructuredRecord"
+
+    AliasRequest:
+      type: object
+      required: [src, dst]
+      properties:
+        src: { type: string, description: "Dokument/zapis-istochnik" }
+        dst: { type: string, description: "Dokument/zapis-priemnik" }
+
+    AliasResponse:
+      type: object
+      properties:
+        ok: { type: boolean, example: true }
+        doc_id: { type: string }
+        alias: { type: string }
+
+    CompactRequest:
+      type: object
+      properties:
+        dry_run:
+          type: boolean
+          default: false
+          description: "Esli true — tolko poschitat, ne zapisyvaya izmeneniya"
+        dry:
+          type: boolean
+          description: "Sinonim dry_run"
+        by_text:
+          type: boolean
+          default: true
+          description: "Udalyat dubli po polyu text (poslednyaya zapis sokhranyaetsya)"
+
+    CompactResponse:
+      type: object
+      properties:
+        ok: { type: boolean, example: true }
+        before: { type: integer, example: 125 }
+        after: { type: integer, example: 97 }
+        dry: { type: boolean, example: false }
+
+    ############################
+    # Knowledge Graph
+    ############################
+    KGNode:
+      type: object
+      required: [id, type, label]
+      properties:
+        id: { type: string, example: "topic::replication" }
+        type: { type: string, example: "topic" }
+        label: { type: string, example: "Replication CRDT" }
+        props:
+          type: object
+          additionalProperties: true
+          example: { area: "p2p" }
+        mtime: { type: number, description: "Unix time (sec)" }
+        version: { type: integer, description: "Optsionalnaya versiya" }
+
+    KGEdge:
+      type: object
+      required: [src, rel, dst]
+      properties:
+        id: { type: string, example: "e_1a2b3c4d5e6f" }
+        src: { type: string, example: "topic::replication" }
+        rel: { type: string, example: "supports" }
+        dst: { type: string, example: "hypo::h_1234abcd" }
+        weight: { type: number, format: float, example: 0.7 }
+        props:
+          type: object
+          additionalProperties: true
+          example: { source: "dreams_v2" }
+        mtime: { type: number, description: "Unix time (sec)" }
+        version: { type: integer }
+
+    KGUpsertRequest:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items: { $ref: "#/components/schemas/KGNode" }
+        edges:
+          type: array
+          items: { $ref: "#/components/schemas/KGEdge" }
+
+    KGUpsertResponse:
+      type: object
+      properties:
+        ok: { type: boolean, example: true }
+        nodes: { type: integer, example: 2 }
+        edges: { type: integer, example: 1 }
+
+    KGQueryNodesResponse:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items: { $ref: "#/components/schemas/KGNode" }
+
+    KGQueryEdgesResponse:
+      type: object
+      properties:
+        edges:
+          type: array
+          items: { $ref: "#/components/schemas/KGEdge" }
+
+    KGExportResponse:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items: { $ref: "#/components/schemas/KGNode" }
+        edges:
+          type: array
+          items: { $ref: "#/components/schemas/KGEdge" }
+
+    KGImportResponse:
+      type: object
+      properties:
+        ok: { type: boolean, example: true }
+        nodes: { type: integer, example: 12, description: "Skolko uzlov smerdzheno" }
+        edges: { type: integer, example: 25, description: "Skolko reber smerdzheno" }
+
+    ############################
+    # Hypothesis
+    ############################
+    HypothesisItem:
+      type: object
+      properties:
+        id: { type: string, example: "h_1a2b3c4d5e6f" }
+        text: { type: string, example: "Klasternyy signal: crdt" }
+        topic: { type: string, example: "replication" }
+        tags:
+          type: array
+          items: { type: string }
+        score: { type: number, example: 0.72 }
+        mtime: { type: number }
+
+    HypothesisListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/HypothesisItem" }
+
+    HypothesisAddRequest:
+      type: object
+      required: [text]
+      properties:
+        text: { type: string }
+        topic: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+        score: { type: number, default: 0.5 }
+
+    OKSavedResponse:
+      type: object
+      properties:
+        ok: { type: boolean, example: true }
+        saved: { type: boolean, example: true }

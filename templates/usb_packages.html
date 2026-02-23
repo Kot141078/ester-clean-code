@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — USB-pakety</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Paket — eto ZIP s manifestom i SHA-256 dlya kazhdogo fayla. Zdes sobiraem, proveryaem i importiruem na/s fleshki.
+    Mosty:
+      • Yavnyy — UX poverkh faylovykh operatsiy i audita.
+      • Skrytye — khesh/zhurnal i offlayn-sovmestimost ZIP/JSON.
+  -->
+</head>
+<body>
+  <h1>USB-pakety <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid">
+    <div>
+      <h3>Komplektatsiya</h3>
+      <div id="projs">—</div>
+      <div style="margin-top:8px" id="sess">—</div>
+      <label style="display:block;margin-top:8px"><input type="checkbox" id="res"/> Vklyuchit resursy (LM Studio aliases)</label>
+    </div>
+    <div>
+      <h3>USB tom</h3>
+      <select id="mount"></select>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="refresh()">Obnovit</button>
+        <button onclick="scan()">Skanirovat USB</button>
+      </div>
+      <div id="found" style="margin-top:8px">—</div>
+    </div>
+    <div>
+      <h3>Operatsii</h3>
+      <button onclick="plan()">Plan</button>
+      <button onclick="build()">Sobrat paket</button>
+      <textarea id="out" placeholder="Vyvod..." style="width:100%;min-height:120px;margin-top:8px"></textarea>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div>
+      <h3>Proverka/Import</h3>
+      <input id="zip" placeholder="/path/to/pkg.zip" style="width:100%"/>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button onclick="verify()">Proverit</button>
+        <select id="mode">
+          <option value="merge">merge</option>
+          <option value="skip">skip</option>
+        </select>
+        <button onclick="imp()">Importirovat</button>
+      </div>
+      <pre id="vr">—</pre>
+    </div>
+    <div>
+      <h3>Zhurnal priemki (tail)</h3>
+      <pre id="log">—</pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+let selProjs=new Set(), selSess=new Set();
+
+function renderLists(j){
+  const ps=(j.projects?.items||[]).map(p=>`<label><input type="checkbox" onchange="toggleProj('${p.id}',this.checked)"/> ${p.id} <span style="opacity:.7">(${p.jobs_done}/${p.jobs_total})</span></label>`).join('<br/>')||'—';
+  document.getElementById('projs').innerHTML = ps;
+  const ss=(j.sessions?.items||[]).map(s=>`<label><input type="checkbox" onchange="toggleSess('${s.id}',this.checked)"/> ${s.id} <span style="opacity:.7">(${s.variants} variantov)</span></label>`).join('<br/>')||'—';
+  document.getElementById('sess').innerHTML = ss;
+  const m=document.getElementById('mount'); m.innerHTML='';
+  (j.usb||[]).forEach(t=>{
+    const o=document.createElement('option'); o.value=t.mount; o.textContent=(t.mount+' — '+(t.label||'')+' ('+(t.fs||'?')+')');
+    m.appendChild(o);
+  });
+  document.getElementById('log').textContent = JSON.stringify(j.log, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  renderFound(j.found);
+}
+function renderFound(found){
+  const items=(found?.items||[]);
+  if(items.length===0){ document.getElementById('found').textContent='—'; return; }
+  const rows = items.map(i=>`<div style="display:flex;gap:8px;align-items:center;margin:4px 0">
+    <code>${i.path}</code> <span style="opacity:.7">${i.size} bayt</span>
+    <button onclick="fillZip('${i.path.replaceAll('\\','\\\\')}')">Vybrat</button>
+  </div>`).join('');
+  document.getElementById('found').innerHTML = rows;
+}
+function fillZip(p){ document.getElementById('zip').value = p; }
+function toggleProj(id, on){ if(on) selProjs.add(id); else selProjs.delete(id); }
+function toggleSess(id, on){ if(on) selSess.add(id); else selSess.delete(id); }
+
+async function refresh(){
+  const r = await fetch('/admin/packages/status'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok) return;
+  renderLists(j);
+}
+async function scan(){
+  const mounts=[...document.querySelectorAll('#mount option')].map(o=>o.value);
+  const r = await fetch('/admin/packages/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mounts})});
+  const j = await r.json().catch(()=>({ok:false}));
+  renderFound(j);
+}
+function spec(){
+  return {projects:[...selProjs], sessions:[...selSess], resources: document.getElementById('res').checked};
+}
+async function plan(){
+  const r = await fetch('/admin/packages/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(spec())});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').value = JSON.stringify(j, null, 2);
+}
+async function build(){
+  const body={...spec(), mount: document.getElementById('mount').value};
+  const r = await fetch('/admin/packages/build',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').value = JSON.stringify(j, null, 2);
+  await refresh();
+}
+async function verify(){
+  const path=document.getElementById('zip').value.trim(); if(!path) return;
+  const r = await fetch('/admin/packages/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('vr').textContent = JSON.stringify(j, null, 2);
+  await refresh();
+}
+async function imp(){
+  const path=document.getElementById('zip').value.trim(); if(!path) return;
+  const mode=document.getElementById('mode').value;
+  const r = await fetch('/admin/packages/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path, mode})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('vr').textContent = JSON.stringify(j, null, 2);
+  await refresh();
+}
+refresh().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

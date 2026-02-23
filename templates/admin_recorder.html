@@ -1,0 +1,71 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Recorder & Mentor A/B</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+  h2,h3{margin:12px 0}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  input[type="text"]{min-width:260px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:120px;white-space:pre-wrap}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  table{border-collapse:collapse;width:100%} th,td{border:1px solid #e1e1e1;padding:6px 8px}
+  .pill{padding:4px 8px;border-radius:999px;border:1px solid #bbb}
+</style>
+
+<h2>Recorder (REC→PLAY)</h2>
+<div class="row">
+  Session: <input id="sess" type="text" value="s1">
+  <button onclick="start()">New session</button>
+  <button onclick="stop()">Record OFF</button>
+</div>
+<div class="row">
+  <button onclick="openApp()">Open Notepad</button>
+  <button onclick="typeTxt()">Type sample</button>
+  <button onclick="clickXY()">Click 200,200</button>
+  <button onclick="hotkey()">Hotkey CTRL+S</button>
+  <button onclick="ocrClick()">OCR 'OK'</button>
+</div>
+<div class="row">
+  Export as workflow: <input id="wname" type="text" value="wf_session_s1">
+  <button onclick="exportWF()">Export → Workflows</button>
+</div>
+
+<h2>Mentor A/B</h2>
+<div class="row">
+  Slot: <span id="slot" class="pill">?</span>
+  Auto rollback (sec): <span id="auto" class="pill">0</span>
+</div>
+<div class="row">
+  <button onclick="switchAB('A')">Switch to A</button>
+  <button onclick="switchAB('B')">Switch to B</button>
+  <button onclick="setAuto(60)">Auto-Rollback 60s</button>
+  <button onclick="cancelAuto()">Cancel Auto</button>
+  <button onclick="stat()">Refresh</button>
+</div>
+
+<h2>Otvet</h2>
+<pre id="log"></pre>
+
+<script>
+async function j(method,url,body){
+  const r=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):null});
+  const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}}
+}
+function log(x){ const e=document.getElementById('log'); e.textContent = JSON.stringify(x,null,2); }
+function sess(){ return document.getElementById('sess').value; }
+
+async function start(){ log(await j('POST','/rpa/record/start',{session:sess()})); }
+async function stop(){ log(await j('POST','/rpa/record/stop',{session:sess()})); }
+async function openApp(){ log(await j('POST','/rpa/record/open',{session:sess(),app:'notepad'})); }
+async function typeTxt(){ log(await j('POST','/rpa/record/type',{session:sess(),text:'Hello from Ester'})); }
+async function clickXY(){ log(await j('POST','/rpa/record/click',{session:sess(),x:200,y:200})); }
+async function hotkey(){ log(await j('POST','/rpa/record/hotkey',{session:sess(),seq:'CTRL+S'})); }
+async function ocrClick(){ log(await j('POST','/rpa/record/ocr_click',{session:sess(),needle:'OK',lang:'eng+rus'})); }
+async function exportWF(){ const name=document.getElementById('wname').value; log(await j('POST','/rpa/record/export',{session:sess(),name})); }
+
+async function stat(){ const s=await j('GET','/mentor/ab/status'); document.getElementById('slot').textContent=s.slot; document.getElementById('auto').textContent=s.auto_sec; log(s); }
+async function switchAB(slot){ log(await j('POST','/mentor/ab/switch',{slot})); await stat(); }
+async function setAuto(sec){ log(await j('POST','/mentor/ab/auto',{sec})); await stat(); }
+async function cancelAuto(){ log(await j('POST','/mentor/ab/cancel_auto',{})); await stat(); }
+stat();
+</script>

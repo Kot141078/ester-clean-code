@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Agency Console</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:24px;line-height:1.46;background:#0b1020;color:#e7eaf6}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .card{background:#0f1430;border:1px solid #223;border-radius:12px;padding:14px;margin-top:12px;max-width:1200px}
+    input,button,textarea{padding:10px 12px;border-radius:10px;border:1px solid #334;background:#0f1530;color:#e7eaf6}
+    textarea{width:100%;min-height:120px}
+    button{background:#1e293b;border:1px solid #3b82f6}
+    a{color:#82aaff}
+    pre{white-space:pre-wrap;max-height:50vh;overflow:auto}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#16213e;color:#cdd6f4;margin-right:6px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:1000px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <h2>Praktika: resursy → plan → deystviya</h2>
+
+  <div class="card">
+    <div class="row">
+      <a class="pill" href="/agency/ledger/balances" target="_blank">balansy</a>
+      <a class="pill" href="/agency/ledger/entries" target="_blank">zhurnal</a>
+      <a class="pill" href="/metrics/agency" target="_blank">metriki</a>
+      <a class="pill" href="/agency/pill/status" target="_blank">tabletka</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Plan pod nuzhdu</h3>
+      <input id="need" placeholder="napr.: videoparser SSA/ASS">
+      <input id="budget" placeholder="byudzhet, EUR" value="0">
+      <div class="row">
+        <button id="btnPlan">Sformirovat plan</button>
+        <button id="btnExec">Ispolnit bezopasnoe</button>
+      </div>
+      <pre id="outPlan">Gotovo.</pre>
+    </div>
+
+    <div class="card">
+      <h3>Ledzher</h3>
+      <div class="row">
+        <input id="incAmt" placeholder="dokhod EUR" value="10">
+        <input id="incSrc" placeholder="istochnik" value="donation">
+        <button id="btnIncome">Dobavit dokhod</button>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <input id="expAmt" placeholder="raskhod EUR" value="5">
+        <input id="expPurp" placeholder="tsel" value="test">
+        <button id="btnExpense">Potratit (nuzhny flagi)</button>
+      </div>
+      <pre id="outLedger">Gotovo.</pre>
+    </div>
+
+    <div class="card">
+      <h3>Naym (chernovik)</h3>
+      <input id="hTitle" placeholder="zagolovok">
+      <input id="hSkills" placeholder="navyki cherez zapyatuyu">
+      <input id="hBudget" placeholder="byudzhet EUR" value="50">
+      <input id="hDur" placeholder="dlitelnost">
+      <textarea id="hDesc" placeholder="opisanie"></textarea>
+      <div class="row">
+        <button id="btnHDraft">Save chernovik</button>
+        <button id="btnHList">Spisok brifov</button>
+      </div>
+      <pre id="outHire">Gotovo.</pre>
+    </div>
+
+    <div class="card">
+      <h3>Semya: perevod (chernovik)</h3>
+      <input id="fAmt" placeholder="summa EUR" value="20">
+      <input id="fName" placeholder="poluchatel" value="Owner">
+      <input id="fPurpose" placeholder="naznachenie" value="pokupka knig">
+      <input id="fIBAN" placeholder="IBAN (zapolnit vruchnuyu)" value="<FILL_MANUALLY>">
+      <div class="row">
+        <button id="btnFPrep">Sdelat chernovik</button>
+        <button id="btnFList">Spisok chernovikov</button>
+      </div>
+      <pre id="outFamily">Gotovo.</pre>
+    </div>
+  </div>
+
+  <script src="/static/agency_console.js"></script>
+</body>
+</html>
+
+<!-- c=a+b -->

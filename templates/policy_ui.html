@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru"><meta charset="utf-8">
+<title>Politika sistemy</title>
+<style>
+ body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;max-width:900px;margin:40px auto;padding:0 16px}
+ h1{font-size:22px;margin:0 0 12px} .row{margin:10px 0}
+ .btn{padding:8px 14px;border:1px solid #999;border-radius:8px;background:#f7f7f7;cursor:pointer}
+ input[type="number"]{width:100px}
+ code{background:#f4f4f4;padding:2px 6px;border-radius:6px}
+ .note{opacity:.7;font-size:13px}
+ .ok{color:#0a0}
+</style>
+<h1>Politika khraneniya i rezhimy</h1>
+<div class="row"><b>POLICY_DEFAULT</b>:
+  <select id="policy">
+    <option value="L0">L0</option>
+    <option value="L1" selected>L1</option>
+    <option value="L2">L2</option>
+  </select>
+</div>
+<div class="row">
+  <label><input id="ext" type="checkbox"> Razreshit vneshnie LLM (ALLOW_EXT_LLM)</label>
+</div>
+<div class="row">
+  <label>TTL kesha otvetov (chasy): <input id="ttl" type="number" min="1" value="168"></label>
+</div>
+<div class="row">
+  <label>Shardirovanie (SHARD_STRATEGY): 
+    <select id="shard">
+      <option value="author_alpha" selected>author_alpha</option>
+      <option value="genre">genre</option>
+      <option value="size">size</option>
+    </select>
+  </label>
+</div>
+<div class="row">
+  <label>Bekend indeksa (INDEX_BACKEND): 
+    <select id="backend">
+      <option value="faiss" selected>faiss</option>
+      <option value="flat">flat</option>
+    </select>
+  </label>
+  &nbsp;&nbsp;
+  <label>Urovni indeksa (INDEX_LEVEL):
+    <select id="level">
+      <option value="L1">L1</option>
+      <option value="L2">L2</option>
+      <option value="L1L2" selected>L1L2</option>
+    </select>
+  </label>
+</div>
+<div class="row"><button class="btn" onclick="save()">Save</button> <span id="msg" class="ok"></span></div>
+<div class="row">
+  <h3>Tekuschiy konfig</h3>
+  <pre id="cfg"></pre>
+</div>
+<div class="note">Podpis izmeneniy: fayl <code>data/config.json</code>. Esli ustanovlen <code>ADMIN_JWT</code> — dlya POST nuzhen zagolovok <code>Authorization: Bearer ...</code>.</div>
+<script>
+async function load(){
+  const r=await fetch('/policy'); const j=await r.json();
+  document.getElementById('cfg').textContent=JSON.stringify(j,null,2);
+  document.getElementById('policy').value = j.POLICY_DEFAULT||'L1';
+  document.getElementById('ext').checked = !!j.ALLOW_EXT_LLM;
+  document.getElementById('ttl').value = j.ANSWER_CACHE_TTL_HOURS||168;
+  document.getElementById('shard').value = j.SHARD_STRATEGY||'author_alpha';
+  document.getElementById('backend').value = j.INDEX_BACKEND||'faiss';
+  document.getElementById('level').value = j.INDEX_LEVEL||'L1L2';
+}
+async function save(){
+  const body={
+    POLICY_DEFAULT: document.getElementById('policy').value,
+    ALLOW_EXT_LLM: document.getElementById('ext').checked,
+    ANSWER_CACHE_TTL_HOURS: parseInt(document.getElementById('ttl').value||'168'),
+    SHARD_STRATEGY: document.getElementById('shard').value,
+    INDEX_BACKEND: document.getElementById('backend').value,
+    INDEX_LEVEL: document.getElementById('level').value
+  };
+  const r=await fetch('/policy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json(); document.getElementById('cfg').textContent=JSON.stringify(j.saved||j,null,2);
+  document.getElementById('msg').textContent='Sokhraneno';
+  setTimeout(()=>document.getElementById('msg').textContent='',1300);
+}
+load();
+</script>
+</html>

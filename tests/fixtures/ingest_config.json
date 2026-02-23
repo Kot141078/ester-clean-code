@@ -1,0 +1,8 @@
+{
+  "rss": [
+    { "url": "file://tests/fixtures/sample_rss.xml", "tag": "rss_demo" }
+  ],
+  "inbox": [
+    { "path": "tests/fixtures/inbox_demo", "tag": "inbox_demo", "pattern": "*.md;*.txt;*.html" }
+  ]
+}

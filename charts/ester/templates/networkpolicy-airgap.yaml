@@ -1,0 +1,21 @@
+{{- $mode := lower (default "" .Values.networkPolicy.mode) -}}
+{{- if eq $mode "airgap" -}}
+# AIRGAP profile: deny all egress from Ester pods.
+# No DNS/HTTPS exceptions are provided in this mode.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ester.fullname" . }}-airgap
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ester.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes: ["Ingress","Egress"]
+  ingress:
+    - from:
+        - podSelector: {}
+  egress: []
+{{- end }}

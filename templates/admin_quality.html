@@ -1,0 +1,49 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Quality Guard</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:960px}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:160px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
+  .pill{padding:2px 8px;border-radius:999px;border:1px solid #aaa}
+</style>
+<h2>Quality Guard — «krasnaya zona»</h2>
+
+<div class="row">
+  window_sec <input id="w" type="number" value="60" style="width:90px">
+  p90_ms <input id="p90" type="number" value="900" style="width:90px">
+  error_rate <input id="er" type="number" value="0.25" step="0.05" style="width:90px">
+  HUD alerts <input id="hud" type="checkbox" checked>
+  <button onclick="enable_()">Enable</button>
+  <button onclick="disable_()">Disable</button>
+  <button onclick="stat()">Status</button>
+  <button onclick="check()">Check now</button>
+  <span id="flag" class="pill">enabled: false</span>
+</div>
+
+<div class="row">
+  Test event: t_ms <input id="tms" type="number" value="120" style="width:90px">
+  ok? <input id="ok" type="checkbox" checked>
+  <button onclick="ingest_()">Ingest</button>
+</div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+function flag(on){ document.getElementById('flag').textContent='enabled: '+on; }
+
+async function enable_(){
+  const d={"window_sec":+w.value||60,"p90_ms":+p90.value||900,"error_rate":+er.value||0.25,"hud_alerts":hud.checked};
+  const r=await j('POST','/quality/enable', d); out(r); flag((r||{}).enabled);
+}
+async function disable_(){ const r=await j('POST','/quality/disable',{}); out(r); flag(false); }
+async function stat(){ const r=await fetch('/quality/status'); const jv=await r.json(); out(jv); flag((jv||{}).enabled); }
+async function check(){ out(await j('POST','/quality/check',{})); }
+async function ingest_(){
+  const r=await j('POST','/quality/ingest',{"ok":document.getElementById('ok').checked, "t_ms":+tms.value||100, "op":"test"});
+  out(r);
+}
+</script>

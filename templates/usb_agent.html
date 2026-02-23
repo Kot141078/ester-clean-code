@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — USB agent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .ok{color:#9BE28D}.err{color:#ff8a8a}.muted{color:#9aa9bd}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+  </style>
+  <!--
+  Mosty:
+    • Yavnyy: knopki «Start/Stop», status, khvost logov.
+    • Skrytyy 1: JSON-status dlya avtomatiki.
+    • Skrytyy 2: bezopasnyy defolt — agent vyklyuchen.
+  Zemnoy abzats:
+    Pult operatora — vklyuchil patrul nositeley, nablyudaesh telemetriyu.
+  -->
+</head>
+<body>
+  <h1>USB agent</h1>
+
+  <section>
+    <div class="row">
+      <label>Interval (sek): <input id="interval" type="number" value="5" min="1" class="mono"/></label>
+      <label>Tolko tom (opts.): <input id="mount" class="mono" placeholder="/media/USB ili E:\\"/></label>
+      <button onclick="start()">Zapustit</button>
+      <button onclick="stop()">Ostanovit</button>
+      <button onclick="stat()">Status</button>
+      <span id="flag" class="chip muted">–</span>
+      <a href="/admin/usb/make" style="margin-left:auto;color:#9aa9bd">← Fleshka</a>
+    </div>
+    <pre id="status">—</pre>
+  </section>
+
+  <section>
+    <div class="row">
+      <label>Khvost logov (strok): <input id="tail" type="number" value="200" min="10" class="mono"/></label>
+      <button onclick="logs()">Obnovit logi</button>
+    </div>
+    <pre id="logtext">—</pre>
+  </section>
+
+<script>
+async function start(){
+  const fd = new FormData();
+  fd.append('interval', document.getElementById('interval').value);
+  const m = document.getElementById('mount').value.trim(); if(m) fd.append('mount', m);
+  const r = await fetch('/admin/usb/agent/start', {method:'POST', body: fd});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('flag').textContent = j.ok?'RUN':'ERR';
+  document.getElementById('flag').className = 'chip ' + (j.ok?'ok':'err');
+  document.getElementById('status').textContent = JSON.stringify(j, null, 2);
+}
+async function stop(){
+  const r = await fetch('/admin/usb/agent/stop', {method:'POST'});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('flag').textContent = j.ok?'STOP':'ERR';
+  document.getElementById('flag').className = 'chip ' + (j.ok?'ok':'err');
+  document.getElementById('status').textContent = JSON.stringify(j, null, 2);
+}
+async function stat(){
+  const r = await fetch('/admin/usb/agent/status');
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('flag').textContent = (j.ok && j.running)?'RUN':'IDLE';
+  document.getElementById('flag').className = 'chip ' + ((j.ok && j.running)?'ok':'muted');
+  document.getElementById('status').textContent = JSON.stringify(j, null, 2);
+}
+async function logs(){
+  const tail = document.getElementById('tail').value;
+  const r = await fetch('/admin/usb/agent/logs?tail='+encodeURIComponent(tail));
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('logtext').textContent = j.ok ? j.text : 'ERR';
+}
+// init
+stat().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

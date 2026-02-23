@@ -1,0 +1,23 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata: { name: k8smusthaveprobes }
+spec:
+  crd:
+    spec:
+      names: { kind: K8sMustHaveProbes }
+  targets:
+  - target: admission.k8s.gatekeeper.sh
+    rego: |
+      package k8smusthaveprobes
+      is_deploy(obj) {
+        obj.kind == "Deployment"
+      }
+      violation[{
+        "msg": "Deployment must define liveness and readiness probes"
+      }] {
+        is_deploy(input.review.object)
+        containers := input.review.object.spec.template.spec.containers
+        c := containers[_]
+        not c.livenessProbe
+        or not c.readinessProbe
+      }

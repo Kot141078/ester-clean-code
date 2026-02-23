@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Self Console</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:24px;line-height:1.46;background:#0b1020;color:#e7eaf6}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .card{background:#0f1430;border:1px solid #223;border-radius:12px;padding:14px;margin-top:12px;max-width:1200px}
+    input,button,textarea{padding:10px 12px;border-radius:10px;border:1px solid #334;background:#0f1530;color:#e7eaf6}
+    textarea{width:100%;min-height:120px}
+    button{background:#1e293b;border:1px solid #3b82f6}
+    a{color:#82aaff}
+    pre{white-space:pre-wrap;max-height:50vh;overflow:auto}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#16213e;color:#cdd6f4;margin-right:6px}
+    @media(max-width:1000px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <h2>Self Console</h2>
+  <div class="card">
+    <div class="row">
+      <a class="pill" href="/self/capabilities" target="_blank">/self/capabilities</a>
+      <a class="pill" href="/self/health" target="_blank">/self/health</a>
+      <a class="pill" href="/self/codegen/list" target="_blank">/self/codegen/list</a>
+      <a class="pill" href="/metrics/self_capabilities" target="_blank">/metrics/self_capabilities</a>
+      <a class="pill" href="/metrics/self_codegen" target="_blank">/metrics/self_codegen</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Plan pod tsel</h3>
+    <input id="goal" placeholder="Tsel (naprimer: poluchit saby i indeks dlya video...)">
+    <button id="btnPlan">Splanirovat (dry-run)</button>
+    <pre id="planOut">Gotovo.</pre>
+  </div>
+
+  <div class="card">
+    <h3>Novyy modul</h3>
+    <input id="modname" placeholder="imya (snake_case)">
+    <textarea id="modcode" placeholder="polnyy .py s register(app)"></textarea>
+    <div class="row">
+      <button id="btnDraft">Save chernovik</button>
+      <button id="btnCheck">Proverit import</button>
+      <button id="btnApply">Primenit (nuzhno SELF_CODE_ALLOW_APPLY=1)</button>
+      <button id="btnList">Pokazat spisok</button>
+    </div>
+    <pre id="codeOut">Gotovo.</pre>
+  </div>
+
+  <h2>Self-survival: snapshots, distribution, self-assembly</h2>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Snapshot</h3>
+      <div class="row">
+        [cite_start]<input id="note" placeholder="primechanie" value="manual"> [cite: 2]
+        [cite_start]<button id="btnSnap">Sozdat</button> [cite: 2]
+        [cite_start]<button id="btnList">Spisok</button> [cite: 2]
+      </div>
+      [cite_start]<pre id="outSnap">Gotovo.</pre> [cite: 2]
+    </div>
+
+    <div class="card">
+      <h3>Torrent (opts.)</h3>
+      <div class="row">
+        <input id="arch" placeholder="archive.tar.gz">
+        <input id="wseed" placeholder="webseed url (opts.)" value="">
+        <button id="btnTor">Sobrat .torrent</button>
+      </div>
+      [cite_start]<pre id="outTor">Gotovo.</pre> [cite: 3]
+    </div>
+
+    <div class="card">
+      <h3>Staging → Approve</h3>
+      <textarea id="files" placeholder='{"extensions/enabled/hello.txt":"Privet"}'></textarea>
+      <input id="reason" placeholder="prichina" value="test">
+      <div class="row">
+        <button id="btnStage">Stadirovat</button>
+        <input id="sid" placeholder="stage_id">
+        <button id="btnApprove">Primenit (nuzhna tabletka)</button>
+      </div>
+      <pre id="outStage">Gotovo.</pre>
+    </div>
+
+    <div class="card">
+      [cite_start]<h3>Otkat</h3> [cite: 4]
+      [cite_start]<input id="snap" placeholder="ester_snapshot_*.tar.gz"> [cite: 4]
+      [cite_start]<button id="btnRollback">Otkatitsya</button> [cite: 4]
+      [cite_start]<pre id="outRb">Gotovo.</pre> [cite: 4]
+    </div>
+
+    <div class="card">
+      <h3>Avtonomiya</h3>
+      <div class="row">
+        <button id="btnPlan">Plan</button>
+        <button id="btnExec">Ispolnit bezopasnoe</button>
+      </div>
+      <pre id="outAuto">Gotovo.</pre>
+    </div>
+  </div>
+
+  <script src="/static/self_console.js"></script>
+</body>
+</html>

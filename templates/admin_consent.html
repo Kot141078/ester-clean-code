@@ -1,0 +1,48 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Consent Protocol</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:880px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  input[type="text"]{min-width:260px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:140px;white-space:pre-wrap}
+  .card{border:1px solid #ddd;border-radius:10px;padding:10px;margin:8px 0;background:#fafafa}
+</style>
+
+<h2>Consent Protocol</h2>
+
+<div class="row">
+  Mode:
+  <select id="mode">
+    <option>ask_always</option>
+    <option>remember_ttl</option>
+    <option>deny_all</option>
+  </select>
+  <button onclick="setMode()">Apply</button>
+</div>
+
+<div class="card">
+  <h3>Ask now</h3>
+  Scope <input id="scope" type="text" value="mix_apply">
+  Target <input id="target" type="text" value="Notepad">
+  <button onclick="ask()">Request</button>
+</div>
+
+<div class="card" id="askCard" style="display:none">
+  <h3>Decision</h3>
+  Ticket: <span id="tid">—</span><br>
+  TTL (sec): <input id="ttl" type="number" value="60">
+  <button onclick="decide(true)">Allow</button>
+  <button onclick="decide(false)">Deny</button>
+</div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent = JSON.stringify(x,null,2); }
+async function setMode(){ out(await j('POST','/consent/mode',{mode:document.getElementById('mode').value})); }
+async function ask(){ const r=await j('POST','/consent/request',{scope:document.getElementById('scope').value,target:document.getElementById('target').value,meta:{ui:true}}); out(r); if(r.decision==='ask'){ document.getElementById('askCard').style.display='block'; document.getElementById('tid').textContent=r.ticket_id; } }
+async function decide(ok){ const r=await j('POST','/consent/decide',{ticket_id:document.getElementById('tid').textContent,allow:ok,ttl_sec:+document.getElementById('ttl').value}); out(r); document.getElementById('askCard').style.display='none'; }
+</script>

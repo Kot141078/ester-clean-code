@@ -1,0 +1,44 @@
+# config/video_subscriptions.yaml
+# Spisok istochnikov dlya proaktivnoy obrabotki video.
+# Bezopasnye defolty: vse vyklyucheno; vklyuchayte tochechno.
+#
+# Polya:
+# - id: unikalnyy identifikator podpiski
+# - enabled: 0/1
+# - kind: rss | direct | ytsearch
+# - url: RSS-lenta ili pryamoy URL (dlya kind=rss|direct)
+# - query: stroka poiska YouTube (dlya kind=ytsearch); ispolzuetsya yt-dlp format "ytsearchN:<query>"
+# - limit: maks. chislo novykh elementov za progon (po umolchaniyu 3)
+# - tags: proizvolnye tegi dlya pamyati/ucheta
+#
+# Mosty:
+# - Yavnyy: (Infoteoriya ↔ Kibernetika) yavnoe opisanie istochnikov snizhaet entropiyu zapuska i upravlyaet nagruzkoy.
+# - Skrytyy #1: (Bayes ↔ Memory) id/data poslednego elementa dayut apriori dlya deduplikatsii i prirosta znaniy.
+# - Skrytyy #2: (Logika ↔ Planirovschik) vklyuchenie/vyklyuchenie podpisok — ruchka upravleniya avtomatikoy.
+#
+# Zemnoy abzats:
+# Eto "raskladka vkhodnykh trub" na zavode: kazhdaya truba — lenta postavki syrya (video). Klapany (enabled) reguliruyut potok.
+#
+# c=a+b
+
+subscriptions:
+  - id: yt-rss-openai
+    enabled: 0
+    kind: rss
+    url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCxzC4EngIsMrPmbm6Nxvb-A"
+    limit: 3
+    tags: ["video","tech","yt"]
+
+  - id: ytsearch-rag
+    enabled: 0
+    kind: ytsearch
+    query: "RAG retrieval augmented generation tutorial"
+    limit: 2
+    tags: ["video","rag","search"]
+
+  - id: direct-demo
+    enabled: 0
+    kind: direct
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    limit: 1
+    tags: ["video","demo"]

@@ -1,0 +1,52 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Avtonomiya/Volya</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:920px}
+  input,button,label{padding:8px;border:1px solid #ccc;border-radius:8px}
+  .row{display:flex;gap:12px;align-items:center;margin:8px 0;flex-wrap:wrap}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:160px;white-space:pre-wrap}
+</style>
+<h2>Kontur avtonomii</h2>
+<div class="row">
+  Level (0..3) <input id="lvl" type="number" value="2" min="0" max="3">
+  <button onclick="setLevel()">Set</button>
+  <label><input id="pause" type="checkbox" onchange="setPause()"> Pauza</label>
+  TTL (sec) <input id="ttl" type="number" value="900">
+</div>
+<div class="row">
+  <label><input id="rpa" type="checkbox"> rpa_ui</label>
+  <label><input id="net" type="checkbox"> network</label>
+  <label><input id="fs"  type="checkbox"> files</label>
+  <label><input id="dlg" type="checkbox" checked> dialog</label>
+  <label><input id="game" type="checkbox"> game</label>
+  <button onclick="setScope()">Apply scope+TTL</button>
+  <button onclick="revoke()">Revoke</button>
+</div>
+<div class="row">
+  Check need (csv) <input id="need" value="rpa_ui">
+  Min level <input id="minl" type="number" value="1">
+  <button onclick="check()">Check</button>
+  <button onclick="stat()">Status</button>
+</div>
+<pre id="out"></pre>
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent = JSON.stringify(x,null,2); }
+
+async function setLevel(){ out(await j('POST','/autonomy/level',{"level":+lvl.value||0})); }
+async function setPause(){ out(await j('POST','/autonomy/pause',{"on":pause.checked})); }
+async function setScope(){
+  out(await j('POST','/autonomy/scope',{
+    "rpa_ui":rpa.checked,"network":net.checked,"files":fs.checked,"dialog":dlg.checked,"game":game.checked,
+    "ttl": +ttl.value||0
+  }));
+}
+async function revoke(){ out(await j('POST','/autonomy/revoke',{})); }
+async function check(){
+  const need = needInput().filter(Boolean);
+  out(await j('POST','/autonomy/check',{"need":need,"min_level":+minl.value||1}));
+}
+async function stat(){ const r=await fetch('/autonomy/status'); out(await r.json()); }
+function needInput(){ return (document.getElementById('need').value||'').split(',').map(s=>s.trim()); }
+</script>

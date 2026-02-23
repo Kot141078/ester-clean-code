@@ -1,0 +1,21 @@
+{# -*- coding: utf-8 -*- #}
+{# trace_panel.html — mini-panel v pravoy kolonke (ili sektsii Trace) #}
+<div class="space-y-4">
+
+  <div class="border rounded-lg p-3">
+    <div class="flex items-center justify-between">
+      <h3 class="text-sm font-semibold">LLM Provaydery</h3>
+      <button id="btn-refresh-providers" class="text-xs px-2 py-1 border rounded hover:bg-gray-50">Obnovit</button>
+    </div>
+    <div id="providers-warning" class="mt-2 text-xs text-red-600 hidden"></div>
+    <div id="providers-status" class="mt-2 text-xs">
+      <div class="text-gray-500">Zagruzka statusov...</div>
+    </div>
+  </div>
+
+  <div class="border rounded-lg p-3">
+    <h3 class="text-sm font-semibold mb-1">Trace</h3>
+    <div id="trace-mini-stats" class="text-xs text-gray-700">Zagruzka...</div>
+  </div>
+
+</div>

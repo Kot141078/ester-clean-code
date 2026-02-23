@@ -1,0 +1,3 @@
+dream_tick: "RRULE:FREQ=HOURLY;INTERVAL=6;BYMINUTE=5"
+daily_digest: "CRON: 30 7 * * *"
+weekly_backup: "CRON: 0 3 * * 1"

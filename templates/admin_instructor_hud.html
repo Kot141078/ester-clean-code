@@ -1,0 +1,27 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Instructor HUD</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:980px}
+  button,input{padding:8px;border:1px solid #ccc;border-radius:8px}
+  img{max-width:100%;border:1px solid #ddd;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:120px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+</style>
+<h2>Instructor HUD (Latency + Heat)</h2>
+<div class="row">
+  <button onclick="ena(true)">Enable</button>
+  <button onclick="ena(false)">Disable</button>
+  Use N <input id="n" type="number" value="200">
+  <button onclick="build()">Preview overlay</button>
+  <button onclick="stat()">Status</button>
+</div>
+<img id="img">
+<pre id="out"></pre>
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+async function ena(v){ out(await j('POST','/instructor_hud/enable',{"enabled":v})); }
+async function build(){ const r=await j('POST','/instructor_hud/build',{"n":+n.value||200}); if(r.ok){ img.src='data:image/png;base64,'+r.png_b64; } out(r); }
+async function stat(){ out(await j('GET','/instructor_hud/status')); }
+</script>

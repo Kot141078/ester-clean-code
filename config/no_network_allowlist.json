@@ -1,0 +1,42 @@
+[
+  {
+    "pattern": "modules/runtime/network_deny.py",
+    "why": "Network deny guard instrumentation.",
+    "expires_ts": 0
+  },
+  {
+    "pattern": "modules/runtime/oracle_*.py",
+    "why": "Oracle-window controlled remote calls.",
+    "expires_ts": 0
+  },
+  {
+    "pattern": "modules/providers/*.py",
+    "why": "Provider adapters are policy-gated.",
+    "expires_ts": 0
+  },
+  {
+    "pattern": "modules/llm/*.py",
+    "why": "LLM providers are guarded by runtime policy.",
+    "expires_ts": 0
+  },
+  {
+    "pattern": "run_ester_fixed.py",
+    "why": "Main entrypoint, network guarded by closed-box controls.",
+    "expires_ts": 0
+  },
+  {
+    "pattern": "tools/*_smoke.py",
+    "why": "Smokes intentionally exercise network policy paths.",
+    "expires_ts": 0
+  },
+  {
+    "pattern": "tools/http_smoke.py",
+    "why": "Explicit HTTP smoke tool.",
+    "expires_ts": 0
+  },
+  {
+    "pattern": "tools/lmstudio_discovery.py",
+    "why": "Local model endpoint discovery utility.",
+    "expires_ts": 0
+  }
+]

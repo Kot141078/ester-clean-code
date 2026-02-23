@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — LAN katalog uzlov</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Lokator uzlov: multikast-mayak podderzhivaet spisok sosedey; score=blizost/svezhest/sovpadenie versii.
+    Mosty:
+      • Yavnyy — obzor seti dlya offlayn-postavok.
+      • Skrytye — TTL/score vidny i proveryaemy.
+  -->
+</head>
+<body>
+<h1>LAN katalog <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+<section>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <button onclick="refresh()">Obnovit</button>
+    <button onclick="rescan()">Rescan (beacon+ARP)</button>
+    <a class="chip" href="/admin/portable/replica">Portable replikatsiya →</a>
+    <a class="chip" href="/admin/lan/jobs">LAN zadachi →</a>
+  </div>
+  <pre id="meta">—</pre>
+</section>
+
+<section>
+  <h3>Istochniki (prioritet)</h3>
+  <table id="tbl"><thead><tr><th>IP</th><th>Host</th><th>Versiya</th><th>URL</th><th>Score</th><th>Poslednyaya aktivnost</th></tr></thead><tbody></tbody></table>
+</section>
+
+<script>
+async function refresh(){
+  const r = await fetch('/admin/lan/catalog/status'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('meta').textContent = JSON.stringify(j, null, 2);
+  const tb = document.querySelector('#tbl tbody'); tb.innerHTML='';
+  (j.sources||[]).forEach(x=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${x.ip}</td><td>${x.host||''}</td><td>${x.version||''}</td><td>${x.base_url}</td><td>${x.score}</td><td>${new Date((x.last||0)*1000).toLocaleString()}</td>`;
+    tb.appendChild(tr);
+  });
+}
+async function rescan(){
+  const r = await fetch('/admin/lan/catalog/rescan',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  await refresh();
+}
+refresh().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

@@ -1,0 +1,87 @@
+{{- if .Values.gatekeeper.enabled }}
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequiredprobes
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequiredProbes
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            requireLiveness:
+              type: boolean
+            requireReadiness:
+              type: boolean
+            requireResources:
+              type: boolean
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredprobes
+
+        default requireLiveness := true
+        default requireReadiness := true
+        default requireResources := true
+
+        param_bool(p, d) = v {
+          v := d
+        } else = v {
+          v := p
+        }
+
+        violation[{"msg": msg, "details": {"container": c.name}}] {
+          input.review.kind.kind == "Deployment" or
+          input.review.kind.kind == "StatefulSet" or
+          input.review.kind.kind == "DaemonSet" or
+          input.review.kind.kind == "Rollout"
+
+          spec := input.review.object.spec.template.spec
+          c := spec.containers[_]
+
+          rl := param_bool(input.parameters.requireLiveness, true)
+          rr := param_bool(input.parameters.requireReadiness, true)
+          rrq := param_bool(input.parameters.requireResources, true)
+
+          rl
+          not has_field(c, "livenessProbe")
+          msg := sprintf("container %q must define livenessProbe", [c.name])
+        }
+
+        violation[{"msg": msg, "details": {"container": c.name}}] {
+          input.review.kind.kind == "Deployment" or
+          input.review.kind.kind == "StatefulSet" or
+          input.review.kind.kind == "DaemonSet" or
+          input.review.kind.kind == "Rollout"
+
+          spec := input.review.object.spec.template.spec
+          c := spec.containers[_]
+
+          rr := param_bool(input.parameters.requireReadiness, true)
+          rr
+          not has_field(c, "readinessProbe")
+          msg := sprintf("container %q must define readinessProbe", [c.name])
+        }
+
+        violation[{"msg": msg, "details": {"container": c.name}}] {
+          input.review.kind.kind == "Deployment" or
+          input.review.kind.kind == "StatefulSet" or
+          input.review.kind.kind == "DaemonSet" or
+          input.review.kind.kind == "Rollout"
+
+          spec := input.review.object.spec.template.spec
+          c := spec.containers[_]
+
+          rrq := param_bool(input.parameters.requireResources, true)
+          rrq
+          not (has_field(c, "resources") and has_field(c.resources, "limits") and has_field(c.resources, "requests"))
+          msg := sprintf("container %q must define resources.limits and resources.requests", [c.name])
+        }
+
+        has_field(obj, field) {
+          obj[field]
+        }
+{{- end }}

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Zero-Click USB (doverennye)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .ok{color:#9BE28D}.err{color:#ff8a8a}.muted{color:#9aa9bd}.warn{color:#f5c542}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    a.link{color:#9aa9bd;text-decoration:none}
+  </style>
+  <!--
+    Mosty:
+      • Yavnyy: whitelist + globalnye flagi (Zero-Click, Zamok, profil).
+      • Skrytyy 1: proba tomov i raschet otpechatka pered dobavleniem.
+      • Skrytyy 2: bezopasno — poka ne vklyuchen Zero-Click i ne snyat "zamok", avtodeploya ne budet.
+    Zemnoy abzats:
+      «Propusknoy punkt»: dobavili fleshku, vklyuchili Zero-Click, pri neobkhodimosti postavili "zamok".
+  -->
+</head>
+<body>
+  <h1>Zero-Click USB (doverennye)</h1>
+
+  <section>
+    <div class="row">
+      <label>Zero-Click: 
+        <select id="zc">
+          <option value="0">VYKL</option>
+          <option value="1">VKL</option>
+        </select>
+      </label>
+      <label>Zamok:
+        <select id="lock">
+          <option value="0">OTKL</option>
+          <option value="1">VKL</option>
+        </select>
+      </label>
+      <label>Profile sinkhronizatsii (opts.):
+        <input id="profile" class="mono" style="width:320px" placeholder="sync_profile_id"/>
+      </label>
+      <button onclick="save()">Save</button>
+      <a class="link" href="/admin/usb/agent/tuning" style="margin-left:auto">Tyuning agenta →</a>
+    </div>
+  </section>
+
+  <section>
+    <h3>Proba tomov</h3>
+    <div class="row">
+      <button onclick="probe()">Obnovit</button>
+      <span id="cnt" class="chip muted">—</span>
+    </div>
+    <table id="tbl"><thead><tr><th>Montirovanie</th><th>Metka</th><th>FS</th><th>Otpechatok</th><th></th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section>
+    <h3>Doverennye nositeli</h3>
+    <table id="trusted"><thead><tr><th>ID</th><th>Metka</th><th>SHA256(manifest)</th><th>Zametki</th><th></th></tr></thead><tbody></tbody></table>
+  </section>
+
+<script>
+let _status=null;
+async function load(){
+  const r = await fetch('/admin/usb/trust/status'); const j = await r.json().catch(()=>({ok:false}));
+  _status=j;
+  const s=j.settings||{};
+  document.getElementById('zc').value = s.zeroclick? '1':'0';
+  document.getElementById('lock').value = s.locked? '1':'0';
+  document.getElementById('profile').value = s.default_profile_id||'';
+  // tablitsa prob
+  const tb=document.querySelector('#tbl tbody'); tb.innerHTML='';
+  (j.probe||[]).forEach(it=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td class="mono">${it.mount||''}</td><td>${it.label||''}</td><td>${it.fs||''}</td><td data-fp>—</td><td><button data-fpbtn>Poschitat</button> <button data-add disabled>Doveryat</button></td>`;
+    tr.querySelector('button[data-fpbtn]').onclick=async()=>{
+      const r = await fetch('/admin/usb/trust/fingerprint',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount: it.mount})});
+      const fp = await r.json().catch(()=>({ok:false}));
+      tr.querySelector('[data-fp]').textContent = fp.ok ? (fp.id+' / '+fp.sha256.slice(0,12)+'…') : '—';
+      const addBtn = tr.querySelector('button[data-add]');
+      addBtn.disabled = !fp.ok;
+      addBtn.onclick = async()=>{
+        const j = await (await fetch('/admin/usb/trust/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount: it.mount})})).json().catch(()=>({ok:false}));
+        load();
+      };
+    };
+    tb.appendChild(tr);
+  });
+  document.getElementById('cnt').textContent = 'Naydeno: '+(j.probe||[]).length;
+  // doverennye
+  const tt=document.querySelector('#trusted tbody'); tt.innerHTML='';
+  (j.devices||[]).forEach(d=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td class="mono">${d.id}</td><td>${d.label||''}</td><td class="mono">${(d.fingerprint||'').slice(0,32)}…</td><td>${d.notes||''}</td><td><button data-rm>Udalit</button></td>`;
+    tr.querySelector('button[data-rm]').onclick=async()=>{
+      await fetch('/admin/usb/trust/remove',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:d.id})});
+      load();
+    };
+    tt.appendChild(tr);
+  });
+}
+async function save(){
+  const body = {
+    zeroclick: document.getElementById('zc').value==='1',
+    locked: document.getElementById('lock').value==='1',
+    default_profile_id: document.getElementById('profile').value.trim()
+  };
+  await fetch('/admin/usb/trust/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  load();
+}
+async function probe(){ load(); }
+load().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

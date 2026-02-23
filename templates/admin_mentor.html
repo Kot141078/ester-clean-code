@@ -1,0 +1,92 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Nastavnik</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  textarea{width:100%;min-height:120px}
+  input[type="text"]{min-width:320px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  img{max-width:100%;border:1px solid #ddd;border-radius:8px}
+  table{border-collapse:collapse;width:100%}
+  th,td{border:1px solid #e1e1e1;padding:6px 8px}
+  .pill{padding:4px 8px;border-radius:999px;border:1px solid #bbb}
+</style>
+
+<h2>Rezhim «Nastavnik»</h2>
+<div class="row">
+  Zapros: <input id="q" type="text" value="pokazhi kak polzovatsya notepad">
+  <button onclick="mkPlan()">Sformirovat</button>
+  <span id="pname" class="pill">plan: ?</span>
+</div>
+
+<table id="steps"><thead><tr><th>#</th><th>Tip</th><th>Zagolovok</th><th>Deystviya</th></tr></thead><tbody></tbody></table>
+
+<h3>Podsvetka</h3>
+<div class="row">
+  Template (b64, opts.): <input id="tb64" type="text" placeholder="...">
+  Porog: <input id="thr" type="number" value="0.78" step="0.01" min="0" max="1">
+  <button onclick="overlay()">Podsvetit</button>
+  <button onclick="exec()">Vypolnit shag</button>
+</div>
+<img id="ov" alt="Overlay">
+
+<h3>Igrovye okna</h3>
+<div class="row">
+  <button onclick="gList()">Pokazat</button>
+  Zagolovok: <input id="gt" type="text" placeholder="nazvanie okna igry">
+  Prioritet: <input id="gp" type="number" value="10">
+  <button onclick="gAdd()">Dobavit</button>
+  <button onclick="gSave()">Save</button>
+  <button onclick="gFocus()">Fokus po prioritetu</button>
+</div>
+<table id="gtbl"><thead><tr><th>Title</th><th>Priority</th></tr></thead><tbody></tbody></table>
+
+<h3>Log</h3>
+<pre id="log"></pre>
+
+<script>
+let PLAN=null; let STEP_INDEX=0;
+
+function log(x){ const e=document.getElementById('log'); e.textContent += JSON.stringify(x)+"\n"; e.scrollTop=e.scrollHeight; }
+async function j(method,url,body){
+  const r=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):null});
+  const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}}
+}
+function renderSteps(){
+  const tb=document.querySelector('#steps tbody'); tb.innerHTML='';
+  (PLAN?.steps||[]).forEach((s,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td><td>${s.type}</td><td>${s.title||''}</td><td><button onclick="sel(${i})">Vybrat</button></td>`;
+    tb.appendChild(tr);
+  });
+}
+function sel(i){ STEP_INDEX = i; log({select:i}); }
+
+async function mkPlan(){
+  const r = await j('POST','/mentor/plan',{text:document.getElementById('q').value});
+  PLAN = r; document.getElementById('pname').textContent='plan: '+(r.name||'?'); renderSteps(); log(r);
+}
+async function overlay(){
+  const tb64=document.getElementById('tb64').value.trim();
+  const thr=+document.getElementById('thr').value;
+  const step = Object.assign({}, (PLAN?.steps||[])[STEP_INDEX]||{}, tb64?{template_b64:tb64, threshold:thr}:{});
+  const r = await j('POST','/mentor/overlay',{step});
+  if(r.ok && r.overlay_b64){ document.getElementById('ov').src='data:image/png;base64,'+r.overlay_b64; }
+  log(r);
+}
+async function exec(){
+  const step = (PLAN?.steps||[])[STEP_INDEX]||{};
+  const r = await j('POST','/mentor/exec',{step});
+  log(r);
+}
+
+let GITEMS=[];
+async function gList(){ const r=await j('GET','/mentor/game/priorities'); GITEMS=r.items||[]; drawG(); log(r); }
+function drawG(){ const tb=document.querySelector('#gtbl tbody'); tb.innerHTML=''; GITEMS.forEach(it=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${it.title}</td><td>${it.priority}</td>`; tb.appendChild(tr); }); }
+function gAdd(){ GITEMS.push({title:document.getElementById('gt').value, priority:+document.getElementById('gp').value||0}); drawG(); }
+async function gSave(){ const r=await j('POST','/mentor/game/priorities',{items:GITEMS}); log(r); }
+async function gFocus(){ const r=await j('POST','/mentor/game/focus',{}); log(r); }
+
+mkPlan();
+</script>

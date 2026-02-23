@@ -62,6 +62,12 @@ $emailAllowDomains = @(
   "example.com",
   "example.org",
   "example.net",
+  "example.local",
+  "acme.io",
+  "corp.org",
+  "proton.me",
+  "noreply.local",
+  "github.com",
   "localhost",
   "invalid",
   "test",
@@ -73,13 +79,15 @@ $lowContextKeywords = @("phone", "tel", "iban", "address", "mail", "email", "con
 
 $patternSpecs = @(
   @{ Type = "PrivateKey"; Severity = "HIGH"; Regex = '-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----' },
+  @{ Type = "WeakJwtFallback"; Severity = "HIGH"; Regex = '(?i)\bester[-]dev[-]secret\b' },
   @{ Type = "GitHubToken"; Severity = "HIGH"; Regex = '\bghp_[A-Za-z0-9]{20,}\b|\bgithub_pat_[A-Za-z0-9_]{20,}\b' },
   @{ Type = "SlackToken"; Severity = "HIGH"; Regex = '\bxox[baprs]-[A-Za-z0-9-]{10,}\b' },
   @{ Type = "OpenAIToken"; Severity = "HIGH"; Regex = '\bsk-[A-Za-z0-9]{20,}\b' },
   @{ Type = "AuthorizationBearer"; Severity = "HIGH"; Regex = '(?i)\bauthorization\s*:\s*bearer\s+[A-Za-z0-9._~+\-/=]{20,}' },
   @{ Type = "ClientSecret"; Severity = "HIGH"; Regex = '(?i)\bclient[_-]?secret\b\s*[:=]\s*[''\"]?[A-Za-z0-9._-]{8,}' },
+  @{ Type = "TokenTailLogging"; Severity = "MEDIUM"; Regex = '(?i)\b\w*token\w*\s*\[\s*-\s*4\s*:\s*\]' },
   @{ Type = "EmailReal"; Severity = "MEDIUM"; Regex = '\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b' },
-  @{ Type = "AbsolutePath"; Severity = "MEDIUM"; Regex = '(?i)\bC:\\Users\\|\bD:\\' },
+  @{ Type = "AbsolutePath"; Severity = "LOW"; Regex = '(?i)\bC:\\Users\\|\bD:\\' },
   @{ Type = "PhoneLike"; Severity = "LOW"; Regex = '(?<!\d)(?:\+?\d[\d\s()\-]{8,}\d)(?!\d)' },
   @{ Type = "IBANLike"; Severity = "LOW"; Regex = '\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b' }
 )

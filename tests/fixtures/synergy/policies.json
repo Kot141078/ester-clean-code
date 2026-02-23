@@ -1,0 +1,7 @@
+{
+  "max_roles_per_agent": 2,
+  "incompat": [["operator", "strategist"]],
+  "required_for_purpose": {
+    "aerorazvedka": ["strategist", "operator", "platform"]
+  }
+}

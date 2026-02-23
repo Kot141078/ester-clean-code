@@ -1,0 +1,51 @@
+# 1) Kanareyka prochitana → nemedlenno planiruem odnorazovyy snapshot i uvedomlenie
+- name: canary_read_snapshot
+  match:
+    type: security.alert.canary_read
+  actions:
+    - type: emit
+      event_type: scheduler.request
+      payload:
+        kind: "forensics_snapshot"
+        rrule: "FREQ=MINUTELY;INTERVAL=1;COUNT=1"
+        reason: "canary_read"
+        path: "{{ payload.path }}"
+        key: "{{ payload.uuid }}"
+    - type: emit
+      event_type: notify.request
+      payload:
+        channel: "ui"
+        message: "⚠️ Kanareyka prochitana: {{ payload.path }}"
+
+# 2) Novyy fayl v primanke → zakrepit artefakt v KG i soobschit
+- name: quarantine_artifact_to_kg
+  match:
+    type: security.alert.quarantined_new_file
+  actions:
+    - type: emit
+      event_type: kg.persist.request
+      payload:
+        node_type: "SecurityArtifact"
+        sha256: "{{ payload.sha256 }}"
+        quarantine_path: "{{ payload.quarantine_path }}"
+        src_path: "{{ payload.path }}"
+    - type: emit
+      event_type: notify.request
+      payload:
+        channel: "ui"
+        message: "🧊 Karantin: {{ payload.quarantine_path }} (sha={{ payload.sha256 }})"
+
+# 3) Lyubaya modifikatsiya v kanareyke → myagkiy log + odnorazovyy obzor
+- name: modified_review
+  match:
+    type: security.signal.canary_modified
+  actions:
+    - type: log
+      level: INFO
+      message: "Izmenenie v primanke: {{ payload.path }} sha={{ payload.sha256 }}"
+    - type: emit
+      event_type: scheduler.request
+      payload:
+        kind: "daily_security_review"
+        rrule: "FREQ=DAILY;COUNT=1"
+        key: "{{ payload.fingerprint }}"

@@ -1,0 +1,57 @@
+{
+  "plans": [
+    {
+      "id": "pro",
+      "name": "Ester Pro",
+      "one_time": 249,
+      "monthly": 29,
+      "features": [
+        "Ustanovka za den",
+        "Bazovye presety",
+        "1 mes podderzhki"
+      ]
+    },
+    {
+      "id": "team",
+      "name": "Ester Team",
+      "one_time": 1500,
+      "monthly": 300,
+      "features": [
+        "P2P pamyat",
+        "Dnevnye otchety",
+        "Bekapy i SLA"
+      ]
+    },
+    {
+      "id": "care",
+      "name": "Ester Care",
+      "one_time": 0,
+      "monthly": 99,
+      "features": [
+        "Nochnye «sny»",
+        "Utrenniy daydzhest"
+      ]
+    },
+    {
+      "id": "ingest",
+      "name": "Ingest Studio",
+      "one_time": 499,
+      "monthly": 0,
+      "features": [
+        "OCR/ASR 10 GB",
+        "Vektorizatsiya",
+        "Otchet"
+      ]
+    },
+    {
+      "id": "judge",
+      "name": "Judge-aaS",
+      "one_time": 0,
+      "monthly": 49,
+      "features": [
+        "Vebkhuk sinteza",
+        "Metriki kachestva/stoimosti"
+      ]
+    }
+  ]
+}

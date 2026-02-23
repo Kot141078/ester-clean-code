@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ru" class="h-full">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Ester — zagruzka faylov</title>
+  <link rel="stylesheet" href="/static/styles.css"/>
+  <style>
+    .upl-wrap { max-width: 900px; margin: 40px auto; color: #e6edf3; }
+    .drop {
+      background: rgba(255,255,255,.03);
+      border: 2px dashed #253043;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+    }
+    .drop.dragover { background: rgba(122,162,247,.08); border-color: #7aa2f7; }
+    .list { margin-top: 16px; font-size: 14px; color: #9fb1c1; }
+    .item { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px dashed rgba(37,48,67,.4); }
+    .item:last-child{ border-bottom:none; }
+    .muted { color: #9fb1c1; }
+    .btn { display:inline-block; padding:10px 14px; border-radius:10px; background:#7aa2f7; color:#0b0f14; font-weight:600; border:none; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="upl-wrap">
+    <h1 style="margin:0 0 8px 0;">Zagruzka faylov dlya inzhesta</h1>
+    <p class="muted">Peretaschi fayly v oblast nizhe ili vyberi vruchnuyu. Podderzhka: .txt, .md, .csv, .log, .pdf</p>
+
+    <div id="drop" class="drop">
+      <p><strong>Peretaschi fayly syuda</strong></p>
+      <p class="muted">ili</p>
+      <input id="file" type="file" multiple accept=".txt,.md,.csv,.log,.pdf"/>
+      <div style="margin-top:14px;">
+        <button class="btn" id="send">Otpravit</button>
+      </div>
+    </div>
+
+    <div id="list" class="list"></div>
+
+    <p style="margin-top:24px;"><a href="/">← Panel</a></p>
+  </div>
+
+  <script>
+    (function(){
+      const drop = document.getElementById('drop');
+      const fileInput = document.getElementById('file');
+      const list = document.getElementById('list');
+      const btn = document.getElementById('send');
+
+      let queue = [];
+
+      function render() {
+        list.innerHTML = '';
+        for (const f of queue) {
+          const row = document.createElement('div');
+          row.className = 'item';
+          row.innerHTML = `<span>${f.name}</span><span>${(f.size/1024).toFixed(1)} KB</span>`;
+          list.appendChild(row);
+        }
+      }
+
+      function onDrop(e) {
+        e.preventDefault();
+        drop.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        for (const f of files) queue.push(f);
+        render();
+      }
+      function onDrag(e){ e.preventDefault(); drop.classList.add('dragover'); }
+      function onLeave(e){ e.preventDefault(); drop.classList.remove('dragover'); }
+
+      drop.addEventListener('dragover', onDrag);
+      drop.addEventListener('dragleave', onLeave);
+      drop.addEventListener('drop', onDrop);
+
+      fileInput.addEventListener('change', (e)=>{
+        for (const f of e.target.files) queue.push(f);
+        render();
+      });
+
+      function csrf() {
+        // Imitiruem logiku tokena: ispolzuem tekuschiy UA i localhost IP
+        const secret = ''; // server sam sverit po zagolovkam (X-CSRF-Token vychislyaetsya na servere)
+        return ''; // ne vychislyaem na kliente; luchshe poluchit ot servera, no dlya primera ostavim pustym
+      }
+
+      async function uploadOne(f) {
+        const fd = new FormData();
+        fd.append('file', f, f.name);
+        const r = await fetch('/ingest/file', {
+          method: 'POST',
+          headers: {
+            // CSRF: dlya realnoy integratsii mozhno zaprosit token u bekenda, zdes opuscheno (testy pokryvayut servernuyu storonu)
+          },
+          body: fd
+        });
+        const j = await r.json().catch(()=>({status:r.status}));
+        return {status: r.status, body: j};
+      }
+
+      btn.addEventListener('click', async ()=>{
+        if (!queue.length) return;
+        btn.disabled = true;
+        for (const f of queue) {
+          const res = await uploadOne(f);
+          const row = document.createElement('div');
+          row.className = 'item';
+          row.innerHTML = `<span>Otvet: ${res.status}</span><span>${JSON.stringify(res.body)}</span>`;
+          list.appendChild(row);
+        }
+        btn.disabled = false;
+        queue = [];
+      });
+    })();
+  </script>
+</body>
+</html>

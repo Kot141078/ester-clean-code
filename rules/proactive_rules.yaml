@@ -1,0 +1,117 @@
+# rules/proactive_rules.yaml
+# Iteratsiya B — dop. pravila proaktivnosti (sovmestimo s rule_engine.py).
+# Etot fayl mozhno derzhat ryadom s rules/automation_rules.yaml.
+# Dvizhok vozmet pervyy naydennyy fayl iz:
+#   - rules/automation_rules.yaml
+#   - rules/proactive_rules.yaml
+#   - config/proactive_rules.yaml
+
+version: 1
+defaults:
+  tz: "UTC"
+  locale: "ru-RU"
+  user: "Owner"
+
+sources:
+  - id: flashback_recent
+    kind: flashback
+    params:
+      lookback_hours: 24
+
+  - id: kg_beacons
+    kind: kg
+    params:
+      type: beacon
+      limit: 300
+
+  - id: queue_ingest
+    kind: folder
+    params:
+      path: "./uploads/queue"
+      patterns: ["*.pdf", "*.md", "*.txt", "*.docx", "*.png", "*.jpg"]
+
+pipes:
+  - id: summarize
+    kind: llm/summarize
+    params:
+      provider: "lmstudio"
+      max_tokens: 512
+
+  - id: suggest
+    kind: llm/suggest
+    params:
+      provider: "lmstudio"
+      n: 5
+
+  - id: reflect
+    kind: memory/reflect
+    params:
+      max: 12
+
+  - id: classify
+    kind: llm/classify
+    params:
+      labels: ["work", "legal", "personal", "media", "code", "misc"]
+
+conditions:
+  - id: morning_window
+    when:
+      time:
+        cron: "0 8 * * *"
+    score: 0.9
+
+  - id: queue_has_items
+    when:
+      source: queue_ingest
+      op: "len>0"
+    score: 0.8
+
+  - id: beacon_activity_high
+    when:
+      source: kg_beacons
+      op: "len>=50"
+    score: 0.6
+
+automations:
+  - id: daily_morning_overview
+    trigger:
+      rrule: "CRON: 0 8 * * *"
+    use:
+      sources: ["flashback_recent", "kg_beacons"]
+      pipes: ["summarize", "suggest", "reflect"]
+      conditions: ["morning_window"]
+    output:
+      kind: cards
+      params:
+        title: "Utrenniy obzor (Proaktivnost)"
+        tags: ["digest", "morning", "proactive"]
+      also:
+        - kind: structured
+        - kind: kg
+
+  - id: queue_reingest_job
+    trigger:
+      rrule: "CRON: */10 * * * *"
+    use:
+      sources: ["queue_ingest"]
+      pipes: ["classify"]
+      conditions: ["queue_has_items"]
+    output:
+      kind: structured
+      params:
+        collection: "ingest_jobs"
+
+  - id: hourly_activity_digest
+    trigger:
+      rrule: "RRULE:FREQ=HOURLY;INTERVAL=1"
+    use:
+      sources: ["kg_beacons"]
+      pipes: ["summarize"]
+      conditions: ["beacon_activity_high"]
+    output:
+      kind: cards
+      params:
+        title: "Aktivnost za posledniy chas"
+        tags: ["beacons", "activity"]
+      also:
+        - kind: structured

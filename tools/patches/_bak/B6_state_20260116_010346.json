@@ -1,0 +1,6 @@
+{
+    "ts":  "20260116_010346",
+    "req_backup":  "D:\\ester-project\\tools\\patches\\_bak\\requirements.txt.bak_B6_20260116_010346",
+    "freeze_before":  "D:\\ester-project\\tools\\patches\\_bak\\pip_freeze_before_B6_20260116_010346.txt",
+    "freeze_after":  "D:\\ester-project\\tools\\patches\\_bak\\pip_freeze_after_B6_20260116_010346.txt"
+}

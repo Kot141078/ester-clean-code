@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "items": [
+    {"kind": "dump", "path": "backup/settings_backup.json"}
+  ],
+  "auto": {
+    "settings": { "mode": "merge", "apply_once": true }
+  }
+}
+{
+  "auto": {
+    "deploy": {
+      "version": "2025.09.29-r1",
+      "path": "portable/app",                        // koren reliza (otnositelno ESTER/)
+      "release": "portable/release_manifest.json",  // opts.: spisok faylov i sha256
+      "apply_once": true,
+      "window_s": 3600                               // bezopasnoe okno ot mtime manifesta
+    }
+  }
+}
+{
+  "deploy": {
+    "enable": true,
+    "mode": "dir|zip",
+    "path": "deploy/app" | "deploy/app.zip",
+    "version": "1.2.3",
+    "target": "ester-1.2.3",
+    "apply_once": true,
+    "window": { "from": 1690000000, "to": 1990000000 }
+  }
+}

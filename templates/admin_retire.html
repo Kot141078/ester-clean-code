@@ -1,0 +1,98 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Retirement Planner</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1200px}
+  input,button,textarea{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:1100px){.grid{grid-template-columns:1fr}}
+  .card{border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0}
+  .small{font-size:12px;color:#666}
+  .tag{display:inline-block;background:#eef;border:1px solid #dde;border-radius:6px;padding:2px 6px;margin:2px}
+</style>
+
+<h2>Retirement Planner — tseli, simulyatsiya, plan mesyatsa</h2>
+
+<section class="card">
+  <div class="row">
+    <button onclick="probe()">Probe</button>
+    <button onclick="loadProfile()">Load Profile</button>
+    <button onclick="saveProfile()">Save Profile</button>
+  </div>
+  <div class="row">
+    <label>Target €/m</label><input id="tgt" type="number" value="1000" style="width:120px">
+    <label>Horizon y</label><input id="hor" type="number" value="10" style="width:80px">
+    <label>Start €</label><input id="cap" type="number" value="0" style="width:120px">
+    <label>Contrib €/m</label><input id="con" type="number" value="100" style="width:120px">
+    <label>Risk</label><select id="risk"><option>low</option><option>med</option><option>high</option></select>
+  </div>
+  <div class="row">
+    <label>Hands</label><input id="hands" value="podpisat, otkryt_akkaunt" style="width:360px">
+  </div>
+  <pre id="info"></pre>
+</section>
+
+<div class="grid">
+  <section class="card">
+    <h3>Simulation</h3>
+    <div class="row">
+      <input id="months" type="number" value="120" style="width:120px">
+      <button onclick="sim()">Simulate</button>
+    </div>
+    <pre id="sim"></pre>
+  </section>
+
+  <section class="card">
+    <h3>Monthly Plan</h3>
+    <div class="row">
+      <button onclick="plan()">Make Monthly Plan</button>
+      <button onclick="runA()">Run (A)</button>
+      <button onclick="runB()">Run (B)</button>
+    </div>
+    <pre id="out"></pre>
+  </section>
+</div>
+
+<section class="card">
+  <h3>Report</h3>
+  <div class="row">
+    <button onclick="report_()">Monthly Report</button>
+  </div>
+  <pre id="rep"></pre>
+</section>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function set(id,obj){ document.getElementById(id).textContent = JSON.stringify(obj,null,2); }
+
+async function probe(){ set('info', await (await fetch('/retire/probe')).json()); }
+async function loadProfile(){
+  const r = await (await fetch('/retire/profile')).json();
+  const p=r.profile||{};
+  tgt.value = p.target_monthly_eur ?? 1000;
+  hor.value = p.horizon_years ?? 10;
+  cap.value = p.start_capital_eur ?? 0;
+  con.value = p.monthly_contrib_eur ?? 100;
+  risk.value = p.risk_tolerance ?? 'low';
+  hands.value = (p.hands||[]).join(', ');
+  set('info', r);
+}
+async function saveProfile(){
+  set('info', await j('POST','/retire/save_profile',{
+    "target_monthly_eur": +tgt.value||1000,
+    "horizon_years": +hor.value||10,
+    "start_capital_eur": +cap.value||0,
+    "monthly_contrib_eur": +con.value||0,
+    "risk_tolerance": risk.value||'low',
+    "hands": (hands.value||'').split(',').map(x=>x.trim()).filter(Boolean)
+  }));
+}
+async function sim(){ set('sim', await j('POST','/retire/simulate',{"months": +months.value||120})); }
+async function plan(){ set('out', await (await fetch('/retire/month_plan')).json()); }
+async function runA(){ set('out', await j('POST','/retire/month_run',{"mode":"A"})); }
+async function runB(){ set('out', await j('POST','/retire/month_run',{"mode":"B"})); }
+async function report_(){ set('rep', await (await fetch('/retire/report')).json()); }
+probe(); loadProfile();
+</script>

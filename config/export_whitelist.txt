@@ -1,0 +1,11 @@
+# config/export_whitelist.txt — isklyucheniya dlya pre-push garda
+# MOSTY:
+# - (Yavnyy) Razreshaem adresno publikovat fayly, sovpadayuschie s deny-patternami.
+# - (Skrytyy #1) Format — grep -E; pustye stroki i stroki, nachinayuschiesya s # — ignoriruyutsya.
+# - (Skrytyy #2) Khranite zdes tolko to, chto deystvitelno mozhno publikovat.
+# ZEMNOY ABZATs:
+# Eto «uzkoe gorlyshko», cherez kotoroe mozhno legalno vynesti rovno to, chto nuzhno. c=a+b
+
+# Primery razresheniy:
+# ^modules/synergy/docs/         # vsya papka s dokumentatsiey po sinergii
+# ^scripts/.*internal.*/README\.md$

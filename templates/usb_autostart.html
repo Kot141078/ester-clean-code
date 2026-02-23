@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — avtozapusk USB agenta</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .ok{color:#9BE28D}.err{color:#ff8a8a}.muted{color:#9aa9bd}.warn{color:#f5c542}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    a.link{color:#9aa9bd;text-decoration:none}
+  </style>
+  <!--
+  Mosty:
+    • Yavnyy: vklyuchit/vyklyuchit avtozapusk, videt plan i status.
+    • Skrytyy 1: AB_MODE pokazan, v A net zapisi.
+    • Skrytyy 2: minimalizm UI — odin ekran, tri knopki.
+  Zemnoy abzats:
+    Odin raz vklyuchili avtozapusk — dalshe fleshki obrabatyvayutsya bez klikov.
+  -->
+</head>
+<body>
+  <h1>Avtozapusk USB agenta <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <div class="row">
+      <button onclick="refresh()">Proverit</button>
+      <button onclick="install()">Ustanovit</button>
+      <button onclick="uninstall()">Udalit</button>
+      <a class="link" href="/admin/usb/agent" style="margin-left:auto">USB agent →</a>
+    </div>
+    <pre id="out">—</pre>
+  </section>
+
+<script>
+async function refresh(){
+  const r = await fetch('/admin/usb/autostart/status'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+async function install(){
+  const r = await fetch('/admin/usb/autostart/install',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+async function uninstall(){
+  const r = await fetch('/admin/usb/autostart/uninstall',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+refresh().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

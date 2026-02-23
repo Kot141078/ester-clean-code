@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Indeksatsiya video</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:24px;line-height:1.46;background:#0b1020;color:#e7eaf6}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .card{background:#0f1430;border:1px solid #223;border-radius:12px;padding:14px;margin-top:12px;max-width:1100px}
+    input,button{padding:10px 12px;border-radius:10px;border:1px solid #334;background:#0f1530;color:#e7eaf6}
+    button{background:#1e293b;border:1px solid #3b82f6}
+    a{color:#82aaff}
+    pre{white-space:pre-wrap;max-height:50vh;overflow:auto}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#16213e;color:#cdd6f4;margin-right:6px}
+    table{border-collapse:collapse;width:100%}
+    th,td{border:1px solid #223;padding:8px;text-align:left}
+    th{background:#0d122a}
+  </style>
+</head>
+<body>
+  <h2>Indeksatsiya video (glavy, segmenty, okna)</h2>
+  <div class="card">
+    <div class="row">
+      <input id="src" placeholder="Put k dump (rep_*.json) ili URL/put video">
+      <button id="btnBuild">Postroit indeks</button>
+      <button id="btnChapters">Glavy (auto)</button>
+      <button id="btnSum">Summarizatsiya okna 60–180s</button>
+      <a class="pill" href="/video/index/dumps" target="_blank">/video/index/dumps</a>
+      <a class="pill" href="/metrics/video_index" target="_blank">/metrics/video_index</a>
+      <a class="pill" href="/ui/video/qa" target="_blank">Video QA</a>
+    </div>
+    <pre id="out">Gotovo.</pre>
+  </div>
+
+  <div class="card">
+    <h3>Nedavnie dump’y</h3>
+    <div class="row">
+      <button id="btnList">Obnovit spisok</button>
+    </div>
+    <pre id="list"></pre>
+  </div>
+
+  <script src="/static/admin_video_index.js"></script>
+</body>
+</html>

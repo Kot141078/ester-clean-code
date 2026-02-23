@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — USB Recovery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    input[type="text"]{min-width:260px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Zdes my «podnimaem» uzel s fleshki: skan → plan → vosstanovlenie. V AB=A — tolko plan; v AB=B — s proverkami i otkatom.
+    Mosty:
+      • Yavnyy — UX-pult avariynogo vosstanovleniya.
+      • Skrytye — checksum/health i slot A/B.
+  -->
+</head>
+<body>
+  <h1>USB Recovery <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <h3>Nastroyki</h3>
+    <div class="row">
+      <label><input type="checkbox" id="verify" checked/> Proveryat checksums</label>
+      <label><input type="checkbox" id="require" checked/> Trebovat auto.recover (dlya avto)</label>
+      <label><input type="checkbox" id="trusted"/> Tolko doverennye</label>
+      <label>Baza <input type="text" id="base" value="~/.ester/portable"/></label>
+      <label>Health cmd (po umolch.) <input type="text" id="hc" placeholder="python app.py --version"/></label>
+      <label>Limit, sek <input type="number" id="sec" value="1200" style="width:120px"/></label>
+    </div>
+    <div class="row">
+      <button onclick="save()">Save</button>
+      <button onclick="status()">Status</button>
+    </div>
+    <pre id="cfg">—</pre>
+  </section>
+
+  <section>
+    <h3>Fleshka → vosstanovlenie</h3>
+    <div class="row">
+      <button onclick="probe()">Proba tomov</button>
+      <select id="mount"></select>
+      <button onclick="scan()">Skan</button>
+      <button onclick="plan()">Plan</button>
+      <input id="health" type="text" placeholder="health_cmd (opts.)"/>
+      <button onclick="apply()">Vosstanovit</button>
+    </div>
+    <pre id="out">—</pre>
+  </section>
+
+<script>
+async function status(){
+  const r = await fetch('/admin/usb/recovery/status'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok) return;
+  const s=j.settings||{};
+  document.getElementById('verify').checked=!!s.verify;
+  document.getElementById('require').checked=!!s.require_mark;
+  document.getElementById('trusted').checked=!!s.only_trusted;
+  document.getElementById('base').value=s.base_dir||'~/.ester/portable';
+  document.getElementById('hc').value=s.health_cmd||'';
+  document.getElementById('sec').value=s.allowed_seconds||1200;
+  const sel=document.getElementById('mount'); sel.innerHTML='';
+  (j.targets||[]).forEach(t=>{
+    const o=document.createElement('option'); o.value=t.mount; o.textContent=(t.mount+' — '+(t.label||'')+' ('+(t.fs||'?')+')');
+    sel.appendChild(o);
+  });
+  document.getElementById('cfg').textContent=JSON.stringify(j,null,2);
+}
+async function save(){
+  const body={
+    verify: document.getElementById('verify').checked,
+    require_mark: document.getElementById('require').checked,
+    only_trusted: document.getElementById('trusted').checked,
+    base_dir: document.getElementById('base').value.trim(),
+    health_cmd: document.getElementById('hc').value.trim(),
+    allowed_seconds: parseInt(document.getElementById('sec').value,10)
+  };
+  const r = await fetch('/admin/usb/recovery/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('cfg').textContent=JSON.stringify(j,null,2);
+}
+async function probe(){
+  const r = await fetch('/admin/usb/recovery/status'); const j = await r.json().catch(()=>({ok:false}));
+  const sel=document.getElementById('mount'); sel.innerHTML='';
+  (j.targets||[]).forEach(t=>{
+    const o=document.createElement('option'); o.value=t.mount; o.textContent=(t.mount+' — '+(t.label||'')+' ('+(t.fs||'?')+')');
+    sel.appendChild(o);
+  });
+}
+async function scan(){
+  const m=document.getElementById('mount').value;
+  const r = await fetch('/admin/usb/recovery/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount:m})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent=JSON.stringify(j,null,2);
+}
+async function plan(){
+  const m=document.getElementById('mount').value;
+  const r = await fetch('/admin/usb/recovery/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount:m})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent=JSON.stringify(j,null,2);
+}
+async function apply(){
+  const m=document.getElementById('mount').value;
+  const health_cmd = document.getElementById('health').value.trim();
+  const r = await fetch('/admin/usb/recovery/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount:m, health_cmd})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent=JSON.stringify(j,null,2);
+}
+status().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

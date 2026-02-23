@@ -1,0 +1,42 @@
+# values.observability.yaml — lokalnyy overrayd dlya vklyucheniya ServiceMonitor/Rules/VirtualService
+# Ispolzuetsya komandoy:
+#   helm upgrade --install ester ./charts/ester -n ester --create-namespace -f values.observability.yaml
+
+service:
+  port: 5000
+
+serviceMonitor:
+  enabled: true
+  path: /metrics
+  interval: 15s
+  scrapeTimeout: 5s
+  scheme: http
+
+recordingRules:
+  enabled: true
+
+prometheusRule:
+  enabled: true
+  runbookURL: "https://example.com/runbooks/ester"
+  slo:
+    windows:
+      fastShort: "5m"
+      fastLong:  "30m"
+      slowShort: "2h"
+      slowLong:  "24h"
+    errorRate:
+      fast: 0.02   # 2% dlya bystrykh okon
+      slow: 0.01   # 1% dlya medlennykh okon
+    backupMaxAgeHours: 26
+  latency:
+    p99Threshold: 1.5  # sekundy
+
+istio:
+  enabled: true
+  host: "ester.local"
+  # Peredayte yavnyy gateway pri neobkhodimosti, inache vozmetsya default:
+  # gateway: "istio-system/ingressgateway"
+  mirror:
+    enabled: false
+    host: ""
+    percent: 5

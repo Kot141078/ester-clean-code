@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — LM Studio bridge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      «Adapter» k LM Studio: nayti server, pokazat modeli, pomerit skorost korotkim otvetom, privyazat pod alias.
+    Mosty:
+      • Yavnyy — UX poverkh lokalnogo OpenAI-sovmestimogo API.
+      • Skrytye — kesh JSON i AB-aware bench.
+  -->
+</head>
+<body>
+  <h1>LM Studio bridge <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button onclick="scan()">Skanirovat</button>
+      <button onclick="refresh()">Obnovit</button>
+      <a class="chip" href="/admin/selfcheck">Self-Check →</a>
+    </div>
+    <pre id="meta">—</pre>
+  </section>
+
+  <section>
+    <h3>Modeli</h3>
+    <table id="tbl"><thead><tr><th>#</th><th>Endpoint</th><th>Model</th><th>Ctx</th><th>Quant</th><th>Deystviya</th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section>
+    <h3>Resursy (privyazki)</h3>
+    <table id="rtbl"><thead><tr><th>Alias</th><th>Endpoint</th><th>Model</th><th></th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+async function refresh(){
+  const r = await fetch('/admin/lmstudio/status'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok) return;
+  document.getElementById('meta').textContent = JSON.stringify(j.settings||{}, null, 2);
+  const tb=document.querySelector('#tbl tbody'); tb.innerHTML='';
+  (j.cache?.models||[]).forEach((m,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td><td>${m.endpoint}</td><td>${m.id}</td><td>${m.context||'?'}</td><td>${m.quant||'?'}</td>
+      <td>
+        <button onclick="bench('${m.endpoint}','${m.id}')">Benchmark</button>
+        <button onclick="bind('${m.endpoint}','${m.id}')">Privyazat</button>
+      </td>`;
+    tb.appendChild(tr);
+  });
+  const rb=document.querySelector('#rtbl tbody'); rb.innerHTML='';
+  (j.resources?.items||[]).forEach((x)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${x.alias}</td><td>${x.endpoint}</td><td>${x.model}</td>
+      <td><button onclick="unbind('${x.alias}')">Udalit</button></td>`;
+    rb.appendChild(tr);
+  });
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function scan(){
+  const r = await fetch('/admin/lmstudio/scan',{method:'POST'});
+  await refresh();
+}
+async function bench(endpoint, model){
+  const r = await fetch('/admin/lmstudio/benchmark',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint, model})});
+  const j = await r.json().catch(()=>({ok:false}));
+  alert(JSON.stringify(j));
+  await refresh();
+}
+async function bind(endpoint, model){
+  const alias = prompt('Alias dlya resursa', model);
+  if(!alias) return;
+  const r = await fetch('/admin/lmstudio/bind',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint, model, alias})});
+  await refresh();
+}
+async function unbind(alias){
+  const r = await fetch('/admin/lmstudio/unbind',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({alias})});
+  await refresh();
+}
+refresh().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

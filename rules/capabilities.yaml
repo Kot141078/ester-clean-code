@@ -1,0 +1,34 @@
+# Rolevye vozmozhnosti publikatsii sobytiy (prefiksy s * podderzhivayutsya)
+roles:
+  core:
+    allow:
+      - "subconscious.*"
+      - "mind.*"
+      - "kg.*"
+      - "scheduler.*"
+      - "notify.*"
+      - "judge.*"
+      - "security.signal.*"
+      - "security.alert.*"
+  ui:
+    allow:
+      - "notify.*"
+      - "chat.message.*"
+  ingest:
+    allow:
+      - "ingest.*"
+      - "kg.persist.request"
+  thirdparty:
+    allow:
+      - "chat.message.user"
+      - "thinking.hypothesis"
+  owner:
+    allow:
+      - "*"
+  security:
+    allow:
+      - "approval.vote"
+      - "quorum.*"
+      - "security.*"
+      - "high_impact.request"
+      - "notify.*"

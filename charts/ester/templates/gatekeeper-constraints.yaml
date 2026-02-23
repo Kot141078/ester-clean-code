@@ -1,0 +1,45 @@
+{{- if .Values.gatekeeper.enabled }}
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredProbes
+metadata:
+  name: {{ include "ester.fullname" . }}-required-probes
+spec:
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment","StatefulSet","DaemonSet"]
+      - apiGroups: ["argoproj.io"]
+        kinds: ["Rollout"]
+    {{- if .Values.gatekeeper.match.namespaces }}
+    namespaces:
+{{ toYaml .Values.gatekeeper.match.namespaces | indent 6 }}
+    {{- end }}
+    excludedNamespaces:
+{{ toYaml .Values.gatekeeper.match.excludedNamespaces | indent 6 }}
+  parameters:
+    requireLiveness: true
+    requireReadiness: true
+    requireResources: true
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sSecurityBaseline
+metadata:
+  name: {{ include "ester.fullname" . }}-security-baseline
+spec:
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment","StatefulSet","DaemonSet"]
+      - apiGroups: ["argoproj.io"]
+        kinds: ["Rollout"]
+    {{- if .Values.gatekeeper.match.namespaces }}
+    namespaces:
+{{ toYaml .Values.gatekeeper.match.namespaces | indent 6 }}
+    {{- end }}
+    excludedNamespaces:
+{{ toYaml .Values.gatekeeper.match.excludedNamespaces | indent 6 }}
+  parameters:
+    requireNonRoot: true
+    forbidPrivEsc: true
+    dropAllCaps: true
+{{- end }}

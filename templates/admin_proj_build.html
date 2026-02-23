@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Sborka proekta (ZIP)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Prostoy «pult upakovki»: proverka manifesta, plan faylov, sborka ZIP s kvotami i publikatsiey.
+    Mosty:
+      • Yavnyy — UX poverkh manifest/plan/build.
+      • Skrytye — AB-predokhranitel; ploskie JSON; offlayn.
+  -->
+</head>
+<body>
+  <h1>Sborka proekta <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid">
+    <div>
+      <h3>Proekt</h3>
+      <div class="row">
+        <input id="dir" placeholder="/path/to/project" style="width:100%"/>
+        <button onclick="mf()">Proverit manifest</button>
+      </div>
+      <pre id="manifest">—</pre>
+    </div>
+    <div>
+      <h3>Plan faylov</h3>
+      <button onclick="plan()">Postroit plan</button>
+      <pre id="plan">—</pre>
+    </div>
+    <div>
+      <h3>Sborka</h3>
+      <div class="row">
+        <label class="row">publish<input type="checkbox" id="publish" checked/></label>
+      </div>
+      <div class="row">
+        <input id="outd" placeholder="(opts.) /custom/out/dir" style="width:100%"/>
+      </div>
+      <div class="row">
+        <input id="maxb" placeholder="(opts.) max_bytes" style="width:100%"/>
+      </div>
+      <h4>Kvoty (opts.)</h4>
+      <div class="row">
+        <input id="cpu" placeholder="cpu_s (po umolchaniyu 30)"/>
+        <input id="wall" placeholder="wall_s (po umolchaniyu 120)"/>
+        <input id="rss" placeholder="maxrss_mb (po umolchaniyu 2048)"/>
+      </div>
+      <button onclick="build()">Sobrat ZIP</button>
+      <pre id="buildout">—</pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+async function mf(){
+  const d=document.getElementById('dir').value.trim(); if(!d) return;
+  const r = await fetch('/admin/proj_build/manifest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_dir:d})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('manifest').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function plan(){
+  const d=document.getElementById('dir').value.trim(); if(!d) return;
+  const r = await fetch('/admin/proj_build/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_dir:d})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('plan').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function build(){
+  const d=document.getElementById('dir').value.trim(); if(!d) return;
+  const publish=document.getElementById('publish').checked;
+  const out_dir=document.getElementById('outd').value.trim() || null;
+  const maxb=(document.getElementById('maxb').value.trim()||null); const max_bytes = maxb?parseInt(maxb,10):null;
+  const quotas={};
+  const cpu=document.getElementById('cpu').value.trim(); if(cpu) quotas.cpu_s=parseInt(cpu,10);
+  const wall=document.getElementById('wall').value.trim(); if(wall) quotas.wall_s=parseInt(wall,10);
+  const rss=document.getElementById('rss').value.trim(); if(rss) quotas.maxrss_mb=parseInt(rss,10);
+  const body={project_dir:d, publish, out_dir, max_bytes, quotas};
+  const r = await fetch('/admin/proj_build/build',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('buildout').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+</script>
+</body>
+</html>
+<!-- c=a+b -->

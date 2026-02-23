@@ -1,0 +1,120 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
+    <h2 style="margin:0">Branch Residue · Osadok kaskada</h2>
+    <span class="chip">/memory/branch_residue</span>
+    <div class="spacer"></div>
+    <button class="btn" onclick="refresh()">Obnovit</button>
+    <button class="btn" onclick="exportJson()">Export JSON</button>
+    <button class="btn" onclick="exportCsv()">Export CSV</button>
+  </div>
+</section>
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
+    <input id="q" class="input" placeholder="filtr po tekstu/tseli/vetke">
+    <input id="minN" class="input" style="width:120px" placeholder="min novelty">
+    <input id="minR" class="input" style="width:120px" placeholder="min risk">
+    <input id="limit" class="input" style="width:100px" value="120">
+    <button class="btn" onclick="refresh()">Apply</button>
+  </div>
+  <div id="stats" class="muted" style="margin-top:6px"></div>
+</section>
+
+<section class="card">
+  <div id="list"></div>
+</section>
+
+<script>
+  function card(it){
+    const ts = it.ts ? new Date(it.ts*1000).toLocaleString() : '';
+    const meta = it.meta || {};
+    const sc = meta.scores || {};
+    const goal = meta.goal || '';
+    const branch = meta.branch || '';
+    return `
+      <div class="box" style="margin:8px 0">
+        <div class="row" style="gap:8px;flex-wrap:wrap">
+          <span class="chip">${ts}</span>
+          <span class="chip">goal: ${goal}</span>
+          <span class="chip">branch: ${branch}</span>
+          <span class="chip">rel:${sc.relevance ?? 'n/a'}</span>
+          <span class="chip">nov:${sc.novelty ?? 'n/a'}</span>
+          <span class="chip">risk:${sc.risk ?? 'n/a'}</span>
+          <span class="chip">cost:${sc.cost ?? 'n/a'}</span>
+          <span class="chip">decay:${sc.decayed ?? 'n/a'}</span>
+        </div>
+        <div style="margin-top:6px">${(it.text||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      </div>
+    `;
+  }
+
+  function passFilters(it){
+    const q = (document.getElementById('q').value||'').toLowerCase();
+    const minN = parseFloat(document.getElementById('minN').value||'');
+    const minR = parseFloat(document.getElementById('minR').value||'');
+    const meta = it.meta || {};
+    const sc = meta.scores || {};
+    if(q){
+      const blob = ((it.text||'')+' '+(meta.goal||'')+' '+(meta.branch||'')).toLowerCase();
+      if(!blob.includes(q)) return false;
+    }
+    if(!isNaN(minN) && (parseFloat(sc.novelty||0) < minN)) return false;
+    if(!isNaN(minR) && (parseFloat(sc.risk||0) < minR)) return false;
+    return true;
+  }
+
+  async function refresh(){
+    const lim = parseInt(document.getElementById('limit').value||'120',10) || 120;
+    const r = await $fetch('/memory/branch_residue?limit='+encodeURIComponent(lim));
+    const j = await r.json().catch(()=> ({}));
+    const items = (j.items||[]).filter(passFilters);
+    document.getElementById('stats').textContent = `items: ${items.length}`;
+    document.getElementById('list').innerHTML = items.map(card).join('');
+  }
+
+  function _filteredItems(items){
+    return (items||[]).filter(passFilters);
+  }
+
+  async function exportJson(){
+    const lim = parseInt(document.getElementById('limit').value||'120',10) || 120;
+    const r = await $fetch('/memory/branch_residue?limit='+encodeURIComponent(lim));
+    const j = await r.json().catch(()=> ({}));
+    const items = _filteredItems(j.items||[]);
+    const blob = new Blob([JSON.stringify(items, null, 2)], {type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'branch_residue.json'; a.click();
+  }
+
+  async function exportCsv(){
+    const lim = parseInt(document.getElementById('limit').value||'120',10) || 120;
+    const r = await $fetch('/memory/branch_residue?limit='+encodeURIComponent(lim));
+    const j = await r.json().catch(()=> ({}));
+    const items = _filteredItems(j.items||[]);
+    const header = ["ts","text","goal","branch","relevance","novelty","risk","cost","decayed"];
+    const rows = items.map(it=>{
+      const meta = it.meta || {};
+      const sc = meta.scores || {};
+      return [
+        it.ts || "",
+        (it.text||"").replace(/"/g,'""'),
+        (meta.goal||"").replace(/"/g,'""'),
+        (meta.branch||"").replace(/"/g,'""'),
+        sc.relevance ?? "",
+        sc.novelty ?? "",
+        sc.risk ?? "",
+        sc.cost ?? "",
+        sc.decayed ?? ""
+      ];
+    });
+    const csv = [header.join(","), ...rows.map(r=> r.map(x=> `"${x}"`).join(","))].join("\n");
+    const blob = new Blob([csv], {type:'text/csv'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'branch_residue.csv'; a.click();
+  }
+
+  refresh();
+</script>
+
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:10px;align-items:center;flex-wrap:wrap">
+    <h2 style="margin:0">Status servisa</h2>
+    <span class="chip">/health</span>
+    <span class="chip">/live</span>
+    <span class="chip">/ready</span>
+    <span class="chip">/metrics</span>
+    <div class="spacer"></div>
+    <a class="navlink" href="/portal">← Nazad v /portal</a>
+  </div>
+</section>
+
+<section class="card" style="margin-bottom:12px">
+  <div class="grid" style="margin-bottom:8px">
+    <div class="box">
+      <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
+        <strong>Zdorove</strong>
+        <button class="btn right" onclick="loadStatus()">Obnovit vse</button>
+      </div>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:8px">
+        <div class="card">
+          <div class="row" style="gap:6px;align-items:center">
+            <span class="muted">/live</span><span id="chipLive" class="chip">—</span>
+          </div>
+          <pre id="txtLive" class="log" style="height:96px;margin-top:6px"></pre>
+        </div>
+        <div class="card">
+          <div class="row" style="gap:6px;align-items:center">
+            <span class="muted">/ready</span><span id="chipReady" class="chip">—</span>
+          </div>
+          <pre id="txtReady" class="log" style="height:96px;margin-top:6px"></pre>
+        </div>
+      </div>
+      <pre id="txtHealth" class="log" style="height:160px"></pre>
+      <div class="row" style="gap:8px;margin-top:8px">
+        <button class="btn" onclick="openNew('/metrics')">Otkryt /metrics</button>
+        <button class="btn" onclick="copyMetrics()">Skopirovat /metrics</button>
+        <button class="btn" onclick="openNew('/routes')">/routes</button>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
+        <strong>Ping / Latentnost</strong>
+        <button class="btn right" onclick="runPing()">Zamerit</button>
+      </div>
+      <div class="box" style="overflow:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Endpoint</th>
+              <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">N</th>
+              <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">min</th>
+              <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">avg</th>
+              <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">max</th>
+              <th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">status</th>
+            </tr>
+          </thead>
+          <tbody id="pingBody"></tbody>
+        </table>
+      </div>
+      <p class="muted" style="margin-top:6px">3 progona GET c no-cache; JWT podstavlyaetsya avtomaticheski.</p>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
+    <h3 style="margin:0">Bystrye ssylki</h3>
+  </div>
+  <div class="row" style="gap:8px;flex-wrap:wrap">
+    <button class="btn" onclick="openNew('/admin')">/admin</button>
+    <button class="btn" onclick="openNew('/providers')">/providers</button>
+    <button class="btn" onclick="openNew('/ops/backup')">/ops/backup</button>
+    <button class="btn" onclick="openNew('/hypotheses')">/hypotheses</button>
+    <button class="btn" onclick="openNew('/docs')">Swagger</button>
+    <button class="btn" onclick="openNew('/openapi.json')">OpenAPI</button>
+    <button class="btn" onclick="openNew('/routes')">/routes</button>
+  </div>
+</section>
+
+<script>
+  // ====== Helpers
+  async function loadStatus(){
+    try{
+      const [h, live, ready] = await Promise.allSettled([
+        $fetch('/health', {noCache:true}),
+        $fetch('/live', {noCache:true}),
+        $fetch('/ready', {noCache:true})
+      ]);
+      // /health
+      if(h.status==='fulfilled'){
+        document.getElementById('txtHealth').textContent = await h.value.text();
+      }else{
+        document.getElementById('txtHealth').textContent = 'Oshibka /health: '+h.reason;
+      }
+      // live
+      await renderChip(live, 'txtLive', 'chipLive');
+      // ready
+      await renderChip(ready, 'txtReady', 'chipReady');
+    }catch(e){
+      document.getElementById('txtHealth').textContent = 'Oshibka: '+e;
+    }
+  }
+
+  async function renderChip(pr, idTxt, idChip){
+    let txt='—', ok=false;
+    if(pr.status==='fulfilled'){
+      txt = await pr.value.text(); ok = pr.value.ok;
+    }else{
+      txt = 'Oshibka: '+pr.reason;
+    }
+    const elT = document.getElementById(idTxt);
+    const elC = document.getElementById(idChip);
+    elT.textContent = txt;
+    elC.textContent = ok ? 'OK' : 'ERR';
+    elC.style.borderColor = ok ? 'var(--ok)' : 'var(--danger)';
+    elC.style.color = ok ? 'var(--ok)' : 'var(--danger)';
+  }
+
+  async function copyMetrics(){
+    try{
+      const r = await $fetch('/metrics', {noCache:true});
+      const t = await r.text();
+      await navigator.clipboard.writeText(t);
+      alert('Skopirovano iz /metrics ('+t.length+' bayt)');
+    }catch(e){ alert('Oshibka: '+e); }
+  }
+
+  // ====== Ping
+  const PING_ENDPOINTS = [
+    {name:'/health', url:'/health'},
+    {name:'/live', url:'/live'},
+    {name:'/ready', url:'/ready'},
+    {name:'/providers/status', url:'/providers/status'},
+    {name:'/hypotheses?format=json&limit=5', url:'/hypotheses?format=json&limit=5'},
+  ];
+
+  async function pingOnce(url){
+    const t0 = performance.now();
+    try{
+      const r = await $fetch(url, {noCache:true});
+      const ms = Math.max(0, Math.round(performance.now() - t0));
+      return {ok:r.ok, ms};
+    }catch(_){ return {ok:false, ms:null}; }
+  }
+
+  async function pingSeries(url, n){
+    const times=[]; let status=true;
+    for(let i=0;i<n;i++){
+      const {ok, ms} = await pingOnce(url);
+      status = status && ok;
+      if(ms!==null) times.push(ms);
+    }
+    const agg = (f)=> (times.length ? Math[f](...times) : null);
+    const avg = times.length ? Math.round(times.reduce((a,b)=>a+b,0)/times.length) : null;
+    return {n:times.length, min:agg('min'), avg, max:agg('max'), status};
+  }
+
+  function rowForPing(ep){
+    const tr = document.createElement('tr');
+    const td = (t)=>{ const x=document.createElement('td'); x.style.padding='8px 6px'; x.style.borderBottom='1px solid var(--border)'; x.innerHTML=t; return x; };
+    tr.appendChild(td(`<code>${ep.name}</code>`));
+    const n = td('—'); n.id = `pg-n-${cssId(ep.name)}`; tr.appendChild(n);
+    const mi = td('—'); mi.id = `pg-min-${cssId(ep.name)}`; tr.appendChild(mi);
+    const av = td('—'); av.id = `pg-avg-${cssId(ep.name)}`; tr.appendChild(av);
+    const ma = td('—'); ma.id = `pg-max-${cssId(ep.name)}`; tr.appendChild(ma);
+    const st = td('<span class="chip">…</span>'); st.id = `pg-st-${cssId(ep.name)}`; tr.appendChild(st);
+    return tr;
+  }
+
+  function cssId(s){ return s.replace(/[^a-z0-9]+/gi,'_'); }
+
+  async function runPing(){
+    const body = document.getElementById('pingBody'); body.innerHTML='';
+    const N = 3;
+    for(const ep of PING_ENDPOINTS){
+      const tr = rowForPing(ep); body.appendChild(tr);
+      const key = cssId(ep.name);
+      const res = await pingSeries(ep.url, N);
+      document.getElementById(`pg-n-${key}`).textContent = String(res.n);
+      document.getElementById(`pg-min-${key}`).textContent = res.min===null?'—':(res.min+' ms');
+      document.getElementById(`pg-avg-${key}`).textContent = res.avg===null?'—':(res.avg+' ms');
+      document.getElementById(`pg-max-${key}`).textContent = res.max===null?'—':(res.max+' ms');
+      const st = document.getElementById(`pg-st-${key}`);
+      st.innerHTML = res.status ? '<span class="chip" style="border-color:var(--ok);color:var(--ok)">OK</span>' : '<span class="chip" style="border-color:var(--danger);color:var(--danger)">ERR</span>';
+    }
+  }
+
+  // init
+  document.addEventListener('DOMContentLoaded', ()=>{
+    loadStatus();
+    runPing();
+  });
+</script>
+
+{% endblock %}

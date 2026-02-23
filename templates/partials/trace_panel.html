@@ -1,0 +1,51 @@
+<!-- Sovmestimaya mini-panel dlya bazovogo shablona (ispolzuetsya v base.html) -->
+<div class="card">
+  <h3>Trace / Telegram</h3>
+  <div class="muted">Zhivoy log sobytiy Ester (vklyuchaya soobscheniya v Telegram, esli vklyuchen most)</div>
+
+  <div class="row" style="margin:6px 0 10px;">
+    <button id="trace-filter-all" class="btn btn-xxs" type="button">Vse</button>
+    <button id="trace-filter-tg" class="btn btn-xxs" type="button">Telegram</button>
+    <span class="pill" id="trace-count">0</span>
+  </div>
+
+  <div id="trace-list-mini" style="max-height: 360px; overflow:auto; display:grid; gap:8px;"></div>
+</div>
+
+<script>
+(function(){
+  const $ = (s,r)=> (r||document).querySelector(s);
+  const $$ = (s,r)=> Array.from((r||document).querySelectorAll(s));
+  let f = 'all';
+  function b() { try { return window.JWT || localStorage.getItem('jwt') || ''; } catch {} return ''; }
+  async function j(url){
+    const h={'Content-Type':'application/json'}; const t=b(); if (t) h.Authorization=`Bearer ${t}`;
+    const r = await fetch(url, {headers:h}); let x=null; try{ x=await r.json(); }catch{}; if(!r.ok) throw new Error('trace');
+    return x;
+  }
+  function draw(items){
+    const box = $('#trace-list-mini'); if(!box) return;
+    box.innerHTML = ''; let n=0;
+    (Array.isArray(items)?items:items?.items||[]).forEach(it=>{
+      const ch=(it.channel || it.meta?.channel || '').toString().toLowerCase();
+      if (f==='tg' && !/telegram|tg/.test(ch)) return;
+      n++;
+      const el = document.createElement('div');
+      el.className='msg';
+      const parts=[];
+      if (it.ts) parts.push(new Date(it.ts*1000).toLocaleTimeString());
+      if (it.prov) parts.push(`prov=${it.prov}`);
+      if (ch) parts.push(`chan=${ch}`);
+      el.innerHTML = `<div class="role">${parts.join(' · ')}</div><div class="txt"></div>`;
+      el.querySelector('.txt').textContent = it.text || it.answer || it.query || JSON.stringify(it);
+      box.appendChild(el);
+    });
+    const cnt=$('#trace-count'); if (cnt) cnt.textContent=String(n);
+  }
+  async function pull(){ try { const x = await j('/trace/recent?limit=50'); draw(x); } catch(e){} }
+  const a=$('#trace-filter-all'), t=$('#trace-filter-tg');
+  a && a.addEventListener('click', ()=>{ f='all'; pull(); });
+  t && t.addEventListener('click', ()=>{ f='tg'; pull(); });
+  setInterval(pull, 3000); pull();
+})();
+</script>

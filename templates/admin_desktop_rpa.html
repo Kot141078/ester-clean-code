@@ -1,0 +1,139 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Desktop RPA</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  h2,h3{margin:12px 0}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  input[type="number"]{width:90px}
+  input[type="text"]{min-width:280px}
+  textarea{width:100%;min-height:120px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:6px;min-height:100px;white-space:pre-wrap}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  img{max-width:100%;border:1px solid #ddd;border-radius:8px}
+  .pill{padding:4px 8px;border-radius:999px;border:1px solid #bbb}
+  .card{border:1px solid #e1e1e1;border-radius:10px;padding:12px;margin:10px 0}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:1080px){.cols{grid-template-columns:1fr}}
+  table{border-collapse:collapse;width:100%}
+  th,td{border:1px solid #e1e1e1;padding:6px 8px}
+</style>
+
+<h2>Virtualnyy stol Ester</h2>
+
+<div class="row">
+  <button onclick="ping()">Proverka</button>
+  <span id="slot" class="pill">slot: ?</span>
+  <button onclick="toggleSlot()">Pereklyuchit slot A↔B</button>
+  <button onclick="pause()">Pause (SOS)</button>
+  <button onclick="resume()">Resume</button>
+  <span id="paused" class="pill">paused: ?</span>
+</div>
+
+<div class="row">
+  <button onclick="openApp('notepad')">Notepad (Win)</button>
+  <button onclick="openApp('chrome')">Chrome</button>
+  <button onclick="openApp('xterm')">xterm (Linux)</button>
+  <button onclick="grab()">Skrinshot</button>
+</div>
+
+<img id="screen" alt="Skrinshot">
+
+<div class="cols">
+  <div class="card">
+    <h3>Window</h3>
+    <div class="row">
+      <button onclick="wList()">List windows</button>
+      Title: <input id="wtitle" type="text" placeholder="chast zagolovka">
+      <button onclick="wFocus()">Focus by title</button>
+    </div>
+    <table><thead><tr><th>ID</th><th>Title</th><th>Rect</th><th>Ops</th></tr></thead><tbody id="wtb"></tbody></table>
+    <div class="row">
+      Hotkey: <input id="hotkey" type="text" value="CTRL+S">
+      <button onclick="wHotkey()">Send Hotkey</button>
+    </div>
+    <img id="wcap" alt="Window capture">
+  </div>
+
+  <div class="card">
+    <h3>Vision / Profiles / Act (kak v pakete-9)</h3>
+    <div class="row">
+      Porog: <input id="thr" type="number" value="0.78" step="0.01" min="0" max="1">
+      <button onclick="visionFind()">Find</button>
+      <button onclick="visionClick()">Click by template</button>
+    </div>
+    <p>Template PNG (Base64):</p>
+    <textarea id="templ"></textarea>
+
+    <div class="row">
+      Profile:
+      <select id="profile">
+        <option>human_slow</option>
+        <option selected>human_norm</option>
+        <option>human_fast</option>
+      </select>
+      <button onclick="runAct()">Run Act</button>
+    </div>
+    <p>Steps JSON:</p>
+    <textarea id="steps">{
+  "steps":[
+    {"type":"click","x":200,"y":200},
+    {"type":"type","text":"Hello from Ester"},
+    {"type":"sleep","ms":300}
+  ]
+}</textarea>
+  </div>
+</div>
+
+<div class="card">
+  <h3>FPS</h3>
+  <div class="row">
+    Target:
+    <select id="ftarget"><option>screen</option><option>window</option></select>
+    Window ID: <input id="fwid" type="number" value="0">
+    Seconds: <input id="fsec" type="number" value="3">
+    <button onclick="fpsStart()">Start FPS</button>
+    <button onclick="fpsStatus()">Status</button>
+    <button onclick="fpsStop()">Stop</button>
+    <span id="fpspill" class="pill">fps: ?</span>
+  </div>
+</div>
+
+<h3>Log</h3>
+<pre id="log"></pre>
+
+<script>
+async function j(method, url, body){
+  const headers={'Content-Type':'application/json'};
+  const token = localStorage.getItem('jwt') || '';
+  if(token) headers['Authorization'] = 'Bearer '+token;
+  const r = await fetch(url, {method, headers, body: body?JSON.stringify(body):null});
+  const t = await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}}
+}
+function log(x){ const e=document.getElementById('log'); e.textContent += JSON.stringify(x)+"\n"; e.scrollTop=e.scrollHeight; }
+function setSlot(s){ document.getElementById('slot').textContent = 'slot: '+s; }
+function setPaused(b){ document.getElementById('paused').textContent='paused: '+(b?'yes':'no'); }
+
+async function ping(){ const res = await j('GET','/desktop/rpa/health'); if(res && res.slot) setSlot(res.slot); log(res); }
+async function openApp(a){ log(await j('POST','/desktop/rpa/open',{app:a})); }
+async function grab(){ const res = await j('GET','/desktop/rpa/screen'); if(res.ok && res.png_b64){ document.getElementById('screen').src='data:image/png;base64,'+res.png_b64; } log(res); }
+async function toggleSlot(){ const cur = await j('GET','/desktop/rpa/health'); const next = (cur && cur.slot === 'A') ? 'B' : 'A'; const res = await j('POST','/desktop/rpa/slot',{slot: next}); if(res.ok && res.slot){ setSlot(res.slot); } log(res); }
+async function pause(){ const r=await j('POST','/control/pause',{}); setPaused(r.paused); log(r); }
+async function resume(){ const r=await j('POST','/control/resume',{}); setPaused(r.paused); log(r); }
+async function status(){ const r=await j('GET','/control/status'); setPaused(r.paused); log(r); } status();
+
+async function visionFind(){ const template_b64 = document.getElementById('templ').value.trim(); const threshold = +document.getElementById('thr').value; log(await j('POST','/desktop/rpa/find_template',{template_b64, threshold})); }
+async function visionClick(){ const template_b64 = document.getElementById('templ').value.trim(); const threshold = +document.getElementById('thr').value; log(await j('POST','/desktop/rpa/click_template',{template_b64, threshold})); }
+
+async function runAct(){ const profile = document.getElementById('profile').value; let obj={}; try{ obj = JSON.parse(document.getElementById('steps').value||'{}'); }catch(e){ log({ok:false,error:'bad_json'}); return; } obj.profile = profile; log(await j('POST','/desktop/rpa/act', obj)); }
+
+async function wList(){ const r=await j('GET','/desktop/window/list'); const tb=document.getElementById('wtb'); tb.innerHTML=''; if(r.ok && r.items){ r.items.forEach(w=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${w.id}</td><td>${w.title}</td><td>${w.rect.left},${w.rect.top} ${w.rect.width}x${w.rect.height}</td><td><button onclick="wFocusId(${w.id})">Focus</button><button onclick="wCap(${w.id})">Capture</button></td>`; tb.appendChild(tr); }); } log(r); }
+async function wFocus(){ const title=document.getElementById('wtitle').value; log(await j('POST','/desktop/window/focus',{title})); }
+async function wFocusId(id){ log(await j('POST','/desktop/window/focus',{id})); }
+async function wCap(id){ const r=await j('POST','/desktop/window/capture',{id}); if(r.ok && r.png_b64){ document.getElementById('wcap').src='data:image/png;base64,'+r.png_b64; } log(r); }
+async function wHotkey(){ const seq=document.getElementById('hotkey').value; log(await j('POST','/desktop/window/hotkey',{seq})); }
+
+async function fpsStart(){ const target=document.getElementById('ftarget').value; const window_id=+document.getElementById('fwid').value||null; const seconds=+document.getElementById('fsec').value; log(await j('POST','/desktop/metrics/fps/start',{target,window_id,seconds})); }
+async function fpsStatus(){ const r=await j('GET','/desktop/metrics/fps/status'); document.getElementById('fpspill').textContent='fps: '+(r.fps_avg? r.fps_avg.toFixed(1):'?'); log(r); }
+async function fpsStop(){ log(await j('POST','/desktop/metrics/fps/stop',{})); }
+</script>

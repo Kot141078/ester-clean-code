@@ -1,0 +1,82 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — KnowledgeOps</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1200px}
+  input,button,textarea{padding:8px;border:1px solid #ccc;border-radius:8px}
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+  th,td{border:1px solid #eee;padding:8px;text-align:left}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;white-space:pre-wrap}
+  .card{border:1px solid #eee;border-radius:10px;padding:10px;margin:10px 0}
+  .meta{font-size:12px;color:#666}
+</style>
+
+<h2>Kukhnya znaniy: istochniki, kachestvo, tsitaty</h2>
+
+<section class="card">
+  <h3>Istochniki</h3>
+  <div class="row">
+    <input id="url" placeholder="url" style="width:360px">
+    <input id="title" placeholder="title" style="width:260px">
+    <button onclick="add()">Add source</button>
+    <button onclick="load()">Refresh</button>
+  </div>
+  <table id="tbl"><thead><tr><th>ID</th><th>Score</th><th>Title</th><th>URL</th><th>Hits/Err</th><th>Actions</th></tr></thead><tbody></tbody></table>
+</section>
+
+<section class="card">
+  <h3>Ingest & Dedup (demo)</h3>
+  <div class="row">
+    <button onclick="ingest()">Ingest sample</button>
+    <button onclick="dedup()">Dedup last 200</button>
+  </div>
+  <pre id="ded"></pre>
+</section>
+
+<section class="card">
+  <h3>Evidence & Citations</h3>
+  <div class="row">
+    <input id="query" placeholder="vopros (ili ostav pustym i ukazhi record_id)" style="width:380px">
+    <input id="rid" placeholder="record_id" style="width:240px">
+    <button onclick="evidence()">Build evidence</button>
+    <button onclick="cite()">Cite</button>
+    <button onclick="passport()">Answer passport</button>
+  </div>
+  <textarea id="answer" rows="3" style="width:100%" placeholder="tekst otveta dlya profilea"></textarea>
+  <pre id="out"></pre>
+</section>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+
+async function add(){ await j('POST','/knowledge/source/add',{"url":url.value,"title":title.value}); load(); }
+async function load(){
+  const res=await (await fetch('/knowledge/source/list')).json();
+  const body=document.querySelector('#tbl tbody'); body.innerHTML='';
+  (res.items||[]).forEach(s=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${s.id}</td><td>${s.score}</td><td>${s.title}</td><td>${s.url}</td><td>${s.hits}/${s.errors}</td>
+      <td><button onclick="touch('${s.id}',true)">Touch+</button> <button onclick="touch('${s.id}',false)">Touch-</button></td>`;
+    body.appendChild(tr);
+  });
+}
+async function touch(id,ok){ await j('POST','/knowledge/source/touch',{"id":id,"ok":!!ok,"bytes":1024}); load(); }
+async function ingest(){ document.getElementById('ded').textContent = JSON.stringify(await j('POST','/knowledge/ingest/sample',{}),null,2); }
+async function dedup(){ document.getElementById('ded').textContent = JSON.stringify(await j('POST','/knowledge/dedup/run',{"top_k":200}),null,2); }
+
+async function evidence(){
+  const body = rid.value ? {"record_id": rid.value} : {"query": query.value||"plan na nedelyu"};
+  document.getElementById('out').textContent = JSON.stringify(await j('POST','/knowledge/evidence/build', body), null, 2);
+}
+async function cite(){
+  const body = rid.value ? {"record_id": rid.value} : {"query": query.value||"plan na nedelyu"};
+  document.getElementById('out').textContent = JSON.stringify(await j('POST','/knowledge/evidence/cite', body), null, 2);
+}
+async function passport(){
+  const body = rid.value ? {"record_id": rid.value, "answer": answer.value||"otvet"} : {"query": query.value||"plan na nedelyu","answer": answer.value||"otvet"};
+  document.getElementById('out').textContent = JSON.stringify(await j('POST','/knowledge/answer/passport', body), null, 2);
+}
+
+load();
+</script>

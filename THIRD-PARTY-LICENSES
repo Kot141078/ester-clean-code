@@ -1,0 +1,4 @@
+﻿THIRD-PARTY LICENSES — stub
+
+This file lists third-party components and their licenses included in the distributed artifacts.
+Generate at release time with tools like syft or scancode and append the results here.

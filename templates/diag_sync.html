@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Diag Sync (LAN)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  </style>
+  <!--
+    Zemnoy abzats:
+      «Sborochnaya» diagnostiki: tyanem istorii/tikety s sosedey po LAN, vlivaem v svoi fayly i formiruem obschiy tiket.
+    Mosty:
+      • Yavnyy — UX poverkh /lan/diagnostics i /admin/diag_sync/cross_ticket.
+      • Skrytye — podpis uzla vo vsekh indeksakh; dry(A)/real(B).
+  -->
+</head>
+<body>
+  <h1>Diag Sync (LAN) <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="grid">
+    <div>
+      <h3>Lokalnyy uzel</h3>
+      <button onclick="loadStatus()">Obnovit</button>
+      <pre id="local">—</pre>
+    </div>
+    <div>
+      <h3>Piry</h3>
+      <div class="row">
+        <input id="base" placeholder="http://192.168.1.10:5000" style="width:100%"/>
+        <button onclick="addPeer()">Dobavit</button>
+        <button onclick="savePeers()">Save</button>
+        <button onclick="loadPeers()">Obnovit</button>
+      </div>
+      <pre id="peers">—</pre>
+    </div>
+    <div>
+      <h3>Udalennyy indeks</h3>
+      <div class="row">
+        <button onclick="fetchRemote()">Poluchit</button>
+        <input id="filterId" placeholder="filter node_id (opts.)"/>
+      </div>
+      <pre id="remote">—</pre>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div>
+      <h3>Vybor i operatsii</h3>
+      <div class="row">
+        <span>Vybrannoe:</span> <code id="sel">—</code>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <select id="kind">
+          <option value="history">history</option>
+          <option value="ticket">ticket</option>
+        </select>
+        <button onclick="opFetch('merge')">Fetch (merge)</button>
+        <button onclick="opFetch('copy')">Fetch (copy)</button>
+      </div>
+      <pre id="out">—</pre>
+    </div>
+    <div>
+      <h3>Cross-ticket</h3>
+      <div class="row">
+        <input id="names" placeholder='["2025-09-28.ndjson","2025-09-29.ndjson"]' style="width:100%"/>
+        <button onclick="cross()">Sobrat</button>
+      </div>
+      <pre id="cross">—</pre>
+    </div>
+    <div>
+      <h3>RAW</h3>
+      <pre id="raw">—</pre>
+    </div>
+  </section>
+
+<script>
+let peers=[], remote=null, selected=null, currentBase=null;
+
+function selectName(n){ selected=n; document.getElementById('sel').textContent=n||'—'; }
+
+async function loadStatus(){
+  const r = await fetch('/admin/diag_sync/status'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('local').textContent = JSON.stringify(j, null, 2);
+  peers = j.peers||[];
+  document.getElementById('peers').textContent = JSON.stringify(peers, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function loadPeers(){
+  const r = await fetch('/lan/packages/peers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({op:'get'})});
+  const j = await r.json().catch(()=>({ok:false}));
+  peers = j.items||[];
+  document.getElementById('peers').textContent = JSON.stringify(peers, null, 2);
+}
+async function savePeers(){
+  const items = peers; 
+  const r = await fetch('/lan/packages/peers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({op:'set', items})});
+  await loadPeers();
+}
+function addPeer(){
+  const v = document.getElementById('base').value.trim(); if(!v) return;
+  if(!peers.includes(v)) peers.push(v);
+  document.getElementById('peers').textContent = JSON.stringify(peers, null, 2);
+}
+function renderRemote(j){
+  remote=j; const fi=(document.getElementById('filterId').value||'').trim();
+  let d = j?.diag || {};
+  if(fi && d?.signature?.node_id !== fi){ document.getElementById('remote').textContent='Filtr ne propustil etot uzel.'; return; }
+  const rows = [];
+  (d.history||[]).forEach(i=> rows.push(`<div class="row"><code>${i.name}</code><span>${i.size} bayt</span><button onclick="selectName('${i.name.replaceAll('\\','\\\\')}'); document.getElementById('kind').value='history'">Vybrat</button></div>`));
+  (d.tickets||[]).forEach(i=> rows.push(`<div class="row"><code>${i.name}</code><span>${i.size} bayt</span><button onclick="selectName('${i.name.replaceAll('\\','\\\\')}'); document.getElementById('kind').value='ticket'">Vybrat</button></div>`));
+  document.getElementById('remote').innerHTML = rows.join('') || '—';
+}
+async function fetchRemote(){
+  const v=document.getElementById('base').value.trim() || (peers[0]||''); if(!v) { alert('Net pirov'); return; }
+  currentBase=v;
+  try{
+    const r = await fetch(v+'/lan/diagnostics/index'); const j = await r.json();
+    renderRemote(j);
+    document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  }catch(e){
+    document.getElementById('remote').textContent='Oshibka zaprosa indeksa.';
+  }
+}
+async function opFetch(op){
+  if(!currentBase){ alert('Snachala zagruzite udalennyy indeks'); return; }
+  if(!selected){ alert('Vyberite element'); return; }
+  const kind=document.getElementById('kind').value;
+  const r = await fetch('/lan/diagnostics/fetch',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({base_url: currentBase, kind, name: selected, op})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+async function cross(){
+  let arr=[]; try{ arr = JSON.parse(document.getElementById('names').value||'[]'); }catch(e){ alert('Plokhoy JSON'); return; }
+  const r = await fetch('/admin/diag_sync/cross_ticket',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({names: arr})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('cross').textContent = JSON.stringify(j, null, 2);
+}
+loadStatus().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

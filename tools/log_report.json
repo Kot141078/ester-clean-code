@@ -1,0 +1,11 @@
+{
+  "encoding": "utf-8",
+  "counts": {
+    "errors": 4,
+    "warnings": 2,
+    "env_sets": 5,
+    "http_requests": 0,
+    "lines_total": 2249
+  },
+  "log_basename": "Log.txt"
+}

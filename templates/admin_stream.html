@@ -1,0 +1,21 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Screen Stream (MJPEG)</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  img{max-width:100%;border:1px solid #ddd;border-radius:8px}
+</style>
+<h2>Screen Stream (LAN)</h2>
+<div class="row">
+  FPS <input id="fps" type="number" value="8" min="1" max="30">
+  <button onclick="start()">Start</button>
+</div>
+<img id="live" />
+<script>
+function start(){
+  const f=+fps.value||8;
+  live.src='/stream/screen?fps='+encodeURIComponent(f)+'#'+Date.now();
+}
+</script>

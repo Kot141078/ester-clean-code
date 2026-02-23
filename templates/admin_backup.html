@@ -1,0 +1,34 @@
+{% extends "_admin_base.html" %}
+{% block title %}Ester Admin — Backup{% endblock %}
+{% block content %}
+  <h1>Operatsii Backup</h1>
+  <p>Deystviya trebuyut JWT s rolyu <code>operator</code> ili <code>admin</code> (sm. RBAC).</p>
+
+  <div class="card">
+    <h3>Run backup</h3>
+    <button onclick="callApi('POST','/ops/backup/run')">Zapustit</button>
+  </div>
+
+  <div class="card">
+    <h3>Verify backup</h3>
+    <button onclick="callApi('POST','/ops/backup/verify')">Proverit</button>
+  </div>
+
+  <div class="card">
+    <h3>Restore from backup</h3>
+    <textarea id="restoreBody" placeholder='Optsionalno: JSON tela zaprosa'></textarea>
+    <button onclick="callApi('POST','/ops/backup/restore', getRestoreBody())">Vosstanovit</button>
+  </div>
+
+  <pre id="out" class="out"></pre>
+  <script>
+    function getRestoreBody(){
+      try{ return JSON.parse(document.getElementById('restoreBody').value || '{}'); }
+      catch(e){ alert('Nekorrektnyy JSON'); return null; }
+    }
+    async function callApi(method, path, body){
+      const res = await apiFetch(path, {method, body: body? JSON.stringify(body): undefined});
+      document.getElementById('out').textContent = JSON.stringify(res, null, 2);
+    }
+  </script>
+{% endblock %}

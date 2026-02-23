@@ -1,0 +1,40 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Consent Policy</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:960px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  input[type="text"]{min-width:220px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  table{border-collapse:collapse;width:100%} th,td{border:1px solid #e1e1e1;padding:6px 8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:120px;white-space:pre-wrap}
+</style>
+
+<h2>Consent Policy</h2>
+<div class="row">
+  Scope <input id="scope" value="hotkey">
+  Title <input id="title" value="BankApp">
+  Decision <select id="decision"><option>deny</option><option>allow</option><option>ask</option></select>
+  TTL <input id="ttl" type="number" value="0">
+  <button onclick="add()">Upsert</button>
+  <button onclick="list()">List</button>
+</div>
+
+<table id="tbl"><thead><tr><th>#</th><th>scope</th><th>title</th><th>decision</th><th>ttl</th><th></th></tr></thead><tbody></tbody></table>
+
+<h3>Probe</h3>
+<div class="row">
+  Scope <input id="pscope" value="mix_apply">
+  Title <input id="ptitle" value="Notepad">
+  <button onclick="probe()">Decide</button>
+</div>
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function draw(r){ const tb=document.querySelector('#tbl tbody'); tb.innerHTML=''; (r.rules||[]).forEach((x,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${i}</td><td>${x.scope}</td><td>${x.title}</td><td>${x.decision}</td><td>${x.ttl||0}</td><td><button onclick="delr(${i})">Del</button></td>`; tb.appendChild(tr); }); }
+async function list(){ const r=await j('GET','/policy/list'); draw(r); }
+async function add(){ const rule={scope:scope.value,title:title.value,decision:decision.value,ttl:+ttl.value}; await j('POST','/policy/upsert',rule); await list(); }
+async function delr(i){ await j('POST','/policy/remove',{"index":i}); await list(); }
+async function probe(){ out.textContent=JSON.stringify(await j('POST','/policy/decide',{"scope":pscope.value,"title":ptitle.value}),null,2); }
+</script>

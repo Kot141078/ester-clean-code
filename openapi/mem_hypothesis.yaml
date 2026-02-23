@@ -1,0 +1,117 @@
+openapi: 3.0.3
+info:
+  title: Ester Memory · Hypothesis API
+  version: 1.0.0
+servers:
+  - url: /
+paths:
+  /mem/hypothesis/add:
+    post:
+      summary: Dobavit gipotezu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HypothesisCreate'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  id: { type: string }
+
+  /mem/hypothesis/list:
+    get:
+      summary: Spisok gipotez
+      parameters:
+        - in: query
+          name: topic
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 100 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/HypothesisItem' }
+
+  /mem/hypothesis/feedback:
+    post:
+      summary: Obratnaya svyaz po gipoteze (used_in_rag / score delta)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HypothesisFeedback'
+      responses:
+        '200':
+          description: OK/Not Found
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/HypothesisFeedbackResult'
+                  - type: object
+                    properties:
+                      ok: { type: boolean }
+                      error: { type: string }
+
+components:
+  schemas:
+    HypothesisCreate:
+      type: object
+      required: [text]
+      properties:
+        text: { type: string }
+        topic: { type: string }
+        tags:
+          oneOf:
+            - type: array
+              items: { type: string }
+            - type: string
+        score: { type: number, default: 0.5 }
+
+    HypothesisItem:
+      type: object
+      properties:
+        id: { type: string }
+        text: { type: string }
+        topic: { type: string }
+        tags:
+          oneOf:
+            - type: array
+              items: { type: string }
+            - type: string
+        score: { type: number }
+        used: { type: boolean, nullable: true }
+        used_count: { type: integer }
+        created: { type: number }
+        mtime: { type: number }
+
+    HypothesisFeedback:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+        used: { type: boolean, nullable: true }
+        delta_score: { type: number, nullable: true }
+
+    HypothesisFeedbackResult:
+      type: object
+      properties:
+        ok: { type: boolean }
+        item: { $ref: '#/components/schemas/HypothesisItem' }

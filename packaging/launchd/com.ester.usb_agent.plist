@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- packaging/launchd/com.ester.usb_agent.plist -->
+<!--
+Mosty:
+- Yavnyy (Ekspluatatsiya ↔ Arkhitektura): shtatnyy agent launchd dlya macOS.
+- Skrytyy 1 (Nadezhnost ↔ UX): KeepAlive — pri padenii perezapustit.
+- Skrytyy 2 (Praktika ↔ Infoteoriya): minimum konfiguratsii — maksimum polzy.
+
+Zemnoy abzats:
+Agent vyzyvaet nash modul Python kak fonovuyu zadachu pri vkhode polzovatelya v sistemu.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.ester.usb_agent</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/usr/bin/env</string>
+      <string>python3</string>
+      <string>-m</string>
+      <string>listeners.usb_one_question_agent</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>ESTER_ZT_AUTO_ACCEPT_SECONDS</key>
+      <string>10</string>
+      <key>ESTER_ZT_POLL_INTERVAL</key>
+      <string>5</string>
+      <key>AB_MODE</key>
+      <string>A</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+
+    <!-- Logi polzovatelya -->
+    <key>StandardOutPath</key>
+    <string>~/Library/Logs/ester.usb_agent.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>~/Library/Logs/ester.usb_agent.err.log</string>
+  </dict>
+</plist>

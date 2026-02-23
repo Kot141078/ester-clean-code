@@ -1,0 +1,24 @@
+# -*- coding: utf-8 -*-
+# config/dreams_rules.yaml — defoltnye pravila «Sny 2.0»
+#
+# Format:
+# rules:
+#   - query: "*"                  # zapros k flashback (sm. memory_manager.flashback)
+#     k: 200                      # skolko vspominaniy brat
+#     ngram: 3                    # razmer n-gramm dlya klasterizatsii
+#     min_cluster_size: 2         # minimalnyy razmer klastera
+#     max_hypotheses_per_cluster: 2
+
+rules:
+  - query: "*"
+    k: 200
+    ngram: 3
+    min_cluster_size: 2
+    max_hypotheses_per_cluster: 2
+
+  # Primer tematicheskogo nochnogo progona po «ingest/ocr/pdf»
+  - query: "pdf ocr invoice receipt contract soglashenie dogovor chek"
+    k: 150
+    ngram: 2
+    min_cluster_size: 2
+    max_hypotheses_per_cluster: 2

@@ -1,0 +1,19 @@
+version: 1
+name: indie_dev
+description: "Issues, relizy, changelog, nightly build"
+triggers:
+  - kind: scheduler.tick
+    when: "RRULE:FREQ=DAILY;BYHOUR=23"
+    actions:
+      - type: scan_repo_commits
+      - type: update_changelog
+      - type: draft_release_notes
+      - type: notify
+        channel: "email"
+  - kind: ingest.code
+    actions:
+      - type: code_index
+      - type: suggest_refactor
+        limit: 5
+guardrails:
+  max_tokens_cloud: 100000

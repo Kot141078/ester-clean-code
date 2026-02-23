@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Svodka seti</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .muted{color:#9aa9bd}
+    .ok{color:#98e08b}
+    .warn{color:#f5c06f}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Operativnaya panel: kto v seti, kakie versii, skolko trafika uzhe potratili i knopka «Pull best».
+    Mosty:
+      • Yavnyy — edinyy ekran vidimosti + deystviya.
+      • Skrytye — chtenie JSON-sostoyaniy i ispolzovanie ocheredi vmesto pryamykh pobochnykh effektov.
+  -->
+</head>
+<body>
+  <h1>Svodka seti <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <div class="grid">
+      <div>
+        <div class="muted">Self</div>
+        <div id="self">—</div>
+      </div>
+      <div>
+        <div class="muted">Peers</div>
+        <div id="peers">—</div>
+      </div>
+      <div>
+        <div class="muted">Meter / kvoty</div>
+        <div id="meter">—</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input id="minv" type="text" placeholder="min version (opts.)"/>
+      <button onclick="pullBest()">Pull best</button>
+      <button onclick="refresh()">Obnovit</button>
+      <a class="chip" href="/admin/lan/catalog">Katalog uzlov →</a>
+      <a class="chip" href="/admin/lan/jobs">LAN zadachi →</a>
+    </div>
+  </section>
+
+  <section>
+    <h3>Istochniki (po prioritetu)</h3>
+    <table id="src"><thead><tr><th>#</th><th>IP/Host</th><th>Versiya</th><th>URL</th><th>Score</th><th>Last</th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section>
+    <h3>Topologiya (uproschenno)</h3>
+    <pre id="topo">—</pre>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+async function refresh(){
+  const r = await fetch('/admin/lan/overview/status'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok){ return; }
+  const d = j.data||{};
+  document.getElementById('self').textContent = `${(d.self||{}).host||'—'} (${(d.self||{}).ip||'—'}) v=${(d.self||{}).version||'unknown'}`;
+  const peers = Object.values(d.peers||{}); 
+  document.getElementById('peers').textContent = `${peers.length} uzl.`;
+  const mb = (x)=> (x/(1024*1024)).toFixed(1)+' MB';
+  document.getElementById('meter').textContent = `in last hour: ${mb((d.meter||{}).bytes_last_hour||0)}; qps_minute=${(d.meter||{}).qps_minute||0}`;
+  // sources
+  const tb=document.querySelector('#src tbody'); tb.innerHTML='';
+  (d.sources||[]).forEach((s,i)=>{
+    const tr=document.createElement('tr');
+    const last = new Date((s.last||0)*1000).toLocaleString();
+    tr.innerHTML = `<td>${i+1}</td><td>${s.ip} / ${s.host||''}</td><td>${s.version||''}</td><td>${s.base_url}</td><td>${s.score}</td><td>${last}</td>`;
+    tb.appendChild(tr);
+  });
+  // topology
+  document.getElementById('topo').textContent = JSON.stringify(d.topology||{}, null, 2);
+  // raw
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function pullBest(){
+  const min_version = document.getElementById('minv').value.trim();
+  const r = await fetch('/admin/lan/overview/pull_best',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({min_version})});
+  const j = await r.json().catch(()=>({ok:false}));
+  alert(JSON.stringify(j));
+}
+refresh().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

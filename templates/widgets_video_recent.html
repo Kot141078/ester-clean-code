@@ -1,0 +1,22 @@
+<!-- widgets_video_recent.html — Mini-vidzhet spiska poslednikh video -->
+<style>
+  .vid-list{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;line-height:1.4}
+  .vid-item{border-bottom:1px solid #eee;padding:8px 0}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef;margin-right:6px}
+  .muted{color:#666}
+  .wrap{white-space:pre-wrap}
+</style>
+<div class="vid-list">
+  {% for r in rows %}
+  <div class="vid-item">
+    <div><span class="pill">{{ r.backend }}</span> <span class="muted">ts={{ r.ts }} · {{ r.probe_format }}</span></div>
+    <div class="wrap"><strong>src:</strong> {{ r.src }}</div>
+    {% if r.summary %}
+      <div class="wrap"><strong>summary:</strong> {{ r.summary }}</div>
+    {% else %}
+      <div class="muted">summary: (pusto)</div>
+    {% endif %}
+    <div class="muted">dump: {{ r.dump_path }}</div>
+  </div>
+  {% endfor %}
+</div>

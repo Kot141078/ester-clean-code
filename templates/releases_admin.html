@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Ester — Relizy / Samosborka</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}"/>
+  <style>
+    body { background:#0a0a0a; color:#e8e8e8; }
+    .grid { display:grid; grid-template-columns: 1fr; gap:16px; }
+    .card { border:1px solid #2a2a2a; border-radius:14px; padding:16px; background:#111; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { text-align:left; padding:8px; border-bottom:1px solid #222; }
+    .muted { color:#aaa; font-size:12px; }
+    .btn { cursor:pointer; padding:8px 12px; border:1px solid #444; border-radius:10px; background:#1a1a1a; color:#fff; }
+    .btn:hover { background:#222; }
+    input, select { background:#0c0c0c; border:1px solid #333; color:#e8e8e8; padding:6px 8px; border-radius:8px; }
+    .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .ok { color:#84f089; }
+    .fail { color:#ff8080; }
+    code { background:#0b0b0b; padding:2px 6px; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <div style="max-width:1200px; margin:24px auto; padding:0 16px;">
+    <h1 style="margin:0 0 8px 0;">Relizy / Samosborka</h1>
+    <p class="muted">Eta stranitsa chitaet JSON iz <code>/admin/releases/json</code> i daet deystviya aktivatsii / USB-sinkhronizatsii.</p>
+
+    <div class="grid">
+      <div class="card">
+        <h3 style="margin:0 0 8px 0;">Tekuschiy state</h3>
+        <pre id="state">Zagruzka…</pre>
+      </div>
+
+      <div class="card">
+        <div class="row" style="justify-content:space-between;">
+          <h3 style="margin:0;">Lokalnye arkhivy</h3>
+          <button class="btn" onclick="reload()">Obnovit</button>
+        </div>
+        <table id="tbl"></table>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px 0;">Aktivatsiya reliza</h3>
+        <div class="row">
+          <label>CID:</label><input id="cid" placeholder="release CID" />
+          <span class="muted">ili put k arkhivu</span>
+          <input id="path" placeholder="/path/to/archive.zip" style="min-width:320px" />
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <label>target_parent:</label><input id="target" placeholder="/opt/ester/runroot" style="min-width:320px" />
+          <label>threshold:</label><input id="th" type="number" value="1" style="width:80px" />
+          <button class="btn" onclick="activate()">Aktivirovat</button>
+        </div>
+        <p class="muted" style="margin-top:8px;">
+          Dlya kvoruma dobavte tokeny approvals v JSON (v konsoli JS: window.approvals=[...]).
+        </p>
+        <pre id="act_out"></pre>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px 0;">USB-sinkhronizatsiya</h3>
+        <div class="row">
+          <label>Mount point:</label><input id="mnt" placeholder="/media/owner/USB" />
+          <label>Dvustoronniy:</label><input id="push" type="checkbox" />
+          <button class="btn" onclick="usbSync()">Sinkhronizirovat</button>
+        </div>
+        <pre id="usb_out"></pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.approvals = []; // syuda mozhno polozhit tokeny approvals (JSON-obekty)
+
+    async function reload() {
+      const r = await fetch('/admin/releases/json', {headers:{'Accept':'application/json'}});
+      const js = await r.json();
+      document.getElementById('state').textContent = JSON.stringify(js.current || {}, null, 2);
+
+      const tbl = document.getElementById('tbl');
+      const arcs = js.local_archives || {};
+      const rows = [['CID','Put']].concat(Object.entries(arcs));
+      tbl.innerHTML = rows.map((row,i)=>{
+        if(i===0) return `<tr><th>${row[0]}</th><th>${row[1]}</th></tr>`;
+        return `<tr><td><code>${row[0]}</code></td><td><code>${row[1]}</code></td></tr>`;
+      }).join('');
+    }
+
+    async function activate() {
+      const cid = document.getElementById('cid').value.trim();
+      const path = document.getElementById('path').value.trim();
+      const target = document.getElementById('target').value.trim();
+      const th = parseInt(document.getElementById('th').value || '1', 10);
+      const body = {cid, path, target_parent: target || undefined, threshold: th, approvals: window.approvals || []};
+      const r = await fetch('/admin/releases/activate', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+      const js = await r.json();
+      document.getElementById('act_out').textContent = JSON.stringify(js, null, 2);
+      reload();
+    }
+
+    async function usbSync() {
+      const mount = document.getElementById('mnt').value.trim();
+      const push_to_usb = document.getElementById('push').checked;
+      const r = await fetch('/admin/releases/usb_sync', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({mount, push_to_usb})});
+      const js = await r.json();
+      document.getElementById('usb_out').textContent = JSON.stringify(js, null, 2);
+      reload();
+    }
+
+    reload();
+  </script>
+</body>
+</html>

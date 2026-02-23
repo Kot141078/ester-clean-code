@@ -1,0 +1,40 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — SelfDrive</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+  input,textarea,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:10px;white-space:pre-wrap;min-height:160px}
+  .meta{font-size:12px;color:#666}
+  .card{border:1px solid #eee;border-radius:10px;padding:10px;margin:8px 0}
+</style>
+
+<h2>SelfDrive — petlya deystviya</h2>
+<div class="card">
+  <div class="row">
+    <input id="goal" placeholder="tsel (primer: Podgotovit nedelnyy plan)" style="width:480px">
+    <input id="params" placeholder='params JSON (opts.)' style="width:380px">
+  </div>
+  <div class="row">
+    <button onclick="runOnce()">Run once</button>
+    <button onclick="enable()">Enable loop</button>
+    <button onclick="disable()">Disable</button>
+    <button onclick="stat()">Status</button>
+    <button onclick="loadLog()">Log</button>
+  </div>
+</div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function out(x){document.getElementById('out').textContent=JSON.stringify(x,null,2);}
+function parseParams(){ try{ return JSON.parse(document.getElementById('params').value||'{}') }catch(e){ alert('params: ne validnyy JSON'); throw e; } }
+async function runOnce(){ out(await j('POST','/thinking/selfdrive/run_once',{"goal":document.getElementById('goal').value||'Podgotovit nedelnyy plan',"params":parseParams()})); }
+async function enable(){ out(await j('POST','/thinking/selfdrive/enable',{})); }
+async function disable(){ out(await j('POST','/thinking/selfdrive/disable',{})); }
+async function stat(){ out(await j('GET','/thinking/selfdrive/status')); }
+async function loadLog(){ out(await j('GET','/thinking/selfdrive/log')); }
+stat();
+</script>

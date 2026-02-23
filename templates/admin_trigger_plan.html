@@ -1,0 +1,32 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Trigger Plan Apply</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:900px}
+  textarea,button,input{padding:8px;border:1px solid #ccc;border-radius:8px}
+  textarea{width:100%;min-height:160px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:140px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+</style>
+<h2>Trigger Plan → /triggers/update</h2>
+<div class="row">
+  Batch <input id="batch" type="number" value="50">
+  <button onclick="demo()">Load demo</button>
+  <button onclick="dry()">Dry-run</button>
+  <button onclick="apply()">Apply</button>
+</div>
+<textarea id="src">[
+  {"index": 3, "name":"Save button", "bbox":{"left":600,"top":330,"width":120,"height":48}, "threshold":0.86, "lang":"eng+rus"},
+  {"name":"New template without index", "bbox":{"left":100,"top":100,"width":120,"height":48}, "threshold":0.85}
+]</textarea>
+<pre id="out"></pre>
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+function demo(){ src.value='['+
+'{"index":3,"name":"Save button","bbox":{"left":600,"top":330,"width":120,"height":48},"threshold":0.86,"lang":"eng+rus"},'+
+'{"name":"New template without index","bbox":{"left":100,"top":100,"width":120,"height":48},"threshold":0.85}'+
+']'; }
+async function dry(){ out(await j('POST','/trigger_plan/dry_run',{"plan":JSON.parse(src.value||"[]"),"batch":+batch.value||50})); }
+async function apply(){ out(await j('POST','/trigger_plan/apply',{"plan":JSON.parse(src.value||"[]"),"batch":+batch.value||50})); }
+</script>

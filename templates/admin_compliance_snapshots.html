@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Portable / Compliance Snapshots</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+    .card{background:#0e1521;border:1px solid #283244;border-radius:12px;padding:12px}
+    button,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px;cursor:pointer}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .muted{opacity:.7}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+    table{width:100%;border-collapse:collapse}
+    td,th{border-bottom:1px solid #273244;padding:6px;text-align:left;font-size:13px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Zdes my snimaem «kadry» sostoyaniya i sravnivaem lyubye dva — ponimaya, chto ukhudshilos/uluchshilos.
+    Mosty: yavnyy — /list, /make, /diff; skrytye — offlayn/stdlib, zapis pod AB-predokhranitelem.
+  -->
+</head>
+<body>
+  <h1>Compliance Snapshots <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="card">
+    <h3>Snimok seychas</h3>
+    <div class="muted">Sokhranenie v <code>ESTER/reports/</code> (AB=A → dry; AB=B → zapis)</div>
+    <div style="margin-top:8px">
+      <button onclick="makeSnap()">Sdelat snimok</button>
+      <span id="mk_res" class="chip">—</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Spisok snapshotov</h3>
+    <div class="grid">
+      <div>
+        <b>USB</b>
+        <div id="usb">—</div>
+      </div>
+      <div>
+        <b>Local</b>
+        <div id="local">—</div>
+      </div>
+    </div>
+    <div style="margin-top:8px">
+      <button onclick="loadList()">Obnovit spisok</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Sravnenie (diff)</h3>
+    <div class="grid">
+      <div>
+        <label>A (staree)</label>
+        <select id="selA"></select>
+      </div>
+      <div>
+        <label>B (novee)</label>
+        <select id="selB"></select>
+      </div>
+    </div>
+    <div style="margin-top:8px">
+      <button onclick="runDiff()">Sravnit</button>
+      <span id="df_res" class="chip">—</span>
+    </div>
+    <pre id="diff">—</pre>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+function esc(s){return (s??"").toString().replace(/</g,"&lt;")}
+function listTable(arr){
+  if(!arr||!arr.length) return "<p class='muted'>net</p>";
+  let h="<table><tr><th>ts</th><th>node</th><th>path</th><th>env_missing</th></tr>";
+  for(const it of arr){
+    h+=`<tr><td>${esc(it.ts||"-")}</td><td>${esc(it.node||"-")}</td><td><code>${esc(it.path||"-")}</code></td><td>${esc(it.compat_env_missing??"-")}</td></tr>`;
+  }
+  h+="</table>";
+  return h;
+}
+async function loadList(){
+  const j = await fetch('/admin/portable/snapshots/list').then(r=>r.json()).catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  if(!j.ok) return;
+  const usb=j.snapshots?.usb||[], local=j.snapshots?.local||[];
+  document.getElementById('usb').innerHTML = listTable(usb);
+  document.getElementById('local').innerHTML = listTable(local);
+  // selekty
+  const all = [...usb, ...local];
+  const selA = document.getElementById('selA');
+  const selB = document.getElementById('selB');
+  selA.innerHTML = ""; selB.innerHTML = "";
+  for(const it of all){
+    const o = document.createElement('option'); o.value=it.path; o.text = `${it.ts||"-"} · ${it.node||"-"}`;
+    const o2 = o.cloneNode(true);
+    selA.appendChild(o); selB.appendChild(o2);
+  }
+  if(all.length>=2){ selA.selectedIndex=1; selB.selectedIndex=0; }
+}
+async function makeSnap(){
+  const j = await fetch('/admin/portable/snapshots/make',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({meta:{}})}).then(r=>r.json()).catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('mk_res').textContent = j.ok ? "OK" : "ERR";
+  await loadList();
+}
+async function runDiff(){
+  const a = document.getElementById('selA').value||"";
+  const b = document.getElementById('selB').value||"";
+  const j = await fetch('/admin/portable/snapshots/diff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({a,b})}).then(r=>r.json()).catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('df_res').textContent = j.ok ? "OK" : "ERR";
+  if(!j.ok){ return; }
+  const d = j.diff||{};
+  const lines = Object.entries(d.delta||{}).map(([k,v])=>`${k}: ${v>=0?"+":""}${v}`).join("\n");
+  const head = `A: ${d.a_ts||"-"} @ ${d.a_node||"-"}\nB: ${d.b_ts||"-"} @ ${d.b_node||"-"}`;
+  document.getElementById('diff').textContent = head + "\n\n" + (lines||"(net izmeneniy)");
+}
+loadList().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

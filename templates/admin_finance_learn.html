@@ -1,0 +1,79 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — FinScoreLearn</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1200px}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:1100px){.grid{grid-template-columns:1fr}}
+  .card{border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0}
+  .small{font-size:12px;color:#666}
+  select,input{min-width:120px}
+</style>
+
+<h2>FinScoreLearn — kalibrovka skoringa na faktakh</h2>
+
+<section class="card">
+  <div class="row">
+    <button onclick="probe()">Probe</button>
+    <button onclick="model()">Model</button>
+    <button onclick="reset()">Reset</button>
+  </div>
+  <pre id="info"></pre>
+</section>
+
+<div class="grid">
+  <section class="card">
+    <h3>Submit outcome (fakty)</h3>
+    <div class="row">
+      <select id="ch">
+        <option>digital_product</option><option>freelance</option><option>landing_service</option>
+        <option>course</option><option>content_ads</option><option>automation_tool</option>
+      </select>
+      <input id="sales" type="number" placeholder="sales" value="10">
+      <input id="price" type="number" placeholder="price" value="9">
+      <input id="vis" type="number" placeholder="visitors" value="300">
+      <input id="ttfb" type="number" placeholder="ttfb_days" value="2">
+      <button onclick="submit_()">Recalc</button>
+    </div>
+    <pre id="out1"></pre>
+  </section>
+
+  <section class="card">
+    <h3>Predict (do/posle)</h3>
+    <div class="row">
+      <select id="ch2">
+        <option>digital_product</option><option>freelance</option><option>landing_service</option>
+        <option>course</option><option>content_ads</option><option>automation_tool</option>
+      </select>
+      <input id="feas" type="number" value="38">
+      <input id="market" type="number" value="26">
+      <input id="speed" type="number" value="18">
+      <input id="risk" type="number" value="2">
+      <button onclick="predict_()">Predict</button>
+    </div>
+    <pre id="out2"></pre>
+  </section>
+</div>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function set(id,obj){ document.getElementById(id).textContent = JSON.stringify(obj,null,2); }
+
+async function probe(){ set('info', await (await fetch('/finlearn/probe')).json()); }
+async function model(){ set('info', await (await fetch('/finlearn/model')).json()); }
+async function reset(){ set('info', await j('POST','/finlearn/reset',{})); }
+async function submit_(){
+  set('out1', await j('POST','/finlearn/submit',{
+    "channel":ch.value,"sales": +sales.value||0,"price": +price.value||0,"visitors": +vis.value||0,"ttfb_days": +ttfb.value||0
+  }));
+}
+async function predict_(){
+  set('out2', await j('POST','/finlearn/predict',{
+    "channel":ch2.value,"feas": +feas.value||0,"market": +market.value||0,"speed": +speed.value||0,"risk_penalty": +risk.value||0
+  }));
+}
+probe();
+</script>

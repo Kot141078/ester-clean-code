@@ -1,0 +1,77 @@
+name: Perf & Recovery (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_perf:
+        description: "Run k6 profiles and verify thresholds"
+        required: true
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+      ester_base_url:
+        description: "Base URL (e.g. http://127.0.0.1:5000)"
+        required: false
+        default: "http://127.0.0.1:5000"
+      ester_jwt:
+        description: "JWT token (optional)"
+        required: false
+        default: ""
+      k6_rps: { description: "Target RPS", required: false, default: "10" }
+      k6_duration: { description: "Duration", required: false, default: "2m" }
+      k6_vus: { description: "VUs", required: false, default: "20" }
+      ops_run_ratio: { description: "OPS /backup/run ratio", required: false, default: "0.05" }
+      p95_ms: { description: "Threshold p95 (ms)", required: false, default: "2000" }
+      p99_ms: { description: "Threshold p99 (ms)", required: false, default: "5000" }
+      fail_rate: { description: "Threshold fail rate", required: false, default: "0.01" }
+
+jobs:
+  perf:
+    if: ${{ inputs.run_perf == 'true' }}
+    runs-on: ubuntu-latest
+    env:
+      ESTER_BASE_URL: ${{ inputs.ester_base_url }}
+      ESTER_JWT: ${{ inputs.ester_jwt }}
+      K6_RPS: ${{ inputs.k6_rps }}
+      K6_DURATION: ${{ inputs.k6_duration }}
+      K6_VUS: ${{ inputs.k6_vus }}
+      OPS_RUN_RATIO: ${{ inputs.ops_run_ratio }}
+      ESTER_P95_MS: ${{ inputs.p95_ms }}
+      ESTER_P99_MS: ${{ inputs.p99_ms }}
+      ESTER_FAIL_RATE: ${{ inputs.fail_rate }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure artifacts dirs
+        run: mkdir -p artifacts/perf artifacts/recovery
+
+      - name: k6 read
+        run: docker run --rm -v "${GITHUB_WORKSPACE}:/work" -w /work -e ESTER_BASE_URL -e ESTER_JWT -e K6_DURATION -e K6_VUS -e K6_RPS grafana/k6 run --summary-export artifacts/perf/read.summary.json tests/perf/k6_read.js
+      - name: k6 replicate
+        run: docker run --rm -v "${GITHUB_WORKSPACE}:/work" -w /work -e ESTER_BASE_URL -e ESTER_JWT -e K6_DURATION -e K6_VUS -e K6_RPS grafana/k6 run --summary-export artifacts/perf/replicate.summary.json tests/perf/k6_replicate.js
+      - name: k6 ops
+        run: docker run --rm -v "${GITHUB_WORKSPACE}:/work" -w /work -e ESTER_BASE_URL -e ESTER_JWT -e K6_DURATION -e K6_VUS -e K6_RPS -e OPS_RUN_RATIO grafana/k6 run --summary-export artifacts/perf/ops.summary.json tests/perf/k6_ops.js
+      - name: k6 ingest
+        run: docker run --rm -v "${GITHUB_WORKSPACE}:/work" -w /work -e ESTER_BASE_URL -e ESTER_JWT -e K6_DURATION -e K6_VUS -e K6_RPS grafana/k6 run --summary-export artifacts/perf/ingest.summary.json tests/perf/k6_ingest.js
+
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Aggregate perf reports
+        run: python3 scripts/perf_aggregate.py
+
+      - name: Verify thresholds (CI gate)
+        run: |
+          ESTER_PERF_VERIFY=1 pytest -q tests/perf/test_perf_thresholds.py
+          echo "ok"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: perf-artifacts
+          path: artifacts/perf/**
+
+  noop:
+    if: ${{ inputs.run_perf != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "run_perf=false — propusk."

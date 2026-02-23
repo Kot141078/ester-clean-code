@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Video-analiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:24px;line-height:1.45}
+    .card{border:1px solid #ddd;border-radius:12px;padding:16px;max-width:920px}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    input[type=text]{flex:1;padding:10px;border:1px solid #ccc;border-radius:8px}
+    label{display:flex;gap:8px;align-items:center}
+    button{padding:10px 16px;border:0;border-radius:10px;background:#111;color:#fff;cursor:pointer}
+    button[disabled]{opacity:.5;cursor:not-allowed}
+    pre{background:#0b1020;color:#e7eaf6;padding:12px;border-radius:10px;overflow:auto;max-height:50vh}
+    .muted{color:#666}
+  </style>
+</head>
+<body>
+  <h2>Video-analiz / ruchnoy zapusk</h2>
+  <div class="card">
+    <div class="row">
+      <input id="url" type="text" placeholder="Vstav URL (YouTube i dr.)">
+    </div>
+    <div class="row">
+      <input id="path" type="text" placeholder="Ili put k lokalnomu faylu na servere (naprimer, D:/media/movie.mkv)">
+    </div>
+    <div class="row">
+      <label><input id="meta" type="checkbox" checked> metadannye</label>
+      <label><input id="transcript" type="checkbox"> transkript</label>
+      <label><input id="summary" type="checkbox"> chernovoy konspekt</label>
+      <label><input id="prefer_audio" type="checkbox" checked> prefer audio-only</label>
+      <label>chunk-ms <input id="chunk_ms" type="text" value="300000" style="width:120px"></label>
+    </div>
+    <div class="row">
+      <button id="run">Zapustit analiz</button>
+      <span class="muted">Stranitsa: /admin/video · REST: /ingest/video/*</span>
+    </div>
+  </div>
+
+  <h3>Rezultat</h3>
+  <pre id="out" class="card muted">Gotovo k zapusku…</pre>
+
+  <script src="/static/admin_video.js"></script>
+</body>
+</html>

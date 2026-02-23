@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Ester · Thinking status</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{font-family:system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; margin:2rem; line-height:1.5}
+    pre{background:#111;color:#0f0;padding:1rem;border-radius:.5rem;overflow:auto}
+    .box{border:1px solid #ddd;border-radius:.75rem;padding:1rem;margin:.5rem 0}
+    .ok{color:#0a0} .err{color:#a00}
+  </style>
+  <script>
+    async function load(){
+      const r = await fetch('/debug/thinking/ping');
+      const j = await r.json();
+      document.querySelector('#status').textContent = JSON.stringify(j, null, 2);
+      document.querySelector('#okflag').textContent = j.ok ? 'OK' : 'ERROR';
+      document.querySelector('#okflag').className = j.ok ? 'ok' : 'err';
+    }
+    window.addEventListener('load', load);
+  </script>
+</head>
+<body>
+  <h1>Ester — Thinking status (<span id="okflag">…</span>)</h1>
+  <div class="box">
+    <p>Eta stranitsa pokazyvaet, podkhvatilsya li proksi-paket <code>thinking</code> i zagruzilsya li <code>think_core</code>.</p>
+    <p>Dlya API-vyvoda ispolzuyte <code>GET /debug/thinking/ping</code>.</p>
+  </div>
+  <pre id="status">{}</pre>
+</body>
+</html>

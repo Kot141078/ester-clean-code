@@ -1,0 +1,65 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — VM Control</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:900px}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+  input[type="text"]{min-width:220px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:6px;min-height:120px;white-space:pre-wrap}
+  table{border-collapse:collapse;margin-top:10px}
+  td,th{border:1px solid #e1e1e1;padding:6px 10px}
+</style>
+<h2>Upravlenie VM</h2>
+
+<div class="row">
+  <button onclick="vmList()">Obnovit spisok</button>
+  Name: <input id="name" type="text" value="EsterVM">
+  CP: <input id="cp" type="text" value="pre-upgrade">
+</div>
+
+<div class="row">
+  <button onclick="post('/vm/start',{name:val('name')})">Start</button>
+  <button onclick="post('/vm/stop',{name:val('name'),force:false})">Stop</button>
+  <button onclick="post('/vm/stop',{name:val('name'),force:true})">Vyklyuchit prinuditelno</button>
+  <button onclick="post('/vm/status',{name:val('name')})">Status</button>
+</div>
+
+<div class="row">
+  <button onclick="post('/vm/checkpoint',{name:val('name'),cp:val('cp')})">Snapshot</button>
+  <button onclick="post('/vm/restore',{name:val('name'),cp:val('cp')})">Otkat</button>
+</div>
+
+<table id="tbl"><thead><tr><th>Name</th><th>State</th></tr></thead><tbody></tbody></table>
+
+<h3>Log</h3>
+<pre id="log"></pre>
+
+<script>
+function val(id){return document.getElementById(id).value;}
+function log(x){ const e=document.getElementById('log'); e.textContent += JSON.stringify(x)+"\n"; e.scrollTop=e.scrollHeight; }
+async function post(url, body){
+  const headers={'Content-Type':'application/json'};
+  const token = localStorage.getItem('jwt')||''; if(token) headers['Authorization']='Bearer '+token;
+  const r = await fetch(url,{method:'POST',headers,body:JSON.stringify(body||{})});
+  const t = await r.text(); try{const j=JSON.parse(t); log(j); return j;}catch(e){ log({ok:false,raw:t}); return null; }
+}
+async function get(url){
+  const headers={'Content-Type':'application/json'};
+  const token = localStorage.getItem('jwt')||''; if(token) headers['Authorization']='Bearer '+token;
+  const r = await fetch(url,{headers});
+  const t = await r.text(); try{const j=JSON.parse(t); log(j); return j;}catch(e){ log({ok:false,raw:t}); return null; }
+}
+async function vmList(){
+  const res = await get('/vm/list');
+  const tb=document.querySelector('#tbl tbody'); tb.innerHTML='';
+  if(res && res.ok && Array.isArray(res.items)){
+    res.items.forEach(it=>{
+      const tr=document.createElement('tr');
+      const td1=document.createElement('td'); td1.textContent=it.Name||it.name||'?';
+      const td2=document.createElement('td'); td2.textContent=it.State||it.state||'?';
+      tr.appendChild(td1); tr.appendChild(td2); tb.appendChild(tr);
+    });
+  }
+}
+</script>

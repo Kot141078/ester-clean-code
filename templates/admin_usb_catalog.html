@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — USB Catalog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .muted{opacity:.7}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    table{width:100%;border-collapse:collapse}
+    td,th{border-bottom:1px solid #273244;padding:6px;text-align:left;font-size:13px}
+    .ok{color:#7fd87f}.bad{color:#ff8a8a}
+  </style>
+  <!--
+    Zemnoy abzats:
+      «Opis i razgruzka chemodana»: vybiraem elementy iz ESTER/catalog.json, vidim plan (puti+whitelist), zapuskaem import.
+    Mosty: yavnyy — UX ↔ catalog.preview/apply; skrytye — offlayn/stdlib, AB dry.
+  -->
+</head>
+<body>
+  <h1>USB Catalog <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <div class="row">
+      <button onclick="scan()">Skanirovat</button>
+      <span id="wl" class="chip">whitelist: —</span>
+    </div>
+    <div id="list">—</div>
+  </section>
+
+  <section>
+    <h3>Predprosmotr i import</h3>
+    <div class="row">
+      <button onclick="preview()">Predprosmotr</button>
+      <button onclick="doImport()">Importirovat</button>
+      <span id="res" class="chip">—</span>
+    </div>
+    <pre id="plan">—</pre>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+let CATALOG = [];
+function esc(s){return (s??"").toString().replace(/</g,"&lt;")}
+function row(it){
+  const uid=esc(it.uid);
+  const dest=esc(it.dest||"");
+  const alias=esc((it.kind==="model" && it.lmstudio_alias) ? it.lmstudio_alias : "");
+  return `<tr>
+    <td><label><input type="checkbox" class="sel" value="${uid}"> ${uid}</label></td>
+    <td>${esc(it.kind||"-")}</td>
+    <td>${esc(it.title||"-")}</td>
+    <td><code>${esc(it.src_rel||"-")}</code></td>
+    <td><input id="dest_${uid}" value="${dest}" placeholder="naznachenie (pusto=rekomendatsiya)" style="width:100%"/></td>
+    <td>${alias?("<code>"+alias+"</code>"):"—"}</td>
+  </tr>`;
+}
+function table(items){
+  if(!items || !items.length) return "<p class='muted'>Pusto</p>";
+  let h="<table><tr><th>uid</th><th>kind</th><th>title</th><th>src_rel</th><th>dest</th><th>LM Studio alias</th></tr>";
+  for(const it of items){ h+=row(it); }
+  h+="</table>";
+  return h;
+}
+async function scan(){
+  const r = await fetch('/admin/usb_catalog/status'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok){ alert("USB ne nayden ili otklyucheno"); return; }
+  CATALOG = (j.catalog||{}).items||[];
+  document.getElementById('list').innerHTML = table(CATALOG);
+  document.getElementById('wl').textContent = "whitelist: " + (j.whitelist||"-");
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+function picked(){
+  const ids=[...document.querySelectorAll('.sel:checked')].map(x=>x.value);
+  const overrides={};
+  for(const id of ids){
+    const v=document.getElementById('dest_'+id)?.value||"";
+    if(v.trim()) overrides[id]=v.trim();
+  }
+  return {selection: ids, overrides};
+}
+async function preview(){
+  const body=picked();
+  const r=await fetch('/admin/usb_catalog/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({ok:false}));
+  document.getElementById('plan').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function doImport(){
+  const planText=document.getElementById('plan').textContent||"";
+  let planObj=null; try{ planObj=JSON.parse(planText); }catch(e){ alert("Snachala sdelay predprosmotr"); return; }
+  const r=await fetch('/admin/usb_catalog/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(planObj)});
+  const j=await r.json().catch(()=>({ok:false}));
+  document.getElementById('res').textContent = j.ok ? "OK" : "ERR";
+  document.getElementById('plan').textContent = JSON.stringify(j, null, 2);
+}
+scan().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

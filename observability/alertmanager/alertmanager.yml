@@ -1,0 +1,7 @@
+
+route:
+  receiver: 'echo'
+receivers:
+  - name: 'echo'
+    webhook_configs:
+      - url: 'http://alert-sink:8080/'

@@ -1,0 +1,73 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester - Cooperative Mode / Leader</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1000px}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:160px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  .pill{padding:2px 8px;border-radius:999px;border:1px solid #aaa;margin-left:8px}
+</style>
+<h2>Cooperative Mode (Room / Leader / Quotas)</h2>
+
+<div class="row">
+  Room <input id="room" value="demo">
+  Peer <input id="peer" value="A">
+  Name <input id="name" value="Node-PC">
+  <button onclick="join_()">Join</button>
+  <button onclick="leave_()">Leave</button>
+  <button onclick="stat()">Status</button>
+  <span id="lead" class="pill">leader: -</span>
+</div>
+
+<div class="row">
+  <button onclick="setLeader()">Set Leader (this peer)</button>
+  <button onclick="rotate()">Rotate leader</button>
+  tick_hz <input id="hz" type="number" value="20" style="width:80px">
+  APS <input id="aps" type="number" value="5" style="width:80px">
+  <button onclick="quota()">Apply quotas</button>
+  <button onclick="tick_()">Tick +1</button>
+</div>
+
+<div class="grid">
+  <section>
+    <h3>Send Event (leader executes)</h3>
+    <div class="row">
+      <button onclick="sendHK()">Hotkey WIN+R</button>
+      <button onclick="sendText()">Text "notepad"</button>
+    </div>
+    <pre id="out"></pre>
+  </section>
+  <section>
+    <h3>Event Log (pull)</h3>
+    <div class="row">
+      <button onclick="pull()">Pull now</button>
+      Auto-pull <input id="auto" type="checkbox" onchange="toggleAuto()">
+    </div>
+    <pre id="log"></pre>
+  </section>
+</div>
+
+<script>
+let next_seq=0, timer=null;
+
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function val(id){ return document.getElementById(id).value||''; }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+function log(x){ document.getElementById('log').textContent=JSON.stringify(x,null,2); }
+function setLead(l){ document.getElementById('lead').textContent='leader: '+(l||'-'); }
+
+async function join_(){ const r=await j('POST','/coop/join',{"room":val('room'),"peer_id":val('peer'),"name":val('name')}); setLead(r.leader); out(r); }
+async function leave_(){ out(await j('POST','/coop/leave',{"room":val('room'),"peer_id":val('peer')})); }
+async function setLeader(){ const r=await j('POST','/coop/leader/set',{"room":val('room'),"peer_id":val('peer')}); setLead(r.leader); out(r); }
+async function rotate(){ const r=await j('POST','/coop/leader/rotate',{"room":val('room')}); setLead(r.leader); out(r); }
+async function quota(){ out(await j('POST','/coop/quota',{"room":val('room'),"tick_hz":+val('hz')||20,"aps":+val('aps')||5})); }
+async function tick_(){ out(await j('POST','/coop/tick',{"room":val('room'),"n":1})); }
+async function sendHK(){ out(await j('POST','/coop/event',{"room":val('room'),"peer_id":val('peer'),"type":"hotkey","payload":{"keys":"WIN+R"}})); }
+async function sendText(){ out(await j('POST','/coop/event',{"room":val('room'),"peer_id":val('peer'),"type":"text","payload":{"text":"notepad"}})); }
+async function pull(){ const r=await fetch(`/coop/pull?room=${encodeURIComponent(val('room'))}&since=${next_seq}&limit=200`); const jv=await r.json(); next_seq=jv.next_seq||next_seq; log(jv); }
+async function stat(){ const r=await fetch(`/coop/status?room=${encodeURIComponent(val('room'))}`); const jv=await r.json(); setLead(jv.leader); out(jv); }
+function toggleAuto(){ if(document.getElementById('auto').checked){ timer=setInterval(pull, 1000);} else { clearInterval(timer); timer=null; } }
+</script>

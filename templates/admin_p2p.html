@@ -1,0 +1,68 @@
+{#
+Most (yavnyy):
+- (Inzheneriya UI ↔ Kontrol) Rezhim A/B viden, deystviya razdeleny i obratimy.
+
+Mosty (skrytye):
+- (Grafy ↔ Operatsii) Tablichnyy snimok sostoyaniya — uproschennyy graf obmena (inbox/outbox/lan/index).
+- (Chelovek ↔ Avtomat) Polzovatel yavno podtverzhdaet eksport/import.
+
+Zemnoy abzats:
+Stranitsa upravlyaet oflayn-obmenom: Scan pokazyvaet sostoyanie, Pack sobiraet payload, Apply importiruet zadaniya iz inbox.
+
+c=a+b
+#}
+{% extends "_admin_base.html" %}
+
+{% block content %}
+<h2>P2P FileMesh</h2>
+<p>Rezhim: <b>{{ ab_mode }}</b> (A=dry, B=zapis)</p>
+
+<div style="margin:10px 0;">
+  <button id="btnScan">Skanirovat</button>
+  <input type="number" id="limit" value="50" style="width:80px;">
+  <button id="btnPack">Sobrat iz ocheredi (limit)</button>
+  <button id="btnApply">Importirovat iz inbox</button>
+</div>
+
+<div id="status" style="margin:8px 0; font-family:monospace;"></div>
+
+<h3>Snimok</h3>
+<pre id="snap" style="white-space:pre-wrap;">{{ snap|tojson(indent=2) }}</pre>
+
+<script>
+async function postJSON(url, payload) {
+  const r = await fetch(url, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: payload ? JSON.stringify(payload) : "{}"
+  });
+  return await r.json();
+}
+async function doScan() {
+  const s = document.getElementById("status");
+  s.textContent = "Skaniruyu…";
+  const data = await postJSON("{{ url_for('admin_p2p.api_scan') }}");
+  document.getElementById("snap").textContent = JSON.stringify(data, null, 2);
+  s.textContent = "Gotovo.";
+}
+document.getElementById("btnScan").onclick = doScan;
+
+document.getElementById("btnPack").onclick = async () => {
+  const s = document.getElementById("status");
+  s.textContent = "Sobirayu payload…";
+  const limit = parseInt(document.getElementById("limit").value || "50", 10);
+  const data = await postJSON("{{ url_for('admin_p2p.api_pack') }}", {limit});
+  document.getElementById("snap").textContent = JSON.stringify(data, null, 2);
+  s.textContent = "Gotovo.";
+};
+
+document.getElementById("btnApply").onclick = async () => {
+  const s = document.getElementById("status");
+  s.textContent = "Importiruyu… (ili dry v A)";
+  const data = await postJSON("{{ url_for('admin_p2p.api_apply') }}");
+  document.getElementById("snap").textContent = JSON.stringify(data, null, 2);
+  s.textContent = "Gotovo.";
+};
+</script>
+{% endblock %}
+<!-- c=a+b -->

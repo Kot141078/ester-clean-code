@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester • Semantics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:24px;color:#111}
+    input,textarea,button{padding:8px 12px;border:1px solid #ddd;border-radius:10px}
+    .row{display:flex;gap:12px;margin:12px 0;flex-wrap:wrap}
+    textarea{width:100%;min-height:100px}
+    pre{background:#f7f7f7;padding:10px;border-radius:10px;max-height:50vh;overflow:auto}
+  </style>
+</head>
+<body>
+  <h1>Ontologicheskiy kesh</h1>
+
+  <h3>Dobavit termin</h3>
+  <div class="row">
+    <input id="tname" placeholder="canonical name"/>
+    <input id="tsyn" placeholder="synonyms (cherez zapyatuyu)"/>
+  </div>
+  <div class="row">
+    <textarea id="tdef" placeholder="kratkoe opredelenie"></textarea>
+  </div>
+  <div class="row">
+    <button onclick="defineTerm()">Save</button>
+    <button onclick="listTerms()">Spisok</button>
+  </div>
+
+  <h3>Reconcile teksta</h3>
+  <div class="row">
+    <textarea id="rtxt" placeholder="Vstavte tekst..."></textarea>
+  </div>
+  <div class="row">
+    <button onclick="reconcile()">Normalizovat</button>
+  </div>
+
+  <pre id="out">—</pre>
+
+<script>
+async function defineTerm(){
+  const r = await fetch('/semantics/define',{method:'POST',headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      name: document.getElementById('tname').value,
+      definition: document.getElementById('tdef').value,
+      synonyms: (document.getElementById('tsyn').value||'').split(',').map(s=>s.trim()).filter(Boolean)
+    })});
+  document.getElementById('out').textContent = JSON.stringify(await r.json(), null, 2);
+}
+async function listTerms(){
+  const r = await fetch('/semantics/list?limit=200');
+  document.getElementById('out').textContent = JSON.stringify(await r.json(), null, 2);
+}
+async function reconcile(){
+  const r = await fetch('/semantics/reconcile',{method:'POST',headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({text: document.getElementById('rtxt').value})});
+  document.getElementById('out').textContent = JSON.stringify(await r.json(), null, 2);
+}
+</script>
+</body>
+</html>
+<!-- finalnaya stroka -->
+c=a+b

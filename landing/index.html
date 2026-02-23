@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Ester — self-hosted AI companion</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<header>
+  <h1>Ester — kompanon, kotoryy delaet poleznym dazhe lenivogo</h1>
+  <p>Local-first · P2P pamyat · «sny» po nocham · prozrachnost deystviy</p>
+  <a href="#plans" class="cta">Nachat pilot</a>
+</header>
+
+<section id="plans">
+  <h2>Pakety</h2>
+  <div id="plans-grid"></div>
+  <p class="small">Oplata cherez zaschischennuyu stranitsu. Vozvrat 7 dney — bez voprosov.</p>
+</section>
+
+<section id="lead">
+  <h2>Nuzhna konsultatsiya?</h2>
+  <form id="lead-form">
+    <input name="name" placeholder="Imya" required/>
+    <input name="email" type="email" placeholder="Email" required/>
+    <textarea name="msg" placeholder="Chto avtomatiziruem?"></textarea>
+    <button type="submit">Otpravit</button>
+    <div id="lead-ok" class="ok" hidden>Spasibo! Otvetim v techenie dnya.</div>
+  </form>
+</section>
+
+<footer>
+  <p>© Ester, {{YEAR}}. Local-first. Privacy first.</p>
+</footer>
+
+<script>document.body.innerHTML=document.body.innerHTML.replace("{{YEAR}}", new Date().getFullYear());</script>
+<script src="app.js"></script>
+</body>
+</html>

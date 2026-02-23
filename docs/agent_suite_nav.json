@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "pages": [
+    { "title": "Agent Builder Console", "path": "docs/agent_builder.html" },
+    { "title": "Sustainability Kit Console", "path": "docs/agent_builder_kit.html" },
+    { "title": "Report Console", "path": "docs/agent_report.html" },
+    { "title": "Activity Console", "path": "docs/agent_activity.html" },
+    { "title": "Activity → Report", "path": "docs/activity_to_report.html" },
+    { "title": "One-Click Green Agent", "path": "docs/oneclick_green.html" },
+    { "title": "Agent Suite Index", "path": "docs/agent_suite_index.html" }
+  ],
+  "actions_expected": [
+    "agent.builder.templates.list",
+    "agent.builder.describe",
+    "agent.builder.plan.generate",
+    "agent.builder.scaffold.files",
+    "agent.builder.apply",
+    "sustainability.kit.list",
+    "sustainability.kit.get_checklist",
+    "sustainability.kit.metrics.list",
+    "sustainability.kit.compose_brief",
+    "report.compose.md",
+    "report.compose.html",
+    "report.save.files",
+    "report.plan.quick",
+    "agent.activity.scan",
+    "agent.activity.stats",
+    "agent.activity.digest.plan",
+    "activity.report.compose.md",
+    "activity.report.compose.html",
+    "activity.report.save",
+    "activity.report.plan.quick",
+    "oneclick.green.bundle",
+    "oneclick.green.apply"
+  ],
+  "env": {
+    "A_B_SLOT": "ESTER_AGENT_BUILDER_AB (default=A)",
+    "WRITE_FLAG": "ESTER_AGENT_BUILDER_WRITE (default=0)"
+  },
+  "_earth": "Sluzhit navigatsionnym JSON dlya vneshnikh menyu/portalov bez izmeneniya servernykh marshrutov.",
+  "c": "a+b"
+}

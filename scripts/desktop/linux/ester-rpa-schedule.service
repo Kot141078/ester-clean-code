@@ -1,0 +1,9 @@
+[Unit]
+Description=Ester RPA schedule tick
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/ester
+ExecStart=/usr/bin/python3 /opt/ester/bin/rpa_schedule_tick.py
+User=ester
+Group=ester

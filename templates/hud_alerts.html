@@ -1,0 +1,57 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester HUD — Alerts</title>
+<style>
+  :root{--fg:#111;--mut:#666;--ok:#11a811;--warn:#d08900;--err:#d02020;--bg:#fff}
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--fg);margin:20px;max-width:1100px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+  input,button{padding:8px 10px;border:1px solid #ddd;border-radius:10px}
+  pre{background:#0b0b0b;color:#99f999;border-radius:10px;padding:10px;white-space:pre-wrap}
+  .card{border:1px solid #eee;border-radius:12px;padding:12px;margin:8px 0}
+  .tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;border:1px solid #ddd;margin:0 4px}
+  .ok{background:#eefaf0;border-color:#cfe9d5;color:#0b7b0b}
+  .warn{background:#fff5e6;border-color:#ffe0b3;color:#a76500}
+  .err{background:#ffecec;border-color:#f3b7b7;color:#a02020}
+</style>
+
+<h2>Ester — HUD Alerts</h2>
+<p class="mut">Mini-panel sobytiy: bystryy vzglyad na resheniya Safety/Policy i poslednie deystviya.</p>
+
+<section class="card">
+  <div class="row">
+    <button onclick="loadCounts()">Obnovit schetchiki</button>
+    <button onclick="loadTail()">Pokazat khvost sobytiy</button>
+    <input id="q" placeholder="poisk: kind:click_text agent:desktop text:oshibka" style="min-width:420px">
+    <button onclick="search()">Iskat</button>
+  </div>
+  <div id="counts"></div>
+  <pre id="out"></pre>
+</section>
+
+<script>
+async function j(url){const r=await fetch(url);const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function badge(t){const m=t.toLowerCase();let c='tag'; if(m.includes('deny'))c+=' err'; else if(m.includes('allow'))c+=' ok'; else c+=' warn'; return `<span class="${c}">${t}</span>`}
+function line(x){
+  const ts = x.ts? new Date(x.ts*1000).toLocaleString(): '';
+  const ak = `${x.agent||''}/${x.kind||''}`.replace(/^\/$/, '');
+  const dec = (x.meta && x.meta.decision && x.meta.decision.decision) ? x.meta.decision.decision : '';
+  return `${ts}  ${ak}  ${dec?(' '+dec):''}\n  ${x.text||''}\n`;
+}
+async function loadCounts(){
+  try{
+    const r = await j('/mem/counts');
+    counts.innerHTML = `<span class="tag">events: ${r.count||0}</span>`;
+  }catch(e){counts.innerHTML='<span class="tag err">/mem nedostupen</span>'}
+}
+async function loadTail(){
+  const r = await j('/mem/counts');
+  const items = (r.tail||[]).map(line).join('\n');
+  out.textContent = items || 'Poka pusto.';
+}
+async function search(){
+  const r = await j('/mem/search?q='+encodeURIComponent(q.value||''));
+  const items = (r.items||[]).map(line).join('\n');
+  out.textContent = items || 'Nichego ne naydeno.';
+}
+loadCounts(); loadTail();
+</script>

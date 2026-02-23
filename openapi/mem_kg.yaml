@@ -1,0 +1,265 @@
+openapi: 3.0.3
+info:
+  title: Ester Memory · KG 2.0 API
+  version: 1.0.0
+  description: >
+    Kontrakt KG 2.0. Invarianty:
+      • Uzly — LWW po mtime; props shallow-merge pri bolee novom mtime.
+      • Rebra — unikalny po (src, rel, dst); weight = max(existing, incoming);
+        props/mtime — LWW po mtime.
+      • neighbors()/export_all()/import_all() — obyazatelny.
+
+servers:
+  - url: /
+paths:
+  /mem/kg/upsert:
+    post:
+      summary: Upsert uzlov i/ili reber
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nodes:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/KGNode'
+                edges:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/KGEdge'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  nodes:
+                    type: array
+                    items: { type: string, description: "node.id" }
+                  edges:
+                    type: array
+                    items: { type: string, description: "edge id = `${src}::${rel}::${dst}`" }
+
+  /mem/kg/query:
+    get:
+      summary: Poisk po uzlam i/ili rebram
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+          description: Podstrochnyy poisk po label/id
+        - in: query
+          name: type
+          schema: { type: string }
+          description: Tip uzla (topic/entity/artifact/…)
+        - in: query
+          name: rel
+          schema: { type: string }
+          description: Filtr po tipu rebra
+        - in: query
+          name: src
+          schema: { type: string }
+        - in: query
+          name: dst
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 100 }
+      responses:
+        '200':
+          description: Rezultaty
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nodes:
+                    type: array
+                    items: { $ref: '#/components/schemas/KGNode' }
+                  edges:
+                    type: array
+                    items: { $ref: '#/components/schemas/KGEdge' }
+
+  /mem/kg/neighbors:
+    get:
+      summary: Okrestnost uzla
+      parameters:
+        - in: query
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: rel
+          schema: { type: string }
+          description: Filtr po tipu rebra
+      responses:
+        '200':
+          description: Okrestnost
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  node: { $ref: '#/components/schemas/KGNode' }
+                  out:
+                    type: array
+                    items: { $ref: '#/components/schemas/KGEdge' }
+                  in:
+                    type: array
+                    items: { $ref: '#/components/schemas/KGEdge' }
+
+  /mem/kg/export:
+    get:
+      summary: Eksport vsego grafa
+      responses:
+        '200':
+          description: Polnyy graf
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KGGraph'
+
+  /mem/kg/import:
+    post:
+      summary: Import grafa (policy merge|replace)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nodes:
+                  type: array
+                  items: { $ref: '#/components/schemas/KGNode' }
+                edges:
+                  type: array
+                  items: { $ref: '#/components/schemas/KGEdge' }
+                policy:
+                  type: string
+                  enum: [merge, replace]
+                  default: merge
+      responses:
+        '200':
+          description: Importirovanno
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  nodes: { type: integer }
+                  edges: { type: integer }
+
+  /kg/admin/repair:
+    post:
+      summary: Repair KG (dedup/normalize)
+      responses:
+        '200':
+          description: Otchet
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  kg:
+                    type: object
+
+  /kg/admin/decay_gc:
+    post:
+      summary: Decay + GC s parametrami
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecayRules'
+      responses:
+        '200':
+          description: Otchet GC
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  report: { type: object }
+
+  /kg/admin/rebuild_all:
+    post:
+      summary: Skvoznoy Rebuild/Repair (Structured + Vector + KG)
+      responses:
+        '200':
+          description: Otchet
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  report: { type: object }
+
+components:
+  schemas:
+    KVProps:
+      type: object
+      description: Proizvolnye svoystva; dlya tags dopuskaetsya stroka "a,b" ili massiv.
+      additionalProperties: true
+      properties:
+        tags:
+          oneOf:
+            - type: array
+              items: { type: string }
+            - type: string
+
+    KGNode:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string, minLength: 1 }
+        type: { type: string, default: topic }
+        label: { type: string }
+        props: { $ref: '#/components/schemas/KVProps' }
+        mtime: { type: number, format: double, description: "unix timestamp (sec)" }
+
+    KGEdge:
+      type: object
+      required: [src, rel, dst]
+      properties:
+        src: { type: string }
+        rel: { type: string }
+        dst: { type: string }
+        weight:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          default: 0.5
+        props: { $ref: '#/components/schemas/KVProps' }
+        mtime: { type: number, format: double }
+
+    KGGraph:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items: { $ref: '#/components/schemas/KGNode' }
+        edges:
+          type: array
+          items: { $ref: '#/components/schemas/KGEdge' }
+
+    DecayRules:
+      type: object
+      properties:
+        half_life_s: { type: number, default: 604800, description: "poluraspad, sekundy (7 dney po umolchaniyu)" }
+        min_weight: { type: number, default: 0.05 }
+        gc_edge_min_age_s: { type: number, default: 172800 }
+        gc_edge_weight_threshold: { type: number, default: 0.08 }
+        gc_node_min_age_s: { type: number, default: 259200 }

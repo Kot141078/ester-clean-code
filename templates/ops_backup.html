@@ -1,0 +1,112 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+
+<section class="row" style="margin-bottom:12px">
+  <h2 style="margin:0">Bekap / Vosstanovlenie</h2>
+  <span class="chip right">/ops/backup</span>
+</section>
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:10px">
+    <button class="btn" onclick="listSnapshots()">Pokazat snimki</button>
+    <button class="btn" onclick="runBackup()">Sdelat bekap</button>
+    <button class="btn" onclick="verifyBackup()">Proverit bekap</button>
+    <input id="snapId" class="input" placeholder="snapshot id dlya restore…" />
+    <button class="btn" onclick="restoreSnapshot()">Vosstanovit</button>
+  </div>
+</section>
+
+<section class="card">
+  <div class="row" style="margin-bottom:6px">
+    <h3 style="margin:0">Logi / Rezultaty</h3>
+    <span class="muted right">Rabotaet s JWT (rol OPERATOR/ADMIN)</span>
+  </div>
+  <div id="log" class="log box"></div>
+</section>
+
+<section class="card" style="margin-top:12px">
+  <h3 style="margin:0 0 6px 0">Snimki</h3>
+  <div id="list" class="box" style="max-height:280px;overflow:auto"></div>
+</section>
+
+<script>
+  function logLine(text){
+    const el=document.getElementById('log');
+    const div=document.createElement('div'); div.className='msg m-bot'; div.textContent=text;
+    el.appendChild(div); el.scrollTop=el.scrollHeight;
+  }
+  function listRender(items){
+    const el=document.getElementById('list');
+    if(!items || !items.length){ el.innerHTML='<span class="muted">Pusto</span>'; return; }
+    const ul=document.createElement('ul'); ul.style.margin='0 0 0 16px';
+    for(const s of items){
+      const li=document.createElement('li');
+      const id=s.id||s.name||s.key||JSON.stringify(s);
+      const when=s.created_at||s.time||s.ts||'';
+      const size=(s.size_bytes||s.size||'');
+      li.innerHTML=`<code>${id}</code> <span class="muted">${when} ${size?('· '+size+'B'):''}</span>`;
+      ul.appendChild(li);
+    }
+    el.innerHTML=''; el.appendChild(ul);
+  }
+
+  async function listSnapshots(){
+    logLine('→ list...');
+    const urls=['/ops/backup/list','/ops/backup/snapshots','/ops/backup?mode=list'];
+    for(const u of urls){
+      try{
+        const r=await $fetch(u); const j=await r.json();
+        const arr=Array.isArray(j)?j:(j.items||j.snapshots||[]);
+        listRender(arr); logLine('OK: '+u); return;
+      }catch(e){ /* next */ }
+    }
+    logLine('Oshibka: ne udalos poluchit spisok snimkov');
+  }
+
+  async function runBackup(){
+    logLine('→ run backup...');
+    const urls=[['/ops/backup/run','POST'],['/ops/backup?mode=run','POST']];
+    for(const [u,m] of urls){
+      try{
+        const r=await $fetch(u,{method:m}); const j=await r.json();
+        logLine('OK: '+(j.message||j.status||'run started'));
+        listSnapshots(); return;
+      }catch(e){ /* next */ }
+    }
+    logLine('Oshibka zapuska bekapa');
+  }
+
+  async function verifyBackup(){
+    logLine('→ verify...');
+    const urls=[['/ops/backup/verify','POST'],['/ops/backup?mode=verify','POST']];
+    for(const [u,m] of urls){
+      try{
+        const r=await $fetch(u,{method:m}); const j=await r.json();
+        logLine('OK: '+(j.message||j.status||'verify done'));
+        return;
+      }catch(e){ /* next */ }
+    }
+    logLine('Oshibka proverki bekapa');
+  }
+
+  async function restoreSnapshot(){
+    const id=(document.getElementById('snapId').value||'').trim();
+    if(!id){ alert('Ukazhi snapshot id'); return; }
+    logLine('→ restore '+id+' ...');
+    const payload=JSON.stringify({snapshot:id});
+    const urls=[['/ops/backup/restore','POST'],['/ops/backup?mode=restore','POST']];
+    for(const [u,m] of urls){
+      try{
+        const r=await $fetch(u,{method:m, body:payload}); const j=await r.json();
+        logLine('OK: '+(j.message||j.status||'restore requested'));
+        return;
+      }catch(e){ /* next */ }
+    }
+    logLine('Oshibka vosstanovleniya');
+  }
+
+  // avto-listing pri vkhode
+  document.addEventListener('DOMContentLoaded', listSnapshots);
+</script>
+
+{% endblock %}

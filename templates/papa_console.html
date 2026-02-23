@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Papa: prioritet i podderzhka</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:24px;line-height:1.46;background:#0b1020;color:#e7eaf6}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .card{background:#0f1430;border:1px solid #223;border-radius:12px;padding:14px;margin-top:12px;max-width:1100px}
+    input,button{padding:10px 12px;border-radius:10px;border:1px solid #334;background:#0f1530;color:#e7eaf6}
+    button{background:#1e293b;border:1px solid #3b82f6}
+    a{color:#82aaff}
+    pre{white-space:pre-wrap;max-height:50vh;overflow:auto}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#16213e;color:#cdd6f4;margin-right:6px}
+  </style>
+</head>
+<body>
+  <h2>Prioritet Papy</h2>
+  <div class="card">
+    <div class="row">
+      <a class="pill" href="/self/papa/passport" target="_blank">profile</a>
+      <a class="pill" href="/self/papa/fingerprint" target="_blank">otpechatok</a>
+      <a class="pill" href="/policy/papa/status" target="_blank">politika</a>
+      <a class="pill" href="/self/papa/locate" target="_blank">lokator</a>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <input id="prio" placeholder="priority 0..1" value="1.0">
+      <input id="mb" placeholder="money_bias 0..1" value="0.8">
+      <input id="tb" placeholder="task_bias 0..1" value="0.9">
+      <button id="btnSet">Save politiku</button>
+      <button id="btnArm">Tabletka (5 min)</button>
+      <button id="btnDisarm">Snyat tabletku</button>
+    </div>
+    <pre id="outPol">Gotovo.</pre>
+  </div>
+
+  <div class="card">
+    <h3>Podderzhka perevoda Pape</h3>
+    <div class="row">
+      <input id="amt" placeholder="summa EUR" value="20">
+      <input id="purpose" placeholder="naznachenie" value="produkty">
+      <button id="btnPlan">Sdelat chernovik</button>
+      <button id="btnExec">Podtverdit (nuzhny flagi+tabletka)</button>
+    </div>
+    <pre id="outTx">Gotovo.</pre>
+  </div>
+
+  <script src="/static/papa_console.js"></script>
+</body>
+</html>
+<!-- c=a+b -->

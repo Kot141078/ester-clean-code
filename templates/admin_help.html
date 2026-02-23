@@ -1,0 +1,53 @@
+{#
+Most (yavnyy):
+- (Inzheneriya UI ↔ Operatsii) Odna stranitsa s panelyami i ENV umenshaet trenie ekspluatatsii.
+
+Mosty (skrytye):
+- (Grafy ↔ UX) Spisok paneley — eto yavnaya proektsiya grafa vozmozhnostey sistemy.
+- (Chelovek ↔ Avtomat) Bystrye ssylki snizhayut vremya na ruchnye operatsii.
+
+Zemnoy abzats:
+Stranitsa sluzhit «kartoy mestnosti»: pokazyvaet vklyuchennye paneli, ssylku na spisok marshrutov i
+snimok vazhnykh peremennykh okruzheniya (bez sekretov).
+
+c=a+b
+#}
+{% extends "_admin_base.html" %}
+
+{% block content %}
+<h2>Spravka / Karta funktsiy</h2>
+<p>Rezhim: <b>{{ ab_mode }}</b> (A=dry, B=zapis)</p>
+
+<h3>Bystrye ssylki</h3>
+<ul>
+  <li><a href="/routes">/routes</a> — JSON karta pravil</li>
+  <li><a href="/routes_index.html">/routes_index.html</a> — HTML karta pravil</li>
+  <li><a href="/healthz">/healthz</a> — healthcheck</li>
+</ul>
+
+<h3>Dostupnye paneli</h3>
+<ul>
+  {% for path, title in panels %}
+    <li><a href="{{ path }}">{{ title }}</a></li>
+  {% endfor %}
+  {% if not panels or panels|length == 0 %}
+    <li>(Paneley ne obnaruzheno — proverte registratsiyu moduley)</li>
+  {% endif %}
+</ul>
+
+<h3>ENV (bez sekretov)</h3>
+<table border="1" cellpadding="6" cellspacing="0">
+  <thead><tr><th>Klyuch</th><th>Znachenie</th></tr></thead>
+  <tbody>
+    {% for k, v in env.items() %}
+      <tr><td style="font-family:monospace">{{ k }}</td><td style="white-space:pre-wrap">{{ v }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p style="margin-top:10px; font-size:90%; color:#666;">
+  Podskazka: dlya vklyucheniya zapisi ustanovite peremennuyu okruzheniya <code>AB_MODE=B</code>. Dlya P2P LAN-kataloga ukazhite
+  <code>LAN_DROP_DIR</code>. Aliasy LM Studio opredelyayutsya klyuchami <code>LLM_LOCAL_*</code>.
+</p>
+{% endblock %}
+<!-- c=a+b -->

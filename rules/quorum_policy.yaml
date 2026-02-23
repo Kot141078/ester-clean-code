@@ -1,0 +1,18 @@
+# -*- coding: utf-8 -*-
+# rules/quorum_policy.yaml — politika kvoruma dlya high-impact deystviy.
+
+required:
+  - match: "scheduler.cancel"
+    min_approvals: 2
+    allowed_roles: ["owner", "core", "security"]
+
+  - match: "kg.delete"
+    min_approvals: 2
+    allowed_roles: ["owner", "core", "security"]
+
+  - match: "system.shutdown.request"
+    min_approvals: 2
+    allowed_roles: ["owner", "core"]
+
+# Vremya zhizni sessii kvoruma (sekundy)
+ttl_sec: 900

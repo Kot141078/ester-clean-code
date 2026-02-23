@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Izbrannye tseli (Hybrid Favorites)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    table{width:100%;border-collapse:collapse}
+    td,th{border-bottom:1px solid #273244;padding:6px;text-align:left;font-size:13px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+    .muted{opacity:.7}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Spisok «lyubimykh» tseley s knopkami zapuska — minimum telodvizheniy dlya dispetchera.
+    Mosty:
+      • Yavnyy — UX ↔ favorites + enqueue.
+      • Skrytye — offlayn/stdlib; prozrachnye JSON-otvety.
+  -->
+</head>
+<body>
+  <h1>Izbrannye tseli</h1>
+
+  <section class="grid">
+    <div>
+      <h3>LAN uzly</h3>
+      <div id="lan">—</div>
+    </div>
+    <div>
+      <h3>Telegram chaty</h3>
+      <div id="tg">—</div>
+    </div>
+    <div>
+      <h3>Dobavit vruchnuyu</h3>
+      <div>
+        <label>LAN node_id <input id="lan_in" placeholder="node-abcdef"/></label>
+        <button onclick="addLan()">Dobavit LAN</button>
+      </div>
+      <div style="margin-top:8px">
+        <label>TG chat_id <input id="tg_in" placeholder="123456789"/></label>
+        <button onclick="addTg()">Dobavit TG</button>
+      </div>
+      <pre class="muted" id="note">—</pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+function esc(s){return (s??"").toString().replace(/</g,"&lt;")}
+function rowLan(id){
+  return `<div style="border:1px solid #273244;border-radius:10px;padding:8px;margin:6px 0">
+    <div>node_id: <code>${esc(id)}</code></div>
+    <div style="margin-top:6px">
+      <button onclick="enqueueLan('${esc(id)}')">Postavit na LAN</button>
+      <button onclick="removeLan('${esc(id)}')">Udalit</button>
+    </div>
+  </div>`
+}
+function rowTg(id){
+  return `<div style="border:1px solid #273244;border-radius:10px;padding:8px;margin:6px 0">
+    <div>chat_id: <code>${esc(id)}</code></div>
+    <div style="margin-top:6px">
+      <button onclick="enqueueTg('${esc(id)}')">Postavit v TG</button>
+      <button onclick="removeTg('${esc(id)}')">Udalit</button>
+    </div>
+  </div>`
+}
+function render(j){
+  const fav = (j.favorites||{});
+  const lan = fav.lan_nodes||[];
+  const tg  = fav.tg_chats||[];
+  document.getElementById('lan').innerHTML = lan.map(rowLan).join('') || "<p class='muted'>Pusto</p>";
+  document.getElementById('tg').innerHTML  = tg.map(rowTg).join('')  || "<p class='muted'>Pusto</p>";
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function refresh(){
+  const r = await fetch('/admin/hybrid/favorites/status'); const j = await r.json().catch(()=>({ok:false}));
+  render(j);
+}
+async function addLan(){
+  const id = document.getElementById('lan_in').value.trim(); if(!id) return;
+  const r = await fetch('/admin/hybrid/favorites/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({targets:{lan:{node:id}},reason:"manual"})});
+  await refresh();
+}
+async function addTg(){
+  const id = document.getElementById('tg_in').value.trim(); if(!id) return;
+  const r = await fetch('/admin/hybrid/favorites/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({targets:{tg:{chat_id:id}},reason:"manual"})});
+  await refresh();
+}
+async function removeLan(id){
+  const r = await fetch('/admin/hybrid/favorites/remove',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lan_node:id})});
+  await refresh();
+}
+async function removeTg(id){
+  const r = await fetch('/admin/hybrid/favorites/remove',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tg_chat:id})});
+  await refresh();
+}
+async function enqueueLan(id){
+  const jtype = prompt('Tip zadachi (naprimer: proj_build_publish)','proj_build_publish')||'proj_build_publish';
+  const jargs = prompt('args JSON','{"project_dir":"/path","publish":true}')||'{}';
+  let args={}; try{ args = JSON.parse(jargs); }catch(e){ alert('Plokhoy JSON'); return; }
+  const r = await fetch('/admin/hybrid/favorites/enqueue',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:jtype,args,target:"lan",id})});
+  alert('Otpravleno'); 
+}
+async function enqueueTg(id){
+  const jtype = prompt('Tip zadachi (naprimer: proj_build_publish)','proj_build_publish')||'proj_build_publish';
+  const jargs = prompt('args JSON','{"project_dir":"/path","publish":true}')||'{}';
+  let args={}; try{ args = JSON.parse(jargs); }catch(e){ alert('Plokhoy JSON'); return; }
+  const r = await fetch('/admin/hybrid/favorites/enqueue',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:jtype,args,target:"tg",id})});
+  alert('Otpravleno'); 
+}
+refresh().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

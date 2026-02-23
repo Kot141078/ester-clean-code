@@ -1,0 +1,421 @@
+# -*- coding: utf-8 -*-
+"""
+routes/chat_api.py — Ester chat API (versiya: 2025-11-10-net-autobridge-v2)
+
+Funktsional:
+- /chat/health    — svodka statusa (vklyuchaya net_autobridge i spisok provayderov)
+- /chat/history   — prostoy in-memory log po sid
+- /chat/message   — osnovnoy chat s:
+    * lokalnoy pamyatyu dialoga (in-memory po sid)
+    * opts. lokalnym RAG (placeholder-khuk)
+    * avtosetevym mostom (search_logged_mem → search_logged → search)
+    * vyzovom LLM (LM Studio po umolchaniyu; cloud/judge — po zhelaniyu)
+
+Peremennye okruzheniya (osnovnye):
+- ESTER_NET_AUTOBRIDGE=1            — fors razreshit setevoy most, ignoriruya profil
+- LMSTUDIO_BASE_URL                 — bazovyy URL LM Studio (po umolchaniyu http://127.0.0.1:1234)
+- OPENAI_API_KEY / OPENAI_BASE_URL  — dlya cloud-rezhima (optsionalno)
+- ESTER_DATA_ROOT                   — koren dannykh, esli nuzhen (neobyaz.)
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+import time
+import uuid
+from typing import Any, Dict, List, Optional, Tuple
+
+import urllib.request
+import urllib.error
+
+from flask import Blueprint, jsonify, request
+from modules.memory.facade import memory_add, ESTER_MEM_FACADE
+
+# -------------------- versiya --------------------
+
+VERSION = "2025-11-10-net-autobridge-v2"
+
+# -------------------- konfig po umolchaniyu --------------------
+
+LMSTUDIO_BASE_URL = os.getenv("LMSTUDIO_BASE_URL", "http://127.0.0.1:1234").rstrip("/")
+LMSTUDIO_CHAT_URL = f"{LMSTUDIO_BASE_URL}/v1/chat/completions"
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_APIKEY") or os.getenv("OPENAI_KEY")
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+
+# Endpointy vnutrennikh mostov (cherez tot zhe Flask na 8080)
+BRIDGE_HOST = os.getenv("ESTER_BRIDGE_HOST", "http://127.0.0.1:8080").rstrip("/")
+NET_SEARCH_MEM_URL = f"{BRIDGE_HOST}/ester/net/search_logged_mem"
+NET_SEARCH_LOGGED_URL = f"{BRIDGE_HOST}/ester/net/search_logged"
+NET_SEARCH_URL = f"{BRIDGE_HOST}/ester/net/search"
+NET_PROFILE_URL = f"{BRIDGE_HOST}/ester/net/profile"
+MEMORY_EVENT_URL = f"{BRIDGE_HOST}/ester/memory/event"  # myagkiy log, esli est
+
+# -------------------- blueprint --------------------
+
+bp = Blueprint("chat_api", __name__)
+
+# -------------------- prostaya in-memory istoriya --------------------
+
+_HISTORY: Dict[str, List[Dict[str, Any]]] = {}
+
+def _hist_push(sid: str, role: str, content: str) -> None:
+    _H = _HISTORY.setdefault(sid, [])
+    _H.append({"ts": time.time(), "role": role, "content": content})
+    # ogranichivaem razmer (ne fanateem)
+    if len(_H) > 50:
+        del _H[: len(_H) - 50]
+
+# -------------------- utility seti --------------------
+
+def _http_post_json(url: str, payload: Dict[str, Any], timeout: float = 20.0) -> Tuple[int, Dict[str, Any]]:
+    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"}, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            raw = resp.read().decode("utf-8")
+            code = resp.getcode() or 0
+            try:
+                js = json.loads(raw)
+            except Exception:
+                js = {"raw": raw}
+            return code, js
+    except urllib.error.HTTPError as e:
+        try:
+            raw = e.read().decode("utf-8")
+            js = json.loads(raw)
+        except Exception:
+            js = {"error": str(e)}
+        return e.code or 0, js
+    except Exception as e:
+        return 0, {"error": str(e)}
+
+def _http_get_json(url: str, timeout: float = 10.0) -> Tuple[int, Dict[str, Any]]:
+    req = urllib.request.Request(url, method="GET")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            raw = resp.read().decode("utf-8")
+            code = resp.getcode() or 0
+            try:
+                js = json.loads(raw)
+            except Exception:
+                js = {"raw": raw}
+            return code, js
+    except urllib.error.HTTPError as e:
+        try:
+            raw = e.read().decode("utf-8")
+            js = json.loads(raw)
+        except Exception:
+            js = {"error": str(e)}
+        return e.code or 0, js
+    except Exception as e:
+        return 0, {"error": str(e)}
+
+# -------------------- net-profil / avtobrizd --------------------
+
+def _net_bridge_env_enabled() -> bool:
+    return (os.getenv("ESTER_NET_AUTOBRIDGE") or "").strip() in ("1", "true", "yes", "on")
+
+def _net_bridge_profile_enabled() -> bool:
+    code, js = _http_get_json(NET_PROFILE_URL)
+    if code == 200 and isinstance(js, dict):
+        cfg = js.get("config") or {}
+        return bool(cfg.get("enabled")) and bool(cfg.get("ester_allowed"))
+    return False
+
+def _net_bridge_enabled() -> bool:
+    # env fors imeet prioritet; inache — profil
+    return _net_bridge_env_enabled() or _net_bridge_profile_enabled()
+
+# -------------------- evristika: kogda idti v set --------------------
+
+_YEAR_RE = re.compile(r"(19|20)\d{2}")
+
+def _should_use_net(text: str) -> bool:
+    q = text.lower()
+
+    # Yavnye signaly
+    explicit = any(s in q for s in [
+        "v internete", "zagugli", "posmotri onlayn", "poisk v seti",
+        "prover v seti", "ssylki", "istochnik v seti", "google", "gugl",
+        "aktualnye novosti", "svezhie novosti",
+    ])
+    if explicit:
+        return True
+
+    # Triggery svezhesti
+    freshness = any(s in q for s in [
+        "aktual", "novost", "tsena", "stoimost", "kurs", "raspisan", "seychas", "segodnya", "vchera",
+        "kto seychas", "kto yavlyaetsya seychas", "kto pobedil", "reliz", "relizy", "izmeneniya", "apdeyt",
+    ])
+    if freshness:
+        return True
+
+    # Gody >= 2024 — skoree vsego nuzhen onlayn
+    for m in _YEAR_RE.finditer(q):
+        try:
+            y = int(m.group(0))
+            if y >= 2024:
+                return True
+        except Exception:
+            pass
+
+    # Proverka faktov/imen
+    weak = any(s in q for s in [
+        "pravda li", "podtverdi", "prover fakt", "kak zovut", "kto takoy", "chto seychas",
+    ])
+    if weak:
+        return True
+
+    return False
+
+# -------------------- sbor konteksta seti --------------------
+
+def _net_search_context(question: str, sid: str) -> Tuple[str, Dict[str, Any]]:
+    """
+    Vozvraschaet (system_ctx, telemetry)
+    Delaet posledovatelnye popytki:
+        1) /ester/net/search_logged_mem
+        2) /ester/net/search_logged
+        3) /ester/net/search
+    """
+    payload = {
+        "q": question,
+        "source": "ester",     # pomechaem kto initsiator
+        "sid": sid,
+        "limit": 5,
+    }
+
+    attempts = [
+        ("search_logged_mem", NET_SEARCH_MEM_URL),
+        ("search_logged", NET_SEARCH_LOGGED_URL),
+        ("search", NET_SEARCH_URL),
+    ]
+
+    items: List[Dict[str, Any]] = []
+    used_url: Optional[str] = None
+    used_kind: Optional[str] = None
+    last_error: Optional[str] = None
+
+    for kind, url in attempts:
+        code, js = _http_post_json(url, payload, timeout=25.0)
+        print(f"[NET_BRIDGE] try={kind} url={url} code={code}")
+        if code == 200 and isinstance(js, dict) and js.get("ok"):
+            arr = js.get("items") or js.get("results") or []
+            if isinstance(arr, list) and arr:
+                items = arr
+                used_url = url
+                used_kind = kind
+                break
+            else:
+                last_error = f"empty-items:{kind}"
+        else:
+            last_error = f"bad-code:{code}:{kind}"
+
+    if not items:
+        print(f"[NET_BRIDGE] fail all attempts; last_error={last_error}")
+        return ("", {"ok": False, "used": None, "items": 0, "error": last_error})
+
+    # Sverstaem kompaktnyy system-kontekst
+    lines: List[str] = []
+    for it in items[:5]:
+        title = (it.get("title") or "").strip()
+        snip = (it.get("snippet") or it.get("summary") or "").strip()
+        url = (it.get("link") or it.get("url") or "").strip()
+        part = " • ".join(x for x in [title, snip, url] if x)
+        if part:
+            lines.append(part)
+
+    sys_ctx = ""
+    if lines:
+        sys_ctx = (
+            "Nizhe svezhie internet-nakhodki (poslednie rezultaty poiska). "
+            "Otseni ikh, prover daty i ispolzuy akkuratno, s prioritetom na peresechenie faktov:\n\n"
+            + "\n".join(f"- {ln}" for ln in lines)
+        )
+
+    # Myagko zalogiruem sobytie v pamyat (esli endpoint est)
+    try:
+        evt = {
+            "kind": "net_search",
+            "source": "ester_net_autobridge",
+            "session": sid,
+            "query": question,
+            "items_count": len(items),
+            "used_kind": used_kind,
+            "ts": time.time(),
+        }
+        _http_post_json(MEMORY_EVENT_URL, evt, timeout=5.0)
+    except Exception:
+        pass
+
+    return (sys_ctx, {"ok": True, "used": used_kind, "items": len(items)})
+
+# -------------------- podgotovka soobscheniy dlya LLM --------------------
+
+def _build_messages(user_text: str, net_ctx: str, rag_ctx: str) -> List[Dict[str, str]]:
+    sys_parts: List[str] = []
+
+    if rag_ctx:
+        sys_parts.append("Lokalnyy kontekst:\n" + rag_ctx)
+
+    if net_ctx:
+        sys_parts.append("Internet-kontekst (proveryay na aktualnost i tsitiruy akkuratno):\n" + net_ctx)
+
+    system_prompt = ""
+    if sys_parts:
+        system_prompt = "\n\n".join(sys_parts)
+
+    messages: List[Dict[str, str]] = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({"role": "user", "content": user_text})
+    return messages
+
+# -------------------- vyzovy LLM --------------------
+
+def _ask_lmstudio(messages: List[Dict[str, str]], temperature: float = 0.2) -> str:
+    body = {
+        "model": "auto",  # LM Studio sam podtsepit aktivnuyu model
+        "messages": messages,
+        "temperature": temperature,
+        "stream": False,
+        "top_p": 0.95,
+    }
+    code, js = _http_post_json(LMSTUDIO_CHAT_URL, body, timeout=21600.0)
+    if code == 200 and isinstance(js, dict):
+        try:
+            return js["choices"][0]["message"]["content"]
+        except Exception:
+            pass
+    raise RuntimeError(f"LM Studio call failed code={code} body_keys={list(js.keys())}")
+
+def _ask_cloud(messages: List[Dict[str, str]], temperature: float = 0.2) -> str:
+    if not OPENAI_API_KEY:
+        raise RuntimeError("No OPENAI_API_KEY set")
+    url = f"{OPENAI_BASE_URL}/chat/completions"
+    body = {
+        "model": "gpt-4o-mini",
+        "messages": messages,
+        "temperature": temperature,
+        "stream": False,
+    }
+    data = json.dumps(body, ensure_ascii=False).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=data,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=21600.0) as resp:
+        raw = resp.read().decode("utf-8")
+        js = json.loads(raw)
+        return js["choices"][0]["message"]["content"]
+
+def _ask_judge(messages: List[Dict[str, str]]) -> str:
+    # Prostoy sintez: probuem LM Studio, pri oshibke — oblako
+    try:
+        a = _ask_lmstudio(messages)
+    except Exception as e1:
+        a = ""
+        lm_err = str(e1)
+    else:
+        lm_err = None
+
+    best = a
+    if not best:
+        try:
+            b = _ask_cloud(messages)
+        except Exception as e2:
+            raise RuntimeError(f"judge: both providers failed lm_err={lm_err} cloud_err={str(e2)}")
+        best = b
+
+    return best
+
+# -------------------- marshruty --------------------
+
+@bp.route("/chat/health", methods=["GET"])
+def api_health():
+    # kakie provaydery dostupny
+    providers: List[str] = []
+    # LM Studio dostupen, esli port zhiv — prosto dobavim po umolchaniyu
+    providers.append("lmstudio")
+    if OPENAI_API_KEY:
+        providers.append("cloud")
+    providers.append("judge")
+
+    return jsonify({
+        "ok": True,
+        "version": VERSION,
+        "default_mode": "lmstudio",
+        "providers": providers,
+        "endpoints": ["/chat/message", "/chat/history"],
+        "memory_enabled": True,
+        "net_autobridge": _net_bridge_enabled(),
+    })
+
+@bp.route("/chat/history", methods=["GET"])
+def api_history():
+    sid = request.args.get("sid", "").strip() or "default"
+    return jsonify({"ok": True, "sid": sid, "history": _HISTORY.get(sid, [])})
+
+@bp.route("/chat/message", methods=["POST"])
+def api_message():
+    """
+    Prinimaet JSON:
+    {
+      "sid": "...",            # strokovyy id sessii
+      "mode": "lmstudio|cloud|judge",
+      "use_rag": true|false,
+      "message": "tekst",
+      "temperature": 0.2
+    }
+    """
+    js = request.get_json(silent=True) or {}
+    sid = (js.get("sid") or "default").strip()
+    mode = (js.get("mode") or "lmstudio").strip().lower()
+    use_rag = bool(js.get("use_rag"))
+    text = (js.get("message") or "").strip()
+    temperature = float(js.get("temperature") or 0.2)
+
+    if not text:
+        return jsonify({"ok": False, "error": "empty message"}), 400
+
+    _hist_push(sid, "user", text)
+
+    # 1) opredelit nuzhno li idti v set
+    net_used = False
+    net_ctx = ""
+    if _net_bridge_enabled() and _should_use_net(text):
+        net_ctx, tel = _net_search_context(text, sid)
+        net_used = bool(net_ctx)
+        print(f"[NET_BRIDGE] decision use_net=True used={tel}")
+
+    # 2) lokalnyy RAG (placeholder-khuk; mozhno rasshirit)
+    rag_ctx = ""
+
+    # 3) skleit soobscheniya
+    messages = _build_messages(text, net_ctx=net_ctx, rag_ctx=rag_ctx)
+
+    # 4) pozvat model
+    try:
+        if mode == "cloud":
+            answer = _ask_cloud(messages, temperature=temperature)
+        elif mode == "judge":
+            answer = _ask_judge(messages)
+        else:
+            answer = _ask_lmstudio(messages, temperature=temperature)
+        _hist_push(sid, "assistant", answer)
+        return jsonify({"ok": True, "sid": sid, "mode": mode, "provider": mode, "answer": answer, "net_used": net_used})
+    except Exception as e:
+        msg = f"provider-fail: {type(e).__name__}: {str(e)}"
+        print("[chat_api] ERROR:", msg)
+        return jsonify({"ok": False, "sid": sid, "mode": mode, "error": msg, "net_used": net_used}), 500
+
+
+

@@ -1,0 +1,25 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Auto Calibrate</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:780px}
+  button{padding:8px 12px;border:1px solid #ccc;border-radius:8px;cursor:pointer}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:100px;white-space:pre-wrap}
+</style>
+<h2>Auto Calibrate</h2>
+<div class="row">
+  <button onclick="quick()">Quick probe</button>
+  px/cm <input id="px" type="number" value="38" step="0.1">
+  <button onclick="manual()">Manual 1cm</button>
+  <button onclick="stat()">Status</button>
+</div>
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+async function quick(){ out(await j('POST','/calibrate/quick',{})); }
+async function manual(){ out(await j('POST','/calibrate/manual',{"px_per_cm":+px.value})); }
+async function stat(){ out(await j('GET','/calibrate/status')); }
+</script>

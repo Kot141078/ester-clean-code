@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Fleshka: sborka i proverka</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    nav{display:flex;gap:8px;margin-bottom:12px}
+    nav button{background:#1b2432;border:1px solid #38465c;border-radius:8px;padding:8px 12px;color:#e6eef7;cursor:pointer}
+    nav button.active{background:#0e1522}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .muted{color:#9aa9bd}.ok{color:#9BE28D}.err{color:#ff8a8a}.warn{color:#f5c542}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    pre{white-space:pre-wrap}
+    .hide{display:none}
+    a.link{color:#9aa9bd;text-decoration:none}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+  </style>
+</head>
+<body>
+  <h1>Fleshka Ester <span class="chip muted">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <nav>
+    <button id="tabBuild" class="active" onclick="showTab('build')">Sborka</button>
+    <button id="tabVerify" onclick="showTab('verify')">Proverka</button>
+    <a class="link" href="/admin/usb/profiles" style="margin-left:auto">Upravlenie profilyami →</a>
+    <span id="flag" class="chip muted">–</span>
+  </nav>
+
+  <section id="secBuild">
+    <div class="row">
+      <button onclick="load()">Obnovit toma</button>
+      <label>Tom:
+        <select id="mount"></select>
+      </label>
+      <label>Profile:
+        <select id="profile"></select>
+      </label>
+      <button onclick="applyProfile()">Zagruzit</button>
+    </div>
+    <table id="tbl"><thead><tr><th>Montirovanie</th><th>Ustroystvo</th><th>FS</th><th>Metka</th><th>Razmer</th><th>Svobodno</th></tr></thead><tbody></tbody></table>
+    <br>
+    <div class="row">
+      <label>Metka (/ESTER vnutri):
+        <input id="label" class="mono" placeholder="ESTER" />
+      </label>
+      <label><input type="checkbox" id="with_release" checked> Vklyuchit reliz</label>
+      <label>Damp (opts. put): <input id="dump" class="mono" placeholder="/path/dump.tar.gz"/></label>
+      <label><input type="checkbox" id="dry"> Dry-run (bez zapisi)</label>
+       <label><input type="checkbox" id="state" checked/> Vklyuchit tekuschee sostoyanie (~/.ester)</label>
+      <button onclick="make()">Sobrat</button>
+    </div>
+    <h3>Otchet</h3>
+    <pre id="outBuild" class="mono">—</pre>
+  </section>
+
+  <section id="secVerify" class="hide">
+    <div class="row">
+      <button onclick="load()">Obnovit toma</button>
+      <label>Tom:
+        <select id="mount2"></select>
+      </label>
+      <button onclick="verify()">Proverit fleshku</button>
+    </div>
+    <h3>Rezultat proverki</h3>
+    <pre id="outVerify" class="mono">—</pre>
+  </section>
+
+<script>
+let selected = "";
+
+function human(n){ if(n<=0) return "—"; const u=["B","KB","MB","GB","TB"]; let k=0; let x=n; while(x>1024 && k<u.length-1){ x/=1024; k++; } return x.toFixed(1)+" "+u[k]; }
+
+function showTab(t){
+  document.getElementById('tabBuild').classList.toggle('active', t==='build');
+  document.getElementById('tabVerify').classList.toggle('active', t==='verify');
+  document.getElementById('secBuild').classList.toggle('hide', t!=='build');
+  document.getElementById('secVerify').classList.toggle('hide', t!=='verify');
+}
+
+async function load(){
+  const [r1, r2, r3] = await Promise.all([
+    fetch('/admin/usb/drives'),
+    fetch('/admin/usb/profiles/list'),
+    fetch('/admin/usb/list')
+  ]);
+  const j1 = await r1.json().catch(()=>({ok:false,error:'bad json'}));
+  const j2 = await r2.json().catch(()=>({ok:false,error:'bad json'}));
+  const j3 = await r3.json().catch(()=>({ok:false,error:'bad json'}));
+  document.getElementById('flag').textContent = (j1.ok && j2.ok && j3.ok)?'OK':'ERR';
+  document.getElementById('flag').className = 'chip ' + ((j1.ok && j2.ok && j3.ok)?'ok':'err');
+
+  const sel1 = document.getElementById('mount'); sel1.innerHTML='';
+  const sel2 = document.getElementById('mount2'); sel2.innerHTML='';
+  (j1.roots||[]).forEach(r=>{
+    const o1 = document.createElement('option'); o1.value=r; o1.textContent=r; sel1.appendChild(o1);
+    const o2 = document.createElement('option'); o2.value=r; o2.textContent=r; sel2.appendChild(o2);
+  });
+
+  const sp = document.getElementById('profile'); sp.innerHTML='';
+  (j2.items||[]).forEach(p=>{
+    const o = document.createElement('option'); o.value=p.id; o.textContent=p.name; sp.appendChild(o);
+  });
+
+  const tb = document.querySelector('#tbl tbody'); tb.innerHTML='';
+  if(!j3.ok){ tb.innerHTML = `<tr><td colspan="6" class="err">${j3.error||'error'}</td></tr>`; }
+  else {
+    (j3.items||[]).forEach(it=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="mono">${it.mount}</td>
+        <td class="mono">${it.device||''}</td>
+        <td>${it.fs||''}</td>
+        <td>${it.label||''}</td>
+        <td>${human(it.size||0)}</td>
+        <td>${human(it.free||0)}</td>`;
+      tb.appendChild(tr);
+    });
+  }
+  document.getElementById('label').value = 'ESTER';
+}
+
+async function applyProfile(){
+  const id = document.getElementById('profile').value;
+  if(!id){ alert('Net profilya'); return; }
+  const r = await fetch('/admin/usb/profiles/get?id='+encodeURIComponent(id));
+  const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok){ alert('Profile ne nayden'); return; }
+  const p = j.item;
+  document.getElementById('label').value = p.label||'ESTER';
+  document.getElementById('with_release').checked = !!p.with_release;
+  const dumps = (p.dump_paths||[]);
+  document.getElementById('dump').value = dumps.length?dumps[0]:'';
+}
+
+async function make(){
+  const fd = new FormData();
+  fd.append('mount', document.getElementById('mount').value);
+  fd.append('label', document.getElementById('label').value || 'ESTER');
+  if(document.getElementById('with_release').checked) fd.append('with_release','1');
+  const dump = document.getElementById('dump').value.trim(); if(dump) fd.append('dump_path', dump);
+  if(document.getElementById('dry').checked) fd.append('dry','1');
+  if(document.getElementById('state').checked) fd.append('include_state','1');
+  const r = await fetch('/admin/usb/make', {method:'POST', body: fd});
+  const j = await r.json().catch(()=>({ok:false,error:'bad json'}));
+  document.getElementById('outBuild').textContent = JSON.stringify(j, null, 2);
+}
+
+async function verify(){
+  const m = document.getElementById('mount2').value;
+  const r = await fetch('/admin/usb/verify?mount='+encodeURIComponent(m));
+  const j = await r.json().catch(()=>({ok:false,error:'bad json'}));
+  document.getElementById('outVerify').textContent = JSON.stringify(j, null, 2);
+}
+
+// init
+load().catch(()=>{});
+</script>
+</body>
+</html>

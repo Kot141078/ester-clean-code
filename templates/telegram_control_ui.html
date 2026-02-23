@@ -1,0 +1,92 @@
+<!-- templates/telegram_control_ui.html -->
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Claire · Pult Telegram</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <!--
+    Zemnoy abzats:
+    Prostoy pult upravleniya botom: prosmotr getMe/komand, smena imeni/opisaniy, ustanovka komand.
+    JWT beretsya iz localStorage("jwt") — operatsii dostupny tolko s rolyami.
+    Mosty:
+      • Yavnyy — operator → JSON API /tg/ctrl/api/* → Bot API.
+      • Skrytyy 1 — razdelenie UI/dannykh snizhaet svyaznost.
+      • Skrytyy 2 — kak rechevoy tsentr: imya/opisanie — «golos» bota.
+    c=a+b
+  -->
+  <style>
+    :root{--bg:#0b0e11;--panel:#121821;--line:#243140;--txt:#e6eef7;--muted:#8aa0b4;--acc:#4cc9f0;--br:16px}
+    body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.45 -apple-system,BlinkMacSystemFont,Inter,Segoe UI,Roboto,sans-serif}
+    .wrap{max-width:980px;margin:0 auto;padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--br);padding:12px}
+    h1,h2{margin:0 0 10px}
+    label{display:block;margin:8px 0 4px;color:var(--muted)}
+    input,textarea,button{width:100%;border-radius:12px;border:1px solid #2a3a50;background:#0b0f15;color:var(--txt);padding:10px 12px;font:inherit}
+    button{cursor:pointer}
+    pre{white-space:pre-wrap;background:#0b0f15;border:1px solid #1b2430;border-radius:12px;padding:10px}
+    .muted{color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Pult Telegram</h1>
+      <div class="muted">Nuzhen JWT v <code>localStorage("jwt")</code>. Poluchit: <a href="/auth/auto" style="color:#9bd">/auth/auto</a></div>
+      <button id="btnMe" style="margin-top:8px">Obnovit getMe/komandy</button>
+      <pre id="outMe">—</pre>
+    </div>
+
+    <div class="card">
+      <h2>Profile bota</h2>
+      <label>Imya (public)</label>
+      <input id="name" placeholder="Claire"/>
+      <label>Korotkoe opisanie</label>
+      <input id="sdesc" placeholder="Pomoschnik Ester"/>
+      <label>Opisanie</label>
+      <textarea id="desc" rows="4" placeholder="Opisanie bota, chto umeet…"></textarea>
+      <button id="btnSet">Save profile</button>
+      <pre id="outSet">—</pre>
+    </div>
+
+    <div class="card" style="grid-column:1/3">
+      <h2>Komandy</h2>
+      <div class="muted">Spisok JSON: [{"command":"start","description":"Nachat"}]</div>
+      <textarea id="cmds" rows="6">[
+  {"command":"start","description":"Nachat"},
+  {"command":"help","description":"Pomosch"}
+]</textarea>
+      <button id="btnCmds">Ustanovit komandy</button>
+      <pre id="outCmds">—</pre>
+    </div>
+  </div>
+
+  <script>
+    function jwt(){ try{ return localStorage.getItem('jwt')||'' }catch{ return '' } }
+    async function jfetch(url,opt){
+      const headers = Object.assign({ 'Content-Type':'application/json' }, jwt()?{Authorization:'Bearer '+jwt()}:{} );
+      const resp = await fetch(url, Object.assign({method:'GET',headers}, opt||{}));
+      const raw = await resp.text(); let js = null; try{ js = JSON.parse(raw) }catch{}
+      return {ok:resp.ok,status:resp.status,json:js,raw};
+    }
+    async function updateMe(){
+      const r = await jfetch('/tg/ctrl/api/get_me');
+      document.getElementById('outMe').textContent = r.raw;
+    }
+    async function setProfile(){
+      const body = JSON.stringify({name:document.getElementById('name').value, short_description:document.getElementById('sdesc').value, description:document.getElementById('desc').value});
+      const r = await jfetch('/tg/ctrl/api/set_profile',{method:'POST',body});
+      document.getElementById('outSet').textContent = r.raw;
+    }
+    async function setCmds(){
+      const body = JSON.stringify({commands:document.getElementById('cmds').value});
+      const r = await jfetch('/tg/ctrl/api/set_commands',{method:'POST',body});
+      document.getElementById('outCmds').textContent = r.raw;
+    }
+    document.getElementById('btnMe').addEventListener('click',updateMe);
+    document.getElementById('btnSet').addEventListener('click',setProfile);
+    document.getElementById('btnCmds').addEventListener('click',setCmds);
+    updateMe();
+  </script>
+</body>
+</html>

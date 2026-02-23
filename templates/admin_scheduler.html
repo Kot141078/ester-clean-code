@@ -1,0 +1,89 @@
+{#
+Most (yavnyy):
+- (Inzheneriya UI ↔ Kontrol) Knopki Scan/Apply + pokaz AB-rezhima delayut deystviya prozrachnymi.
+
+Mosty (skrytye):
+- (Operatsii ↔ Ekonomika) Limity v forme umenshayut nagruzku na disk/CPU.
+- (Chelovek ↔ Avtomat) Vruchnoe podtverzhdenie primeneniya — konechnyy «soglasuyuschiy organ».
+
+Zemnoy abzats:
+Stranitsa zapuskaet «tik» lokalnogo planirovschika: dry-scan pokazyvaet, chto budet sdelano,
+a apply (v B) sozdaet zadachi v `ESTER/state/queue/`.
+
+c=a+b
+#}
+{% extends "_admin_base.html" %}
+
+{% block content %}
+<h2>Lokalnyy planirovschik (watcher)</h2>
+<p>Rezhim: <b>{{ ab_mode }}</b> (A=dry, B=zapis)</p>
+
+<form id="cfgForm" style="margin:10px 0;">
+  <label><input type="checkbox" name="include_txt" {% if cfg.include_txt %}checked{% endif %}> *.txt</label>
+  <label><input type="checkbox" name="include_md" {% if cfg.include_md %}checked{% endif %}> *.md</label>
+  <label><input type="checkbox" name="include_pdf" {% if cfg.include_pdf %}checked{% endif %}> *.pdf</label>
+  &nbsp;|&nbsp;
+  limit_files: <input type="number" name="limit_files" value="{{ cfg.limit_files }}" style="width:80px;">
+  max_bytes: <input type="number" name="max_bytes" value="{{ cfg.max_bytes }}" style="width:120px;">
+  &nbsp;|&nbsp;
+  chunking: <input type="checkbox" name="enable_chunking" {% if cfg.enable_chunking %}checked{% endif %}>
+  target: <input type="number" name="chunk_target" value="{{ cfg.chunk_target }}" style="width:80px;">
+</form>
+
+<div style="margin:8px 0;">
+  <button id="btnScan">Skanirovat (dry)</button>
+  <button id="btnApply">Primenit (B)</button>
+</div>
+
+<div id="status" style="margin-top:8px; font-family:monospace;"></div>
+
+<h3>Predvaritelnyy plan</h3>
+<pre id="plan" style="white-space:pre-wrap;"></pre>
+
+<script>
+async function postJSON(url, payload) {
+  const r = await fetch(url, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: payload ? JSON.stringify(payload) : "{}"
+  });
+  return await r.json();
+}
+function readForm() {
+  const fd = new FormData(document.getElementById("cfgForm"));
+  const o = {};
+  for (const [k,v] of fd.entries()) {
+    if (["include_txt","include_md","include_pdf","enable_chunking"].includes(k)) {
+      o[k] = true;
+    } else if (["limit_files","max_bytes","chunk_target"].includes(k)) {
+      o[k] = parseInt(v,10) || 0;
+    }
+  }
+  return o;
+}
+document.getElementById("btnScan").onclick = async () => {
+  const s = document.getElementById("status");
+  s.textContent = "Skaniruyu…";
+  try {
+    const data = await postJSON("{{ url_for('admin_scheduler.api_scan') }}");
+    document.getElementById("plan").textContent = JSON.stringify(data, null, 2);
+    s.textContent = "Gotovo.";
+  } catch (e) {
+    s.textContent = "Oshibka: " + e;
+  }
+};
+document.getElementById("btnApply").onclick = async () => {
+  const s = document.getElementById("status");
+  s.textContent = "Primenyayu… (ili dry v A)";
+  try {
+    const cfg = readForm();
+    const data = await postJSON("{{ url_for('admin_scheduler.api_apply') }}", cfg);
+    document.getElementById("plan").textContent = JSON.stringify(data, null, 2);
+    s.textContent = "Gotovo.";
+  } catch (e) {
+    s.textContent = "Oshibka: " + e;
+  }
+};
+</script>
+{% endblock %}
+<!-- c=a+b -->

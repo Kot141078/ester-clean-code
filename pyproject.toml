@@ -1,0 +1,91 @@
+# pyproject.toml — Edinyy konfig instrumentov kachestva
+# MOSTY:
+# - (Yavnyy) Obschaya tochka pravdy dlya ruff/black/isort/mypy/pytest/coverage.
+# - (Skrytyy #1) src-layout + versiya paketa iz ester.__init__.
+# - (Skrytyy #2) Umerennye pravila po umolchaniyu, chtoby ne lomat suschestvuyuschiy kod; uzhestochim pozzhe.
+# ZEMNOY ABZATs:
+# Odin fayl — predskazuemye sborki i odinakovyy stil komandoy. Realnye CI-dzhoby mogut prosto vyzyvat
+# `pre-commit run -a` i `pytest -q`. c=a+b
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ester"
+version = "0.0.1"
+description = "Ester core"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Ester Team" }]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311"]
+skip-string-normalization = true
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["ester"]
+src_paths = ["src", "modules", "routes", "tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+fix = true
+select = ["E", "F", "I", "UP", "B", "PL", "RUF"]
+ignore = [
+  "E203",   # slice spacing — sovmestimost s black
+  "B008",   # function-call-in-default — dopustimo v nekotorykh fabrikakh
+]
+src = ["src", "modules", "routes", "tests"]
+exclude = [
+  ".venv", "venv", "build", "dist", ".git", "__pycache__", "node_modules",
+]
+
+[tool.ruff.format]
+quote-style = "preserve"
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unreachable = false
+strict_optional = false
+disallow_untyped_defs = false
+exclude = '(?x)(
+    ^build/|
+    ^dist/|
+    ^.venv/|
+    ^venv/
+)'
+
+[tool.pytest.ini_options]
+addopts = "-q -ra"
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+
+[tool.coverage.run]
+source = ["src", "modules", "routes"]
+omit = ["tests/*", "**/__init__.py"]
+branch = true
+
+[tool.coverage.report]
+skip_covered = true
+show_missing = true
+fail_under = 0
+
+[project]
+# ...
+dependencies = [
+  "fastapi>=0.111.0",
+  "asgiref>=3.8.1",
+]
+
+[project.optional-dependencies]
+dev = ["httpx>=0.24"]

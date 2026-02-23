@@ -1,0 +1,59 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Financial Pathways</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1200px}
+  input,textarea,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:1100px){.grid{grid-template-columns:1fr}}
+  .card{border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0}
+  .small{font-size:12px;color:#666}
+  .tag{display:inline-block;background:#eef;border:1px solid #dde;border-radius:6px;padding:2px 6px;margin:2px}
+</style>
+
+<h2>Financial Pathways — ideya → otsenka → plan → zapusk</h2>
+
+<section class="card">
+  <h3>Vvod idei</h3>
+  <div class="row">
+    <input id="text" placeholder="Naprimer: «Prodat shablon rezyume za 9€ na Etsy»" style="width:580px">
+    <input id="amt" type="number" value="1000" style="width:120px">
+    <input id="days" type="number" value="14" style="width:80px">
+    <button onclick="score()">Score Idea</button>
+    <button onclick="roadmap()">Make Roadmap</button>
+  </div>
+  <pre id="out1"></pre>
+</section>
+
+<div class="grid">
+  <section class="card">
+    <h3>Roadmap → TaskTutor</h3>
+    <div class="row">
+      <button onclick="playA()">Play (A: demo)</button>
+      <button onclick="playB()">Play (B: execute)</button>
+    </div>
+    <pre id="out2"></pre>
+  </section>
+
+  <section class="card">
+    <h3>Info</h3>
+    <div class="row">
+      <button onclick="probe()">Probe</button>
+    </div>
+    <pre id="info"></pre>
+  </section>
+</div>
+
+<script>
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function set(id,obj){ document.getElementById(id).textContent = JSON.stringify(obj,null,2); }
+
+async function probe(){ set('info', await (await fetch('/fin/probe')).json()); }
+async function score(){ set('out1', await j('POST','/fin/evaluate',{"text":text.value||'', "target_amount": +amt.value||1000, "timeframe_days": +days.value||14})); }
+async function roadmap(){ set('out1', await j('POST','/fin/roadmap',{"text":text.value||'', "target_amount": +amt.value||1000, "timeframe_days": +days.value||14})); }
+async function playA(){ set('out2', await j('POST','/fin/create_play',{"text":text.value||'', "mode":"A"})); }
+async function playB(){ set('out2', await j('POST','/fin/create_play',{"text":text.value||'', "mode":"B"})); }
+probe();
+</script>

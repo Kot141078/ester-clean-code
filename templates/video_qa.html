@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Video QA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:24px;line-height:1.46;background:#0b1020;color:#e7eaf6}
+    .container{max-width:1100px;margin:0 auto}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    input,button{padding:10px 12px;border-radius:10px;border:1px solid #334; background:#0f1530; color:#e7eaf6}
+    input{flex:1}
+    button{background:#1e293b;border:1px solid #3b82f6}
+    .card{background:#0f1430;border:1px solid #223; border-radius:12px; padding:14px; margin-top:12px}
+    .muted{color:#9aa4c6}
+    a{color:#82aaff}
+    pre{white-space:pre-wrap}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#16213e;color:#cdd6f4;margin-right:6px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Poisk po video (Video QA)</h2>
+    <div class="card">
+      <div class="row">
+        <input id="q" placeholder="Vopros ili fraza (naprimer: how does bayesian updating work?)">
+        <button id="btnSearch">Iskat</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <input id="dump" placeholder="(optsionalno) Put k dump (rep_*.json) dlya poiska TOLKO v etom video">
+        <button id="btnList">Spisok dump’ov</button>
+        <a class="pill" href="/video/index/dumps" target="_blank">/video/index/dumps</a>
+        <a class="pill" href="/metrics/video_index" target="_blank">/metrics/video_index</a>
+      </div>
+    </div>
+
+    <div id="out" class="card muted">Gotovo k poisku…</div>
+  </div>
+  <script src="/static/video_qa.js"></script>
+</body>
+</html>

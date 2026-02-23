@@ -1,0 +1,5 @@
+{
+  "name": "judge-policy-staged",
+  "ts": 0,
+  "note": "This is a staged meta policy; promote via safe gate."
+}

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Ester logo (E+) — legkiy SVG bez vneshnikh shriftov -->
+<svg width="256" height="256" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22c1ee"/>
+      <stop offset="1" stop-color="#5863ff"/>
+    </linearGradient>
+    <filter id="s" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <rect x="4" y="4" width="56" height="56" rx="12" fill="url(#g)" filter="url(#s)"/>
+  <!-- Bukva E -->
+  <path d="M20 22a2 2 0 0 1 2-2h16a2 2 0 1 1 0 4H24v6h11a2 2 0 1 1 0 4H24v6h14a2 2 0 1 1 0 4H22a2 2 0 0 1-2-2V22z" fill="#ffffff"/>
+  <!-- Plyus -->
+  <rect x="44" y="28" width="12" height="4" rx="2" fill="#ffffff"/>
+  <rect x="48" y="24" width="4" height="12" rx="2" fill="#ffffff"/>
+</svg>

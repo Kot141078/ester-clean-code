@@ -1,0 +1,6 @@
+apiVersion: v2
+name: ester
+version: 0.1.0
+appVersion: "1.0.0"
+description: Ester — prod-deploy s broney (HPA, PDB, NP), canary/blue-green, Unleash, Prometheus, Istio.
+type: application

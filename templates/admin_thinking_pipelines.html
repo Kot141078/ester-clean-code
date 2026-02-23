@@ -1,0 +1,84 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Thinking Pipelines</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1100px}
+  input,textarea,select,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:1000px){.grid{grid-template-columns:1fr}}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:10px;white-space:pre-wrap}
+  .card{border:1px solid #eee;border-radius:10px;padding:10px}
+  .meta{font-size:12px;color:#666;margin-bottom:6px}
+</style>
+
+<h2>Myslitelnye payplayny Ester</h2>
+
+<div class="grid">
+  <section class="card">
+    <h3>Compare Sources</h3>
+    <div class="row">
+      <input id="a" placeholder="source A" style="width:240px">
+      <input id="b" placeholder="source B" style="width:240px">
+      <input id="goal" placeholder="goal (optsionalno)" style="width:260px">
+      <button onclick="runCompare()">Run</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Analyze Text</h3>
+    <div class="row">
+      <textarea id="text" rows="4" style="width:100%" placeholder="Vstav tekst dlya izvlecheniya tem"></textarea>
+      <button onclick="runAnalyze()">Run</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Hypothesis Test</h3>
+    <div class="row">
+      <input id="hyp" placeholder="Gipoteza">
+      <input id="evi" placeholder="Klyuch dlya poiska svidetelstv">
+      <button onclick="runHyp()">Run</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Decision Plan</h3>
+    <div class="row">
+      <input id="obj" placeholder="Tsel resheniya" style="width:260px">
+      <input id="opts" placeholder="Optsii cherez ;" style="width:420px">
+      <button onclick="runDecision()">Run</button>
+    </div>
+  </section>
+</div>
+
+<h3>Rezultat</h3>
+<pre id="out"></pre>
+
+<script>
+async function call(name, goal, params){
+  const r=await fetch('/thinking/pipelines/run',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name, goal, params})});
+  const j=await r.json();
+  document.getElementById('out').textContent=JSON.stringify(j,null,2);
+}
+
+function runCompare(){
+  const a=document.getElementById('a').value.trim()||'istochnik A';
+  const b=document.getElementById('b').value.trim()||'istochnik B';
+  const goal=document.getElementById('goal').value.trim()||`sravnit ${a} i ${b}`;
+  call('compare_sources', goal, {source_a:a, source_b:b});
+}
+function runAnalyze(){
+  const t=document.getElementById('text').value;
+  call('analyze_text', 'izvlech temy', {text:t});
+}
+function runHyp(){
+  call('hypothesis_test', 'proverit gipotezu', {hypothesis:document.getElementById('hyp').value, evidence_key:document.getElementById('evi').value});
+}
+function runDecision(){
+  const obj=document.getElementById('obj').value||'vybrat optsiyu';
+  const opts=(document.getElementById('opts').value||'A;B').split(';').map(s=>s.trim()).filter(Boolean);
+  call('decision_plan', obj, {objective:obj, options:opts});
+}
+</script>

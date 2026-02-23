@@ -1,0 +1,227 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:10px;align-items:center;flex-wrap:wrap">
+    <h2 style="margin:0">Chat s Ester</h2>
+    <span class="chip">POST /chat/message</span>
+    <div class="spacer"></div>
+    <a class="navlink" href="/portal">← Nazad v /portal</a>
+  </div>
+</section>
+
+<section class="card" style="margin-bottom:12px">
+  <div class="console">
+    <!-- Levaya panel: dialog -->
+    <div class="pane">
+      <div id="chatLog" class="log box" style="height:460px"></div>
+
+      <div class="box" style="margin-top:8px">
+        <div class="row" style="gap:8px;margin-bottom:6px">
+          <select id="mode" class="input">
+            <option value="local">local</option>
+            <option value="cloud">cloud</option>
+            <option value="judge">judge</option>
+          </select>
+
+          <label class="stack" style="align-items:center">
+            <input id="useRag" type="checkbox" checked />
+            <span>RAG</span>
+          </label>
+
+          <label class="stack" style="align-items:center">
+            <span class="muted">temp</span>
+            <input id="temp" type="range" min="0" max="1" step="0.05" value="0.2" />
+          </label>
+
+          <label class="stack" style="align-items:center">
+            <span class="muted">max_tokens</span>
+            <input id="maxTok" type="number" min="64" step="64" class="input" style="width:110px" placeholder="auto">
+          </label>
+
+          <div class="spacer"></div>
+          <button class="btn" onclick="clearLog()">Ochistit</button>
+        </div>
+
+        <textarea id="input" class="textarea" placeholder="Sprosi Ester… (Shift+Enter — novaya stroka, Enter — otpravka)"></textarea>
+        <div class="row" style="margin-top:6px">
+          <button class="btn" onclick="sendMsg()">Otpravit</button>
+          <span class="muted">JWT beretsya iz <code>localStorage.jwt</code>.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pravaya panel: vlozheniya i podskazki -->
+    <div class="pane">
+      <div class="box">
+        <strong>Vlozheniya</strong>
+        <div id="drop" class="drop" style="margin-top:8px">
+          Peretaschi fayly syuda ili
+          <label class="btn" style="margin-left:6px;cursor:pointer">
+            vybrat<input id="file" type="file" multiple style="display:none">
+          </label>
+          <div class="notice" style="margin-top:6px">Fayly otpravlyayutsya v BZ cherez <code>/ingest/file</code>, a v soobschenie podstavlyayutsya ssylki-identifikatory.</div>
+          <div id="flist" class="filelist" style="margin-top:8px"></div>
+        </div>
+        <div class="row" style="gap:8px;margin-top:8px">
+          <input id="collection" class="input" placeholder="collection (opts.)">
+          <button class="btn" onclick="flushFiles()">Ochistit spisok</button>
+        </div>
+      </div>
+
+      <div class="box" style="margin-top:12px">
+        <strong>Podskazki</strong>
+        <ul style="margin:8px 0 0 18px;line-height:1.6">
+          <li>Vyberi rezhim: <code>local</code> dlya oflayna, <code>cloud</code> — oblako, <code>judge</code> — finalnyy sintez.</li>
+          <li>Zagruzki popolnyayut lokalnuyu BZ; RAG podtyanet relevantnye kuski v otvet.</li>
+          <li>Khochesh «bystryy kontekst» — prilozhi fayly i napishi «ispolzuy vlozheniya».</li>
+        </ul>
+        <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn" onclick="quick('Summiruy vlozhennye dokumenty v 10 punktov. Vydeli riski i deystviya.')">Summirovat vlozheniya</button>
+          <button class="btn" onclick="quick('Sdelay plan zadach po dokumentam: sroki, riski, zavisimosti.')">Plan zadach</button>
+          <button class="btn" onclick="quick('Sformiruy tezisy dlya prezentatsii (10–12 slaydov) po vlozheniyam.')">Prezentatsiya</button>
+        </div>
+      </div>
+
+      <div class="box" style="margin-top:12px">
+        <strong>Bystrye ssylki</strong>
+        <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px">
+          <button class="btn" onclick="openNew('/providers')">/providers</button>
+          <button class="btn" onclick="openNew('/ops/backup')">/ops/backup</button>
+          <button class="btn" onclick="openNew('/routes')">/routes</button>
+          <button class="btn" onclick="openNew('/docs')">Swagger</button>
+          <button class="btn" onclick="openNew('/openapi.json')">OpenAPI</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // ==== Chat logic
+  const logEl = document.getElementById('chatLog');
+  const inputEl = document.getElementById('input');
+
+  function msg(el, text, cls){
+    const d=document.createElement('div');
+    d.className='msg '+(cls||'m-bot');
+    d.textContent=text;
+    el.appendChild(d);
+    el.scrollTop=el.scrollHeight;
+  }
+
+  function clearLog(){ logEl.innerHTML=''; }
+
+  function quick(text){
+    inputEl.value = text;
+    sendMsg();
+  }
+
+  inputEl.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMsg(); }
+  });
+
+  async function sendMsg(){
+    const s = inputEl.value.trim(); if(!s) return;
+    inputEl.value='';
+    msg(logEl, s, 'm-user');
+
+    const mode = document.getElementById('mode').value;
+    const use_rag = document.getElementById('useRag').checked;
+    const temperature = parseFloat(document.getElementById('temp').value || '0.2');
+    const max_tokens_raw = document.getElementById('maxTok').value;
+    const max_tokens = max_tokens_raw ? parseInt(max_tokens_raw,10) : undefined;
+
+    // prikrepim identifikatory zagruzhennykh faylov (esli est)
+    const attachments = FILES.map(f => f.ref).filter(Boolean);
+
+    const payload = { message: s, mode, use_rag, temperature };
+    if(max_tokens) payload.max_tokens = max_tokens;
+    if(attachments.length) payload.attachments = attachments;
+
+    try{
+      const r = await $fetch('/chat/message', { method:'POST', body: JSON.stringify(payload) });
+      const ct = r.headers.get('content-type')||'';
+      if(ct.includes('application/json')){
+        const j = await r.json().catch(()=> ({}));
+        if(!r.ok || j.ok===false){ msg(logEl, 'Oshibka: '+(j.error||r.statusText), 'm-bot'); return; }
+        const ans = j.answer || j.message || JSON.stringify(j);
+        msg(logEl, ans, 'm-bot');
+      }else{
+        const t = await r.text();
+        msg(logEl, t, 'm-bot');
+      }
+    }catch(e){
+      msg(logEl, 'Set: '+e, 'm-bot');
+    }
+  }
+
+  // ==== Attachments → /ingest/file
+  const elDrop = document.getElementById('drop');
+  const elFile = document.getElementById('file');
+  const elList = document.getElementById('flist');
+  let FILES = []; // {name, ref, ok}
+
+  function flushFiles(){ FILES=[]; elList.innerHTML=''; }
+
+  ;['dragenter','dragover'].forEach(ev => elDrop.addEventListener(ev, e=>{e.preventDefault();e.stopPropagation();elDrop.classList.add('drag')} ));
+  ;['dragleave','drop'].forEach(ev => elDrop.addEventListener(ev, e=>{e.preventDefault();e.stopPropagation();elDrop.classList.remove('drag')} ));
+  elDrop.addEventListener('drop', e => { const f=e.dataTransfer.files; if(f&&f.length) handleFiles(f); });
+  elFile.addEventListener('change', e => { if(elFile.files) handleFiles(elFile.files); });
+
+  function rowForFile(name){
+    const wrap=document.createElement('div'); wrap.style.padding='6px 0';
+    const title=document.createElement('div'); title.textContent='→ '+name;
+    const prog=document.createElement('div'); prog.className='progress'; prog.style.margin='6px 0';
+    const bar=document.createElement('div'); bar.className='bar'; prog.appendChild(bar);
+    const status=document.createElement('div'); status.className='muted'; status.textContent='';
+    wrap.appendChild(title); wrap.appendChild(prog); wrap.appendChild(status);
+    elList.appendChild(wrap);
+    return {bar, status};
+  }
+
+  async function handleFiles(files){
+    const coll=(document.getElementById('collection').value||'').trim();
+    for(const file of files){
+      const ui=rowForFile(file.name);
+      const ref = await uploadOne(file, coll, ui);
+      FILES.push({name:file.name, ref, ok: !!ref});
+    }
+  }
+
+  async function uploadOne(file, coll, ui){
+    const fd=new FormData();
+    fd.append('file', file, file.name);
+    if(coll) fd.append('collection', coll);
+    try{
+      const r=await $fetch('/ingest/file',{method:'POST', body:fd});
+      ui.bar.style.width='100%';
+      const ct=r.headers.get('content-type')||'';
+      if(r.ok){
+        ui.bar.classList.add('ok');
+        if(ct.includes('application/json')){
+          const j=await r.json();
+          const id = j.id || j.key || j.uid || j.filename || file.name;
+          ui.status.textContent = 'OK: '+(j.message||'uploaded')+' · '+id;
+          return id;
+        }else{
+          const t=await r.text();
+          ui.status.textContent = 'OK: '+t;
+          return file.name;
+        }
+      }else{
+        ui.bar.classList.add('err');
+        const txt = ct.includes('application/json') ? JSON.stringify(await r.json()) : (await r.text());
+        ui.status.textContent = `Oshibka HTTP ${r.status}: `+txt;
+        return null;
+      }
+    }catch(e){
+      ui.bar.style.width='100%';
+      ui.bar.classList.add('err');
+      ui.status.textContent = 'Set: '+e;
+      return null;
+    }
+  }
+</script>
+
+{% endblock %}

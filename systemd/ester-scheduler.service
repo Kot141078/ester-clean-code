@@ -1,0 +1,20 @@
+# systemd/ester-scheduler.service
+[Unit]
+Description=Ester — scheduler tick (oneshot)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+Environment=ESTER_DIR=/opt/ester
+# Optional: PERSIST_DIR override
+# Environment=PERSIST_DIR=/var/lib/ester
+WorkingDirectory=%E{ESTER_DIR}
+ExecStart=/usr/bin/env bash -lc 'cd "${ESTER_DIR:-/opt/ester}" && PERSIST_DIR="${PERSIST_DIR:-${ESTER_DIR:-/opt/ester}/data}" python3 scripts/scheduler_run_tick.py'
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ester-scheduler
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=read-only

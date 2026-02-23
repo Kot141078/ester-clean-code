@@ -1,0 +1,198 @@
+# --- Image ---
+image:
+  repository: ghcr.io/OWNER/REPO
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# --- Pods / Ports ---
+replicaCount: 2
+port: 5000
+
+# --- Resources (requests/limits) ---
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+  limits:
+    cpu: "1000m"
+    memory: "512Mi"
+
+# --- Service ---
+service:
+  type: ClusterIP
+  port: 5000
+  annotations: {}
+  labels: {}
+
+# --- Ingress (Nginx/ALB/etc.) ---
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: ester.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []   # [{ hosts: ["ester.local"], secretName: ester-tls }]
+
+# --- Service Account / RBAC ---
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+rbac:
+  create: true
+
+# --- Pod settings ---
+podAnnotations: {}
+podLabels: {}
+podSecurityContext: {}
+securityContext: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# --- Config (env via ConfigMap) ---
+env:
+  ESTER_ENV: "prod"
+  LOG_LEVEL: "INFO"
+  TZ: "UTC"
+
+# --- Secrets (mapped as envFrom secret) ---
+secretEnv:
+  enabled: false
+  name: ester-secret
+
+# --- HPA ---
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 75
+
+# --- PDB ---
+pdb:
+  enabled: true
+  minAvailable: 1
+
+# --- ServiceMonitor (Prometheus Operator) ---
+serviceMonitor:
+  enabled: false
+  interval: 30s
+  scrapeTimeout: 5s
+  labels: {}
+  annotations: {}
+  scheme: http
+  path: /metrics
+  targetPort: 5000
+
+# --- NetworkPolicy profiles ---
+# networkPolicy.mode controls profile templates:
+# - "strict": minimal-safe profile with DNS/HTTPS egress (NOT airgapped)
+# - "airgap": deny-all egress profile
+# - "off": do not render strict/airgap profiles
+#
+# Legacy note:
+# - networkPolicy.enabled affects only templates/networkpolicy.yaml
+# - networkPolicyStrict.enabled is backward-compat fallback for strict mode
+networkPolicy:
+  enabled: false
+  mode: "airgap"
+  egress:
+    - to: [{ ipBlock: { cidr: 0.0.0.0/0 } }]
+      ports:
+        - { protocol: TCP, port: 53 }
+        - { protocol: TCP, port: 80 }
+        - { protocol: TCP, port: 443 }
+  ingress:
+    - from: []
+      ports:
+        - { protocol: TCP, port: 5000 }
+
+networkPolicyStrict:
+  # Legacy fallback: used only when networkPolicy.mode is empty.
+  enabled: false
+
+# --- Argo Rollouts: Analysis / SLO (Auto-rollback) ---
+rollouts:
+  analysis:
+    enabled: true
+    provider:
+      prometheusAddress: "http://prometheus-operated.monitoring.svc.cluster.local:9090"
+    slo:
+      availability: 0.995
+      errorBudget: 0.005
+      # Bystrye porogi dlya canary fast-fail
+      maxErrorRateFast: 0.02
+      p95LatencyBudgetMs: 800
+      p99LatencyBudgetMs: 1500
+
+# --- OpenTelemetry (primer, esli est otel-agent) ---
+opentelemetry:
+  enabled: false
+  collectorEndpoint: "http://otel-collector.observability.svc.cluster.local:4317"
+  traces:
+    receivers: [otlp]
+    processors: [batch]
+    exporters: [otlp]
+
+# --- ExternalDNS vesa (primary/secondary) ---
+externalDns:
+  enabled: false
+  annotations:
+    setIdentifierKey: external-dns.alpha.kubernetes.io/set-identifier
+    weightKey: external-dns.alpha.kubernetes.io/aws-weight
+  identifiers:
+    identifierPrimary: ester-primary
+    identifierSecondary: ester-secondary
+    weightPrimary: 100
+    weightSecondary: 0
+  contexts:
+    primary: k8s-primary
+    secondary: k8s-secondary
+
+# --- Gatekeeper (Policy-as-Code) ---
+gatekeeper:
+  enabled: false
+  match:
+    namespaces: []
+    excludedNamespaces: ["kube-system","gatekeeper-system"]
+
+# =========================
+# G+++ (novye sektsii nizhe)
+# =========================
+
+# 1) Golden-paths web provider (AnalysisTemplate)
+probes:
+  golden:
+    enabled: true
+    interval: 1m
+    count: 3
+
+# 2) Recording Rules (PrometheusRule dlya deshevykh metrik)
+recordingRules:
+  enabled: true
+
+# 3) Auto-Failover Webhook (Alertmanager → Webhook → external-dns vesa)
+failover:
+  webhook:
+    enabled: false
+    # Zaschita: zagolovok X-Auth-Token
+    token: "CHANGE_ME"
+    # Chto patchit (Service|Ingress)
+    targetKind: "Service"
+    targetName: "ester"
+    targetNamespace: "ester"
+    # Annotatsii external-dns
+    setIdentifier: "ester-secondary"
+    weight: "100"
+
+# 4) Istio mirror-traffic (teplyy progrev kanareyki)
+istio:
+  enabled: false
+  host: ester.local
+  mirror:
+    enabled: false
+    percent: 5

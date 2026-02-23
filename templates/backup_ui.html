@@ -1,0 +1,159 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:10px;align-items:center;flex-wrap:wrap">
+    <h2 style="margin:0">Bekap · Upravlenie</h2>
+    <span class="chip">/ops/backup/list</span>
+    <span class="chip">/ops/backup/run</span>
+    <span class="chip">/ops/backup/verify</span>
+    <span class="chip">/ops/backup/restore</span>
+    <div class="spacer"></div>
+    <a class="navlink" href="/portal">← Nazad v /portal</a>
+  </div>
+</section>
+
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:8px;margin-bottom:8px">
+    <button class="btn" onclick="bkList()">Pokazat snimki</button>
+    <button class="btn" onclick="bkRun()">Sdelat bekap</button>
+    <button class="btn" onclick="bkVerify()">Verify</button>
+    <input id="bkId" class="input" placeholder="snapshot id dlya vosstanovleniya">
+    <button class="btn" onclick="bkRestore()">Vosstanovit</button>
+    <div class="spacer"></div>
+    <button class="btn" onclick="openNew('/ops/backup')">Otkryt /ops/backup</button>
+    <button class="btn" onclick="openNew('/routes')">/routes</button>
+  </div>
+
+  <div class="grid">
+    <div class="box">
+      <strong>Logi</strong>
+      <div id="bkLog" class="log" style="height:240px;margin-top:6px"></div>
+    </div>
+    <div class="box">
+      <strong>Snimki</strong>
+      <div id="bkList" class="box" style="max-height:280px;overflow:auto;margin-top:6px"></div>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
+    <h3 style="margin:0">Bystrye proverki</h3>
+  </div>
+  <div class="row" style="gap:8px;flex-wrap:wrap">
+    <button class="btn" onclick="ping('/health')">/health</button>
+    <button class="btn" onclick="ping('/ready')">/ready</button>
+    <button class="btn" onclick="ping('/live')">/live</button>
+    <button class="btn" onclick="ping('/metrics')">/metrics</button>
+  </div>
+  <pre id="pingOut" class="log box" style="height:160px;margin-top:8px"></pre>
+</section>
+
+<script>
+  function textLog(el, text){
+    const d=document.createElement('div'); d.className='msg m-bot'; d.textContent=text;
+    el.appendChild(d); el.scrollTop=el.scrollHeight;
+  }
+
+  function bkLogLine(t){
+    const el=document.getElementById('bkLog'); textLog(el, t);
+  }
+
+  function bkListRender(items){
+    const el=document.getElementById('bkList');
+    if(!items||!items.length){ el.innerHTML='<span class="muted">Pusto</span>'; return; }
+    const tbl=document.createElement('table'); tbl.style.width='100%'; tbl.style.borderCollapse='collapse';
+    const thead=document.createElement('thead');
+    thead.innerHTML='<tr><th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">ID</th><th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Vremya</th><th style="text-align:left;padding:6px;border-bottom:1px solid var(--border)">Razmer</th></tr>';
+    tbl.appendChild(thead);
+    const tbody=document.createElement('tbody');
+    for(const s of items){
+      const id=s.id||s.name||s.key||s.snapshot||JSON.stringify(s);
+      const when=s.created_at||s.time||s.ts||'';
+      const size=s.size_bytes||s.size||'';
+      const tr=document.createElement('tr');
+      const td=(t)=>{ const x=document.createElement('td'); x.style.padding='8px 6px'; x.style.borderBottom='1px solid var(--border)'; x.innerHTML=t; return x; };
+      tr.appendChild(td(`<code>${id}</code>`));
+      tr.appendChild(td(`<span class="muted">${when}</span>`));
+      tr.appendChild(td(size ? (String(size)+' B') : ''));
+      tr.onclick=()=>{ document.getElementById('bkId').value=id; };
+      tbody.appendChild(tr);
+    }
+    tbl.appendChild(tbody);
+    el.innerHTML=''; el.appendChild(tbl);
+  }
+
+  async function bkList(){
+    bkLogLine('→ list');
+    const urls=['/ops/backup/list','/ops/backup/snapshots','/ops/backup?mode=list'];
+    for(const u of urls){
+      try{
+        const r=await $fetch(u, {noCache:true}); const j=await r.json();
+        const arr=Array.isArray(j)?j:(j.items||j.snapshots||[]);
+        bkListRender(arr); bkLogLine('OK: '+u); return;
+      }catch(e){}
+    }
+    bkLogLine('Oshibka: spisok nedostupen');
+  }
+
+  async function bkRun(){
+    bkLogLine('→ run');
+    const urls=[['/ops/backup/run','POST'],['/ops/backup?mode=run','POST']];
+    for(const [u,m] of urls){
+      try{
+        const r=await $fetch(u,{method:m}); const j=await r.json();
+        bkLogLine('OK: '+(j.message||j.status||'run started')); bkList(); return;
+      }catch(e){}
+    }
+    bkLogLine('Oshibka: run nedostupen');
+  }
+
+  async function bkVerify(){
+    bkLogLine('→ verify');
+    const urls=[['/ops/backup/verify','POST'],['/ops/backup?mode=verify','POST']];
+    for(const [u,m] of urls){
+      try{
+        const r=await $fetch(u,{method:m}); const j=await r.json();
+        bkLogLine('OK: '+(j.message||j.status||'verify done')); return;
+      }catch(e){}
+    }
+    bkLogLine('Oshibka: verify nedostupen');
+  }
+
+  async function bkRestore(){
+    const id=(document.getElementById('bkId').value||'').trim();
+    if(!id){ alert('Ukazhi snapshot id'); return; }
+    bkLogLine('→ restore '+id);
+    const urls=[['/ops/backup/restore','POST'],['/ops/backup?mode=restore','POST']];
+    for(const [u,m] of urls){
+      try{
+        const r=await $fetch(u,{method:m, body: JSON.stringify({snapshot:id})}); const j=await r.json();
+        bkLogLine('OK: '+(j.message||j.status||'restore requested')); return;
+      }catch(e){}
+    }
+    bkLogLine('Oshibka: restore nedostupen');
+  }
+
+  async function ping(url){
+    const out=document.getElementById('pingOut'); out.textContent='…';
+    const t0=performance.now();
+    try{
+      const r=await $fetch(url, {noCache:true});
+      const ms=Math.round(performance.now()-t0);
+      const ct=r.headers.get('content-type')||'';
+      if(ct.includes('application/json')){
+        const j=await r.json(); out.textContent=`HTTP ${r.status} (${ms} ms)\n\n`+JSON.stringify(j,null,2);
+      }else{
+        const t=await r.text(); out.textContent=`HTTP ${r.status} (${ms} ms)\n\n`+t;
+      }
+    }catch(e){
+      out.textContent='Oshibka: '+e;
+    }
+  }
+
+  // Avtozagruzka spiska pri vkhode
+  document.addEventListener('DOMContentLoaded', bkList);
+</script>
+
+{% endblock %}

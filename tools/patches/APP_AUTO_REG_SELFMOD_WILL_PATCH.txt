@@ -1,0 +1,8 @@
+# --- Ester selfmod-will AUTO-REG ---
+try:
+    from routes.ester_selfmod_will_routes_alias import bp_ester_selfmod_will
+    app.register_blueprint(bp_ester_selfmod_will)
+    print("[ester-selfmod-will/auto-reg] registered /ester/selfmod/will_plan,/ester/selfmod/propose_guarded")
+except Exception as e:
+    print("[ester-selfmod-will/auto-reg] skip:", e)
+# --- end Ester selfmod-will AUTO-REG ---

@@ -1,0 +1,11 @@
+services:
+  ester:
+    image: ghcr.io/youruser/ester:latest  # ili build: .
+    restart: unless-stopped
+    ports: ["5000:5000"]
+    environment:
+      ESTER_DOTENV: /run/secrets/.env
+    volumes:
+      - /opt/ester/secrets:/run/secrets:ro
+      - /opt/ester/data:/app/data
+    command: ["python","app.py"]

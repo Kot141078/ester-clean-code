@@ -1,0 +1,45 @@
+{% extends "_admin_base.html" %}
+{% block content %}
+<section class="card" style="margin-bottom:12px">
+  <div class="row" style="gap:10px;align-items:center;flex-wrap:wrap">
+    <h2 style="margin:0">Podskazki po OCR/INGEST</h2>
+    <span class="chip">/ops/ingest/help</span>
+    <div class="spacer"></div>
+    <a class="navlink" href="/portal">← Nazad v /portal</a>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Chto ustanovit offlayn</h3>
+  <p>Esli pri vyzove <code>/ingest/ocr</code> vy vidite oshibki vida «OCR: trebuetsya pytesseract i Pillow», «dlya PDF nuzhen pdf2image/poppler», ustanovite zavisimosti lokalno.</p>
+
+  <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap:16px">
+    <div class="box">
+      <h4>Windows</h4>
+      <pre class="code">choco install tesseract
+# Popolnite PATH tesseract'a i poppler'a (bin)
+pip install pytesseract pillow pdf2image</pre>
+      <p>Skachayte <b>poppler</b> dlya Windows i dobavte ego <code>bin</code> v <b>PATH</b>.</p>
+    </div>
+
+    <div class="box">
+      <h4>Linux (Debian/Ubuntu)</h4>
+      <pre class="code">sudo apt-get update
+sudo apt-get install -y tesseract-ocr poppler-utils
+pip install pytesseract pillow pdf2image</pre>
+    </div>
+
+    <div class="box">
+      <h4>macOS</h4>
+      <pre class="code">brew install tesseract poppler
+pip install pytesseract pillow pdf2image</pre>
+    </div>
+  </div>
+
+  <h3>Proverka</h3>
+  <pre class="code">python -c "import pytesseract; from PIL import Image; import pdf2image; print('OK')"</pre>
+
+  <h3>Pochemu eto vazhno</h3>
+  <p>Bez etikh paketov OCR dlya PDF/izobrazheniy ne zarabotaet (moduli <code>modules/ingest/ocr_engine.py</code> kidayut <code>RuntimeError</code> s poyasneniem). Eto <em>operatsionnaya</em> zavisimost i ona stavitsya na khoste, gde krutitsya Ester.</p>
+</section>
+{% endblock %}

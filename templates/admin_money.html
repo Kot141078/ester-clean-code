@@ -1,0 +1,87 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Money Orchestrator</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:1200px}
+  input,textarea,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:1100px){.grid{grid-template-columns:1fr}}
+  .card{border:1px solid #eee;border-radius:10px;padding:12px;margin:10px 0}
+  .small{font-size:12px;color:#666}
+  .tag{display:inline-block;background:#eef;border:1px solid #dde;border-radius:6px;padding:2px 6px;margin:2px}
+</style>
+
+<h2>Money Orchestrator — «Ester, mne nuzhny dengi»</h2>
+
+<section class="card">
+  <div class="row">
+    <button onclick="probe()">Probe</button>
+    <button onclick="loadQ()">Zapustit master</button>
+  </div>
+  <pre id="info"></pre>
+</section>
+
+<div class="grid">
+  <section class="card">
+    <h3>Opros</h3>
+    <div id="qs"></div>
+    <div class="row">
+      <button onclick="mkProfile()">Sformirovat profil</button>
+      <button onclick="strategies()">Sobrat strategii</button>
+      <button onclick="judge()">Konsultatsiya Judge</button>
+      <button onclick="garage()">Proverka «Garazha»</button>
+    </div>
+    <pre id="out1"></pre>
+  </section>
+
+  <section class="card">
+    <h3>Zapusk</h3>
+    <div class="row">
+      <input id="amt" type="number" value="1000" style="width:120px">
+      <input id="days" type="number" value="14" style="width:80px">
+      <button onclick="runA()">Run (A: demo)</button>
+      <button onclick="runB()">Run (B: execute)</button>
+    </div>
+    <pre id="out2"></pre>
+  </section>
+</div>
+
+<script>
+let answers={};
+async function j(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null});const t=await r.text();try{return JSON.parse(t)}catch(e){return {raw:t}}}
+function set(id,obj){ document.getElementById(id).textContent = JSON.stringify(obj,null,2); }
+
+async function probe(){ set('info', await (await fetch('/money/probe')).json()); }
+async function loadQ(){
+  const res = await (await fetch('/money/questions')).json();
+  const cont=document.getElementById('qs'); cont.innerHTML='';
+  (res.questions||[]).forEach(q=>{
+    const el=document.createElement('div'); el.className='row';
+    el.innerHTML=`<label style="width:280px">${q.q}</label><input id="q_${q.id}" value="${q.def??''}" style="width:260px">`;
+    cont.appendChild(el);
+  });
+}
+function collect(){
+  const inputs=[...document.querySelectorAll('[id^=q_ ]')];
+}
+function collectAnswers(){
+  const cont=document.getElementById('qs');
+  const inputs=[...cont.querySelectorAll('input')];
+  answers={};
+  inputs.forEach(i=>{
+    const key=i.id.replace('q_',''); let val=i.value;
+    const q = i.previousSibling?.textContent||'';
+    if(key.includes('capital')||key.includes('time')) val=Number(val)||0;
+    answers[key]=val;
+  });
+}
+async function mkProfile(){ collectAnswers(); set('out1', await j('POST','/money/profile',{"answers":answers})); }
+async function strategies(){ collectAnswers(); set('out1', await j('POST','/money/strategies',{"answers":answers,"target_amount": +amt.value||1000,"timeframe_days": +days.value||14})); }
+async function judge(){ collectAnswers(); set('out1', await j('POST','/money/judge',{"answers":answers})); }
+async function garage(){ collectAnswers(); set('out1', await j('POST','/money/garage',{"answers":answers})); }
+async function runA(){ collectAnswers(); set('out2', await j('POST','/money/run',{"answers":answers,"target_amount": +amt.value||1000,"timeframe_days": +days.value||14,"mode":"A"})); }
+async function runB(){ collectAnswers(); set('out2', await j('POST','/money/run',{"answers":answers,"target_amount": +amt.value||1000,"timeframe_days": +days.value||14,"mode":"B"})); }
+probe();
+</script>

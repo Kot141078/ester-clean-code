@@ -1,0 +1,5 @@
+curl -s -X POST -H 'Content-Type: application/json' -d '{
+  "name":"Recon A","purpose":"aerorazvedka","roles":["strategist","operator","platform"]
+}' http://127.0.0.1:8080/synergy/teams/create | jq
+
+curl -s -X POST -H 'Content-Type: application/json' -d '{"team_id":"Recon A"}' http://127.0.0.1:8080/synergy/assign | jq

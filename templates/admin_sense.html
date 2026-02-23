@@ -1,0 +1,60 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Sense Panel</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:18px;max-width:1100px}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  textarea{width:100%;min-height:140px;border:1px solid #ccc;border-radius:8px;padding:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:140px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
+  img{max-width:100%;border:1px solid #ddd;border-radius:8px}
+  .grid{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:960px){.grid{grid-template-columns:1fr 1fr}}
+</style>
+<h2>Sense — zhurnal / ekran / okna / protsessy</h2>
+
+<div class="grid">
+  <section>
+    <h3>Journal tail</h3>
+    n <input id="jn" type="number" value="50">
+    <button onclick="jt()">Fetch</button>
+    <pre id="jout"></pre>
+  </section>
+
+  <section>
+    <h3>Screen snap</h3>
+    w <input id="sw" type="number" value="640">
+    h <input id="sh" type="number" value="360">
+    <button onclick="ss()">Snap</button>
+    <div><img id="screen"></div>
+    <pre id="sout"></pre>
+  </section>
+
+  <section>
+    <h3>Windows</h3>
+    <button onclick="wl()">List</button>
+    <pre id="wout"></pre>
+  </section>
+
+  <section>
+    <h3>Processes</h3>
+    like <input id="plike" value="">
+    <button onclick="pl()">List</button>
+    <pre id="pout"></pre>
+  </section>
+</div>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'}}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function put(id,x){ document.getElementById(id).textContent=JSON.stringify(x,null,2); }
+
+async function jt(){ const n=+document.getElementById('jn').value||50; put('jout', await j('GET',`/sense/journal/tail?n=${n}`)); }
+async function ss(){ 
+  const w=+document.getElementById('sw').value||0, h=+document.getElementById('sh').value||0; 
+  const r=await j('GET',`/sense/screen/snap?w=${w}&h=${h}`); 
+  if(r.ok && r.png_b64){ document.getElementById('screen').src='data:image/png;base64,'+r.png_b64; }
+  put('sout', r);
+}
+async function wl(){ put('wout', await j('GET','/sense/windows/list')); }
+async function pl(){ const like=encodeURIComponent(document.getElementById('plike').value||''); put('pout', await j('GET',`/sense/proc/list?like=${like}`)); }
+</script>

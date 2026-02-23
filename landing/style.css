@@ -1,0 +1,14 @@
+:root { --fg:#111; --bg:#fff; --acc:#6b46c1; }
+*{box-sizing:border-box} body{font-family:system-ui,Arial,sans-serif;margin:0;color:var(--fg);background:var(--bg)}
+header{padding:48px 20px;text-align:center;background:linear-gradient(180deg,#faf7ff,transparent)}
+h1{margin:0 0 8px;font-size:32px} h2{margin:24px 0 12px}
+.cta{display:inline-block;margin-top:12px;padding:10px 16px;background:var(--acc);color:#fff;border-radius:10px;text-decoration:none}
+#plans-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));padding:0 20px}
+.card{border:1px solid #eee;border-radius:12px;padding:16px;background:#fff;box-shadow:0 6px 16px rgba(0,0,0,.05)}
+.price{font-size:28px;margin:8px 0}
+ul{padding-left:18px;margin:10px 0}
+button.buy{width:100%;padding:10px;border:0;border-radius:10px;background:var(--acc);color:#fff;cursor:pointer}
+#lead{padding:24px 20px} #lead form{max-width:520px;margin:auto;display:grid;gap:8px}
+.ok{color:green;margin-top:8px}
+.small{opacity:.7;font-size:12px;padding:0 20px}
+footer{padding:24px;text-align:center;opacity:.6}

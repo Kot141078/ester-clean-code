@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Portable / Exchange</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+    .card{background:#0e1521;border:1px solid #283244;border-radius:12px;padding:12px}
+    button,input{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px;cursor:pointer}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    table{width:100%;border-collapse:collapse}
+    td,th{border-bottom:1px solid #273244;padding:6px;text-align:left;font-size:13px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .muted{opacity:.7}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Stranitsa «pochtalona»: bystro polozhit/zabrat fayl snapshota i, po zhelaniyu, polozhit dublikat v LAN-drop.
+    Mosty: yavnyy — list/export/import/send_lan; skrytye — offlayn/stdlib, AB-predokhranitel.
+  -->
+</head>
+<body>
+  <h1>Portable / Exchange <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section class="card">
+    <h3>Spisok payloads</h3>
+    <div class="grid">
+      <div>
+        <b>Inbox</b>
+        <div id="inbox">—</div>
+      </div>
+      <div>
+        <b>Outbox</b>
+        <div id="outbox">—</div>
+      </div>
+    </div>
+    <div style="margin-top:8px">
+      <button onclick="refresh()">Obnovit</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Eksport poslednego snapshota → outbox</h3>
+    <div>
+      <input id="snap_path" placeholder="(neobyazatelno) put k konkretnomu compliance_*.json" style="width:100%"/>
+    </div>
+    <div style="margin-top:8px">
+      <button onclick="doExport()">Eksportirovat</button>
+      <span id="exp_res" class="chip">—</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Import vsekh iz inbox → reports</h3>
+    <div style="margin-top:8px">
+      <button onclick="doImport()">Importirovat</button>
+      <span id="imp_res" class="chip">—</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Otpravit v LAN (kopiya fayla)</h3>
+    <div>
+      <input id="lan_path" placeholder="put k payload_compliance_*.json iz outbox" style="width:100%"/>
+    </div>
+    <div style="margin-top:8px">
+      <button onclick="doSendLan()">Otpravit</button>
+      <span id="lan_res" class="chip">—</span>
+    </div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+function esc(s){return (s??"").toString().replace(/</g,"&lt;")}
+function table(list){
+  if(!list||!list.length) return "<p class='muted'>net</p>";
+  let h="<table><tr><th>ts</th><th>node</th><th>size</th><th>path</th></tr>";
+  for(const it of list){
+    h+=`<tr><td>${esc(it.ts||"-")}</td><td>${esc(it.node||"-")}</td><td>${esc(it.size||0)}</td><td><code>${esc(it.path||"-")}</code></td></tr>`;
+  }
+  h+="</table>";
+  return h;
+}
+async function refresh(){
+  const j = await fetch('/admin/portable/exchange/list').then(r=>r.json()).catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  if(!j.ok) return;
+  const p=j.payloads||{};
+  document.getElementById('inbox').innerHTML = table(p.inbox||[]);
+  document.getElementById('outbox').innerHTML = table(p.outbox||[]);
+}
+async function doExport(){
+  const snap_path = document.getElementById('snap_path').value||null;
+  const j = await fetch('/admin/portable/exchange/export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({snapshot_path:snap_path})}).then(r=>r.json()).catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('exp_res').textContent = j.ok ? "OK" : "ERR";
+  await refresh();
+}
+async function doImport(){
+  const j = await fetch('/admin/portable/exchange/import',{method:'POST'}).then(r=>r.json()).catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('imp_res').textContent = j.ok ? "OK" : "ERR";
+  await refresh();
+}
+async function doSendLan(){
+  const path = document.getElementById('lan_path').value||"";
+  const j = await fetch('/admin/portable/exchange/send_lan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path})}).then(r=>r.json()).catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('lan_res').textContent = j.ok ? "OK" : "ERR";
+}
+refresh().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

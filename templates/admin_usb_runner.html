@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — USB Job Runner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,select,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .muted{opacity:.7}
+    table{width:100%;border-collapse:collapse}
+    td,th{border-bottom:1px solid #273244;padding:6px;text-align:left;font-size:13px}
+    code{background:#0b121d;padding:2px 6px;border-radius:6px}
+    .warn{color:#ffcc66}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .ok{color:#7fd87f}.bad{color:#ff8a8a}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Poyavilsya master: vybiraesh shablon, vidish prevyu (osobenno dlya copy), i odnim klikom kladesh job-fayl na USB.
+    Mosty: yavnyy — UX ↔ templates/preview/create; skrytye — offlayn/stdlib, dry-rezhim AB.
+  -->
+</head>
+<body>
+  <h1>USB Job Runner <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <h3>Ochered s fleshki</h3>
+    <div class="row">
+      <button onclick="scan()">Skanirovat USB</button>
+      <label>Filtr tipov
+        <select id="types" multiple size="4">
+          <option value="build_report">build_report</option>
+          <option value="healthcheck">healthcheck</option>
+          <option value="copy">copy</option>
+          <option value="noop">noop</option>
+        </select>
+      </label>
+      <label>Limit <input id="limit" type="number" min="1" max="200" value="50"/></label>
+      <button onclick="run()">Vypolnit iz USB</button>
+    </div>
+    <div id="queue">—</div>
+    <pre id="out">—</pre>
+  </section>
+
+  <section>
+    <h3>Shablony zadach (master)</h3>
+    <div class="row">
+      <select id="tpl" onchange="renderTpl()"></select>
+      <span id="tplInfo" class="muted">—</span>
+    </div>
+    <div id="tplFields" class="grid" style="margin-top:8px">—</div>
+    <div class="row" style="margin-top:8px">
+      <button onclick="preview()">Predprosmotr</button>
+      <button onclick="createJob()">Sozdat job-fayl</button>
+      <span id="result" class="chip">—</span>
+    </div>
+    <pre id="previewBox">—</pre>
+  </section>
+
+  <section>
+    <h3>Proverka svoego JSON</h3>
+    <textarea id="rawJson" style="width:100%;min-height:120px" placeholder='{"schema":"ester.usb.job/1","uid":"job-raw","type":"copy","args":{"src_rel":"payloads/sample.txt","dest":"~/.ester/imports/sample.txt"}}'></textarea>
+    <div class="row" style="margin-top:8px">
+      <button onclick="validateRaw()">Proverit</button>
+      <button onclick="createRaw()">Save kak job-fayl</button>
+    </div>
+    <pre id="rawOut">—</pre>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+function esc(s){return (s??"").toString().replace(/</g,"&lt;")}
+function table(items){
+  if(!items || !items.length) return "<p class='muted'>Pusto</p>";
+  let h="<table><tr><th>uid</th><th>type</th><th>args</th></tr>";
+  for(const it of items){
+    h+=`<tr><td><code>${esc(it.uid||it._path||"-")}</code></td><td>${esc(it.type||"-")}</td><td><code>${esc(JSON.stringify(it.args||{}))}</code></td></tr>`;
+  }
+  h+="</table>";
+  return h;
+}
+async function scan(){
+  const r = await fetch('/admin/usb_runner/status'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('queue').innerHTML = table(j.items||[]);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function run(){
+  const sel = document.getElementById('types'); const types=[];
+  for(const o of sel.options){ if(o.selected) types.push(o.value); }
+  const limit = parseInt(document.getElementById('limit').value||"50",10);
+  const body = {limit, types: (types.length?types:undefined)};
+  const r = await fetch('/admin/usb_runner/execute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  await scan();
+}
+
+// --- Templates/Wizard ---
+let TPLS=[];
+function fieldHtml(f){
+  const id="f_"+f.name;
+  if(f.type==="bool"){
+    return `<label><input type="checkbox" id="${id}" ${f.default? "checked": ""}/> ${esc(f.name)}</label><small class="muted">${esc(f.help||"")}</small>`;
+  }
+  return `<label>${esc(f.name)} <input id="${id}" value="${esc(f.default??'')}" placeholder="${esc(f.help||'')}"/></label>`;
+}
+async function loadTpls(){
+  const r = await fetch('/admin/usb_runner/templates'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok){ document.getElementById('tplInfo').textContent = "shablony nedostupny"; return; }
+  TPLS = j.items||[];
+  const sel = document.getElementById('tpl'); sel.innerHTML="";
+  for(const t of TPLS){
+    const o=document.createElement('option'); o.value=t.name; o.textContent=`${t.name} — ${t.title}`; sel.appendChild(o);
+  }
+  renderTpl();
+}
+function renderTpl(){
+  const name = document.getElementById('tpl').value;
+  const t=TPLS.find(x=>x.name===name) || {fields:[]};
+  document.getElementById('tplInfo').textContent = (t.title||"—");
+  document.getElementById('tplFields').innerHTML = t.fields.map(fieldHtml).join("<br/>") || "<span class='muted'>Parametrov net</span>";
+  document.getElementById('previewBox').textContent="—";
+  document.getElementById('result').textContent="—";
+}
+function gatherParams(){
+  const name = document.getElementById('tpl').value;
+  const t=TPLS.find(x=>x.name===name) || {fields:[]};
+  const params={};
+  for(const f of t.fields||[]){
+    const id="f_"+f.name;
+    const el=document.getElementById(id);
+    if(!el) continue;
+    if(f.type==="bool"){ params[f.name]=el.checked; } else { params[f.name]=el.value; }
+  }
+  return {template:name, params};
+}
+async function preview(){
+  const body=gatherParams();
+  const r=await fetch('/admin/usb_runner/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('previewBox').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+async function createJob(){
+  const body=gatherParams();
+  const r=await fetch('/admin/usb_runner/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('result').textContent = j.ok ? (j.written? "sozdano: "+j.name : "dry: "+j.name) : "oshibka";
+  document.getElementById('previewBox').textContent = JSON.stringify(j, null, 2);
+  await scan();
+}
+
+// --- Validate raw JSON ---
+async function validateRaw(){
+  const text=document.getElementById('rawJson').value||"";
+  const r=await fetch('/admin/usb_runner/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+  const j=await r.json().catch(()=>({ok:false}));
+  document.getElementById('rawOut').textContent = JSON.stringify(j, null, 2);
+}
+async function createRaw(){
+  const text=document.getElementById('rawJson').value||"";
+  let job=null; try{ job=JSON.parse(text);}catch(e){ alert("Nevalidnyy JSON"); return; }
+  const r=await fetch('/admin/usb_runner/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({job})});
+  const j=await r.json().catch(()=>({ok:false}));
+  document.getElementById('rawOut').textContent = JSON.stringify(j, null, 2);
+  await scan();
+}
+
+scan().catch(()=>{});
+loadTpls().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

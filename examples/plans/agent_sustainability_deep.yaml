@@ -1,0 +1,62 @@
+# Mosty:
+# - Yavnyy: (LLM/Plan ↔ Dannye) berem outline i dopolnyaem ego faktorami i cheklistami.
+# - Skrytyy #1: (UX ↔ Kaskad) sovmestim s /thinking/cascade/execute i tekuschey adminkoy.
+# - Skrytyy #2: (Pravila ↔ Prevyu) vyvod prigoden dlya RuleHub-preseta (sm. docs/agent_builder_rulehub_preset.yaml).
+
+run_id: agent_sustainability_deep
+branch_id: main
+context_init:
+  spec: "Glubokiy brif zelenogo agenta s integratsiey cheklistov i metrik."
+  items:
+    - {file: "instructions.md"}
+    - {file: "capabilities.json"}
+    - {file: "playbook.md"}
+
+nodes:
+  - id: outline
+    type: llm.generate
+    prompt: |
+      Sformiruy rasshirennyy brif dlya «EkoRazum»: roli, vkhody/vykhody, metriki (CO₂e, kWh, otkhody), riski, UX.
+      Korotko, do 12 punktov.
+    out: "outline"
+    depends: []
+
+  - id: load_metrics
+    type: script
+    update:
+      metrics_hint: "docs/sustainability_kit/metrics.json"
+    depends: ["outline"]
+
+  - id: pull_checklists
+    type: script
+    update:
+      checklists:
+        - zero_waste_event
+        - smb_quick_audit
+    depends: ["load_metrics"]
+
+  - id: draft
+    type: llm.generate
+    prompt: |
+      Na osnove outline={{ctx.outline}} i checklists={{ctx.checklists}} 
+      podgotov {{ctx.item.file}} s yavnymi shagami, metrikami i kontrolnymi tochkami.
+      Kratko i strukturirovano.
+    out: "branch_out"
+    depends: ["pull_checklists"]
+
+  - id: fanout
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["pull_checklists"]
+
+  - id: join
+    type: join
+    from: "fanout"
+    out: "scaffold"
+    select:
+      file: "{{item.file}}"
+      text: "{{ctx.branch_out}}"
+    mode: list
+    await_nodes: ["draft"]
+    depends: ["draft"]
+# c=a+b

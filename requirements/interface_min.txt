@@ -1,0 +1,9 @@
+# Minimalnye pakety dlya interfeysa (sovmestimo s bazovym dampom)
+fastapi
+starlette
+uvicorn
+flask
+jinja2
+itsdangerous
+werkzeug
+flask-jwt-extended

@@ -1,0 +1,578 @@
+# -*- coding: utf-8 -*-
+"""
+Polnofunktsionalnyy chat-marshrut Ester:
+- Mezhsessionnaya pamyat po sid (JSONL, ustoychivo k restartam)
+- Inektsiya tekuschego vremeni (ESTER_CHAT_INJECT_NOW=1)
+- Avto-opredelenie aktivnoy modeli LM Studio
+- Optsionalnyy RAG (lokalnyy HTTP-endpoint, sm. ESTER_RAG_ENDPOINT)
+- Kaskadnoe myshlenie (plan -> chernovik -> final, bez raskrytiya CoT)
+- Judge: agregatsiya otvetov ot neskolkikh provayderov (lmstudio + OpenAI + Gemini) i sintez odnogo luchshego
+- Forsirovannyy edinyy SID (ESTER_FORCE_SID), chtoby Telegram i veb davali odinakovye otvety
+
+Endpointy:
+    GET  /chat/health
+    POST /ester/chat/message
+Zapis pamyati:  %USERPROFILE%/.ester/vstore/chat_mem/<sid>.jsonl
+Zhurnal e2e:     %USERPROFILE%/.ester/vstore/ester_chat_log.json
+
+Yavnyy most (c = a + b):
+- a: chelovek Owner + infrastruktura (portal, Telegram, env).
+- b: etot marshrut kak protsedura svyazyvaniya provayderov, pamyati i kaskada v ustoychivyy pattern otveta.
+"""
+from __future__ import annotations
+
+import os
+import re
+import json
+import time
+import pathlib
+import threading
+from datetime import datetime, timezone
+from typing import List, Dict, Any, Optional
+
+import requests
+from flask import Blueprint, request, jsonify
+
+try:
+    from zoneinfo import ZoneInfo   # py3.9+
+except Exception:
+    ZoneInfo = None  # type: ignore
+
+bp = Blueprint("ester_chat_routes_alias", __name__)
+
+# -------- Konfiguratsiya / env --------
+TZ_NAME         = os.getenv("ESTER_TZ", "UTC")
+INJECT_NOW      = os.getenv("ESTER_CHAT_INJECT_NOW", "1") == "1"
+RECENT_HISTORY  = int(os.getenv("ESTER_CHAT_RECENT_HISTORY", "12"))  # poslednie N soobscheniy (user+assistant)
+REQUEST_TIMEOUT = int(os.getenv("ESTER_PROVIDER_TIMEOUT_SEC", "180"))
+JUDGE_TIMEOUT   = int(os.getenv("ESTER_JUDGE_TIMEOUT_SEC", "240"))
+
+# Postavschiki: LM Studio
+LMSTUDIO_BASE   = os.getenv("LMSTUDIO_BASE", "http://127.0.0.1:1234").rstrip("/")
+LMSTUDIO_MODEL  = os.getenv("LMSTUDIO_MODEL", "gpt-4o-mini")
+
+# Postavschiki: OpenAI
+OPENAI_API_KEY  = os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_APIKEY") or os.getenv("OPENAI_KEY")
+OPENAI_MODEL    = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+
+# Postavschiki: Gemini
+GEMINI_API_KEY  = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+# po umolchaniyu — deshevyy i bystryy, mozhno pomenyat na pro
+GEMINI_MODEL    = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+
+# RAG
+RAG_ENDPOINT    = os.getenv("ESTER_RAG_ENDPOINT", "").rstrip("/")  # naprimer: http://127.0.0.1:8080/ester/rag/docs
+RAG_DEADLINE_MS = int(os.getenv("ESTER_RAG_DEADLINE_MS", "1200"))
+RAG_TOPK        = int(os.getenv("ESTER_RAG_TOPK", "5"))
+
+# Edinyy SID, chtoby Telegram = portal
+FORCE_SID       = os.getenv("ESTER_FORCE_SID", "").strip()  # naprimer: console
+
+
+# -------- Utility --------
+def _now_iso() -> str:
+    try:
+        if ZoneInfo:
+            tz = ZoneInfo(TZ_NAME)
+            return datetime.now(tz).isoformat(timespec="seconds")
+    except Exception:
+        pass
+    return datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
+
+
+def _vdir() -> pathlib.Path:
+    return pathlib.Path.home() / ".ester" / "vstore"
+
+
+def _sid_to_safe(sid: str) -> str:
+    return re.sub(r"[^A-Za-z0-9_.:-]+", "_", sid)[:120] or "console"
+
+
+def _mem_path(sid: str) -> pathlib.Path:
+    d = _vdir() / "chat_mem"
+    d.mkdir(parents=True, exist_ok=True)
+    return d / (_sid_to_safe(sid) + ".jsonl")
+
+
+def _append_jsonl(path: pathlib.Path, obj: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+
+
+def _load_recent_messages(sid: Optional[str], k: int) -> List[Dict[str, str]]:
+    if not sid or k <= 0:
+        return []
+    p = _mem_path(sid)
+    if not p.exists():
+        return []
+    try:
+        lines = p.read_text(encoding="utf-8").splitlines()[-k:]
+    except Exception:
+        return []
+    out: List[Dict[str, str]] = []
+    for ln in lines:
+        try:
+            j = json.loads(ln)
+            role = j.get("role")
+            content = j.get("content")
+            if isinstance(role, str) and isinstance(content, str):
+                out.append({"role": role, "content": content})
+        except Exception:
+            continue
+    return out
+
+
+def _log_path() -> pathlib.Path:
+    return _vdir() / "ester_chat_log.json"
+
+
+def _chat_log(rec: dict) -> None:
+    """
+    Legkiy e2e-zhurnal: kak «chernyy yaschik» samoleta.
+    Esli slomaetsya — ne dolzhen lomat osnovnoy potok.
+    """
+    try:
+        p = _log_path()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        data = []
+        if p.exists():
+            try:
+                data = json.loads(p.read_text(encoding="utf-8") or "[]")
+            except Exception:
+                data = []
+        data.append(rec)
+        p.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+
+
+# -------- Provaydery --------
+def _lmstudio_models() -> List[str]:
+    try:
+        r = requests.get(f"{LMSTUDIO_BASE}/v1/models", timeout=5)
+        r.raise_for_status()
+        data = r.json().get("data", [])
+        return [x.get("id") for x in data if isinstance(x, dict) and x.get("id")]
+    except Exception:
+        return []
+
+
+def _call_lmstudio(messages: List[Dict[str, str]], max_tokens: int = 1024, temperature: float = 0.7) -> str:
+    body = {
+        "model": LMSTUDIO_MODEL,
+        "messages": messages,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "stream": False,
+    }
+    r = requests.post(f"{LMSTUDIO_BASE}/v1/chat/completions", json=body, timeout=REQUEST_TIMEOUT)
+    r.raise_for_status()
+    j = r.json()
+    return j.get("choices", [{}])[0].get("message", {}).get("content", "") or ""
+
+
+def _call_openai(messages: List[Dict[str, str]], max_tokens: int = 1024, temperature: float = 0.7) -> str:
+    if not OPENAI_API_KEY:
+        raise RuntimeError("OPENAI_API_KEY not set")
+    url = "https://api.openai.com/v1/chat/completions"
+    body = {
+        "model": OPENAI_MODEL,
+        "messages": messages,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "stream": False,
+    }
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    r = requests.post(url, json=body, headers=headers, timeout=REQUEST_TIMEOUT)
+    r.raise_for_status()
+    j = r.json()
+    return j.get("choices", [{}])[0].get("message", {}).get("content", "") or ""
+
+
+def _to_gemini_contents(messages: List[Dict[str, str]]) -> List[Dict[str, Any]]:
+    """
+    Most mezhdu rolnoy skhemoy OpenAI i skhemoy Gemini.
+    Inzhenernaya analogiya: eto «perekhodnik razema» mezhdu dvumya shinami.
+    """
+    contents: List[Dict[str, Any]] = []
+    for m in messages:
+        role = m.get("role", "user")
+        text = m.get("content", "")
+        if not isinstance(text, str) or not text:
+            continue
+        if role == "assistant":
+            g_role = "model"
+        else:
+            # system/user → user (instruktsii zashivaem v tekst)
+            g_role = "user"
+        contents.append({
+            "role": g_role,
+            "parts": [{"text": text}],
+        })
+    return contents
+
+
+def _call_gemini(messages: List[Dict[str, str]], max_tokens: int = 1024, temperature: float = 0.7) -> str:
+    if not GEMINI_API_KEY:
+        raise RuntimeError("GEMINI_API_KEY not set")
+    model = GEMINI_MODEL or "gemini-1.5-flash"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
+
+    body: Dict[str, Any] = {
+        "contents": _to_gemini_contents(messages),
+        "generationConfig": {
+            "temperature": float(temperature),
+            "maxOutputTokens": int(max_tokens),
+        },
+    }
+
+    r = requests.post(url, json=body, timeout=REQUEST_TIMEOUT)
+    r.raise_for_status()
+    j = r.json()
+    candidates = j.get("candidates") or []
+    if not candidates:
+        return ""
+    content = candidates[0].get("content") or {}
+    parts = content.get("parts") or []
+    texts: List[str] = []
+    for p in parts:
+        if isinstance(p, dict):
+            t = p.get("text")
+            if isinstance(t, str):
+                texts.append(t)
+    return "".join(texts).strip()
+
+
+# -------- Kaskad / Judge --------
+def _cascade(messages_user: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    """
+    Vnutrenniy kaskad (bez CoT naruzhu):
+      1) system: plan
+      2) assistant: chernovik
+      3) system: utochnenie + lakonichnyy final
+
+    Zdes fakticheski realizovana prostaya inzhenernaya "mnogostupenchataya avtomatika":
+    kak v releynoy zaschite — snachala analiz (plan), zatem chernovaya reaktsiya, zatem
+    finalnaya otstroyka pered vydachey naruzhu.
+    """
+    msgs: List[Dict[str, str]] = []
+    msgs.extend(messages_user)
+
+    # etap 1: plan
+    plan_sys = {
+        "role": "system",
+        "content": "Sdelay kratkiy plan otveta v 3-5 punktov. Ne vyvodi reshenie, tolko plan.",
+    }
+    plan = _call_lmstudio([plan_sys] + msgs, max_tokens=256, temperature=0.3)
+
+    # etap 2: chernovik
+    draft_sys = {
+        "role": "system",
+        "content": f"Vot plan:\n{plan}\nNapishi chernovik otveta, bez lishney boltovni."
+    }
+    draft = _call_lmstudio([draft_sys] + msgs, max_tokens=1024, temperature=0.5)
+
+    # etap 3: final
+    final_sys = {
+        "role": "system",
+        "content": "Otredaktiruy chernovik, sdelay otvet tochnym i kratkim. Ne raskryvay shagi rassuzhdeniy."
+    }
+    final = _call_lmstudio(
+        [final_sys, {"role": "assistant", "content": draft}] + msgs,
+        max_tokens=1024,
+        temperature=0.4,
+    )
+    return [{"role": "assistant", "content": final or draft or "(pustoy otvet)"}]
+
+
+def _judge_synthesize(question: str, variants: List[str]) -> str:
+    """
+    Sintez finalnogo otveta iz neskolkikh variantov.
+
+    VAZhNO:
+    - Eto soobschenie idet NAPRYaMUYu polzovatelyu.
+    - Nelzya pisat: «luchshiy otvet», «pervyy/vtoroy variant», «ya vybirayu» i t.p.
+    - Nelzya opisyvat protsess vybora.
+    - Nuzhno vydat odin tselnyy otvet na vopros polzovatelya.
+
+    Zdes yavnyy most k infoteorii/kibernetike: sudya rabotaet kak funktsiya agregirovaniya
+    neskolkikh «kanalov svyazi» s raznymi iskazheniyami, vydavaya odin soglasovannyy signal.
+    """
+    sys = {
+        "role": "system",
+        "content": (
+            "Ty — pomoschnik, kotoryy na osnove neskolkikh vnutrennikh variantov otveta "
+            "vybiraet i/ili sinteziruet ODIN finalnyy otvet dlya polzovatelya.\n\n"
+            "Tvoe soobschenie idet napryamuyu polzovatelyu, poetomu strogo soblyuday pravila:\n"
+            "1) Ne upominay, chto u tebya bylo neskolko variantov otveta.\n"
+            "2) Ne ispolzuy frazy vida «luchshiy otvet», «pervyy/vtoroy variant» i t.p.\n"
+            "3) Ne opisyvay protsess vybora i vnutrennie kriterii.\n"
+            "4) Prosto day odin svyaznyy otvet na vopros polzovatelya.\n"
+            "5) Otvechay na tom zhe yazyke, na kotorom zadan vopros.\n"
+        ),
+    }
+    user = {
+        "role": "user",
+        "content": (
+            "Vopros polzovatelya:\n"
+            f"{question}\n\n"
+            "Neskolko vnutrennikh variantov otveta (dlya TVOEGO VNUTRENNEGO analiza, "
+            "ne ssylaysya na nikh yavno v otvete polzovatelyu):\n\n"
+            + "\n\n---\n\n".join(variants)
+        ),
+    }
+    try:
+        if OPENAI_API_KEY:
+            return _call_openai([sys, user], max_tokens=1024, temperature=0.2)
+    except Exception:
+        # esli oblako nedostupno, tikho degradiruem do lokalnogo judge
+        pass
+    return _call_lmstudio([sys, user], max_tokens=1024, temperature=0.2)
+
+
+# -------- RAG --------
+def _rag_fetch(q: str, top_k: int = RAG_TOPK, deadline_ms: int = RAG_DEADLINE_MS) -> List[str]:
+    if not RAG_ENDPOINT:
+        return []
+    try:
+        # probuem POST /search
+        url = f"{RAG_ENDPOINT}/search" if not RAG_ENDPOINT.endswith("/search") else RAG_ENDPOINT
+        body = {"q": q, "k": top_k, "deadline_ms": deadline_ms}
+        r = requests.post(url, json=body, timeout=(deadline_ms / 1000.0 + 1.0))
+        if r.status_code == 404:
+            # zapasnoy format: GET ?q=&k=
+            r = requests.get(
+                RAG_ENDPOINT,
+                params={"q": q, "k": top_k},
+                timeout=(deadline_ms / 1000.0 + 1.0),
+            )
+        r.raise_for_status()
+        j = r.json()
+        hits = j.get("hits") or j.get("chunks") or j.get("data") or []
+        out: List[str] = []
+        for h in hits[:top_k]:
+            if isinstance(h, str):
+                out.append(h)
+            elif isinstance(h, dict):
+                txt = h.get("text") or h.get("content") or ""
+                if txt:
+                    out.append(txt)
+        return out
+    except Exception:
+        return []
+
+
+# -------- Formirovanie konteksta --------
+def _make_messages(user_text: str, sid: Optional[str], mode: str, use_rag: bool) -> List[Dict[str, str]]:
+    msgs: List[Dict[str, str]] = []
+
+    if INJECT_NOW:
+        msgs.append({
+            "role": "system",
+            "content": (
+                f"Tekuschee vremya: {_now_iso()} ({TZ_NAME}). "
+                "Vsegda opiraysya na eto pri otvetakh pro daty (format YYYY-MM-DD)."
+            ),
+        })
+
+    # informatsiya o provayderakh (skrytyy most k diagnostike)
+    lm_models = _lmstudio_models()
+    lm_active = lm_models[0] if lm_models else LMSTUDIO_MODEL
+    msgs.append({
+        "role": "system",
+        "content": (
+            f"Konfiguratsiya: mode={mode}; lmstudio_base={LMSTUDIO_BASE}; "
+            f"lmstudio_model={lm_active}; openai_model={OPENAI_MODEL}; gemini_model={GEMINI_MODEL}."
+        ),
+    })
+
+    # kaskadnyy khint
+    msgs.append({
+        "role": "system",
+        "content": "Dumay kaskadno (plan→chernovik→final), no vyvodi tolko finalnyy otvet.",
+    })
+
+    # pamyat po sid
+    msgs.extend(_load_recent_messages(sid, RECENT_HISTORY))
+
+    # RAG (esli vklyuchen)
+    if use_rag:
+        chunks = _rag_fetch(user_text)
+        if chunks:
+            ctx = "\n\n".join(chunks)
+            msgs.append({
+                "role": "system",
+                "content": (
+                    "Poleznye vyderzhki iz bazy (RAG):\n"
+                    f"{ctx}\n"
+                    "Ispolzuy ikh, esli relevantny, no ne tsitiruy lishnee."
+                ),
+            })
+
+    # sam vopros
+    msgs.append({"role": "user", "content": user_text})
+    return msgs
+
+
+# -------- Marshruty --------
+@bp.get("/chat/health")
+def chat_health():
+    providers = ["lmstudio", "cloud", "judge"]
+    if GEMINI_API_KEY:
+        providers.append("gemini")
+    return jsonify({
+        "ok": True,
+        "version": "2025-11-15-gemini",
+        "default_mode": "judge",
+        "providers": providers,
+        "endpoints": ["/ester/chat/message"],
+        "lmstudio": {
+            "base": LMSTUDIO_BASE,
+            "models": _lmstudio_models()[:4],
+            "timeout_sec": REQUEST_TIMEOUT,
+        },
+        "openai": {
+            "model": OPENAI_MODEL,
+            "enabled": bool(OPENAI_API_KEY),
+        },
+        "gemini": {
+            "model": GEMINI_MODEL,
+            "enabled": bool(GEMINI_API_KEY),
+        },
+    })
+
+
+@bp.post("/ester/chat/message")
+def ester_chat_message():
+    data = request.get_json(silent=True) or {}
+    message: str = (data.get("message") or "").strip()
+    mode: str = (data.get("mode") or "judge").lower()
+    use_rag: bool = bool(data.get("use_rag", True))
+    temp: float = float(data.get("temp", 0.7))
+    sid_in: Optional[str] = data.get("sid")
+    sid: str = FORCE_SID or (sid_in or "console")
+
+    if not message:
+        return jsonify({"ok": False, "error": "no_message"}), 400
+
+    msgs = _make_messages(message, sid, mode, use_rag)
+
+    # ispolniteli
+    answers: Dict[str, str] = {}
+    errors: Dict[str, str] = {}
+
+    def run_lm() -> None:
+        try:
+            answers["lmstudio"] = _call_lmstudio(msgs, temperature=temp)
+        except Exception as e:
+            errors["lmstudio"] = str(e)
+
+    def run_cloud() -> None:
+        try:
+            answers["cloud"] = _call_openai(msgs, temperature=temp)
+        except Exception as e:
+            errors["cloud"] = str(e)
+
+    def run_gemini() -> None:
+        try:
+            answers["gemini"] = _call_gemini(msgs, temperature=temp)
+        except Exception as e:
+            errors["gemini"] = str(e)
+
+    # rezhimy
+    if mode == "lmstudio":
+        run_lm()
+        provider_used = "lmstudio"
+        final = answers.get("lmstudio", "") or f"provider_error: {errors.get('lmstudio')}"
+    elif mode == "cloud":
+        run_cloud()
+        provider_used = "cloud"
+        final = answers.get("cloud", "") or f"provider_error: {errors.get('cloud')}"
+    elif mode == "gemini":
+        run_gemini()
+        provider_used = "gemini"
+        final = answers.get("gemini", "") or f"provider_error: {errors.get('gemini')}"
+    else:
+        # judge: parallelno sobiraem varianty
+        th_lm = threading.Thread(target=run_lm)
+        th_lm.start()
+
+        th_cloud = None
+        if OPENAI_API_KEY:
+            th_cloud = threading.Thread(target=run_cloud)
+            th_cloud.start()
+
+        th_gemini = None
+        if GEMINI_API_KEY:
+            th_gemini = threading.Thread(target=run_gemini)
+            th_gemini.start()
+
+        th_lm.join(JUDGE_TIMEOUT)
+        if th_cloud:
+            th_cloud.join(JUDGE_TIMEOUT)
+        if th_gemini:
+            th_gemini.join(JUDGE_TIMEOUT)
+
+        variants: List[str] = []
+        order: List[str] = []
+
+        if answers.get("lmstudio"):
+            variants.append(answers["lmstudio"])
+            order.append("lmstudio")
+        if answers.get("cloud"):
+            variants.append(answers["cloud"])
+            order.append("cloud")
+        if answers.get("gemini"):
+            variants.append(answers["gemini"])
+            order.append("gemini")
+
+        if not variants:
+            # esli vse upalo — probuem kaskad lokalno
+            final = _cascade(msgs)[0]["content"]
+            provider_used = "lmstudio"
+        elif len(variants) == 1:
+            final = variants[0]
+            provider_used = order[0]
+        else:
+            # zdes ranshe naruzhu inogda vytekala "obyasnyalka sudi"
+            final = _judge_synthesize(message, variants) or variants[0]
+            provider_used = "judge"
+
+    out = {
+        "ok": True,
+        "sid": sid,
+        "mode": mode,
+        "provider": provider_used,
+        "answer": final or "(pustoy otvet)",
+        "diag": {
+            "use_rag": use_rag,
+            "temp": temp,
+            "errors": errors,
+        },
+    }
+
+    try:
+        _chat_log({
+            "ts": _now_iso(),
+            "sid": sid,
+            "request": {"mode": mode, "use_rag": use_rag, "temp": temp, "message": message},
+            "response": {"provider": provider_used},
+        })
+        _append_jsonl(_mem_path(sid), {"role": "user", "content": message})
+        _append_jsonl(_mem_path(sid), {"role": "assistant", "content": out["answer"]})
+    except Exception:
+        # Pamyat — kak dolgovremennyy sloy kory: esli chto-to sletelo,
+        # dialog ne dolzhen padat, prosto vremenno "amneziya".
+        pass
+
+    return jsonify(out)
+
+
+def register(app):
+    app.register_blueprint(bp)
+    print("[ester_chat_routes_alias] registered /ester/chat/message")
+

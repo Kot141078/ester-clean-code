@@ -1,0 +1,134 @@
+{% extends "_admin_base.html" %}
+{% block title %}Ester Admin — Hypotheses{% endblock %}
+{% block content %}
+  <h1>Gipotezy</h1>
+
+  <div class="row">
+    <input id="topic" placeholder="topic (opts.)" />
+    <button onclick="loadHypotheses()">Obnovit</button>
+  </div>
+
+  <div class="row">
+    <input id="h_topic" placeholder="topic" />
+    <input id="h_text" placeholder="text" />
+    <input id="h_score" placeholder="score (0..1)" />
+    <button onclick="createHypothesis()">Sozdat</button>
+  </div>
+
+  <table class="tbl" id="tbl">
+    <thead>
+      <tr>
+        <th>ID</th><th>topic</th><th>text</th><th>score</th><th>ops</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <pre id="out" class="out"></pre>
+
+  <script>
+    function q(sel){ return document.querySelector(sel); }
+    function ce(tag, html){ const el=document.createElement(tag); if(html!==undefined) el.innerHTML=html; return el; }
+
+    async function loadHypotheses(){
+      const topic = q('#topic').value.trim();
+      const qstr = topic ? ('?topic=' + encodeURIComponent(topic)) : '';
+      const res = await apiFetch('/mem/hypothesis' + qstr);
+      const tbody = q('#tbl tbody');
+      tbody.innerHTML = '';
+      const items = (res.items || res || []);
+      items.forEach(row => tbody.appendChild(renderRow(row)));
+      if(items.length === 0){
+        q('#out').textContent = (res.ok===false ? JSON.stringify(res,null,2) : 'Net dannykh');
+      } else {
+        q('#out').textContent = '';
+      }
+    }
+
+    function renderRow(row){
+      const tr = ce('tr');
+      tr.dataset.id = row.id || '';
+      tr.innerHTML = `
+        <td class="c-id">${row.id||''}</td>
+        <td class="c-topic">${escapeHtml(row.topic||'')}</td>
+        <td class="c-text">${escapeHtml(row.text||'')}</td>
+        <td class="c-score">${row.score??''}</td>
+        <td class="c-ops">
+          <button onclick="enterEdit(this)">edit</button>
+          <button onclick="delHypothesis('${row.id||''}')">del</button>
+        </td>`;
+      return tr;
+    }
+
+    function enterEdit(btn){
+      const tr = btn.closest('tr');
+      const id = tr.dataset.id;
+      const topic = tr.querySelector('.c-topic').textContent;
+      const text = tr.querySelector('.c-text').textContent;
+      const score = tr.querySelector('.c-score').textContent;
+
+      tr.innerHTML = `
+        <td class="c-id">${id}</td>
+        <td><input class="e-topic" value="${escapeAttr(topic)}" /></td>
+        <td><input class="e-text" value="${escapeAttr(text)}" /></td>
+        <td><input class="e-score" value="${escapeAttr(score)}" /></td>
+        <td>
+          <button onclick="saveEdit(this)">save</button>
+          <button onclick="cancelEdit(this)">cancel</button>
+        </td>`;
+    }
+
+    function cancelEdit(btn){
+      const tr = btn.closest('tr');
+      const id = tr.querySelector('.c-id').textContent;
+      // Delaem prostuyu perezagruzku vsey tablitsy, chtoby ne uslozhnyat vosstanovlenie stroki
+      loadHypotheses();
+    }
+
+    async function saveEdit(btn){
+      const tr = btn.closest('tr');
+      const id = tr.querySelector('.c-id').textContent.trim();
+      const topic = tr.querySelector('.e-topic').value.trim();
+      const text = tr.querySelector('.e-text').value.trim();
+      const scoreRaw = tr.querySelector('.e-score').value.trim();
+      const body = {};
+      if(topic !== '') body.topic = topic;
+      if(text !== '') body.text = text;
+      if(scoreRaw !== '') {
+        const n = parseFloat(scoreRaw);
+        if(!Number.isNaN(n)) body.score = n;
+      }
+      const res = await apiFetch('/mem/hypothesis/' + encodeURIComponent(id), {
+        method: 'PUT',
+        body: JSON.stringify(body)
+      });
+      q('#out').textContent = JSON.stringify(res, null, 2);
+      loadHypotheses();
+    }
+
+    async function createHypothesis(){
+      const body = {
+        topic: q('#h_topic').value.trim(),
+        text: q('#h_text').value.trim(),
+        score: parseFloat(q('#h_score').value || '0')
+      };
+      const res = await apiFetch('/mem/hypothesis', {method:'POST', body: JSON.stringify(body)});
+      q('#out').textContent = JSON.stringify(res, null, 2);
+      loadHypotheses();
+    }
+
+    async function delHypothesis(id){
+      if(!id){ return alert('net id'); }
+      const res = await apiFetch('/mem/hypothesis/' + encodeURIComponent(id), {method:'DELETE'});
+      q('#out').textContent = JSON.stringify(res, null, 2);
+      loadHypotheses();
+    }
+
+    function escapeHtml(s){
+      return (s||'').replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+    function escapeAttr(s){ return escapeHtml(s).replace(/"/g, '&quot;'); }
+
+    loadHypotheses();
+  </script>
+{% endblock %}

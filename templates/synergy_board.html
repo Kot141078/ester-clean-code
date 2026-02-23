@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester · Shakhmatka roley (realtaym)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root { --fg:#111; --bg:#fff; --muted:#666; --line:#eee; --accent:#0a7; --ok:#1a7; --warn:#b80; --danger:#b22; }
+    body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; color:var(--fg); background:var(--bg); }
+    header { padding:16px 20px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between;}
+    main { max-width:1180px; margin:0 auto; padding:16px; }
+    .row { display:grid; gap:12px; grid-template-columns: 2fr 1fr; }
+    .card { border:1px solid var(--line); border-radius:12px; padding:12px; box-shadow:0 1px 2px rgba(0,0,0,.04); background:#fff; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { border:1px solid var(--line); padding:8px; text-align:center; font-size:14px; }
+    th { background:#f9f9f9; position:sticky; top:0; }
+    .btn { padding:8px 12px; border:0; border-radius:10px; background:var(--accent); color:#fff; cursor:pointer; }
+    .btn.secondary{ background:#444 }
+    .muted { color:var(--muted); font-size:13px; }
+    .tag { font-size:12px; padding:2px 6px; border-radius:6px; background:#eee; }
+    .good { background:#e9fbf3; }
+    .mid  { background:#fff9e6; }
+    .bad  { background:#ffecec; }
+    .pill { display:inline-block; padding:3px 8px; border-radius:999px; background:#eef; margin-left:6px; font-size:12px; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .kv { display:flex; justify-content:space-between; gap:8px; border-bottom:1px dashed var(--line); padding:4px 0; }
+    .risk { color:var(--danger); font-weight:600; }
+    .overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; }
+    .modal { background:#fff; border-radius:12px; width:min(920px, 94vw); max-height:80vh; overflow:auto; padding:16px; }
+    pre { background:#f6f6f6; padding:12px; border-radius:8px; overflow:auto; }
+  </style>
+</head>
+<body>
+<header>
+  <div><strong>Shakhmatka roley</strong> · Ester</div>
+  <div class="muted">Komanda: <span id="teamName"></span> • <span id="live">offline</span></div>
+</header>
+<main>
+  <div class="row">
+    <div class="card" style="grid-column:1 / -1;">
+      <div class="muted" style="display:flex;gap:8px;align-items:center;">
+        <span id="roles"></span>
+        <span class="muted" id="stamp"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
+        <button class="btn" id="apply">Primenit naznacheniya</button>
+        <button class="btn secondary" id="showTrace">Pokazat trace</button>
+        <span class="muted">Kliknite po yacheyke, chtoby zakrepit agenta za rolyu (overrayd).</span>
+      </div>
+      <div id="table"></div>
+    </div>
+
+    <div class="card">
+      <div class="muted" style="margin-bottom:8px;">Agregaty</div>
+      <div id="aggs">
+        <div class="grid">
+          <div>
+            <div class="muted" style="margin-bottom:4px;">Top-kandidaty</div>
+            <div id="aggRoles"></div>
+          </div>
+          <div>
+            <div class="muted" style="margin-bottom:4px;">Nagruzka agentov</div>
+            <div id="aggLoad"></div>
+            <div class="muted" style="margin-top:8px;">Riski</div>
+            <div id="aggRisks"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="grid-column:1 / -1;">
+      <pre id="out" class="muted">// otvety API budut zdes</pre>
+    </div>
+  </div>
+</main>
+
+<div class="overlay" id="traceOverlay">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <strong>Trace optimizatsii</strong>
+      <button class="btn secondary" id="closeTrace">Zakryt</button>
+    </div>
+    <pre id="tracePre"></pre>
+  </div>
+</div>
+
+<script>
+  const $ = s => document.querySelector(s);
+  const urlParams = new URLSearchParams(window.location.search);
+  const teamId = urlParams.get('team_id') || '';
+  $('#teamName').textContent = teamId || '(ne vybrana)';
+
+  let data = null;
+  let overrides = {};
+  let es = null;
+
+  function scoreCls(x){
+    if (x >= 0.66) return 'good';
+    if (x >= 0.33) return 'mid';
+    return 'bad';
+  }
+  function pct(x){ return Math.round(x*100); }
+  function stamp(ts){ try{ const d=new Date(ts); return 'obnovleno ' + d.toLocaleTimeString(); }catch(_){ return ''; } }
+
+  async function fetchJSON(path){
+    const r = await fetch(path, {headers:{'Cache-Control':'no-cache'}});
+    return r.json();
+  }
+
+  async function load(){
+    const j = await fetchJSON('/synergy/board/data?team_id='+encodeURIComponent(teamId));
+    data = j;
+    overrides = Object.assign({}, data.overrides||{});
+    render();
+    loadAggs();
+  }
+
+  async function loadAggs(){
+    const j = await fetchJSON('/synergy/board/aggregate?team_id='+encodeURIComponent(teamId));
+    // roles
+    const rolesDiv = $('#aggRoles');
+    rolesDiv.innerHTML = '';
+    Object.entries(j.role_candidates||{}).forEach(([role,arr])=>{
+      const line = document.createElement('div'); line.className='kv';
+      const right = arr.map(x=>`${x.agent_id} (${Math.round(x.score*100)}%)`).join(', ');
+      line.innerHTML = `<span>${role}</span><span>${right}</span>`;
+      rolesDiv.appendChild(line);
+    });
+    // load
+    const loadDiv = $('#aggLoad'); loadDiv.innerHTML='';
+    const load = j.agent_load||{};
+    Object.keys(load).sort((a,b)=>load[b]-load[a]).forEach(a=>{
+      const line = document.createElement('div'); line.className='kv';
+      line.innerHTML = `<span>${a}</span><span>${load[a]} roli</span>`;
+      loadDiv.appendChild(line);
+    });
+    if (!Object.keys(load).length) { loadDiv.innerHTML = '<div class="muted">net naznacheniy</div>'; }
+    // risks
+    const risksDiv = $('#aggRisks'); risksDiv.innerHTML='';
+    const rs = j.risks||[];
+    rs.forEach(r=>{
+      const line = document.createElement('div'); line.className='kv risk';
+      line.innerHTML = `<span>${r.name}</span><span>${Math.round(r.severity*100)}% • ${r.reason||''}</span>`;
+      risksDiv.appendChild(line);
+    });
+    if (!rs.length) risksDiv.innerHTML = '<div class="muted">net yavnykh riskov</div>';
+  }
+
+  function render(){
+    if (!data || !data.ok){ $('#table').innerHTML = 'net dannykh'; return; }
+    const roles = data.team.roles_needed || [];
+    const agents = data.agents || [];
+    const scores = data.scores || {};
+    $('#roles').innerHTML = '<strong>Roli:</strong> '+roles.map(r=>`<span class="pill">${r}</span>`).join(' ');
+    $('#stamp').textContent = stamp(Date.now());
+    let html = '<table><tr><th>Agent</th>'+roles.map(r=>`<th>${r}</th>`).join('')+'</tr>';
+    for (const a of agents){
+      html += `<tr><th>${a.profile?.name||a.id}<div class="muted">${a.id}</div></th>`;
+      for (const role of roles){
+        const sc = (scores[a.id]||{})[role]||0;
+        const isFixed = (overrides[role]===a.id);
+        html += `<td class="${scoreCls(sc)}" data-role="${role}" data-agent="${a.id}" style="cursor:pointer">`+
+                `${pct(sc)}%`+ (isFixed?` <span class="tag">fiks</span>`:'') +`</td>`;
+      }
+      html += '</tr>';
+    }
+    html += '</table>';
+    $('#table').innerHTML = html;
+    document.querySelectorAll('td[data-role]').forEach(td=>{
+      td.addEventListener('click', ()=>{
+        const r = td.getAttribute('data-role');
+        const aid = td.getAttribute('data-agent');
+        overrides[r] = aid;
+        render();
+      });
+    });
+  }
+
+  $('#apply').addEventListener('click', async ()=>{
+    const r = await fetch('/synergy/assign/v2', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({team_id: teamId, overrides})});
+    const j = await r.json();
+    $('#out').textContent = JSON.stringify(j, null, 2);
+    showTrace(j.steps||[]);
+    load(); // obnovim
+  });
+
+  function showTrace(steps){
+    $('#tracePre').textContent = JSON.stringify(steps, null, 2);
+    $('#traceOverlay').style.display='flex';
+  }
+  $('#showTrace').addEventListener('click', ()=> showTrace((data && data.steps) || []));
+  $('#closeTrace').addEventListener('click', ()=> $('#traceOverlay').style.display='none');
+
+  function connectSSE(){
+    if (!teamId) return;
+    if (es) { try{ es.close(); }catch(_){} }
+    $('#live').textContent = 'podklyuchenie...';
+    es = new EventSource('/synergy/board/stream?team_id='+encodeURIComponent(teamId));
+    es.addEventListener('open', ()=> $('#live').textContent = 'online');
+    es.addEventListener('error', ()=> $('#live').textContent = 'offline');
+    es.addEventListener('ping', (e)=> { /* keepalive */ });
+    es.addEventListener('update', async (e)=>{
+      try{
+        const j = JSON.parse(e.data);
+        $('#stamp').textContent = stamp(j.ts);
+        await load(); // podtaschim svezhie dannye i agregaty
+      }catch(_){}
+    });
+  }
+
+  // init
+  load().then(connectSSE);
+</script>
+</body>
+</html>

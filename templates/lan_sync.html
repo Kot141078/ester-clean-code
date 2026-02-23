@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — LAN-sshivka</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .ok{color:#9BE28D}.err{color:#ff8a8a}.muted{color:#9aa9bd}.warn{color:#f5c542}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    a.link{color:#9aa9bd;text-decoration:none}
+  </style>
+  </head>
+<body>
+  <h1>LAN-sshivka <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span> <span id="key" class="chip {{ 'ok' if has_key else 'warn' }}">{{ 'KEY' if has_key else 'NO KEY' }}</span></h1>
+
+  <section>
+    <div class="row">
+      <label><input type="checkbox" id="send"/> Rassylat priglasheniya (tolko pri AB=B + klyuch)</label>
+      <label><input type="checkbox" id="listen" checked/> Slushat LAN</label>
+      <label><input type="checkbox" id="telegram"/> Telegram (esli nastroen)</label>
+      <button onclick="apply()">Save</button>
+      <label>Interval: <input id="interval" type="number" value="2" min="1" style="width:80px"/></label>
+      <button onclick="start()">Start</button>
+      <button onclick="stop()">Stop</button>
+      <button onclick="refresh()">Obnovit</button>
+      <a class="link" href="/admin/sync-profiles" style="margin-left:auto">Profili sinkhronizatsii →</a>
+      <span id="flag" class="chip muted">–</span>
+    </div>
+    <div class="row" style="margin-top: 12px;">
+      <label>Profile sinkhronizatsii:
+        <select id="profile"></select>
+      </label>
+    </div>
+  </section>
+
+  <section>
+    <h3>Statistika</h3>
+    <div class="row">
+      <span class="chip">Vkhodyaschikh: <b id="s_in">0</b></span>
+      <span class="chip">Sinkhronizirovano: <b id="s_ok">0</b></span>
+    </div>
+  </section>
+
+  <section>
+    <h3>Piry</h3>
+    <table id="peers"><thead><tr><th>Uzel</th><th>Validnost</th><th>Vremya</th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section>
+    <h3>Vkhodyaschie priglasheniya</h3>
+    <table id="inbox"><thead><tr><th>Istochnik</th><th>Proekt</th><th>TS</th><th>Podpis</th><th>Deystviya</th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section>
+    <h3>Zhurnal sinkhronizatsiy</h3>
+    <div class="row">
+      <input id="projectFilter" placeholder="filtr po proektu (opts.)"/>
+      <label>Khvost: <input id="limit" type="number" value="200" min="10" style="width:80px"/></label>
+      <button onclick="loadJournal()">Obnovit zhurnal</button>
+    </div>
+    <pre id="journal" class="mono">—</pre>
+  </section>
+
+  <section>
+    <h3>Otpravit test</h3>
+    <div class="row">
+      <input id="project" placeholder="project name"/>
+      <input id="release" class="mono" placeholder="path/to/release.tar.gz (opts.)"/>
+      <input id="dump" class="mono" placeholder="path/to/dump.jsonl (opts.)"/>
+      <button onclick="testInvite()">Otpravit</button>
+    </div>
+    <pre id="out" class="mono">—</pre>
+  </section>
+
+<script>
+let profiles=[];
+
+async function refresh(){
+  const r = await fetch('/admin/lan/status');
+  const j = await r.json().catch(()=>({ok:false}));
+
+  document.getElementById('flag').textContent = (j.ok && j.running)?'RUN':'IDLE';
+  document.getElementById('flag').className = 'chip ' + ((j.ok && j.running)?'ok':'muted');
+  document.getElementById('send').checked = !!(j.settings && j.settings.send);
+  document.getElementById('listen').checked = !!(j.settings && j.settings.listen);
+  document.getElementById('telegram').checked = !!(j.settings && j.settings.telegram);
+  document.getElementById('s_in').textContent = (j.stats && j.stats.inbox_total)||0;
+  document.getElementById('s_ok').textContent = (j.stats && j.stats.synced_total)||0;
+
+  const sel=document.getElementById('profile');
+  const currentProfile = sel.value;
+  sel.innerHTML='';
+  profiles = j.profiles||[];
+  profiles.forEach(p=>{
+    const o=document.createElement('option');
+    o.value=p.id;
+    o.textContent=p.name;
+    sel.appendChild(o);
+  });
+  if (currentProfile) sel.value = currentProfile;
+
+  const tb = document.querySelector('#peers tbody');
+  tb.innerHTML='';
+  (j.peers||[]).slice().reverse().forEach(p=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${p.node||'peer'}</td><td>${p.valid?'da':'—'}</td><td>${new Date((p.ts||0)*1000).toLocaleString()}</td>`;
+    tb.appendChild(tr);
+  });
+
+  const ib = document.querySelector('#inbox tbody');
+  ib.innerHTML='';
+  (j.inbox||[]).slice().reverse().forEach(rec=>{
+    const env = rec.env||{}; const payload = env.payload||{};
+    const tr=document.createElement('tr');
+    tr.innerHTML = `
+      <td>${(env.src&&env.src.node)||'peer'}</td>
+      <td>${payload.project||'—'}</td>
+      <td>${new Date((env.ts||0)*1000).toLocaleString()}</td>
+      <td>${rec.valid?'OK':'—'}</td>
+      <td><button data-accept>Prinyat</button> <button data-sync>Sinkhronizirovat</button></td>`;
+    tr.querySelector('button[data-accept]').onclick = async ()=>{
+      const r = await fetch('/admin/lan/accept',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envelope:env})});
+      const jj = await r.json().catch(()=>({ok:false}));
+      alert(jj.ok?'Sokhraneno: '+jj.saved:'Oshibka');
+      refresh();
+    };
+    tr.querySelector('button[data-sync]').onclick = async ()=>{
+      const pid = document.getElementById('profile').value || null;
+      const body = {envelope: env};
+      if(pid) body.profile_id = pid;
+      const r = await fetch('/admin/lan/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const jj = await r.json().catch(()=>({ok:false}));
+      document.getElementById('out').textContent = JSON.stringify(jj, null, 2);
+      refresh();
+      loadJournal();
+    };
+    ib.appendChild(tr);
+  });
+}
+
+async function apply(){
+  const fd = new FormData();
+  if(document.getElementById('send').checked) fd.append('send','1');
+  if(document.getElementById('listen').checked) fd.append('listen','1');
+  if(document.getElementById('telegram').checked) fd.append('telegram','1');
+  await fetch('/admin/lan/settings',{method:'POST',body:fd});
+  refresh();
+}
+
+async function start(){
+  const fd = new FormData();
+  fd.append('interval', document.getElementById('interval').value);
+  await fetch('/admin/lan/start',{method:'POST',body:fd});
+  refresh();
+}
+
+async function stop(){
+  await fetch('/admin/lan/stop',{method:'POST'});
+  refresh();
+}
+
+async function loadJournal(){
+  const limit = document.getElementById('limit').value;
+  const pf = document.getElementById('projectFilter').value.trim();
+  const url = '/admin/lan/journal?limit='+encodeURIComponent(limit)+(pf?('&project='+encodeURIComponent(pf)):'');
+  const r = await fetch(url);
+  const j = await r.json().catch(()=>({ok:false, text: 'Oshibka zagruzki zhurnala'}));
+  document.getElementById('journal').textContent = j.ok ? j.text : j.text;
+}
+
+async function testInvite(){
+  const body = {
+    project: document.getElementById('project').value||'demo',
+    release: document.getElementById('release').value||null,
+    dump: document.getElementById('dump').value||null
+  };
+  const r = await fetch('/admin/lan/invite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+
+refresh().catch(()=>{});
+loadJournal().catch(()=>{});
+</script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_PYTHON_VERSION_WARNING: "1"
+  # Porog pokrytiya dlya DoD (lin. i vetki >= 85%)
+  DOD_LINES_MIN: "0.85"
+  DOD_BRANCH_MIN: "0.85"
+  ESTER_MEM_FACADE_STRICT: "1"
+  # Lokal, chtoby ne lovit charmap/locale oshibki v e2e
+  LANG: C.UTF-8
+  LC_ALL: C.UTF-8
+
+jobs:
+  test-and-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            jq curl git tesseract-ocr poppler-utils libmagic1 antiword pandoc
+          python -V
+          pip -V
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install -U pip wheel
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            # Bazovyy nabor na sluchay otsutstviya requirements.txt
+            pip install flask gunicorn requests pyyaml \
+                        pytest pytest-cov coverage
+          fi
+
+      - name: Smoke: show tree
+        run: |
+          ls -la
+          test -d tests && ls -la tests || true
+
+      - name: Run unit tests (quick)
+        run: |
+          pytest -q --disable-warnings --maxfail=1
+
+      - name: Coverage (XML for DoD)
+        run: |
+          pytest --cov=. --cov-branch \
+                 --cov-report=term-missing:skip-covered \
+                 --cov-report=xml:coverage.xml -q
+
+      - name: Definition of Done (quality gate)
+        run: |
+          chmod +x ci/check_dod.sh || true
+          bash ci/check_dod.sh
+
+      - name: Upload coverage.xml
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-xml
+          path: coverage.xml
+
+      - name: Upload DoD status
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dod-status
+          path: dod_status.json
+
+      - name: Build Docker image
+        run: |
+          docker build -f docker/Dockerfile -t ester:${{ github.sha }} .
+
+      - name: Archive e2e script (if present)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tests_e2e_sh
+          path: scripts/tests_e2e.sh

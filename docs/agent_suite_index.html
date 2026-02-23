@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Ester — Agent Suite Index</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{ --bg:#0b0c10; --fg:#e5e7eb; --muted:#9ca3af; --border:#374151; --accent:#8b5cf6; }
+    body{ background:var(--bg); color:var(--fg); font:15px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; margin:0; }
+    .wrap{ max-width:980px; margin:0 auto; padding:24px; }
+    h1{ margin:0 0 10px; color:#c4b5fd; }
+    p.muted{ color:var(--muted); }
+    .card{ border:1px solid var(--border); border-radius:12px; padding:16px; background:#0f1115; margin-top:14px; }
+    ul{ margin:8px 0 0 18px; }
+    a{ color:#a78bfa; text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+    .pill{ display:inline-block; font-size:12px; padding:2px 8px; border:1px solid var(--border); border-radius:999px; margin-left:6px; color:#e5e7eb; }
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+  </style>
+</head>
+<body>
+  <!--
+    Mosty:
+    - Yavnyy: (Dokumentatsiya ↔ UX) — edinyy spisok ssylok na paneli poverkh suschestvuyuschikh API.
+    - Skrytyy #1: (Dokumentatsiya ↔ Bezopasnost) — podskazki po A/B i WRITE-flagu, bez izmeneniya kodovoy bazy.
+    - Skrytyy #2: (Dokumentatsiya ↔ Kaskad/Pravila) — bystraya navigatsiya k instrumentam, kotorye ispolzuyut /thinking/cascade/* i /rulehub/*.
+
+    Zemnoy abzats:
+    Odin ekran — vse pulty. Navigatsiya bez novogo bekenda: klik — i vy v nuzhnoy paneli, kotoraya uzhe rabotaet na shtatnykh ruchkakh Ester.
+    c=a+b
+  -->
+  <div class="wrap">
+    <h1>Agent Suite</h1>
+    <p class="muted">Kollektsiya paneley, rabotayuschikh poverkh suschestvuyuschikh API <code>/thinking/act</code>, <code>/thinking/cascade/*</code>, <code>/rulehub/*</code>. JWT — obschiy (kak v adminke).</p>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Proektirovanie</h3>
+        <ul>
+          <li><a href="./agent_builder.html">Agent Builder Console</a> <span class="pill">/thinking/act</span></li>
+          <li><a href="./oneclick_green.html">One-Click Green Agent</a> <span class="pill">bundle</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Soderzhimoe i znaniya</h3>
+        <ul>
+          <li><a href="./agent_builder_kit.html">Sustainability Kit</a> <span class="pill">cheklisty/metriki</span></li>
+          <li><a href="./agent_activity.html">Activity Console</a> <span class="pill">skan/daydzhest</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Otchety</h3>
+        <ul>
+          <li><a href="./agent_report.html">Report Console</a> <span class="pill">MD/HTML</span></li>
+          <li><a href="./activity_to_report.html">Activity → Report</a> <span class="pill">auto</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Bezopasnost/zapis</h3>
+        <ul>
+          <li><code>ESTER_AGENT_BUILDER_AB=A</code> — bezopasnyy slot po umolchaniyu</li>
+          <li><code>ESTER_AGENT_BUILDER_WRITE=0</code> — zapis vyklyuchena (vklyuchayte vruchnuyu)</li>
+          <li>RuleHub-preset: <code>docs/agent_builder_rulehub_preset.yaml</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+<!-- c=a+b -->

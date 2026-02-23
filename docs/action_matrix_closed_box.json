@@ -1,0 +1,97 @@
+{
+  "version": "iter29",
+  "mode": "closed_box_offline_first",
+  "actions": [
+    {
+      "action_id": "memory.add_note",
+      "category": "memory",
+      "required_scopes": [
+        "memory:write"
+      ],
+      "risk_level": "low",
+      "default_budget": {
+        "max_actions": 1,
+        "max_work_ms": 500,
+        "window": 60
+      },
+      "requires_oracle": false,
+      "notes": "Local note write through memory facade with local fallback."
+    },
+    {
+      "action_id": "initiative.mark_done",
+      "category": "proactivity",
+      "required_scopes": [
+        "initiative:write"
+      ],
+      "risk_level": "low",
+      "default_budget": {
+        "max_actions": 1,
+        "max_work_ms": 400,
+        "window": 60
+      },
+      "requires_oracle": false,
+      "notes": "Mark initiative as processed in local proactivity state."
+    },
+    {
+      "action_id": "proactivity.queue.add",
+      "category": "proactivity",
+      "required_scopes": [
+        "initiative:write"
+      ],
+      "risk_level": "low",
+      "default_budget": {
+        "max_actions": 1,
+        "max_work_ms": 400,
+        "window": 60
+      },
+      "requires_oracle": false,
+      "notes": "Add synthetic initiative to local queue."
+    },
+    {
+      "action_id": "files.sandbox_write",
+      "category": "filesystem",
+      "required_scopes": [
+        "files:write_sandbox"
+      ],
+      "risk_level": "medium",
+      "default_budget": {
+        "max_actions": 1,
+        "max_work_ms": 1200,
+        "window": 60
+      },
+      "requires_oracle": false,
+      "notes": "Write only under data/garage/agents/<agent_id>/sandbox."
+    },
+    {
+      "action_id": "files.sha256_verify",
+      "category": "filesystem",
+      "required_scopes": [
+        "files:read_sandbox"
+      ],
+      "risk_level": "low",
+      "default_budget": {
+        "max_actions": 1,
+        "max_work_ms": 600,
+        "window": 60
+      },
+      "requires_oracle": false,
+      "notes": "Compute SHA-256 for a sandbox-relative file."
+    },
+    {
+      "action_id": "oracle.openai.call",
+      "category": "oracle",
+      "required_scopes": [
+        "oracle:remote_llm"
+      ],
+      "risk_level": "high",
+      "default_budget": {
+        "max_actions": 1,
+        "max_work_ms": 3000,
+        "window": 60
+      },
+      "requires_oracle": true,
+      "notes": "Allowed only in Slot B with open oracle window and strict host allowlist."
+    }
+  ]
+}
+

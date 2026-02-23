@@ -1,0 +1,23 @@
+[Unit]
+Description=Ester Triune Orchestrator
+After=network.target ester-events.service
+
+[Service]
+Type=simple
+Environment=LOG_LEVEL=INFO
+Environment=TRIUNE_WINDOW_SEC=300
+Environment=TRIUNE_MIN_SCORE=0.35
+Environment=ESTER_EVENTS_FEED_URL=http://127.0.0.1:5000/events/feed
+Environment=ESTER_EVENTS_POST_URL=http://127.0.0.1:5000/events/publish
+WorkingDirectory=%h/ester
+ExecStart=%h/ester/.venv/bin/python -m modules.mind.triune_orchestrator
+Restart=on-failure
+RestartSec=2
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=yes
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

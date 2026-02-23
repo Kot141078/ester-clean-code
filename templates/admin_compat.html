@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Sovmestimost (damp ↔ prilozhenie)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,textarea{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    .muted{opacity:.7}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    table{width:100%;border-collapse:collapse}
+    td,th{border-bottom:1px solid #273244;padding:6px;text-align:left;font-size:13px}
+    .ok{color:#7fd87f}.bad{color:#ff8a8a}
+  </style>
+  </head>
+<body>
+  <h1>Sovmestimost <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <h3>Manifest & Baseline</h3>
+    <div id="mhead">—</div>
+    <div style="margin-top:8px; display: flex; flex-wrap: wrap; gap: 8px;">
+      <button onclick="refreshHead()">Obnovit shapku manifesta</button>
+      <button onclick="autoBaseline()">Avto-baseline na fleshku</button>
+      <button onclick="buildBaseline()">Sgenerirovat baseline</button>
+      <button onclick="writeBaseline()">Zapisat baseline na USB</button>
+      <span id="mb_res" class="chip">—</span>
+      <span id="bl_res" class="chip">—</span>
+    </div>
+    <pre id="baseline" style="margin-top: 8px;">—</pre>
+  </section>
+
+  <section>
+    <h3>Proverka po manifestu</h3>
+    <p class="muted">Esli na fleshke est manifest, on budet ispolzovan avtomaticheski. Esli net, berem iz <code>COMPAT_DEV_MANIFEST</code> (po umolchaniyu <code>/mnt/data/ester_manifest.json</code>), libo mozhno vstavit JSON vruchnuyu nizhe.</p>
+    <textarea id="manifest" placeholder='{"env":{"FOO":"..."},"routes":[{"method":"GET","path":"/health"}]}' style="width:100%;min-height:120px"></textarea>
+    <div style="margin-top:8px">
+      <button onclick="scan()">Skanirovat</button>
+    </div>
+  </section>
+
+  <section>
+    <h3>Itog</h3>
+    <div id="env">—</div>
+    <div id="routes">—</div>
+  </section>
+
+  <section>
+    <h3>RAW</h3>
+    <pre id="raw">—</pre>
+  </section>
+
+<script>
+function esc(s){return (s??"").toString().replace(/</g,"&lt;")}
+
+function list(items){ 
+  if(!items||!items.length) return "<span class='ok'>net</span>";
+  return "<ul>"+items.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>"; 
+}
+
+function dupTable(dups){
+  if(!dups||!dups.length) return "<p class='ok'>dublikatov routov ne naydeno</p>";
+  let h="<table><tr><th>method</th><th>path</th><th>occurrences</th></tr>";
+  for(const d of dups){
+    const occ = (d.occurrences||[]).map(o=>`${o.file}:${o.line}`).join("<br/>");
+    h+=`<tr><td>${esc(d.method)}</td><td>${esc(d.path)}</td><td>${occ}</td></tr>`;
+  }
+  h+="</table>";
+  return h;
+}
+
+function diffTable(diff){
+  const miss = diff?.missing||[];
+  const extra = diff?.extra||[];
+  let h="<div><b>Otsutstvuyut (vs baseline):</b>"+(miss.length?("<ul>"+miss.map(x=>"<li>"+esc(x.method+" "+x.path)+"</li>").join("")+"</ul>"):" <span class='ok'>net</span>")+"</div>";
+  h+="<div><b>Novye (vs baseline):</b>"+(extra.length?("<ul>"+extra.map(x=>"<li>"+esc(x.method+" "+x.path)+"</li>").join("")+"</ul>"):" <span class='ok'>net</span>")+"</div>";
+  return h;
+}
+
+function headView(h){
+  if(!h) return "—";
+  return `<div>source: <b>${esc(h.source||"-")}</b> · generated_at: <code>${esc(h.generated_at||"-")}</code> · project_root: <code>${esc(h.project_root||"-")}</code> · files_total: <b>${esc(h.files_total||"-")}</b> · entries: <b>${esc(h.entries||0)}</b></div>`;
+}
+
+async function refreshHead(){
+  const j = await fetch('/admin/compat/manifest_preview').then(r=>r.json()).catch(()=>({ok:false}));
+  document.getElementById('mb_res').textContent = j.ok ? "OK" : "ERR";
+  document.getElementById('mhead').innerHTML = headView(j.manifest_info||{});
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+
+async function autoBaseline(){
+  const j = await fetch('/admin/compat/autobaseline',{method:'POST'}).then(r=>r.json()).catch(()=>({ok:false}));
+  document.getElementById('mb_res').textContent = j.ok ? "OK" : "ERR";
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+}
+
+async function scan(){
+  const text = document.getElementById('manifest').value||"";
+  const r = await fetch('/admin/compat/scan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({manifest_text:text})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  if(!j.ok) return;
+  const rep = j.report||{};
+  const env = rep.env||{};
+  const routes = rep.routes||{};
+  document.getElementById('env').innerHTML = `<b>ENV ne naydeny:</b> ${list(env.missing)}<br/><span class="muted">ustanovleny:</span> ${list(env.present)}`;
+  document.getElementById('routes').innerHTML = `<b>Dublikaty:</b> ${dupTable(routes.duplicates)}<br/><b>Sravnenie s baseline:</b> ${diffTable(routes.baseline_diff||{})}`;
+}
+
+async function buildBaseline(){
+  const r = await fetch('/admin/compat/baseline_build',{method:'POST'});
+  const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok){ document.getElementById('bl_res').textContent="ERR"; return; }
+  document.getElementById('baseline').textContent = JSON.stringify(j.baseline, null, 2);
+  document.getElementById('bl_res').textContent="OK";
+}
+
+async function writeBaseline(){
+  const text=document.getElementById('baseline').textContent||"";
+  let bl=null; try{ bl=JSON.parse(text); }catch(e){}
+  const r = await fetch('/admin/compat/baseline_write',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({baseline:bl})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  document.getElementById('bl_res').textContent = j.ok ? "OK" : "ERR";
+}
+
+(async function init(){
+  const j = await fetch('/admin/compat/status').then(r=>r.json()).catch(()=>({ok:false}));
+  document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+  if(j.ok){
+    document.getElementById('mhead').innerHTML = headView(j.manifest_info||{});
+    const rep=j.report||{}; 
+    const env=rep.env||{}; 
+    const routes=rep.routes||{};
+    document.getElementById('env').innerHTML = `<b>ENV ne naydeny:</b> ${list(env.missing)}<br/><span class="muted">ustanovleny:</span> ${list(env.present)}`;
+    document.getElementById('routes').innerHTML = `<b>Dublikaty:</b> ${dupTable(routes.duplicates)}<br/><b>Sravnenie s baseline:</b> ${diffTable(routes.baseline_diff||{})}`;
+  }
+})();
+</script>
+</body>
+</html>

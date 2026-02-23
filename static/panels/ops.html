@@ -1,0 +1,75 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Ops Panel</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root { --bg:#0b0c10; --fg:#e5e7eb; --mut:#9ca3af; --card:#111827; --br:#1f2937; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial; }
+  header { padding:16px 20px; border-bottom:1px solid var(--br); position:sticky; top:0; background:var(--bg); }
+  h1 { margin:0; font-size:18px; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(320px,1fr)); gap:16px; padding:16px; }
+  .card { background:var(--card); border:1px solid var(--br); border-radius:14px; padding:14px; }
+  .row { display:flex; gap:8px; align-items:center; }
+  input,button,textarea { background:#0f172a; color:var(--fg); border:1px solid var(--br); border-radius:10px; padding:8px 10px; }
+  button { cursor:pointer; }
+  pre { background:#0f172a; border:1px solid var(--br); border-radius:10px; padding:10px; overflow:auto; max-height:220px; }
+  small { color:var(--mut); }
+  .ok { color:#22c55e; } .bad { color:#ef4444; }
+</style>
+<header><h1>Ester — Ops Panel</h1></header>
+<div class="grid">
+  <div class="card">
+    <h3>Zdorove</h3>
+    <div class="row"><button onclick="get('/resilience/health/check')">Proverit</button></div>
+    <pre id="health">{}</pre>
+  </div>
+  <div class="card">
+    <h3>Guarded Apply</h3>
+    <small>Trebuet «pilyulyu»</small>
+    <div class="row"><input id="pill" placeholder="pill..."><button onclick="guardedApply()">Primenit</button></div>
+    <textarea id="changes" rows="6" placeholder='[{"path":"modules/demo/hello.txt","mode":"write","content":"hi"}]'></textarea>
+    <pre id="apply">{}</pre>
+  </div>
+  <div class="card">
+    <h3>Rollback</h3>
+    <div class="row"><input id="paths" placeholder="modules/demo/hello.txt"><button onclick="post('/resilience/rollback/paths',{paths:split('paths')})">Otkatit</button></div>
+    <pre id="rollback">{}</pre>
+  </div>
+  <div class="card">
+    <h3>Media</h3>
+    <div class="row"><input id="murl" placeholder="URL ili /path/file.mp4"><button onclick="post('/media/probe',{path_or_url:val('murl')})">Proba</button></div>
+    <div class="row"><button onclick="post('/media/ingest',{path_or_url:val('murl'),want_subtitles:true, want_stt:false, tags:['panel']})">Ingest</button></div>
+    <div class="row"><button onclick="post('/media/watch/tick',{})">Watch Tick</button></div>
+    <pre id="media">{}</pre>
+  </div>
+  <div class="card">
+    <h3>Quorum</h3>
+    <div class="row"><input id="qid" placeholder="proposal id"><button onclick="post('/mesh/quorum/propose',{id:val('qid'),ttl:300,payload:{from:'panel'}})">Predlozhit</button></div>
+    <div class="row"><input id="who" placeholder="node id"><select id="vote"><option>yes</option><option>no</option><option>abstain</option></select><button onclick="post('/mesh/quorum/vote',{id:val('qid'),who:val('who'),vote:val('vote')})">Golos</button></div>
+    <div class="row"><button onclick="get('/mesh/quorum/status')">Status</button></div>
+    <pre id="quorum">{}</pre>
+  </div>
+  <div class="card">
+    <h3>Release & Backup</h3>
+    <div class="row"><button onclick="post('/release/snapshot',{roots:['modules','routes','middleware','services'],name:'ester'})">Snepshot</button></div>
+    <div class="row"><button onclick="get('/backup/targets')">Tseli</button></div>
+    <div class="row"><input id="tgt" placeholder="/tmp/ester_backup"><button onclick="post('/backup/targets/set',{targets:split('tgt')})">Save tseli</button></div>
+    <div class="row"><button onclick="post('/backup/run',{roots:['data/trust','data/releases']})">Bekap</button></div>
+    <pre id="relbk">{}</pre>
+  </div>
+</div>
+<script>
+function val(id){return document.getElementById(id).value}
+function split(id){return val(id).split(',').map(x=>x.trim()).filter(Boolean)}
+function show(id,x){document.getElementById(id).textContent=JSON.stringify(x,null,2)}
+function get(p){fetch(p).then(r=>r.json()).then(x=>{routeAuto(idFor(p),x)}).catch(e=>alert(e))}
+function post(p,b){fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{})}).then(r=>r.json()).then(x=>{routeAuto(idFor(p),x)}).catch(e=>alert(e))}
+function idFor(p){ if(p.includes('/health/')) return 'health'; if(p.includes('/guarded_apply')) return 'apply';
+  if(p.includes('/rollback/')) return 'rollback'; if(p.includes('/media/')) return 'media'; if(p.includes('/quorum/')) return 'quorum'; if(p.includes('/release/')||p.includes('/backup/')) return 'relbk'; return 'health'; }
+function guardedApply(){
+  const pill=val('pill'); const changes=JSON.parse(document.getElementById('changes').value||'[]');
+  post(`/self/forge/guarded_apply?pill=${encodeURIComponent(pill)}`,{changes})
+}
+function routeAuto(id,x){ show(id,x) }
+</script>
+<!-- c=a+b -->

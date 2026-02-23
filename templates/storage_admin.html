@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ester — Khranilischa / Targety</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}"/>
+  <style>
+    body { background:#0a0a0a; color:#e8e8e8; }
+    .card { border:1px solid #2a2a2a; border-radius:14px; padding:16px; background:#111; margin-bottom:16px; }
+    .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    input, select { background:#0c0c0c; border:1px solid #333; color:#e8e8e8; padding:6px 8px; border-radius:8px; }
+    .btn { cursor:pointer; padding:8px 12px; border:1px solid #444; border-radius:10px; background:#1a1a1a; color:#fff; }
+    .btn:hover { background:#222; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { text-align:left; padding:8px; border-bottom:1px solid #222; }
+    code { background:#0b0b0b; padding:2px 6px; border-radius:6px; }
+    .muted { color:#aaa; font-size:12px; }
+  </style>
+</head>
+<body>
+  <div style="max-width:1100px; margin:24px auto; padding:0 16px;">
+    <h1>Targety khraneniya</h1>
+    <div class="card">
+      <h3 style="margin:0 0 8px 0;">Dobavit/obnovit</h3>
+      <div class="row">
+        <select id="type">
+          <option value="local">local</option>
+          <option value="s3">s3</option>
+          <option value="webdav">webdav</option>
+          <option value="email">email</option>
+        </select>
+        <input id="id" placeholder="id (opts.)" />
+        <input id="name" placeholder="imya" />
+        <label><input id="enabled" type="checkbox" checked /> enabled</label>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <textarea id="config" placeholder='{"path":"/srv/backups"}' style="width:100%; min-height:120px; background:#0c0c0c; color:#e8e8e8; border:1px solid #333; border-radius:8px; padding:8px;"></textarea>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <button class="btn" onclick="save()">Save</button>
+        <button class="btn" onclick="reload()">Obnovit spisok</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 8px 0;">Spisok</h3>
+      <table id="tbl"></table>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 8px 0;">Zagruzka fayla na targety</h3>
+      <div class="row">
+        <input id="path" placeholder="/abs/path/to/archive.zip" style="min-width:420px;" />
+        <input id="target_ids" placeholder="t_1 t_2 (opts.)" />
+        <button class="btn" onclick="upload()">Zagruzit</button>
+      </div>
+      <pre id="out"></pre>
+    </div>
+  </div>
+
+  <script>
+    async function reload(){
+      const r = await fetch('/storage/targets', {headers:{'Accept':'application/json'}});
+      const js = await r.json();
+      const items = js.items || [];
+      const head = ['id','type','name','enabled','config','deystviya'];
+      const rows = [head].concat(items.map(t=>[t.id,t.type,t.name, String(t.enabled), JSON.stringify(t.config), t.id]));
+      const tbl = document.getElementById('tbl');
+      tbl.innerHTML = rows.map((row,i)=>{
+        if(i===0) return '<tr>'+row.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+        return `<tr>
+          <td><code>${row[0]}</code></td>
+          <td>${row[1]}</td>
+          <td>${row[2]||''}</td>
+          <td>${row[3]||''}</td>
+          <td><code>${row[4]}</code></td>
+          <td>
+            <button class="btn" onclick="testTarget('${row[5]}')">test</button>
+            <button class="btn" onclick="delTarget('${row[5]}')">del</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+    async function save(){
+      const body = {
+        id: document.getElementById('id').value.trim() || undefined,
+        type: document.getElementById('type').value,
+        name: document.getElementById('name').value.trim() || undefined,
+        enabled: document.getElementById('enabled').checked,
+        config: JSON.parse(document.getElementById('config').value || '{}')
+      };
+      const r = await fetch('/storage/targets', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+      const js = await r.json();
+      alert(JSON.stringify(js));
+      reload();
+    }
+    async function delTarget(id){
+      if(!confirm('Udalit '+id+'?')) return;
+      const r = await fetch('/storage/targets/'+id, {method:'DELETE'});
+      const js = await r.json();
+      alert(JSON.stringify(js));
+      reload();
+    }
+    async function testTarget(id){
+      const r = await fetch('/storage/targets/'+id+'/test', {method:'POST'});
+      const js = await r.json();
+      alert(JSON.stringify(js));
+    }
+    async function upload(){
+      const path = document.getElementById('path').value.trim();
+      const ids = document.getElementById('target_ids').value.trim();
+      const body = {path: path};
+      if(ids) body.targets = ids.split(/\\s+/);
+      const r = await fetch('/storage/upload', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+      const js = await r.json();
+      document.getElementById('out').textContent = JSON.stringify(js, null, 2);
+    }
+    reload();
+  </script>
+</body>
+</html>

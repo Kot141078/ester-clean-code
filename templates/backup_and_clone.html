@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — Backup/Restore + Fleshka-replika</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    textarea{width:100%;height:140px}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    pre{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    a.link{color:#9aa9bd;text-decoration:none}
+  </style>
+  <!--
+    Mosty:
+      • Yavnyy: eksporta/import konfiguratsii i sborka repliki v odin klik.
+      • Skrytyy 1: AB_MODE viden; v A — tolko plany.
+      • Skrytyy 2: chetkaya struktura ESTER/ dlya sovmestimosti s Zero-Click/deploem.
+    Zemnoy abzats:
+      Snyal nastroyki, sobral fleshku — perenes na drugoy uzel, vse bez «golovnoy boli».
+  -->
+</head>
+<body>
+  <h1>Backup/Restore + Fleshka-replika <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <h3>Bekap/Vosstanovlenie</h3>
+    <div class="row">
+      <button onclick="preview()">Predprosmotr</button>
+      <button onclick="exportBundle()">Eksport JSON</button>
+      <select id="mode">
+        <option value="merge" selected>merge (obedinit)</option>
+        <option value="overwrite">overwrite (perezapisat)</option>
+      </select>
+      <button onclick="importBundle()">Importirovat</button>
+    </div>
+    <label style="display:block;margin-top:8px">Vstav JSON dlya importa:</label>
+    <textarea id="inp" class="mono" placeholder='{"version":1,"usb_trust":{...},"p2p_settings":{...},"p2p_routing":{...}}'></textarea>
+    <pre id="log1">—</pre>
+  </section>
+
+  <section>
+    <h3>Fleshka-replika (sozdanie ESTER/…)</h3>
+    <div class="row">
+      <button onclick="probe()">Obnovit spisok tomov</button>
+      <label>Label (opts.): <input id="label" class="mono" placeholder="ESTER"/></label>
+    </div>
+    <table id="tbl"><thead><tr><th>Montirovanie</th><th>Metka</th><th>FS</th><th>Deystviya</th></tr></thead><tbody></tbody></table>
+    <pre id="log2">—</pre>
+  </section>
+
+<script>
+async function preview(){
+  const r = await fetch('/admin/backup/status'); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('log1').textContent = JSON.stringify(j, null, 2);
+}
+async function exportBundle(){
+  const r = await fetch('/admin/backup/export',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('inp').value = JSON.stringify(j.bundle || {}, null, 2);
+  document.getElementById('log1').textContent = JSON.stringify({ok:j.ok, size: (JSON.stringify(j.bundle||{}).length||0)}, null, 2);
+}
+async function importBundle(){
+  const mode = document.getElementById('mode').value;
+  const txt = document.getElementById('inp').value;
+  const r = await fetch('/admin/backup/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode, bundle: txt})});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('log1').textContent = JSON.stringify(j, null, 2);
+}
+async function probe(){
+  const r = await fetch('/admin/backup/probe'); const j = await r.json().catch(()=>({ok:false}));
+  const tb=document.querySelector('#tbl tbody'); tb.innerHTML='';
+  (j.targets||[]).forEach(it=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td class="mono">${it.mount||''}</td><td>${it.label||''}</td><td>${it.fs||''}</td>
+      <td><button data-mk>Sozdat repliku</button> <button data-trust>Sdelat doverennoy</button></td>`;
+    tr.querySelector('button[data-mk]').onclick = async()=>{
+      const label = document.getElementById('label').value.trim()||null;
+      const r = await fetch('/admin/backup/clone',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount: it.mount, label})});
+      const j = await r.json().catch(()=>({ok:false}));
+      document.getElementById('log2').textContent = JSON.stringify(j, null, 2);
+    };
+    tr.querySelector('button[data-trust]').onclick = async()=>{
+      const r = await fetch('/admin/backup/trust',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mount: it.mount})});
+      const j = await r.json().catch(()=>({ok:false}));
+      document.getElementById('log2').textContent = JSON.stringify(j, null, 2);
+    };
+    tb.appendChild(tr);
+  });
+}
+preview().catch(()=>{}); probe().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

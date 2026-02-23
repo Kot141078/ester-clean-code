@@ -1,0 +1,19 @@
+# systemd/ester-vector-diode-sync.service — servis odnostoronney sinkhronizatsii OUTBOX → INBOX
+[Unit]
+Description=Ester Data Diode Sync (OUTBOX -> INBOX, one-way)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ester
+Group=ester
+WorkingDirectory=/opt/ester
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/etc/ester/ester.env
+# V /etc/ester/ester.env mozhno zadat VECTOR_DIODE_CFG, DIODE_INBOX_OWNER/GROUP
+ExecStart=/bin/bash /opt/ester/scripts/diode_sync_rsync.sh
+Nice=5
+
+[Install]
+WantedBy=multi-user.target

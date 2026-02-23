@@ -1,0 +1,16 @@
+agents:
+  - agent_id: owner@node-01
+    kid: owner-node-01
+    pubkey_base64: QkFTRTY0X0ZBS0VfUEtZX0ZPUl9ERU1PX09XTkVSLU5PREUtMDE=
+    role: owner
+    status: active
+  - agent_id: core@node-01
+    kid: core-node-01
+    pubkey_base64: QkFTRTY0X0ZBS0VfUEtZX0ZPUl9ERU1PX0NPUkUtTk9ERS0wMQ==
+    role: core
+    status: active
+  - agent_id: security@node-01
+    kid: security-node-01
+    pubkey_base64: QkFTRTY0X0ZBS0VfUEtZX0ZPUl9ERU1PX1NFQ1VSSVRZLU5PREUtMDE=
+    role: security
+    status: active

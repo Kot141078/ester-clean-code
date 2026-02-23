@@ -1,0 +1,25 @@
+# config/messaging.yaml — podskazki po nastroyke «stels»-kanalov
+
+# Telegram:
+# 1) Sozdayte bota u @BotFather, zadayte druzhelyubnoe imya bez slova «bot» (naprimer, «E.»).
+#    Username vse ravno dolzhen okanchivatsya na 'bot' — eto trebovanie Telegram i ego nelzya skryt.
+# 2) Ustanovite vebkhuk s secret:
+#    https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook?url=<https-url>/webhooks/telegram&secret_token=<TELEGRAM_WEBHOOK_SECRET>
+# 3) Optsionalno ogranichte chaty: TELEGRAM_ALLOWED_CHATS="123456789,987654321".
+
+# WhatsApp Cloud:
+# 1) V Meta Developers sozdayte prilozhenie WhatsApp, podklyuchite nomer. Nastroyte display name (cheloveko-druzhelyubnyy).
+# 2) Ukazhite Verify Token (WHATSAPP_VERIFY_TOKEN) i URL vebkhuka (<https-url>/webhooks/whatsapp).
+# 3) Dlya proaktivnykh soobscheniy vne okna 24 chasov ispolzuyte odobrennye shablony (etu logiku mozhno dobavit otdelno).
+
+# Obschie zamechaniya «stels»:
+# - My NE maskiruem Ester pod cheloveka. V soobscheniyakh ona vedet sebya vezhlivo i «po-chelovecheski», no ostaetsya assistentom.
+# - «Ne pugat» dostigaetsya neytralnym imenem i stilem pisma (sm. messaging/styler.py i optsiyu NUDGES_USE_STYLED=1).
+
+# ENV primer:
+# TELEGRAM_BOT_TOKEN=...
+# TELEGRAM_WEBHOOK_SECRET=...
+# WHATSAPP_TOKEN=...
+# WHATSAPP_PHONE_NUMBER_ID=...
+# WHATSAPP_VERIFY_TOKEN=...
+# MESSAGING_DB_PATH=data/messaging.db

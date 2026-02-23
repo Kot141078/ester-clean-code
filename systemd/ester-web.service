@@ -1,0 +1,20 @@
+[Unit]
+Description=Ester Web API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment=PYTHONUNBUFFERED=1
+WorkingDirectory=/opt/ester
+ExecStart=/usr/bin/python3 app.py
+Restart=always
+RestartSec=3
+# Bezopasnye defolty
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,26 @@
+{{- if and .Values.istio.enabled .Values.istio.mirror.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "ester.fullname" . }}-mirror
+  labels:
+    {{- include "ester.labels" . | nindent 4 }}
+spec:
+  hosts:
+  - {{ .Values.istio.host | quote }}
+  gateways:
+  - istio-system/ingressgateway
+  http:
+  - name: ester-route-mirror
+    route:
+    - destination:
+        host: {{ include "ester.fullname" . }}
+        subset: stable
+        port:
+          number: {{ .Values.service.port }}
+      weight: 100
+    mirror:
+      host: {{ include "ester.fullname" . }}-canary
+    mirrorPercentage:
+      value: {{ .Values.istio.mirror.percent | default 5 }}
+{{- end }}

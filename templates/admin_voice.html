@@ -1,0 +1,81 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — LAN Voice (WebRTC)</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:920px}
+  .col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  textarea{width:100%;min-height:140px}
+  button{padding:8px 12px;border-radius:8px;border:1px solid #ccc;cursor:pointer}
+  .pill{padding:4px 8px;border:1px solid #bbb;border-radius:999px}
+</style>
+
+<h2>LAN Voice (WebRTC, bez vneshnikh serverov)</h2>
+<p>Otkroyte stranitsu na dvukh mashinakh. Pridumayte obschiy <b>CID</b> (naprimer, room1).</p>
+
+<div class="col">
+  <div>
+    <h3>Caller</h3>
+    CID <input id="cidC" value="room1">
+    <div>
+      <button onclick="createOffer()">Create Offer</button>
+      <button onclick="pollAnswer()">Poll Answer</button>
+      <span id="cStat" class="pill">—</span>
+    </div>
+    <textarea id="offerOut" placeholder="Your Offer (auto)"></textarea>
+    <textarea id="answerIn" placeholder="Paste Answer here"></textarea>
+    <button onclick="submitAnswer()">Submit Answer</button>
+  </div>
+
+  <div>
+    <h3>Callee</h3>
+    CID <input id="cidA" value="room1">
+    <div>
+      <button onclick="createAnswer()">Create Answer</button>
+      <span id="aStat" class="pill">—</span>
+    </div>
+    <textarea id="offerIn" placeholder="Paste Offer here"></textarea>
+    <textarea id="answerOut" placeholder="Your Answer (auto)"></textarea>
+  </div>
+</div>
+
+<script>
+let pcC=null, pcA=null, mic=null;
+
+async function createOffer(){
+  const pc=new RTCPeerConnection({iceServers:[]});
+  pc.onicecandidate = e => { if(!e.candidate){ offerOut.value=JSON.stringify(pc.localDescription); submitOffer(); } };
+  mic = await navigator.mediaDevices.getUserMedia({audio:true});
+  mic.getTracks().forEach(t=>pc.addTrack(t, mic));
+  pc.onconnectionstatechange = ()=> cStat.textContent=pc.connectionState;
+  await pc.setLocalDescription(await pc.createOffer({offerToReceiveAudio:false}));
+  pcC=pc;
+}
+async function submitOffer(){
+  const cid=cidC.value.trim(); const sdp=offerOut.value.trim();
+  await fetch('/voice/offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cid,sdp})});
+}
+async function pollAnswer(){
+  const cid=cidC.value.trim(); const r = await (await fetch('/voice/answer?cid='+encodeURIComponent(cid))).json();
+  if(r.sdp){ await pcC.setRemoteDescription(JSON.parse(r.sdp)); cStat.textContent='connected? '+pcC.connectionState; }
+}
+
+async function createAnswer(){
+  const pc=new RTCPeerConnection({iceServers:[]});
+  pc.onicecandidate = e => { if(!e.candidate){ answerOut.value=JSON.stringify(pc.localDescription); submitAnswerStore(); } };
+  pc.ontrack = ev => { const a=new Audio(); a.srcObject=ev.streams[0]; a.play(); };
+  pc.onconnectionstatechange = ()=> aStat.textContent=pc.connectionState;
+  const cid=cidA.value.trim();
+  const ro = await (await fetch('/voice/offer?cid='+encodeURIComponent(cid))).json();
+  await pc.setRemoteDescription(JSON.parse(ro.sdp||'{}'));
+  await pc.setLocalDescription(await pc.createAnswer());
+  pcA=pc;
+}
+async function submitAnswer(){
+  const cid=cidC.value.trim(); const sdp=answerIn.value.trim();
+  await fetch('/voice/answer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cid,sdp})});
+}
+async function submitAnswerStore(){
+  const cid=cidA.value.trim(); const sdp=answerOut.value.trim();
+  await fetch('/voice/answer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cid,sdp})});
+}
+</script>

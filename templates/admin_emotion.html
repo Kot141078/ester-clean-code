@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester • Emotion</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:24px;color:#111}
+    input,select,button{padding:8px 12px;border:1px solid #ddd;border-radius:10px}
+    textarea{width:100%;min-height:80px;padding:8px 12px;border:1px solid #ddd;border-radius:10px}
+    .row{display:flex;gap:12px;margin:12px 0;flex-wrap:wrap}
+    pre{background:#f7f7f7;padding:10px;border-radius:10px;max-height:55vh;overflow:auto}
+  </style>
+</head>
+<body>
+  <h1>Emotsii pamyati</h1>
+
+  <div class="row">
+    <input id="id" placeholder="id fakta/zapisi"/>
+    <select id="emo">
+      <option>joy</option><option>calm</option><option>focus</option>
+      <option>surprise</option><option>sad</option><option>anger</option>
+      <option>fear</option><option>stress</option><option>pride</option>
+    </select>
+    <input id="val" type="number" step="0.1" value="0.5"/>
+  </div>
+  <div class="row">
+    <textarea id="note" placeholder="zametka (neobyazatelno)"></textarea>
+  </div>
+  <div class="row">
+    <button onclick="send()">Dobavit metku</button>
+    <button onclick="get()">Get</button>
+    <button onclick="lst()">List</button>
+    <button onclick="st()">Stats</button>
+  </div>
+
+  <pre id="out">—</pre>
+
+<script>
+async function send(){
+  const r = await fetch('/emotion/tag',{method:'POST',headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      id: document.getElementById('id').value,
+      emotion: document.getElementById('emo').value,
+      value: parseFloat(document.getElementById('val').value||'0'),
+      note: document.getElementById('note').value
+    })});
+  document.getElementById('out').textContent = JSON.stringify(await r.json(), null, 2);
+}
+async function get(){
+  const id=document.getElementById('id').value;
+  const r=await fetch('/emotion/get?id='+encodeURIComponent(id));
+  document.getElementById('out').textContent = JSON.stringify(await r.json(), null, 2);
+}
+async function lst(){
+  const r=await fetch('/emotion/list?limit=50');
+  document.getElementById('out').textContent = JSON.stringify(await r.json(), null, 2);
+}
+async function st(){
+  const r=await fetch('/emotion/stats');
+  document.getElementById('out').textContent = JSON.stringify(await r.json(), null, 2);
+}
+</script>
+</body>
+</html>
+<!-- finalnaya stroka -->
+c=a+b

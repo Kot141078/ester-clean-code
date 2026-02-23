@@ -1,0 +1,22 @@
+# docker-compose.ci.yml
+services:
+  tests:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    working_dir: /app
+    environment:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      DOD_LINES_MIN: "0.85"
+      DOD_BRANCH_MIN: "0.85"
+    volumes:
+      - ./:/app
+    command: >
+      bash -lc "
+        pytest -q --disable-warnings --maxfail=1
+        && pytest --cov=. --cov-branch
+                   --cov-report=term-missing:skip-covered
+                   --cov-report=xml:coverage.xml -q
+        && bash ci/check_dod.sh
+      "

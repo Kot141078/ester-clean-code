@@ -1,0 +1,83 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ester — Politiki pamyati</title>
+<style>
+  body{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:20px;max-width:980px}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:8px}
+  pre{background:#0b0b0b;color:#99f999;padding:10px;border-radius:8px;min-height:160px;white-space:pre-wrap}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  label{font-size:12px;color:#444}
+</style>
+
+<h2>Politiki pamyati</h2>
+
+<div class="row">
+  <strong>Retention telemetry</strong>
+</div>
+<pre id="retention"></pre>
+
+<div class="grid">
+  <section>
+    <h3>Retention</h3>
+    <div class="row"><label>dialog (days)</label><input id="r_dialog" type="number" value="180"></div>
+    <div class="row"><label>event (days)</label><input id="r_event" type="number" value="365"></div>
+    <div class="row"><label>fact (0=∞)</label><input id="r_fact" type="number" value="0"></div>
+    <div class="row"><label>dream (0=∞)</label><input id="r_dream" type="number" value="0"></div>
+    <div class="row"><label>goal (0=∞)</label><input id="r_goal" type="number" value="0"></div>
+    <div class="row">
+      <button onclick="saveCfg()">Save config</button>
+      <button onclick="retention(true)">Retention (dry-run)</button>
+      <button onclick="retention(false)">Retention (apply)</button>
+    </div>
+  </section>
+
+  <section>
+    <h3>Privacy & Compaction</h3>
+    <div class="row">
+      <label><input id="pii" type="checkbox" checked> Auto PII scan</label>
+      <label><input id="c_enable" type="checkbox" checked> Compaction</label>
+      <label>sim ≥ <input id="c_thr" type="number" value="0.96" step="0.01" style="width:80px"></label>
+    </div>
+    <div class="row">
+      <button onclick="scanPII()">Scan PII</button>
+      <button onclick="scrub()">Scrub now</button>
+      <button onclick="compact(true)">Compact (dry-run)</button>
+      <button onclick="compact(false)">Compact (apply)</button>
+    </div>
+  </section>
+</div>
+
+<div class="row">
+  <button onclick="export_()">Export (scrubbed)</button>
+  <button onclick="automod()">Automod tick</button>
+</div>
+
+<pre id="out"></pre>
+
+<script>
+async function j(m,u,b){ const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):null}); const t=await r.text(); try{return JSON.parse(t)}catch(e){return {ok:false,raw:t}} }
+function out(x){ document.getElementById('out').textContent=JSON.stringify(x,null,2); }
+function outRetention(x){ document.getElementById('retention').textContent=JSON.stringify(x,null,2); }
+
+async function saveCfg(){
+  const cfg={"retention_days":{
+    "dialog":+r_dialog.value||0,
+    "event":+r_event.value||0,
+    "fact":+r_fact.value||0,
+    "dream":+r_dream.value||0,
+    "goal":+r_goal.value||0
+  },"privacy":{"enable_pii_scan":document.getElementById('pii').checked},
+  "compaction":{"enable":document.getElementById('c_enable').checked,"similarity_threshold":+c_thr.value||0.96}};
+  out(await j('POST','/memory/policy/config', cfg));
+}
+async function retention(dry){ out(await j('POST','/memory/policy/retention', {"dry_run":dry})); }
+async function scanPII(){ out(await j('POST','/memory/policy/scan_pii',{})); }
+async function scrub(){ out(await j('POST','/memory/policy/scrub_now',{})); }
+async function compact(dry){ out(await j('POST','/memory/policy/compact', {"dry_run":dry})); }
+async function export_(){ const r=await fetch('/memory/policy/export_scrubbed'); out(await r.json()); }
+async function automod(){ out(await j('POST','/memory/policy/automod_tick',{})); }
+async function status_(){ const s=await j('GET','/memory/status'); outRetention(s&&s.retention?s.retention:s); }
+status_();
+</script>

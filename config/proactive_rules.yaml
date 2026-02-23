@@ -1,0 +1,92 @@
+# config/proactive_rules.yaml
+# Zerkalo dlya sovmestimosti: te zhe pravila mozhno khranit v config/.
+# Dvizhok vyberet pervyy suschestvuyuschiy fayl sredi standartnykh putey.
+
+version: 1
+defaults:
+  tz: "UTC"
+  locale: "ru-RU"
+  user: "Owner"
+
+sources:
+  - id: flashback_recent
+    kind: flashback
+    params:
+      lookback_hours: 24
+
+  - id: kg_beacons
+    kind: kg
+    params:
+      type: beacon
+      limit: 200
+
+  - id: queue_ingest
+    kind: folder
+    params:
+      path: "./uploads/queue"
+      patterns: ["*.pdf", "*.md", "*.txt", "*.docx", "*.png", "*.jpg"]
+
+pipes:
+  - id: summarize
+    kind: llm/summarize
+    params:
+      provider: "lmstudio"
+      max_tokens: 384
+
+  - id: suggest
+    kind: llm/suggest
+    params:
+      provider: "lmstudio"
+      n: 3
+
+  - id: reflect
+    kind: memory/reflect
+    params:
+      max: 8
+
+  - id: classify
+    kind: llm/classify
+    params:
+      labels: ["work", "legal", "personal", "media", "code", "misc"]
+
+conditions:
+  - id: morning_window
+    when:
+      time:
+        cron: "0 8 * * *"
+    score: 0.9
+
+  - id: queue_has_items
+    when:
+      source: queue_ingest
+      op: "len>0"
+    score: 0.8
+
+automations:
+  - id: morning_digest
+    trigger:
+      rrule: "CRON: 0 8 * * *"
+    use:
+      sources: ["flashback_recent", "kg_beacons"]
+      pipes: ["summarize", "suggest"]
+      conditions: ["morning_window"]
+    output:
+      kind: cards
+      params:
+        title: "Utrenniy obzor"
+        tags: ["digest", "morning"]
+      also:
+        - kind: structured
+        - kind: kg
+
+  - id: reingest_queue
+    trigger:
+      rrule: "CRON: */10 * * * *"
+    use:
+      sources: ["queue_ingest"]
+      pipes: ["classify"]
+      conditions: ["queue_has_items"]
+    output:
+      kind: structured
+      params:
+        collection: "ingest_jobs"

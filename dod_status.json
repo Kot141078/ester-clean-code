@@ -1,0 +1,29 @@
+{
+  "ok": false,
+  "status": {
+    "tests_unit": false,
+    "tests_e2e": false,
+    "coverage": {
+      "lines": 0.0,
+      "branches": 0.0,
+      "ok": false
+    },
+    "openapi": {
+      "ok": false,
+      "version": null
+    },
+    "docker_build": false,
+    "replication": {
+      "ok": null
+    },
+    "restore_drill": false,
+    "timestamp": 1758352296
+  },
+  "errors": [
+    "unit/coverage failed: Command failed: bash -lc pytest -q --disable-warnings -x",
+    "e2e failed: 'charmap' codec can't decode byte 0x98 in position 16: character maps to <undefined>",
+    "openapi.json unavailable: HTTP 0",
+    "docker build failed: Command failed: bash -lc docker build -t ester:ci -f docker/Dockerfile .",
+    "restore_drill failed: Command failed: bash -lc python3 scripts/restore_drill.py"
+  ]
+}

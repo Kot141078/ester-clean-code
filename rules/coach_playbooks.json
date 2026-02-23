@@ -1,0 +1,7 @@
+[
+  { "when": "plan",   "tips": ["Sformuliruy DoD v 1–2 predlozheniyakh.", "Sravni 3 varianta cherez decision_plan.", "Vydeli klyuchevye terminy tseli."] },
+  { "when": "safety", "tips": ["Sniz scale do 0.5 dlya pervogo shaga.", "Uberi prava admina iz shaga №1.", "Simuliruy 100 progonov i zapishi p_success."] },
+  { "when": "act",    "tips": ["Nachni s dry-run.", "Sdelay otkatnuyu tochku/bekap.", "Ogranich shag do 2 operatsiy."] },
+  { "when": "reflect","tips": ["Sformuliruy 3 vyvoda i 1 gipotezu.", "Zapishi urok v [selfdrive] svodku."] },
+  { "when": "think",  "tips": ["Pereformuliruy tsel kak vopros.", "Prover gotovye shablony pipelines."] }
+]

@@ -1,0 +1,51 @@
+# One-Click Green: minimalnyy plan dlya zapuska v kaskade
+# Mosty:
+# - Yavnyy: (LLM/Plan ↔ UX) — zapuskaetsya temi zhe ruchkami /thinking/cascade/execute.
+# - Skrytyy #1: (Memory ↔ Plan) — fiksiruem start v profilee.
+# - Skrytyy #2: (Plan ↔ Dokumentatsiya) — rezultat — chernovye sektsii, gotovye k konvertatsii v MD/HTML.
+
+run_id: oneclick_green_min
+branch_id: main
+context_init:
+  spec: "Sformirovat chernovik zelenogo agenta pod tsel polzovatelya."
+  items:
+    - {file: "instructions.md"}
+    - {file: "capabilities.json"}
+
+nodes:
+  - id: outline
+    type: llm.generate
+    prompt: "Korotko raspishi trebovaniya k agentu: {{ctx.spec}}. Do 6 punktov."
+    out: "outline"
+    depends: []
+
+  - id: passport
+    type: script
+    update:
+      passport_note: "ONECLICK: start minimalnogo plana"
+    depends: ["outline"]
+
+  - id: fanout
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["passport"]
+
+  - id: draft
+    type: llm.generate
+    prompt: |
+      Podgotov {{ctx.item.file}} na osnove outline={{ctx.outline}}.
+      Dobav metriki (CO₂e, kWh, otkhody) i kontrolnye tochki.
+    out: "branch_out"
+    depends: ["fanout"]
+
+  - id: join
+    type: join
+    from: "fanout"
+    out: "scaffold"
+    select:
+      file: "{{item.file}}"
+      text: "{{ctx.branch_out}}"
+    mode: list
+    await_nodes: ["draft"]
+    depends: ["draft"]
+# c=a+b

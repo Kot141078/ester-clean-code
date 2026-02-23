@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ester — LAN-mesh (avtoobnaruzhenie)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
+    h1{font-size:20px;margin:0 0 12px}
+    section{background:#111826;border:1px solid #273244;border-radius:12px;padding:16px;margin:12px 0}
+    button,input,textarea,select{background:#1b2432;color:#e6eef7;border:1px solid #38465c;border-radius:8px;padding:8px 12px}
+    button:hover{filter:brightness(1.1)}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .chip{display:inline-block;padding:2px 8px;border:1px solid #38465c;border-radius:999px;margin-left:6px}
+    .ok{color:#9BE28D}.err{color:#ff8a8a}.muted{color:#9aa9bd}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243042;padding:8px 6px;text-align:left;vertical-align:top}
+    input[type="text"]{min-width:260px}
+  </style>
+  <!--
+    Zemnoy abzats:
+      Uzly nakhodyat drug druga po multikastu, podpisyvayut pakety HMAC, i pri zhelanii obmenivayutsya «profileami».
+    Mosty:
+      • Yavnyy — nablyudaemost i lokalnaya shina.
+      • Skrytye — AB-rezhim (sukhie/urezannye otvety) i sootvetstvie P2P-paradigme.
+  -->
+</head>
+<body>
+  <h1>LAN-mesh <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+
+  <section>
+    <h3>Nastroyki</h3>
+    <div class="row">
+      <label><input type="checkbox" id="enable"/> Enable</label>
+      <label>Group <input id="group" value="239.255.43.21"/></label>
+      <label>Port <input type="number" id="port" value="54545" style="width:120px"/></label>
+      <label>Interval <input type="number" id="interval" value="15" style="width:120px"/></label>
+      <label>Shared Key <input id="key" type="text" placeholder="optsionalno"/></label>
+      <label><input type="checkbox" id="auto" checked/> Auto-exchange</label>
+      <label>Max pkt <input type="number" id="maxpkt" value="1400" style="width:120px"/></label>
+      <button onclick="save()">Save</button>
+      <a class="chip" href="/admin/node" style="margin-left:auto">Profile uzla →</a>
+    </div>
+  </section>
+
+  <section>
+    <h3>Sosedi</h3>
+    <div class="row">
+      <button onclick="status()">Status</button>
+      <button onclick="ping()">Ping (hello)</button>
+      <button onclick="request()">Zaprosit profilea</button>
+      <button onclick="clearPeers()">Ochistit spisok</button>
+    </div>
+    <table id="tbl"><thead><tr><th>IP</th><th>ID/Imya</th><th>Podpis</th><th>Port</th><th>Poslednee</th></tr></thead><tbody></tbody></table>
+    <pre id="out">—</pre>
+  </section>
+
+<script>
+async function status(){
+  const r = await fetch('/admin/lan/status'); const j = await r.json().catch(()=>({ok:false}));
+  if(!j.ok){ document.getElementById('out').textContent='Oshibka'; return; }
+  const s=j.settings||{};
+  document.getElementById('enable').checked = !!s.enable;
+  document.getElementById('group').value = s.group||'239.255.43.21';
+  document.getElementById('port').value = s.port||54545;
+  document.getElementById('interval').value = s.interval||15;
+  document.getElementById('key').value = (s.shared_key||'');
+  document.getElementById('auto').checked = !!s.auto_exchange;
+  document.getElementById('maxpkt').value = s.max_packet||1400;
+  const tb=document.querySelector('#tbl tbody'); tb.innerHTML='';
+  const peers=(j.peers||{}).peers||{};
+  Object.keys(peers).sort().forEach(ip=>{
+    const p=peers[ip]||{};
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td class="mono">${ip}</td>
+      <td>${(p.id||'?')}<div class="muted">${p.name||''}</div></td>
+      <td>${p.verified?'<span class="ok">verified</span>':'<span class="muted">unsigned</span>'}</td>
+      <td>${p.port||''}</td>
+      <td>${(new Date((p.last_seen||0)*1000)).toLocaleString()}<div class="muted">${p.last_t||''}${p.has_passport?' / passport':''}</div></td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+async function save(){
+  const body = {
+    enable: document.getElementById('enable').checked,
+    group: document.getElementById('group').value.trim(),
+    port: parseInt(document.getElementById('port').value,10),
+    interval: parseInt(document.getElementById('interval').value,10),
+    shared_key: document.getElementById('key').value,
+    auto_exchange: document.getElementById('auto').checked,
+    max_packet: parseInt(document.getElementById('maxpkt').value,10)
+  };
+  const r = await fetch('/admin/lan/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+  status();
+}
+async function ping(){
+  const r = await fetch('/admin/lan/ping',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+async function request(){
+  const r = await fetch('/admin/lan/request',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+async function clearPeers(){
+  const r = await fetch('/admin/lan/peers/clear',{method:'POST'}); const j = await r.json().catch(()=>({ok:false}));
+  document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+}
+status().catch(()=>{});
+</script>
+</body>
+</html>
+<!-- c=a+b -->

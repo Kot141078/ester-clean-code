@@ -1,0 +1,97 @@
+name: E2E Gate (Zhelezobeton)
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps (best-effort)
+        run: |
+          pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt || true
+          fi
+          pip install flask flask-jwt-extended pyyaml || true
+          sudo apt-get update -y && sudo apt-get install -y jq
+
+      - name: Export env
+        run: |
+          echo "PORT=8080" >> $GITHUB_ENV
+          echo "HOST=127.0.0.1" >> $GITHUB_ENV
+          echo "JWT_ALG=HS256" >> $GITHUB_ENV
+          echo "JWT_SECRET=devsecret" >> $GITHUB_ENV
+          echo "ENABLE_SIMPLE_LOGIN=1" >> $GITHUB_ENV
+          echo "RBAC_MODE=matrix" >> $GITHUB_ENV
+          echo "RBAC_MATRIX_PATH=rules/rbac_matrix.yaml" >> $GITHUB_ENV
+
+      - name: Create rules (mtls, rbac)
+        run: |
+          mkdir -p rules scripts
+          # mTLS roli
+          cat > rules/mtls_roles.yaml <<'YAML'
+map:
+  - dn_regex: "^CN=node-[0-9]+,OU=core,O=Ester$"
+    role: replicator
+  - dn_regex: "^CN=ops-.*,OU=ops,O=Ester$"
+    role: ops
+YAML
+          # RBAC matritsa
+          cat > rules/rbac_matrix.yaml <<'YAML'
+mode: matrix
+roles:
+  admin:
+    allow: [" .* "]
+  user:
+    allow: ["^/$","^/portal$","^/chat($|/.*)","^/providers($|/.*)","^/ingest($|/.*)","^/docs($|/.*)","^/openapi.json$","^/metrics($|/.*)"]
+    deny:  ["^/ops($|/.*)","^/replication($|/.*)"]
+  guest:
+    allow: ["^/$","^/live$","^/ready$","^/docs$","^/openapi.json$"]
+    deny:  ["^/admin($|/.*)","^/ops($|/.*)","^/replication($|/.*)","^/providers/select$"]
+YAML
+
+      - name: Start Ester
+        run: |
+          python - <<'PY'
+          import os, subprocess, sys, time, socket
+          entry = None
+          for cand in ("app.py", "wsgi_secure.py"):
+            if os.path.exists(cand):
+              entry = cand; break
+          if not entry:
+            print("No app.py or wsgi_secure.py in repo", file=sys.stderr)
+            sys.exit(1)
+          proc = subprocess.Popen([sys.executable, entry])
+          # zhdem port
+          for _ in range(60):
+            try:
+              s=socket.create_connection(("127.0.0.1", int(os.environ.get("PORT","8080"))), timeout=0.5); s.close(); break
+            except Exception: time.sleep(1)
+          open("ester.pid","w").write(str(proc.pid))
+          PY
+
+      - name: Run E2E smoke
+        run: |
+          chmod +x scripts/e2e_smoke.sh
+          BASE_URL="http://127.0.0.1:${PORT}" scripts/e2e_smoke.sh
+
+      - name: Mint admin JWT (demo)
+        run: |
+          echo "JWT: $(python scripts/mint_admin_jwt.py --user ci-admin --roles admin --hours 1 | sed 's/./&/g' >/dev/null || true)"
+
+      - name: Stop Ester
+        if: always()
+        run: |
+          if [ -f ester.pid ]; then kill -9 $(cat ester.pid) || true; fi

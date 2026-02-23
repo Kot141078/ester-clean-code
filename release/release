@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+# release — avto-zaliv reliza v GitHub Releases s uvazheniem k avtorstvu.
+# Trebuetsya: gh (GitHub CLI) ILI peremennye GITHUB_TOKEN, REPO (owner/name).
+# Optsionalno: VERSION, TAG, TITLE, NOTES_FILE, AUTHOR_NAME, AUTHOR_URL
+# Pobochnye deystviya:
+#  - Proverka testov (pytest -q), sbor metadannykh
+#  - Eksport snapshota CRDT v artifact
+#  - Upakovka reliza (tar.gz) s LICENSE i NOTICE
+#  - Sozdanie release (draft=false, prerelease po semver-pristavke)
+set -euo pipefail
+
+# ---------- helpers ----------
+require_cmd () { command -v "$1" >/dev/null 2>&1 || { echo "Missing command: $1" >&2; exit 2; }; }
+timestamp() { date -u +"%Y-%m-%dT%H:%M:%SZ"; }
+
+# ---------- context ----------
+REPO="${REPO:-}"
+if [[ -z "${REPO}" ]]; then
+  if gh repo view --json nameWithOwner >/dev/null 2>&1; then
+    REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+  else
+    echo "REPO is not set and gh is not logged in." >&2
+    exit 2
+  fi
+fi
+
+VERSION="${VERSION:-}"
+if [[ -z "${VERSION}" ]]; then
+  if git describe --tags --abbrev=0 >/dev/null 2>&1; then
+    LAST="$(git describe --tags --abbrev=0)"
+    PATCH=$(( $(echo "$LAST" | awk -F. '{print $NF}') + 1 ))
+    VERSION="$(echo "$LAST" | awk -F. -v p="$PATCH" 'BEGIN{OFS="."}{$NF=p; print $0}')"
+  else
+    VERSION="0.1.0"
+  fi
+fi
+TAG="${TAG:-v${VERSION}}"
+TITLE="${TITLE:-Ester ${VERSION}}"
+NOTES_FILE="${NOTES_FILE:-CHANGELOG.md}"
+AUTHOR_NAME="${AUTHOR_NAME:-Owner}"
+AUTHOR_URL="${AUTHOR_URL:-https://example.com/owner}"
+
+BUILD_TS="$(timestamp)"
+ART_DIR="dist"
+mkdir -p "${ART_DIR}"
+
+echo "[i] Running tests…"
+if command -v pytest >/dev/null 2>&1; then
+  pytest -q || { echo "Tests failed."; exit 3; }
+else
+  echo "pytest not found — skipping tests."
+fi
+
+echo "[i] Exporting CRDT snapshot…"
+SNAPSHOT_JSON="${ART_DIR}/crdt_snapshot_${BUILD_TS}.json"
+# Zaprosim lokalno slushayuschiy server, esli dostupen. Inache sozdadim pustoy snapshot.
+if command -v curl >/dev/null 2>&1 && curl -sSf -o /dev/null http://127.0.0.1:8080/p2p/state; then
+  if [[ -n "${JWT:-}" ]]; then AUTH_HEADER=(-H "Authorization: Bearer ${JWT}"); else AUTH_HEADER=(); fi
+  curl -sSf -X POST "${AUTH_HEADER[@]}" http://127.0.0.1:8080/p2p/snapshot/export > "${SNAPSHOT_JSON}" || echo '{}' > "${SNAPSHOT_JSON}"
+else
+  echo '{}' > "${SNAPSHOT_JSON}"
+fi
+
+echo "[i] Building tarball…"
+LICENSE_OUT="${ART_DIR}/LICENSE"
+NOTICE_OUT="${ART_DIR}/NOTICE"
+cat > "${LICENSE_OUT}" << 'EOF'
+Copyright (c) 2025
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction under the MIT License.
+EOF
+
+cat > "${NOTICE_OUT}" << EOF
+This release of Ester is authored and curated by ${AUTHOR_NAME}.
+Respect original authorship. See ${AUTHOR_URL} for attribution details.
+Built at ${BUILD_TS}.
+EOF
+
+ARCHIVE="${ART_DIR}/ester-${VERSION}.tar.gz"
+tar -czf "${ARCHIVE}" \
+  --exclude-vcs \
+  --exclude="dist/*" \
+  --exclude="__pycache__" \
+  --exclude=".venv" \
+  --exclude=".pytest_cache" \
+  --exclude=".mypy_cache" \
+  . "${LICENSE_OUT}" "${NOTICE_OUT}" "${SNAPSHOT_JSON}"
+
+echo "[i] Creating Git tag ${TAG}…"
+if git rev-parse "${TAG}" >/dev/null 2>&1; then
+  echo "[i] Tag ${TAG} already exists."
+else
+  git tag -a "${TAG}" -m "Release ${VERSION} (${BUILD_TS})"
+fi
+
+echo "[i] Pushing tag…"
+git push --tags
+
+echo "[i] Creating GitHub Release…"
+PRERELEASE="false"
+[[ "${VERSION}" == *"-rc"* || "${VERSION}" == *"-beta"* || "${VERSION}" == *"-alpha"* ]] && PRERELEASE="true"
+
+NOTES_BODY="Release ${VERSION}\n\nBuilt at ${BUILD_TS}\n\nAuthor: ${AUTHOR_NAME} (${AUTHOR_URL})"
+if [[ -f "${NOTES_FILE}" ]]; then
+  NOTES_BODY="$(printf "%b\n\n%s\n" "${NOTES_BODY}" "$(sed -n '1,120p' "${NOTES_FILE}")")"
+fi
+
+if command -v gh >/dev/null 2>&1; then
+  gh release create "${TAG}" "${ARCHIVE}" "${SNAPSHOT_JSON}" \
+    --repo "${REPO}" \
+    --title "${TITLE}" \
+    --notes "${NOTES_BODY}" \
+    --prerelease="${PRERELEASE}" \
+    --verify-tag
+else
+  require_cmd curl
+  require_cmd jq
+  if [[ -z "${GITHUB_TOKEN:-}" ]]; then
+    echo "GITHUB_TOKEN is required when gh is not available." >&2
+    exit 2
+  fi
+  API="https://api.github.com/repos/${REPO}/releases"
+  JSON="$(jq -n --arg tag "${TAG}" --arg name "${TITLE}" --arg body "${NOTES_BODY}" --argjson prerelease ${PRERELEASE} \
+      '{tag_name:$tag, name:$name, body:$body, draft:false, prerelease:$prerelease}')"
+  REL="$(curl -sSf -H "Authorization: token ${GITHUB_TOKEN}" -H "Content-Type: application/json" -d "${JSON}" "${API}")"
+  UPLOAD_URL="$(echo "${REL}" | jq -r .upload_url | sed 's/{?name,label}//')"
+  for path in "${ARCHIVE}" "${SNAPSHOT_JSON}"; do
+    fname="$(basename "${path}")"
+    curl -sSf -H "Authorization: token ${GITHUB_TOKEN}" -H "Content-Type: application/octet-stream" \
+      --data-binary @"${path}" \
+      "${UPLOAD_URL}?name=${fname}" >/dev/null
+  done
+fi
+
+echo "[✓] Release ${VERSION} published for ${REPO}"

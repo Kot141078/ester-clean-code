@@ -1,0 +1,25 @@
+run_id: research_run_09
+branch_id: main
+context_init:
+  spec: "Fanout bez elementov — join vse ravno otrabatyvaet (pustoy rezultat)."
+  items: []
+
+nodes:
+  - id: outline
+    type: script
+    update:
+      banner: "ok"
+    depends: []
+
+  - id: fork
+    type: fanout
+    items: "{{ctx.items}}"
+    depends: ["outline"]
+
+  - id: gather
+    type: join
+    from: "fork"
+    out: "joined"
+    mode: list
+    await_nodes: []
+    depends: ["fork"]
