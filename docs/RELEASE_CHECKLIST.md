@@ -61,3 +61,13 @@ python -m compileall modules
   - JWT hardcoded fallback removed
   - Telegram token-tail logging removed
   - Private LAN default removed from role router defaults
+
+## Iter13 Release Record (v0.2.1)
+
+- Tag: `v0.2.1`
+- Commit hash: `<fill-after-commit>`
+- Release URL: `<fill-after-release>`
+- Hygiene items:
+  - Removed tracked generated reports from repository tracking
+  - Removed tracked patch-output backup/rollback artifacts
+  - Strengthened `.gitignore` report/patched artifact rules

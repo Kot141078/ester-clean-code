@@ -58,6 +58,20 @@ build/
 *.tmp
 *.temp
 
+# Generated report/patch artifacts
+*.report.json
+*.report.txt
+*.report.md
+*_patched.py
+*.patched
+*.B*_patched
+tools/patches/*.patched*
+tools/patches/*_patched*
+tools/patches/_bak/
+tools/patches/_backups/
+tools/patches/_rollback/
+ensure_register_entry.report.json
+
 # Archives
 *.zip
 *.gz

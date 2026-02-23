@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-02-23
+### Hygiene
+- Removed tracked generated reports and patch-output artifacts from version control.
+- Strengthened `.gitignore` rules to block report and patched-output artifacts.
+
+### Notes
+- No functional changes.
+
 ## [0.2.0] - 2026-02-23
 ### Security
 - Removed insecure hardcoded JWT fallback and switched to explicit secret configuration with fail-closed behavior.
