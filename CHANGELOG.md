@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-02-24
+### Documentation
+- Rewrote opt-in autonomy docs as strict multiline Markdown for audit readability.
+- Added quick operator env snippet and fail-closed status examples for disabled and missing-prereqs states.
+- Added staged doc gate script to prevent readability drift-by-minification in staged blobs.
+
+### Safety
+- Safety posture unchanged: autonomy defaults remain OFF and prereq failures stay fail-closed.
+
 ## [0.2.2] - 2026-02-24
 ### Safety
 - Added explicit opt-in gates for initiative auto-task generation.

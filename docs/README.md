@@ -29,6 +29,8 @@
 
 - Onboarding: `QUICKSTART.md`, then `ARCHITECTURE.md`.
 - Policy review: `L4W_ALIGNMENT.md`, then `THREAT_MODEL.md`.
+- Opt-in autonomy: `SELF_EVO_OPTIN.md` for exact env checklist and fail-closed examples.
+- Quick operator snippet: see `README.md` section `Opt-in Autonomy (Disabled By Default)`.
 - Release prep: `RELEASE_CHECKLIST.md` end to end.
 
 ## Formatting Note

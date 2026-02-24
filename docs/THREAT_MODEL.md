@@ -45,6 +45,7 @@ This model covers repository and release workflow risks.
 - Risk: autonomous queueing or self-evo pathways amplify actions without explicit operator consent.
 - Impact: runaway task cascades, unreviewed mutation, and irreversible drift under ambiguity.
 - Control: explicit opt-in flags, mandatory risk acknowledgement, witness-ready prereq, budget prereqs, and fail-closed no-op behavior when any prereq is missing.
+- Control: doc integrity and readability staged-blob gates to prevent policy drift-by-minification.
 
 ## Detection Signals
 

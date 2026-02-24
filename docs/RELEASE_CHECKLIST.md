@@ -71,3 +71,23 @@ python -m compileall modules
   - Removed tracked generated reports from repository tracking
   - Removed tracked patch-output backup/rollback artifacts
   - Strengthened `.gitignore` report/patched artifact rules
+
+## Iter14 Release Record (v0.2.2)
+
+- Tag: `v0.2.2`
+- Commit hash: `<fill-after-commit>`
+- Release URL: `<fill-after-release>`
+- Safety items:
+  - Added explicit opt-in gates for auto-task generation
+  - Added explicit opt-in gates for self-evo forge entrypoints
+  - Added witness and risk-acknowledgement fail-closed prerequisites
+
+## Iter15 Release Record (v0.2.3)
+
+- Tag: `v0.2.3`
+- Commit hash: `<fill-after-commit>`
+- Release URL: `<fill-after-release>`
+- Documentation items:
+  - Rewrote autonomy policy docs into strict multiline format
+  - Added quick operator env snippet and disabled/missing-prereqs examples
+  - Added staged doc gate to prevent minification regressions

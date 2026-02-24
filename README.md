@@ -28,11 +28,11 @@
 
 L4 treats real-world constraints as first-class safety input.
 
-- time constraints,
-- access constraints,
-- spend constraints,
-- rate constraints,
-- irreversibility constraints.
+- time constraints
+- access constraints
+- spend constraints
+- rate constraints
+- irreversibility constraints
 
 ## Bridge Set
 
@@ -40,9 +40,9 @@ L4 treats real-world constraints as first-class safety input.
 
 Every privileged action must map to:
 
-- identity,
-- auditable privileges,
-- tamper-evident witness trail.
+- identity
+- auditable privileges
+- tamper-evident witness trail
 
 ### Hidden Bridge A (Ashby)
 
@@ -68,23 +68,23 @@ Uncertainty must degrade to safer outcomes.
 
 This repository aligns with witness-first execution norms.
 
-- identity is explicit,
-- privileges are explicit and least-privilege,
-- witness trail is durable and reviewable,
-- budgets are explicit (time, spend, rate),
-- veto and challenge windows exist,
-- ambiguous state resolves to fail-closed behavior.
+- identity is explicit
+- privileges are explicit and least-privilege
+- witness trail is durable and reviewable
+- budgets are explicit (time, spend, rate)
+- veto and challenge windows exist
+- ambiguous state resolves to fail-closed behavior
 
 ## Operational Commitments
 
-- deny-by-default for risky operations,
-- explicit escalation before irreversible action,
-- reviewable evidence packet for privileged changes,
-- deterministic local gates before push,
-- no background task assumptions in this release workflow,
-- policy and code drift treated as a release blocker,
-- challenge window for disputed actions,
-- safe stop when evidence is incomplete.
+- deny-by-default for risky operations
+- explicit escalation before irreversible action
+- reviewable evidence packet for privileged changes
+- deterministic local gates before push
+- no background task assumptions in this release workflow
+- policy and code drift treated as a release blocker
+- challenge window for disputed actions
+- safe stop when evidence is incomplete
 
 ## Repository Layout
 
@@ -111,14 +111,42 @@ powershell -ExecutionPolicy Bypass -File .\tools\scan_repo.ps1 -Root .
 ## Opt-in Autonomy (Disabled By Default)
 
 Auto initiative queueing and self-evo hooks are disabled by default.
-They activate only with explicit operator opt-in and fail-closed prereqs.
+They activate only with explicit operator opt-in and fail-closed prerequisites.
 
-- `ESTER_ENABLE_AUTO_TASKS=1` for initiative queue generation.
-- `ESTER_ENABLE_SELF_EVO=1` for self-evo forge entrypoints.
-- `ESTER_ACK_AUTONOMY_RISK=I_UNDERSTAND` is mandatory for both.
-- `ESTER_L4W_WITNESS=1` (or runtime witness-ready signal) is mandatory.
+### Required Flags
 
-See `docs/SELF_EVO_OPTIN.md` for full prerequisites and failure behavior.
+- `ESTER_ENABLE_AUTO_TASKS=1` for initiative queue generation
+- `ESTER_ENABLE_SELF_EVO=1` for self-evo forge entrypoints
+- `ESTER_ACK_AUTONOMY_RISK=I_UNDERSTAND` for explicit risk acknowledgement
+- `ESTER_L4W_WITNESS=1` (or runtime witness-ready signal)
+
+### Quick Enable (Operator Example)
+
+```bash
+export ESTER_ENABLE_AUTO_TASKS=1
+export ESTER_ENABLE_SELF_EVO=1
+export ESTER_ACK_AUTONOMY_RISK=I_UNDERSTAND
+export ESTER_L4W_WITNESS=1
+export ESTER_AUTO_TASKS_MAX_ITEMS=5
+export ESTER_AUTO_TASKS_WINDOW=60
+export ESTER_AUTO_TASKS_MAX_WORK_MS=2000
+```
+
+### Fail-Closed Status Examples
+
+Disabled by default:
+
+```json
+{"ok": true, "enabled": false, "reason": "disabled_by_default", "created": []}
+```
+
+Enabled but missing prerequisites:
+
+```json
+{"ok": true, "enabled": false, "reason": "missing_prereqs", "missing": ["ACK", "WITNESS", "BUDGETS"]}
+```
+
+See `docs/SELF_EVO_OPTIN.md` for full prerequisites, controls, and operator checklist.
 
 ## Security and Rights
 
