@@ -16,10 +16,38 @@ from __future__ import annotations
 import os, json, time, hashlib, textwrap
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
+from modules.util.feature_flags import explain_missing_prereq, parse_bool_env, require_env_exact, witness_ready
 
 DB = os.getenv("SELF_EVO_DB","data/selfevo/forge.json")
 ALLOW_PATH = os.getenv("SELF_EVO_ALLOWED_DIRS","data/allowlists/selfevo_dirs.json")
 ALLOW_WRITE = (os.getenv("SELF_EVO_ALLOW_WRITE","false").lower()=="true")
+
+def _gate()->Dict[str,Any]:
+    if not parse_bool_env("ESTER_ENABLE_SELF_EVO", False):
+        return {"enabled": False, "reason": "disabled_by_default", "missing_prereqs": []}
+    missing = []
+    ack_ok, _ = require_env_exact("ESTER_ACK_AUTONOMY_RISK", "I_UNDERSTAND")
+    if not ack_ok:
+        missing.append("ESTER_ACK_AUTONOMY_RISK=I_UNDERSTAND")
+    if not witness_ready():
+        missing.append("ESTER_L4W_WITNESS")
+    if missing:
+        return {"enabled": False, "reason": "missing_prereqs", "missing_prereqs": missing}
+    return {"enabled": True, "reason": "enabled", "missing_prereqs": []}
+
+def _disabled(action: str, gate: Dict[str, Any])->Dict[str, Any]:
+    missing = list(gate.get("missing_prereqs") or [])
+    out = {
+        "ok": True,
+        "enabled": False,
+        "action": action,
+        "reason": str(gate.get("reason") or "disabled_by_default"),
+        "missing_prereqs": missing,
+    }
+    detail = explain_missing_prereq(missing)
+    if detail:
+        out["detail"] = detail
+    return out
 
 def _ensure():
     os.makedirs(os.path.dirname(DB), exist_ok=True)
@@ -80,12 +108,22 @@ def _tpl(kind: str, name: str, desc: str, export: str)->str:
 # return f"# {name} — placeholder\n# c=a+b\n"
 
 def dryrun(path: str, kind: str, name: str, desc: str, export: str)->Dict[str,Any]:
+    gate = _gate()
+    if not bool(gate.get("enabled")):
+        out = _disabled("dryrun", gate)
+        out.update({"path": path, "code": "", "hash": ""})
+        return out
     code=_tpl(kind, name, desc, export)
     return {"ok": True, "path": path, "code": code, "hash": _sha(code)}
 
 def apply(path: str, code: str, register_after: bool=False)->Dict[str,Any]:
+    gate = _gate()
+    if not bool(gate.get("enabled")):
+        out = _disabled("apply", gate)
+        out.update({"applied": False, "registered": False})
+        return out
     if not _allowed(path): return {"ok": False, "error":"path_not_allowed"}
-    if not ALLOW_WRITE:    return {"ok": False, "error":"write_forbidden_env"}
+    if os.getenv("SELF_EVO_ALLOW_WRITE","false").lower()!="true": return {"ok": False, "error":"write_forbidden_env"}
     if os.environ.get("X_CHANGE_APPROVAL","").lower()!="yes":
         # alternativnyy kanal — zagolovok v route; zdes podderzhka ENV dlya CLI
         pass
@@ -120,5 +158,10 @@ def apply(path: str, code: str, register_after: bool=False)->Dict[str,Any]:
     return {"ok": True, "applied": True, "registered": ok_reg, "item": item}
 
 def list_items()->Dict[str,Any]:
+    gate = _gate()
+    if not bool(gate.get("enabled")):
+        out = _disabled("list", gate)
+        out.update({"items": []})
+        return out
     j=_load(); return {"ok": True, "items": j.get("items",[])}
 # c=a+b

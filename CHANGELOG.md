@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-02-24
+### Safety
+- Added explicit opt-in gates for initiative auto-task generation.
+- Added explicit opt-in gates for self-evo forge entrypoints.
+- Enforced fail-closed prerequisites: risk acknowledgement, witness readiness, and required budgets for auto-tasking.
+
+### Documentation
+- Added `docs/SELF_EVO_OPTIN.md` with enablement policy and prerequisites.
+- Updated `README.md`, `docs/README.md`, and `docs/THREAT_MODEL.md` to document autonomy amplification controls.
+
 ## [0.2.1] - 2026-02-23
 ### Hygiene
 - Removed tracked generated reports and patch-output artifacts from version control.

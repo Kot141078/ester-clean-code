@@ -40,6 +40,12 @@ This model covers repository and release workflow risks.
 - Impact: budget burn and policy violations.
 - Control: hard stops, budget caps, and fail-closed defaults.
 
+## Threat 7: Autonomy Amplification (Auto Tasks / Self-Evo)
+
+- Risk: autonomous queueing or self-evo pathways amplify actions without explicit operator consent.
+- Impact: runaway task cascades, unreviewed mutation, and irreversible drift under ambiguity.
+- Control: explicit opt-in flags, mandatory risk acknowledgement, witness-ready prereq, budget prereqs, and fail-closed no-op behavior when any prereq is missing.
+
 ## Detection Signals
 
 - unexpected privilege expansion,

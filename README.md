@@ -108,6 +108,18 @@ Run scanner:
 powershell -ExecutionPolicy Bypass -File .\tools\scan_repo.ps1 -Root .
 ```
 
+## Opt-in Autonomy (Disabled By Default)
+
+Auto initiative queueing and self-evo hooks are disabled by default.
+They activate only with explicit operator opt-in and fail-closed prereqs.
+
+- `ESTER_ENABLE_AUTO_TASKS=1` for initiative queue generation.
+- `ESTER_ENABLE_SELF_EVO=1` for self-evo forge entrypoints.
+- `ESTER_ACK_AUTONOMY_RISK=I_UNDERSTAND` is mandatory for both.
+- `ESTER_L4W_WITNESS=1` (or runtime witness-ready signal) is mandatory.
+
+See `docs/SELF_EVO_OPTIN.md` for full prerequisites and failure behavior.
+
 ## Security and Rights
 
 - Security policy: `SECURITY.md`

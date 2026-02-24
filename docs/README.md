@@ -6,6 +6,7 @@
 - `ARCHITECTURE.md` for trust boundaries and execution model.
 - `L4W_ALIGNMENT.md` for witness-first norms.
 - `THREAT_MODEL.md` for concrete risks and controls.
+- `SELF_EVO_OPTIN.md` for autonomy/self-evo opt-in policy and prerequisites.
 - `RELEASE_CHECKLIST.md` for final gate before push.
 
 ## Core Claims

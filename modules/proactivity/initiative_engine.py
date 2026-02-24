@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from modules.dreams.store import DreamStore
+from modules.util.feature_flags import explain_missing_prereq, parse_bool_env, require_env_exact, witness_ready
 
 _KEYWORDS = (
     "todo",
@@ -25,6 +26,12 @@ _KEYWORDS = (
     "nado",
     "potom",
 )
+
+_REQUIRED_BUDGET_ENVS = {
+    "max_items": "ESTER_AUTO_TASKS_MAX_ITEMS",
+    "window": "ESTER_AUTO_TASKS_WINDOW",
+    "max_work_ms": "ESTER_AUTO_TASKS_MAX_WORK_MS",
+}
 
 
 def _resolve_persist_dir(persist_dir: Optional[str]) -> Path:
@@ -47,6 +54,21 @@ def _safe_agent_name(text: str) -> str:
     if not base:
         base = "initiative"
     return ("auto_" + base)[:48]
+
+
+def _required_budget_value(budgets: Dict[str, Any], key: str) -> Optional[int]:
+    raw = budgets.get(key)
+    if raw is None or str(raw).strip() == "":
+        raw = str(os.getenv(_REQUIRED_BUDGET_ENVS[key], "") or "").strip()
+    if raw is None or str(raw).strip() == "":
+        return None
+    try:
+        value = int(raw)
+    except Exception:
+        return None
+    if value <= 0:
+        return None
+    return value
 
 
 class InitiativeEngine:
@@ -108,6 +130,30 @@ class InitiativeEngine:
         if not cleaned:
             return "Follow up memory signal"
         return cleaned[:80]
+
+    def _gate(self, budgets: Dict[str, Any]) -> Dict[str, Any]:
+        if not parse_bool_env("ESTER_ENABLE_AUTO_TASKS", False):
+            return {"enabled": False, "reason": "disabled_by_default", "missing_prereqs": []}
+
+        missing: List[str] = []
+        ack_ok, _ = require_env_exact("ESTER_ACK_AUTONOMY_RISK", "I_UNDERSTAND")
+        if not ack_ok:
+            missing.append("ESTER_ACK_AUTONOMY_RISK=I_UNDERSTAND")
+        if not witness_ready():
+            missing.append("ESTER_L4W_WITNESS")
+
+        resolved = dict(budgets or {})
+        for key in ("max_items", "window", "max_work_ms"):
+            value = _required_budget_value(budgets, key)
+            if value is None:
+                missing.append(f"budget.{key}")
+            else:
+                resolved[key] = value
+
+        if missing:
+            return {"enabled": False, "reason": "missing_prereqs", "missing_prereqs": missing}
+
+        return {"enabled": True, "reason": "enabled", "missing_prereqs": [], "budgets": resolved}
 
     def _build_candidates(
         self,
@@ -215,7 +261,32 @@ class InitiativeEngine:
         dry: bool = False,
     ) -> Dict[str, Any]:
         ts = float(now_ts if now_ts is not None else time.time())
-        budgets = dict(budgets or {})
+        incoming_budgets = dict(budgets or {})
+        gate = self._gate(incoming_budgets)
+        if not bool(gate.get("enabled")):
+            queue_size = self._queue_size()
+            reason = str(gate.get("reason") or "disabled_by_default")
+            missing = list(gate.get("missing_prereqs") or [])
+            state = {
+                "last_run": _now_iso(ts),
+                "last_ok": True,
+                "last_error": "",
+                "queue_size": queue_size,
+                "created_count": 0,
+                "path": str(self.queue_path),
+                "enabled": False,
+                "note": ("disabled" if reason == "disabled_by_default" else "missing_prereqs"),
+            }
+            if missing:
+                state["missing_prereqs"] = missing
+            self._save_state(state)
+            out: Dict[str, Any] = {"ok": True, "enabled": False, "reason": reason, "created": [], **state, "stored": False}
+            detail = explain_missing_prereq(missing)
+            if detail:
+                out["detail"] = detail
+            return out
+
+        budgets = dict(gate.get("budgets") or incoming_budgets)
         recent_limit = max(1, int(budgets.get("window", 60) or 60))
         max_items = max(1, int(budgets.get("max_items", 5) or 5))
 
@@ -250,6 +321,8 @@ class InitiativeEngine:
                 "queue_size": queue_size,
                 "created_count": len(created),
                 "path": str(self.queue_path),
+                "enabled": True,
+                "note": "enabled",
             }
             self._save_state(state)
             return {"ok": True, "created": created, **state, "stored": bool(not dry)}
@@ -263,6 +336,7 @@ class InitiativeEngine:
                 "queue_size": queue_size,
                 "created_count": 0,
                 "path": str(self.queue_path),
+                "enabled": True,
             }
             self._save_state(state)
             return {"ok": False, "error": err, **state, "stored": False}
