@@ -920,6 +920,13 @@ DREAM_ALLOWED_TYPES = [x.strip() for x in os.getenv(
 DREAM_MEMORY_CANDIDATES = int(os.getenv("DREAM_MEMORY_CANDIDATES", "250"))
 DREAM_MEMORY_TRIES = int(os.getenv("DREAM_MEMORY_TRIES", "6"))
 
+# Anti-loop by source: keep diversity, but allow fallback if memory is too narrow.
+DREAM_SOURCE_DIVERSITY = (os.getenv("DREAM_SOURCE_DIVERSITY", "1").strip().lower() in ("1", "true", "yes", "y"))
+DREAM_SOURCE_MAX_PER_CONTEXT = max(1, int(os.getenv("DREAM_SOURCE_MAX_PER_CONTEXT", "1") or 1))
+DREAM_SOURCE_RECENT_WINDOW_SEC = max(60, int(os.getenv("DREAM_SOURCE_RECENT_WINDOW_SEC", "21600") or 21600))
+DREAM_SOURCE_RECENT_MAX = max(1, int(os.getenv("DREAM_SOURCE_RECENT_MAX", "18") or 18))
+DREAM_SOURCE_RELAX_IF_STARVED = (os.getenv("DREAM_SOURCE_RELAX_IF_STARVED", "1").strip().lower() in ("1", "true", "yes", "y"))
+
 # --- CASCADE REPLY (kaskadnoe myshlenie dlya otvetov) ---
 CASCADE_REPLY_ENABLED = (os.getenv("CASCADE_REPLY_ENABLED", "1").strip().lower() in ("1", "true", "yes", "y"))
 CASCADE_REPLY_STEPS = int(os.getenv("CASCADE_REPLY_STEPS", "4"))  # 3..4 normalno
@@ -2937,6 +2944,9 @@ class ContactsBook:
     def __init__(self, path: str):
         self.path = path
         self._lock = threading.Lock()
+        self._dream_source_recent: Deque[Tuple[float, str]] = deque(
+            maxlen=max(200, int(DREAM_SOURCE_RECENT_MAX) * 24)
+        )
         self._data: Dict[str, Dict[str, Any]] = {}
         self._load()
 
@@ -9398,30 +9408,130 @@ class Hippocampus:
 
     def _vector_peek_candidates_coll(self, coll: Any, limit: int) -> Tuple[List[str], List[Dict[str, Any]]]:
         """
-        Edinyy helper dlya peek().
-        Vozvraschaet (docs, metas) odinakovoy dliny.
+        Единый helper для dream-candidates.
+        Возвращает (docs, metas) одинаковой длины.
         """
-        try:
-            res = coll.peek(limit=max(1, int(limit)))
+        lim = max(1, int(limit))
+
+        docs2: List[str] = []
+        metas2: List[Dict[str, Any]] = []
+        seen = set()
+
+        def _ingest(res: Dict[str, Any]) -> None:
+            nonlocal docs2, metas2, seen
             docs = res.get("documents") or []
             metas = res.get("metadatas") or []
-
-            docs2: List[str] = []
-            metas2: List[Dict[str, Any]] = []
-
             for i, d in enumerate(docs):
                 if not d:
                     continue
-                docs2.append(str(d))
-
+                s = str(d)
+                if not s or s in seen:
+                    continue
+                seen.add(s)
+                docs2.append(s)
                 m: Dict[str, Any] = {}
                 if isinstance(metas, list) and i < len(metas) and isinstance(metas[i], dict):
                     m = dict(metas[i])
                 metas2.append(m)
+                if len(docs2) >= lim:
+                    return
 
-            return (docs2, metas2)
+        try:
+            total = 0
+            try:
+                total = int(coll.count())
+            except Exception:
+                total = 0
+
+            # Mixed windows: head + tail + rotating offsets.
+            # This avoids sticking to the same old source when collection head is imbalanced.
+            if total > 0:
+                windows = 4
+                chunk = max(8, min(lim, int(math.ceil(float(lim) / float(windows)))))
+                max_off = max(0, total - chunk)
+                seed = int(_safe_now_ts() // 1800) + int(total % 9973)
+                rnd = random.Random(seed)
+                offsets: List[int] = [0]
+                if max_off > 0:
+                    offsets.append(max_off)
+                for _ in range(max(0, windows - len(offsets))):
+                    if max_off <= 0:
+                        break
+                    offsets.append(rnd.randint(0, max_off))
+
+                # dedupe offsets preserving order
+                uniq_offsets: List[int] = []
+                off_seen = set()
+                for o in offsets:
+                    oi = int(max(0, o))
+                    if oi in off_seen:
+                        continue
+                    off_seen.add(oi)
+                    uniq_offsets.append(oi)
+
+                for off in uniq_offsets:
+                    if len(docs2) >= lim:
+                        break
+                    try:
+                        res = coll.get(
+                            limit=max(1, int(chunk)),
+                            offset=int(off),
+                            include=["documents", "metadatas"],
+                        )
+                        _ingest(res or {})
+                    except Exception:
+                        continue
+
+            if docs2:
+                return (docs2[:lim], metas2[:lim])
+
+            # Fallback for older clients/backends.
+            res = coll.peek(limit=lim)
+            _ingest(res or {})
+            return (docs2[:lim], metas2[:lim])
         except Exception:
             return ([], [])
+
+    def _dream_source_key(self, meta: Optional[Dict[str, Any]]) -> str:
+        src = str((meta or {}).get("source") or "").strip()
+        if not src:
+            return ""
+        # Normalize long/variable source strings so the key stays stable.
+        src = src.replace("\\", "/").lower()
+        if len(src) > 240:
+            src = src[-240:]
+        return src
+
+    def _dream_source_recent_counts(self, window_sec: int) -> Dict[str, int]:
+        out: Dict[str, int] = {}
+        try:
+            w = max(1, int(window_sec))
+        except Exception:
+            w = 1
+        now_ts = float(_safe_now_ts())
+        cutoff = now_ts - float(w)
+        with self._lock:
+            dq = self._dream_source_recent
+            while dq and float(dq[0][0]) < cutoff:
+                dq.popleft()
+            for _, src in dq:
+                if not src:
+                    continue
+                out[src] = int(out.get(src, 0)) + 1
+        return out
+
+    def _remember_dream_context_sources(self, source_counts: Dict[str, int]) -> None:
+        if not source_counts:
+            return
+        now_ts = float(_safe_now_ts())
+        with self._lock:
+            for src, cnt in (source_counts or {}).items():
+                s = str(src or "").strip()
+                if not s:
+                    continue
+                n = max(1, int(cnt or 1))
+                for _ in range(n):
+                    self._dream_source_recent.append((now_ts, s))
 
 
     def build_dream_context(
@@ -9434,9 +9544,9 @@ class Hippocampus:
         fallback_chat_key: Optional[Tuple[int, int]] = None,
     ) -> str:
         """
-        Sobiraet "pachku" vospominaniy dlya sna iz GLOBALNOY pamyati.
-        Esli globalka pusta - mozhet vzyat iz chata Owner (fallback_chat_key),
-        NE smeshivaya kollektsii (chat_* ostaetsya chat_*).
+        Собирает "пачку" воспоминаний для сна из ГЛОБАЛЬНОЙ памяти.
+        Если глобалка пуста - может взять из админ-чата (fallback_chat_key),
+        НЕ смешивая коллекции (chat_* остаётся chat_*).
         """
         items = max(1, int(items))
         max_chars = max(2000, int(max_chars))
@@ -9447,12 +9557,56 @@ class Hippocampus:
 
         picked: List[str] = []
         seen = set()
+        source_limits_enabled = bool(DREAM_SOURCE_DIVERSITY)
+        source_cap = max(1, int(DREAM_SOURCE_MAX_PER_CONTEXT))
+        source_recent_window = max(60, int(DREAM_SOURCE_RECENT_WINDOW_SEC))
+        source_recent_cap = max(1, int(DREAM_SOURCE_RECENT_MAX))
+        source_counts: Dict[str, int] = {}
+        source_recent_counts: Dict[str, int] = (
+            self._dream_source_recent_counts(source_recent_window) if source_limits_enabled else {}
+        )
+        source_phases: Tuple[int, ...]
+        if source_limits_enabled:
+            source_phases = (0, 1, 2) if DREAM_SOURCE_RELAX_IF_STARVED else (0,)
+        else:
+            source_phases = (2,)
 
         def _ok_type(meta: Dict[str, Any]) -> bool:
             if not allowed:
                 return True
             t = str((meta or {}).get("type") or "").strip()
             return (t in allowed)
+
+        def _source_key(meta: Dict[str, Any]) -> str:
+            if not source_limits_enabled:
+                return ""
+            return self._dream_source_key(meta)
+
+        def _source_allowed(meta: Dict[str, Any], phase: int) -> bool:
+            if not source_limits_enabled:
+                return True
+            src = _source_key(meta)
+            if not src:
+                return True
+            cur = int(source_counts.get(src, 0))
+            # phase=0: per-context cap + recent-window cap
+            # phase=1: keep per-context cap only
+            # phase=2: emergency fill (no source caps)
+            if phase <= 1 and cur >= source_cap:
+                return False
+            if phase == 0:
+                recent = int(source_recent_counts.get(src, 0))
+                if (recent + cur) >= source_recent_cap:
+                    return False
+            return True
+
+        def _source_mark(meta: Dict[str, Any]) -> None:
+            if not source_limits_enabled:
+                return
+            src = _source_key(meta)
+            if not src:
+                return
+            source_counts[src] = int(source_counts.get(src, 0)) + 1
 
         def _add_docs(docs: List[str], metas: List[Dict[str, Any]]) -> None:
             nonlocal picked, seen
@@ -9467,23 +9621,26 @@ class Hippocampus:
                     meta = metas[i]
                 if not _ok_type(meta):
                     continue
+                if not _source_allowed(meta, phase=2):
+                    continue
                 k = s
                 if k in seen:
                     continue
                 seen.add(k)
                 picked.append(s)
+                _source_mark(meta)
                 if len(picked) >= items:
                     return
 
         def _stable_pick_order(n: int, salt: int) -> List[int]:
             """
-            Determinirovannoe peremeshivanie indeksov:
-            - odinakovo v predelakh korotkogo okna,
-            - no menyaetsya so vremenem (chtoby sny ne byli odnim i tem zhe).
+            Детерминированное перемешивание индексов:
+            - одинаково в пределах короткого окна,
+            - но меняется со временем (чтобы сны не были одним и тем же).
             """
             if n <= 0:
                 return []
-            seed = int(_safe_now_ts() // 1800) + int(salt)  # okno 30 minut
+            seed = int(_safe_now_ts() // 1800) + int(salt)  # окно 30 минут
             rnd = random.Random(seed)
             idxs = list(range(n))
             rnd.shuffle(idxs)
@@ -9496,25 +9653,31 @@ class Hippocampus:
             if not docs:
                 return False
 
-            # neskolko popytok -> raznyy poryadok -> bolshe raznoobraziya
-            for t in range(tries):
-                order = _stable_pick_order(len(docs), salt=1000 + t)
-                for i in order:
-                    if len(picked) >= items:
-                        break
-                    d = docs[i] if i < len(docs) else None
-                    m = metas[i] if i < len(metas) else {}
-                    if not d:
-                        continue
-                    s = str(d).strip()
-                    if not s or s in seen:
-                        continue
-                    if not _ok_type(m):
-                        continue
-                    seen.add(s)
-                    picked.append(s)
+            # Сначала strict-diversity, затем мягкое ослабление, и только потом emergency fill.
+            for phase in source_phases:
                 if len(picked) >= items:
                     break
+                for t in range(tries):
+                    order = _stable_pick_order(len(docs), salt=1000 + (phase * 100) + t)
+                    for i in order:
+                        if len(picked) >= items:
+                            break
+                        d = docs[i] if i < len(docs) else None
+                        m = metas[i] if i < len(metas) else {}
+                        if not d:
+                            continue
+                        s = str(d).strip()
+                        if not s or s in seen:
+                            continue
+                        if not _ok_type(m):
+                            continue
+                        if not _source_allowed(m, phase=phase):
+                            continue
+                        seen.add(s)
+                        picked.append(s)
+                        _source_mark(m)
+                    if len(picked) >= items:
+                        break
 
             return bool(picked)
 
@@ -9530,24 +9693,30 @@ class Hippocampus:
             if not docs:
                 return False
 
-            for t in range(tries):
-                order = _stable_pick_order(len(docs), salt=2000 + t)
-                for i in order:
-                    if len(picked) >= items:
-                        break
-                    d = docs[i] if i < len(docs) else None
-                    m = metas[i] if i < len(metas) else {}
-                    if not d:
-                        continue
-                    s = str(d).strip()
-                    if not s or s in seen:
-                        continue
-                    if not _ok_type(m):
-                        continue
-                    seen.add(s)
-                    picked.append(s)
+            for phase in source_phases:
                 if len(picked) >= items:
                     break
+                for t in range(tries):
+                    order = _stable_pick_order(len(docs), salt=2000 + (phase * 100) + t)
+                    for i in order:
+                        if len(picked) >= items:
+                            break
+                        d = docs[i] if i < len(docs) else None
+                        m = metas[i] if i < len(metas) else {}
+                        if not d:
+                            continue
+                        s = str(d).strip()
+                        if not s or s in seen:
+                            continue
+                        if not _ok_type(m):
+                            continue
+                        if not _source_allowed(m, phase=phase):
+                            continue
+                        seen.add(s)
+                        picked.append(s)
+                        _source_mark(m)
+                    if len(picked) >= items:
+                        break
 
             return bool(picked)
 
@@ -9555,7 +9724,7 @@ class Hippocampus:
             l = list(self._fallback_memory_global or [])
             if not l:
                 return False
-            # berem khvost kak "svezhee"
+            # берём хвост как "свежее"
             tail = l[-max(items * 4, candidates):]
             _add_docs(tail, [{} for _ in tail])
             return bool(picked)
@@ -9573,23 +9742,29 @@ class Hippocampus:
             _add_docs(tail, [{} for _ in tail])
             return bool(picked)
 
-        # 1) osnovnoy istochnik — globalnaya vector-pamyat
+        # 1) основной источник — глобальная vector-память
         _ = _select_from_vector_global()
 
-        # 2) fallback na chat-kollektsiyu (esli globalka pusta / ne khvatilo)
+        # 2) fallback на chat-коллекцию (если глобалка пуста / не хватило)
         if len(picked) < items and fallback_chat_key is not None:
             _ = _select_from_vector_chat(fallback_chat_key)
 
-        # 3) esli vector ne dal nichego — fallback na RAM (global)
+        # 3) если vector не дал ничего — fallback на RAM (global)
         if len(picked) < 1:
             _ = _select_from_ram_global()
 
-        # 4) esli i RAM global pust — probuem RAM chat (esli dali klyuch)
+        # 4) если и RAM global пуст — пробуем RAM chat (если дали ключ)
         if len(picked) < 1 and fallback_chat_key is not None:
             _ = _select_from_ram_chat(fallback_chat_key)
 
         if not picked:
             return ""
+
+        if source_limits_enabled and source_counts:
+            try:
+                self._remember_dream_context_sources(source_counts)
+            except Exception:
+                pass
 
         out = "\n\n".join(picked[:items]).strip()
         return truncate_text(out, int(max_chars))
@@ -14262,6 +14437,11 @@ def main():
         logging.info(
             f"[DREAM] context_items={DREAM_CONTEXT_ITEMS} context_chars={DREAM_CONTEXT_CHARS} "
             f"max_prompt_chars={DREAM_MAX_PROMPT_CHARS}"
+        )
+        logging.info(
+            f"[DREAM] source_diversity={int(DREAM_SOURCE_DIVERSITY)} per_context={DREAM_SOURCE_MAX_PER_CONTEXT} "
+            f"recent_max={DREAM_SOURCE_RECENT_MAX} window={DREAM_SOURCE_RECENT_WINDOW_SEC}s "
+            f"relax_if_starved={int(DREAM_SOURCE_RELAX_IF_STARVED)}"
         )
         logging.info(f"[CASCADE] reply_enabled={int(CASCADE_REPLY_ENABLED)} steps={CASCADE_REPLY_STEPS}")
     else:

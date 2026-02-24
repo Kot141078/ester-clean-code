@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 """
-providers/pool.py — kanonicheskiy pul provayderov (local / gemini / gpt4) dlya Ester.
+providers/pool.py — канонический пул провайдеров (local / gemini / gpt4) для Ester.
 
-YaVNYY MOST: c=a+b → chelovek (a) zadaet rezhimy/klyuchi, kod (b) garantiruet edinyy vybor provaydera → uzel (c) ne raspadaetsya na dubli.
-SKRYTYE MOSTY:
-  - Ashby (kibernetika): variety dolzhno byt upravlyaemym — neskolko modeley polezny, no tolko cherez odin shlyuz.
-  - Cover & Thomas (infoteoriya): kanal/byudzhet ogranichen — oblako vklyuchaem tolko pri nalichii klyuchey i vne CLOSED_BOX.
-ZEMNOY ABZATs (inzheneriya/anatomiya):
-  Etot modul — kak raspredelitelnyy kollektor v gidrosisteme: mnogo istochnikov davleniya,
-  no odna «grebenka» i odin manometr. Inache nachinayutsya protechki i lozhnye pokazaniya.
+ЯВНЫЙ МОСТ: c=a+b → человек (a) задаёт режимы/ключи, код (b) гарантирует единый выбор провайдера → узел (c) не распадается на дубли.
+СКРЫТЫЕ МОСТЫ:
+  - Ashby (кибернетика): variety должно быть управляемым — несколько моделей полезны, но только через один шлюз.
+  - Cover & Thomas (инфотеория): канал/бюджет ограничен — облако включаем только при наличии ключей и вне CLOSED_BOX.
+ЗЕМНОЙ АБЗАЦ (инженерия/анатомия):
+  Этот модуль — как распределительный коллектор в гидросистеме: много источников давления,
+  но одна «гребёнка» и один манометр. Иначе начинаются протечки и ложные показания.
 
-Primechanie:
-- Pul predostavlyaet AsyncOpenAI-klienty (OpenAI-compatible API) dlya lokalnogo uzla i oblakov.
-- Povedenie cloud-vetok avtomaticheski otklyuchaetsya pri CLOSED_BOX/LOCAL_ONLY ili otsutstvii klyucha.
+Примечание:
+- Пул предоставляет AsyncOpenAI-клиенты (OpenAI-compatible API) для локального узла и облаков.
+- Поведение cloud-веток автоматически отключается при CLOSED_BOX/LOCAL_ONLY или отсутствии ключа.
 """
 
 from __future__ import annotations
@@ -65,6 +65,45 @@ def _env_bool(name: str, default: bool = False) -> bool:
     return v in ("1", "true", "yes", "on", "y")
 
 
+def _has_usable_api_key(raw: str) -> bool:
+    v = str(raw or "").strip()
+    if not v:
+        return False
+    up = v.upper()
+    bad_exact = {
+        "ROTATE_REQUIRED",
+        "REPLACE_ME",
+        "CHANGE_ME",
+        "CHANGEME",
+        "YOUR_API_KEY",
+        "YOUR_KEY",
+        "PLACEHOLDER",
+        "NONE",
+        "NULL",
+    }
+    if up in bad_exact:
+        return False
+    bad_parts = (
+        "ROTATE_REQUIRED",
+        "REPLACE_ME",
+        "PLACEHOLDER",
+        "DUMMY",
+        "EXAMPLE",
+    )
+    return not any(p in up for p in bad_parts)
+
+
+def _first_usable_api_key(*env_names: str) -> str:
+    first = ""
+    for idx, name in enumerate(env_names):
+        v = _env_str(name, "")
+        if idx == 0:
+            first = v
+        if _has_usable_api_key(v):
+            return v
+    return first
+
+
 def _norm_url(u: str) -> str:
     u = (u or "").strip()
     return u.rstrip("/") if u else ""
@@ -73,8 +112,8 @@ def _norm_url(u: str) -> str:
 def _derive_gemini_openai_base(gemini_api_base: str) -> str:
     """
     Gemini OpenAI-compatible:
-      - esli uzhe /v1beta/openai -> prosto garantiruem trailing slash
-      - inache: <base>/v1beta/openai/
+      - если уже /v1beta/openai -> просто гарантируем trailing slash
+      - иначе: <base>/v1beta/openai/
     """
     b = (gemini_api_base or "").strip().rstrip("/")
     if "/v1beta/openai" in b:
@@ -138,7 +177,7 @@ def _resolve_local_model(base_url: str) -> str:
     return configured or "local-model"
 
 
-# Global guard flags (zerkalim run_ester_fixed.py)
+# Global guard flags (зеркалим run_ester_fixed.py)
 CLOSED_BOX = _env_bool("CLOSED_BOX", False)
 LOCAL_ONLY = _env_bool("LOCAL_ONLY", False)
 TIMEOUT_CAP = float(os.getenv("TIMEOUT_CAP", "3600"))
@@ -157,9 +196,9 @@ class ProviderConfig:
 
 class ProviderPool:
     """
-    Edinaya tochka dlya provayderov (local/gemini/gpt4).
+    Единая точка для провайдеров (local/gemini/gpt4).
 
-    API-sovmestimost s ispolzovaniem v run_ester_fixed.py:
+    API-совместимость с использованием в run_ester_fixed.py:
       - has(name) -> bool
       - cfg(name) -> ProviderConfig
       - enabled(name) -> bool
@@ -195,13 +234,15 @@ class ProviderPool:
 
     def reload(self) -> None:
         """
-        Perechitat env i peresobrat konfigi.
-        Klienty ne peresozdaem avtomaticheski — vyzovi reset_clients()
-        esli khochesh primenit novye URL/keys v rantayme.
+        Перечитать env и пересобрать конфиги.
+        Клиенты не пересоздаём автоматически — вызови reset_clients()
+        если хочешь применить новые URL/keys в рантайме.
         """
         local_base = _norm_url(_env_str("LMSTUDIO_BASE_URL", "http://127.0.0.1:1234/v1"))
         gemini_base = _derive_gemini_openai_base(_env_str("GEMINI_API_BASE", ""))
         openai_base = _norm_url(_env_str("OPENAI_API_BASE", "https://api.openai.com/v1"))
+        gemini_key = _first_usable_api_key("GEMINI_API_KEY", "GOOGLE_API_KEY", "ESTER_GEMINI_API_KEY")
+        openai_key = _first_usable_api_key("OPENAI_API_KEY", "ESTER_OPENAI_API_KEY")
         local_model = _resolve_local_model(local_base)
 
         ctx_tokens = _env_int("LMSTUDIO_CONTEXT_WINDOW_TOKENS", _env_int("LMSTUDIO_CTX_WINDOW_TOKENS", 37500))
@@ -224,7 +265,7 @@ class ProviderPool:
             "gemini": ProviderConfig(
                 name="gemini",
                 base_url=_norm_url(gemini_base),
-                api_key=_env_str("GEMINI_API_KEY", ""),
+                api_key=gemini_key,
                 model=_env_str("GEMINI_MODEL", "gemini-1.5-flash"),
                 max_out_tokens=_env_int("GEMINI_MAX_OUT_TOKENS", 8192),
                 timeout=min(_env_float("GEMINI_TIMEOUT", 120.0), float(TIMEOUT_CAP)),
@@ -232,7 +273,7 @@ class ProviderPool:
             "gpt4": ProviderConfig(
                 name="gpt4",
                 base_url=openai_base,
-                api_key=_env_str("OPENAI_API_KEY", ""),
+                api_key=openai_key,
                 model=_env_str("OPENAI_MODEL", "gpt-4o"),
                 max_out_tokens=_env_int("OPENAI_MAX_OUT_TOKENS", 16384),
                 timeout=min(_env_float("OPENAI_TIMEOUT", 120.0), float(TIMEOUT_CAP)),
@@ -280,8 +321,8 @@ class ProviderPool:
 
     def enabled(self, name: str) -> bool:
         """
-        local — vsegda dostupen.
-        cloud — tolko esli est klyuch i ne vklyuchen rezhim zakrytogo boksa.
+        local — всегда доступен.
+        cloud — только если есть ключ и не включён режим закрытого бокса.
         """
         name = self._canon_name(name)
         cfg = self._cfg.get(name)
@@ -294,7 +335,7 @@ class ProviderPool:
         if cfg.name == "local":
             return True
 
-        return bool(cfg.api_key)
+        return _has_usable_api_key(cfg.api_key)
 
     def max_tokens(self, name: str) -> Optional[int]:
         cfg = self.cfg(name)

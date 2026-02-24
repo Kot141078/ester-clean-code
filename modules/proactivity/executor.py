@@ -52,6 +52,10 @@ def _enqueue_enabled() -> bool:
     return bool(env_primary and env_compat)
 
 
+def _allow_enqueue_in_slot_a() -> bool:
+    return _truthy(os.getenv("ESTER_PROACTIVITY_ALLOW_ENQUEUE_IN_SLOT_A", "0"))
+
+
 def _agent_create_requires_approval() -> bool:
     return _truthy(os.getenv("ESTER_AGENT_CREATE_REQUIRE_APPROVAL", "0"))
 
@@ -633,9 +637,11 @@ def _run_once_core(
 
     effective_mode = mode_in
     mode_reasons: List[str] = []
-    if slot != "B":
+    if slot != "B" and (not _allow_enqueue_in_slot_a()):
         effective_mode = "plan_only"
         mode_reasons.append("slot_a_forces_plan_only")
+    elif slot != "B":
+        mode_reasons.append("slot_a_enqueue_override")
     if _SLOTB_DISABLED:
         effective_mode = "plan_only"
         mode_reasons.append("slot_b_disabled_in_process")
@@ -974,34 +980,37 @@ def _run_once_core(
                 )
                 return out
 
-            out["ok"] = True
-            out["reason"] = "awaiting_agent_create_approval"
-            out["approval_request"] = dict(req_rep.get("request") or {})
-            out["queue_size"] = _queue_size()
-            _append_enqueue_log(
-                dry=dry,
-                chain_id=chain_id,
-                initiative_id=initiative_id,
-                plan_id=plan_id,
-                plan_hash=plan_hash,
-                agent_id="",
-                enqueue_id="",
-                ok=True,
-                error="awaiting_agent_create_approval",
-            )
-            _update_runtime(
-                dry=dry,
-                mode=effective_mode,
-                ok=True,
-                error="",
-                denied_at="",
-                action_kind="agent.create.await_approval",
-                initiative_id=initiative_id,
-                plan_id=plan_id,
-                template_id=template_id,
-                agent_id="",
-            )
-            return out
+            approval_req = dict(req_rep.get("request") or {})
+            approval_status = str(approval_req.get("status") or "").strip().lower()
+            out["approval_request"] = approval_req
+            if approval_status == "pending":
+                out["ok"] = True
+                out["reason"] = "awaiting_agent_create_approval"
+                out["queue_size"] = _queue_size()
+                _append_enqueue_log(
+                    dry=dry,
+                    chain_id=chain_id,
+                    initiative_id=initiative_id,
+                    plan_id=plan_id,
+                    plan_hash=plan_hash,
+                    agent_id="",
+                    enqueue_id="",
+                    ok=True,
+                    error="awaiting_agent_create_approval",
+                )
+                _update_runtime(
+                    dry=dry,
+                    mode=effective_mode,
+                    ok=True,
+                    error="",
+                    denied_at="",
+                    action_kind="agent.create.await_approval",
+                    initiative_id=initiative_id,
+                    plan_id=plan_id,
+                    template_id=template_id,
+                    agent_id="",
+                )
+                return out
 
     create_dec = _gate_decide(
         gate=gate,

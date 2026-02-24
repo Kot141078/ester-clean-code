@@ -105,6 +105,38 @@ def _find_request_mut(state: Dict[str, Any], request_id: str) -> Optional[Dict[s
     return None
 
 
+def _supersede_pending_by_key(
+    state: Dict[str, Any],
+    *,
+    dedupe_key: str,
+    keep_request_id: str = "",
+    now_ts: int = 0,
+    note: str = "",
+) -> int:
+    key = str(dedupe_key or "").strip()
+    if not key:
+        return 0
+    ts = int(now_ts or int(time.time()))
+    keep_id = str(keep_request_id or "").strip()
+    changed = 0
+    reqs = list(state.get("requests") or [])
+    for row in reqs:
+        if not isinstance(row, dict):
+            continue
+        if str(row.get("id") or "") == keep_id:
+            continue
+        if str(row.get("status") or "") != "pending":
+            continue
+        if str(row.get("dedupe_key") or "") != key:
+            continue
+        row["status"] = "superseded"
+        row["updated_ts"] = ts
+        if note:
+            row["note"] = str(note)
+        changed += 1
+    return changed
+
+
 def request(
     *,
     source: str,
@@ -117,21 +149,45 @@ def request(
     dedupe_ttl_sec: Optional[int] = None,
 ) -> Dict[str, Any]:
     now_ts = int(time.time())
-    ttl = int(dedupe_ttl_sec if dedupe_ttl_sec is not None else int(os.getenv("ESTER_AGENT_CREATE_APPROVAL_DEDUPE_SEC", "900") or 900))
-    ttl = max(0, ttl)
+    del dedupe_ttl_sec
     key = str(dedupe_key or "").strip()
     with _LOCK:
         st = _load_state_no_lock(create=True)
         reqs = list(st.get("requests") or [])
-        if key and ttl > 0:
+        if key:
+            # Once approved/done exists for this key, do not ask again.
+            for row in reversed(reqs):
+                r = _normalize_request(dict(row or {}))
+                if str(r.get("dedupe_key") or "") != key:
+                    continue
+                if str(r.get("status") or "") not in {"approved", "done"}:
+                    continue
+                changed = _supersede_pending_by_key(
+                    st,
+                    dedupe_key=key,
+                    now_ts=now_ts,
+                    note="superseded_by_existing_approval",
+                )
+                if changed:
+                    _save_state_no_lock(st)
+                return {"ok": True, "created": False, "request": r}
+
+            # Hard dedupe for pending requests: one key -> one active pending.
             for row in reversed(reqs):
                 r = _normalize_request(dict(row or {}))
                 if str(r.get("status") or "") != "pending":
                     continue
                 if str(r.get("dedupe_key") or "") != key:
                     continue
-                if (now_ts - int(r.get("ts") or 0)) > ttl:
-                    continue
+                changed = _supersede_pending_by_key(
+                    st,
+                    dedupe_key=key,
+                    keep_request_id=str(r.get("id") or ""),
+                    now_ts=now_ts,
+                    note="superseded_duplicate_pending",
+                )
+                if changed:
+                    _save_state_no_lock(st)
                 return {"ok": True, "created": False, "request": r}
 
         item = _normalize_request(
@@ -203,6 +259,13 @@ def approve(request_id: str, *, actor: str = "ester", note: str = "") -> Dict[st
         row["updated_ts"] = now_ts
         if note:
             row["note"] = str(note)
+        _supersede_pending_by_key(
+            st,
+            dedupe_key=str(row.get("dedupe_key") or ""),
+            keep_request_id=rid,
+            now_ts=now_ts,
+            note="superseded_by_approved",
+        )
         _save_state_no_lock(st)
         updated = _normalize_request(dict(row or {}))
     return {"ok": True, "request": updated}
@@ -259,6 +322,13 @@ def complete(request_id: str, *, actor: str = "ester", agent_id: str = "", note:
             row["agent_id"] = str(agent_id)
         if note:
             row["note"] = str(note)
+        _supersede_pending_by_key(
+            st,
+            dedupe_key=str(row.get("dedupe_key") or ""),
+            keep_request_id=rid,
+            now_ts=now_ts,
+            note="superseded_by_done",
+        )
         _save_state_no_lock(st)
         updated = _normalize_request(dict(row or {}))
     return {"ok": True, "request": updated}
@@ -295,4 +365,3 @@ __all__ = [
     "complete",
     "fail",
 ]
-

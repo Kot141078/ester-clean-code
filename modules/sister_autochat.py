@@ -2,20 +2,20 @@
 """
 Sister AutoChat (background initiator)
 
-YaVNYY MOST: c=a+b -> vnutrenniy stimul (a) + proveryaemaya protsedura/ogranichiteli (b) => initsiirovannyy kontakt (c).
-SKRYTYE MOSTY:
-  - Ashby: variety pod kontrolem — dobavlyaem vneshnee mnenie, no cherez rate-limit i idle-gate.
-  - Cover&Thomas: kanal vs shum — ogranichivaem chastotu/razmer, chtoby ne utonut v boltovne.
-ZEMNOY ABZATs: kak dykhanie vo sne — avtonomno, no s predokhranitelyami, chtoby ne pereyti v giperventilyatsiyu.
+ЯВНЫЙ МОСТ: c=a+b -> внутренний стимул (a) + проверяемая процедура/ограничители (b) => инициированный контакт (c).
+СКРЫТЫЕ МОСТЫ:
+  - Ashby: variety под контролем — добавляем внешнее мнение, но через rate-limit и idle-gate.
+  - Cover&Thomas: канал vs шум — ограничиваем частоту/размер, чтобы не утонуть в болтовне.
+ЗЕМНОЙ АБЗАЦ: как дыхание во сне — автономно, но с предохранителями, чтобы не перейти в гипервентиляцию.
 
-Rezhimy:
-- SISTER_AUTOCHAT=1 vklyuchaet modul
-- SISTER_AUTOCHAT_ROLE=initiator|responder|both (po umolchaniyu initiator)
-  * initiator/both: zapuskaet fonovyy tsikl, kotoryy inogda delaet thought_request k sestre
-  * responder: tsikl ne startuet (no mark_user_activity mozhno dergat bez vreda)
+Режимы:
+- SISTER_AUTOCHAT=1 включает модуль
+- SISTER_AUTOCHAT_ROLE=initiator|responder|both (по умолчанию initiator)
+  * initiator/both: запускает фоновый цикл, который иногда делает thought_request к сестре
+  * responder: цикл не стартует (но mark_user_activity можно дергать без вреда)
 
-Vazhno:
-- Eto NE “vechnyy chat”. Eto bezopasnyy “samopusk” obmena mneniem, bez petel.
+Важно:
+- Это НЕ “вечный чат”. Это безопасный “самопуск” обмена мнением, без петель.
 """
 
 import os
@@ -88,7 +88,7 @@ def _parse_json_body(body: str) -> dict:
 
 def _in_quiet_hours() -> bool:
     """
-    SISTER_AUTOCHAT_QUIET_HOURS="23-7" (lokalnoe vremya uzla)
+    SISTER_AUTOCHAT_QUIET_HOURS="23-7" (локальное время узла)
     """
     spec = (os.getenv("SISTER_AUTOCHAT_QUIET_HOURS", "") or "").strip()
     if not spec or "-" not in spec:
@@ -102,7 +102,7 @@ def _in_quiet_hours() -> bool:
             return True
         if a < b:
             return a <= h < b
-        # naprimer 23-7: tikho s 23..23:59 i 0..6
+        # например 23-7: тихо с 23..23:59 и 0..6
         return h >= a or h < b
     except Exception:
         return False
@@ -125,7 +125,7 @@ class SisterAutoChat:
         self.base_url = (os.getenv("SISTER_NODE_URL", "") or "").strip().rstrip("/")
         self.token = (os.getenv("SISTER_SYNC_TOKEN", "") or "").strip()
 
-        # identifikator otpravitelya
+        # идентификатор отправителя
         self.sender = (
             os.getenv("ESTER_NODE_ID")
             or os.getenv("NODE_ID")
@@ -134,14 +134,14 @@ class SisterAutoChat:
             or "ester"
         ).strip()
 
-        # predokhraniteli
-        self.min_interval = int(os.getenv("SISTER_AUTOCHAT_MIN_INTERVAL_SEC", "600") or 600)  # 10 min
-        self.idle_sec = int(os.getenv("SISTER_AUTOCHAT_USER_IDLE_SEC", "600") or 600)        # 10 min
+        # предохранители
+        self.min_interval = int(os.getenv("SISTER_AUTOCHAT_MIN_INTERVAL_SEC", "600") or 600)  # 10 мин
+        self.idle_sec = int(os.getenv("SISTER_AUTOCHAT_USER_IDLE_SEC", "600") or 600)        # 10 мин
         self.max_per_hour = int(os.getenv("SISTER_AUTOCHAT_MAX_PER_HOUR", "4") or 4)
         self.max_chars = int(os.getenv("SISTER_AUTOCHAT_MAX_CHARS", "1200") or 1200)
         self.jitter = int(os.getenv("SISTER_AUTOCHAT_JITTER_SEC", "30") or 30)
 
-        # myagkaya “pamyat”
+        # мягкая “память”
         self._last_user_ts = time.time()
         self._last_sent_ts = 0.0
         self._sent_ts: list[float] = []
@@ -153,16 +153,23 @@ class SisterAutoChat:
             self._seeds = [s.strip() for s in seeds_env.split("|") if s.strip()]
         else:
             self._seeds = [
-                "odno nablyudenie o stabilnosti uzla",
-                "odin risk v tekuschem konture svyazi",
-                "odin malenkiy shag dlya uluchsheniya kachestva otvetov",
-                "odin test na petli i dreyf",
-                "chto vazhno uderzhat v kontekste segodnya",
+                "одно наблюдение о стабильности узла",
+                "один риск в текущем контуре связи",
+                "один маленький шаг для улучшения качества ответов",
+                "один тест на петли и дрейф",
+                "что важно удержать в контексте сегодня",
             ]
 
-        # log-fayl optsionalno
+        # лог-файл опционально
         self.log_file = (os.getenv("SISTER_AUTOCHAT_LOG_FILE", "") or "").strip()
         self.disable_on_net_deny = _env_bool("SISTER_AUTOCHAT_DISABLE_ON_NET_DENY", "1")
+        self.error_backoff_base_sec = max(1, int(os.getenv("SISTER_AUTOCHAT_ERROR_BACKOFF_BASE_SEC", "5") or 5))
+        self.error_backoff_max_sec = max(
+            self.error_backoff_base_sec,
+            int(os.getenv("SISTER_AUTOCHAT_ERROR_BACKOFF_MAX_SEC", "300") or 300),
+        )
+        self._net_fail_streak = 0
+        self._next_attempt_ts = 0.0
         self._disabled_reason = ""
 
     def mark_user_activity(self) -> None:
@@ -229,20 +236,24 @@ class SisterAutoChat:
         if not self.enabled or self.role not in ("initiator", "both"):
             return
 
-        # nebolshaya rassinkhronizatsiya pri starte
+        # небольшая рассинхронизация при старте
         if self.jitter > 0:
             time.sleep(random.randint(0, self.jitter))
 
         while not self._stop.is_set():
             try:
+                now_ts = time.time()
+                if self._next_attempt_ts > now_ts:
+                    time.sleep(min(2.0, max(0.1, self._next_attempt_ts - now_ts)))
+                    continue
                 if self._should_start():
                     seed = random.choice(self._seeds)
                     tid = self._thread_id()
 
                     prompt = (
-                        "Avtonomnyy obmen mneniem mezhdu Sestrami. "
-                        "Day 2–4 predlozheniya po teme i zaday odin utochnyayuschiy vopros v kontse. "
-                        f"Tema: {seed}."
+                        "Автономный обмен мнением между Сёстрами. "
+                        "Дай 2–4 предложения по теме и задай один уточняющий вопрос в конце. "
+                        f"Тема: {seed}."
                     )
                     if len(prompt) > self.max_chars:
                         prompt = prompt[: self.max_chars]
@@ -269,9 +280,11 @@ class SisterAutoChat:
                     st, body = _post_json(url, payload, timeout=5.0)
                     self._last_sent_ts = time.time()
                     self._sent_ts.append(self._last_sent_ts)
+                    self._net_fail_streak = 0
+                    self._next_attempt_ts = 0.0
 
                     j = _parse_json_body(body)
-                    # ozhidaem libo {"status":"success","content":"..."} libo prosto ack
+                    # ожидаем либо {"status":"success","content":"..."} либо просто ack
                     if st == 200 and isinstance(j, dict) and j.get("content"):
                         out = " ".join(str(j.get("content", "")).split())
                         out = out[:500]
@@ -311,6 +324,36 @@ class SisterAutoChat:
                         pass
                     break
 
+                low = err.lower()
+                netish = any(x in low for x in (
+                    "timed out",
+                    "timeout",
+                    "connection",
+                    "refused",
+                    "unreachable",
+                    "no route",
+                    "name or service not known",
+                    "temporary failure",
+                ))
+                if netish:
+                    self._net_fail_streak += 1
+                    exp = min(self._net_fail_streak - 1, 6)
+                    delay = min(float(self.error_backoff_max_sec), float(self.error_backoff_base_sec) * (2 ** exp))
+                    self._next_attempt_ts = time.time() + delay
+                    self._log(
+                        f"[AUTOCHAT] loop_error: {err} "
+                        f"(backoff={int(delay)}s streak={self._net_fail_streak})"
+                    )
+                    try:
+                        _mirror_background_event(
+                            f"[AUTOCHAT_ERROR] {err} backoff={int(delay)}s streak={self._net_fail_streak}",
+                            "autochat",
+                            "error",
+                        )
+                    except Exception:
+                        pass
+                    continue
+
                 self._log(f"[AUTOCHAT] loop_error: {err}")
                 try:
                     _mirror_background_event(
@@ -325,8 +368,8 @@ class SisterAutoChat:
 
 def start_sister_autochat_background() -> Optional[SisterAutoChat]:
     """
-    Zapuskaet fonovyy tsikl, esli vklyucheno env.
-    Vozvraschaet obekt dlya mark_user_activity()/stop(), inache None.
+    Запускает фоновый цикл, если включено env.
+    Возвращает объект для mark_user_activity()/stop(), иначе None.
     """
     ac = SisterAutoChat()
     if not ac.enabled or ac.role not in ("initiator", "both"):
