@@ -18,6 +18,13 @@ description = "Ester core"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "Ester Team" }]
+dependencies = [
+  "fastapi>=0.111.0",
+  "asgiref>=3.8.1",
+]
+
+[project.optional-dependencies]
+dev = ["httpx>=0.24"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -58,12 +65,12 @@ warn_redundant_casts = true
 warn_unreachable = false
 strict_optional = false
 disallow_untyped_defs = false
-exclude = '(?x)(
+exclude = '''(?x)(
     ^build/|
     ^dist/|
     ^.venv/|
     ^venv/
-)'
+)'''
 
 [tool.pytest.ini_options]
 addopts = "-q -ra"
@@ -80,12 +87,3 @@ skip_covered = true
 show_missing = true
 fail_under = 0
 
-[project]
-# ...
-dependencies = [
-  "fastapi>=0.111.0",
-  "asgiref>=3.8.1",
-]
-
-[project.optional-dependencies]
-dev = ["httpx>=0.24"]
