@@ -1,0 +1,13 @@
+# Clean Code — llms.txt
+
+## Start (raw)
+- https://raw.githubusercontent.com/Kot141078/ester-clean-code/main/README.md
+
+## Download (tag snapshot)
+- https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.3.zip
+
+## Verify
+- hashes/ + tools/ local checks
+
+## Canonical map
+- https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/MASTER_ENTRY.md
