@@ -1,7 +1,7 @@
 # routes/ester_net_will_routes_alias.py
-# Alias/bridge: volevoy planirovschik + setevoy profil dlya Ester.
-# Ne menyaet suschestvuyuschie signatury. Tolko novye endpointy.
-# Podchinyaetsya vole Ester i flagam okruzheniya.
+# Alias/bridge: willful planner + network profile for Esther.
+# Does not change existing signatures. Only new endpoints.
+# Submits to the will of Esther and the flags of the environment.
 
 from __future__ import annotations
 
@@ -21,10 +21,9 @@ def _env_flag(name: str, default: bool = False) -> bool:
 
 
 def _net_profile() -> dict:
-    """Sobrannyy profil setevogo mosta Ester.
+    """Assembled profile of the Esther network bridge.
 
-    Nichego ne vyzyvaet naruzhu; tolko chitaet ENV.
-    """
+    Nothing calls out; only reads ENV."""
     mode = os.getenv("ESTER_NET_SEARCH_AB", "A").upper()
     will_mode = os.getenv("ESTER_NET_WILL_AB", "A").upper()
 
@@ -44,11 +43,10 @@ def _net_profile() -> dict:
 
 @bp_ester_net_will.route("/ester/net/profile", methods=["GET"])
 def ester_net_profile():
-    """Profile setevogo mosta.
+    """Network bridge profile.
 
-    Ispolzuetsya dlya samoproverki i UI.
-    Nikakikh vneshnikh zaprosov.
-    """
+    Used for self-test and UI.
+    No external requests."""
     return jsonify({"ok": True, "config": _net_profile()})
 
 
@@ -56,8 +54,7 @@ def _load_json_response(path: str) -> tuple[int, dict]:
     """Vnutrenniy GET k uzhe suschestvuyuschim endpointam Ester.
 
     Bez setevykh vyzovov, tolko cherez testovyy klient Flask.
-    Bezopasno: esli chto-to idet ne tak — prosto vozvraschaem (code, {}).
-    """
+    Safe: esli chto-to idet ne tak - prosto vozvraschaem (code, {})."""
     try:
         client = current_app.test_client()
         resp = client.get(path)
@@ -77,16 +74,15 @@ def _load_json_response(path: str) -> tuple[int, dict]:
 
 @bp_ester_net_will.route("/ester/will/plan_ext_net", methods=["GET"])
 def ester_will_plan_ext_net():
-    """Rasshirennyy plan voli c setevym mostom.
+    """Rasshirnnyy plan voli c setevym mostom.
 
-    Delaet vnutrenniy zapros k /ester/will/plan_ext (esli est) ili /ester/will/plan
+    Delaet vnutrenniy zapros k /ester/will/plan_ext (esli est) or /ester/will/plan
     i dobavlyaet zadachi, svyazannye s setevym poiskom cherez most.
 
-    Invarianty:
+    Invariance:
     * Ne lomaet format bazovogo otveta.
-    * Dobavlyaet tolko novye zadachi.
-    * Uchityvaet ENV-flagi i volevoy profil.
-    """
+    * Add only new tasks.
+    * Uchityvaet ENV-flagi i volevoy profil."""
     # 1. Bazovyy plan
     code, base = _load_json_response("/ester/will/plan_ext")
     if code != 200 or not base:
@@ -98,13 +94,13 @@ def ester_will_plan_ext_net():
     tasks = list(base.get("tasks") or [])
     profile = _net_profile()
 
-    # 2. Ruchnoy poisk po vole operatora (vsegda razreshen, t.k. idet cherez operatora)
+    # 2. Manual search at the will of the operator (always allowed, since it goes through the operator)
     tasks.append(
         {
             "id": "net_search_operator_manual",
             "kind": "network",
-            "title": "Ruchnoy veb-poisk cherez most",
-            "reason": "Operator mozhet zaprosit vneshniy poisk cherez /ester/net/search.",
+            "title": "Manual web search via bridge",
+            "reason": "The operator can request an external search via /ester/net/search.",
             "safe_auto": False,
             "needs_consent": False,
             "area": "network",
@@ -115,14 +111,14 @@ def ester_will_plan_ext_net():
         }
     )
 
-    # 3. Poisk po vole Ester — tolko esli yavno razresheno ENV.
+    # 3. Search at the will of Esther - only if explicitly permitted by ENV.
     if profile.get("ester_allowed"):
         tasks.append(
             {
                 "id": "net_search_ester_logged",
                 "kind": "network",
-                "title": "Setevoy poisk dlya Ester cherez /ester/net/search_logged",
-                "reason": "Ester mozhet initsiirovat vneshniy poisk kak osoznannoe deystvie, logiruemoe v pamyat.",
+                "title": "Network search for Esther via /ester/net/search_logged",
+                "reason": "Esther can initiate an external search as a conscious action logged into memory.",
                 "safe_auto": False,
                 "needs_consent": True,
                 "area": "network",
@@ -133,9 +129,9 @@ def ester_will_plan_ext_net():
             }
         )
 
-    # Obnovlyaem i vozvraschaem
+    # Update and return
     base["tasks"] = tasks
-    # esli bazovyy otvet ne soderzhal mode — pomechaem kak 'B' (verkhniy sloy)
+    # if the basic answer did not contain a mode, mark it as ьБъ (top layer)
     base.setdefault("mode", "B")
     base.setdefault("ok", True)
     return jsonify(base)

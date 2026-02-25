@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-chunking.py — narezka teksta na smyslovye kuski (chanki).
-"""
+"""chunking.po - cutting text into meaningful pieces (chunks)."""
 
 import re
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -25,13 +23,13 @@ def chunk_document(doc_id, sections, head_meta=None):
         while start < len(text):
             end = start + CHUNK_SIZE
             
-            # Pytaemsya nayti konets predlozheniya, chtoby ne rezat poseredine slova
-            # Ischem tochku, perevod stroki ili probel v kontse okna
+            # We are trying to find the end of the sentence so as not to cut off the word in the middle
+            # We are looking for a period, line feed or space at the end of the window
             window = text[start:end]
             
-            # Esli eto ne posledniy kusok
+            # If this isn't the last piece
             if end < len(text):
-                # Ischem posledniy razdelitel v posledney chetverti okna
+                # We are looking for the last separator in the last quarter of the window
                 last_space = -1
                 for sep in [". ", "\n", " "]:
                     idx = window.rfind(sep, int(len(window)*0.75))
@@ -56,7 +54,7 @@ def chunk_document(doc_id, sections, head_meta=None):
                 })
             
             start = end - OVERLAP
-            # Zaschita ot vechnogo tsikla, esli overlap >= chunk_size (malo li)
+            # Protection from an eternal cycle if the overlap >= chunk_sitse (you never know)
             if start >= end:
                 start = end
                 

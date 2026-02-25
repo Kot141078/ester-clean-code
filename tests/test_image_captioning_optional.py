@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-Test dlya image captioning: dopuskaet dva iskhoda —
-  • Uspekh (esli transformers+model dostupny lokalno; togda proveryaem klyuchi)
-  • RuntimeError (esli zavisimostey/vesov net; togda proveryaem, chto oshibka osmyslennaya)
-"""
+"""Test dlya image captioning: dopuskaet dva iskhoda —
+  • Uspekh (if transformers+model dostupny lokalno; then proveryaem klyuchi)
+  • RuntimeError (if it depends/vesov net; then proveryaem, what oshibka osmyslennaya)"""
 
 import base64
 
@@ -33,6 +31,6 @@ def test_image_captioning_optional(clean_env):
         assert res["ok"] is True
         assert "caption" in res
     except RuntimeError as e:
-        # dopuskaem otsutstvie transformers/torch/vesov
+        # allows the absence of transformers/torch/scales
         msg = str(e).lower()
 # assert "transformers" in msg or "image-to-text" in msg or "podpis" in msg

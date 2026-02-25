@@ -1,7 +1,7 @@
 import os
 import sys
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
-# Pytaemsya zagruzit peremennye okruzheniya
+# Trying to load environment variables
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -28,7 +28,7 @@ try:
     print(f"\n--- 4. SEARCH TEST (Query: 'current bitcoin price') ---")
     try:
         with DDGS() as ddgs:
-            # Probuem prostoy tekstovyy poisk
+            # Trying a simple text search
             results = list(ddgs.text("current bitcoin price", max_results=1))
             if results:
                 print(f"✅ SUCCESS! Found result: {results[0].get('title', 'No Title')}")

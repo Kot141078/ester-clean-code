@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/messaging/test_wa_templates_preview.py — predprosmotr WA shablonov.
+"""tests/messaging/test_wa_templates_preview.py - predprosmotr WA shablonov.
 
 MOSTY:
 - (Yavnyy) preview_template renderit body s podstanovkoy {{1}}, {{2}}, ...
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Lishnie peremennye bezopasno ignoriruyutsya.
 
 ZEMNOY ABZATs:
-Zaschitnyy «dymovoy» test — chtoby predprosmotr ne lomalsya i pokazyval deystvitelno to, chto uydet po smyslu.
+Zaschitnyy “dymovoy” test - chtoby predprosmotr ne lomalsya i pokazyval deystvitelno to, chto uydet po smyslu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

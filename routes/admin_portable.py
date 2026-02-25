@@ -1,18 +1,16 @@
 # routes/admin_portable.py
 # -*- coding: utf-8 -*-
-"""
-routes/admin_portable.py - administrativnye endpointy Portable (myagkaya registratsiya).
+"""routes/admin_portable.py - administrative endpointy Portable (myagkaya registratsiya).
 
 Mosty:
 - Yavnyy (Portable ↔ UI admina): podklyuchaem panel portable-sborok pod /admin/portable, esli enterprise-moduli est.
 - Skrytyy #1 (Bezopasnost ↔ Ekspluatatsiya): ImportError ne valit prilozhenie - prosto pokazyvaem stub-status.
-- Skrytyy #2 (Nablyudaemost ↔ Dokumentooborot): otdaem svodnyy JSON o dostupnosti portable-komponentov.
+- Skrytyy #2 (Nablyudaemost ↔ Dokumentooborot): otdaem svodnyy JSON o dostupnosti portable-componentov.
 
 Zemnoy abzats:
-Fayl ne realizuet zapis fleshek sam. On akkuratno podklyuchaet blyuprinty iz modules.portable.*. Esli paketov net,
+Fayl ne realizuet zapis fleshek sam. On akkuratno podklyuchaet blyuprinty iz modules.portable.*. Esli packageov net,
 registratsiya propuskaetsya, a bazovye /admin/portable/status ostayutsya dostupny dlya UI.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import logging
@@ -33,12 +31,12 @@ def portable_status():
 def _safe_register(app, bp, prefix: str):
     try:
         app.register_blueprint(bp, url_prefix=prefix)
-        logging.info("Admin Portable: podklyuchen %s", prefix)
+        logging.info("Admin Portable: ZZF0Z connected", prefix)
     except Exception as e:
-        logging.error("Admin Portable: ne udalos podklyuchit %s: %s", prefix, e)
+        logging.error("Admin Portable: failed to connect ZZF0Z: ZZF1ZZ", prefix, e)
 
 def register_routes(app, seen_endpoints: Dict[str, str] | None = None):
-    # 1) Pryamye blyuprinty, esli realizovany v enterprise-paketakh
+    # 1) Direct blueprints, if implemented in enterprise packages
     ok = False
     try:
         from modules.portable.admin import bp as adm_bp  # type: ignore
@@ -56,7 +54,7 @@ def register_routes(app, seen_endpoints: Dict[str, str] | None = None):
     except Exception as e:
         logging.warning("Admin Portable: get_admin_blueprint nedostupen: %s", e)
 
-    # 2) Esli nichego ne podklyuchilos - registriruem stub
+    # 2) If nothing is connected, Steve registers
     if not ok:
         _safe_register(app, bp, "")
 

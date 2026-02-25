@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-ITER A2e:
+"""ITER A2e:
 - UI limits: /memory/list and /memory/search must respect limit/k AFTER merge+dedup.
 - Strip vectors by default: remove vec + vec_legacy + common embedding keys unless ?vec=1.
 - Timeline dedup within day (json+chroma) so “same moment” does not double-count.
-- Warn about suspicious persist dirs containing %VAR% (common “two homes” symptom).
+- Warn about suspicious persistent dirs containing %VAR% (common “two homes” symptom).
 
 YaVNYY MOST: c=a+b — pamyat ne dolzhna raspukhat ili “ischezat” iz-za skleyki istochnikov.
 SKRYTYE MOSTY:
-  - Ashby: variety (neskolko khranilisch) polezno, no bez upravlyayuschego ogranicheniya (limitov) prevraschaetsya v shum.
+  - Ashby: variety (neskolko khranilisch) polezno, no bez upravlyayuschego ogranicheniya (limitov) prevraschaetsya v noise.
   - Cover&Thomas: limity + dedup = kontrol kanala (ne taschim megabayty vec_legacy v UI).
 ZEMNOY ABZATs:
-  Eto kak kardiomonitor: vazhno ne tolko “mnogo signalov”, a chtoby chastota/shum byli pod kontrolem,
-  inache vrach (UI) vidit kashu vmesto ritma.
-"""
+  Eto kak kardiomonitor: vazhno ne tolko “mnogo signalov”, a chtoby frequency/shum byli pod kontrolem,
+  inache vrach (UI) vidit kashu vmesto ritma."""
 from __future__ import annotations
 
 import sys, time, shutil, py_compile
@@ -81,7 +79,7 @@ def _expand_path(p: str) -> str:
     if not p:
         return ""
     p2 = os.path.expandvars(os.path.expanduser(p))
-    # esli ostalis %VAR% — schitaem “pusto”, chtoby ne plodit musor
+    # if there are ZZF0ZZAR% left, we consider “empty” so as not to create garbage
     if _looks_unexpanded(p2):
         return ""
     return p2
@@ -697,7 +695,7 @@ def _backend_mode() -> str:
     if ch is None or not getattr(ch, "available", lambda: False)():
         return "json"
 
-    # esli auto/hybrid i chroma pustaya — smysla net, ne putaem UI
+    # if auto/hybrid and chromium are empty - there is no point, it doesn’t confuse OH
     try:
         total = int(getattr(ch, "total_count", lambda: 0)() or 0)
     except Exception:
@@ -737,7 +735,7 @@ def _dedup(items):
     return out
 
 def _maybe_strip_vectors(obj: dict) -> dict:
-    # po umolchaniyu rezhem lyubye vektory/embeddingi v UI, chtoby ne gnat megabayty
+    # by default we cut any vectors/embeddings in the UI so as not to waste megabytes
     keep = (request.args.get("vec","0") or "0").strip().lower() in ("1","true","yes","on")
     if keep:
         return obj

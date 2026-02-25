@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/timekeeper_routes.py - REST dlya khranitelya vremeni.
+"""routes/timekeeper_routes.py - REST dlya khranitelya vremeni.
 
 Mosty:
 - Yavnyy: (Veb ↔ Vremya) statusy i otmetki/zametki.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Proverili chasy - spokoynee zhivem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from flask import Blueprint, jsonify, request

@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R6/tools/r6_apply_rules.py — CLI: primenit pravila k poslednemu daydzhestu i zapisat R6-versiyu.
+"""R6/tools/r6_apply_rules.py - CLI: primenit pravila k poslednemu daydzhestu i zapisat R6-versiyu.
 
 Mosty:
-- Yavnyy: Enderton — konfig pravil kak proveryaemaya spetsifikatsiya; rezultat determinirovanno vosproizvodim.
-- Skrytyy #1: Cover & Thomas — umenshaem izbytochnost i povyshaem raznoobrazie (MMR) → luchshiy «signal».
+- Yavnyy: Enderton — konfig pravil kak proveryaemaya spetsifikatsiya; resultat determinirovanno vosproizvodim.
+- Skrytyy #1: Cover & Thomas — umenshaem izbytochnost i povyshaem raznoobrazie (MMR) → luchshiy “signal”.
 - Skrytyy #2: Ashbi — A/B-slot cherez ENV R6_MODE s bezopasnym katbekom v A.
 
 Zemnoy abzats (inzheneriya):
 Nakhodit posledniy `digest_*.json` v `PERSIST_DIR/portal/digests/`, primenyaet pravila i pishet
-novye fayly `digest_..._r6.json` i `digest_..._r6.md`. Tolko stdlib.
+novye fayly `digest_..._r6.json` i `digest_..._r6.md`. Only stdlib.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse
 import glob
@@ -47,14 +45,14 @@ def _write_md(digest: Dict, path_md: str) -> None:
         f.write("\n".join(lines))
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Primenenie pravil R6 k poslednemu daydzhestu")
+    ap = argparse.ArgumentParser(description="Application of the rules of the Republic of Belarus to the latest digest")
     ap.add_argument("--rules", required=True, help="Put k JSON s pravilami")
     args = ap.parse_args()
 
     digdir = _paths()
     p_in = _latest_digest(digdir)
     if not p_in:
-        print("WARN: net gotovykh daydzhestov. Snachala — r5_digest_build.py --plan ...")
+        print("VARN: there are no ready-made digests. First - p5_digest_build.by --plan...")
         return 0
 
     digest = json.load(open(p_in, "r", encoding="utf-8"))

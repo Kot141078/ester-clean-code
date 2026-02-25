@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/release/packager.py — snepshot koda/dannykh (manifest + tar.gz) i generatsiya .torrent metadannykh.
+"""modules/release/packager.py - snepshot koda/dannykh (manifest + tar.gz) i generatsiya .torrent metadannykh.
 
 Mosty:
 - Yavnyy: (Replikatsiya ↔ Upakovka) gotovim vosproizvodimuyu sborku.
 - Skrytyy #1: (Tselostnost ↔ Podpis) manifest podpisyvaetsya HMAC i mozhet byt proveren.
-- Skrytyy #2: (Set ↔ Rasprostranenie) .torrent — legalnyy kanal po opt-in (bez avto-sidinga).
+- Skrytyy #2: (Set ↔ Rasprostranenie).torrent - legalnyy kanal po opt-in (bez avto-sidinga).
 
 Zemnoy abzats:
-«Soberi chemodan» — upakovali sistemu, postavili pechat, pri zhelanii sozdali torrent dlya rasprostraneniya.
+“Soberi chemodan” - upakovali sistemu, postavili pechat, pri zhelanii sozdali torrent dlya rasprostraneniya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, tarfile, hashlib, time, math
 from typing import Any, Dict, List, Tuple

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/advisor.py — yadro "sovetnika": lokalnyy raschet podskazok i sygrannosti, plyus delegatnyy rezhim.
+"""modules/synergy/advisor.py - yadro "sovetnika": lokalnyy raschet podskazok i sygrannosti, plyus delegatnyy rezhim.
 
 MOSTY:
 - (Yavnyy) compute_advice(task_text, dims, candidates, team, top_n) → {"advice":[...], "team_bonus":float, "pairwise":{(a,b):w}}
-- (Skrytyy #1) A/B-slot: ADVISOR_MODE=A (lokalnyy raschet) ili B (popytka REST-vyzova /synergy/assign/advice → avtokatbek na A).
-- (Skrytyy #2) Bez pravok orkestratora: vozvraschaem *extras*, kotorye mozhno "podmeshat" v explain-trace ili otrenderit v UI.
+- (Skrytyy #1) A/B-slot: ADVISOR_MODE=A (lokalnyy raschet) or B (popytka REST-vyzova /synergy/assign/advice → avtokatbek na A).
+- (Skrytyy #2) Bez pravok orkestratora: vozvraschaem *extras*, kotorye mozhno "podmeshat" v explain-trace or otrenderit v UI.
 
 ZEMNOY ABZATs:
-Sovetnik govorit "kto luchshe podkhodit" i "s kem udobnee rabotat", ne lomaya osnovnoy planirovschik — operator vidit prichiny i spokoyno reshaet.
+Sovetnik govorit "kto luchshe podkhodit" i "s kem udobnee rabotat", ne lomaya osnovnoy planirovschik - operator vidit prichiny i spokoyno decide.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, json
@@ -40,7 +38,7 @@ def _local_advice(task_text: str, dims: Dict[str, float], candidates: List[str],
             "why": [f"profile_match={r['score']:.2f} ({','.join(r.get('labels',[]))})"]
         })
     advice.sort(key=lambda x:x["score"], reverse=True)
-    # komandnyy bonus i poparnaya sygrannost
+    # team bonus and pairs chemistry
     base_team = list(dict.fromkeys(team)) if team else []
     pairwise: Dict[str, float] = {}
     people = sorted(list(set((candidates or []) + base_team)))
@@ -53,27 +51,25 @@ def _local_advice(task_text: str, dims: Dict[str, float], candidates: List[str],
 
 def compute_advice(task_text: str = "", dims: Dict[str, float] | None = None,
                    candidates: List[str] | None = None, team: List[str] | None = None, top_n: int = 5) -> Dict[str, Any]:
-    """
-    Unifitsirovannyy vkhod; ADVISOR_MODE=B pytaetsya delegirovat v /synergy/assign/advice (esli smontirovan),
-    inache — lokalnyy raschet. Vozvraschaemaya struktura prigodna dlya explain-trace i UI.
-    """
+    """Unifitsirovannyy vkhod; ADVISOR_MODE=B pytaetsya delegirovat v /synergy/assign/advice (esli smontirovan),
+    inache - lokalnyy raschet. Vozvraschaemaya struktura prigodna dlya explain-trace i UI."""
     mode = (os.getenv("ADVISOR_MODE","A") or "A").upper()
     dims = dims or {}
     candidates = candidates or []
     team = team or []
     if mode == "B":
         try:
-            # lokalnyy vyzov bez HTTP-klienta (esli import dostupen)
+            # local call without HTTP client (if import is available)
             from routes.synergy_assign_advisor import synergy_assign_advice  # type: ignore
             payload = {"task_text": task_text, "dims": dims, "candidates": candidates, "team": team, "top_n": top_n}
             # asinkhronnaya ruchka → vyzovem sinkhronno cherez .__call__ (FastAPI vnutri ne nuzhen dlya logiki)
-            # esli eto ne srabotaet — uydem v lokalnyy raschet
+            # if this doesn’t work, we’ll go to local calculations
             import anyio
             res = anyio.run(lambda: synergy_assign_advice(payload))  # type: ignore
             if hasattr(res, "body"):
                 data = json.loads(res.body.decode("utf-8"))
             else:
-                data = dict(res)  # na sluchay pryamogo slovarya
+                data = dict(res)  # in case of a direct dictionary
             if isinstance(data, dict) and data.get("ok"):
                 advice = data.get("advice") or []
                 return {"advice": advice[:max(1, top_n)], "team_bonus": float(data.get("team_bonus") or 0.0), "pairwise": {}}

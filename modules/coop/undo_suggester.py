@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/undo_suggester.py — avto-predlozhenie undo dlya shagov.
+"""modules/coop/undo_suggester.py - avto-predlozhenie undo dlya shagov.
 
-Vkhod: steps (iz interaktiva/seyf-stsenariya), gde u nekotorykh net "undo".
-Pravila (evristiki, lokalno):
+Vkhod: steps (iz interaktiva/seyf-stsenariya), where u nekotorykh net "undo".
+Rules (evristiki, lokalno):
 - do.type=="hotkey" -> undo={"type":"hotkey","seq":"ESC"}
 - do.type=="workflow" name=N -> undo={"type":"workflow","name": N+"_undo"} (informativnaya podskazka)
 - do.type=="mix_apply" title=T -> undo={"type":"mix_apply","title":"<previous>"} (esli est v meta.prev_title)
@@ -11,7 +10,7 @@ Pravila (evristiki, lokalno):
 
 API:
 - suggest(steps) -> {"suggested":[indexes]}
-- patch(steps) -> vernet steps s dobavlennymi undo po evristikam (ne pishet na disk)
+- patch(steps) -> vernet steps s dobavlennymi undo po evristikam (ne pishet on disk)
 
 MOSTY:
 - Yavnyy: (Logika ↔ Nadezhnost) kazhdomu deystviyu — spas-shag.
@@ -21,8 +20,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Nikakikh vneshnikh zavisimostey, JSON na vkhod/vykhod.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

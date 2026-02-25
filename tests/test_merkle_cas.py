@@ -12,9 +12,9 @@ def test_cas_dedup_and_merkle(tmp_path, monkeypatch):
     d2, p2, s2 = put_bytes(b"same-payload")  # tot zhe digest
     assert d1 == d2
     assert os.path.exists(p1)
-    assert os.path.exists(p2)  # eto odin i tot zhe fayl
+    assert os.path.exists(p2)  # this is the same file
     assert s1 == s2 == len(b"same-payload")
 
     root = merkle_root([d1, d2])
-    # pri dubliruyuschikh listyakh koren determinirovanen
+    # with duplicate leaves the root is determined
     assert isinstance(root, str) and len(root) == 64

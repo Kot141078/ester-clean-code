@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-modules/p2p/bloom_filter.py — myagkiy P2P-filtr (Bloom) dlya obyavleniy «chto uzhe videli».
+"""modules/p2p/bloom_filter.py - myagkiy P2P-filtr (Bloom) dlya obyavleniy “what uzhe videli”.
 
 API:
   • add_many(ids:list[str]) -> dict
-  • check_many(ids:list[str]) -> dict  # {"present":[...], "absent":[...]}
+  • check_many(ids:list[str]) -> dict # {"present":[...], "absent":[...]}
   • export_bits() -> bytes
 
-Konfig:
+Config:
   • P2P_BLOOM_BITS (razmer bitovoy matritsy), P2P_BLOOM_HASHES (chislo khesh-funktsiy)
 
 Mosty:
 - Yavnyy: (Set ↔ Memory) sokraschaem dubli pri obmene dokumentami mezhdu uzlami.
 - Skrytyy #1: (Infoteoriya ↔ Effektivnost) kompaktnye obyavleniya bez peresylki massivov id.
-- Skrytyy #2: (Kibernetika ↔ Kontrol) stateless API — legko sinkhronizirovat s peers.
+- Skrytyy #2: (Kibernetika ↔ Kontrol) stateless API - easy sinkhronizirovat s peers.
 
 Zemnoy abzats:
-Eto «sito»: esli dokument uzhe proseyan — vtoroy raz ne gonyaem po seti.
+Eto “sito”: esli dokument uzhe proseyan - vtoroy raz ne gonyaem po seti.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import hashlib

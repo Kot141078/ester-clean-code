@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/selfcheck.py - UI/REST panel «Self-Check».
+"""routes/selfcheck.py - UI/REST panel “Self-Check”.
 
-Marshruty:
-  • GET  /admin/selfcheck             - HTML
-  • GET  /admin/selfcheck/status      - run_checks()
-  • POST /admin/selfcheck/recheck     - to zhe, chto status (dlya udobstva knopki)
-  • POST /admin/selfcheck/fix         - primenit bezopasnye fiksy (AB-aware)
+Route:
+  • GET /admin/selfcheck - HTML
+  • GET /admin/selfcheck/status - run_checks()
+  • POST /admin/selfcheck/recheck - to zhe, what status (dlya udobstva knopki)
+  • POST /admin/selfcheck/fix - primenit bezopasnye fiksy (AB-aware)
 
 Mosty:
-- Yavnyy (UX ↔ Kibernetika): v odnom meste proverka i «pochinka po mestu».
+- Yavnyy (UX ↔ Kibernetika): v odnom meste proverka i “pochinka po mestu”.
 - Skrytyy 1 (Infoteoriya ↔ Nadezhnost): dry-run v AB=A, yavnye otchety o kazhdoy operatsii.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): ne menyaet kontrakty i sloty, tolko ekspluatatsionnye veschi.
 
 Zemnoy abzats:
-Eto «panel tekhosmotra»: proverili - uvideli krasnye zony - po knopke lokalno popravili.
+This is “panel tekhosmotra”: proverili - uvideli krasnye zony - po knopke lokalno popravili.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

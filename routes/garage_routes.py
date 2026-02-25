@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-routes/garage_routes.py - unifitsirovannyy REST-interfeys «laboratorii-garazha» s P2P-sync.
+"""routes/garage_routes.py - unifitsirovannyy REST-interfeys “laboratorii-garazha” s P2P-sync.
 
 Mosty:
 - Yavnyy: (Veb ↔ Garazh) edinye ruchki dlya proektov, predlozheniy, saytov, invoysov i upravleniya sborkoy.
-- Skrytyy #1: (Ostorozhnost ↔ Pilyuli) eksport ZIP zaschischen «pill»-proverkoy dlya high-risk operatsiy.
+- Skrytyy #1: (Ostorozhnost ↔ Pilyuli) eksport ZIP zaschischen “pill”-proverkoy dlya high-risk operatsiy.
 - Skrytyy #2: (Memory ↔ Profile) klyuchevye sobytiya, vklyuchaya sborku, logiruyutsya v pamyat i pishut zapis profilea.
 - Skrytyy #3: (Mesh ↔ Avtomatizatsiya) zadachi sborki mozhno stavit v /mesh/task/submit.
-- Dop.: (Raspredelennaya pamyat Ester ↔ P2P) /garage/project/sync dlya simulyatsii sinkhronizatsii proektov po seti agentov.
+- Additional: (Raspredelennaya pamyat Ester ↔ P2P) /garage/project/sync dlya simulyatsii sinkhronizatsii proektov po seti agentov.
 
 Zemnoy abzats:
 Zadali komandu - i garazh nachal rabotat: sozdali proekt, sobrali predlozhenie, sdelali sayt, zapustili sborku,
-upakovali i vystavili schet. Vse cherez determinirovannye JSON-kontrakty.
+upakovali i vystavili schet. All through determinirovannye JSON-kontrakty.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -27,7 +25,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp = Blueprint("garage_routes", __name__)
 
-# --- Importy moduley (myagkie, kontrakty ne menyaem) ---
+# --- Imports of modules (soft, we do not change contracts) ---
 try:
     from modules.garage.core import (
         create_project as _create,
@@ -60,19 +58,19 @@ def init_app(app):  # pragma: no cover
 
 # --- RBAC/Bezopasnost/Audit ---
 def _rbac_ok() -> bool:
-    """Grubaya zaglushka RBAC dlya write-operatsiy (rasshir pod realnye roli)."""
+    """Rough RVACH plug for lie operations (expanded for real roles)."""
     if os.getenv("RBAC_REQUIRED", "true").lower() == "false":
         return True
     try:
         from modules.auth.rbac import has_any_role  # type: ignore
         return bool(has_any_role(["admin", "operator"]))  # type: ignore
     except Exception:
-        # Esli RBAC net - ne blokiruem testovyy stend
+        # If there is no RVACH, we do not block the test stand
         return True
 
 
 def _pill_ok(req) -> bool:
-    """Proverka «pill» dlya high-risk operatsiy (eksport)."""
+    """Dust check for high-risk operations (export)."""
     tok = req.args.get("pill", "")
     if not tok:
         return False
@@ -82,12 +80,12 @@ def _pill_ok(req) -> bool:
         rep = verify(tok, pattern="^/garage/project/export$", method="POST")
         return bool(rep.get("ok", False))
     except Exception:
-        # Esli v demo-rezhime verify nedostupen - propuskaem pri nalichii tokena
+        # If verification is not available in demo mode, skip it if you have a token
         return True if tok else False
 
 
 def _log_passport(event: str, data: Dict[str, Any]) -> None:
-    """Logiruet sobytie v «profile» pamyati (best-effort)."""
+    """Logs the event in the memory “profile” (best-effort)."""
     try:
         from modules.mem.passport import append as _pp  # type: ignore
 
@@ -112,7 +110,7 @@ def _discover_register(modname: str) -> Dict[str, Any]:
 
 
 def _p2p_sync_sim(project_id: str) -> Dict[str, Any]:
-    """P2P-simulyatsiya: dobavlyaem id proekta v bloom-filtr seti agentov."""
+    """P2P simulation: adding the project ID to the agent network bloom filter."""
     try:
         from modules.p2p.bloom import add  # type: ignore
 
@@ -264,7 +262,7 @@ def api_export():
 
 @bp.route("/garage/project/sync", methods=["POST"])
 def api_sync():
-    """Simulirovat P2P-sinkhronizatsiyu proekta mezhdu uzlami seti agentov."""
+    """Simulate P2P project synchronization between agent network nodes."""
     if not _rbac_ok():
         return jsonify({"ok": False, "error": "forbidden"}), 403
     d = request.get_json(silent=True) or {}
@@ -275,7 +273,7 @@ def api_sync():
     return jsonify(rep)
 
 
-# --- Marshruty: predlozheniya/sayty/invoysy/vakansii/dzhoby ---
+# --- Routes: offers/websites/invoices/vacancies/jobs ---
 @bp.route("/garage/proposal/make", methods=["POST"])
 def api_proposal():
     if not _rbac_ok():

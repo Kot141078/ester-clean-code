@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.thinking.loop_full — minimalnaya upravlyalka tsikla myshleniya.
+"""modules.thinking.loop_full - minimalnaya upravlyalka tsikla myshleniya.
 Mosty:
 - Yavnyy: status()/start()/pause()/resume()/stop()/tick_once() — sinkhronnye rychagi dlya vneshnikh moduley.
 - Skrytyy #1: (DX ↔ Nablyudaemost) — vozvraschaem strukturirovannyy status s taymshtampami.
 - Skrytyy #2: (Signaly ↔ Shina) — publikuem sobytiya v modules.events_bus, esli dostupno.
 
 Zemnoy abzats:
-Dazhe esli «bolshoy» tsikl esche stroitsya, vneshnim komponentam nuzhny bazovye rychagi upravleniya.
-Etot modul daet bezopasnye knopki: start/pauza/rezyum/stop, razovyy tik i status bez vneshnikh zavisimostey.
-# c=a+b
-"""
+Dazhe esli “bolshoy” tsikl esche stroitsya, vneshnim komponentam nuzhny bazovye rychagi upravleniya.
+This modul daet bezopasnye knopki: start/pauza/rezyum/stop, razovyy tik i status bez vneshnikh zavisimostey.
+# c=a+b"""
 import os
 import time
 from typing import Dict, Any, Optional, TypedDict
@@ -33,7 +31,7 @@ _STATE: Dict[str, Any] = {
     "paused": False,
     "ticks": 0,
     "last_event": None,        # type: Optional[_Event]
-    # Parametry zapuska (sovmestimost s routes/agent_loop_routes.py)
+    # Launch options (compatibility with Ruthes/agent_loop_rutes.po)
     "goal": "",
     "interval_sec": 5,
     "max_steps": 50,
@@ -46,20 +44,20 @@ _STATE: Dict[str, Any] = {
 }
 
 def _emit(evt: str, payload: Dict[str, Any]) -> None:
-    """Bezopasnaya publikatsiya sobytiya (mozhet otsutstvovat shina)."""
+    """Secure event publishing (bus may be missing)."""
     try:
         from modules import events_bus  # type: ignore
         if events_bus and hasattr(events_bus, "emit"):
             events_bus.emit(evt, payload)
     except Exception:
-        # shina ne obyazatelna
+        # bus is not required
         pass
 
 def _now() -> int:
     return int(time.time())
 
 def status() -> Dict[str, Any]:
-    """Tekuschiy status tsikla (bez pobochnykh effektov)."""
+    """Current cycle status (no side effects)."""
     return {
         "ok": True,
         "running": bool(_STATE["running"]),
@@ -68,7 +66,7 @@ def status() -> Dict[str, Any]:
         "last_event": _STATE["last_event"],
         "ab": AB,
         "ts": _now(),
-        # otladochnye polya
+        # debug fields
         "goal": _STATE["goal"],
         "interval_sec": _STATE["interval_sec"],
         "max_steps": _STATE["max_steps"],
@@ -85,10 +83,8 @@ def start(
     max_run_sec: int = 120,
     idle_break_sec: int = 20,
 ) -> Dict[str, Any]:
-    """
-    Sovmestimaya signatura pod routes/agent_loop_routes.py.
-    Znacheniya sokhranyaem dlya nablyudaemosti; sam tsikl — upravlyaetsya tikom.
-    """
+    """Compatible signature under Rutes/agent_loop_rutes.po.
+    We save the values ​​for observability; the cycle itself is tick-controlled."""
     _STATE["running"] = True
     _STATE["paused"] = False
     _STATE["ticks"] = 0
@@ -99,7 +95,7 @@ def start(
     _STATE["idle_break_sec"] = int(idle_break_sec or 20)
     _STATE["started_ts"] = _now()
     _STATE["last_event"] = {"ts": _STATE["started_ts"], "op": "start", "reason": str(goal or "manual")}
-    _emit("thinking.start", _STATE["last_event"])  # most v shinu sobytiy (esli est)
+    _emit("thinking.start", _STATE["last_event"])  # bridge to the event bus (if any)
     return status()
 
 def pause(reason: str = "manual") -> Dict[str, Any]:
@@ -130,10 +126,8 @@ def stop(reason: Optional[str] = None) -> Dict[str, Any]:
     return status()
 
 def tick_once(reason: str = "manual") -> Dict[str, Any]:
-    """
-    Razovyy takt «myshleniya» — sovmestimyy eksport dlya routera.
-    Po faktu — schetchik tikov i otmetki vremeni, chtoby instrumenty nablyudaemosti zhili uzhe seychas.
-    """
+    """Razovyy takt “myshleniya” - sovmestimyy eksport dlya routera.
+    Po faktu - schetchik tikov i otmetki vremeni, chtoby instrumenty nablyudaemosti zhili uzhe seychas."""
     if not _STATE["running"]:
         s = status()
         s["note"] = "not_running"

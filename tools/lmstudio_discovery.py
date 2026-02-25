@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-CLI: LM Studio Discovery — offlayn skanirovanie i dopisyvanie aliasov v recommend.env.
+"""CLI: LM Studio Discovery - offlayn scanirovanie i dopisyvanie aliasov v recommend.env.
 
 Mosty (yavnyy):
-- (CLI ↔ UI) Te zhe deystviya dostupny iz terminala i admin-paneli, chto snizhaet zavisimost ot odnogo interfeysa.
+- (CLI ↔ UI) Te zhe deystviya dostupny iz terminala i admin-paneli, chto snizhaet zavisimost from one interfeysa.
 
 Mosty (skrytye):
 - (Nadezhnost ↔ Operatsii) Dry-run po umolchaniyu (A) umenshaet veroyatnost oshibochnoy zapisi.
-- (Infrastruktura ↔ Ekonomika) Stdlib-podkhod (bez pip) uproschaet ekspluatatsiyu na «chistykh» mashinakh.
+- (Infrastruktura ↔ Ekonomika) Stdlib-podkhod (bez pip) uproschaet ekspluatatsiyu na “chistykh” mashinakh.
 
 Zemnoy abzats:
 Utilita pozvolyaet v oflayne bystro poluchit spisok lokalnykh LM Studio (porty, modeli) i predlozhennye aliasy,
 a takzhe primenit ikh (v rezhime B) k faylu ESTER/portable/recommend.env.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -118,10 +116,8 @@ def _propose_aliases(servers: List[Dict[str, object]]) -> Dict[str, str]:
     return aliases
 
 def discover() -> Dict[str, object]:
-    """
-    Esli v proekte suschestvuet modules.lmstudio.discovery.discover — ispolzuem ego,
-    inache lokalnyy skaner (sovmestimo s offlayn-politikoy).
-    """
+    """If there is a module.ltstudio.discovery.discover in the project, use it,
+    otherwise local scanner (compatible with offline policy)."""
     try:
         from modules.lmstudio import discovery as core  # type: ignore
         if hasattr(core, "discover") and callable(core.discover):

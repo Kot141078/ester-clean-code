@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/synergy_smoke.py — smoke dlya sinergii.
+"""tests/synergy_smoke.py - smoke dlya sinergii.
 
 Mosty:
 - (Yavnyy) Registriruem lyudey/dron, sozdaem komandu, naznachaem roli, proveryaem puls.
@@ -8,10 +7,9 @@ Mosty:
 - (Skrytyy #2) Notifikatsii bezopasny: po umolchaniyu dry.
 
 Zemnoy abzats:
-Bystro ubezhdaemsya, chto «starshiy strateg + molodoy operator + dron» formiruyut sbalansirovannuyu komandu.
+Bystro ubezhdaemsya, chto “starshiy strateg + molodoy operator + dron” formiruyut sbalansirovannuyu komandu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, pytest
 from flask import Flask

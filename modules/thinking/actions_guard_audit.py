@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_guard_audit.py — eksheny «voli» dlya storozha i audita pamyati.
+"""modules/thinking/actions_guard_audit.py - eksheny “voli” dlya storozha i audita pamyati.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Upravlenie) udobnye sokrascheniya dlya statusa/konfiguratsii/audita.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Profile) logi pishutsya modulyami-ispolnitelyami.
 
 Zemnoy abzats:
-Mozgu ne nado pomnit adresa ruchek — est korotkie komandy.
+Mozgu ne nado pomnit adresa ruchek - est korotkie komandy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

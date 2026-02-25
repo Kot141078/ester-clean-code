@@ -9,7 +9,7 @@ _AB = os.getenv("ESTER_PLAIN_PING_AB", "B").upper()  # B=on by default
 
 @_bp.get("/_ping")
 def _ping():
-    # maksimalno prostoy otvet, bez jsonify, current_app, shablonov
+    # the simplest possible answer, without jsonify, current_app, templates
     return Response("pong", mimetype="text/plain; charset=utf-8")
 
 def register(app):

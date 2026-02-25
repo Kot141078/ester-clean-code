@@ -11,7 +11,7 @@ nodes:
     type: script
     update:
       greeting: "Nachinaem obrabotku: {{ctx.spec}}"
-      stamp: "ts={{ctx.__now__}}"  # __now__ ne zadan, budet strokoy kak est — demonstratsiya bezoshibochnosti
+      stamp: "ts={{ctx.__now__}}"  # __new__ is not specified, will be a string as is - demonstration of error-freeness
     template: "Vsego elementov: {{ctx.items}}"
     out: "header"
     depends: []

@@ -1,30 +1,28 @@
 # -*- coding: utf-8 -*-
-"""
-modules/vision/triggers.py — triggery ekrana (OCR/shablon → deystvie).
+"""modules/vision/triggers.py - triggery ekrana (OCR/template → deystvie).
 
-Tipy triggerov:
+Tipy trigger:
 - ocr_contains: {"text":"...", "lang":"eng+rus"}
 - template_match: {"template_b64":"...", "threshold":0.78}
 
-Deystviya:
+Action:
 - workflow: {"name":"wf_name"}
 - macro: {"name":"type_text", "args":{"text":"..."}}
-- mix_apply: {"title":"..."}             # primenit miks/profil dlya okna po zagolovku (profile_mix.apply_for_title)
+- mix_apply: {"title":"..."} # primenit miks/profil dlya okna po zagolovku (profile_mix.apply_for_title)
 - hotkey: {"seq":"CTRL+S"}
 
 Khranilische: data/vision/triggers.json
-Opros: fon. potok s periodom N ms, beret /desktop/rpa/screen i /desktop/metrics (esli est), uchityvaet content_pauser.
+Poll: fon. potok s periodom N ms, beret /desktop/rpa/screen i /desktop/metrics (esli est), uchityvaet content_pauser.
 
 MOSTY:
 - Yavnyy: (Zrenie ↔ Deystvie) uvidel → sdelal.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) yavnye detektory (OCR/shablon) i determinirovannyy tsikl.
-- Skrytyy #2: (Kibernetika ↔ Kontrol) «pauza po kontentu» kak tormoz po srede.
+- Skrytyy #2: (Kibernetika ↔ Kontrol) “pauza po kontentu” kak tormoz po srede.
 
 ZEMNOY ABZATs:
-Nikakikh demonov. Obychnyy Thread s REST-knopkoy start/stop. Vse fayly — lokalnye JSON.
+Nikakikh demonov. Obychnyy Thread s REST-knopkoy start/stop. All fayly - local JSON.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, threading, time
 from typing import Dict, Any, List, Optional
@@ -120,16 +118,16 @@ def _fire_action(act: Dict[str, Any]) -> Dict[str, Any]:
     if t == "workflow":
         return _post("/rpa/workflows/run", {"name": act.get("name","")})
     if t == "macro":
-        # unifitsirovannaya ruchka makrosov — cherez workflows (edinichnyy shag)
+        # unified macro handle - via workflows (single step)
         name = act.get("name","")
         args = act.get("args",{})
         spec = {"name": f"tmp_{name}", "steps":[{"macro": name, "args": args}]}
         try:
-            # odnorazovyy zapusk cherez spets-ruchku
+            # one-time launch via a special handle
             return _post("/rpa/workflows/run_inline", spec)
         except Exception:
-            # esli net run_inline — sozdadim i vypolnim vremennyy workflow
-            _post("/rpa/workflows/save", spec)  # sovmestimo s suschestvuyuschim API (esli est)
+            # if there is no run_inline, we will create and execute a temporary workflow
+            _post("/rpa/workflows/save", spec)  # compatible with existing API (if any)
             return _post("/rpa/workflows/run", {"name": spec["name"]})
     if t == "mix_apply":
         title = act.get("title","")
@@ -138,9 +136,9 @@ def _fire_action(act: Dict[str, Any]) -> Dict[str, Any]:
         return _post("/desktop/window/hotkey", {"seq": act.get("seq","")})
     return {"ok": False, "error": "unknown_action"}
 
-# --- detectors (OCR/Template) cherez uzhe suschestvuyuschie ruchki ---
+# --- detectors (OCR/Template) through existing handles ---
 def _match_ocr(png_b64: str, text: str, lang: str) -> bool:
-    # ispolzuem uzhe suschestvuyuschiy /desktop/rpa/ocr_contains
+    # we use the existing /desktop/rpa/environment_contains
     res = _post("/desktop/rpa/ocr_contains", {"png_b64": png_b64, "needle": text, "lang": lang or "eng+rus"})
     return bool(res.get("ok") and res.get("found"))
 

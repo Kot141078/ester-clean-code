@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/ester_thinking_mode.py
+"""scripts/ester_thinking_mode.py
 
 Mosty:
-- Yavnyy: (CLI <-> thinking_profiles) — pechataet gotovye ENV-nabory dlya raznykh rezhimov.
+- Yavnyy: (CLI <-> thinking_profiles) - pechataet gotovye ENV-nabory dlya raznykh rezhimov.
 - Skrytyy #1: (inzhener <-> .env) — daet komandy dlya PowerShell/Bash bez avtozapisi faylov.
-- Skrytyy #2: (thinking_manifest <-> rezhimy) — profili sovmestimy s tem, chto proveryaet manifest.
+- Skrytyy #2: (thinking_manifest <-> rezhimy) - profili sovmestimy s tem, what proveryaet manifest.
 
 Zemnoy abzats:
 Zapuskaesh:
     python -m scripts.ester_thinking_mode human_like
-i poluchaesh stroki dlya PowerShell/Linux, kotorye vklyuchayut u Ester volyu, prioritety,
+i poluchaesh stroki dlya PowerShell/Linux, kotorye vklyuchayut u Ester volyu, priority,
 mnogokontekstnyy kaskad i treys. Nikakoy magii: ty sam reshaesh, primenyat ili net.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import sys
@@ -60,7 +58,7 @@ def main() -> int:
 
     print(f"[ester_thinking_mode] profile={name}")
     print()
-    print("# JSON (dlya proverki)")
+    print("# ZHSION (for verification)")
     print(json.dumps(env, ensure_ascii=False, indent=2))
     print()
     print("# PowerShell (Windows)")

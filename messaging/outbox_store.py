@@ -91,10 +91,8 @@ def _insert_row(
 ) -> int:
     with _conn() as conn:
         cur = conn.execute(
-            """
-            INSERT INTO outgoing(ts,channel,chat_id,text,status,http_status,request_id,raw_json)
-            VALUES(?,?,?,?,?,?,?,?)
-            """,
+            """INSERT INTO outgoing(ts,channel,chat_id,text,status,http_status,request_id,raw_json)
+            VALUES(?,?,?,?,?,?,?,?)""",
             (
                 float(time.time()),
                 str(channel or "unknown"),

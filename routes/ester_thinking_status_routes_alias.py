@@ -3,8 +3,7 @@
 
 GET /ester/thinking/status
 - otdaet svodnye stats ot thinking_trace_adapter (esli on est),
-  ne vmeshivayas v osnovnoy manifest/quality.
-"""
+  ne vmeshivayas v osnovnoy manifest/quality."""
 from __future__ import annotations
 
 from typing import Any

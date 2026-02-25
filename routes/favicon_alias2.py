@@ -30,7 +30,7 @@ def favicon_alias():
             except Exception as e:
                 _log("send_file error: %r" % e)
                 break
-    # Nichego ne nashli - otdaem 204 bez oshibok
+    # We didn’t find anything - we return 204 without errors
     r = make_response("", 204)
     r.headers["X-Ester-Favicon-Alias2"] = "empty"
     return r

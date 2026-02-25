@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-Symbolic↔Neuro Bridge — most mezhdu «simvolicheskim» grafom znaniy i neyrourovnem (embedding-poiskom).
+"""Symbolic↔Neuro Bridge - most mezhdu “simvolicheskim” grafom znaniy i neyrourovnem (embedding-poiskom).
 
 Mosty:
-- Yavnyy: (Graf znaniy ↔ Embeddingi) — indeksiruem uzly KG i daem poisk po smyslu (vektornaya blizost).
+- Yavnyy: (Graf znaniy ↔ Embeddingi) - indeksiruem uzly KG i daem poisk po smyslu (vektornaya blizost).
 - Skrytyy 1: (Doverie ↔ Ranzhirovanie) — uchityvaem TrustIndex/Emotion pri sortirovke rezultatov.
-- Skrytyy 2: (Ontologiya ↔ Normalizatsiya) — soglasuem terminy cherez Ontology Cache pered zapisyu/poiskom.
+- Skrytyy 2: (Ontologiya ↔ Normalizatsiya) - soglasuem terminy cherez Ontology Cache pered zapisyu/poiskom.
 
 Zemnoy abzats:
-Eto «perekhodnik» mezhdu kartotekoy faktov (uzly/svyazi) i «chutem» po smyslu. Polozhili uzel — poschitali otpechatok,
-potom bystro nakhodim blizkie po smyslu. Esli fakt doverennyy — podnimaem ego vyshe v vydache.
-"""
+Eto “perekhodnik” mezhdu kartotekoy faktov (uzly/svyazi) i “chutem” po smyslu. Polozhili uzel - poschitali otpechatok,
+potom bystro nakhodim blizkie po smyslu. Esli fakt trustennyy - podnimaem ego vyshe v vydache."""
 from __future__ import annotations
 
 import os, json, math, hashlib
@@ -42,9 +40,7 @@ def _save(db: Dict[str, Any]) -> None:
         pass
 
 def _text_to_vec(text: str, dim: int = 64) -> List[float]:
-    """
-    Offlayn «embedding» bez vneshnikh zavisimostey: kheshiruem tokeny v fiks.vektor (feature hashing).
-    """
+    """Offline “embedding” without external dependencies: we hash tokens in a fixed vector (nashing feature)."""
     v = [0.0] * dim
     for tok in (text or "").lower().split():
         h = int(hashlib.sha256(tok.encode("utf-8")).hexdigest(), 16)
@@ -54,10 +50,8 @@ def _text_to_vec(text: str, dim: int = 64) -> List[float]:
     return [round(x / norm, 6) for x in v]
 
 def index_node(node_id: str, text: str, meta: Dict[str, Any] | None = None) -> Dict[str, Any]:
-    """
-    Zapis/obnovlenie uzla KG + offlayn-vektor.
-    Slot A — zakonservirovannyy indeks. Slot B — perezapis vektora pri sovpadenii id.
-    """
+    """Record/update CG node + offline vector.
+    Slot A is a canned index. Slot B - rewrite the vector if the ID matches."""
     node_id = (node_id or "").strip()
     text = (text or "").strip()
     if not node_id or not text:
@@ -67,7 +61,7 @@ def index_node(node_id: str, text: str, meta: Dict[str, Any] | None = None) -> D
     with ab_switch("KG") as slot:
         db = _load()
         if slot == "A" and node_id in db["nodes"]:
-            # ne trogaem suschestvuyuschie v A — tolko meta-apdeyt
+            # we don’t touch the existing ones in A - just a meta update
             db["nodes"][node_id]["meta"] = {**(db["nodes"][node_id].get("meta") or {}), **(meta or {})}
         else:
             db["nodes"][node_id] = {
@@ -79,10 +73,8 @@ def index_node(node_id: str, text: str, meta: Dict[str, Any] | None = None) -> D
         return {"ok": True, "id": node_id, "slot": slot}
 
 def resolve(text: str, topk: int = 5) -> Dict[str, Any]:
-    """
-    Poisk blizhayshikh uzlov po smyslu.
-    V ranzhirovanii uchityvaetsya doverie/affekt (esli est zapisi).
-    """
+    """Search for the nearest nodes by meaning.
+    The ranking takes into account trust/affect (if there are entries)."""
     q = (text or "").strip()
     if not q:
         return {"ok": False, "error": "empty_query"}
@@ -103,9 +95,7 @@ def resolve(text: str, topk: int = 5) -> Dict[str, Any]:
     return {"ok": True, "items": items}
 
 def enrich(node_ids: List[str]) -> Dict[str, Any]:
-    """
-    Vozvraschaet teksty/meta po spisku id uzlov (tonkiy «simvolicheskiy» sloy).
-    """
+    """Returns texts/meta from a list of node ids (a thin “symbolic” layer)."""
     db = _load()
     out = {}
     for nid in node_ids or []:

@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-security.e2ee — prostaya E2EE-obertka.
+"""security.e2ee - prostaya E2EE-obertka.
 MOSTY:
 - (Yavnyy) routes.* ↔ e2ee.encrypt/decrypt
 - (Skrytyy 1) ENV ↔ klyuch: ESTER_E2EE_KEY (base64/utf-8/proizvolnaya stroka)
-- (Skrytyy 2) Zavisimosti ↔ offlayn: snachala probuem cryptography.Fernet, inache XOR-folbek.
+- (Skrytyy 2) Dependency ↔ offlayn: snachala try cryptography.Fernet, inache XOR-folbek.
 ZEMNOY ABZATs:
 Edinoe API dlya rezervnykh kopiy i P2P: rabotaet i s cryptography, i bez nee (offlayn).
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 import base64, hashlib, os
 from typing import Tuple
@@ -21,7 +19,7 @@ except Exception:  # pragma: no cover
 
 def _key_bytes() -> bytes:
     raw = os.getenv("ESTER_E2EE_KEY") or "ester-offline-key"
-    # Snachala probuem kak base64, inache delaem sha256 ot stroki
+    # First we try as basier64, otherwise we do sha256 from the line
     try:
         kb = base64.urlsafe_b64decode(raw.encode("utf-8"))
         if kb:

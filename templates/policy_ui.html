@@ -10,7 +10,7 @@
  .note{opacity:.7;font-size:13px}
  .ok{color:#0a0}
 </style>
-<h1>Politika khraneniya i rezhimy</h1>
+<h1>Storage policies and modes</h1>
 <div class="row"><b>POLICY_DEFAULT</b>:
   <select id="policy">
     <option value="L0">L0</option>
@@ -19,10 +19,10 @@
   </select>
 </div>
 <div class="row">
-  <label><input id="ext" type="checkbox"> Razreshit vneshnie LLM (ALLOW_EXT_LLM)</label>
+  <label><input id="ext" type="checkbox"> Allow external LLMs (ALL_IS_LLM)</label>
 </div>
 <div class="row">
-  <label>TTL kesha otvetov (chasy): <input id="ttl" type="number" min="1" value="168"></label>
+  <label>Response cache TTL (hours): <input id="ttl" type="number" min="1" value="168"></label>
 </div>
 <div class="row">
   <label>Shardirovanie (SHARD_STRATEGY): 
@@ -54,7 +54,7 @@
   <h3>Tekuschiy konfig</h3>
   <pre id="cfg"></pre>
 </div>
-<div class="note">Podpis izmeneniy: fayl <code>data/config.json</code>. Esli ustanovlen <code>ADMIN_JWT</code> — dlya POST nuzhen zagolovok <code>Authorization: Bearer ...</code>.</div>
+<div class="note">Podpis izmeneniy: fayl <code>data/config.json</code>. If installed <code>ADMIN_JWT</code> - POST requires a title <code>Authorization: Bearer ...</code>.</div>
 <script>
 async function load(){
   const r=await fetch('/policy'); const j=await r.json();

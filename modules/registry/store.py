@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.registry.store — faylovyy JSON‑reestr.
+"""modules.registry.store - faylovyy JSON‑registr.
 Mosty:
 - Yavnyy: get/put/list/search v papke `data/registry/` (ili ENV `ESTER_REGISTRY_DIR`).
 - Skrytyy #1: (DX ↔ Stabilnost) — atomarnaya zapis cherez vremennyy fayl i rename.
 - Skrytyy #2: (Sovmestimost ↔ Porty) — tolko standartnaya biblioteka, bez vneshnikh zavisimostey.
 
 Zemnoy abzats:
-Faylovyy reestr — inzhenernyy «bufer obmena» mezhdu podsistemami: deshevyy, ponyatnyy, nadezhnyy.
-# c=a+b
-"""
+Faylovyy reestr - inzhenernyy “buffer exchange” mezhdu podsistemami: deshevyy, ponyatnyy, nadezhnyy.
+# c=a+b"""
 import json, os, tempfile
 from pathlib import Path
 from typing import Dict, Any, List, Optional

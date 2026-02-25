@@ -1,16 +1,14 @@
 # routes/beacons_routes.py
 # -*- coding: utf-8 -*-
-"""
-routes/beacons_routes.py — REST-ruchki dlya prosmotra mayakov (beacons) aktivnosti.
+"""routes/beacons_routes.py - REST-ruchki dlya prosmotra mayakov (beacons) aktivnosti.
 
 Endpoynty (JWT):
-  GET  /beacons/list?limit=200&since=<ts>&kinds=backup.done,scheduler:tick
-  GET  /beacons/stats?limit=1000&since=<ts>
+  GET /beacons/list?limit=200&since=<ts>&kinds=backup.done,scheduler:tick
+  GET /beacons/stats?limit=1000&since=<ts>
 
-R egistratsiya:
+Registration:
   from routes.beacons_routes import register_beacons_routes
-  register_beacons_routes(app, url_prefix="/beacons")
-"""
+  register_beacons_routes(app, url_prefix="/beacons")"""
 from __future__ import annotations
 
 from typing import List, Optional
@@ -62,7 +60,7 @@ def register_beacons_routes(app, url_prefix: str = "/beacons"):
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
 def register(app):
-    # vyzyvaem suschestvuyuschiy register_beacons_routes(app) (url_prefix beretsya po umolchaniyu vnutri funktsii)
+    # calls an existing register_veasons_rutes(app) (url_prefix is ​​taken by default inside the function)
     return register_beacons_routes(app)
 
 # === /AUTOSHIM ===

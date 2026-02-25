@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-modules/proactive/video_autorunner.py — proaktivnyy tsikl: podpiski (RSS/poisk/pryamye) → ingest_video → pamyat.
+"""modules/proactive/video_autorunner.py - proaktivnyy tsikl: podpiski (RSS/poisk/pryamye) → ingest_video → pamyat.
 
 Funktsii:
   - run_once(mode="subs"|"search", topic=None, limit=None) -> dict: edinichnyy progon.
   - state() -> dict: kratkaya statistika (posledniy progon, skolko novykh).
-  - register(app): registriruet blyuprint REST (sm. routes/proactive_video_routes.py).
+  - register(app): register blueprint REST (sm. routes/proactive_video_routes.py).
 
 ENV:
   - VIDEO_SUBS_ENABLED=0|1 — esli 1, razresheno ispolzovat iz planirovschika/kron.
@@ -16,10 +15,9 @@ Mosty:
 - Skrytyy #2: (Inzheneriya ↔ Nadezhnost) sostoyanie sokhranyaetsya v data/video_subs_state.json dlya determinizma/dedupa.
 
 Zemnoy abzats:
-Eto "smennyy master": raz v iteratsiyu obkhodit truby (istochniki), otmechaet novye yaschiki (video), daet zadachu linii — raspilit/opisat.
+Eto "smennyy master": raz v iteratsiyu obkhodit truby (istochniki), otmechaet novye yaschiki (video), daet zadachu linii - raspilit/opisat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -48,8 +46,8 @@ def _persist_dir() -> str:
     return root
 
 def _load_yaml(path: str) -> Dict[str, Any]:
-    # Mini-parser YAML dlya prostogo keysa (chtoby ne tyanut zavisimosti).
-    # Podderzhivaem "subscriptions: - k:v ..." (kak v nashem fayle).
+    # Mini YML parser for a simple case (so as not to add dependencies).
+    # We support "subscriptions: - to: in..." (as in our file).
     data: Dict[str, Any] = {"subscriptions": []}
     if not os.path.isfile(path):
         return data
@@ -92,7 +90,7 @@ def _parse_scalar(v: str) -> Any:
         except Exception:
             return v
     if v.endswith("]") and "[" in v:
-        # prosteyshiy spisok strok cherez zapyatuyu
+        # simple list of strings separated by commas
         inner = v[v.find("[")+1:-1].strip()
         if not inner:
             return []
@@ -119,9 +117,7 @@ def _rss_fetch(url: str, timeout: float = 15.0) -> str:
         return r.read().decode("utf-8", errors="ignore")
 
 def _rss_parse_items(xml_text: str) -> List[Tuple[str, str]]:
-    """
-    Parsim RSS/Atom i vozvraschaem pary (id/url). Dlya YouTube Atom ispolzuem <yt:videoId> + <link>.
-    """
+    """Parse RSS/Atom and return pairs (id/url). For YouTube Atom we use <from:videoId> + <link>."""
     res: List[Tuple[str, str]] = []
     try:
         root = ET.fromstring(xml_text)
@@ -157,10 +153,8 @@ def _rss_parse_items(xml_text: str) -> List[Tuple[str, str]]:
     return res
 
 def _ytsearch_to_url(query: str, limit: int = 3) -> List[str]:
-    """
-    Vozvraschaem spisok "virtualnykh" URL dlya yt-dlp: format ytsearchN:<query>
-    (ingest_video prozrachno obrabatyvaet cherez yt-dlp).
-    """
+    """Returns a list of "virtual" URLs for from-dlp: format search:<queries>
+    (ingest_video is processed transparently via from-dlp)."""
     n = max(1, min(int(limit or 3), 25))
     return [f"ytsearch{n}:{query}"]
 
@@ -174,11 +168,9 @@ def _ingest_url(url: str) -> Dict[str, Any]:
     return ingest_video(src=url, want_meta=True, want_transcript=True, want_summary=True, prefer_audio=True, want_subs=True, chunk_ms=300_000)
 
 def run_once(mode: str = "subs", topic: Optional[str] = None, limit: Optional[int] = None) -> Dict[str, Any]:
-    """
-    Edinichnyy progon:
-      - mode="subs": obkhodit config/video_subscriptions.yaml (enabled=1).
-      - mode="search": vypolnyaet ytsearch po topic (obyazatelen).
-    """
+    """Single run:
+      - mode="subs": bypasses config/video_subscriptions.yaml (enabled=1).
+      - mode="search": performs search by topic (required)."""
     st = _load_state()
     cfg = _load_yaml(_CFG_PATH)
     total, new_items, results = 0, 0, []
@@ -220,7 +212,7 @@ def run_once(mode: str = "subs", topic: Optional[str] = None, limit: Optional[in
                 if rep.get("ok"):
                     new_items += 1
                 results.append({"src": u, "rep": rep})
-            # Obnovim seen
+            # Update seen
             st.setdefault("seen", {})[sid] = list(seen)
     elif mode == "search":
         if not topic:

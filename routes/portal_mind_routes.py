@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-routes/portal_mind_routes.py — stranitsy/vidzhet portala dlya myslitelnykh sobytiy RuleHub.
+"""routes/portal_mind_routes.py - stranitsy/vidzhet portala dlya myslitelnykh sobytiy RuleHub.
 
-Endpointy:
+Endpoint:
   • /portal/mind
   • /portal/widgets/mind?limit=N&status=ok|err|blocked
 
@@ -12,10 +11,9 @@ Mosty:
 - Skrytyy #2: (Kibernetika v†" R egulyatsiya) filtr po statusu pomogaet operativno nastraivat kvoty/prioritety.
 
 Zemnoy abzats:
-Eto «tablo v operatorskoy»: vidno, kogda mozg dumal, chto delal, skolko zanyalo i gde buksoval.
+This is “tablo v operatorskoy”: vidno, kogda mozg dumal, chto delal, skolko zanyalo i gde buksoval.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, render_template, request

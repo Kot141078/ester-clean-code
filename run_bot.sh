@@ -10,14 +10,14 @@ export ESTER_API_BASE="${ESTER_API_BASE:-http://127.0.0.1:8010}"
 
 cd /mnt/d/ester-project
 
-# VAZhNO: ignorirovat lyubye sistemnye proksi v WSL
+# Important: ignore any system proxies in VSL
 unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY all_proxy NO_PROXY no_proxy
 
 exec "$PY" - <<'PY'
 import os, sys
 from dotenv import load_dotenv
 
-# YaVNO gruzim .env
+# Explicitly loading .env
 load_dotenv('/mnt/d/ester-project/.env', override=True)
 
 ester_api = os.getenv('ESTER_API_BASE')

@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_index.py - edinyy portal admin-stranits i karta marshrutov.
+"""routes/admin_index.py - edinyy portal admin-stranits i karta routes.
 
 MOSTY:
-- Yavnyy: (UI ↔ Vse moduli) /admin i JSON-karta marshrutov dlya zhivoy navigatsii.
+- Yavnyy: (UI ↔ Vse moduli) /admin i JSON-karta routes dlya zhivoy navigatsii.
 - Skrytyy #1: (Nablyudaemost ↔ Infrastruktura) ispolzuem current_app.url_map dlya svodki.
 - Skrytyy #2: (UX ↔ Podderzhka) bystryy poisk po pravilam/endpointam cherez /admin/query.
 
 ZEMNOY ABZATs:
-Eto «glavnoe menyu»: odno mesto, gde vidny vse admin-stranitsy i bazovaya svodka.
+This is “glavnoe menyu”: one place, where vidny vse admin-stranitsy i bazovaya svodka.
 Nikakikh opasnykh vychisleniy na urovne importa - vse s defoltami i proverkami.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -84,7 +82,7 @@ def admin_query():
 
 @bp.get("/admin")
 def admin_index_page():
-    # ENV svodka - bezopasnye defolty (isklyuchaem None+None)
+    # ENV summary - safe defaults (excludes None+None)
     info = {
         "env": {
             "APP_NAME": _s(os.getenv("APP_NAME", "Ester")),
@@ -98,7 +96,7 @@ def admin_index_page():
     try:
         return render_template("admin_index.html", info=info)
     except Exception:
-        # Vstroennaya stranitsa - bez vneshnikh zavisimostey
+        # Built-in page - no external dependencies
         return render_template_string("""
 <!doctype html><html lang="ru"><meta charset="utf-8">
 <title>Admin - Ester</title>

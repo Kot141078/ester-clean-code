@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/usb_bootstrap_watcher.py — vakhter USB: ischet «pochti pustye» fleshki i predlagaet One-Click Bootstrap cherez Hot-Ask.
+"""listeners/usb_bootstrap_watcher.py - vakhter USB: ischet “almost empty” fleshki i predlagaet One-Click Bootstrap cherez Hot-Ask.
 
 Logika:
   • Periodicheski skaniruem montirovaniya (modules.portable.env.find_usb_mounts).
-  • Dlya kazhdoy fleshki schitaem «pustotu» (modules.portable.emptiness.is_near_empty).
-  • Esli pusto i esche ne predlagali — shlem v Hot-Ask pending: action=offer_oneclick.
-  • Povtory ne spamim: pomnim predlozhennye mounts do razmontirovaniya.
+  • Dlya kazhdoy fleshki schitaem “pustotu” (modules.portable.emptiness.is_near_empty).
+  • Esli empty i esche ne predlagali – shlem v Hot-Ask pending: action=offer_oneclick.
+  • Repeat ne spamim: remember predlozhennye mounts do razmontirovaniya.
 
 ENV:
   USB_BOOTSTRAP_ENABLE=1
   USB_BOOTSTRAP_POLL_SEC=20
 
 Mosty:
-- Yavnyy (Obnaruzhenie ↔ Deystvie): avtomaticheskiy perevod «pustaya fleshka» → «predlozhit podgotovku».
-- Skrytyy 1 (Infoteoriya ↔ Prozrachnost): logi v hotask_state, bez skrytykh sayd-effektov.
+- Yavnyy (Obnaruzhenie ↔ Deystvie): avtomaticheskiy translation “pustaya fleshka” → “predlozhit podgotovku”.
+- Skrytyy 1 (Infoteoriya ↔ Prozrachnost): logi v hotask_state, bez skrytykh said-effektov.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): offlayn, stdlib; dry-rezhim cherez AB.
 
 Zemnoy abzats:
 Kak master-priemschik: uvidel novyy pustoy nositel — predlozhil razlozhit po polochkam.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, os, time
 from pathlib import Path

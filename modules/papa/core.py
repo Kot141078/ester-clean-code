@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/papa/core.py — profil Papy i prioritet.
+"""modules/papa/core.py - profile Papy i priority.
 
 Mosty:
-- Yavnyy: (Etika ↔ Prioritety) tsentralizovanno khranit profil i politiku pomoschi.
+- Yavnyy: (Etika ↔ Priority) tsentralizovanno khranit profil i politiku pomoschi.
 - Skrytyy #1: (Memory ↔ Poisk) profil mozhno klast v pamyat (provenance) otdelno.
-- Skrytyy #2: (Bezopasnost ↔ Ogranicheniya) tolko deklarativnye prioritety (bez opasnykh deystviy).
+- Skrytyy #2: (Bezopasnost ↔ Ogranicheniya) tolko deklarativnye priority (bez opasnykh deystviy).
 
 Zemnoy abzats:
-«Komu pomogaem v pervuyu ochered?» — Pape. Zdes opisan profil i flazhok prioriteta.
+“Komu pomogaem v pervuyu ochered?” — Pape. Zdes opisan profil i flazhok prioriteta.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict

@@ -23,7 +23,7 @@ def test_form_post_without_csrf_is_denied(client, auth_hdr_operator):
         "X-Forwarded-For": "127.0.0.1",
     }
     r = client.post("/ingest/file", data=data, headers=headers, content_type="multipart/form-data")
-    # Esli CSRF vyklyuchen/ne trebuetsya po politike — mozhet byt 200/415; po nashey realizatsii dolzhen byt 403
+    # If SSRF is disabled/not required by policy, it can be 200/415; according to our implementation it should be 403
     assert r.status_code == 403
 
 
@@ -42,4 +42,4 @@ def test_form_post_with_csrf_ok(client, auth_hdr_operator):
     assert r.status_code in (
         200,
         415,
-)  # tip dopustim/nedopustim — glavnoe, chto ne 403
+)  # the type is valid/invalid - the main thing is that it’s not 403

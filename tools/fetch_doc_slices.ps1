@@ -4,7 +4,7 @@ param(
   [string]$OutFile = ".\doc.txt",
   [int]$Start = 0,
   [int]$MaxChars = 2000,        # server vse ravno ogranichit po DOC_MAX_CHARS_PER_SLICE
-  [int]$MaxTotal = 200000,      # strakhovka: maksimum simvolov, kotorye styanem
+  [int]$MaxTotal = 200000,      # insurance: maximum symbols that we can collect
   [switch]$IncludeMeta
 )
 

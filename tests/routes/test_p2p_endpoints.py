@@ -26,7 +26,7 @@ def test_state_and_pull_by_ids_flow():
         assert data["ok"] is True
         assert "levels_count" in data
 
-        # Avtorizuemsya dlya add/pull_by_ids
+        # Authorizes for add/bullet_ids
         token = _auth_token(c, role="replicator")
         headers = {"Authorization": f"Bearer {token}"}
 

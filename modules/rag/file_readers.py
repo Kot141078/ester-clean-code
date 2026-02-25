@@ -29,16 +29,14 @@ DEFAULT_SUBPATH = Path("~/.ester/docs")
 # ---- Utility
 
 def _as_str_env(name: str) -> str:
-    """Vozvraschaet znachenie peremennoy okruzheniya kak stroku ('' esli net)."""
+    """Returns the value of the environment variable as a string (if not)."""
     v = os.getenv(name)
     return v if isinstance(v, str) else ""
 
 
 def _expand_user_vars(p: str) -> str:
-    """
-    Korrektnoe rasshirenie ~ i %VARS%/$VARS (Windows/Linux).
-    VAZhNO: zdes net Path.expandvars — ego v pathlib net; ispolzuem os.path.expandvars.
-    """
+    """Correct extension ~ and ZZF0ZARS%/$VARS (Windows/Linux).
+    Important: there is no Path.expandwars here - it is not in pathnlib; use os.path.expandwars."""
     if not p:
         return ""
     return os.path.expanduser(os.path.expandvars(p))
@@ -70,7 +68,7 @@ def _bool_env(name: str, default: bool = False) -> bool:
 
 
 def _iter_files(base: Path) -> Iterable[Path]:
-    """Rekursivno obkhodim fayly s nuzhnymi rasshireniyami."""
+    """Recursively traverses files with the required extensions."""
     if not base.exists() or not base.is_dir():
         return []
     for p in base.rglob("*"):
@@ -82,18 +80,16 @@ def _iter_files(base: Path) -> Iterable[Path]:
 
 
 def _read_text_file(p: Path, limit_bytes: int = 1_000_000) -> str:
-    """
-    Chtenie tekstovogo fayla v utf-8 s myagkoy degradatsiey.
-    Dlya .jsonl berem kak est (line-based).
-    """
+    """Reading a text file in UTF-8 with mild degradation.
+    For .zsionl we take it as is (line-wased)."""
     try:
         size = p.stat().st_size
         if size > limit_bytes:
-            # Ogranichim chtenie bolshikh faylov
+            # Limit reading of large files
             with p.open("rb") as f:
                 buf = f.read(limit_bytes)
             return buf.decode("utf-8", errors="replace")
-        # Obychnoe chtenie
+        # Regular reading
         with io.open(p, "r", encoding="utf-8", errors="replace") as f:
             return f.read()
     except Exception as e:
@@ -103,7 +99,7 @@ def _read_text_file(p: Path, limit_bytes: int = 1_000_000) -> str:
 # ---- Rezolving bazovoy direktorii
 
 def _collect_candidates() -> Dict[str, str]:
-    """Sobiraem kandidaty putey iz ENV (kak stroki bez ekspansii)."""
+    """We collect path candidates from ENV (as strings without expansion)."""
     return {k: _as_str_env(k) for k in ENV_KEYS_PATH}
 
 
@@ -118,12 +114,10 @@ def _pick_first_existing(paths: List[Path]) -> Optional[Path]:
 
 
 def _base_path() -> Optional[Path]:
-    """
-    Rezolvim bazovyy put k dokam:
-    - prioritetno ESTER_RAG_FORCE_PATH (esli validen),
+    """Rezolvim bazovyy put k dokam:
+    - prioritetno ESTER_RAG_FORCE_PATH (if valid),
     - zatem pervyy suschestvuyuschiy iz ENV_KEYS_PATH,
-    - inache defolt ~/.ester/docs (sozdaem pri neobkhodimosti).
-    """
+    - inache default ~/.ester/docs (sozdaem pri neobkhodimosti)."""
     # 1) fors
     forced = _as_str_env("ESTER_RAG_FORCE_PATH")
     if forced:
@@ -149,7 +143,7 @@ def _base_path() -> Optional[Path]:
     return default_path if default_path.exists() and default_path.is_dir() else None
 
 
-# ---- Publichnye funktsii
+# ---- Public functions
 
 def debug_status() -> Dict[str, object]:
     """Diagnostika bez padeniy."""
@@ -175,15 +169,13 @@ def debug_status() -> Dict[str, object]:
 
 
 def ingest_all(tag: str = "local_docs") -> Dict[str, object]:
-    """
-    Indeksatsiya vsekh tekstovykh faylov v bazovoy direktorii.
-    Bezopasnaya: ne brosaet isklyucheniy naruzhu.
-    """
+    """Indexing of all text files in the base directory.
+    Safe: does not throw exceptions outside."""
     base = _base_path()
     if not base:
         return {"ok": False, "total": 0, "ingested": 0, "reason": "no_docs_path"}
 
-    # Popytka podtyanut RAG-khab
+    # An attempt to tighten up the RAG hub
     try:
         from modules.rag import hub  # type: ignore
     except Exception as e:
@@ -210,18 +202,18 @@ def ingest_all(tag: str = "local_docs") -> Dict[str, object]:
         }
         items.append({"text": txt, "meta": meta})
 
-    # Nichego ne nashli — eto ne oshibka, prosto pusto
+    # Nothing found - this is not an error, just empty
     if not items:
         return {"ok": True, "total": 0, "ingested": 0, "empty": True, "base": str(base)}
 
-    # Universalnaya myagkaya otpravka v hub
+    # Universal soft sending to the hub
     ok = True
     reason = ""
     try:
         if hasattr(hub, "ingest_texts"):
             # ozhidaemyy variant: hub.ingest_texts(items, tag=?)
             res = hub.ingest_texts(items, tag=tag)  # type: ignore[attr-defined]
-            # probuem vytaschit chislennost iz otveta
+            # trying to extract the number from the answer
             if isinstance(res, dict) and "ingested" in res:
                 ingested = int(res.get("ingested") or 0)
             else:
@@ -233,7 +225,7 @@ def ingest_all(tag: str = "local_docs") -> Dict[str, object]:
             else:
                 ingested = len(items)
         else:
-            # Sovsem universalnaya degradatsiya: poshtuchno
+            # Completely universal degradation: piece by piece
             put_any = False
             for it in items:
                 if hasattr(hub, "put"):

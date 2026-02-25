@@ -1,37 +1,35 @@
 # -*- coding: utf-8 -*-
-"""
-patches/integrate_web_browser.py — patch dlya integratsii polnotsennogo veb-brauzera v Ester.
+"""patches/integrate_web_browser.py - patch dlya integratsii polnotsennogo web-brauzera v Ester.
 
-PROBLEMA:
+PROBLEM:
 Ester govorila "dostup v internet ogranichen" potomu chto mogla tolko ISKAT,
 no ne ChITAT soderzhimoe naydennykh stranits.
 
-REShENIE:
-1. Dobavit bridges/web_browser.py
-2. Integrirovat ego v thinking pipeline
-3. Dobavit novye nastroyki v .env
+RESOLUTION:
+1. Addavit bridges/web_browser.py
+2. Integrated ego v thinking pipeline
+3. Add new nastroyki v.env
 
 INSTRUKTsIYa PO PRIMENENIYu:
 
 1. Skopirovat fayly:
    copy web_browser.py D:\ester-project\bridges\web_browser.py
 
-2. Dobavit v .env:
+2.Adbavit v.env:
    WEB_BROWSER_ENABLED=1
    WEB_BROWSER_MODE=light
    WEB_BROWSER_TIMEOUT_SEC=15
    WEB_BROWSER_MAX_PAGES_PER_QUERY=5
 
 3. (Optsionalno) Ustanovit zavisimosti dlya rezhimov medium/full:
-   pip install requests-html          # dlya medium
-   pip install playwright && playwright install chromium  # dlya full
+   pip install requests-html # dlya medium
+   pip install playwright && playwright install chromium # dlya full
 
 4. Primenit patch k web_context_expander.py (sm. nizhe)
 
 5. Perezapustit Ester
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -42,11 +40,9 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def patch_web_context_expander(project_root: str) -> dict:
-    """
-    Patchit modules/thinking/web_context_expander.py dlya ispolzovaniya web_browser.
+    """Patch modules/thinking/web_context_expander.po to use web_browser.
     
-    Vozvraschaet slovar s rezultatom.
-    """
+    Returns a dictionary with the result."""
     result = {"ok": False, "message": "", "backup": None}
     
     target = Path(project_root) / "modules" / "thinking" / "web_context_expander.py"
@@ -60,25 +56,25 @@ def patch_web_context_expander(project_root: str) -> dict:
     backup.write_text(content, encoding="utf-8")
     result["backup"] = str(backup)
     
-    # Proveryaem, uzhe li patch primenen
+    # Checking if the patch has already been applied
     if "from bridges.web_browser import" in content:
         result["message"] = "Patch already applied"
         result["ok"] = True
         return result
     
-    # Patch 1: Dobavlyaem import web_browser
+    # Patch 1: Add import web_browser
     import_patch = '''from typing import Any, Dict, List
 
-# === PATCH: Import web_browser dlya polnotsennogo chteniya stranits ===
+# === PATCH: Import web_browser for full page reading ===
 try:
     from bridges.web_browser import browse, search_and_read, WebPage
     WEB_BROWSER_AVAILABLE = True
 except ImportError:
     WEB_BROWSER_AVAILABLE = False
-    WebPage = None  # type: ignore
+    WebPage = None #type: ignore
 # === END PATCH ===
 
-WEB_CONTEXT_AB = '''
+WEB_CONTEXT_AB ='''
     
     content = re.sub(
         r"from typing import Any, Dict, List\s*\n\s*WEB_CONTEXT_AB =",
@@ -87,18 +83,18 @@ WEB_CONTEXT_AB = '''
         count=1
     )
     
-    # Patch 2: Modifitsiruem funktsiyu expand() dlya chteniya stranits
+    # Patch 2: Modify the expand() function to read pages
     expand_patch = '''def expand(q: str, k: int = 5, autofetch: bool = False, max_fetch: int = 3, read_content: bool = True) -> Dict[str, Any]:
     """
-    Rasshiryaet kontekst cherez veb-poisk.
+    Rasshiryaet kontekst cherez web-poisk.
     
-    PATCH: Dobavlen parametr read_content dlya chteniya soderzhimogo stranits.
+    PATCH: Added parametr read_content dlya chteniya soderzhimogo stranits.
     """
-    from modules.web_search import search_web  # lokalnyy import dlya ustoychivosti
+    from modules.web_search import search_web # lokalnyy import dlya ustoychivosti
     _CNT["expand_calls"] += 1
     hits = search_web(q, topk=max(1, min(k, 10))) or []
     jobs: List[Dict[str, Any]] = []
-    pages_content: List[Dict[str, Any]] = []  # PATCH: soderzhimoe stranits
+    pages_content: List[Dict[str, Any]] = [] # PATCH: soderzhimoe stranits
     
     # PATCH: Chitaem soderzhimoe stranits cherez web_browser
     if read_content and WEB_BROWSER_AVAILABLE and hits:
@@ -117,13 +113,13 @@ WEB_CONTEXT_AB = '''
                     })
             except Exception as e:
                 pages_content.append({"url": url, "error": str(e)})
-    # END PATCH
+    #END PATCH
     
     do_fetch = AUTO or bool(autofetch)
     if WEB_CONTEXT_AB == "B":
         do_fetch = False'''
     
-    # Nakhodim nachalo funktsii expand i zamenyaem
+    # Find the beginning of the expand function and replace
     content = re.sub(
         r"def expand\(q: str, k: int = 5, autofetch: bool = False, max_fetch: int = 3\) -> Dict\[str, Any\]:\s*\n.*?from modules\.web_search import search_web.*?\n.*?_CNT\[\"expand_calls\"\].*?\n.*?hits = search_web.*?\n.*?jobs:.*?\n.*?do_fetch = AUTO.*?\n.*?if WEB_CONTEXT_AB == \"B\":.*?\n.*?do_fetch = False",
         expand_patch,
@@ -131,7 +127,7 @@ WEB_CONTEXT_AB = '''
         flags=re.DOTALL
     )
     
-    # Patch 3: Dobavlyaem pages_content v return
+    # Patch 3: Add pages_content v return
     content = re.sub(
         r'return \{"ok": True, "q": q, "items": hits, "jobs": jobs, "autofetch": do_fetch\}',
         'return {"ok": True, "q": q, "items": hits, "jobs": jobs, "autofetch": do_fetch, "pages_content": pages_content}',
@@ -147,9 +143,7 @@ WEB_CONTEXT_AB = '''
 
 
 def add_env_settings(project_root: str) -> dict:
-    """
-    Dobavlyaet nastroyki web_browser v .env
-    """
+    """Adds web_browser settings to .env"""
     result = {"ok": False, "message": "", "added": []}
     
     env_file = Path(project_root) / ".env"
@@ -159,10 +153,10 @@ def add_env_settings(project_root: str) -> dict:
     
     content = env_file.read_text(encoding="utf-8")
     
-    # Nastroyki dlya dobavleniya
+    # Settings to add
     new_settings = [
         "",
-        "# === WEB BROWSER (polnotsennyy dostup k stranitsam) ===",
+        "# === WEB BROWSER (full access to pages) ===",
         "WEB_BROWSER_ENABLED=1",
         "WEB_BROWSER_MODE=light",
         "WEB_BROWSER_TIMEOUT_SEC=15",
@@ -172,7 +166,7 @@ def add_env_settings(project_root: str) -> dict:
         "# WEB_BROWSER_BLOCKED_DOMAINS=evil.com,spam.org",
     ]
     
-    # Proveryaem, uzhe li dobavleny
+    # Checking whether they have already been added
     if "WEB_BROWSER_ENABLED" in content:
         result["message"] = "Web browser settings already in .env"
         result["ok"] = True
@@ -184,7 +178,7 @@ def add_env_settings(project_root: str) -> dict:
     
     result["ok"] = True
     result["message"] = f"Added {len(new_settings)-1} settings to .env"
-    result["added"] = new_settings[2:-1]  # Bez pustykh strok i kommentariya
+    result["added"] = new_settings[2:-1]  # No empty lines or comments
     return result
 
 
@@ -214,9 +208,7 @@ def install_web_browser_module(project_root: str, source_file: str) -> dict:
 
 
 def main():
-    """
-    CLI dlya primeneniya patcha.
-    """
+    """SLI to apply the patch."""
     import sys
     
     if len(sys.argv) < 2:
@@ -245,7 +237,7 @@ def main():
     if r2.get("backup"):
         print(f"   Backup: {r2['backup']}")
     
-    # 3. Dobavlyaem nastroyki
+    # 3. Add settings
     print("\n3. Adding .env settings...")
     r3 = add_env_settings(project_root)
     print(f"   {'✓' if r3['ok'] else '✗'} {r3['message']}")

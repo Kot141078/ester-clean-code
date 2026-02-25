@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/capability_infer.py — Evristiki sposobnostey bez oprosov.
+"""modules/synergy/capability_infer.py — Evristiki sposobnostey bez oprosov.
 
 Mosty:
 - (Yavnyy) Preobrazuet profil/bio/telemetriyu v vektor sposobnostey i prigodnost k rolyam.
-- (Skrytyy #1) «Signaly iz konteksta»: klyuchevye slova v bio, domeny, vozrast/stazh, kanalnye metki.
+- (Skrytyy #1) “Signaly iz konteksta”: klyuchevye slova v bio, domeny, vozrast/stazh, kanalnye metki.
 - (Skrytyy #2) Devaysy: parametry drona (vremya poleta, peyload, zaderzhka) → rol platform.
 
 Zemnoy abzats:
-Pozvolyaet Ester vybirat «kto za chto otvechaet»: strateg (opyt/taktika), operator (reaktsiya),
+Pozvolyaet Ester vybirat “who za chto otvechaet”: strateg (opyt/taktika), operator (reaktsiya),
 platforma (dron s podkhodyaschimi parametrami), nablyudatel (kommunikatsiya).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, Tuple
 import math
@@ -35,13 +33,13 @@ def infer_capabilities(agent: Dict[str, Any]) -> Dict[str, float]:
         exp = float(prof.get("exp_years", max(0, age-20)) or 0)
         domains = [d.lower() for d in (prof.get("domains") or [])]
 
-        # Reaktsiya vyshe u molodykh: obratnaya funktsiya vozrasta + nalichie domena "upravlenie/drony"
+        # Reaction is higher in young people: inverse function of age + presence of the control/drones domain
         caps["reaction"] = 0.6 * (1.0 - _norm01(age, 20, 60)) + 0.4 * (1.0 if ("upravlenie" in domains or "drony" in domains or "pilot" in bio) else 0.0)
-        # Opyt/strategiya — po stazhu i slovam "veteran/taktika/analitik"
+        # Experience/strategy - based on length of service and the words “veteran/tactician/analyst”
         caps["strategy"] = 0.6 * _norm01(exp, 0, 30) + 0.4 * (1.0 if any(k in bio for k in ["veteran","taktika","strateg","analiz"]) else 0.0)
-        # Kommunikatsiya — po slovam i nalichiyu biznes-domenov
+        # Communication - according to words and the presence of business domains
         caps["comms"] = 0.5 * (1.0 if any(k in bio for k in ["kommunik","svyaz","koordinats"]) else 0.0) + 0.5 * (1.0 if any(k in domains for k in ["biznes","svyaz","operator svyazi"]) else 0.0)
-        # Domennaya ekspertiza — legkaya otsenka
+        # Domain expertise - easy assessment
         caps["domain_aero"] = 1.0 if any(k in domains for k in ["aerorazvedka","avia","uav","drony"]) else 0.0
 
     elif kind == "device":
@@ -60,7 +58,7 @@ def infer_capabilities(agent: Dict[str, Any]) -> Dict[str, float]:
     return caps
 
 def fit_roles(caps: Dict[str, float]) -> Dict[str, float]:
-    """Schet prigodnosti po rolyam."""
+    """Suitability score by role."""
     return {
         "operator": 0.7*caps.get("reaction",0) + 0.3*caps.get("domain_aero",0),
         "strategist": 0.8*caps.get("strategy",0) + 0.2*caps.get("domain_aero",0),

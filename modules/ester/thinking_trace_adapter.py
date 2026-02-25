@@ -50,7 +50,7 @@ def _upd_depth(depth: int) -> None:
 
 
 def record(request_payload: Dict[str, Any], response_json: Dict[str, Any]) -> None:
-    """Neblokiruyuschaya zapis metrik. Oshibki ignoriruyutsya."""
+    """Non-blocking metrics recording. Errors are ignored."""
     if not is_enabled():
         return
     try:
@@ -65,7 +65,7 @@ def record(request_payload: Dict[str, Any], response_json: Dict[str, Any]) -> No
                 has_reflect = bool(meta_val.get("reflect") or meta_val.get("has_reflect"))
                 has_recall = bool(meta_val.get("recall") or meta_val.get("has_recall"))
 
-            # popytka ugadat glubinu po shagam/trace
+            # an attempt to guess the depth based on steps/route
             if not depth:
                 steps = response_json.get("steps")
                 trace = response_json.get("trace")
@@ -101,7 +101,7 @@ def record(request_payload: Dict[str, Any], response_json: Dict[str, Any]) -> No
 
 
 def get_stats() -> Dict[str, Any]:
-    """Vozvraschaet stabilnyy snimok metrik. Nikogda ne brosaet isklyucheniya."""
+    """Returns a stable snapshot of metrics. Never throws exceptions."""
     with _LOCK:
         total = _STATS["total"]
         depth_avg = 0.0

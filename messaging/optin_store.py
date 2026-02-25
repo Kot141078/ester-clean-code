@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/optin_store.py — ustoychivoe khranilische opt-in/nastroek/tishiny/inboksa (SQLite).
+"""messaging/optin_store.py - ustoychivoe khranilische opt-in/nastroek/tishiny/inboksa (SQLite).
 
 MOSTY:
 - (Yavnyy) opt-in i prefs (rate/persona) + silence_until + outbound last_ts — edinyy istochnik pravdy.
-- (Skrytyy #1) Tablitsa inbox dlya poslednikh vkhodyaschikh (dlya mini-inboksa v adminke).
+- (Skrytyy #1) Tablitsa inbox dlya poslednikh vkhodyaschikh (dlya mini-inboxa v adminke).
 - (Skrytyy #2) Avtosozdanie i bezopasnye korotkie tranzaktsii — bez blokirovok i pobochek.
 
 ZEMNOY ABZATs:
-My znaem, kto podpisan, kak chasto im mozhno pisat, kogda vklyuchen «tikhiy rezhim», i vidim poslednie vkhodyaschie — vse v odnom legkom fayle.
+My know, who podpisan, kak often im mozhno pisat, kogda vklyuchen “tikhiy rezhim”, i vidim poslednie vkhodyaschie - vse v odnom legkom fayle.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, sqlite3, time

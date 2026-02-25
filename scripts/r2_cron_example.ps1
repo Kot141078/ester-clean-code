@@ -1,6 +1,6 @@
-# R2/scripts/r2_cron_example.ps1 — primer planirovschika dlya Windows (Task Scheduler)
-# Mosty: (Yavnyy) Enderton — zapuskaemaya komanda; (Skrytye) Ashbi — prostoy regulyator; Cover&Thomas — zhurnal snizhaet neopredelennost.
-# Zemnoy abzats: demonstratsiya — dva shaga: trigger → otchet. Mozhno obernut v planirovschik.
+# P2/skripts/p2_cron_example.ps1 - example of a scheduler for Windows (Task Scheduler)
+# Bridges: (Explicit) Enderton - triggered command; (Hidden) Ashby is a simple regulator; Carpet&Thomas - the magazine reduces uncertainty.
+# Zemnoy abzats: demonstratsiya - dva shaga: trigger → otchet. Mozhno obernut v planirovschik.
 # c=a+b
 
 param(

@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-modules/providers/lmstudio_adapter.py — LM Studio (OpenAI-compatible) adapter for openai>=1.0.0
+"""modules/providers/lmstudio_adapter.py — LM Studio (OpenAI-compatible) adapter for openai>=1.0.0
 
 Trebovanie: paket openai versii >= 1.0.0 (novyy klientskiy API).
 
 ENV:
-- LMSTUDIO_BASE_URL   (default: http://127.0.0.1:1234/v1)
-- LMSTUDIO_API_KEY    (default: lm-studio)  # LM Studio obychno ne proveryaet klyuch, no biblioteke nuzhen.
-- LMSTUDIO_MODEL      (default: local-model)
-- LMSTUDIO_TIMEOUT_S  (default: 60)
+- LMSTUDIO_BASE_URL (default: http://127.0.0.1:1234/v1)
+- LMSTUDIO_API_KEY (default: lm-studio) # LM Studio obychno ne proveryaet klyuch, no biblioteke nuzhen.
+- LMSTUDIO_MODEL (default: local-model)
+- LMSTUDIO_TIMEOUT_S (default: 60)
 
 Mosty:
 - Yavnyy (Kibernetika ↔ API): edinyy kontrolnyy vkhod (messages) → izmerimyy vykhod (text + usage).
-- Skrytyy 1 (Logika ↔ Sovmestimost): adapter pryachet smenu SDK (v0.28 → v1.x) ot ostalnogo koda.
-- Skrytyy 2 (Infoteoriya ↔ Stoimost): temperatura/max_tokens/stream — eto regulyatory «kanala».
+- Skrytyy 1 (Logika ↔ Sovmestimost): adapter pryachet change SDK (v0.28 → v1.x) from other codes.
+- Skrytyy 2 (Infoteoriya ↔ Stoimost): temperatura/max_tokens/stream — eto regulyatory “kanala”.
 
 Zemnoy abzats:
-V elektrotekhnike ne menyayut vsyu provodku iz-za novoy vilki — stavyat perekhodnik. Tut to zhe samoe:
+V elektrotekhnike ne menyayut vsyu provodku iz-za novoy vilki - stavyat perekhodnik. Tut to zhe same:
 openai>=1.0.0 pomenyal interfeys, my stavim adapter, chtoby sistema prodolzhala rabotat,
-a ne «sypalas» ot kazhdoy versii SDK.
+a ne "sypalas" ot kazhdoy versii SDK.
 
-# c=a+b
-"""
+# c=a+b"""
 
 from __future__ import annotations
 
@@ -48,9 +46,7 @@ def _env_int(name: str, default: int) -> int:
 
 
 def _load_openai_client():
-    """
-    Vozvraschaet (client, err_str). Esli openai otsutstvuet — client=None i err_str.
-    """
+    """Returns (client, err_str). If there is no openay - client = None and err_str."""
     try:
         # openai>=1.0.0
         from openai import OpenAI  # type: ignore
@@ -79,14 +75,12 @@ class LMStudioAdapter:
         model: Optional[str] = None,
         **kwargs: Any,
     ) -> ProviderResult:
-        """
-        messages: standart OpenAI chat: [{"role":"system|user|assistant", "content":"..."}]
-        kwargs (optsionalno):
+        """messages: standard OpenAI chat: [{"role":"system|user|assistant", "content":"..."}]
+        kwargs (optional):
           - temperature (float)
           - max_tokens (int)
           - top_p (float)
-          - stream (bool)  # stream podderzhim pozzhe pri neobkhodimosti; seychas False.
-        """
+          - stream (bool) # stream podderzhim pozzhe pri neobkhodimosti; seychas False."""
         if self._client is None:
             return ProviderResult(
                 ok=False,
@@ -102,8 +96,8 @@ class LMStudioAdapter:
         top_p = kwargs.get("top_p", None)
         stream = bool(kwargs.get("stream", False))
 
-        # Stream: v bolshinstve integratsiy Ester zhdet tselnyy text.
-        # Esli ponadobitsya — sdelaem generator/kolbek.
+        # Stream: in most integrations, Esther expects a solid text.
+        # If necessary, we will create a generator/callback.
         if stream:
             log.warning("LMStudioAdapter: stream=True not supported in send_chat(); forced to stream=False")
             stream = False
@@ -130,7 +124,7 @@ class LMStudioAdapter:
 
             usage = {}
             try:
-                # usage mozhet otsutstvovat na nekotorykh serverakh-sovmestimykh
+                # seating may not be available on some compatible servers
                 u = getattr(resp, "usage", None)
                 if u:
                     usage = {
@@ -147,7 +141,7 @@ class LMStudioAdapter:
                 reply=content,
                 provider=self.name,
                 model=model_id,
-                raw=None,  # chtoby ne taschit tyazhelyy obekt v JSON
+                raw=None,  # so as not to drag a heavy object into ZhSON
                 meta={"base_url": self.base_url, "usage": usage},
             )
 
@@ -162,10 +156,8 @@ class LMStudioAdapter:
             )
 
     def send_embeddings(self, texts: List[str], model: Optional[str] = None, **kwargs: Any) -> Any:
-        """
-        Embeddings cherez OpenAI-compatible endpoint.
-        Ne vse lokalnye modeli LM Studio eto podderzhivayut — esli net, server vernet oshibku.
-        """
+        """Embeddings via OpenAI-compatible endpoint.
+        Not all local LM Studio models support this - if not, the server will return an error."""
         if self._client is None:
             raise RuntimeError(f"openai_lib_missing_or_bad: {self._client_err}")
 
@@ -190,6 +182,6 @@ def _factory() -> LMStudioAdapter:
 register("lmstudio", _factory)
 
 
-# Backward-compatible function name (esli staryy kod importiruet send_chat iz adaptera)
+# Butler-compatiable function name (if the old code imports send_chat from the adapter)
 def send_chat(messages: List[Dict[str, Any]], model: Optional[str] = None, **kwargs: Any) -> Dict[str, Any]:
     return _factory().send_chat(messages, model=model, **kwargs).as_dict()

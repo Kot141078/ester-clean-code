@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/p2p/soft_filter.py — myagkiy P2P-filtr dublikatov (Bloom): obyavili id → ne peresylaem povtorno.
+"""modules/p2p/soft_filter.py - myagkiy P2P-filtr dublikatov (Bloom): obyavili id ​​→ ne peresylaem povtorno.
 
 Mosty:
 - Yavnyy: (Set ↔ Ekonomiya) umenshaem povtornye peredachi dokumentov.
@@ -8,18 +7,17 @@ Mosty:
 - Skrytyy #2: (Replikatsiya ↔ Uzly) eksport/import sostoyaniya mezhdu uzlami.
 
 Zemnoy abzats:
-Kak «kniga ucheta»: uzhe otpravlyali — vtoroy raz ne taschim.
-Obedineno iz dvukh versiy: dobavleny single add/seen, merge dlya P2P-sliyaniya, logging dlya pamyati Ester.
+Kak “kniga ucheta”: uzhe otpravlyali - vtoroy raz ne taschim.
+Obedineno iz dvukh version: add/seen, merge dlya P2P-sliyaniya, logging dlya pamyati Ester.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, hashlib, base64
 import logging
 from typing import Any, Dict, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Nastroyka logirovaniya dlya "pamyati" oshibok v Ester
+# Setting up logging for error “memory” in Esther
 logging.basicConfig(filename=os.getenv("P2P_LOG", "data/logs/p2p_filter.log"), level=logging.ERROR,
                     format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -121,7 +119,7 @@ def import_filter(m: int, k: int, bits: str) -> Dict[str, Any]:
     except (base64.binascii.Error, ValueError) as e:
         logging.error(f"Import failed: {str(e)}")
 # return {"ok": False, "error": "bad_import"}
-# Ideya rasshireniya: dlya P2P-sinkhronizatsii dobav sync_filter(peers: List[str]):
+# Extension idea: for P2P synchronization, add a sync_filter (person: Listustrsch):
 #   for peer in peers:
 #       try: fetch export from peer, then merge(bits)
-#   Realizuyu v otdelnom module sync_filter.py dlya detsentralizatsii Ester, esli skazhesh.
+#   I will implement it in a separate module sync_filter.po for decentralization of Esther, if you say so.

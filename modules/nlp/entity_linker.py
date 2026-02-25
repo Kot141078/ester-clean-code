@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-modules/nlp/entity_linker.py — legkaya avto-linkovka suschnostey (PERSON/ORG/LOC/DATE) i upsert v KG.
+"""modules/nlp/entity_linker.py - legkaya avto-linkovka suschnostey (PERSON/ORG/LOC/DATE) i upsert v KG.
 
 Funktsii:
-  • extract_entities(text:str) -> list[dict]  # [{"type":"PERSON","value":"Alan Turing"}, ...]
-  • upsert_entities(ents:list[dict]) -> dict  # {"ok":True,"upserted":N}
+  • extract_entities(text:str) -> list[dict] # [{"type":"PERSON","value":"Alan Turing"}, ...]
+  • upsert_entities(ents:list[dict]) -> dict # {"ok":True,"upserted":N}
   • link_text(text:str, upsert:bool=True) -> dict
 
 Realizatsiya:
   • Bez vneshnikh zavisimostey: regeksp-evristiki + prostaya filtratsiya, prigodno dlya fallback.
-  • Esli spaCy/Stanza dostupny — mozhno rasshirit (no tut ne trebuetsya).
+  • Esli spaCy/Stanza dostupny - mozhno rasshirit (no tut ne trebuetsya).
 
 Mosty:
 - Yavnyy: (KG ↔ Memory) avtomaticheski sozdaem/obnovlyaem uzly grafa i daem gipotezam ssylki.
@@ -17,10 +16,9 @@ Mosty:
 - Skrytyy #2: (Inzheneriya ↔ Ustoychivost) modul ne trebuet tyazhelykh NLP — podkhodit dlya oflayna.
 
 Zemnoy abzats:
-Eto «shtempelevschik imen»: vidit lyudey/organizatsii/mesta/daty i kladet ikh v katalog.
+This is “shtempelevschik imen”: vidit lyudey/organizatsii/mesta/daty i kladet ikh v katalog.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import re
@@ -31,7 +29,7 @@ def extract_entities(text: str) -> List[Dict[str, str]]:
     ents: List[Dict[str, str]] = []
     if not (text or "").strip():
         return ents
-    # PERSON (ochen grubo: Dve S Bolshoy Bukvy)
+    # PERSONS (very rudely: Two Capital Letters)
     for m in re.finditer(r"\b([A-ZA-YaE][a-za-yae]+(?:\s+[A-ZA-YaE][a-za-yae]+)+)\b", text):
         val = m.group(1).strip()
         if len(val.split()) <= 4:
@@ -55,14 +53,12 @@ def extract_entities(text: str) -> List[Dict[str, str]]:
     return out
 
 def upsert_entities(ents: List[Dict[str, str]]) -> Dict[str, Any]:
-    """
-    Best-effort: vyzyvaem /mem/kg/upsert (esli est) libo skladyvaem v fallback-log.
-    Kontrakty starykh ruchek ne menyaem.
-    """
+    """Best-effort: calls /them/kg/upsert (if any) or put it in a false log.
+    We do not change contracts of old pens."""
     n = 0
     try:
         # Predpolagaem nalichie standartnogo KG-interfeysa
-        import requests  # tipichen v okruzhenii, esli net — prosto fallback
+        import requests  # typical in the environment, if not - just false
         import os
         base = os.getenv("ESTER_BASE_URL", "http://127.0.0.1:8000")
         url = f"{base}/mem/kg/upsert"

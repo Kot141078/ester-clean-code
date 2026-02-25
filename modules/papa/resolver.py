@@ -1,17 +1,15 @@
 # modules/papa/resolver.py
 # -*- coding: utf-8 -*-
-"""
-modules/papa/resolver.py — profil Papy i poisk ego rekvizitov po lokalnym dannym.
+"""modules/papa/resolver.py - profil Papy i poisk ego rekvizitov po lokalnym dannym.
 
 Mosty:
-- Yavnyy: (Zabota ↔ Identifikatsiya) tsentralizovannyy profil i vsplyvayuschie aliasy/ID.
-- Skrytyy #1: (Poisk ↔ Memory) evristicheskiy skan faylov na predmet IBAN/BIC, imen/aliasov.
+- Yavnyy: (Zabota ↔ Identifikatsiya) tsentralizovannyy profile i vsplyvayuschie aliasy/ID.
+- Skrytyy #1: (Search ↔ Memory) evristicheskiy skan faylov na predmet IBAN/BIC, imen/aliasov.
 - Skrytyy #2: (Trust ↔ Passport) naydennoe mozhno upakovat v pamyat s provenance.
 
 Zemnoy abzats:
-Kak zapusknoy instrument: proytis po neskolkim kornyam (docs/, data/, downloads/) i sobrat «profile» rekvizitov.
-# c=a+b
-"""
+Kak zapusknoy instrument: proytis po neskolkim kornyam (docs/, data/, downloads/) i sobrat “profile” rekvizitov.
+# c=a+b"""
 from __future__ import annotations
 
 import os

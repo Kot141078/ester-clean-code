@@ -16,7 +16,7 @@ def _zip_bytes(files):
 
 
 def test_lww_apply_conflict_prefers_newer(client, auth_hdr_admin):
-    # Sformiruem arkhiv s dvumya versiyami odnogo fayla — staraya i novaya.
+    # Let's create an archive with two versions of one file - old and new.
     now = int(time.time())
     files = {
         "structured_mem/store.json": (
@@ -35,5 +35,5 @@ def test_lww_apply_conflict_prefers_newer(client, auth_hdr_admin):
         data=payload,
         content_type="application/zip",
     )
-    # dopuskaem 200 OK, inache 400 esli kanon ne podderzhivaet iskusstvennyy konflikt
+    # we allow 200 OK, otherwise 400 if canon does not support artificial conflict
 # assert r.status_code in (200, 400, 422)

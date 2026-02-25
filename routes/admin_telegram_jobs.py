@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_telegram_jobs.py - panel: otpravka job-zaprosov cherez Telegram i prosmotr otvetov.
+"""routes/admin_telegram_jobs.py - panel: otpravka job-zaprosov cherez Telegram i prosmotr otvetov.
 
-Marshruty:
-  • GET  /admin/telegram_jobs
-  • POST /admin/telegram_jobs/send     - {type, args, chat_id?, expect?}
-  • GET  /admin/telegram_jobs/inbox    - spisok sokhranennykh otvetov (uid, summary, fayly)
+Route:
+  • GET /admin/telegram_jobs
+  • POST /admin/telegram_jobs/send - {type, args, chat_id?, expect?}
+  • GET /admin/telegram_jobs/inbox - spisok sokhranennykh otvetov (uid, summary, fayly)
 
 Zemnoy abzats:
-Eto «pult porucheniy»: odnoy knopkoy otpravlyaem udalennyy build_ticket / proj_build_publish i vidim, chto vernulos.
+This is “pult porucheniy”: odnoy knopkoy otpravlyaem udalennyy build_ticket / proj_build_publish i see, what vernulos.
 
-Mosty: yavnyy - UX nad jobs_rpc; skrytye - dry-rezhim, chistye JSON-otvety.
+Mosty: yavnyy - UX nad jobs_rpc; skrytye - dry-rezhim, clean JSON-otvety.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from flask import Blueprint, jsonify, render_template, request

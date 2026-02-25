@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-security/rate_limit.py — prostoy rate-limit (per-IP, per-token) s token-baketom.
+"""security/rate_limit.py - prostoy rate-limit (per-IP, per-token) s token-baketom.
 
 Drop-in sovmestim s kodom v dampe:
  - API: get_rate_limiter().check(ip: str, token_id: Optional[str]) -> (ok: bool, retry_after: float, info: dict)
  - ENV:
-     RATE_LIMIT_PER_MIN_IP      (int, po umolchaniyu 120)
-     RATE_LIMIT_PER_MIN_TOKEN   (int, po umolchaniyu 120)
-     RATE_LIMIT_BURST_MULT      (float, po umolchaniyu 2.0)
-     PERSIST_DIR                (katalog dlya state.json)
+     RATE_LIMIT_PER_MIN_IP (int, po umolchaniyu 120)
+     RATE_LIMIT_PER_MIN_TOKEN (int, po umolchaniyu 120)
+     RATE_LIMIT_BURST_MULT (float, po umolchaniyu 2.0)
+     PERSIST_DIR (katalog dlya state.json)
  - Khranilische sostoyaniya: PERSIST_DIR/rate_limit/state.json (json; best-effort)
  - Anti I/O-shtorm: zapis ne chasche N sek ili kazhdye M obnovleniy
 
@@ -18,9 +17,8 @@ MOSTY:
 - Skrytyy #2: (Nablyudaemost ↔ Diagnostika) v info vozvraschaem vnutrennie parametry baketov.
 
 ZEMNOY ABZATs:
-Etot modul — predokhranitel: pri DDoS/skriptakh-likhoradkakh otbrasyvaet lishnee, a pri
-normalnoy rabote nezameten. Rabotaet dlya kazhdogo IP i otdelno dlya kazhdogo tokena.
-"""
+This modul - predokhranitel: pri DDoS/skriptakh-likhoradkakh otbrasyvaet lishnee, a pri
+normalnoy work nezameten. Rabotaet dlya kazhdogo IP i otdelno dlya kazhdogo tokena."""
 from __future__ import annotations
 
 import json
@@ -82,7 +80,7 @@ class _Bucket:
         if self.tokens >= amount:
             self.tokens -= amount
             return True, 0.0
-        # skolko zhdat do vospolneniya
+        # how long to wait before replenishment
         need = amount - self.tokens
         retry_after = need / rate_per_sec if rate_per_sec > 0 else 60.0
         return False, max(0.0, retry_after)
@@ -108,13 +106,11 @@ def _save(state: Dict[str, Dict[str, float]]) -> None:
             json.dump(state, f, ensure_ascii=False)
         os.replace(tmp, _state_path())
     except Exception:
-        # best-effort: otsutstvie diska/prav ne ostanavlivaet zaprosy
+        # best-effort: lack of disk/permissions does not stop requests
         pass
 
 class RateLimiter:
-    """
-    Dva nezavisimykh baketa: dlya IP i dlya tokena.
-    """
+    """Two independent buckets: for individual entrepreneurs and for tokens."""
     def __init__(self) -> None:
         # limity/skorosti
         per_min_ip = _env_int("RATE_LIMIT_PER_MIN_IP", 120)
@@ -194,9 +190,7 @@ _GLOBAL: Optional[RateLimiter] = None
 _GLOBAL_CFG: Optional[tuple[str, str, str, str]] = None
 
 def get_rate_limiter() -> RateLimiter:
-    """
-    Drop-in tochka vkhoda dlya routes/security_middleware.py i testov.
-    """
+    """Drop-in entry point for Ruthe/Security_Middleware.po and tests."""
     global _GLOBAL, _GLOBAL_CFG
     cfg = (
         os.getenv("PERSIST_DIR", ""),

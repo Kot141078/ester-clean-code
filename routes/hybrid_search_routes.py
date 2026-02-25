@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-routes/hybrid_search_routes.py - REST i metriki dlya gibrid-retrivera.
+"""routes/hybrid_search_routes.py - REST i metrics dlya hybrid-retrivera.
 
-Endpointy:
+Endpoint:
   • POST /search/hybrid {"q":"...","k":8,"scope":{...}}
-  • GET  /metrics/hybrid_search
+  • GET /metrics/hybrid_search
 
 Mosty:
-- Yavnyy: (Poisk ↔ Memory) edinaya tochka vkhoda dlya vsekh klientov (v t.ch. Video QA).
+- Yavnyy: (Search ↔ Memory) edinaya tochka vkhoda dlya vsekh klientov (v t.ch. Video QA).
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) RRF i normirovka v odnom meste.
-- Skrytyy #2: (UX ↔ Sovmestimost) kontrakty «kak vezde»: {"ok","mode","items"}.
+- Skrytyy #2: (UX ↔ Sovmestimost) kontrakty “kak vezde”: {"ok","mode","items"}.
 
 Zemnoy abzats:
-Eto «dispetcher poiska»: daesh zapros - poluchaesh luchshie kusochki, nezavisimo ot togo, gde oni lezhat.
+Eto “dispetcher poiska”: daesh zapros - poluchaesh luchshie kusochki, nezavisimo ot togo, where oni lezhat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -32,18 +30,18 @@ except Exception:  # pragma: no cover
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta (kontrakt proekta)."""
+    """Drop-in registration of blueprint (project contract)."""
     app.register_blueprint(bp_hybrid)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 
 @bp_hybrid.route("/search/hybrid", methods=["POST"])
 def api_hybrid():
-    """Edinaya tochka vkhoda gibridnogo poiska."""
+    """Single entry point for hybrid search."""
     if hybrid_search is None:
         return jsonify({"ok": False, "error": "hybrid retriever unavailable"}), 500
     data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}

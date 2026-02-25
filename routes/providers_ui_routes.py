@@ -4,7 +4,7 @@ from __future__ import annotations
 from flask import Blueprint, render_template
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Otdelnaya stranitsa upravleniya provayderami: /providers/ui
+# Separate provider management page: /providers/oh
 providers_ui_bp = Blueprint("providers_ui", __name__)
 
 
@@ -19,10 +19,8 @@ def providers_ui_index_slash():
 
 
 def register_providers_ui(app, url_prefix: str | None = None) -> None:
-    """
-    Sovmestimyy s dampom registrator. Po umolchaniyu registriruet /providers/ui.
-    Esli peredan url_prefix — dobavit dubl po {url_prefix}/providers/ui.
-    """
+    """Dump compatible logger. By default registers /provider/oi.
+    If url_prefix is ​​passed, add a duplicate for ZZF0Z/provider/oi."""
     if url_prefix:
         prefixed = Blueprint("providers_ui_prefixed", __name__, url_prefix=url_prefix)
 

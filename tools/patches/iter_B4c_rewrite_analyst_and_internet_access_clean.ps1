@@ -88,7 +88,7 @@ from typing import Any, Dict, Optional
 
 logger = logging.getLogger("ester.analyst")
 
-# torch — strogo optsionalen
+# torch - strictly optional
 try:
     import torch  # type: ignore
 except Exception:

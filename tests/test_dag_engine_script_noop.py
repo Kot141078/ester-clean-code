@@ -14,7 +14,7 @@ PLAN = """\
 run_id: test_run_script_noop_01
 branch_id: main
 context_init:
-  spec: "Proverka script i noop."
+  spec: "Check script i noop."
   items:
     - {file: "m1"}
     - {file: "m2"}
@@ -44,7 +44,7 @@ nodes:
     depends: ["annotate"]
 
   - id: gather
-    type: join
+    type:join
     from: "fork"
     out: "joined"
     select:
@@ -52,8 +52,7 @@ nodes:
       n: "{{ctx.note}}"
     mode: list
     await_nodes: ["noop_finish"]
-    depends: ["noop_finish"]
-"""
+    depends: ["noop_finish"]"""
 
 
 def test_script_and_noop_and_join_list():
@@ -69,15 +68,15 @@ def test_script_and_noop_and_join_list():
         st = load_state(eng.run_id)
         assert st.get("finished") is True
 
-        # Proverim bazovyy kontekst
+        # Let's check the basic context
         main_ctx = load_context(eng.run_id, "main")
         assert "hdr" in main_ctx and "banner" in main_ctx
 
-        # Proverim dochernie vetki poluchili note
+        # Let's check the child branches received the note
         c1 = load_context(eng.run_id, "main#01")
         c2 = load_context(eng.run_id, "main#02")
         assert "note" in c1 and "note" in c2
-        # I chto join sobral spisok
+        # And that ein collected a list
         joined = main_ctx.get("joined")
         assert isinstance(joined, list)
         assert any(row.get("f") == "m1" for row in joined)

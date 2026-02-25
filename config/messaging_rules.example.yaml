@@ -1,6 +1,6 @@
 # config/messaging_rules.example.yaml
-# Deklarativnye pravila marshrutizatsii proaktivnykh soobscheniy
-# Klyuch — audience[:intent], znachenie — kanal i poluchatel po umolchaniyu.
+# Declarative rules for routing proactive messages
+# Key is audience:intent, value is channel and default recipient.
 
 routes:
   lawyer:          { channel: whatsapp, to: "15551234567" }   # advokat → WhatsApp
@@ -9,6 +9,6 @@ routes:
   business:        { channel: whatsapp, to: "15550001122" }
   neutral:         { channel: whatsapp, to: "15550000000" }
 
-# Esli ukazat audience:intent yavnym klyuchom — on perekryvaet obschiy audience
+# If you specify the audience:intent with an explicit key, it overrides the general audience
 
 # c=a+b

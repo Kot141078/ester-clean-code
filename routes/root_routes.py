@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-routes/root_routes.py — kornevye marshruty i sluzhebnye ruchki.
+"""routes/root_routes.py - kornevye marshruty i sluzhebnye ruchki.
 
-Naznachenie:
-  • GET /        → 302 → /admin/portal
-  • GET /ui      → 302 → /admin/portal
-  • GET /ui/     → 302 → /admin/portal
-  • GET /routes  → JSON spisok zaregistrirovannykh pravil (karta marshrutov)
+Name:
+  • GET / → 302 → /admin/portal
+  • GET /ui → 302 → /admin/portal
+  • GET /ui/ → 302 → /admin/portal
+  • GET /routes → JSON spisok zaregistrirovannykh pravil (karta marshrutov)
   • GET /openapi.json → vydaet openapi.yaml kak JSON (esli ustanovlen PyYAML/ruamel.yaml)
-  • GET /build   → kratkaya sborochnaya informatsiya
+  • GET /build → kratkaya sborochnaya informatsiya
 
 Mosty:
 - Yavnyy: (UI ↔ Diagnostika) edinaya tochka vkhoda i karta marshrutov dlya debaga.
@@ -19,10 +18,9 @@ Mosty:
 
 Zemnoy abzats (inzheneriya):
 My ne menyaem publichnye kontrakty: dobavlyaem sluzhebnye ruchki v suschestvuyuschiy blyuprint root_bp
-i registriruem ikh cherez standartnyy khuk register(app). Eto drop‑in: ni signatur, ni importov,
+i register ikh cherez standartnyy khuk register(app). This is drop-in: ni signatur, ni importov,
 ni putey v drugikh modulyakh my ne trogaem.
-# c=a+b
-"""
+# c=a+b"""
 
 import os
 from typing import Any, Dict, List
@@ -30,7 +28,7 @@ from typing import Any, Dict, List
 from flask import Blueprint, redirect, jsonify, current_app, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# -------- YAML loader (myagkaya zavisimost) --------
+# -------- YML loader (soft dependency) --------
 try:
     import yaml as _pyyaml  # type: ignore
     def _safe_load_yaml(text: str):
@@ -59,7 +57,7 @@ def root_index():
 def ui_alias():
     return redirect("/admin/portal", code=302)
 
-# ---------- sluzhebnye ruchki v tom zhe blyuprinte ----------
+# ---------- service pens in the same blueprint ----------
 @root_bp.get("/routes")
 def routes_map():
     out: List[Dict[str, Any]] = []
@@ -84,7 +82,7 @@ def openapi_json():
             data = _safe_load_yaml(text)
         except Exception as e:
             return jsonify({"error": f"yaml parser not available: {e}"}), 500
-        # Esli YAML uzhe JSON-sovmestim — vernem kak est
+        # If YML is already JSION-compatible, we will return it as is
         if isinstance(data, (dict, list)):
             return jsonify(data)
         return jsonify({"error": "openapi invalid format"}), 500
@@ -104,11 +102,11 @@ def build_info():
     )
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta (kontrakt proekta)."""
+    """Drop-in registration of blueprint (project contract)."""
     app.register_blueprint(root_bp)
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 __all__ = ["root_bp", "register", "init_app"]

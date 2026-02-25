@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-modules/llm/broker.py — LLM-broker: LM Studio (lokalno) + OpenAI-sovmestimye + Gemini + Ollama (cherez API-klyuchi).
+"""modules/llm/broker.py - LLM-broker: LM Studio (lokalno) + OpenAI-sovmestimye + Gemini + Ollama (cherez API-klyuchi).
 
 Mosty:
 - Yavnyy: (Myshlenie ↔ Vneshnie modeli) edinaya tochka vyzova completions.
 - Skrytyy #1: (Ekonomika ↔ Stoimost) edinaya otsenka "est_cost" dlya CostFence/ledger.
-- Skrytyy #2: (Kibernetika ↔ Avtonomiya) «volya» mozhet vybirat provaydera/model.
+- Skrytyy #2: (Kibernetika ↔ Avtonomiya) “volya” mozhet vybirat provaydera/model.
 - Novoe: (Memory ↔ Effektivnost) keshirovanie otvetov dlya povtornykh promptov.
 - Novoe: (Ustoychivost ↔ Fallback) avtomaticheskiy pereklyuch na drugoy provayder pri oshibke.
 - Novoe: (Mesh/P2P ↔ Raspredelennost) zaprosy k peer-brokeram esli lokalnye feylyat.
@@ -13,10 +12,9 @@ Mosty:
 - Novoe: (Monitoring ↔ Prozrachnost) webhook na oshibki/high cost dlya audita.
 
 Zemnoy abzats:
-Odin rul na neskolko motorov s avtopilotom: lokalnyy LM Studio — deshevo i bystro; oblaka — po neobkhodimosti; esli zaglokh — pereklyuchaemsya na zapasnoy, keshiruem put, sprashivaem u "sosedey" po P2P, chistim po cron — i Ester vsegda na svyazi, bez fragmentatsii.
+Odin rul na neskolko motorov s avtopilotom: lokalnyy LM Studio — deshevo i bystro; oblaka - by neobkhodimosti; esli zaglokh - pereklyuchaemsya na zapasnoy, keshiruem put, sprashivaem u "sosedey" po P2P, chistim po cron - i Ester vsegda na svyazi, bez fragmentatsii.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hashlib
 from typing import Any, Dict, List
@@ -42,7 +40,7 @@ PEERS = [p.strip() for p in PEERS_STR.split(",") if p.strip()]
 CRON_MAX_AGE_DAYS = int(os.getenv("CRON_MAX_AGE_DAYS", "30") or "30")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "")
 MONITOR_COST_THRESHOLD = float(os.getenv("MONITOR_COST_THRESHOLD", "0.01") or "0.01")
-MONITOR_ERROR_THRESHOLD = int(os.getenv("MONITOR_ERROR_THRESHOLD", "3") or "3")  # porog oshibok dlya webhook
+MONITOR_ERROR_THRESHOLD = int(os.getenv("MONITOR_ERROR_THRESHOLD", "3") or "3")  # error threshold for webhook
 
 cache: Dict[str, Any] = {"entries": {}, "updated": 0, "last_cleanup": int(time.time()), "errors": 0}
 
@@ -62,7 +60,7 @@ def _load_cache():
             cache["last_cleanup"] = loaded.get("last_cleanup", cache["last_cleanup"])
         except Exception:
             pass
-    # Sinkh kesha ot peers pri starte
+    # Sync cache from peers at startup
     if PEERS:
         for peer in PEERS:
             try:
@@ -179,7 +177,7 @@ def _peer_complete(provider: str, model: str, prompt: str, max_tokens: int, temp
     return {"ok": False, "error": "all_peers_failed"}
 
 def receive_complete(payload: Dict[str, Any]) -> Dict[str, Any]:
-    # Eto dlya servera: prinyat POST i vyzvat local complete
+    # This is for the server: accept POST and call localcomplet
     return complete(
         payload.get("provider", DEF_PROVIDER),
         payload.get("model", FALLBACK_MODEL),
@@ -278,7 +276,7 @@ def complete(provider: str, model: str, prompt: str, max_tokens: int = 256, temp
                     _http_json(WEBHOOK_URL, alert, {}, timeout=5)
                 except Exception:
                     pass
-    # P2P fallback esli vse lokalnye feylyat
+    # P2P fake if all local ones fail
     peer_res = _peer_complete(prov, mod, prompt, mt, temperature)
     if peer_res.get("ok"):
         return peer_res

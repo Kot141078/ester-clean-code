@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_blueprints.py - karta blyuprintov/routov (JSON + HTML).
+"""routes/admin_blueprints.py - karta blyuprintov/routov (JSON + HTML).
 
 MOSTY:
-- (Yavnyy) GET /admin/blueprints (JSON) i /admin/blueprints/html (bystryy HTML-prosmotr).
-- (Skrytyy #1) Pomogaet lovit konflikty "The name 'ui' is already registered...".
+- (Yavnyy) GET /admin/blueprints (JSON) i /admin/blueprints/html (bystryy HTML-viewr).
+- (Skrytyy #1) Helps lovit konflikty "The name 'ui' is already registered...".
 - (Skrytyy #2) Sovmestim s verify_routes_v2 (obschie polya).
 
 ZEMNOY ABZATs:
-Panel «skhema schita»: odnim vzglyadom - kakie gruppy marshrutov stoyat i kuda oni vedut.
+Panel “skhema schita”: odnim vzglyadom - kakie gruppy marshrutov stoyat i kuda oni vedut.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, render_template_string, current_app as app
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

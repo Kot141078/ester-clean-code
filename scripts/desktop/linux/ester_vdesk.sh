@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # scripts/desktop/linux/ester_vdesk.sh
-# Naznachenie: podnyat headless X (Xvfb) + okonnyy menedzher (fluxbox) + VNC + noVNC
-# i zapustit lokalnyy RPA-server (127.0.0.1:8732) ot polzovatelya 'ester'.
+# Purpose: raise headless C (Hvfb) + window manager (flixbox) + VNS + noVNS
+# and run the local RPA server (127.0.0.1:8732) from the user ester.
 
 set -euo pipefail
 

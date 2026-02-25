@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mem_maint_routes.py - REST: heal/compact/snapshot/reindex.
+"""routes/mem_maint_routes.py - REST: heal/compact/snapshot/reindex.
 
 Mosty:
 - Yavnyy: (Veb ↔ TO pamyati) ruchki dlya kron-zadach i ruchnogo zapuska.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (RBAC ↔ Ostorozhnost) mozhno zaschitit vysokoy rolyu pri zhelanii.
 
 Zemnoy abzats:
-Te samye knopki «Pochinit», «Szhat», «Sdelat snimok», «Pereindeksirovat».
+Te samye knopki “Pochinit”, “Szhat”, “Sdelat snimok”, “Pereindeksirovat”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

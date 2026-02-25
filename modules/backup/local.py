@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/backup/local.py — prostye lokalnye bekapy vybrannykh korney v spisok tselevykh direktoriy.
+"""modules/backup/local.py - prostye lokalnye bekapy vybrannykh korney v spisok tselevykh direktoriy.
 
 Mosty:
 - Yavnyy: (Rezerv ↔ Disk) zerkalim vazhnye katalogi.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Ustoychivost ↔ Planirovschik) mozhno vyzyvat iz cron.
 
 Zemnoy abzats:
-«Spryatat kopiyu v shkafu»: bystroe lokalnoe dublirovanie bez oblakov.
+“Spryatat kopiyu v shkafu”: bystroe lokalnoe dublirovanie bez oblakov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, hashlib, shutil
 from typing import Any, Dict, List, Tuple

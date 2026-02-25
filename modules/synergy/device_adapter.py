@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/device_adapter.py — fasad sloya adapterov telemetrii.
+"""modules/synergy/device_adapter.py - fasad sloya adapterov telemetrii.
 
 MOSTY:
-- (Yavnyy) Reestr plaginov i konveyer: vendor-payload -> canonical -> TelemetryEvent (Pydantic).
+- (Yavnyy) Register plaginov i konveyer: vendor-payload -> canonical -> TelemetryEvent (Pydantic).
 - (Skrytyy #1) A/B-slot s avtokatbekom: A (novyy payplayn) po umolchaniyu, B — legacy-mepping cherez
   adapt_vendor_payload(); pri oshibke v A — myagkiy otkat k B.
 - (Skrytyy #2) Kvotirovanie i deduplikatsiya na agenta (token-bucket + skolzyaschee okno) — zaschita ot burstov.
 
 ZEMNOY ABZATs:
-Lyuboy dron/UGV/manipulyator prisylaet "svoe". Etot modul privodit vse k edinomu
+Lyuboy dron/UGV/manipulyator prisylaet "svoe". This modul privodit vse k edinomu
 kanonicheskomu formatu, otsekaet dublikaty/bursty i vozvraschaet gotovyy TelemetryEvent.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -49,10 +47,8 @@ def _select_adapter(vendor: Optional[str], profile: Dict[str, Any] | None) -> De
 def ingest_vendor_event(
     agent_id: str, vendor: Optional[str], payload: Dict[str, Any], profile: Optional[Dict[str, Any]] = None
 ) -> Tuple[Optional[TelemetryEvent], IngestResult]:
-    """
-    Glavnyy vkhod: prinimaet syrye vendor-pakety i vozvraschaet TelemetryEvent (ili None, esli zaglusheno kvotami/dedupom)
-    + sluzhebnyy rezultat inzhesta (dlya otladki i metrik).
-    """
+    """Glavnyy vkhod: prinimaet syrye vendor-pakety i vozvraschaet TelemetryEvent (ili None, esli zaglusheno kvotami/dedupom)
+    + sluzhebnyy rezultat inzhesta (dlya otladki i metrik)."""
     mode = os.getenv("SYNERGY_ADAPTER_MODE", "A").upper()
     if mode not in ("A", "B"):
         mode = "A"
@@ -71,7 +67,7 @@ def ingest_vendor_event(
         )
         return INGESTOR.ingest(agent_id, evt)
 
-    # Mode A — sovremennyy konveyer s plaginami i fallback na legacy pri oshibke
+    # Mode A - a modern pipeline with plugins and falsification on legacy in case of an error
     try:
         adapter = _select_adapter(vendor, profile)
         canonical = adapter.to_canonical(vendor or "", payload, profile or {})
@@ -94,10 +90,8 @@ def ingest_vendor_event(
 # ====== Legacy-sovmestimost (sokhraneno po kontraktu) ======
 
 def adapt_vendor_payload(vendor: str, payload: Dict[str, Any]) -> Dict[str, float]:
-    """
-    Legacy-API: sokhranit povedenie iz v1, no realizovat cherez tekuschie adaptery.
-    Vozvraschaet kanonicheskie polya: latency_ms / flight_time_min / payload_g
-    """
+    """Legacy API: keep the behavior from v1, but implement it through current adapters.
+    Returns canonical fields: latenko_ms / flight_topic_min / payload_g"""
     v = (vendor or "").lower()
     try:
         adapter = _select_adapter(v, None)

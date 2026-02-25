@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tools/p2p/hmac_assign.py — CLI: sformirovat HMAC-podpis i (po zhelaniyu) otpravit zapros.
+"""tools/p2p/hmac_assign.py - CLI: sformirovat HMAC-podpis i (po zhelaniyu) otpravit zapros.
 
 MOSTY:
-- (Yavnyy) Pechataet canonical, ts, hex podpis, curl/PowerShell komandy.
+- (Yavnyy) Print canonical, ts, hex podpis, curl/PowerShell command.
 - (Skrytyy #1) --send popytaetsya vypolnit zapros cherez requests (esli ustanovlen).
 - (Skrytyy #2) Format podpisi sovmestim s /p2p/sign_example.
 
 ZEMNOY ABZATs:
-Odin vyzov — i u tebya gotovaya komanda, chtoby stuknut v assign s pravilnymi zagolovkami.
+Odin vyzov - i u tebya gotovaya komanda, chtoby stuknut v assign s pravilnymi zagolovkami.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, sys, json, time, hmac, hashlib
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -27,7 +25,7 @@ def main(argv=None) -> int:
     ap.add_argument("--operator", default="human.pilot")
     ap.add_argument("--ts", default=str(int(time.time())))
     ap.add_argument("--key", default=os.getenv("P2P_HMAC_KEY","devkey"))
-    ap.add_argument("--send", action="store_true", help="Poprobovat otpravit zapros (esli est requests)")
+    ap.add_argument("--send", action="store_true", help="Try sending a request (if you have a request)")
     args = ap.parse_args(argv)
 
     body = {"team_id": args.team, "overrides": {"operator": args.operator}}

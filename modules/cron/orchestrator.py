@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/cron/orchestrator.py — nochnoy orkestrator: heal→compact→snapshot→reindex→health→binders→backup→otchet.
+"""modules/cron/orchestrator.py - nochnoy orkestrator: heal→compact→snapshot→reindex→health→binders→backup→otchet.
 
 Mosty:
 - Yavnyy: (Memory/Indeksy/AB/Binders/Backups ↔ Cron) edinaya protsedura, odin otchet.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Guard/RBAC ↔ Bezopasnost) posledovatelnye vyzovy, uvazhenie guard, legkie health-pingi.
 
 Zemnoy abzats:
-Kak nochnoy tekhprotsess v tsekhu: smazali stanki, podtyanuli remni, snyali kopiyu sklada i proverili pozharnuyu signalizatsiyu — k utru vse gotovo rabotat.
+Kak nochnoy tekhprotsess v tsekhu: smazali stanki, podtyanuli remni, snyali kopiyu sklada i proverili pozharnuyu signalizatsiyu - k utru vse gotovo rabotat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, json, threading, urllib.request, urllib.error, datetime, hashlib, zipfile
 from typing import Dict, Any, List, Tuple
@@ -88,7 +86,7 @@ def _best_effort(paths: List[Tuple[str, dict|None, int]])->List[Dict[str,Any]]:
     return out
 
 def _now_local()->datetime.datetime:
-    # bez storonnikh zavisimostey: ispolzuem lokalnoe vremya khosta kak UTC po umolchaniyu
+    # no third party dependencies: uses local host time as default time center
     return datetime.datetime.now()
 
 def _next_epoch()->int:
@@ -134,7 +132,7 @@ def run_nightly(dry_run: bool=False)->Dict[str,Any]:
     if dry_run:
         rep={"ok": True, "dry_run": True, "steps": steps}
         return rep
-    # 1) Heal/compact/snapshot pamyati (best-effort, esli ruchek net — propuskaem)
+    # 1) Heal/compact/memory snapshot (best effect, if there are no handles, skip)
     steps.append({"mem_heal":     _best_effort([("/mem/heal", {}, 120)])})
     steps.append({"mem_compact":  _best_effort([("/mem/compact", {}, 120)])})
     steps.append({"mem_snapshot": _best_effort([("/mem/snapshot", {}, 120)])})
@@ -142,7 +140,7 @@ def run_nightly(dry_run: bool=False)->Dict[str,Any]:
     steps.append({"rag_reindex":  _best_effort([("/rag/reindex", {}, 180)])})
     # 3) AB-slot health
     steps.append({"ab_health":    _best_effort([("/runtime/ab/health", {}, 30)])})
-    # 4) Binders (STT/media i dr., esli podklyucheny)
+    # 4) Benders (STT/media, etc., if connected)
     steps.append({"bind_stt":     _best_effort([("/bind/stt/run", {}, 600)])})
     # 5) Backup snapshot (ZIP + manifest)
     ok, b1=_call_json("/backup/snapshot", {"label": "nightly"}, 600)
@@ -195,7 +193,7 @@ def _loop():
                     pass
                 pass
             _state["loop"]="sleeping"
-            # chtoby ne zatsiklitsya, zhdem minutu
+            # so as not to get hung up, wait a minute
             time.sleep(60)
         else:
             time.sleep(min(30, max(1, nxt-now)))

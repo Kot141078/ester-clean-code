@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_creator_audio_uploader.py — eksheny «voli» dlya Creator/Drama/Uploader.
+"""modules/thinking/actions_creator_audio_uploader.py - eksheny "voli" dlya Creator/Drama/Uploader.
 
 Mosty:
-- Yavnyy: (Mysli ↔ Tvorchestvo) edinye knopki — ot teksta do media i metadannykh.
+- Yavnyy: (Mysli ↔ Tvorchestvo) edinye knopki - ot teksta do media i metadannykh.
 - Skrytyy #1: (Passport ↔ Prozrachnost) upravlyayuschie deystviya vidny v zhurnale.
 - Skrytyy #2: (Garage/Portfolio ↔ Sinergiya) rezultaty legko podkhvatit drugimi uzlami.
 
 Zemnoy abzats:
-Eti eksheny pozvolyayut Ester samoy zapuskat «ideya→rolik→gotovo k publikatsii».
+Eti eksheny pozvolyayut Ester samoy zapuskat “ideya→rolik→gotovo k publikatsii.”
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

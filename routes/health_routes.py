@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes.health_routes - minimalnyy health JSON.
+"""routes.health_routes - minimalnyy health JSON.
 
 MOSTY:
 - Yavnyy: Inzhenernaya diagnostika ↔ Polzovatelskiy kontrol - vydaem kompaktnyy status yadra.
-- Skrytyy 1: Bayes - schitaem «zdorove» po nablyudaemym priznakam (kol-vo zaregistrirovannykh/propuschennykh).
+- Skrytyy 1: Bayes - schitaem “zdorove” po nablyudaemym priznakam (kol-vo zaregistrirovannykh/propuschennykh).
 - Skrytyy 2: Kibernetika - health kak sensor v konture upravleniya (vneshniy kontroller mozhet reshat ob otkate/perezapuske).
 
 ZEMNOY ABZATs:
-Kak pulsoksimetr: prostoy pribor, no govorit glavnoe - zhiv/stabilen, gde shum/nedobor.
-"""
+Kak pulsoksimetr: prostoy pribor, no govorit glavnoe - zhiv/stabilen, where noise/nedobor."""
 from flask import Blueprint, jsonify, current_app
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 

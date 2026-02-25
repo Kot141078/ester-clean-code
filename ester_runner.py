@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-ester_runner.py — edinyy zapuskator (supervisor) dlya dvukh entrypoint'ov:
+"""ester_runner.py - edinyy zapuskator (supervisor) dlya dvukh entrypoint'ov:
 - app.py (Web Hub)
 - run_ester_fixed.py (Telegram/Hive + optional mini-flask)
 
 Oba fayla ostayutsya polnostyu rabotosposobnymi po otdelnosti.
-Etot runner prosto zapuskaet ikh vmeste i akkuratno vedet logi.
+This runner prosto zapuskaet ikh vmeste i akkuratno vedet logi.
 
 Primery:
   python ester_runner.py --both
   python ester_runner.py --web
   python ester_runner.py --telegram
-  python ester_runner.py --both --restart
-"""
+  python ester_runner.py --both --restart"""
 
 from __future__ import annotations
 
@@ -33,14 +31,14 @@ PY = sys.executable
 
 
 def _print_prefixed(prefix: str, line: str) -> None:
-    # Bez lishnikh ukrashatelstv, no udobno otlichat potoki.
+    # Without unnecessary decorations, but it is convenient to distinguish between flows.
     try:
         sys.stdout.write(f"[{prefix}] {line}")
         if not line.endswith("\n"):
             sys.stdout.write("\n")
         sys.stdout.flush()
     except Exception:
-        # V kraynem sluchae — molcha.
+        # As a last resort - silently.
         pass
 
 
@@ -157,7 +155,7 @@ def main() -> int:
     procs: Dict[str, subprocess.Popen] = {}
 
     def stop_all():
-        # Ostanavlivaem v obratnom poryadke, chtoby “naruzha” (web) ukhodila posledney.
+        # We install in the reverse order so that the “outside” (web) goes last.
         for name in list(procs.keys())[::-1]:
             _terminate_process(procs[name], name)
         procs.clear()
@@ -193,8 +191,8 @@ def main() -> int:
         if args.tg_closed_box:
             env_tg["CLOSED_BOX"] = "1"
 
-        # Mini-Flask vnutri run_ester_fixed.py po umolchaniyu luchshe NE vklyuchat,
-        # chtoby ne konfliktovat po portu s app.py.
+        # It is better NOT to enable Mini-Flask inside rune_ester_fixed by default,
+        # so as not to conflict on the port with the app.
         if args.tg_flask_enable:
             env_tg["ESTER_FLASK_ENABLE"] = "1"
             env_tg["HOST"] = str(args.tg_host)
@@ -240,7 +238,7 @@ def main() -> int:
                             env_tg["ESTER_FLASK_ENABLE"] = "0"
                         procs[name] = _spawn_process("telegram", tg_py, env_tg, ROOT)
                 else:
-                    # Esli restart ne vklyuchen — padaet odin, gasim vse.
+                    # If the restart is not turned on, one crashes and extinguishes everything.
                     stop_flag["stop"] = True
                     break
     finally:

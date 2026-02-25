@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/guarded_apply.py — zaschischennoe primenenie pravok (A/B-sloty, testy, health, avto-otkat).
+"""modules/self/guarded_apply.py - zaschischennoe primenenie pravok (A/B-sloty, testy, health, avto-otkat).
 
 Mosty:
 - Yavnyy: (Kod ↔ Resilience) dry→tests→apply→health→auto-rollback.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Ostorozhnost ↔ Pilyuli/Byudzhet) vyzyvat cherez zaschischennuyu ruchku i CostFence.
 
 Zemnoy abzats:
-Kak khirurgiya po protokolu: snachala analiz, potom proba, zatem akkuratnyy shov i kontrol pulsa — esli plokho, otkat.
+Kak khirurgiya po protokolu: snachala analiz, potom proba, zatem akkuratnyy shov i kontrol pulse - esli plokho, otkat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict, List
@@ -60,7 +58,7 @@ def _rollback(paths: List[str]) -> Dict[str,Any]:
         return {"ok": False, "error":"rollback_unavailable"}
 
 def _bslot_path(path: str) -> str:
-    # Parallelnoe zerkalo dlya B-slota: data/forge/b_slot/<abs-like>
+    # Parallel mirror for B-slot: date/forge/v_slot/<abs-like>
     p=path.replace("..","").lstrip("/\\")
     return os.path.join(B_MIRROR, p)
 
@@ -116,7 +114,7 @@ def guarded_apply(changes: List[Dict[str,Any]], tests: List[Dict[str,Any]] | Non
 
     h=_health()
     if not h.get("ok", True) and CODE_AB=="A":
-        # Otkat tolko esli pishem v boevoy A-slot
+        # Rollback only if we write to the combat A-slot
         paths=[c.get("path") for c in changes or []]
         rb=_rollback(paths)
         _mm_log("Guarded apply health failed -> rollback", {"ok": False, "health": h, "rollback": rb})

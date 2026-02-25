@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-"""tools/show_experience_profile.py — prosmotr profilya opyta Ester.
+"""tools/show_experience_profile.py - profilya opyta Ester.
 
-Naznachenie:
-- Bezopasno prochitat tekuschiy profil opyta bez perezapisi dannykh.
-- Proverit, chto nochnoy tsikl, refleksiya i opyt svyazany.
+Name:
+- Safely prochitat tekuschiy profil opyta bez perezapisi dannykh.
+- Check it out, what do you think about it?
 
 Mosty:
 - Yavnyy: ispolzuet modules.memory.experience.build_experience_profile().
-- Skrytyy #1: opiraetsya na dannye sna / refleksii (sleep → reflection → experience).
+- Skrytyy #1: opiraetsya na dannye sna / reflections (sleep → reflection → experience).
 - Skrytyy #2: sluzhit istochnikom dlya thinking.experience_context_adapter (ruchnaya proverka).
 
 Zemnoy abzats:
@@ -15,8 +15,7 @@ Podobno nevrologu, kotoryy smotrit snimok mozga posle sna, skript pechataet snim
 "dolgovremennoy pamyati" Ester: skolko insaytov, kakie temy, bez lishnego vmeshatelstva.
 
 Zapusk:
-    python tools/show_experience_profile.py
-"""
+    python tools/show_experience_profile.py"""
 
 import json
 import sys

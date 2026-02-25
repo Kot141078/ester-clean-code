@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/ester_thinking_check.py
+"""scripts/ester_thinking_check.py
 
 Legkiy self-check kaskadnogo myshleniya i voli Ester.
 
 Mosty:
 - Yavnyy: (CLI ↔ thinking_manifest) — daet bystryy otchet i status.
 - Skrytyy #1: (modules.thinking.* ↔ engineer) — proveryaet nalichie klyuchevykh moduley.
-- Skrytyy #2: (HTTP /ester/thinking/once ↔ CLI) — optsionalno pinguet HTTP-vkhod.
+- Skrytyy #2: (HTTP /ester/thinking/once ↔ CLI) - optionalno pinguet HTTP-vkhod.
 
 ENV:
     ESTER_THINK_CHECK_AB = "A" | "B"
-    A — tolko lokalnye proverki moduley.
-    B — dopolnitelno probuet HTTP-zapros k /ester/thinking/ping (esli server uzhe zapuschen).
+    A - tolko lokalnye proverki moduley.
+    B - dopolnitelno try HTTP-zapros k /ester/thinking/ping (esli server uzhe zapuschen).
 
 Zemnoy abzats:
-Inzhener zapuskaet `python -m scripts.ester_thinking_check` i vidit:
+Inzhener zapuskaet `python -m scripts.ester_thinking_check` i see:
 chto imenno dostupno, kakie rezhimy vklyucheny i ne rushitsya li kaskad.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

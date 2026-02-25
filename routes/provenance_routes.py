@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/provenance_routes.py — REST-ruchki dlya raboty s «profileami znaniy».
+"""routes/provenance_routes.py - REST-ruchki dlya raboty s “profileami znaniy”.
 
-Endpointy:
-  • POST /mem/provenance/enrich  {record, index?} v†' record s meta.provenance
-  • POST /mem/provenance/verify  {record}        v†' ok/issues/passport
-  • GET  /mem/provenance/stats                  v†' svodka po indeksirovannym profileam (dublikaty)
+Endpoint:
+  • POST /mem/provenance/enrich {record, index?} v†' record s meta.provenance
+  • POST /mem/provenance/verify {record} v†' ok/issues/passport
+  • GET /mem/provenance/stats v†' svodka po indexed profileam (dublikaty)
 
 RBAC:
-  • enrich/stats — 'operator' (zapis v indeks), verify — 'viewer'.
+  • enrich/stats - 'operator' (zapis v indexes), verify - 'viewer'.
 
 Mosty:
 - Yavnyy: (Memory v†" Inzheneriya) bystraya normalizatsiya zapisey pered sokhraneniem ili obmenom.
@@ -18,8 +17,7 @@ Mosty:
 Zemnoy abzats:
 Eto kak postavit shtamp v kartochke tovara Re polozhit kopiyu v zhurnal — potom bystro naydem Re proverim.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict

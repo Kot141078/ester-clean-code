@@ -15,14 +15,14 @@ def fix_indentation():
     fixed_count = 0
     
     for line in lines:
-        # 1. Ispravlyaem vyzov vosstanovleniya
-        # Esli vidim 8 probelov pered funktsiey, menyaem na 4
+        # 1. Fixing the recovery call
+        # If we see 8 spaces before the function, change to 4
         if line.startswith("        restore_context_from_passport()"):
             new_lines.append("    restore_context_from_passport()\n")
             fixed_count += 1
             continue
 
-        # 2. Ispravlyaem zapusk pollinga (esli on tozhe uekhal)
+        # 2. Fix the launch of polling (if it also left)
         if line.startswith("        app.run_polling("):
             new_lines.append(line.replace("        app.run_polling(", "    app.run_polling(", 1))
             fixed_count += 1

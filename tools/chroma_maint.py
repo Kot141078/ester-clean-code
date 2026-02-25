@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-tools/chroma_maint.py — obsluzhivanie Chroma SQLite (checkpoint/optimize/vacuum/backup).
+"""tools/chroma_maint.py - obsluzhivanie Chroma SQLite (checkpoint/optimize/vacuum/backup).
 
 Zachem:
 - U tebya chroma.sqlite3 ~6+ GB. Lyubaya operatsiya, kotoraya trogaet Chroma (RAG ingest/query, cleanup),
   mozhet "podvisat" iz-za WAL/fragmentatsii/rosta freelist.
-- VACUUM i WAL checkpoint chasto vozvraschayut skorost i umenshayut razmer.
+- VACUUM i WAL checkpoint often vozvraschayut skorost i umenshayut razmer.
 
 VAZhNO (L4):
 - Ostanovi Ester/protsess Chroma pered obsluzhivaniem (inache budet lock).
-- Ubedis, chto na diske est svobodnoe mesto: VACUUM mozhet vremenno trebovat ~razmer BD.
+- Ubedis, what na diske est svobodnoe place: VACUUM mozhet vremenno trebovat ~razmer BD.
 
 MOSTY:
 - Yavnyy: (Audit → Control) — izmeryaem sostoyanie BD (page_count/freelist) i korrektiruem (vacuum).
 - Skrytyy #1: (Kibernetika Ashby → ustoychivost) — obsluzhivaem kontur khraneniya, umenshaya dreyf/iznos.
-- Skrytyy #2: (Infoteoriya → propusknaya sposobnost) — menshe “pustykh stranits” = vyshe poleznaya emkost.
+- Skrytyy #2: (Infoteoriya → propusknaya sposobnost) - menshe “pustykh stranits” = vyshe poleznaya emkost.
 ZEMNOY ABZATs:
 Eto kak servis korobki peredach: maslo ne dobavlyaet moschnosti, no ubiraet ryvki i prodlevaet resurs.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -67,11 +65,11 @@ def _print_file_sizes(db_path: str) -> None:
     if os.path.exists(wal):
         print(f"  wal: {_fmt_bytes(_file_size(wal))}  {wal}")
     if os.path.exists(shm):
-        print(f"  shm: {_fmt_bytes(_file_size(shm))}  {shm}")
+        print(f"shm: {_fmt_bytes(_file_size(shm))} {shm}")
 
 
 def _connect(db_path: str, timeout: float = 30.0) -> sqlite3.Connection:
-    # isolation_level=None -> autocommit (udobno dlya PRAGMA i VACUUM)
+    # isolation_level=None -> autosummit (convenient for PRAGMA and VACUUM)
     con = sqlite3.connect(db_path, timeout=timeout, isolation_level=None)
     return con
 
@@ -173,7 +171,7 @@ def main() -> int:
 
         if args.vacuum:
             t0 = time.time()
-            print("[..] VACUUM started (mozhet zanyat dolgo na bolshikh BD)...")
+            print("yu..sch VACUUM started (may take a long time on large databases)...")
             vacuum(con)
             print(f"[OK] VACUUM done; took {time.time() - t0:.2f}s")
             _print_file_sizes(db_path)

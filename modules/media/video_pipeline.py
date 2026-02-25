@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/media/video_pipeline.py — PROBE i INGEST video: metadannye, subtitry, transkript, konspekt.
+"""modules/media/video_pipeline.py - PROBE i INGEST video: metadannye, subtitry, transkript, konspekt.
 
 Mosty:
 - Yavnyy: (Video ↔ Memory) obekt v reestre, subtitry/transkript v pamyat, konspekt v RAG i KG.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Profile ↔ Audit) vse etapy shtampuyutsya.
 
 Zemnoy abzats:
-Avtomaticheskaya «vytyazhka» iz video: vzyat razreshennoe, berezhno obrabotat i ulozhit na polki — chtoby potom bystro vspomnit.
+Avtomaticheskaya "vytyazhka" iz video: vzyat razreshennoe, berezhno obrabotat i ulozhit na polki - chtoby potom bystro vspomnit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, re
 from typing import Any, Dict, List, Tuple
@@ -37,7 +35,7 @@ def _probe_local(path: str)->Dict[str,Any]:
     if not path or not os.path.isfile(path): 
         return {"ok": False, "error":"file_not_found"}
     meta={"path": os.path.abspath(path)}
-    # ffprobe uproschenno: tolko dlitelnost
+    # ffprobe simplified: only duration
     if FFMPEG:
         code,out,err=shell(f'{FFMPEG} -i "{path}" -hide_banner')
         dur=None
@@ -83,7 +81,7 @@ def probe(url: str|None=None, path: str|None=None)->Dict[str,Any]:
 
 def _download_ytdlp(url: str, outdir: str)->Tuple[Dict[str,Any], str|None, str|None]:
     os.makedirs(outdir, exist_ok=True)
-    # skachivaem nailuchshee audio i subtitry (esli est)
+    # download the best audio and subtitles (if available)
     cmd = f'{YTDLP} -o "{os.path.join(outdir,"%(_id)s.%(ext)s")}" --write-auto-sub --write-sub --sub-lang "en.*,ru.*" --skip-download --print-json "{url}"'
     code,out,err = shell(cmd, timeout=180)
     if code!=0:
@@ -92,13 +90,13 @@ def _download_ytdlp(url: str, outdir: str)->Tuple[Dict[str,Any], str|None, str|N
         j=json.loads(out.splitlines()[-1])
     except Exception:
         j={}
-    # subtitry mogli byt vykachany ryadom v outdir
+    # subtitles could be pumped out nearby
     sub_file=None
     for root,_,files in os.walk(outdir):
         for n in files:
             if n.endswith(".vtt") or n.endswith(".srt"):
                 sub_file=os.path.join(root,n); break
-    # takzhe mozhno vykachat audio (optsionalno)
+    # you can also download audio (optional)
     audio_file=None
     acode,aout,aerr = shell(f'{YTDLP} -x --audio-format mp3 -o "{os.path.join(outdir,"%(_id)s.%(ext)s")}" "{url}"', timeout=21600)
     if acode==0:
@@ -151,7 +149,7 @@ def ingest(url: str|None=None, path: str|None=None, prefer_subs: bool=True, tran
     subs_text=""; transcript_text=""; notes=None
 
     if url:
-        # kvota: otsenim bazovuyu «stoimost» kak 10 tokenov + 1/minutu (priblizitelno)
+        # quota: let's estimate the base "cost" as 10 tokens + 1/minute (approximately)
         pr=probe(url=url); minutes=int(pr.get("meta",{}).get("duration_min") or 0)
         qt=ingest_quota("youtube", 10 + max(0, minutes))
         if not qt.get("allowed"):
@@ -166,10 +164,10 @@ def ingest(url: str|None=None, path: str|None=None, prefer_subs: bool=True, tran
     else:
         # lokalnyy fayl: poprobuem vydrat vstroennye subtitry i audio
         if prefer_subs and FFMPEG:
-            # ffmpeg ne vsegda mozhet vytaschit subtitry iz konteynera — best-effort
+            # ffmpeg cannot always pull subtitles out of the container - best-effort
             pass
         if transcribe and FFMPEG and os.path.isfile(path or "") and T_MAX_MIN>0:
-            # vytaschim audio (mp3) i progonim whisper, esli est
+            # pull out the audio (mp3) and play it downward, if there is one
             apath=os.path.join(vdir,"audio.mp3")
             code,_,_=shell(f'{FFMPEG} -i "{path}" -vn -acodec libmp3lame -y "{apath}"', timeout=21600)
             if code==0 and os.path.isfile(apath):
@@ -184,7 +182,7 @@ def ingest(url: str|None=None, path: str|None=None, prefer_subs: bool=True, tran
         for i in range(0, len(full_text), CHUNK):
             chunk=full_text[i:i+CHUNK]
             mem_append(chunk, {"kind":"media_text","video_id": vid, "i": i//CHUNK})
-        # avtolink suschnostey po neskolkim chankam (pervye 2 i konspekt)
+        # autolink of entities across several chunks (the first 2 and a summary)
         items=[]
         if len(full_text)>0:
             items.append({"id": f"{vid}-t0", "text": full_text[:3000]})

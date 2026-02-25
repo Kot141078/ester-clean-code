@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/studio/prompts.py — generatsiya trendovykh promptov/stsenariev.
+"""modules/studio/prompts.py - generatsiya trendovykh promptov/stsenariev.
 
 Mosty:
-- Yavnyy: (LLM ↔ Kontent) sozdaet spisok idey/skriptov na baze tem/persony.
+- Yavnyy: (LLM ↔ Kontent) sozdaet spisok idea/skriptov na baze tem/persony.
 - Skrytyy #1: (Garazh ↔ Portfolio) mozhno dobavit kak proekt/artefakt.
 - Skrytyy #2: (Volya ↔ Plan) ekshen mozhet zapuskatsya avtomaticheski.
 
 Zemnoy abzats:
-Eto «rybolovnye snasti» dlya idey: kompaktnye stsenarii, gotovye k ozvuchke i montazhu.
+This is “rybolovnye snasti” dlya idea: kompaktnye stsenarii, gotovye k ozvuchke i montazhu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict, List
@@ -34,13 +32,12 @@ def _llm(prompt:str)->str:
     return ""
 
 PROMPT_TMPL = """Sgeneriruy 5 korotkikh stsenariev dlya {persona} po temam: {topics}.
-Kazhdyy stsenariy: 1) zagolovok (<=60), 2) 3-5 tezisov (korotko), 3) call-to-action. Language: russkiy.
+Kazhdyy stsenariy: 1) zagolovok (<=60), 2) 3-5 tezisov (korotko), 3) call-to-action. Language: russian.
 Format:
 # <Title>
 - tezis
 ...
-CTA: ...
-"""
+CTA: ..."""
 
 def trending(topics: List[str], persona: str="ekspert") -> Dict[str,Any]:
     _ensure()

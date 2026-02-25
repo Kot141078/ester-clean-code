@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-sister_council_upgrade.py — patch run_ester_fixed.py (P2P «Sovet sester» + Passport path fix)
+"""sister_council_upgrade.py — patch run_ester_fixed.py (P2P “Sovet sister” + Passport path fix)
 
 YaVNYY MOST:
-  c = a + b  →  «semeynyy sovet» (a: chelovek/vopros Owner, b: protsedury/uzly), otvet — sintez.
+  c = a + b → “semeynyy sovet” (a: chelovek/vopros Owner, b: protsedury/uzly), otvet - sintez.
 
 SKRYTYE MOSTY:
-  - Ashby (requisite variety): dobavlyaem esche odin kontur raznoobraziya (sestra) i daem arbitrazhu (synth) stabilizirovat.
-  - Cover&Thomas (channel capacity): sestra daet korotkoe «mnenie», a ne gigabayty konteksta — ekonomim kanal/tokeny.
+  - Ashby (requisite variety): add esche odin kontur raznoobraziya (sestra) i daem arbitrazhu (synth) stabilizirovat.
+  - Cover&Thomas (channel capacity): sestra daet korotkoe “mnenie”, a ne gigabayty konteksta — ekonomim kanal/tokeny.
 
 ZEMNOY ABZATs (inzheneriya/anatomiya):
-  Eto pokhozhe na prostuyu elektricheskuyu tsep s parallelnymi vetkami: web-reshenie, lokalnye mneniya i «vetka sestry»
-  idut odnovremenno, kak tok po neskolkim rezistoram. A taymaut — eto predokhranitel: esli vetka zavisla,
-  ostalnaya skhema prodolzhaet rabotat, a ne «vybivaet probki» vsemu uzlu.
+  Eto pokhozhe na prostuyu elektricheskuyu tsep s parallelnymi vetkami: web-reshenie, lokalnye mneniya i “vetka sestry”
+  Idut odnovremenno, kak tok po neskolkim rezistoram. A taymaut - eto predokhranitel: esli vetka zavisla,
+  ostalnaya skhema prodolzhaet rabotat, a ne “vybivaet probki” vsemu uzlu.
 
 A/B-sloty i avto-otkat:
-  A-slot — .bak-rezervnaya kopiya, B-slot — izmenennyy fayl. Pri provale validatsii — otkat na A.
-"""
+  A-slot - .bak-rezervnaya kopiya, B-slot - izmenennyy fayl. Pri provale validatsii - otkat na A."""
 
 import os
 import re
@@ -27,7 +25,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 TARGET_FILE = "run_ester_fixed.py"
 
-# --- 1) Vzhivlenie «Soveta sester» bez razrusheniya kaskada ---
+# --- 1) Implantation of the “Council of Sisters” without destroying the cascade ---
 NEW_SYNTH_METHOD = r'''
     async def synthesize_thought(
         self,
@@ -50,14 +48,14 @@ NEW_SYNTH_METHOD = r'''
         except Exception:
             sister_timeout = 30.0
 
-        # Vazhno: ne padaem, esli po kakoy-to prichine funktsiya sestry otsutstvuet
+        # Important: does not crash if for some reason the sister function is missing
         if "ask_sister_opinion" in globals():
             try:
                 sister_task = asyncio.create_task(ask_sister_opinion(user_text))
             except Exception:
                 sister_task = None
 
-        # Reshenie o web-search mozhet byt dorogim (LLM), parallelim.
+        # The decision about web search can be expensive (LLM), parallel.
         web_decision_task = asyncio.create_task(need_web_search_llm(synth, user_text))
 
         evidence_web = ""
@@ -238,7 +236,7 @@ def _persist_to_passport(role: str, text: str):
         elif role == "assistant":
             rec["role_assistant"] = text
         elif role == "thought":
-            # Markiruem mysl, chtoby otlichat ot realnosti
+            # We mark a thought to distinguish it from reality
             rec["role_system"] = f"[[INTERNAL MEMORY/DREAM]]: {text}"
             rec["tags"] = ["insight", "internal"]
         else:
@@ -272,14 +270,14 @@ def _find_block_by_markers(content: str, start_marker: str, end_marker: str) -> 
 
 
 def _replace_method_synthesize_thought(content: str) -> tuple[str, bool]:
-    # Ischem nachalo metoda (vnutri klassa) i konets bloka do "hive = EsterHiveMind()"
+    # We are looking for the beginning of the method (inside the class) and the end of the block to “nive = EsterHiveMind()”
     start_pat = "\n    async def synthesize_thought("
     end_pat = "\n\nhive = EsterHiveMind()"
     s, e = _find_block_by_markers(content, start_pat, end_pat)
     if s == -1 or e == -1:
         return content, False
 
-    # Sokhranyaem veduschiy perenos stroki, chtoby ne lomat formatirovanie
+    # We save the leading line break so as not to break the formatting
     before = content[:s + 1]
     after = content[e + 1:]
     new_content = before + NEW_SYNTH_METHOD + after
@@ -289,7 +287,7 @@ def _replace_method_synthesize_thought(content: str) -> tuple[str, bool]:
 def _ensure_passport_helper_and_fix_paths(content: str) -> tuple[str, bool]:
     changed = False
 
-    # 1) Vstavlyaem helper pered _persist_to_passport esli esche net
+    # 1) Insert the helper before _persist_to_passport if not already there
     if "_passport_jsonl_path" not in content:
         idx = content.find("def _persist_to_passport")
         if idx == -1:
@@ -297,12 +295,12 @@ def _ensure_passport_helper_and_fix_paths(content: str) -> tuple[str, bool]:
         content = content[:idx] + PASSPORT_HELPER + "\n" + content[idx:]
         changed = True
 
-    # 2) Zamenyaem funktsiyu _persist_to_passport tselikom (chinit i hardcode, i datetime.datetime.datetime)
+    # 2) Replaces the _persist_to_passport function entirely (fix both hardcode and datetime.datetime.datetime)
     m = re.search(r"^def _persist_to_passport\([^\n]*\):\n(?:^[ \t].*\n)*", content, flags=re.MULTILINE)
     if not m:
         return content, False
 
-    # konets bloka berem do sleduyuschego top-level def/class ili EOF
+    # we take the end of the block to the next top level def/class or EOF
     block_start = m.start()
     scan = content[m.end():]
     m2 = re.search(r"^(def|class)\s+", scan, flags=re.MULTILINE)
@@ -326,10 +324,10 @@ def _validate(content: str) -> tuple[bool, str]:
         return False, "Ne nayden marker 'hive = EsterHiveMind()' (pokhozhe, struktura fayla izmenilas)."
 
     if "datetime.datetime.datetime" in content:
-        return False, "Ostalas konstruktsiya 'datetime.datetime.datetime' — eto tochno upadet."
+        return False, "The construction left is datetime.datetime.datetime - this will definitely fall."
 
     if r"D:\ester-project\data\passport\clean_memory.jsonl" in content:
-        return False, "Ostalsya zhestko proshityy put profilea D:\\ester-project\\... (patch 2 ne primenilsya)."
+        return False, "What remains is the hard-wired profile path D: eester-proekte... (patch 2 was not applied)."
 
     if "async def synthesize_thought" in content and "SISTER_OPINION_TIMEOUT" not in content:
         return False, "synthesize_thought ne obnovlen (net SISTER_OPINION_TIMEOUT)."
@@ -338,7 +336,7 @@ def _validate(content: str) -> tuple[bool, str]:
 
 
 def apply_patch():
-    print("🚀 Patch: Sovet sester (P2P) + Passport path fix (patch 2)")
+    print("🚀 Patch: Council sister (P2P) + Passport path fix (patch 2)")
     print(f"🎯 Tsel: {TARGET_FILE}")
 
     target = Path(TARGET_FILE)
@@ -351,7 +349,7 @@ def apply_patch():
 
     content = target.read_text(encoding="utf-8", errors="replace")
 
-    # Idempotentnost: esli uzhe propatcheno — ne trogaem
+    # Idempotency: if it’s already patched, don’t touch it
     already = (
         ("SISTER_OPINION_TIMEOUT" in content)
         and ("_passport_jsonl_path" in content)
@@ -381,7 +379,7 @@ def apply_patch():
         return False
 
     target.write_text(content3, encoding="utf-8", errors="strict")
-    print("✅ Gotovo. Fayl obnovlen (B-slot).")
+    print("✅ Ready. Fayl updated (B-slot).")
     return True
 
 
@@ -392,6 +390,6 @@ if __name__ == "__main__":
             print("⚠️ Patch ne primenen (sm. soobscheniya vyshe).")
     finally:
         try:
-            input("\nNazhmi Enter dlya zaversheniya...")
+            input("Press Enter to complete...")
         except Exception:
             pass

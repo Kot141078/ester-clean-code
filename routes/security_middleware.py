@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/security_middleware.py - per-request zaschita i nablyudaemost:
-  • Proverka mTLS (cherez zagolovki ot reverse-proxy):
+"""routes/security_middleware.py - per-request zaschita i nablyudaemost:
+  • Verka mTLS (through reverse-proxy):
       MTLS_REQUIRED=1 → trebuem X-SSL-Client-Verify: SUCCESS
-      Dopolnitelno MTLS_SUBJECT_REGEX (regex po Subject/Email),
+      Additional MTLS_SUBJECT_REGEX (regex po Subject/Email),
       zagolovki: X-SSL-Client-Subject / X-SSL-Client-Email
   • Rate-limit per-IP/per-token (security/rate_limit.py)
-  • Audit zaprosov (observability/audit)
+  • Audit requests (observability/audit)
   • Avtoinitsializatsiya OpenTelemetry (observability/otel) - no-op esli paket ne ustanovlen
 
 Podklyuchenie:
@@ -16,14 +15,13 @@ Podklyuchenie:
 Mosty:
 - Yavnyy: (Flask before/after_request ↔ Audit/RateLimit/OTel) - edinaya tochka zaschity i telemetrii.
 - Skrytyy #1: (mTLS ↔ Profili dostupa) - proverka po zagolovkam proksi bez pryamoy kriptografii v prilozhenii.
-- Skrytyy #2: (JWT ↔ Gostevoy dostup) - validatsiya tokena «optsionalna» (ne blokiruet anonimov), no obogaschaet audit.
+- Skrytyy #2: (JWT ↔ Gostevoy dostup) - validatsiya tokena “optsionalna” (ne blokiruet anonimov), no obogaschaet audit.
 
 Zemnoy abzats:
-Eto «okhrannik u dveri tsekha»: puskaet po propuskam (mTLS/JWT), schitaet potok (rate limit)
+Eto “okhrannik u dveri tsekha”: puskaet po propuskam (mTLS/JWT), schitaet potok (rate limit)
 i zapisyvaet v zhurnal, skolko zanyalo obsluzhivanie zaprosa. Realizatsiya bez setevykh vyzovov,
 vse lokalno i bezopasno dlya zakrytoy korobki.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -43,7 +41,7 @@ from flask_jwt_extended import verify_jwt_in_request  # type: ignore
 # Nadezhnye importy observability.* s no-op-folbekami (ispravlenie ImportError)
 # ---------------------------------------------------------------------------
 
-# audit: ozhidaem modul observability.audit s funktsiey write(dict)
+# audit: we are waiting for the observability module.audit with the function lie(dist)
 try:
     _audit_mod = importlib.import_module("observability.audit")
     if hasattr(_audit_mod, "write"):
@@ -53,7 +51,7 @@ try:
                 return _audit_mod.write(entry)  # type: ignore[attr-defined]
         audit_log = _AuditProxy()
     else:
-        # myagkiy fallback, esli interfeys inoy
+        # soft fake if the interface is different
         class _AuditProxy:
             @staticmethod
             def write(entry):  # type: ignore[no-redef]
@@ -112,7 +110,7 @@ def _mtls_subject_ok() -> bool:
 
 
 def register_security_observability(app):
-    # Initsializiruem OpenTelemetry (no-op esli ne ustanovleno)
+    # Initializes OpenTelemeters (but-op if not installed)
     try:
         otel.init_otel(service_name=os.getenv("OTEL_SERVICE_NAME", "ester-api"))
         otel.instrument_flask_app(app)
@@ -132,7 +130,7 @@ def register_security_observability(app):
         identity = None
         try:
             # Bylo: verify_jwt_in_request_optional() - otsutstvuet v 4.x.
-            verify_jwt_in_request(optional=True)  # ne brosaet, esli tokena net
+            verify_jwt_in_request(optional=True)  # does not throw if there is no token
             identity = get_jwt_identity()
         except Exception:
             identity = None
@@ -155,7 +153,7 @@ def register_security_observability(app):
             resp.headers["Retry-After"] = str(int(retry_after) + 1)
             return resp
 
-        # dlya after_request
+        # for after_request
         g._start_ts = time.time()
         g._identity = identity
         g._client_ip = ip
@@ -174,7 +172,7 @@ def register_security_observability(app):
                 "duration_ms": round(dur, 2),
             }
             audit_log.write(entry)
-            # OTEL metriki/spany (esli dostupny)
+            # HOTEL metrics/spani (if available)
             otel.record_metric(
                 "http.server.duration_ms",
                 entry["duration_ms"],
@@ -186,7 +184,7 @@ def register_security_observability(app):
 
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
-# zaglushka dlya security_middleware: poka net bp/router/register_*_routes
+# stub for security_middleware: no power supply/router/register_*_rutes yet
 def register(app):
     return True
 

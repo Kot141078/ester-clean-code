@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/kg/shadow.py — tenevoy graf znaniy (uzly/svyazi) dlya avtolinka.
+"""modules/kg/shadow.py - tenevoy graf znaniy (uzly/svyazi) dlya avtolinka.
 
 Mosty:
-- Yavnyy: (KG ↔ Memory) sozdaet/obnovlyaet uzly i svyazi «upominanie→suschnost».
+- Yavnyy: (KG ↔ Memory) sozdaet/obnovlyaet uzly i svyazi “upominanie→suschnost”.
 - Skrytyy #1: (Gipotezy ↔ Uzly) gipotezam udobno ssylatsya na id uzlov.
 - Skrytyy #2: (RAG ↔ Relevantnost) normalizovannye uzly uluchshayut retriv.
 
 Zemnoy abzats:
-Mini-«vikipediya» vnutri: spisok suschnostey (lyudi/organizatsii/mesta/tekhnologii) i gde oni upominalis.
+Mini-"vikipediya" vnutri: spisok suschnostey (lyudi/organizatsii/mesta/tekhnologii) i where oni upominalis.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hashlib
 from typing import Any, Dict, List

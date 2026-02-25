@@ -11,22 +11,22 @@ def total_repair():
     with open(TARGET_FILE, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # 1. Snachala vyrezaem vse, chto my mogli slomat v rayone synthesize_thought
-    # i VolitionSystem, chtoby vstavit chistuyu, rabochuyu versiyu.
+    # 1. First we cut out everything that we could break in the synnesyze_thught area
+    # and Volitionsystem to insert a clean, working version.
     
-    # Ischem nachalo nashey problemnoy zony
+    # We are looking for the beginning of our problem area
     if "async def synthesize_thought" in content:
         print("🔧 Nashel povrezhdennyy uchastok. Nachinayu rekonstruktsiyu...")
         
-        # Razrezaem fayl do nachala funktsii sinteza
+        # Cutting the file before starting the synthesis function
         parts = content.split("async def synthesize_thought", 1)
         pre_content = parts[0]
         
-        # Ischem, gde nachinayutsya sistemnye vyzovy v kontse fayla (obychno posle klassov)
+        # We look for where system calls begin at the end of the file (usually after classes)
         if "if __name__ == \"__main__\":" in parts[1]:
             post_content = "if __name__ == \"__main__\":" + parts[1].split("if __name__ == \"__main__\":")[-1]
         else:
-            # Esli ne nashli main, ischem po zapusku voli
+            # If you haven’t found the lane, look for the launch of the will
             post_content = "will = VolitionSystem()" + parts[1].split("will = VolitionSystem()")[-1]
 
         # Generiruem pravilnyy blok: Funktsiya Sinteza + Obekt Hive + Klass Voli
@@ -66,24 +66,23 @@ def total_repair():
         final = await _safe_chat(synth, final_prompt, chat_id=chat_id)
         return clean_ester_response(final)
 
-# Globalnyy obekt dlya dostupa iz vsekh sistem
+# Global object for access from all systems
 hive = EsterHiveMind()
 
 class VolitionSystem:
     def __init__(self):
         self.state = "AWAKE"
         self.is_thinking = False
-        self.last_tick = time.time()
-'''
+        self.last_tick = time.time()'''
         # Skleivaem fayl obratno
-        # VAZhNO: My sokhranyaem staryy prefiks i postfiks, zamenyaya tolko seredinu
+        # Important: We keep the old prefix and postfix, replacing only the middle
         final_file_content = pre_content + RECONSTRUCTED_BLOCK + "\n\n" + post_content
 
         with open(TARGET_FILE, 'w', encoding='utf-8') as f:
             f.write(final_file_content)
-        print("✅ Sistema vosstanovlena. NameError dolzhen ischeznut.")
+        print("✅ Sistema restored. NameError dolzhen ischeznut.")
     else:
-        print("❌ Ne smog nayti tochku vkhoda dlya remonta. Fayl slishkom silno izmenen.")
+        print("❌ Ne could nayti tochku vkhoda dlya remonta. Fayl slishkom silno izmenen.")
 
 if __name__ == "__main__":
     total_repair()

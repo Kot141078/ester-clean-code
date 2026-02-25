@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_video.py — ekshen «voli» dlya komponovki video.
+"""modules/thinking/actions_video.py - ekshen “voli” dlya komponovki video.
 
 Mosty:
-- Yavnyy: (Mysli ↔ Kompozer) daet korotkuyu komandu «sobrat rolik».
+- Yavnyy: (Mysli ↔ Kompozer) daet korotkuyu komandu “sobrat rolik”.
 - Skrytyy #1: (Strategiya ↔ Publikatsiya) rezultat srazu dostupen dlya SocialDeploy.
-- Skrytyy #2: (Avtonomiya ↔ Sobytiya) mozhno vshit v pipeline: «est drama/avatar → sdelay short».
+- Skrytyy #2: (Avtonomiya ↔ Sobytiya) mozhno vshit v pipeline: “est drama/avatar → sdelay short.”
 
 Zemnoy abzats:
-Mozg govorit «soberi short po shablonu» — i poluchaetsya gotovyy mp4, godnyy dlya TikTok/YouTube.
+Mozg govorit “soberi short po shablonu” - i poluchaetsya gotovyy mp4, godnyy dlya TikTok/YouTube.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

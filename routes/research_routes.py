@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-routes/research_routes.py - async-agent /research/search.
-Naznachenie: parallelnyy opros pamyati i podgotovka «issledovatelskoy» vyborki.
+"""routes/research_routes.py - async-agent /research/search.
+Naznachenie: parallelnyy opros pamyati i podgotovka “issledovatelskoy” vyborki.
 
-Registratsiya:
+Registration:
   from routes.research_routes import register_research_routes
   register_research_routes(app, url_prefix="/research")
 
 Mosty:
-- Yavnyy: (Memory ↔ Veb) bystryy REST-dostup k flashback i svodke.
-- Skrytyy #1: (Infoteoriya ↔ Shum) szhatie konteksta v kratkuyu svodku snizhaet shum.
+- Yavnyy: (Memory ↔ Web) bystryy REST-dostup k flashback i svodke.
+- Skrytyy #1: (Infoteoriya ↔ Shum) szhatie konteksta v kratkuyu svodku snizhaet noise.
 - Skrytyy #2: (Kibernetika ↔ Obratnaya svyaz) determinirovannye otvety/taym-aut - ustoychivost payplaynov.
-- Skrytyy #3: (Logika ↔ Kontrakty) strogaya skhema vkhoda/vykhoda delaet marshrut prigodnym dlya avtomatov.
+- Skrytyy #3: (Logika ↔ Kontrakty) strogaya skhema vkhoda/vykhoda delaet route prigodnym dlya avtomatov.
 
 Zemnoy abzats:
-Dumay o module kak o «poiskovom endoskope»: tonko, bystro i bezopasno dostaem kusochki pamyati,
+Dumay o module kak o “poiskovom endoskope”: tonko, bystro i bezopasno dostaem kusochki pamyati,
 a zatem szhato opisyvaem kartinu, chtoby operatoru bylo vidno glavnoe.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 
 import asyncio
@@ -54,7 +52,7 @@ def _build_mm():
 
 
 async def _search_flashback(mm, query: str, k: int) -> List[Dict[str, Any]]:
-    """Vyzov potentsialno blokiruyuschego metoda - uvodim v potok."""
+    """Calling a potentially blocking method is taken into the thread."""
     def _call():
         try:
             return mm.flashback(query=query, k=k)  # type: ignore[attr-defined]
@@ -65,7 +63,7 @@ async def _search_flashback(mm, query: str, k: int) -> List[Dict[str, Any]]:
 
 
 async def _mock_agent_summarize(hits: List[Dict[str, Any]], timeout: float) -> str:
-    """Naivnaya svodka: berem pervye fragmenty teksta i skleivaem v liniyu."""
+    """Naive summary: take the first fragments of text and glue them into a line."""
     async def _do():
         parts = []
         for h in hits[:8]:
@@ -73,14 +71,14 @@ async def _mock_agent_summarize(hits: List[Dict[str, Any]], timeout: float) -> s
             if t:
                 parts.append(t.split("\n")[0][:200])
         if not parts:
-            return "Nedostatochno konteksta dlya svodki."
+            return "Insufficient context for summary."
         return " · ".join(parts)[:1000]
 
     return await asyncio.wait_for(_do(), timeout=timeout)
 
 
 def register_research_routes(app, url_prefix: str = "/research"):
-    """Registratsiya marshrutov issledovaniya pamyati."""
+    """Registration of memory research routes."""
     def _mm():
         if getattr(app, "memory_manager", None) is not None:
             return app.memory_manager  # type: ignore[attr-defined]
@@ -111,7 +109,7 @@ def register_research_routes(app, url_prefix: str = "/research"):
                 }
             )
         summary_parts = [str(it.get("text") or "").strip() for it in items[:5] if str(it.get("text") or "").strip()]
-        summary = " · ".join(summary_parts)[:1000] if summary_parts else "Nedostatochno konteksta dlya svodki."
+        summary = " · ".join(summary_parts)[:1000] if summary_parts else "Insufficient context for summary."
         took = int((time.time() - t0) * 1000)
         return {
             "ok": True,
@@ -158,7 +156,7 @@ __all__ = ["register_research_routes"]
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
 def register(app):
-    # vyzyvaem suschestvuyuschiy register_research_routes(app) (url_prefix beretsya po umolchaniyu vnutri funktsii)
+    # calls an existing registry_research_rust(app) (url_prefix is ​​taken by default inside the function)
     return register_research_routes(app)
 
 # === /AUTOSHIM ===

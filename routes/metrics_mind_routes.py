@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-routes/metrics_mind_routes.py — metriki myshleniya (Prometheus exposition).
+"""routes/metrics_mind_routes.py - metrics myshleniya (Prometheus exposition).
   • /metrics/mind
 
-Eksportiruem:
+Export:
   - mind_run_ok_total
   - mind_run_err_total
   - mind_action_total{kind="..."}
@@ -11,15 +10,14 @@ Eksportiruem:
   - mind_last_timestamp_seconds
 
 Mosty:
-- Yavnyy: (Nablyudaemost v†" Myshlenie) vidimost prinyatykh/zablokirovannykh resheniy.
+- Yavnyy: (Nablyudaemost v†" Myshlenie) vidimost prinyatykh/zablokirovannykh resolution.
 - Skrytyy #1: (Kibernetika v†" R egulyatsiya) po metrikam mozhno nastraivat kvoty/prioritety.
-- Skrytyy #2: (Inzheneriya v†" Ekspluatatsiya) drop-in, otdelnyy endpoint.
+- Skrytyy #2: (Inzheneriya v†" Ekspluatatsiya) drop-in, separate endpoint.
 
 Zemnoy abzats:
 Eto schetchik u pulta: skolko resheniy proshlo, gde probki, kogda posledniy raz dumali.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

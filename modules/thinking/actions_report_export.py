@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_report_export.py — sborka i eksport otchetov (MD/HTML) iz znaniy Ester.
+"""modules/thinking/actions_report_export.py - sborka i eksport otchetov (MD/HTML) iz znaniy Ester.
 
 Mosty:
 - Yavnyy: (Mysli/Deystviya ↔ Dokumentatsiya) — vozvraschaem gotovyy Markdown/HTML i pri razreshenii pishem fayly v docs/reports/.
-- Skrytyy #1: (UX ↔ Kaskad) — formiruem mini-plan i sovmestimy s /thinking/cascade/execute (kak v admin_cascade.js).
+- Skrytyy #1: (UX ↔ Kaskad) - formiruem mini-plan i sovmestimy s /thinking/cascade/execute (kak v admin_cascade.js).
 - Skrytyy #2: (Pravila ↔ Memory) — zapis faylov idet cherez guarded_apply (A-slot + WRITE-flag), sobytiya mozhno logirovat v profile.
 
 Zemnoy abzats:
-Ester poluchaet «knopku» sobrat otchet pod tsel (tseli, cheklisty, metriki), prevyu v MD/HTML i, esli razresheno, zapis gotovykh artefaktov ryadom s dokumentatsiey — bez izmeneniya API.
-# c=a+b.
-"""
+Ester poluchaet "knopku" sobrat otchet pod tsel (tseli, cheklisty, metriki), prevyu v MD/HTML i, esli razresheno, zapis gotovykh artefaktov ryadom s dokumentatsiey - bez izmeneniya API.
+# c=a+b."""
 from __future__ import annotations
 import os, re, time, json
 from typing import Dict, Any, List
@@ -38,7 +36,7 @@ def _compose_md(title: str, goal: str, brief: Dict[str, Any], checklist_md: str,
         try:
             units = metrics.get("units","")
             e = metrics.get("electricity",{}).get("grid_generic_kg_per_kwh", "")
-            met = f"\n> Metriki (ed.): {units}; Setka (kVt·ch→kgCO₂e): {e}"
+            met = f"> Metriki (ed.): {units}; Setka (kVt ch→kgCO₂e): {e}"
         except Exception:
             pass
     now = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -62,7 +60,7 @@ _Sobrano Ester: {now}._
     return md
 
 def _compose_html(title: str, md_text: str) -> str:
-    # Bez storonnikh zavisimostey: upakovyvaem Markdown kak pre i dobavlyaem legkie stili
+    # Without third-party dependencies: we package Markdovn as pre and add light styles
     try:
         tpl = ""
         with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
@@ -100,7 +98,7 @@ def _reg():
 
     # 1) report.compose.md — sobrat Markdown iz brifa/cheklista/metrik
     def a_md(args: Dict[str, Any]):
-        title = str(args.get("title") or "Otchet po tseli")
+        title = str(args.get("title") or "Goal report")
         goal  = str(args.get("goal")  or "")
         brief = args.get("brief") or {}
         checklist_md = str(args.get("checklist_md") or "")
@@ -109,7 +107,7 @@ def _reg():
         return {"ok": True, "ab": AB_SLOT, "markdown": md}
     register("report.compose.md", {"title":"str","goal":"str","brief":"object","checklist_md":"str","metrics":"object"}, {"ok":"bool"}, 1, a_md)
 
-    # 2) report.compose.html — sobrat HTML-stranitsu (print-to-PDF cherez brauzer)
+    # 2) report.compose.html - assemble an HTML page (print-to-PDF via browser)
     def a_html(args: Dict[str, Any]):
         title = str(args.get("title") or "Otchet")
         markdown = str(args.get("markdown") or "")
@@ -136,7 +134,7 @@ def _reg():
 
     # 4) report.plan.quick — otdat mini-plan (sovmestim s /thinking/cascade/execute)
     def a_plan(args: Dict[str, Any]):
-        goal = str(args.get("goal") or "sobrat korotkiy otchet")
+        goal = str(args.get("goal") or "collect a short report")
         plan = {
             "ok": True,
             "goal": goal,

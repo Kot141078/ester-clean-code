@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# R1/tests/fixtures/curl_tg_link.sh — ruchnaya proverka /link cherez webhook (curl)
+# R1/tesc/fixtures/curl_tg_link.sh - manual check/link via webhook (curl)
 # Mosty:
-# - Yavnyy: Enderton — predikaty (sekret prinyat, JSON korrekten).
-# - Skrytyy #1: Ashbi — minimalnyy regulyator (odin POST — dostatochno).
-# - Skrytyy #2: Cover & Thomas — minimalnyy «signal» razlichaet sostoyaniya (prinyat/otvergnut).
-# Zemnoy abzats: udobno rukami debazhit webhook bez podnyatogo bota; JSON sobiraetsya na letu.
+# - Explicit: Enderton - predicates (accept the secret, ZhSON is correct).
+# - Hidden #1: Ashby - minimal regulator (one POST is enough).
+# - Hidden #2: Carpet & Thomas - minimal “signal” distinguishes between states (accept/reject).
+# Earthly paragraph: it’s convenient to manually debug a webhook without a raised bot; ZhSON is assembled on the fly.
 # c=a+b
 
 set -euo pipefail

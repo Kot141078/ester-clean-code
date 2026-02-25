@@ -100,11 +100,11 @@ def build_message_from_event(event: Dict[str, Any]) -> str:
     if isinstance(allowed, bool):
         status = "razresheno" if allowed else "otkloneno"
         if action:
-            return f"[{chain or 'chain'}] Deystvie {action}: {status}. Prichina: {reason or 'policy'}."
-        return f"[{chain or 'chain'}] Reshenie: {status}. Prichina: {reason or 'policy'}."
+            return f"YuZF0ZZsch Action ZZF1ZZ: ZZF2ZZ. Reason: ZFzZZ."
+        return f"YuZF0ZZsch Solution: ZZF1ZZ. Reason: ZZF2ZZ."
     if action:
-        return f"[{chain or 'chain'}] Vypolneno deystvie {action}. {reason or 'Bez dopolnitelnykh zamechaniy.'}"
-    return f"[{chain or 'chain'}] Obnovlenie sostoyaniya. {reason or 'Sm. zhurnal resheniy.'}"
+        return f"YuZF0ZZsch Action ZZF1ZZ has been completed. ZZF2ZZ"
+    return f"YuZF0ZZsch Status update. ZZF1ZZ"
 
 
 def emit_decision_note(chain_id: str, decision: Dict[str, Any], why: str = "") -> Dict[str, Any]:

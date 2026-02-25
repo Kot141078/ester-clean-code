@@ -46,16 +46,16 @@
         </select>
       </div>
       <div class="card col">
-        <label>Nomer poluchatelya (dlya otpravki)</label>
+        <label>Recipient number (for sending)</label>
         <input id="to" type="text" placeholder="15551234567">
-        <div class="muted">Dlya dry-run realnyy otpravki ne budet.</div>
+        <div class="muted">There will be no actual sending for dry runes.</div>
       </div>
     </div>
 
     <div class="row">
       <div class="card col">
         <label>Smysl / fakty</label>
-        <textarea id="content" placeholder="Napishite, chto imenno nuzhno skazat..."></textarea>
+        <textarea id="content" placeholder="Write down exactly what you need to say..."></textarea>
         <div class="row" style="margin-top:12px;">
           <button id="btnPreview">Predprosmotr</button>
           <button id="btnSend" class="secondary">Otpravit (dry-run)</button>
@@ -64,8 +64,8 @@
       <div class="card col">
         <label>Predprosmotr</label>
         <pre id="preview">(zdes poyavitsya tekst)</pre>
-        <label>Otvet otpravki</label>
-        <pre id="sendres">(poka pusto)</pre>
+        <label>Sending response</label>
+        <pre id="sendres">(still empty)</pre>
       </div>
     </div>
   </main>

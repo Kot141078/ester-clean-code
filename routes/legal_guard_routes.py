@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-routes/legal_guard_routes.py - REST: /policy/legal/check
+"""routes/legal_guard_routes.py - REST: /policy/legal/check
 
 Mosty:
 - Yavnyy: (Veb ↔ Politika) tochka proverki zadach i planov.
 - Skrytyy #1: (Volya ↔ Ostorozhnost) legko vstraivaetsya v thinking_pipeline.
-- Skrytyy #2: (Zhurnaly ↔ Audit) pri zhelanii dobavlyaetsya zapis «profileom».
+- Skrytyy #2: (Zhurnaly ↔ Audit) pri zhelanii dobavlyaetsya zapis “profileom”.
 - Skrytyy #3: (Logika ↔ Kontrakty) strogiy JSON-kontrakt oblegchaet formalnuyu proverku.
 
 Zemnoy abzats:
 Pered tem kak delat - sprosili yurista. Bystro, ponyatno i bez syurprizov.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, Optional
@@ -31,7 +29,7 @@ def init_app(app):  # pragma: no cover
     register(app)
 
 
-# Myagkiy import yadra (ispravleno: tochechnyy import vmesto slesha)
+# Soft kernel import (fixed: dotted import instead of slash)
 try:
     from modules.policy.legal_guard import check as _check  # type: ignore
 except Exception:  # pragma: no cover
@@ -39,7 +37,7 @@ except Exception:  # pragma: no cover
 
 
 def _log_passport(event: str, data: Dict[str, Any]) -> None:
-    """Optsionalnyy audit v «profile» pamyati (best-effort)."""
+    """Optional audit in the memory “profile” (best-effort)."""
     try:
         from modules.mem.passport import append as passport  # type: ignore
         passport(event, data, "policy://legal_guard")
@@ -49,18 +47,16 @@ def _log_passport(event: str, data: Dict[str, Any]) -> None:
 
 @bp.route("/policy/legal/check", methods=["POST"])
 def api_check():
-    """
-    Vkhod (JSON):
-      { "task": {..} | "plan": {..} | "text": "..." }
-    Vykhod: proxied otvet modulya legal_guard.check(...)
-    """
+    """Login (ZhSON):
+      { "task": ZZF0Z | "plan": ZZF1ZZ | "text": "..." }
+    Output: proxy module response lay_guard.chesk(...)"""
     if _check is None:
         return jsonify({"ok": False, "error": "legal_guard_unavailable"}), 500
 
     data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
     payload: Dict[str, Any] = {}
 
-    # Normalizatsiya vkhoda: dopuskaem task/plan/text, stroki i obekty
+    # Input normalization: we allow task/plan/text, strings and objects
     if "task" in data:
         payload["task"] = data["task"]
     if "plan" in data:
@@ -69,7 +65,7 @@ def api_check():
         payload["text"] = str(data["text"])
 
     if not payload:
-        # Follbek: esli prishel prosto tekst bez klyucha
+        # Fullback: if you just received a text without a key
         txt = data.get("q") or data.get("input")
         if txt:
             payload["text"] = str(txt)
@@ -82,7 +78,7 @@ def api_check():
         if isinstance(res, dict):
             _log_passport("legal_check", {"ok": bool(res.get("ok", True))})
             return jsonify(res)
-        # Sovmestimost: esli modul vernul ne-slovar
+        # Compatibility: if the module returned a non-dictionary
         out = {"ok": True, "result": res}
         _log_passport("legal_check", {"ok": True})
         return jsonify(out)

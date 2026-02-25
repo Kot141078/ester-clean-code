@@ -8,7 +8,7 @@ context_init:
     - {file: "doc_3.txt"}
 
 nodes:
-  # Podgotovim obschiy shablon prompta i zagolovok cherez bezopasnyy script
+  # Prepare a general prompt template and header via a secure script
   - id: prepare
     type: script
     update:

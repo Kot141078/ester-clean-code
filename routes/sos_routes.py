@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/sos_routes.py - offlayn SOS i prostye REST-triggery.
+"""routes/sos_routes.py - offlayn SOS i prostye REST-triggery.
 
 Mosty:
 - Yavnyy: (Bezopasnost zhizni ↔ Offlayn) vydaem nomera i shpargalku bez seti.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (RBAC ↔ Prozrachnost) optsionalnyy JWT i yasnye kody oshibok.
 
 Zemnoy abzats:
-Kak pamyatka u telefona: «112 / 103 / 101». Pod rukoy i bez internetov.
+Like pamyatka u telefona: “112 / 103 / 101.” Pod rukoy i bez internetov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict, List
 import json, os, time
@@ -31,7 +29,7 @@ bp_sos = Blueprint("sos_routes", __name__)
 CARDS: Dict[str, Dict[str, Any]] = {
     "EU": {"emergency": "112", "notes": ["Nazovite adres/sostoyanie", "Ostavaytes na linii"]},
     "BE": {"emergency": "112", "medical": "112", "fire": "112", "police": "112", "notes": ["FR/NL/DE/EN dostupny"]},
-    "RU": {"emergency": "112", "ambulance": "103", "police": "102", "fire": "101", "notes": ["Soobschite gorod/ulitsu/podezd"]},
+    "RU": {"emergency": "112", "ambulance": "103", "police": "102", "fire": "101", "notes": ["Tell us the city/street/entrance"]},
     "US": {"emergency": "911", "notes": ["State your location", "Describe the emergency", "Stay on the line"]},
     "UA": {"emergency": "112", "ambulance": "103", "police": "102", "fire": "101", "notes": ["Vkazhіt adresu/orієntiri"]},
 }

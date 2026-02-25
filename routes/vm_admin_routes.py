@@ -1,32 +1,30 @@
 # -*- coding: utf-8 -*-
-"""
-routes/vm_admin_routes.py - edinye pulty upravleniya VM (Hyper-V/KVM) cherez REST.
+"""routes/vm_admin_routes.py - edinye pulty upravleniya VM (Hyper-V/KVM) cherez REST.
 
 Ruchki:
-  GET  /vm/list
-  POST /vm/start    {"name": "..."}
-  POST /vm/stop     {"name": "...", "force": false}
-  POST /vm/status   {"name": "..."}
-  POST /vm/checkpoint {"name":"...","cp":"label"}     # sozdat snapshot
-  POST /vm/restore    {"name":"...","cp":"label"}     # otkat k snapshotu
+  GET /vm/list
+  POST /vm/start {"name": "..."}
+  POST /vm/stop {"name": "...", "force": false}
+  POST /vm/status {"name": "..."}
+  POST /vm/checkpoint {"name":"...","cp":"label"} # sozdat snapshot
+  POST /vm/restore {"name":"...","cp":"label"} # otkat k snapshotu
 
-Avto-detekt platformy:
+Auto-detection platform:
   - Windows: PowerShell + Hyper-V
-  - Linux:   virsh (libvirt)
+  - Linux: virsh (libvirt)
 
 RBAC: rol 'operator' obyazatelna (sm. security.rbac_utils.require_role).
 
 MOSTY:
-- Yavnyy: (Arkhitektura ↔ Ekspluatatsiya) pult VM s edinym REST poverkh Hyper-V/KVM.
-- Skrytyy #1: (Nadezhnost ↔ Infoteoriya) snapshoty - deshevaya «tochka vozvrata», snizhayut stoimost oshibok.
-- Skrytyy #2: (Kibernetika ↔ Volya) bystroknopochnye «start/otkat» dayut ustoychivuyu obratnuyu svyaz pri eksperimente.
+- Yavnyy: (Arkhitektura ↔ Ekspluatatsiya) remote VM s edinym REST poverkh Hyper-V/KVM.
+- Skrytyy #1: (Nadezhnost ↔ Infoteoriya) snapshoty - deshevaya “tochka vozvrata”, snizhayut stoimost oshibok.
+- Skrytyy #2: (Kibernetika ↔ Volya) bystroknopochnye “start/otkat” dayut ustoychivuyu obratnuyu svyaz pri eksperimente.
 
 ZEMNOY ABZATs:
 Start/stop/snapshoty dostupny lokalno i oflayn; vse prozrachno (nikakikh skrytykh demonov).
-VM - otdelnaya «korobka» dlya Ester: silnaya izolyatsiya + bystryy otkat.
+VM - otdelnaya “korobka” dlya Ester: silnaya izolyatsiya + bystryy otkat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, subprocess, json, platform, shlex
 from typing import Dict, Any

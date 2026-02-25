@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ester/auto_reg_thinking_quality.py
+"""modules/ester/auto_reg_thinking_quality.py
 
-AUTO-REG dlya marshruta /ester/thinking/quality_once.
+AUTO-REG dlya route /ester/thinking/quality_once.
 
 Mosty:
-- Yavnyy: vyzyvaetsya iz app.py (AUTO-REG blok) i registriruet blueprint.
+- Yavnyy: vyzyvaetsya iz app.py (AUTO-REG block) i register blueprint.
 - Skrytyy #1: svyazyvaet HTTP-interfeys s vnutrennim kaskadnym myshleniem.
 - Skrytyy #2: daet tochku dlya buduschikh self-check stsenariev bez pravki app.py.
 
 Zemnoy abzats:
 Eto malenkiy konveyer montazha: odin vyzov auto_register_thinking_quality(app)
-vstraivaet endpoint kachestva myshleniya bez lomki ostalnogo prilozheniya.
-"""
+vstraivaet endpoint kachestva myshleniya bez lomki ostalnogo prilozheniya."""
 from __future__ import annotations
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 

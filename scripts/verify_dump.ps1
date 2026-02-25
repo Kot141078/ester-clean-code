@@ -42,7 +42,7 @@ if (-not (Test-Path $Manifest)) { Write-Fatal "Manifest ne nayden: $Manifest" }
 $man = Get-Content $Manifest -Raw -Encoding UTF8 | ConvertFrom-Json
 $entries = $man.entries
 
-# Sbor dampa dlya fiksa (esli -Fix)
+# Collecting a dump for a fix (if -Fix)
 $dump_parts = @{}
 if ($Fix) {
     $parts = $man.parts
@@ -90,14 +90,14 @@ foreach ($e in $entries) {
         continue
     }
 
-    # Proverka razmera
+    # Size check
     $actualSize = (Get-Item $path).Length
     if ($actualSize -ne $size) {
         $issues += "Nevernyy razmer: $path (ozhidaemo $size, realno $actualSize)"
         Write-Warn "Nevernyy razmer: $path"
     }
 
-    # Proverka SHA256
+    # Checking ША256
     $hashAlgo = [System.Security.Cryptography.SHA256]::Create()
     $fileBytes = [System.IO.File]::ReadAllBytes((Resolve-Path $path))
     $hashBytes = $hashAlgo.ComputeHash($fileBytes)
@@ -106,8 +106,8 @@ foreach ($e in $entries) {
         $issues += "Nevernyy khesh: $path (ozhidaemo $sha, realno $actualSha)"
         Write-Warn "Nevernyy khesh: $path"
         if ($Fix) {
-            # Fiks kak vyshe
-            # ... (povtori kod izvlecheniya iz dampa, analogichno otsutstviyu)
+            # Fix as above
+            # ... (repeat the code for extracting from the dump, similar to the absence)
         }
     } else {
         Write-Ok "OK: $path"

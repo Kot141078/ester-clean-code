@@ -1,20 +1,18 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules/messaging — psevdopaket s avto-poiskom project root,
-gde lezhit realnaya papka `messaging/`.
+"""modules/messaging - psevdopaket s avto-poiskom project root,
+where lezhit realnaya papka `messaging/`.
 
 Mosty:
 - Yavnyy: (Importy ↔ I/O) — import `modules.messaging` otdaet top-level `messaging`.
-- Skrytyy #1: (DX ↔ Nadezhnost) — esli modul vyzyvayut iz podpapki, my naydem koren i dobavim ego v sys.path.
+- Skrytyy #1: (DX ↔ Nadezhnost) — esli modul vyzyvayut iz podpapki, my naydem koren i add ego v sys.path.
 - Skrytyy #2: (Memory ↔ Kanaly) — konsolidiruem tochki vkhoda.
 
 Zemnoy abzats:
-Zapusk iz «vnutrenney» papki lomaet PYTHONPATH, i `messaging` ne viden.
-My podnimaemsya vverkh po derevu i dobavlyaem put, gde est `messaging/`.
-# c=a+b
-"""
+Zapusk iz "vnutrenney" papki lomaet PYTHONPATH, i `messaging` ne visible.
+My podnimaemsya vverkh po derevu i dobavlyaem put, where est `messaging/`.
+# c=a+b"""
 import importlib, sys, pathlib
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 

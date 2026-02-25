@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/subconscious — «podsoznanie» Ester (mikro-skaner pamyati).
+"""modules/subconscious - “podsoznanie” Ester (mikro-scaner pamyati).
 
 MOSTY:
 - (Yavnyy) tick(limit=500) -> {"scanned", "keywords"}; status() -> last run.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Pishet state v data/subconscious/status.json (gotovo dlya watchdog).
 
 ZEMNOY ABZATs:
-Kak pylesos fona: probezhalsya po pamyati, podnyal chastye «temy» — mozgu legche dumat.
+Kak pylesos fona: probezhalsya po pamyati, podnyal chastye “temy” - mozgu legche dumat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, glob, re, time, collections
 from typing import Dict, Any

@@ -1,8 +1,8 @@
-# Daydzhest aktivnosti (LLM-skleyka zametok)
+# Activity digest (LLM-gluing of notes)
 # Mosty:
 # - Yavnyy: (LLM/Plan ↔ Dannye) — ispolzuem sobytiya, otobrannye actions_agent_activity, i formiruem svodku.
 # - Skrytyy #1: (Memory ↔ Plan) — fiksiruem start v profilee.
-# - Skrytyy #2: (UX ↔ Kaskad) — zapuskaetsya temi zhe ruchkami /thinking/cascade/execute (sovmestimo s adminkoy kaskada).
+# - Skrytyy #2: (UX ↔ Kaskad) - zapuskaetsya temi zhe ruchkami /thinking/cascade/execute (sovmestimo s adminkoy kaskada).
 
 run_id: activity_digest
 branch_id: main

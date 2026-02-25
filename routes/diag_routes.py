@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/diag_routes.py - Diagnostika: health, routes, env.
+"""routes/diag_routes.py - Diagnostika: health, routes, env.
 
-Marshruty:
-  GET /_diag/health  → {"ok":true,"status":"up","ab":"A|B"}
-  GET /_diag/routes  → {"ok":true,"routes":[...]}
-  GET /_diag/env     → {"ok":true,"env":{filtered...}}
+Route:
+  GET /_diag/health → {"ok":true,"status":"up","ab":"A|B"}
+  GET /_diag/routes → {"ok":true,"routes":[...]}
+  GET /_diag/env → {"ok":true,"env":{filtered...}}
 
 Mosty:
-- Yavnyy (Ekspluatatsiya ↔ Bezopasnost): fallback na A pri oshibkakh v B; filtr sekretov v ENV.
+- Yavnyy (Ekspluatatsiya ↔ Bezopasnost): fallback na A pri oshibkakh v B; filtr secretov v ENV.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): polnyy spisok marshrutov s metodami; status AB.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): try-except na app.url_map; ENV bez paroley/klyuchey.
 
 Zemnoy abzats:
-Prostaya diagnostika dlya smoke-testov: health - zhiv server; routes - chto zaregistrirovano; env - chto vidit prilozhenie (bez utechek).
+Simple diagnostics dlya smoke-testov: health - zhiv server; routes - what is registered; env - what vidit prilozhenie (bez utechek).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -25,10 +23,10 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp_diag = Blueprint("diag", __name__)
 
-SAFE_ENV_PREFIXES = ["ESTER_", "FLASK_", "DEBUG", "PORT", "HOST"]  # Filtr: tolko eti prefiksy, bez sekretov.
+SAFE_ENV_PREFIXES = ["ESTER_", "FLASK_", "DEBUG", "PORT", "HOST"]  # Filter: only these prefixes, no secrets.
 
 def _ab_mode(area: str) -> str:
-    """Poluchaet AB dlya oblasti s fallback na 'A'."""
+    """Receives AB for the area from falbatsk to bAb."""
     env_key = f"ESTER_{area.upper()}_AB"
     return (os.getenv(env_key) or "A").strip().upper()
 
@@ -39,7 +37,7 @@ def health():
         ab_boot = _ab_mode("bootlog")
         return jsonify({"ok": True, "status": "up", "ab_diag": ab_diag, "ab_boot": ab_boot})
     except Exception:
-        # Fallback: esli oshibka - verni bazovyy A-status bez padeniya.
+        # False: if there is a mistake, return the basic A-status without falling.
         return jsonify({"ok": True, "status": "up (fallback)", "ab": "A"}), 200
 
 @bp_diag.route("/_diag/routes", methods=["GET"])
@@ -53,7 +51,7 @@ def routes():
                 rls.append({"endpoint": rule.endpoint, "methods": list(rule.methods), "rule": str(rule)})
             return jsonify({"ok": True, "routes": rls, "ab": ab})
         else:
-            # A: prostoy spisok endpointov.
+            # A: a simple list of endpoints.
             return jsonify({"ok": True, "routes": [str(rule) for rule in current_app.url_map.iter_rules()], "ab": ab})
     except Exception:
         # Fallback: bazovyy A bez padeniya.
@@ -68,11 +66,11 @@ def env_diag():
             if any(k.startswith(p) for p in SAFE_ENV_PREFIXES) and "KEY" not in k and "SECRET" not in k and "TOKEN" not in k:
                 filtered_env[k] = v  # Filtr: bez sekretov.
         if ab == "B":
-            # B: dobavit schetchik peremennykh.
+            # Q: add a variable counter.
             filtered_env["_total_safe"] = len(filtered_env)
         return jsonify({"ok": True, "env": filtered_env, "ab": ab})
     except Exception:
-        # Fallback: pustoy ENV bez padeniya.
+        # Falbatsk: empty ENV without falling.
         return jsonify({"ok": True, "env": {"fallback": "env unavailable"}, "ab": "A"}), 200
 
 def register(app):

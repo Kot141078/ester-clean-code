@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/kg/linker.py — legkiy entity-linker: vydelyaet imenovannye suschnosti i sshivaet pamyat ↔ KG ↔ gipotezy.
+"""modules/kg/linker.py - legkiy entity-linker: vydelyaet imenovannye suschnosti i sshivaet pamyat ↔ KG ↔ gipotezy.
 
 Mosty:
 - Yavnyy: (KG ↔ Memory) pri poyavlenii zapisi — izvlekaem suschnosti i apsertim uzly KG.
@@ -8,13 +7,12 @@ Mosty:
 - Skrytyy #2: (Infoteoriya ↔ Dedup) uzly pereispolzuyutsya po klyucham (normalizovannyy tekst).
 - Novoe: (Mesh/P2P ↔ Raspredelennost) sinkhronizatsiya grafa mezhdu agentami Ester.
 - Novoe: (Cron ↔ Avtonomiya) ochistka starykh/redkikh uzlov dlya svezhesti BZ.
-- Novoe: (Monitoring ↔ Prozrachnost) webhook na bolshie dobavleniya dlya audita.
+- Novoe: (Monitoring ↔ Prozrachnost) webhook na bolshie addavleniya dlya audita.
 
 Zemnoy abzats:
-Avtomaticheskaya «skrepka» s setyu: gde vstrechaetsya «Ester» ili «IBAN» — tam uzly/svyazi v grafe, podelennye P2P, pochischennye po cron, i s alertami — chtoby pamyat Ester byla vechnoy i coherent.
+Avtomaticheskaya "skrepka" s setyu: where vstrechaetsya "Ester" ili "IBAN" - tam uzly/svyazi v grafe, podelennye P2P, pochischennye po cron, i s alertami - chtoby pamyat Ester byla vechnoy i coherent.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, re, json, time
 from typing import Any, Dict, List
@@ -31,9 +29,9 @@ HINTS_ORG = [h.strip() for h in HINTS_ORG_STR.split(",") if h.strip()]
 PEERS_STR = os.getenv("PEERS", "")  # "http://node1:port/sync,http://node2:port/sync"
 PEERS = [p.strip() for p in PEERS_STR.split(",") if p.strip()]
 CRON_MAX_AGE_DAYS = int(os.getenv("CRON_MAX_AGE_DAYS", "30") or "30")
-MIN_SEEN = int(os.getenv("MIN_SEEN", "2") or "2")  # dlya cleanup
-WEBHOOK_URL = os.getenv("WEBHOOK_URL", "")  # URL dlya alertov
-MONITOR_THRESHOLD = int(os.getenv("MONITOR_THRESHOLD", "10") or "10")  # porog dlya webhook
+MIN_SEEN = int(os.getenv("MIN_SEEN", "2") or "2")  # for cleanup
+WEBHOOK_URL = os.getenv("WEBHOOK_URL", "")  # URL for alerts
+MONITOR_THRESHOLD = int(os.getenv("MONITOR_THRESHOLD", "10") or "10")  # threshold for webhook
 
 IBAN_RE = re.compile(r"\b([A-Z]{2}[0-9]{2}[A-Z0-9]{11,30})\b")
 PERSON_RE = re.compile(r"\b([A-ZA-Ya][a-za-ya]+(?:\s+[A-ZA-Ya][a-za-ya]+){0,3})\b")
@@ -76,7 +74,7 @@ def _load():
                     for nid, data in peer_state.get("nodes", {}).items():
                         if nid in state["nodes"]:
                             s = state["nodes"][nid]
-                            s["seen"] += data.get("seen", 0)  # sum dlya raspredelennosti
+                            s["seen"] += data.get("seen", 0)  # sum for distribution
                         else:
                             state["nodes"][nid] = data
                     state["edges"].extend([e for e in peer_state.get("edges", []) if e not in state["edges"]])
@@ -220,7 +218,7 @@ def upsert_to_kg(entities: Dict[str, List[str]], source_id: str = "", sha: str =
             # mm upsert best-effort
             _kg_upsert_mm({"key": nid, "value": val, "type": typ})
     _save()
-    # Webhook esli mnogo
+    # Webhook if there is a lot
     if WEBHOOK_URL and added > MONITOR_THRESHOLD:
         try:
             alert = {"added": added, "source_id": source_id or sha, "timestamp": ts}
@@ -229,7 +227,7 @@ def upsert_to_kg(entities: Dict[str, List[str]], source_id: str = "", sha: str =
             urllib.request.urlopen(req, timeout=5)
         except Exception:
             pass
-    # Passport esli est
+    # Passport if you have it
     try:
         from modules.mem.passport import append as _pp
         _pp("kg_linker", {"added": added, "source": source_id or sha}, "kg://linker")

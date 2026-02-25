@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-# rules/vector_diode.yaml — konfig "data diode" dlya vektornoy BZ.
+# rules/vector_diode.yaml - "data diode" config for vector BC.
 
 outbox_dir: "var/diode/outbox"
 inbox_dir:  "var/diode/inbox"
-store_dir:  "var/vector_store"   # po umolchaniyu prostoy JSONL-stor
+store_dir:  "var/vector_store"   # by default simple JSIONL-store
 
 moderation:
   min_len: 12

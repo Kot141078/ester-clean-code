@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/social/thumb.py — generatsiya izobrazheniy prevyu (PNG pri nalichii Pillow, inache SVG).
+"""modules/social/thumb.py - generatsiya izobrazheniy prevyu (PNG pri nalichii Pillow, inache SVG).
 
 Mosty:
 - Yavnyy: (Titul ↔ Kartinka) poluchaem zagruzochnuyu oblozhku s chitaemym zagolovkom.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Studiya ↔ Sotskit) napryamuyu ispolzuetsya kit.build.
 
 Zemnoy abzats:
-Kak bystro narisovat oblozhku markerom na liste — tolko fayl, kotoryy mozhno zagruzit.
+Kak bystro narisovat oblozhku markerom na liste - tolko fayl, kotoryy mozhno zagruzit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -23,7 +21,7 @@ def make_thumbnail(title: str, dst_dir: str, size: str|None=None)->str:
         w,h = [int(x) for x in size.lower().split("x")]
     except Exception:
         w,h=1280,720
-    # Popytka PNG cherez Pillow
+    # Attempt to PNG via Pilov
     try:
         from PIL import Image, ImageDraw, ImageFont  # type: ignore
         img=Image.new("RGB",(w,h),(17,24,39))

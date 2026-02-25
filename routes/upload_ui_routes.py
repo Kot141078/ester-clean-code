@@ -4,7 +4,7 @@ from __future__ import annotations
 from flask import Blueprint, render_template
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Otdelnaya stranitsa dlya zagruzki faylov: /upload/ui (i alias /ingest/ui)
+# Separate page for uploading files: /upload/oh (and alias /ingest/oh)
 upload_ui_bp = Blueprint("upload_ui", __name__)
 
 
@@ -30,10 +30,8 @@ def ingest_ui_index_slash():
 
 
 def register_upload_ui(app, url_prefix: str | None = None) -> None:
-    """
-    Sovmestimyy s dampom registrator. Po umolchaniyu registriruet /upload/ui i /ingest/ui.
-    Esli peredan url_prefix — dobavit dubl po {url_prefix}/upload/ui Re {url_prefix}/ingest/ui.
-    """
+    """Sovmestimyy s dampom registrar. Po umolchaniyu register /upload/ui i /ingest/ui.
+    Esli peredan url_prefix - add dubl po {url_prefix}/upload/ui Re {url_prefix}/ingest/ui."""
     if url_prefix:
         prefixed = Blueprint("upload_ui_prefixed", __name__, url_prefix=url_prefix)
 

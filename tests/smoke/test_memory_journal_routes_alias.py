@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-tests/smoke/test_memory_journal_routes_alias.py
+"""tests/smoke/test_memory_journal_routes_alias.py
 
 Smoke-testy dlya routes.memory_journal_routes_alias:
   - importiruetsya bez oshibok
-  - register(app) registriruet blyuprint
+  - register(app) register blueprint
   - /memory/journal/ping i /memory/journal/event otvechayut 200 pri nalichii modules.memory.events
 
-Zapusk iz kornya proekta:
-  pytest tests/smoke/test_memory_journal_routes_alias.py -q
-"""
+Zapusk iz kornya project:
+  pytest tests/smoke/test_memory_journal_routes_alias.py -q"""
 from __future__ import annotations
 
 import os
@@ -36,7 +34,7 @@ def test_import_and_register():
 
     assert "memory_journal_routes_alias" in app.blueprints
 
-    # Est li kanonicheskiy zhurnal
+    # Is there a canonical journal
     have_events = False
     try:
         ev = importlib.import_module("modules.memory.events")
@@ -61,5 +59,5 @@ def test_import_and_register():
         assert d2.get("ok") is True
         assert d2.get("event")
     else:
-        # pri otsutstvii events alias chestno soobschaet ob oshibke
+        # if there is no event, the alias honestly reports an error
         assert data.get("ok") is False

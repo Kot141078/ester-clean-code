@@ -1,32 +1,30 @@
 # -*- coding: utf-8 -*-
-"""
-IdleEngine — avtonomnyy myslitelnyy tsikl Ester.
+"""IdleEngine - avtonomnyy myslitelnyy tsikl Ester.
 
-Chto delaet odin «tik»:
-  1) Smotrit poslednie zapisi pamyati.
-  2) Formiruet «chto novogo/chto vazhno» (prostaya evristika).
+What does one do “tik”:
+  1) Look after it zapisi pamyati.
+  2) Formiruet “what novogo/what vazhno” (prostaya evristika).
   3) Delaet lokalnyy QA po klyuchevomu voprosu (bez oblachnykh LLM).
   4) Zapisyvaet mysl/nablyudenie obratno v pamyat (role="system", tag="idle").
 
-Profili nagruzki (ENV/konfiguratsiya i /idle/config):
+Profile nagruzki (ENV/konfiguratsiya i /idle/config):
   mode: off | silent | balanced | max
-    off      — potok ostanovlen
-    silent   — redkie tiki (raz v 60–120s), minimalnaya vychislitelnaya aktivnost
-    balanced — kazhdye 15–30s, srednyaya aktivnost CPU
-    max      — kazhdye 3–7s, aktivnaya CPU-nagruzka; pri nalichii GPU — pytaetsya zadeystvovat
+    off - potok stopped
+    silent — redkie tiki (raz v 60–120s), minimalnaya vychislitelnaya aktivnost
+    balanced - kazhdye 15–30s, average aktivnost CPU
+    max - kazhdye 3–7s, aktivnaya CPU-nagruzka; pri nalichii GPU – pytaetsya zadeystvovat
 
-  gpu_mode: off | on  (po umolchaniyu off)
-    on — probuet cupy/torch dlya matrichnykh umnozheniy; esli ikh net — tikho padaet na CPU
+  gpu_mode: off | on (to be silent off)
+    on - try cupy/torch dlya matrichnykh umnozheniy; esli ikh net - tikho padaet na CPU
 
 MOSTY:
-- Yavnyy: Memory ↔ Mysl — kazhdyy tik chitaet pamyat i pishet «repliku soznaniya».
-- Skrytyy 1: Kibernetika (Eshbi) ↔ Regulyatsiya — profili nagruzki ogranichivayut «raznoobrazie» aktivnosti.
-- Skrytyy 2: Infoteoriya (Kover–Tomas) ↔ Szhatie — dnevnye mysli svodyatsya v korotkie «smyslovye kody».
+- Yavnyy: Memory ↔ Mysl - kazhdyy tik chitaet pamyat i pishet “repliku soznaniya”.
+- Skrytyy 1: Kibernetika (Eshbi) ↔ Regulyatsiya - profili nagruzki ogranichivayut “raznoobrazie” aktivnosti.
+- Skrytyy 2: Infoteoriya (Kover–Tomas) ↔ Szhatie — dnevnye mysli svodyatsya v korotkie “smyslovye kody”.
 
 ZEMNOY ABZATs:
-Eto kak regulyator kholostogo khoda u dvigatelya: poka ty zanyat, Ester «rovno murchit», no po komande mozhet
-dat polnyy gaz (i dazhe progret GPU), libo «prisest v ugol» i zhdat.
-"""
+Eto kak regulyator kholostogo khoda u dvigatelya: poka ty zanyat, Ester “rovno murchit”, no po komande mozhet
+dat polnyy gaz (i dazhe progret GPU), libo “prisest v ugol” i zhdat."""
 from __future__ import annotations
 
 import json
@@ -40,7 +38,7 @@ from typing import Any, Dict, Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 try:
-    # lokalnaya pamyat (nash paket MemoryBoot)
+    # local memory (our MemoryBoot package)
     from modules.memory import get_store
 except Exception:  # krayniy sluchay
     from modules.memory.api import get_store  # type: ignore
@@ -97,7 +95,7 @@ class IdleConfig:
             m, lo, hi = "silent", 60.0, 120.0
         return IdleConfig(mode=m, gpu_mode=g, interval_lo=lo, interval_hi=hi)
 
-# A/B-slot: poka realizatsii odinakovye; kryuchok dlya buduschey podmeny
+# A/B slot: so far the implementations are the same; hook for future replacement
 IDLE_AB = os.getenv("ESTER_IDLE_AB", "A").upper()
 
 class IdleEngine:
@@ -181,20 +179,20 @@ class IdleEngine:
             "log_path": str(LOG_PATH),
         }
 
-    # ------------ rabochaya chast ------------
+    # ------------ working part ------------
     def _sleep_interval(self) -> float:
         lo, hi = self.cfg.interval_lo, self.cfg.interval_hi
         return random.uniform(lo, hi)
 
     def _cpu_work(self, scale: int) -> None:
-        # legkaya CPU-nagruzka: neskolko matrichnykh peremnozheniy na pure-Python spiskakh
-        # (bez numpy, chtoby ne trebovat zavisimostey)
-        n = min(100 + 50 * scale, 800)  # upravlyaem razmer
-        # sozdaem dve matritsy n x n so znacheniyami 0..1 (redko — 1), peremnozhaem n raz
+        # light SPU load: several matrix multiplications on puree-Pothon lists
+        # (without numpa, so as not to require dependencies)
+        n = min(100 + 50 * scale, 800)  # control the size
+        # create two matrices n c n with values ​​0..1 (rarely - 1), multiply n times
         a = [[(i * j) % 7 for j in range(n)] for i in range(n)]
         b = [[(i + j) % 5 for j in range(n)] for i in range(n)]
-        for _ in range(2):  # nebolshoe chislo iteratsiy, chtoby ne zavisnut
-            # klassicheskoe troynoe umnozhenie (O(n^3)) — nagruzka zametnaya
+        for _ in range(2):  # a small number of iterations so as not to freeze
+            # classic triple multiplication (O(n^3)) - noticeable load
             c = [[0] * n for _ in range(n)]
             for i in range(n):
                 ai = a[i]
@@ -204,13 +202,13 @@ class IdleEngine:
                     bk = b[k]
                     for j in range(n):
                         ci[j] += aik * bk[j]
-            # chut izmenim matritsy, chtoby kompilyator ne vybrosil «mertvyy» kod
+            # Let's change the matrices a little so that the compiler doesn't throw out "dead" code
             a, b = b, c
 
     def _gpu_try(self, scale: int) -> None:
         if self.cfg.gpu_mode != "on":
             return
-        # probuem cupy -> torch; esli net — tikho vykhodim
+        # trying soups -> torch; if not, it goes out quietly
         try:
             import cupy as cp  # type: ignore
             n = 2048 if scale >= 2 else 1024
@@ -218,7 +216,7 @@ class IdleEngine:
             y = cp.random.rand(n, n, dtype=cp.float32)
             z = x @ y
             cp.cuda.Stream.null.synchronize()
-            _ = float(z[0, 0].item())  # chtenie na khost
+            _ = float(z[0, 0].item())  # read to host
             return
         except Exception:
             pass
@@ -244,10 +242,10 @@ class IdleEngine:
             topic = last.get("text", "")[:140]
         else:
             topic = "initsializatsiya sistemy"
-        # prostoy «vopros dnya»
-        question = f"Chto dalshe delat s: {topic}?"
+        # simple question of the day
+        question = f"What to do next with: ZZF0Z?"
         qa_res = store.qa(question)
-        summary = qa_res.get("answer") or "Mysl sformulirovat ne udalos."
+        summary = qa_res.get("answer") or "It was impossible to formulate the thought."
         store.remember({
             "role": "system",
             "text": f"[idle] Vopros: {question} | Nablyudenie: {summary}",
@@ -282,7 +280,7 @@ class IdleEngine:
                     pass
             time.sleep(self._sleep_interval())
 
-# Fasad dlya vneshnego koda/routov
+# Facade for external code/routes
 def idle_get() -> IdleEngine:
     return IdleEngine.get()
 

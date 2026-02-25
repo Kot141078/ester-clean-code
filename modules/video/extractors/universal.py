@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-modules/video/extractors/universal.py — «universalnyy» ekstraktor: metadannye, subtitry, chernovoy konspekt.
-(obnovlennaya versiya: provaydery Vimeo/RuTube/generic cherez yt-dlp, saydkary, MKV-multitrek, yazykovye podskazki)
+"""modules/video/extractors/universal.py - “universalnyy” ekstraktor: metadannye, subtitry, chernovoy konspekt.
+(obnovlennaya version: provaydery Vimeo/RuTube/generic cherez yt-dlp, saydkary, MKV-multitrek, yazykovye podskazki)
 
 Funktsii:
   • fetch(req: dict) -> dict
      req: {"url"?: "...", "path"?: "...", "want":{"subs":true,"summary":true,"meta":true}, "topic"?: "...", "lang"?: "ru|en|..."}
 
-Povedenie (A/B):
-  • A — passthrough k probe (sovmestimost).  B — polnyy konveyer s avto-otkatom nazad pri oshibke.
+Behavior (A/B):
+  • A — passthrough k probe (sovmestimost).  B - polnyy konveyer s avto-otkatom nazad pri oshibke.
 
-Novoe:
+New:
   • Provaydery: YouTube/Vimeo/RuTube/generic cherez yt-dlp (meta+saby).
   • Lokalnye fayly: poisk saydkarov .srt/.vtt/.ass s uchetom yazyka, izvlechenie luchshey sab-dorozhki iz MKV.
   • ISO/DVD: bezopasnyy best-effort (bez montirovaniya).
-  • Detektor yazyka pomogaet vybrat dorozhku/saydkar i otrazhaetsya v meta.
+  • Detektor yazyka help vybrat dorozhku/saydkar i otrazhaetsya v meta.
 
 Mosty:
 - Yavnyy: (Memory ↔ Video) unifitsirovannyy konspekt i subtitry dlya indeksirovaniya i RAG.
@@ -22,12 +21,11 @@ Mosty:
 - Skrytyy #2: (Kibernetika ↔ Volya) rabotaet po zaprosu i po pravilam myshleniya, v t.ch. proaktivno.
 
 Zemnoy abzats:
-Eto «kombayn 2.0»: umeet brat saby iz Interneta, iz banki MKV, iz sosednego fayla; yazyk ugadyvaet sam i pishet profile.
+Eto “kombayn 2.0”: umeet brat saby iz Interneta, iz banki MKV, iz sosednego fayla; yazyk ugadyvaet sam i pishet profile.
 
 # c=a+b
 
-Ideya dlya rasshireniya: Integrirovat LLM-khuk dlya uluchsheniya summary (esli dostupen), naprimer, rezyumirovat subs_text cherez lokalnyy LLM.
-"""
+Ideya dlya rashshirniya: Integrirovat LLM-khuk dlya uluchsheniya summary (if available), for example, rezyumirovat subs_text through lokalnyy LLM."""
 from __future__ import annotations
 
 import glob
@@ -74,11 +72,11 @@ def _find_sidecars(path: str) -> List[str]:
         out = []
         for g in globs:
             out.extend(glob.glob(g))
-        # unikaliziruem, samye «yazykovye» vyshe
+        # Let’s uniqueize, the most “linguistic” ones are higher
         out = sorted(set(out), key=lambda p: (0 if re.search(r"\.(ru|eng|en|russian|rus)\.", p, re.I) else 1, p))
         return out
     except Exception:
-        return []  # Dorabotka: ne padaem na oshibkakh puti
+        return []  # Improvement: does not crash on path errors
 
 def _choose_sidecar(files: List[str], lang_hint: Optional[str]) -> Optional[str]:
     if not files:
@@ -87,7 +85,7 @@ def _choose_sidecar(files: List[str], lang_hint: Optional[str]) -> Optional[str]
         for f in files:
             if re.search(rf"\.{re.escape(lang_hint)}(\.|$)", f, re.I):
                 return f
-    # esli est ru/en — predpochest, s sinonimami (dorabotka)
+    # if there is ru/en - prefer, with synonyms (revision)
     for tag in ("ru", "rus", "russian", "en", "eng", "english"):
         for f in files:
             if re.search(rf"\.{tag}(\.|$)", f, re.I):
@@ -111,14 +109,14 @@ def _draft_summary(title: str, desc: str, subs_text: str, limit: int = 1200) -> 
 
 def fetch(req: Dict[str, Any]) -> Dict[str, Any]:
     mode = (os.getenv("VIDEO_UNIVERSAL_AB", "A") or "A").upper()
-    # esli A — delegirovat, esli est staryy konveyer
+    # if A - delegate if there is an old pipeline
     if mode == "A":
-        # pass-tru: vernem tolko probe + minimalist
+        # pass-three: return only sample + minimalist
         src = {"url": req.get("url")} if req.get("url") else {"path": req.get("path")}
         meta = probe(src)
         return {"ok": True, "mode": "A", "probe": meta, "note": "passthrough A (set VIDEO_UNIVERSAL_AB=B to enable universal extractor)"}
 
-    # B-rezhim: polnyy tsikl
+    # B-mode: full cycle
     try:
         url = (req.get("url") or "").strip()
         path = (req.get("path") or "").strip()
@@ -169,7 +167,7 @@ def fetch(req: Dict[str, Any]) -> Dict[str, Any]:
                 if norm.get("ok"):
                     subs_text = norm.get("text", "")
 
-            # 2) MKV vstroennye saby (esli net saydkara)
+            # 2) MKV built-in subs (if there is no sidecar)
             if want.get("subs", True) and not subs_text and path.lower().endswith(".mkv"):
                 best = extract_best_subs(path, LANG_PREF if LANG_PREF else (["ru", "en"]))
                 if best:
@@ -185,9 +183,9 @@ def fetch(req: Dict[str, Any]) -> Dict[str, Any]:
                     if norm.get("ok"):
                         subs_text = norm.get("text", "")
 
-            # 4) ASR pri polnom otsutstvii teksta i nalichii dvizhkov
+            # 4) ASR in the complete absence of text and the presence of engines
             if want.get("subs", True) and not subs_text and (caps.get("python_whisper") or caps.get("python_faster_whisper")):
-                # izvlechem audiodorozhku (16k mono)
+                # extract the audio track (16k mono)
                 wav = os.path.join(DATA_DIR, f"asr_{int(time.time())}.wav")
                 code, out, err = _run([FFMPEG, "-y", "-i", path, "-ac", "1", "-ar", "16000", "-vn", wav], timeout=180.0)
                 if code == 0 and os.path.isfile(wav):
@@ -199,21 +197,21 @@ def fetch(req: Dict[str, Any]) -> Dict[str, Any]:
                 except Exception:
                     pass
 
-            # vychislim yazyk, esli smogli
+            # let's calculate the language if we could
             if subs_text:
                 subs_lang = detect_lang(subs_text).get("lang", "unknown")  # type: ignore
 
         else:
             return {"ok": False, "error": "url or path required"}
 
-        # Svodka/chernovik
+        # Summary/draft
         if want.get("summary", True):
             rep["summary"] = _draft_summary(title, desc, subs_text or "")
 
         if want.get("subs", True):
             rep["subs"] = {"ok": bool(subs_text), "text": subs_text or "", "lang": subs_lang}
 
-        # Sokhranenie otcheta i best-effort vektorizatsiya
+        # Saving the report and best-effort vectorization
         ts = int(time.time())
         dump_path = os.path.join(DATA_DIR, f"rep_{ts}.json")
         rep_out = {

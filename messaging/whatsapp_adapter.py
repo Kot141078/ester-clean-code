@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/whatsapp_adapter.py — ofitsialnyy WhatsApp Business Cloud API.
+"""messaging/whatsapp_adapter.py - ofitsialnyy WhatsApp Business Cloud API.
 
 MOSTY:
 - (Yavnyy) WhatsAppAdapter: send_text(), webhook validatsiya (verify), parsing vkhodyaschikh.
-- (Skrytyy #1) Stels-persona: myagkaya podpis + prozrachnost assistenta; tolko opt-in, tolko approved templates dlya proactive.
-- (Skrytyy #2) Guard: nikakogo "neofitsialnogo" WhatsApp — tolko Cloud API s tokenom.
+- (Skrytyy #1) Stels-persona: myagkaya podpis + prozrachnost assistenta; only opt-in, only approved templates dlya proactive.
+- (Skrytyy #2) Guard: nikakogo "neofitsialnogo" WhatsApp - tolko Cloud API s tokenom.
 
 ZEMNOY ABZATs:
-Nadezhnyy kanal dlya delovoy perepiski: uvazhaet pravila WhatsApp (opt-in, shablony), ton — kak chelovek, no chestno «assistent».
+Nadezhnyy kanal dlya delovoy perepiski: uvazhaet pravila WhatsApp (opt-in, shablony), ton - like chelovek, no chestno “assistent”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import hashlib
@@ -59,7 +57,7 @@ class WhatsAppAdapter:
 
     @staticmethod
     def verify_challenge(query: Dict[str, str]) -> Optional[str]:
-        # standartnaya proverka: mode=subscribe, hub.verify_token == WA_VERIFY_TOKEN
+        # standard verification: mode=subskrybe, nub.verify_token == VA_VERIFY_TOKEN
         if query.get("hub.mode") == "subscribe" and query.get("hub.verify_token") == _env("WA_VERIFY_TOKEN"):
             return query.get("hub.challenge")
         return None
@@ -84,7 +82,7 @@ class WhatsAppAdapter:
             return None
         return {
             "channel": "whatsapp",
-            "chat_id": from_,  # dlya WA identifikator chata = nomer otpravitelya
+            "chat_id": from_,  # for VA chat ID = sender number
             "user_id": from_,
             "text": text,
             "ts": int(time.time()),

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tests/synergy/test_plan_overlay_smoke.py — dymovoy test: overley schitaet bias/synergy i ne izmenyaet plan.
+"""tests/synergy/test_plan_overlay_smoke.py - dymovoy test: overley schitaet bias/synergy i ne izmenyaet plan.
 
 MOSTY:
 - (Yavnyy) Proveryaem build_overlay(...), chto vydaet metadannye dlya kandidatov.
-- (Skrytyy #1) Plan ostaetsya netronutym (id/score na meste).
+- (Skrytyy #1) Plan ostaetsya netronutym (id/score on place).
 - (Skrytyy #2) Rabotaet dazhe esli extras.pairwise pust — synergy_avg=0.
 
 ZEMNOY ABZATs:
-Mini-garantiya: podsvetka bezopasna — tolko metadannye, ni odnogo izmeneniya v resheniyakh.
+Mini-garantiya: podsvetka bezopasna - only metadannye, ni one change v resheniyakh.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from modules.synergy.plan_overlay import build_overlay

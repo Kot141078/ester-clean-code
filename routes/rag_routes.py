@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/rag_routes.py - REST: /rag/hybrid/search
+"""routes/rag_routes.py - REST: /rag/hybrid/search
 
 Mosty:
 - Yavnyy: (Veb ↔ Poisk) ustoychivyy gibridnyy retriver dostupen kak ruchka.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Odin POST - i poluchaem spisok relevantnykh kusochkov dazhe bez vektornoy BD; esli vektora est - stanovitsya esche luchshe.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

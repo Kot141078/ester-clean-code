@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tools/run_sleep_cycle_http.py — akkuratnyy HTTP-trigger nochnogo tsikla.
+"""tools/run_sleep_cycle_http.py - akkuratnyy HTTP-trigger nochnogo tsikla.
 
 MOSTY:
 - Yavnyy: (CLI/planirovschik ↔ /memory/sleep/*) — edinaya komanda zapuska sna.
@@ -11,8 +10,7 @@ ZEMNOY ABZATs:
 Inzhenerno: eto obertka vokrug suschestvuyuschego sleep API. Ee udobno veshat v planirovschik,
 chtoby Ester regulyarno vypolnyala gigienu pamyati bez ruchnykh zapuskov testov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

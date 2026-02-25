@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/email_smtp.py — SMTP-otpravka pisem + outbox-log (tablitsa mail_outbox).
+"""messaging/email_smtp.py - SMTP-otpravka pisem + outbox-log (tablitsa mail_outbox).
 
 MOSTY:
 - (Yavnyy) send_email(to, subject, text=None, html=None) → {"sent":N,"failed":M,"by_recipient":[...]}.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Ne trogaet suschestvuyuschiy outbox; sozdaet otdelnuyu mail_outbox (audit-friendly).
 
 ZEMNOY ABZATs:
-Ofitsialnaya i «tikhaya» dostavka pisem: korrektnye zagolovki, UTF-8, TLS, log statusov — udobno dlya retraev i audita.
+Ofitsialnaya i "tikhaya" dostavka pisem: korrektnye zagolovki, UTF-8, TLS, log statusov - udobno dlya retraev i audita.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, ssl, time, sqlite3, traceback
@@ -75,7 +73,7 @@ def _build_message(to: str, subject: str, text: Optional[str], html: Optional[st
         msg.add_alternative(html, subtype="html")
     elif html:
         msg.add_alternative(html, subtype="html")
-        # dobavim tekstovuyu vyzhimku
+        # add text extract
         msg.set_content((text or ""))
     else:
         msg.set_content(text or "")
@@ -93,7 +91,7 @@ def send_email(to: List[str], subject: str, text: Optional[str] = None, html: Op
     try:
         smtp = _smtp_client()
     except Exception as e:
-        # ne mozhem soedinitsya — schitaem vse failed
+        # cannot connect - consider everything filed
         for r in to:
             _log(r, subject, "fail:connect", 0, str(e), None)
             rows.append({"to": r, "status": "fail:connect"})

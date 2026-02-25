@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/auth/auto_jwt.py — avtonomnyy HS256-JWT (bez vneshnikh paketov).
+"""modules/auth/auto_jwt.py - avtonomnyy HS256-JWT (bez vneshnikh paketov).
 
 MOSTY:
 - (Yavnyy) mint_jwt()/verify_jwt() + ensure_papa_cookie() dlya drop-in portala.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Vstraivaetsya v lyuboy Flask-router bez izmeneniya suschestvuyuschey avtorizatsii.
 
 ZEMNOY ABZATs:
-Nadezhnyy «klyuch zazhiganiya»: formiruem i proveryaem token sami — bez storonnikh bibliotek i bez plyasok s bubnom.
+Nadezhnyy “klyuch zazhiganiya”: formiruem i proveryaem token sami - bez storonnikh bibliotek i bez plyasok s bubnom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, hmac, hashlib, time, base64
 from typing import Any, Dict, Optional, Tuple
@@ -94,9 +92,7 @@ def verify_jwt(token: str) -> Tuple[bool, Optional[Dict[str, Any]]]:
         return False, None
 
 def ensure_papa_cookie(resp, username: str = None) -> None:
-    """
-    Esli kuki net — prostavlyaet JWT dlya Papa.
-    """
+    """If there are no cookies, it puts down the ZhVT for Dad."""
     try:
         from flask import request
         if request.cookies.get("jwt") or request.cookies.get("Authorization"):

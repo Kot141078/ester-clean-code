@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/discover/registry.py — avto-diskaver i bezopasnaya registratsiya moduley s register(app).
+"""modules/discover/registry.py - avto-diskaver i bezopasnaya registratsiya moduley s register(app).
 
 Mosty:
 - Yavnyy: (FS ↔ Flask) nakhodit python-fayly s routami i podklyuchaet ikh k prilozheniyu.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Cron/Volya ↔ Avtonomnost) mozhno vyzyvat reskan po raspisaniyu ili iz payplayna.
 
 Zemnoy abzats:
-Eto «inventarizatsiya i sborschik»: probezhal po katalogam, nashel novye routy, akkuratno podklyuchil — bez ruchnogo pravki app.py.
+This is “inventarizatsiya i sborschik”: probezhal po katalogam, nashel novye routy, akkuratno podklyuchil - bez ruchnogo pravki app.py.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, glob, importlib, threading, inspect
 from typing import Any, Dict, List
@@ -166,7 +164,7 @@ def refresh(autoreg: bool=False)->Dict[str,Any]:
     errs=[]
     if autoreg:
         mods=sc.get("modules") or []
-        # podklyuchaem tolko te, kotorykh esche net
+        # we connect only those that do not exist yet
         old=set((_load().get("registered") or {}).keys())
         new=[m for m in mods if m not in old]
         if new:

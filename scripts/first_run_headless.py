@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/first_run_headless.py — headless-obertka mastera pervogo zapuska.
+"""scripts/first_run_headless.py - headless-obertka mastera pervogo zapuska.
 
 Primery:
   python -m scripts.first_run_headless --bench --start-agent --headless
@@ -11,10 +10,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Bezopasnost): vse po yavnoy komande; nikakikh skrytykh servisov.
 
 Zemnoy abzats:
-Udobno dlya «sukhogo» razvertyvaniya bez brauzera: razovo startanut agenta i ponyat, chto vidno iz korobki.
+Udobno dlya “sukhogo” razvertyvaniya bez brauzera: razovo startanut agenta i ponyat, chto vidno iz korobki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -25,7 +23,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Ester First-Run (headless)")
     ap.add_argument("--bench", action="store_true", help="vypolnit korotkiy bench LM Studio")
-    ap.add_argument("--start-agent", action="store_true", help="zapustit USB-agenta (tekuschaya sessiya)")
+    ap.add_argument("--start-agent", action="store_true", help="launch USB agent (current session)")
     ap.add_argument("--headless", action="store_true", help="bez sistemnykh uvedomleniy")
     args = ap.parse_args(argv)
 

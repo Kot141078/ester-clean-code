@@ -1,25 +1,23 @@
 # tools/salvage_memory_json.py
 # -*- coding: utf-8 -*-
-"""
-Salvage tool for Ester memory snapshot.
+"""Salvage tool for Ester memory snapshot.
 
-Fishka etoy versii:
+Fishka etoy versions:
 - utf-8-sig: sedaet BOM
 - umeet startovat NE tolko s '{', no i s '"' (esli fayl poteryal vneshnyuyu skobku)
 - esli v nachale musor/obrezka — ischet pervyy '{' ili '"' dalshe po potoku
 - vytaskivaet pary key->value do mesta porchi i pishet validnyy JSON-obekt
 
-Mosty (trebovanie artefakta):
+Mosty (demand artefakta):
 - YaVNYY: kibernetika (Eshbi: ustoychivost kontura) ↔ inzheneriya FS (atomarnost zapisi/zameny)
 - SKRYTYY #1: logika (Enderton): nezakrytaya konstruktsiya ⇒ net interpretatsii ⇒ obrezaem do poslednego korrektnogo fragmenta
 - SKRYTYY #2: infoteoriya (Cover&Thomas): rost “obema/entropii” snapshota povyshaet shans chastichnoy zapisi pri sboe
 
 Zemnoy abzats:
 Eto kak shov na sosude: esli ego “ne dotyanuli” ili porvali pri perenose, davlenie prevraschaet strukturu v kashu.
-Lechim: snachala obrezaem do zhivogo (salvage), potom fiksiruem tekhniku “shva” (atomarnaya zapis ryadom + replace).
+Lechim: snachala obrezaem do zhivogo (salvage), potom fiksiruem tekhniku ​​“shva” (atomarnaya zapis ryadom + replace).
 
-c=a+b
-"""
+c=a+b"""
 
 from __future__ import annotations
 

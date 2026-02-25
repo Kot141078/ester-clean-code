@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-ITER B2b — bridges/internet_access.py + integratsiya v kaskad (samostoyatelnye poiski)
+"""ITER B2b - bridges/internet_access.py + integratsiya v kaskad (samostoyatelnye poiski)
 
-YaVNYY MOST: c=a+b — vneshniy fakt podtyagivaem protseduroy (b), ne lomaya “ya”.
+YaVNYY MOST: c=a+b - vneshniy fakt podtyagivaem protseduroy (b), ne lomaya “ya”.
 SKRYTYE MOSTY:
-  - Cover&Thomas: ogranichenie kanala — RPM/taymaut/limit bayt, chtoby ne “zabit liniyu”.
-  - Ashby: requisite variety — dva rezhima: DDGS (esli est) i DDG Instant Answer API (bez klyuchey).
+  - Cover&Thomas: ogranichenie kanala - RPM/taymaut/limit bayt, chtoby ne “zabit liniyu”.
+  - Ashby: requisite variety - dva rezhima: DDGS (esli est) i DDG Instant Answer API (bez klyuchey).
 ZEMNOY ABZATs:
   Eto kak postavit reduktor i filtr na vodu: potok est, no truby ne rvet i gryaz ne letit v sistemu.
 
-Chto menyaem:
-1) Dobavlyaem bridges/internet_access.py (stdlib-only).
+What do you mean:
+1) Addavlyaem bridges/internet_access.py (stdlib-only).
 2) V run_ester_fixed.py:
-   - WEB_AVAILABLE teper True, esli dostupen bridges.internet_access (ili staryy DDGS).
+   - WEB_AVAILABLE teper True, esli dostupen bridges.internet_access (or staryy DDGS).
    - get_web_evidence() ispolzuet InternetAccess; DDGS ostaetsya zapasnym.
 
-Nikakikh “samoperenosov dannykh”. Tolko kod.
-"""
+Nikakikh “samoperenosov dannykh”. Only code."""
 
 from __future__ import annotations
 
@@ -39,7 +37,7 @@ def _backup(p: Path, tag: str) -> Path:
     return b
 
 def _find_root() -> Path:
-    # Nadezhno ischem koren proekta (gde lezhit run_ester_fixed.py)
+    # We reliably look for the root of the project (where rune_ester_fixed.po is located)
     here = Path(__file__).resolve()
     for cand in [here.parents[2], here.parents[1], Path.cwd()]:
         if (cand / "run_ester_fixed.py").exists():

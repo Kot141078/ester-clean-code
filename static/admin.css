@@ -46,7 +46,7 @@ input::placeholder, textarea::placeholder { color: var(--muted); }
   word-break: break-word;
 }
 
-/* Podsvetka dlya grubykh JSON-otvetov (best-effort) */
+/* Highlighting for rough JSION replies (best-effort) */
 .log .k { color: #7c3aed; }     /* key */
 .log .s { color: #059669; }     /* string */
 .log .n { color: #2563eb; }     /* number */

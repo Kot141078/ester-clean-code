@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/guardian/contacts.py — doverennye kontakty i podgotovka eskalatsii (bez otpravki).
+"""modules/guardian/contacts.py - doverennye kontakty i podgotovka eskalatsii (bez otpravki).
 
 Mosty:
-- Yavnyy: (Zabota ↔ Protsedury) khranit «komu mozhno zvonit/pisat» s yavnymi consent-flagami.
+- Yavnyy: (Zabota ↔ Protsedury) khranit “komu mozhno zvonit/pisat” s yavnymi consent-flagami.
 - Skrytyy #1: (Profile ↔ Audit) khuki dlya zapisi fakta eskalatsii.
 - Skrytyy #2: (LegalGuard ↔ Bezopasnost) pered eskalatsiey mozhno zapuskat /policy/legal/check.
 
 Zemnoy abzats:
-Telefonnaya knizhka s krasnoy knopkoy: kto blizkiy, kak svyazatsya, chto imenno razresheno — i akkuratnaya podskazka, kak deystvovat.
+Telefonnaya knizhka s krasnoy knopkoy: kto blizkiy, kak svyazatsya, chto imenno razresheno - i akkuratnaya podskazka, kak deystvovat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict, List
@@ -49,10 +47,8 @@ def list_contacts()->Dict[str,Any]:
     j=_load(); return {"ok": True, "items": j.get("contacts",[])}
 
 def prepare_escalation(kind: str, who_id: str, message: str)->Dict[str,Any]:
-    """
-    Vozvraschaet instruktsii dlya ruchnoy otpravki: mailto:/sms:/call:.
-    Otpravka ne vypolnyaetsya.
-    """
+    """Returns instructions for manual sending: mailto:/sms:/call:.
+    Sending fails."""
     j=_load(); target=None
     for c in j.get("contacts",[]):
         if c.get("id")==who_id: target=c; break

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/opps_routes.py - REST: /opps/* (list/add/import/status)
+"""routes/opps_routes.py - REST: /opps/* (list/add/import/status)
 
 Mosty:
 - Yavnyy: (Veb ↔ Opps) CRUD i parsing vozmozhnostey.
-- Skrytyy #1: (Outreach ↔ Potok) downstream generiruet predlozheniya.
-- Skrytyy #2: (Invoices ↔ Kontur) statusy «won/invoiced/paid» soglasuyutsya s finansami.
+- Skrytyy #1: (Outreach ↔ Potok) downstream generate predlozheniya.
+- Skrytyy #2: (Invoices ↔ Kontur) statusy “won/invoiced/paid” soglasuyutsya s finansami.
 
 Zemnoy abzats:
 Eto knopki dlya CRM-bloknota: polozhil kartochku i dvigaesh ee po konveyeru do oplaty.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

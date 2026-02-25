@@ -44,7 +44,7 @@ $anchor
 try:
     from modules.sister_autochat import start_sister_autochat_background
 except Exception:
-    start_sister_autochat_background = lambda: None  # myagko otklyucheno
+    start_sister_autochat_background = lambda: None  # soft disabled
 
 "@
 
@@ -63,7 +63,7 @@ if ($content -notmatch [regex]::Escape($startTag)) {
     $threadLine = "threading.Thread(target=run_flask_background, daemon=True).start()"
     if ($content -notmatch [regex]::Escape($threadLine)) { throw "Ne nayden anchor __main__: $threadLine" }
 
-    # vstavlyaem srazu posle linii starta flask thread (s tem zhe otstupom)
+    # insert flask threads immediately after the start line (with the same indentation)
     $pattern = "(?m)^(?<indent>\s*)$([regex]::Escape($threadLine))\s*$"
     $repl = '${indent}' + $threadLine + "`r`n`r`n" +
             '${indent}' + "# --- Sister AutoChat (background) ---`r`n" +
@@ -80,7 +80,7 @@ if ($content -notmatch [regex]::Escape($startTag)) {
 # ---------- 3) MARK USER ACTIVITY IN handle_message ----------
 $markNeedle = "AUTOCHAT.mark_user_activity()"
 if ($content -notmatch [regex]::Escape($markNeedle)) {
-    # Vstavlyaem tolko v handle_message, posle bloka:
+    # We insert it only in the handle_message, after the block:
     # text = (msg.text or "").strip()
     # if not text:
     #     return

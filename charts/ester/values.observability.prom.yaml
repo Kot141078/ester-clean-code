@@ -1,4 +1,4 @@
-# values.observability.prom.yaml — override dlya ServiceMonitor, chtoby skrapit tekstovye metriki
+# value.observability.prom.yaml - override for ServiceMonitor to scrape text metrics
 serviceMonitor:
   enabled: true
   path: /metrics/prom

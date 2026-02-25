@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/contacts_csv.py — eksport/import kontaktov v CSV (opt-in, prefs, silence, last_outbound).
+"""messaging/contacts_csv.py - eksport/import kontaktov v CSV (opt-in, prefs, silence, last_outbound).
 
 MOSTY:
 - (Yavnyy) export_contacts_csv() → bytes; import_contacts_csv(csv_bytes) → otchet o primenennykh zapisyakh.
@@ -10,8 +9,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Operator bystro perenosit bazu mezhdu sredami i pravit kontakty v Excel/Google Sheets: import obratno — i vse na meste.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import csv

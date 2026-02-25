@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/security/codegate.py — «kalitka koda»: HMAC-podpisyvanie i proverka moduley/papok.
+"""modules/security/codegate.py - “kalitka koda”: HMAC-podpisyvanie i proverka moduley/papok.
 
 Mosty:
-- Yavnyy: (Garage ↔ Bezopasnost) registriruem novye moduli tolko s validnoy podpisyu (esli ENFORCE).
+- Yavnyy: (Garage ↔ Bezopasnost) register new moduli tolko s validnoy podpisyu (esli ENFORCE).
 - Skrytyy #1: (Profile ↔ Audit) vse podpisi/proverki fiksiruyutsya.
 - Skrytyy #2: (Survival ↔ Relokatsiya) te zhe podpisi podkhodyat dlya bandlov/torrentov.
 
 Zemnoy abzats:
-Kak plomba na korobke: esli plomba tsela i nomer skhoditsya — korobku mozhno vklyuchat k seti.
+Kak plomba na korobke: esli plomba tsela i nomer skhoditsya - korobku mozhno vklyuchat k seti.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, hmac, hashlib, json, time
 from typing import Dict, Any, List

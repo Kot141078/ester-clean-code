@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-routes/video_health_routes.py — health/selfcheck endpoint dlya video-konveyera.
+"""routes/video_health_routes.py - health/selfcheck endpoint dlya video-konveyera.
 
 Endpoint:
-  - GET /health/video/selfcheck — vozvraschaet JSON-otchet proverok (binari, moduli, ENV, direktorii).
+  - GET /health/video/selfcheck - vozvraschaet JSON-otchet proverok (binari, moduli, ENV, direktorii).
 
 Mosty:
-- Yavnyy: (Nablyudaemost v†" Ekspluatatsiya) podnyali v HTTP to, chto ranshe bylo tolko CLI — teper vidno «zdorove» uzla.
+- Yavnyy: (Nablyudaemost v†" Ekspluatatsiya) podnyali v HTTP to, chto ranshe bylo tolko CLI - teper vidno "zdorove" uzla.
 - Skrytyy #1: (Kibernetika v†" R egulyatsiya) mozhno triggerit alerty po otsutstviyu binarey/modeley.
-- Skrytyy #2: (Inzheneriya v†" Nadezhnost) proverka ne menyaet sostoyanie — «chtenie bez pobochek».
+- Skrytyy #2: (Inzheneriya v†" Nadezhnost) proverka ne menyaet sostoyanie - “chtenie bez pobochek.”
 
 Zemnoy abzats:
-Eto «kontrolnaya lampa» na paneli: zelenaya — vse okey, krasnaya — zovi mastera.
+This is “kontrolnaya lampa” na paneli: zelenaya - vse okey, krasnaya - zovi mastera.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

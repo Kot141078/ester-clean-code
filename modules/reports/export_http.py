@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.reports.export_http — eksport svodok odnim arkhivom.
-Registriruet:
+"""modules.reports.export_http - eksport svodok odnim arkhivom.
+Register:
 - GET `/compat/reports/download.json` — manifest
 - GET `/compat/reports/download.tar.gz` — tar.gz s faylami
 
-# c=a+b
-"""
+# c=a+b"""
 import os, io, tarfile, time, json
 from typing import Optional, Dict, Tuple, Callable
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -39,7 +37,7 @@ def _try_get(mod_name: str, fn_names: Tuple[str, ...], fallback_text: str, filen
         return (filename, fallback_text, False, f"{mod_name}: {e.__class__.__name__}")
 
 def _collect() -> Dict[str, Dict[str, str]]:
-    """Sobiraem kontent otchetov best-effort."""
+    """We collect the content of best-effort reports."""
     items: Dict[str, Dict[str, str]] = {}
     ts = int(time.time())
     # README

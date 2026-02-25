@@ -1,17 +1,15 @@
-"""
-Registratsiya mostov CommsBridge v osnovnoy FastAPI-prilozhenii Ester (drop-in).
-Importiruyte i vyzovite register(app) v vashem app.py, kogda budete gotovy (posle priemki dampa).
+"""Registration mostov CommsBridge v osnovnoy FastAPI-prilozhenii Ester (drop-in).
+Importiruyte i vyzovite register(app) v vashem app.py, when will budete gotovy (after priemki dampa).
 
 MOSTY (yavnyy):
 - Bystroe montirovanie routov /bridge/* bez izmeneniya suschestvuyuschikh marshrutov.
 
 MOSTY (skrytye):
 - Mozhet byt podklyuchen k vashey sisteme fich-flagov (config/feature_flags.yaml) cherez env ESTER_FEATURE_MESSAGING=1.
-- Podderzhivaet strategiyu «sinie/zelenye» razvertki, t.k. prefiks /bridge izolirovan.
+- Podderzhivaet strategiyu “sinie/zelenye” razvertki, t.k. prefiks/bridge isolated.
 
 ZEMNOY ABZATs:
-- Vy smozhete vklyuchit/vyklyuchit integratsiyu odnoy strokoy, ne riskuya osnovnym trafikom.
-"""
+- Vy smozhete vklyuchit/vyklyuchit integratsiyu odnoy strokoy, ne riskuya osnovnym trafikom."""
 
 import os
 from fastapi import FastAPI
@@ -21,7 +19,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 def register(app: FastAPI):
     if os.getenv("ESTER_FEATURE_MESSAGING", "1") != "1":
         return
-    # Prefiks /bridge ne konfliktuet s obychnymi chat-endpointami
+    # The /bridge prefix does not conflict with regular chat endpoints
     app.include_router(comms_router)
 
 # c=a+b

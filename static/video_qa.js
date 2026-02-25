@@ -3,7 +3,7 @@
 
   async function search(){
     const q = E('q').value.trim();
-    if(!q){ E('out').textContent = 'Vvedite zapros'; return; }
+    if(!q){ E('out').textContent = 'Enter your request'; return; }
     const dump = E('dump').value.trim();
     const body = { q, k: 8 };
     if(dump) body.scope = { dump };

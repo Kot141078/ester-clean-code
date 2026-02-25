@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/interactive_playback.py — interaktivnyy pleybek stsenariev (s pauzami/proverkami).
+"""modules/coop/interactive_playback.py - interaktivnyy pleybek stsenariev (s pauzami/proverkami).
 
 Spetsifikatsiya shaga:
 {
   "title": "Otkryt menyu",
   "action": {"type":"hotkey","seq":"ALT+F"},
-  "check":  {"kind":"ocr_contains","text":"Fayl","lang":"rus+eng"},  # optsionalno
+  "check": {"kind":"ocr_contains","text":"Fayl","lang":"rus+eng"}, #optsionalno
   "timeout_ms": 5000
 }
 
-API (modul):
+API (module):
 - load(spec:list[steps])
 - start(), pause(), resume(), stop(), next(), prev(), status()
 - integriruet /desktop/rpa/screen, /desktop/rpa/ocr_contains, /desktop/vision/template/find,
-  a dlya deystviy — /desktop/window/hotkey ili /profiles/mix/apply.
+  a dlya deystviy - /desktop/window/hotkey or /profiles/mix/apply.
 
 MOSTY:
-- Yavnyy: (Obuchenie ↔ Deystvie) poshagovo, s proverkoy fakta.
+- Yavnyy: (Obuchenie ↔ Deystvie) poshagovo, s proverkoy facta.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) taymauty, yavnye usloviya prokhozhdeniya.
 - Skrytyy #2: (Kibernetika ↔ Sovmestnost) to zhe mozhet idti na peers cherez uzhe imeyuschiesya mekhanizmy.
 
 ZEMNOY ABZATs:
-Odin potok v protsesse; nikakikh fonovykh demonov. Stsenariy — obychnyy JSON.
+Odin potok v protsesse; nikakikh fonovykh demonov. Stsenariy - obychnyy JSON.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Optional
 import threading, time, http.client, json
@@ -70,7 +68,7 @@ def load(steps: List[Dict[str, Any]]) -> Dict[str, Any]:
     return {"ok": True, "count": len(_state["steps"])}
 
 def _check(check: Dict[str, Any], timeout_ms: int) -> bool:
-    """Vozvraschaet True pri uspekhe proverki, False — po taymautu/oshibke."""
+    """Returns Three if the check is successful, False if there is a timeout/error."""
     if not check: return True
     t0 = time.time()
     while (time.time()-t0)*1000.0 <= max(100, timeout_ms or 1000):

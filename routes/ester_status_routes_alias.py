@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ester_status_routes_alias.py — HTTP-dostup k statusu rezhimov Ester.
+"""routes/ester_status_routes_alias.py - HTTP-dostup k statusu rezhimov Ester.
 
 Mosty:
-- Yavnyy: (HTTP ↔ modules.ester.status) — vydaet status kaskada/voli/trace.
+- Yavnyy: (HTTP ↔ modules.ester.status) - vydaet status kaskada/voli/trace.
 - Skrytyy #1: (DevOps ↔ Arkhitektura) — pozvolyaet monitorit rezhimy bez lezviya v kod.
 - Skrytyy #2: (Chelovek ↔ Subekt Ester) — pokazyvaet, v kakom "nastroenii" ona myslit.
 
-Invarianty:
-- Tolko chtenie. Nikakikh pereklyucheniy rezhimov cherez etot rout.
-- Prefiks /ester/status — ne konfliktuet s tekuschimi osnovnymi marshrutami.
+Invariance:
+- Just read. Nikakikh pereklyucheniy rezhimov cherez etot rout.
+- Prefiks /ester/status - ne konfliktuet s tekuschimi osnovnymi routes.
 
 Zemnoy abzats:
-curl http://host:port/ester/status — i vidno, kak nastroena golova Ester.
-# c=a+b
-"""
+curl http://host:port/ester/status - i vidno, kak nastroena golova Ester.
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any

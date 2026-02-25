@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_activity_to_report.py — avtosvertka «aktivnost → otchet».
+"""modules/thinking/actions_activity_to_report.py - avtosvertka “aktivnost → otchet”.
 
 Mosty:
 - Yavnyy: (Mysli/Deystviya ↔ Dokumentatsiya) — formiruem Markdown/HTML otchet na osnove sobytiy aktivnosti.
-- Skrytyy #1: (UX ↔ Kaskad) — otdaem mini-plan, sovmestimyy s /thinking/cascade/execute (kak v admin_cascade.js).
+- Skrytyy #1: (UX ↔ Kaskad) - otdaem mini-plan, sovmestimyy s /thinking/cascade/execute (kak v admin_cascade.js).
 - Skrytyy #2: (Pravila ↔ Memory) — sokhranenie faylov cherez guarded_apply (A-slot + WRITE-flag), bez izmeneniya kontraktov.
 
 Zemnoy abzats:
 Ester odnim deystviem sobiraet otchet iz poslednikh deystviy (Builder/KIT/Report): sobytiya → kratkaya svodka → MD/HTML → (po razresheniyu) sokhranenie.
-# c=a+b.
-"""
+# c=a+b."""
 from __future__ import annotations
 import os, io, re, json, time
 from typing import Any, Dict, List, Tuple
@@ -75,7 +73,7 @@ def _extract_events(obj: Any, q: str | None = None) -> List[Dict[str, Any]]:
             return
     walk(obj)
     evs.sort(key=lambda e: int(e.get("ts") or 0), reverse=True)
-    # normalizuem ts ako net vremeni
+    # normalizes ts ako no time
     now = int(time.time())
     for i,e in enumerate(evs):
         if not e.get("ts"):
@@ -91,7 +89,7 @@ def _scan(q: str, limit: int) -> List[Dict[str,Any]]:
     return all_evs
 
 def _compose_md_from_events(title: str, events: List[Dict[str,Any]]) -> str:
-    lines = [f"# {title}", "", "## Khronologiya (poslednie sobytiya)"]
+    lines = [f"# {title}", "", "## Chronology (latest events)"]
     for e in events:
         ts = e.get("ts", 0)
         ts_s = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(ts)))
@@ -99,8 +97,8 @@ def _compose_md_from_events(title: str, events: List[Dict[str,Any]]) -> str:
         src  = e.get("source") or ""
         lines.append(f"- {ts_s} — {note} _(src: {src})_")
     if not events:
-        lines.append("- net sobytiy po filtru")
-    lines += ["", "## Sleduyuschie shagi", "- Utochnit tseli i metriki (CO₂e, kWh, otkhody).", "- Sformirovat detalnyy plan kaskada.", "- Pri neobkhodimosti — primenit izmeneniya cherez RuleHub (A-slot + WRITE=1).", "", f"_Sobrano Ester: {time.strftime('%Y-%m-%d %H:%M:%S')}._"]
+        lines.append("- no events by filter")
+    lines += ["", "## Next steps", "- Utochnit tseli i metriki (CO₂e, kWh, otkhody).", "- Sformirovat detalnyy plan kaskada.", "- If necessary, apply changes via RuleNove (A-slot + WRITE=1).", "", f"_Sobrano Ester: {time.strftime('%Y-%m-%d %H:%M:%S')}._"]
     return "\n".join(lines)
 
 def _compose_html(title: str, md_text: str) -> str:
@@ -127,12 +125,10 @@ def _guarded_apply(files: List[Dict[str,str]]) -> Dict[str,Any]:
         return {"ok": False, "error": f"codesmith:{e}", "preview": True, "ab": AB_SLOT}
 
 def _safe_register_report_compose_html(markdown: str, title: str) -> Dict[str,Any]:
-    """
-    Ispolzuem uzhe dobavlennuyu logiku report.compose.html, esli dostupna;
-    inache — lokalnaya obertka.
-    """
+    """We use the already added report.compose.html logic, if available;
+    otherwise it is a local wrapper."""
     try:
-        # probuem vyzvat cherez vnutrenniy modul napryamuyu
+        # we try to call directly through the internal module
         from modules.thinking.actions_report_export import _compose_html as compose_html  # type: ignore
         html = compose_html(title, markdown)
         return {"ok": True, "html": html}
@@ -145,9 +141,9 @@ def _reg():
     if not register:
         return
 
-    # 1) activity.report.compose.md — sobrat MD iz sobytiy
+    # 1) activity.report.compose.md - collect MD from events
     def a_md(args: Dict[str,Any]):
-        title = str(args.get("title") or "Otchet aktivnosti Ester")
+        title = str(args.get("title") or "Esther Activity Report")
         q = str(args.get("q","") or "")
         limit = int(args.get("limit", 50))
         evs = _scan(q=q, limit=limit)
@@ -155,9 +151,9 @@ def _reg():
         return {"ok": True, "ab": AB_SLOT, "markdown": md, "count": len(evs)}
     register("activity.report.compose.md", {"title":"str","q":"str","limit":"int"}, {"ok":"bool"}, 1, a_md)
 
-    # 2) activity.report.compose.html — zavernut MD v HTML (ispolzuya report.compose.html pri nalichii)
+    # 2) activity.report.compose.html - wrap the MD in HTML (using report.compose.html if available)
     def a_html(args: Dict[str,Any]):
-        title = str(args.get("title") or "Otchet aktivnosti Ester")
+        title = str(args.get("title") or "Esther Activity Report")
         markdown = str(args.get("markdown") or "")
         rep = _safe_register_report_compose_html(markdown, title)
         return {"ok": True, "ab": AB_SLOT, "html": rep.get("html","")}
@@ -165,7 +161,7 @@ def _reg():
 
     # 3) activity.report.save — sokhranit fayly (guarded_apply)
     def a_save(args: Dict[str,Any]):
-        title = str(args.get("title") or "Otchet aktivnosti Ester")
+        title = str(args.get("title") or "Esther Activity Report")
         markdown = str(args.get("markdown") or "")
         html = str(args.get("html") or "")
         slug = re.sub(r"[^a-zA-Z0-9a-yaA-Ya_-]+", "_", title).strip("_") or "report"
@@ -177,9 +173,9 @@ def _reg():
         return rep
     register("activity.report.save", {"title":"str","markdown":"str","html":"str"}, {"ok":"bool"}, 3, a_save)
 
-    # 4) activity.report.plan.quick — mini-plan dlya svertki (sovmestim s /thinking/cascade/execute)
+    # 4) activation.report.plan.kisk - mini-plan for convolution (compatible with /thinking/cascade/esesote)
     def a_plan(args: Dict[str,Any]):
-        title = str(args.get("title") or "Sobrat otchet iz aktivnosti")
+        title = str(args.get("title") or "Collect a report from an activity")
         plan = {
             "ok": True,
             "goal": title,

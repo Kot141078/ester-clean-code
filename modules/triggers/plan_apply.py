@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-modules/triggers/plan_apply.py — primenenie «plana shablonov» partiyami k /triggers/update.
+"""modules/triggers/plan_apply.py - primenenie "plana shablonov" partiyami k /triggers/update.
 
 Vkhod:
 - plan: [{"index": <int?>, "name": "...", "bbox":{l,t,w,h}, "threshold":0.85, "lang":"eng+rus", ...}, ...]
-  * Esli index ne zadan: sozdaem «psevdo-patch» dlya ruchnogo dobavleniya (vozvraschaem v otchete kak pending_add).
-  * Esli index zadan: formiruem PATCH dlya suschestvuyuschego triggera.
+  * If the index is not specified: create a “pseudo-patch” for manual addition (return in the report as pending_add).
+  * If the index is specified: we generate a PATCH for the existing trigger.
 
 Funktsii:
 - dry_run(plan, batch=50) -> tolko agregirovannyy spisok PATCH bez vyzova /triggers/update
-- apply(plan, batch=50)  -> vyzyvaet /triggers/update dlya tekh, u kogo est index; sobiraet otchet
+- apply(plan, batch=50) -> vyzyvaet /triggers/update dlya tekh, u kogo est index; sobiraet report
 
 MOSTY:
-- Yavnyy: (Diagnostika ↔ Deystvie) «kandidaty shablonov» → realnye porogi i bbox.
-- Skrytyy #1: (Infoteoriya ↔ Prozrachnost) dry-run pokazyvaet, chto budet primeneno.
-- Skrytyy #2: (Inzheneriya ↔ Sovmestimost) ne dobavlyaet novye triggery — tolko patchit suschestvuyuschie, ostalnoe — pending_add.
+- Yavnyy: (Diagnostika ↔ Deystvie) “kandidaty shablonov” → realnye porogi i bbox.
+- Skrytyy #1: (Infoteoriya ↔ Prozrachnost) dry-run pokazyvaet, what will be primeneno.
+- Skrytyy #2: (Inzheneriya ↔ Sovmestimost) ne dobavlyaet novye triggery — only patchit suschestvuyuschie, ostalnoe — pending_add.
 
 ZEMNOY ABZATs:
-Chistyy REST; batch-limit zaschischaet ot «dlinnykh» seriy. Nichego ne lomaem.
+Cleany REST; batch-limit zaschischaet ot “dlinnykh” seriy. No problem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import http.client, json

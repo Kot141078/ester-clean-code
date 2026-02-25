@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/env_sanitize.py - sanitize .env lines that python-dotenv cannot parse.
+"""scripts/env_sanitize.py - sanitize .env lines that python-dotenv cannot parse.
 
 The script keeps comments/empty lines, validates KEY=value format,
 strips inline comments outside quotes, and writes two outputs:
 - config/.env.cleaned
-- config/.env.invalid
-"""
+- config/.env.invalid"""
 
 from __future__ import annotations
 

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tests/messaging/test_outbox.py — proverka outbox i povtornoy otpravki.
+"""tests/messaging/test_outbox.py - proverka outbox i povtornoy otpravki.
 
 MOSTY:
-- (Yavnyy) add_outgoing/list_outgoing/resend s podmenoy adapterov na «zaglushki».
-- (Skrytyy #1) Status resent:* posle povtornoy otpravki.
+- (Yavnyy) add_outgoing/list_outgoing/resend s podmenoy adapterov na “zaglushki”.
+- (Skrytyy #1) Status resent:* after povtornoy otpravki.
 - (Skrytyy #2) Limit vyborki i sortirovka po ts.
 
 ZEMNOY ABZATs:
-Zhurnal iskhodyaschikh deystvitelno pishetsya i pozvolyaet bystro «doslat» to zhe soobschenie, ne polagayas na pamyat.
+Zhurnal iskhodyaschikh deystvitelno pishetsya i pozvolyaet bystro “doslat” to zhe soobschenie, ne polagayas na pamyat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -25,7 +23,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 def test_outbox_record_and_resend(monkeypatch, tmp_path):
     monkeypatch.setenv("MESSAGING_DB_PATH", str(tmp_path/"db.sqlite"))
 
-    # Zapishem dve iskhodyaschie
+    # Let's write down two outgoing
     id1 = ob.add_outgoing("telegram","42","hi","ok",200,"RID-1")
     id2 = ob.add_outgoing("whatsapp","380001112233","yo","fail",502,"RID-2")
     xs = ob.list_outgoing(limit=10)
@@ -44,5 +42,5 @@ def test_outbox_record_and_resend(monkeypatch, tmp_path):
     r = ob.resend(id1)
     assert r["ok"] and int(r["status"]) == 200
     ys = ob.list_outgoing(limit=10)
-    # dolzhna poyavitsya tretya zapis resent:*
+    # a third resent entry should appear:*
     assert any("resent" in row[5] for row in ys)

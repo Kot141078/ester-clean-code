@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/lexicon_routes.py - REST/UI dlya slovarya UI-leksiki.
+"""routes/lexicon_routes.py - REST/UI dlya slovarya UI-leksiki.
 
 Ruchki:
-  POST /lexicon/mine    {"N":500}
-  POST /lexicon/merge   {"candidates":[...]}
-  GET  /lexicon/preview {"top":200}
-  GET  /lexicon/export
-  GET  /admin/lexicon
+  POST /lexicon/mine {"N":500}
+  POST /lexicon/merge {"candidates":[...]}
+  GET /lexicon/preview {"top":200}
+  GET /lexicon/export
+  GET /admin/lexicon
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.ocr.lexicon_builder import mine_from_journal, merge_guess, preview, export_json

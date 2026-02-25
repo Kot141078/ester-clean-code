@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes.email_routes - bazovyy mount dlya email-podsistemy cherez FastAPI.
+"""routes.email_routes - bazovyy mount dlya email-podsistemy cherez FastAPI.
 
 MOSTY:
 - Yavnyy: (Flask ↔ FastAPI) montiruem ASGI-prilozhenie pod /email.
 - Skrytyy #1: (Diagnostika ↔ UI) /email/ping - bystryy sanity-chek.
-- Skrytyy #2: (Evolyutsiya ↔ Kontrakty) ostavlyaet prostranstvo dlya rasshireniya bez lomki API.
+- Skrytyy #2: (Evolyutsiya ↔ Kontrakty) ostavlyaet prostranstvo dlya rashshireniya bez lomki API.
 
 ZEMNOY ABZATs:
-Delaet tak, chtoby import modulya email-marshrutov ne padal i byl ping-endpoint.
+Do so, chtoby import modulya email-marshrutov ne padal i byl ping-endpoint.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
@@ -19,7 +17,7 @@ def mount_email_routes(app):
     try:
         from fastapi import FastAPI
     except Exception:
-        # esli FastAPI net - tikho vykhodim (v logakh uzhe budet preduprezhdenie)
+        # if there is no FastAPI, it exits quietly (there will already be a warning in the logs)
         return False
 
     fa = FastAPI(title="Ester Email")
@@ -32,7 +30,7 @@ def mount_email_routes(app):
 
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
-# zaglushka dlya email_routes: poka net bp/router/register_*_routes
+# stub for email_rutes: no power supply/router/register_*_rutes yet
 def register(app):
     return True
 

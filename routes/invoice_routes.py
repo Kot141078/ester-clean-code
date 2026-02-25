@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/invoice_routes.py - REST: /finance/invoice/create|get
+"""routes/invoice_routes.py - REST: /finance/invoice/create|get
 
 Mosty:
-- Yavnyy: (Veb ↔ Finansy) podgotovka scheta na storone Ester.
+- Yavnyy: (Veb ↔ Finansy) podgotovka scheta na side Ester.
 - Skrytyy #1: (Profile/RAG ↔ Prozrachnost/Poisk) schet shtampuetsya i indeksiruetsya.
 - Skrytyy #2: (Garage/Portfolio ↔ Vitrina) gotovye HTML mozhno klast v portfolio.
 
 Zemnoy abzats:
 Sdelali rabotu - bystro vypustili schet - prilozhili k pismu. Bez vneshnikh servisov i bez ozhidaniy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, send_file
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

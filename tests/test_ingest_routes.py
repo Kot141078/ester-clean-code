@@ -26,7 +26,7 @@ def test_ingest_upload_and_status(client, auth_hdr_user):
 
 
 def test_ingest_limits_and_types(client, auth_hdr_user, monkeypatch):
-    # Prevyshenie razmera
+    # Excess size
     monkeypatch.setenv("MAX_UPLOAD_MB", "0.00001")
     data = {"file": (io.BytesIO(b"x" * 1024 * 1024), "big.txt")}
     r = client.post(

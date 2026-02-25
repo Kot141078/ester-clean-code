@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/media/video_ingest.py — oflayn/onlayn-inzhest video: ffprobe → subtitry/ASR → chernovoy konspekt.
+"""modules/media/video_ingest.py - oflayn/onlayn-inzhest video: ffprobe → subtitry/ASR → chernovoy konspekt.
 
 Mosty:
 - Yavnyy: (Video ↔ Memory/Poisk) metadannye + tekst v pamyat i gibridnyy poisk.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (KG ↔ Navigatsiya) avtolink suschnostey iz konspekta/subtitrov.
 
 Zemnoy abzats:
-Kak «magnitofon s bloknotom»: snyali tekhdannye, vytaschili rech/subtitry, nakidali chernovye tezisy — i polozhili na polku.
+Kak “magnitofon s bloknotom”: snyali tekhdannye, vytaschili rech/subtitry, nakidali chernovye tezisy - i polozhili na polku.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, re, json, time, hashlib, subprocess, tempfile, shutil
 from typing import Any, Dict, Tuple, List
@@ -61,7 +59,7 @@ def _ytdlp_info(url: str, outdir: str)->Dict[str,Any]:
     if code==0:
         try: meta=json.loads(out)
         except Exception: pass
-    # subtitry (best-effort: tolko vygruzka .vtt, esli dostupny)
+    # subtitles (best-effort: only uploading .vtt, if available)
     subs_text=""
     try:
         _run([YTDLP,"--skip-download","--write-auto-subs","--sub-format","vtt","-o",os.path.join(outdir,"%(id)s.%(ext)s"), url], 300)
@@ -79,12 +77,12 @@ def _whisper_transcribe(path: str)->str:
         return ""
     args=[WHISPER] + WHISPER_ARGS.split() + [path]
     code,out,err=_run(args, 900)
-    # mnogie CLIs sokhranyayut .txt ryadom; poprobuem poymat vyvod
+    # many KLIS keep .txt nearby; let's try to catch the output
     txt=""
-    # prostoy khit: vozmem poslednie 32K stdout kak tekst
+    # simple hit: take the last 32K stdout as text
     if out.strip():
         txt=out[-32000:]
-    # esli ryadom poyavilsya .txt — prochtem
+    # if .txt appears nearby, we’ll read it
     base=os.path.splitext(path)[0]
     for cand in (base+".txt", base+".vtt", base+".srt"):
         if os.path.isfile(cand):
@@ -93,7 +91,7 @@ def _whisper_transcribe(path: str)->str:
     return txt
 
 def _notes_from_text(text: str, max_bullets: int=12)->str:
-    # prostaya «kondensatsiya»: razbivka na stroki/frazy, chastotnye slova → top-frazy
+    # prostaya “kondensatsiya”: razbivka na stroki/frazy, chastotnye slova → top-frazy
     import re, math
     s=re.sub(r"\s+"," ", text or ""); s=s.strip()
     if not s: return ""
@@ -134,7 +132,7 @@ def ingest(url: str|None=None, path: str|None=None, prefer_subs: bool=True, tran
         pr=_ffprobe(path); 
         if pr.get("ok"): meta["ffprobe"]=pr["meta"]
         if prefer_subs:
-            # esli ryadom .vtt/.srt — vozmem
+            # if .wtt/.srt is nearby, we’ll take it
             base=os.path.splitext(path)[0]
             for ext in (".vtt",".srt"):
                 p=base+ext
@@ -151,7 +149,7 @@ def ingest(url: str|None=None, path: str|None=None, prefer_subs: bool=True, tran
             info=_ytdlp_info(url or "", tmp)
             meta={"source":"url","url": url, "ytdlp": info.get("meta",{})}
             subs=info.get("subs","")
-            # ffprobe po media-URL my ne gonyaem; dlya korotkikh rolikov mozhno skachat audio, no ostavim kak is
+            # We don’t run fftests using media URLs; for short videos you can download audio, but we’ll leave it as is
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 

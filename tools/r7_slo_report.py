@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R7/tools/r7_slo_report.py — otchet po SLO na osnove jsonl-metrik.
+"""R7/tools/r7_slo_report.py - otchet po SLO na osnove jsonl-metrik.
 
 Mosty:
-- Yavnyy: Enderton — SLO kak formalnye predikaty (uspeshnost/latentnost) nad oknom nablyudeniy.
-- Skrytyy #1: Cover & Thomas — agregiruem «signal» (rc/ms), prevraschaya potok nablyudeniy v kratkiy Markdown.
+- Yavnyy: Enderton - SLO kak formalnye predikaty (uspeshnost/latentnost) nad oknom nablyudeniy.
+- Skrytyy #1: Cover & Thomas — agregiruem “signal” (rc/ms), prevraschaya potok nablyudeniy v kratkiy Markdown.
 - Skrytyy #2: Ashbi — A/B-slot cherez R7_MODE dlya dop. statistiki, pri oshibkakh — katbek.
 
 Zemnoy abzats (inzheneriya):
@@ -15,10 +14,9 @@ Chitaet `PERSIST_DIR/obs/metrics.jsonl`, filtruet po oknu `R7_SLO_WINDOW_DAYS`, 
       {"name":"cmd:r3_index", "match":{"cmd_has":"tools/r3_index_build.py"}, "slo":{"success_rate":0.95,"p95_ms":5000}}
     ]
   }
-Pishet Markdown-otchet s Pass/Fail. Bez vneshnikh zavisimostey.
+Write Markdown-otchet s Pass/Fail. No matter what.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, os, time, statistics
 from typing import Any, Dict, List
@@ -51,7 +49,7 @@ def _percentile(xs: List[float], p: float) -> float:
     return float(xs[k])
 
 def _match(rec: Dict[str, Any], rule: Dict[str, Any]) -> bool:
-    # Podderzhivaem tolko prostye usloviya: cmd_has, tag_eq, name_eq
+    # Supports only simple conditions: smd_us, tag_ek, name_ek
     m = rule or {}
     if "cmd_has" in m:
         cmd = " ".join([str(x) for x in (rec.get("cmd") or [])])
@@ -73,7 +71,7 @@ def _within_window(ts: float, days: int) -> bool:
 def main() -> int:
     ap = argparse.ArgumentParser(description="SLO report over metrics.jsonl")
     ap.add_argument("--config", required=True, help="JSON-fayl s tselyami SLO")
-    ap.add_argument("--out", default="-", help="Put Markdown otcheta ili '-'")
+    ap.add_argument("--out", default="-", help="Path Markdovn report or b-b")
     args = ap.parse_args()
 
     cfg = json.load(open(args.config, "r", encoding="utf-8"))

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_forge_routes.py - REST: dry-run i apply dlya samofordzha.
+"""routes/self_forge_routes.py - REST: dry-run i apply dlya samofordzha.
 
 Mosty:
 - Yavnyy: (Veb ↔ Samoizmenenie) dostup k ostorozhnoy zapisi faylov.
-- Skrytyy #1: (CautionNet ↔ Bezopasnost) fakticheskaya zapis zaschischena «pilyuley».
+- Skrytyy #1: (CautionNet ↔ Bezopasnost) fakticheskaya zapis zaschischena “pilyuley”.
 - Skrytyy #2: (Ekonomika ↔ Uchet) zdes mozhno v buduschem vnosit operatsii v ledger.
 
 Zemnoy abzats:
 Snachala primerili, potom - zapisali (esli soznatelno podtverdili).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

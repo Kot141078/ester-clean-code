@@ -1,9 +1,7 @@
 
 # -*- coding: utf-8 -*-
-"""
-ester/routes/favicon_routes.py — minimalnyy obrabotchik /favicon.ico (namespace-put).
-c=a+b
-"""
+"""ester/rutes/favicon_rutes.po - minimal handler /favicon.iso (namespace-path).
+c=a+b"""
 from __future__ import annotations
 from io import BytesIO
 from flask import Blueprint, send_file, Response

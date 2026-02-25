@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/showtime_routes.py - REST/UI dlya pokaza gotovykh stsenariev ("showtime").
+"""routes/showtime_routes.py - REST/UI dlya pokaza gotovykh stsenariev ("showtime").
 
 Ruchki:
-  GET  /showtime/list
+  GET /showtime/list
   POST /showtime/run {"name":"Notepad demo"}
-  GET  /admin/showtime
+  GET /admin/showtime
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.showtime.presets import list_presets, run_preset

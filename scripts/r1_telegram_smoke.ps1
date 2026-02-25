@@ -1,6 +1,6 @@
-# R1/scripts/r1_telegram_smoke.ps1 — obertka smouka Telegram dlya Windows PowerShell
-# Mosty: (Yavnyy) Enderton — predikaty; (Skrytye) Ashbi — prostoy regulyator; Cover&Thomas — minimizatsiya neopredelennosti.
-# Zemnoy abzats: proverka webhook/ctrl bez realnogo Telegram, tolko lokalnye vyzovy.
+# P1/skripts/p1_telegram_stoke.ps1 - Smoke Telegram wrapper for Windows PowerShell
+# Bridges: (Explicit) Enderton - predicates; (Hidden) Ashby is a simple regulator; Carpet&Thomas - minimizing uncertainty.
+# Earthly paragraph: checking webhook/strl without real Telegram, only local calls.
 # c=a+b
 
 python tests/r1_telegram_smoke.py

@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""file_ingest.py — minimalnyy ingest bez vneshnikh zavisimostey.
+"""file_ingest.py - minimalnyy ingest bez vneshnikh zavisimostey.
 
 Zachem:
 - Nekotorye moduli ozhidayut `from file_ingest import ingest_file`.
-- V proekte est `services/ingest/file_ingestor.py`, no eto drugoy modul i s zavisimostyami.
+- V proekte est `services/ingest/file_ingestor.py`, no eto drugoy modul i s dependent.
 - Etot shim delaet sistemu samodostatochnoy: tekstovye fayly chitayutsya i rezhutsya na chanki.
 
 Podderzhka (best-effort):
 - .txt/.md/.markdown/.log/.json/.yaml/.yml/.py/.csv
 - .html/.htm (gruboe udalenie tegov)
-- .pdf (esli ustanovlen pypdf)
-- .docx (esli ustanovlen python-docx)
+- .pdf (if ustanovlen pypdf)
+- .docx (if ustanovlen python-docx)
 
 API:
 - ingest_file(path, chunk_size=1200, max_chars=200_000) -> list[str]
@@ -21,11 +21,10 @@ API:
 Mosty:
 - Yavnyy: fayl → normalizatsiya → chanki → dalshe v pamyat/vektorizatsiyu.
 - Skrytye:
-  1) Infoteoriya ↔ shumoustoychivost: max_chars ogranichivaet kanal, ne daet «zalit» pamyat musorom.
-  2) Inzheneriya ↔ ekspluatatsiya: best-effort dlya pdf/docx — modul ne padaet, a degradiruet.
+  1) Infoteoriya ↔ shumoustoychivost: max_chars ogranichivaet kanal, ne daet “zalit” pamyat musorom.
+  2) Inzheneriya ↔ ekspluatatsiya: best-effort dlya pdf/docx - modul ne padaet, a degradiruet.
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 import os
 import re
@@ -136,7 +135,7 @@ def ingest_file(path: str, chunk_size: int = 1200, max_chars: int = 200_000) -> 
         raw = _read_docx(p)
 
     else:
-        # neizvestnyy format — probuem kak tekst
+        # unknown format - try as text
         try:
             raw = p.read_text(encoding="utf-8", errors="replace")
         except Exception:
@@ -150,8 +149,6 @@ def ingest_file(path: str, chunk_size: int = 1200, max_chars: int = 200_000) -> 
 __all__ = ["ingest_file", "ingest_text"]
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Ingest — eto kak pervichnyy osmotr patsienta: my ne delaem MRT kazhdoy bumazhke, no snimaem osnovnye pokazateli,
-chtoby dalshe mozhno bylo lechit/analizirovat. Glavnoe — ne dopustit “peredozirovki” vkhodom: poetomu max_chars i chanki.
-"""
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Ingest - eto kak pervichnyy osmotr patsienta: my ne delaem MRT kazhdoy bumazhke, no snimaem osnovnye pokazateli,
+chtoby dalshe mozhno bylo lechit/analizirovat. Glavnoe - ne dopustit “peredozirovki” vkhodom: poetomu max_chars i chanki."""

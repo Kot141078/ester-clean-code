@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/observa_routes.py - /healthz, /metrics i prostaya panel nablyudaemosti.
+"""routes/observa_routes.py - /healthz, /metrics i prostaya panel nablyudaemosti.
 
 Mosty:
 - Yavnyy: (Operatsii ↔ Nablyudaemost) bystryy srez sostoyaniya bez vneshnikh sistem.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Vyzhivanie ↔ Signaly) v buduschem syuda udobno prikrutit alerty.
 
 Zemnoy abzats:
-Eto «termometr i puls»: esli temperatura vyshla za ramki - lechim, poka ne pozdno.
+Eto “termometr i puls”: esli temperatura vyshla za ramki - lechim, poka ne pozdno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, shutil, json
 from flask import Blueprint, jsonify, render_template

@@ -7,6 +7,6 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def test_rbac_audit_passes(tmp_path):
-    # Pri zhelanii mozhno podmenit matritsu cherez ENV/vremennyy fayl
+    # If desired, you can replace the matrix via ENV/temporary file
     rc = rbac_main(app)
     assert rc == 0

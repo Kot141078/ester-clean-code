@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_p2p_cron_affect.py — eksheny «voli» dlya P2P Bloom, Cron i Affect-Reflect.
+"""modules/thinking/actions_p2p_cron_affect.py - eksheny "voli" dlya P2P Bloom, Cron i Affect-Reflect.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Set/Nochnye raboty/Refleksiya) daet korotkie komandy dlya vnutrennikh protsessov.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (SelfCatalog ↔ Opis) poyavyatsya v spiske vozmozhnostey.
 
 Zemnoy abzats:
-Komandy «na konchikakh paltsev»: «videli li etot id?», «zapusti nochnoy snapshot», «podumay o samom vazhnom».
+Komandy “na konchikakh paltsev”: “videli li etot id?”, “zapusti nochnoy snapshot”, “podumay o samom vazhnom”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from typing import Any, Dict

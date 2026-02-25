@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/video_thinking_routes.py — «kryuchki» dlya myslitelnogo konveyera:
+"""routes/video_thinking_routes.py - “kryuchki” dlya myslitelnogo konveyera:
   - POST /thinking/video/autosearch {topic, limit?} v†' ytsearch + ingest
-  - GET  /thinking/video/rules/example v†' JSON-shablon pravila
+  - GET /thinking/video/rules/example v†' JSON-template pravila
 
 Mosty:
 - Yavnyy: (Myshlenie v†" Proaktiv) Thinking-payplayn poluchaet prostuyu HTTP-ruchku dlya zapuska video-poiska po teme.
 - Skrytyy #1: (Infoteoriya v†" Memory) R ezultaty idut cherez ingest yadro Re skladyvayutsya v pamyat/KG, dostupny dlya RAG.
-- Skrytyy #2: (Kibernetika v†" Kontrol) Bneshniy vyzov s limitami — reguliruem obem pritoka (norma reaktsii).
+- Skrytyy #2: (Kibernetika v†" Kontrol) Bneshniy vyzov s limitami - reguliruem obem pritoka (norma reaktsii).
 
 Zemnoy abzats:
-Eto kak «pischalka» na paneli mozga: mysl voznikla — nazhali — master probezhal sklad, prines svezhie yaschiki (video-konspekty).
+Eto kak "pischalka" na paneli mozga: mysl voznikla - nazhali - master probezhal sklad, prines svezhie yaschiki (video-konspekty).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, Optional
@@ -48,10 +46,8 @@ def thinking_autosearch():
 
 @bp_thinking_video.route("/thinking/video/rules/example", methods=["GET"])
 def thinking_rules_example():
-    """
-    Primer pravila dlya thinking_pipeline (podklyuchi v suschestvuyuschiy dvizhok pravil):
-    - Esli v soobschenii vstrechaetsya tema X — zapustit avtopoisk video po X (limit 2), zatem otdat kratkuyu vyzhimku.
-    """
+    """Primer pravila dlya thinking_pipeline (podklyuchi v suschestvuyuschiy dvizhok pravil):
+    - Esli v soobschenii vstrechaetsya tema X — zapustit avtopoisk video po X (limit 2), zatem otdat kratkuyu vyzhimku."""
     rule = {
         "name": "video_autosearch_on_topic",
         "when": {"kind": "text_contains_topic", "min_len": 8},
@@ -59,7 +55,7 @@ def thinking_rules_example():
             {"kind": "http_post", "url": "/thinking/video/autosearch", "json": {"topic": "{{topic}}", "limit": 2}},
             {"kind": "summarize", "hint": "video"},
         ],
-        "notes": "Podklyuchite v vash thinking_pipeline soglasno ego kontraktu pravil."
+        "notes": "Connect to your thinking_pipeline according to its rules contract."
     }
     return jsonify({"ok": True, "rule": rule})
 

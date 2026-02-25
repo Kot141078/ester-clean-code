@@ -4,11 +4,10 @@
 Goryachiy fiks: garantiruet nalichie routes/memory_experience_routes_alias.py
 i korrektnogo paketa routes, ne trogaya suschestvuyuschie fayly, esli oni uzhe est.
 
-Invarianty:
+Invariance:
 - Drop-in.
 - Ne perezapisyvaet suschestvuyuschiy alias, tolko sozdaet pri otsutstvii.
-- Sozdaet routes/__init__.py, esli ego ne bylo (bezopasno).
-"""
+- Sozdaet routes/__init__.py, esli ego ne bylo (safe)."""
 
 from __future__ import annotations
 
@@ -20,9 +19,9 @@ ALIAS_SOURCE = '''# -*- coding: utf-8 -*-\n"""routes/memory_experience_routes_al
 
 HTTP-alias dlya chteniya profilya opyta Ester.
 
-Invarianty:
+Invariance:
 - Drop-in.
-- Ispolzuet suschestvuyuschiy sloy `modules.memory.experience`.
+- Ispolzuet suschestvuyuschiy layer `modules.memory.experience`.
 - Tolko chtenie, bez pobochnykh effektov.
 """
 
@@ -32,10 +31,10 @@ from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 try:
-    from modules.memory import experience  # type: ignore
-except Exception as e:  # pragma: no cover
+    from modules.memory import experience # type: ignore
+except Exception as e: # pragma: no cover
     _experience_import_error = e
-    experience = None  # type: ignore
+    experience = None # type: ignore
 else:
     _experience_import_error = None
 
@@ -45,7 +44,7 @@ bp = Blueprint("memory_experience_alias", __name__)
 @bp.route("/memory/experience/profile", methods=["GET"])
 def memory_experience_profile():
     """Vernut tekuschiy profil opyta."""
-    if experience is None:  # pragma: no cover
+    if experience is None: # pragma: no cover
         return (
             jsonify(
                 {
@@ -58,7 +57,7 @@ def memory_experience_profile():
 
     try:
         profile = experience.build_experience_profile()
-    except Exception as e:  # pragma: no cover
+    except Exception as e: # pragma: no cover
         return (
             jsonify(
                 {
@@ -74,8 +73,7 @@ def memory_experience_profile():
             "ok": bool(profile.get("ok", False)),
             "profile": profile,
         }
-    )
-'''
+    )'''
 
 
 def main() -> None:

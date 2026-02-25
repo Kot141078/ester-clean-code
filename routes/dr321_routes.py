@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/dr321_routes.py - REST dlya offsayt-rezerva (3-2-1).
+"""routes/dr321_routes.py - REST dlya offsayt-rezerva (3-2-1).
 
 Mosty:
-- Yavnyy: (Veb ↔ DR) zapustit rezerv, pokazat spisok, vernut arkhiv obratno.
+- Yavnyy: (Veb ↔ DR) zapustit rezerv, pokazat spisok, vernut arkhiv back.
 - Skrytyy #1: (Audit ↔ Prozrachnost) vse cherez JSON; legko avtomatizirovat po cron/planirovschiku.
-- Skrytyy #2: (Vyzhivanie ↔ Samosoborka) vmeste s self/rollback zakryvaet «podnyatsya posle padeniya».
+- Skrytyy #2: (Vyzhivanie ↔ Samosoborka) vmeste s self/rollback zakryvaet “podnyatsya after padeniya”.
 
 Zemnoy abzats:
 Odin klik - i kopiya na drugom diske/uzle gotova.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from flask import Blueprint, jsonify, request

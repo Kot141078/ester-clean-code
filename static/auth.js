@@ -32,9 +32,9 @@
       const token = js.token;
       localStorage.setItem("jwt", token);
       localStorage.setItem("user_name", name);
-      setStatus("✅ Gotovo.\nImya: " + name + "\nRoli: " + js.roles.join(", ") + "\nJWT sokhranen v localStorage.jwt\n\nMozhno otkryt /portal.");
+      setStatus("✅ Gotovo.\nImya: " + name + "\nRoli: " + js.roles.join(", ") + "ZhVT saved in localStorage.zhvt\n\nYou can open /portal.");
     } catch (e) {
-      setStatus("❌ Oshibka vypuska tokena: " + e.message, false);
+      setStatus("❌ Oshibka vypuska tokena:" + e.message, false);
     } finally {
       btn.disabled = false;
     }

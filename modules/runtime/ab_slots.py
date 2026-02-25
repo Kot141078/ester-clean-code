@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/runtime/ab_slots.py — A/B-sloty komponentov s TTL i avto-otkatom (sovmestimostnyy fasad).
+"""modules/runtime/ab_slots.py - A/B-sloty komponentov s TTL i avto-otkatom (sovmestimostnyy fasad).
 
 Mosty:
 - Yavnyy: (Sloty komponentov ↔ Edinoe yadro) API sokhranen, realizatsiya unifitsirovana cherez ab_unified.
@@ -8,9 +7,8 @@ Mosty:
 - Skrytyy #2: (Planirovschik ↔ Avtomatika) sweep_expired mozhno vyzyvat iz kron/planirovschika.
 
 Zemnoy abzats:
-Fasad ostavlyaet prezhnie funktsii i peremennye, no pod kapotom odin dvizhok — menshe raskhozhdeniy i bagov.
-# c=a+b
-"""
+Fasad ostavlyaet prezhnie funktsii i peremennye, no pod kapotom odin dvizhok - menshe raskhozhdeniy i bagov.
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -27,7 +25,7 @@ from .ab_unified import (
     comp_sweep_expired as _sweep,
 )
 
-# Sokhranenie starykh «globalov» dlya obratnoy sovmestimosti
+# Preserving old "globals" for backwards compatibility
 DB = os.getenv("RUNTIME_AB_DB", _DB)
 TTL = int(os.getenv("RUNTIME_AB_DEFAULT_TTL_SEC", str(_TTL)) or str(_TTL))
 HEALTH = os.getenv("RUNTIME_HEALTH_URL", _HEALTH)

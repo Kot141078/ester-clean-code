@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-routes/guide_ffmpeg_routes.py - eksport MP4+TTS (lokalno).
+"""rutes/guide_ffmpeg_rutes.po - export of MPCh+TC (locally).
 
-Ruchki:
-  POST /guide/ffmpeg/make {"name":"guide_demo","text":"Shag odin..."} -> {folder, scripts, voice:bool}
+Handles:
+  POST /guide/ffmpeg/make ZZF0Z -> ZZF1ZZ
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.export.guide_ffmpeg import make

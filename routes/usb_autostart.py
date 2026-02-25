@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/usb_autostart.py — UI/REST dlya upravleniya avtozapuskom USB-agenta.
+"""routes/usb_autostart.py - UI/REST dlya upravleniya avtozapuskom USB-agenta.
 
-Marshruty:
-  • GET  /admin/usb/autostart             — HTML
-  • GET  /admin/usb/autostart/status      — JSON: status, tekuschiy plan
-  • POST /admin/usb/autostart/install     — ustanovit (AB=A v†' dry)
-  • POST /admin/usb/autostart/uninstall   — udalit (AB=A v†' dry)
+Route:
+  • GET /admin/usb/autostart - HTML
+  • GET /admin/usb/autostart/status - JSON: status, tekuschiy plan
+  • POST /admin/usb/autostart/install — ustanovit (AB=A v†' dry)
+  • POST /admin/usb/autostart/uninstall — udalit (AB=A v†' dry)
 
 Mosty:
-- Yavnyy (Kibernetika v†" UX): odna panel «vkl/vykl» avtozapuska.
+- Yavnyy (Kibernetika v†" UX): odna panel “vkl/vykl” avtozapuska.
 - Skrytyy 1 (Infoteoriya v†" Nadezhnost): vyvodim plan Re artefakty, chtoby vse prozrachno.
 - Skrytyy 2 (Praktika v†" Vezopasnost): A-rezhim ne pishet v sistemu.
 
 Zemnoy abzats:
-Knopka «Postavit dezhurnuyu sestru na post»: vklyuchil — ona sama nachnet obkhody pri vkhode v sistemu.
+Knopka “Postavit dezhurnuyu sestru na post”: vklyuchil - ona sama nachnet obkhody pri vkhode v sistemu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -52,7 +50,7 @@ def api_uninstall():
     return jsonify({"ok": bool(rep.get("ok")), "ab": AB, "plan": _simplify(plan), "result": rep})
 
 def _simplify(plan):
-    # udobnyy vid dlya UI
+    # convenient view for user interface
     arts = [{"path": str(a.path), "kind": a.kind} for a in plan.get("artifacts", [])]
     return {"os": plan.get("os"), "artifacts": arts, "commands": plan.get("commands")}
     

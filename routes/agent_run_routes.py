@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/agent_run_routes.py - zapusk/stop ispolnitelya plana.
+"""routes/agent_run_routes.py - zapusk/stop ispolnitelya plana.
 
 Ruchki:
-  POST /agent/run   {"max_steps":200,"step_timeout_ms":4000}
-  POST /agent/stop  {}
-  GET  /agent/status
-  GET  /admin/agent_run
+  POST /agent/run {"max_steps":200,"step_timeout_ms":4000}
+  POST /agent/stop {}
+  GET /agent/status
+  GET /admin/agent_run
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.act.runner import run as run_exec, stop as run_stop, status as run_status

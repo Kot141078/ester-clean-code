@@ -9,10 +9,8 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 IDEAS_STORE = os.path.join("memory", "ideas.jsonl")
 
 class IdeaEngine:
-    """
-    Modul fiksatsii i razvitiya idey.
-    Pozvolyaet Ester ne prosto khranit mysli Owner, no i prioritizirovat ikh.
-    """
+    """Module for capturing and developing ideas.
+    Allows Esther not only to store Ovner’s thoughts, but also to prioritize them."""
     def __init__(self, graph=None):
         self.graph = graph
         self._ensure_storage()
@@ -21,7 +19,7 @@ class IdeaEngine:
         os.makedirs(os.path.dirname(IDEAS_STORE), exist_ok=True)
 
     def add_idea(self, text: str, author: str, tags: List[str] = None, priority: int = 1) -> str:
-        """Dobavit novuyu ideyu v inkubator."""
+        """Add a new idea to the incubator."""
         idea_id = f"idea_{int(time.time())}"
         payload = {
             "id": idea_id,
@@ -37,7 +35,7 @@ class IdeaEngine:
         with open(IDEAS_STORE, "a", encoding="utf-8") as f:
             f.write(json.dumps(payload, ensure_ascii=False) + "\n")
             
-        # Esli podklyuchen graf znaniy — sozdaem uzel idei
+        # If the knowledge graph is connected, it creates an idea node
         if self.graph:
             self.graph.add_entity(idea_id, "idea", {"text": text[:50], "priority": priority})
             self.graph.add_relation(author, idea_id, "dreamed_up")
@@ -45,7 +43,7 @@ class IdeaEngine:
         return idea_id
 
     def list_ideas(self, tag: Optional[str] = None, min_priority: int = 0) -> List[Dict]:
-        """Poluchit spisok idey dlya revyu (naprimer, vo vremya 'nochnykh razmyshleniy' Ester)."""
+        """Get a list of ideas for review (for example, during Esther's nightly reflections)."""
         if not os.path.exists(IDEAS_STORE): return []
         
         results = []
@@ -58,7 +56,7 @@ class IdeaEngine:
         return results
 
     def update_idea_status(self, idea_id: str, new_status: str):
-        """Perevesti ideyu v status 'v rabote' ili 'arkhiv'."""
+        """Transfer the idea to the status “in work” or “archive”."""
         if not os.path.exists(IDEAS_STORE): return
         
         temp_file = IDEAS_STORE + ".tmp"
@@ -71,5 +69,5 @@ class IdeaEngine:
                 out.write(json.dumps(data, ensure_ascii=False) + "\n")
         os.replace(temp_file, IDEAS_STORE)
 
-# Primer ispolzovaniya dlya Ester
+# Example use for Esther
 # ideas = IdeaEngine(graph=my_graph)

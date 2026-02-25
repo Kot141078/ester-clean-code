@@ -28,7 +28,7 @@ if (Test-Path $src1) {
   Write-Warning "sitecustomize.py not found in scripts\ or root. Nothing to do."
 }
 
-# Proverka zagruzki i aliasov discover
+# Checking downloads and discovery aliases
 $py = Join-Path $root ".venv\Scripts\python.exe"
 if (-not (Test-Path $py)) { $py = "python" }
 $code = @'

@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/run_decay_gc.py — CLI dlya zapuska ubyvaniya vesov i GC grafa znaniy.
+"""scripts/run_decay_gc.py - CLI dlya zapuska ubyvaniya vesov i GC grafa znaniy.
 
 Primery:
   python -m scripts.run_decay_gc --json
-  PERSIST_DIR=./data python scripts/run_decay_gc.py --half-life 432000 --edge-th 0.1 --json
-"""
+  PERSIST_DIR=./data python scripts/run_decay_gc.py --half-life 432000 --edge-th 0.1 --json"""
 
 from __future__ import annotations
 
@@ -37,7 +35,7 @@ def main(argv=None) -> int:
         type=float,
         default=float(os.getenv("GC_NODE_MIN_AGE_S", 3 * 24 * 3600)),
     )
-    p.add_argument("--json", action="store_true", help="Pechatat otchet v JSON")
+    p.add_argument("--json", action="store_true", help="Print a report in ZhSON")
 
     a = p.parse_args(argv)
     rules = DecayRules(

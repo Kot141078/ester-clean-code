@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-routes/interactive_playback_routes.py - REST/UI dlya interaktivnogo pleybeka.
+"""routes/interactive_playback_routes.py - REST/UI dlya interaktivnogo playbeka.
 
 Ruchki:
-  POST /iplay/load  {"steps":[...]}
+  POST /iplay/load {"steps":[...]}
   POST /iplay/start {}
-  POST /iplay/pause {}
+  POST /iplay/pause{}
   POST /iplay/resume {}
   POST /iplay/stop {}
   POST /iplay/next {}
   POST /iplay/prev {}
-  GET  /iplay/status
-  GET  /admin/playback
+  GET /iplay/status
+  GET /admin/playback
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.coop.interactive_playback import load as iload, start as istart, pause as ipause, resume as iresume, stop as istop, next_step as inext, prev_step as iprev, status as istatus

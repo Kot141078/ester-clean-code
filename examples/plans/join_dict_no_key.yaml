@@ -26,6 +26,6 @@ nodes:
       file: "{{item.file}}"
       mark: "{{ctx.mark}}"
     mode: dict
-    # key_field ne ukazan — imena vetok budut klyuchami
+    # key_field is not specified - branch names will be keys
     await_nodes: ["annotate"]
     depends: ["annotate"]

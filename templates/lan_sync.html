@@ -25,9 +25,9 @@
 
   <section>
     <div class="row">
-      <label><input type="checkbox" id="send"/> Rassylat priglasheniya (tolko pri AB=B + klyuch)</label>
+      <label><input type="checkbox" id="send"/> Send invitations (only with AB=B + key)</label>
       <label><input type="checkbox" id="listen" checked/> Slushat LAN</label>
-      <label><input type="checkbox" id="telegram"/> Telegram (esli nastroen)</label>
+      <label><input type="checkbox" id="telegram"/> Telegram (if configured)</label>
       <button onclick="apply()">Save</button>
       <label>Interval: <input id="interval" type="number" value="2" min="1" style="width:80px"/></label>
       <button onclick="start()">Start</button>
@@ -57,16 +57,16 @@
   </section>
 
   <section>
-    <h3>Vkhodyaschie priglasheniya</h3>
+    <h3>Incoming invitations</h3>
     <table id="inbox"><thead><tr><th>Istochnik</th><th>Proekt</th><th>TS</th><th>Podpis</th><th>Deystviya</th></tr></thead><tbody></tbody></table>
   </section>
 
   <section>
-    <h3>Zhurnal sinkhronizatsiy</h3>
+    <h3>Synchronization log</h3>
     <div class="row">
       <input id="projectFilter" placeholder="filtr po proektu (opts.)"/>
       <label>Khvost: <input id="limit" type="number" value="200" min="10" style="width:80px"/></label>
-      <button onclick="loadJournal()">Obnovit zhurnal</button>
+      <button onclick="loadJournal()">Update log</button>
     </div>
     <pre id="journal" class="mono">—</pre>
   </section>
@@ -174,7 +174,7 @@ async function loadJournal(){
   const pf = document.getElementById('projectFilter').value.trim();
   const url = '/admin/lan/journal?limit='+encodeURIComponent(limit)+(pf?('&project='+encodeURIComponent(pf)):'');
   const r = await fetch(url);
-  const j = await r.json().catch(()=>({ok:false, text: 'Oshibka zagruzki zhurnala'}));
+  const j = await r.json().catch(()=>({ok:false, text: 'Log loading error'}));
   document.getElementById('journal').textContent = j.ok ? j.text : j.text;
 }
 

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/cron/scheduler_light.py — «legkiy planirovschik»: nabor imenovannykh shagov i ruchnoy zapusk «nochnykh protsedur».
+"""modules/cron/scheduler_light.py - “legkiy planirovschik”: nabor imenovannykh shagov i ruchnoy zapusk “nochnykh protsedur”.
 
 Mosty:
 - Yavnyy: (Operatsii ↔ Reglament) heal/compact/snapshot/validate + passport + kg_link.
 - Skrytyy #1: (Nadezhnost ↔ Kontrol) bez skrytykh demonov: vse po yavnomu vyzovu.
-- Skrytyy #2: (Vyzhivanie ↔ Memory) regulyarnaya gigiena ne daet indeksu «zarastat».
+- Skrytyy #2: (Vyzhivanie ↔ Memory) regulyarnaya gigiena ne daet indeksu “zarastat”.
 
 Zemnoy abzats:
-Eto kak nochnaya uborka: po knopke — podmesti, upakovat, proverit.
+Eto kak nochnaya uborka: po knopke - podmesti, upakovat, proverit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict, List
 import os, time
@@ -55,7 +53,7 @@ def snapshot() -> Dict[str,Any]:
     except Exception:
         return _fail("snapshot","requests_missing")
     try:
-        # ispolzuem uzhe suschestvuyuschuyu ruchku iz paketov SelfPack
+        # we use an existing handle from SelfPak packages
         r = requests.post("http://localhost:8000/self/pack/snapshot", json={"note":"nightly"}).json()
         return _ok("snapshot", r)
     except Exception as e:

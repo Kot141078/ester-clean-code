@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# S0/scripts/gen_jwt_secret.sh — udobnaya obertka generatsii sekreta dlya *nix
-# Mosty: (Yavnyy) Enderton — proveryaemost usloviy; (Skrytye) Ashbi — prostoy regulyator; Dzheynes — apriory bezopasnosti.
-# Zemnoy abzats: pishem v .env tolko po flagu; bezopasno dlya CI/lokalki.
+# С0/skripts/gen_zhvt_secret.sh - a convenient secret generation wrapper for *them
+# Bridges: (Explicit) Enderton - testability of conditions; (Hidden) Ashby is a simple regulator; Janes is a priori of safety.
+# Earthly paragraph: we write in .env only by flag; safe for SI/LAN.
 # c=a+b
 
 set -euo pipefail

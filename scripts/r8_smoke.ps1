@@ -1,5 +1,5 @@
 # R8/scripts/r8_smoke.ps1 — offlayn-smoke bezopasnosti/reliza
-# Mosty: (Yavnyy) Enderton; (Skrytye) Ashbi; Cover&Thomas.
+# Bridges: (Explicit) Enderton; (Hidden) Ashby; Carpet&Thomas.
 # Zemnoy abzats: gotovit sec_report.md i bundle.
 # c=a+b
 

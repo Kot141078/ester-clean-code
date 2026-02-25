@@ -1,26 +1,26 @@
 # Agent OS Operator Notes
 
-## Kak Ester prosit sebe agenta
+## How Esther asks for an agent
 
-1. Vybrat shablon (`template_id`) iz `/debug/garage/templates`.
-2. Peredat tsel (`goal`) i imya (`name`) pri neobkhodimosti.
-3. Sozdat cherez `tools/garage_make_agent.py` ili `POST /debug/garage/agents/create_from_template`.
-4. Proverit `plan.json` i `README_agent.txt` v papke agenta.
+1. Select a template (yemplate_idyo) from e/debug/garage/templatesyo.
+2. Send the purpose (yogoalyo) and name (yonameyo) if necessary.
+3. Create via itools/garage_make_agent.pie or ePOST/debug/garage/agents/create_from_template.
+4. Check eplan.jsonyo and eREADME_agent.txto in the agent folder.
 
-## Kak Owner prosit Ester sdelat agenta
+## How Ovner asks Esther to become an agent
 
-1. Utochnit tip zadachi (arkhivirovat, postroit plan, sobrat artefakt, proverit).
-2. Vybrat blizhayshiy shablon iz pack v1.
-3. Peredat chelovekochitaemuyu tsel v `--goal` (ili `goal` v API).
-4. Zapustit `run_once` v bezopasnom rezhime i proverit outbox/journal.
+1. Specify the type of task (archive, build a plan, collect an artifact, check).
+2. Select the closest template from Pask v1.
+3. Pass a human-readable target to yo-goal (or yo-goal to API).
+4. Launch euron_onsey in safe mode and check the box/log.
 
-## Chto vklyuchat dlya oracle/comm i pochemu eto opasno
+## What to enable for Oracle/Sums and why it is dangerous
 
-- Po umolchaniyu `oracle` i `comm` vyklyucheny.
-- Dlya `oracle` nuzhno odnovremenno:
+- By default, yooracleyo and yokommyo are disabled.
+- For the Oracle you need to simultaneously:
   - vklyuchit `enable_oracle`,
   - otkryt oracle window,
   - proyti Volition allow.
-- Dlya `comm` nuzhno vklyuchit `enable_comm` i imet razreshennoe comm window.
-- Risk: setevye deystviya rasshiryayut poverkhnost ataki i mogut narushit offline-first profil; poetomu trebuetsya yavnoe okno i prichina.
+- For yokommyo you need to enable yoenable_kommyo and have windows comm enabled.
+- Risk: network activities expand the attack surface and may disrupt the offline first profile; therefore an explicit window and reason is required.
 

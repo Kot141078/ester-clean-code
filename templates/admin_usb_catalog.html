@@ -64,7 +64,7 @@ function row(it){
     <td>${esc(it.kind||"-")}</td>
     <td>${esc(it.title||"-")}</td>
     <td><code>${esc(it.src_rel||"-")}</code></td>
-    <td><input id="dest_${uid}" value="${dest}" placeholder="naznachenie (pusto=rekomendatsiya)" style="width:100%"/></td>
+    <td><input id="dest_${uid}" value="${dest}" placeholder="destination (empty=recommendation)" style="width:100%"/></td>
     <td>${alias?("<code>"+alias+"</code>"):"—"}</td>
   </tr>`;
 }
@@ -77,7 +77,7 @@ function table(items){
 }
 async function scan(){
   const r = await fetch('/admin/usb_catalog/status'); const j = await r.json().catch(()=>({ok:false}));
-  if(!j.ok){ alert("USB ne nayden ili otklyucheno"); return; }
+  if(!j.ok){ alert("USB not found or disabled"); return; }
   CATALOG = (j.catalog||{}).items||[];
   document.getElementById('list').innerHTML = table(CATALOG);
   document.getElementById('wl').textContent = "whitelist: " + (j.whitelist||"-");
@@ -101,7 +101,7 @@ async function preview(){
 }
 async function doImport(){
   const planText=document.getElementById('plan').textContent||"";
-  let planObj=null; try{ planObj=JSON.parse(planText); }catch(e){ alert("Snachala sdelay predprosmotr"); return; }
+  let planObj=null; try{ planObj=JSON.parse(planText); }catch(e){ alert("Preview first"); return; }
   const r=await fetch('/admin/usb_catalog/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(planObj)});
   const j=await r.json().catch(()=>({ok:false}));
   document.getElementById('res').textContent = j.ok ? "OK" : "ERR";

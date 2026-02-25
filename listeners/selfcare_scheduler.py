@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/selfcare_scheduler.py — periodicheskiy self-check, zapis istorii i avto-pochinka po pravilam.
+"""listeners/selfcare_scheduler.py - periodicheskiy self-check, zapis istorii i avto-pochinka po pravilam.
 
-Povedenie:
-  • Kazhdye SELFCARE_INTERVAL_MIN min. stroit otchet build_report(deep=every N).
+Behavior:
+  • Kazhdye SELFCARE_INTERVAL_MIN min. build report build_report(deep=every N).
   • Khranit istoriyu v ~/.ester/diagnostics/history/YYYY-MM-DD.ndjson (max SELFCARE_MAX_REPORTS rotatsiya).
   • Vychislyaet plan pravil i (esli AB=B i SELFCARE_AUTOFIX_ENABLE=1) zapuskaet deystviya.
-  • Lyubye oshibki — myagko logiruyutsya v stdout, protsess prodolzhaet rabotu.
+  • Lyubye oshibki - myagko logiruyutsya v stdout, protsess prodolzhaet rabotu.
 
 Mosty:
-- Yavnyy (Nablyudenie ↔ Deystvie): periodika prevraschaet «ruchnuyu» tekhpanel v avtomaticheskiy ukhod.
+- Yavnyy (Nablyudenie ↔ Deystvie): periodika prevraschaet “ruchnuyu” tekhpanel v avtomaticheskiy ukhod.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): ndjson-istoriya legko analiziruetsya offlayn.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): stdlib, drop-in; uvazhenie AB i flagov.
 
 Zemnoy abzats:
-Eto «dezhurnyy mekhanik»: regulyarno smotrit pribory i krutit ruchki po instruktsii — bez lishney dramy.
+This is “dezhurnyy mekhanik”: regulyarno smotrit pribory i krutit ruchki po instruktsii - bez lishney drama.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, os, sys, time
 from pathlib import Path
@@ -42,10 +40,10 @@ def _append_history(obj: Dict[str, Any]) -> None:
     f.parent.mkdir(parents=True, exist_ok=True)
     with f.open("a", encoding="utf-8") as w:
         w.write(json.dumps(obj, ensure_ascii=False) + "\n")
-    # grubaya rotatsiya po kolichestvu strok/faylov
+    # rough rotation by number of lines/files
     maxrep = max(100, int(os.getenv("SELFCARE_MAX_REPORTS","500")))
-    # ne chitaem ves fayl — tolko esli ochen bolshoy, sozdadim novyy na sleduyuschiy den
-    # (prostaya rotatsiya po dnyam uzhe ogranichivaet rost)
+    # does not read the entire file - only if it is very large, we will create a new one the next day
+    # (simple rotation by day already limits growth)
 
 def _run_actions(plan: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     results=[]
@@ -84,7 +82,7 @@ def main(argv=None) -> int:
             results = []
             if AB == "B" and autofix and actions:
                 results = _run_actions(actions)
-            # korotkiy log v stdout (dlya journalctl/console)
+            # short syllable in stdout (for logchtl/console)
             print(json.dumps({"ts": int(time.time()), "deep": deep, "ab": AB, "planned": len(actions), "executed": len(results)}), flush=True)
             i += 1
             if not args.loop: break

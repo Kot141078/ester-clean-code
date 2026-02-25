@@ -15,10 +15,10 @@
 
 <section class="card" style="margin-bottom:12px">
   <div class="row" style="gap:8px;margin-bottom:8px">
-    <button class="btn" onclick="bkList()">Pokazat snimki</button>
+    <button class="btn" onclick="bkList()">Show pictures</button>
     <button class="btn" onclick="bkRun()">Sdelat bekap</button>
     <button class="btn" onclick="bkVerify()">Verify</button>
-    <input id="bkId" class="input" placeholder="snapshot id dlya vosstanovleniya">
+    <input id="bkId" class="input" placeholder="snapshot ID for recovery">
     <button class="btn" onclick="bkRestore()">Vosstanovit</button>
     <div class="spacer"></div>
     <button class="btn" onclick="openNew('/ops/backup')">Otkryt /ops/backup</button>
@@ -39,7 +39,7 @@
 
 <section class="card">
   <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
-    <h3 style="margin:0">Bystrye proverki</h3>
+    <h3 style="margin:0">Quick checks</h3>
   </div>
   <div class="row" style="gap:8px;flex-wrap:wrap">
     <button class="btn" onclick="ping('/health')">/health</button>
@@ -94,7 +94,7 @@
         bkListRender(arr); bkLogLine('OK: '+u); return;
       }catch(e){}
     }
-    bkLogLine('Oshibka: spisok nedostupen');
+    bkLogLine('Error: list not available');
   }
 
   async function bkRun(){
@@ -106,7 +106,7 @@
         bkLogLine('OK: '+(j.message||j.status||'run started')); bkList(); return;
       }catch(e){}
     }
-    bkLogLine('Oshibka: run nedostupen');
+    bkLogLine('Error: rune not available');
   }
 
   async function bkVerify(){
@@ -118,12 +118,12 @@
         bkLogLine('OK: '+(j.message||j.status||'verify done')); return;
       }catch(e){}
     }
-    bkLogLine('Oshibka: verify nedostupen');
+    bkLogLine('Error: verifications not available');
   }
 
   async function bkRestore(){
     const id=(document.getElementById('bkId').value||'').trim();
-    if(!id){ alert('Ukazhi snapshot id'); return; }
+    if(!id){ alert('Specify snapshot ID'); return; }
     bkLogLine('→ restore '+id);
     const urls=[['/ops/backup/restore','POST'],['/ops/backup?mode=restore','POST']];
     for(const [u,m] of urls){
@@ -132,7 +132,7 @@
         bkLogLine('OK: '+(j.message||j.status||'restore requested')); return;
       }catch(e){}
     }
-    bkLogLine('Oshibka: restore nedostupen');
+    bkLogLine('Error: Restore not available');
   }
 
   async function ping(url){
@@ -152,7 +152,7 @@
     }
   }
 
-  // Avtozagruzka spiska pri vkhode
+  // Autoload list upon login
   document.addEventListener('DOMContentLoaded', bkList);
 </script>
 

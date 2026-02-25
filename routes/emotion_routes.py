@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/emotion_routes.py - REST/UI dlya Emotion Tagging.
+"""routes/emotion_routes.py - REST/UI dlya Emotion Tagging.
 
 Mosty:
 - Yavnyy: (UI ↔ Emotion) - dobavit metku, posmotret zapis/spisok/statistiku.
-- Skrytyy 1: (Memory ↔ Sudeystvo) - affekt mozhet uchastvovat v ranzhirovanii vnutri «sudi».
+- Skrytyy 1: (Memory ↔ Sudeystvo) - affekt mozhet uchastvovat v ranzhirovanii vnutri “sudi”.
 - Skrytyy 2: (Nablyudaemost ↔ UX) - adminka daet bystryy vzglyad na emotsionalnyy profil.
 
 Zemnoy abzats:
 Forma iz neskolkikh poley: id, emotsiya, sila, zametka. Nazhal - metka sokhranilas.
-Spiski pomogayut uvidet, chto «bolit» i chto «raduet».
-"""
+Spiski pomogayut uvidet, chto “bolit” i chto “raduet”."""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request, render_template

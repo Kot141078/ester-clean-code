@@ -1,30 +1,29 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""listeners/usb_recovery_autorun.py — USB autorun + recovery listener.
+"""listeners/usb_recovery_autorun.py - USB autorun + recovery listener.
 
 Tekuschaya oshibka:
   expected an indented block after 'if' statement
 Prichina: v kontse fayla bylo `if __name__ == "__main__":` bez tela.
 
-Chto sdelano:
+What was done:
 - Ispravlen sintaksis (korrektnyy __main__).
 - Privedeny k UTF-8 chitaemye dokstringi/kommentarii (vmesto krakozyabr).
 - Ukreplena idempotentnost autorun: garantiruem strukturu zhurnala i zapis po plan.id.
-- Dobavlen Windows-friendly fallback poiska USB (esli modules.usb.recovery nedostupen):
-  skan diskov C:..Z: i vybor tekh, gde est papka ESTER.
-- Dobavleny myagkie predokhraniteli po razmeru:
-  USB_MAX_PLAN_MB (po umolchaniyu 64), USB_COPY_MAX_MB (po umolchaniyu 2048).
+- Add Windows-friendly fallback poiska USB (esli modules.usb.recovery unavailable):
+  skan diskov C:..Z: i vybor tekh, where est papka ESTER.
+- Add my agkie predokhraniteli po razmeru:
+  USB_MAX_PLAN_MB (by default 64), USB_COPY_MAX_MB (by default 2048).
 - AB_MODE: A = dry-run (logiruem, ne ispolnyaem), B = primenyaem.
 
-Mosty (trebovanie):
+Mosty (demand):
 - Yavnyy most: USB → plan.json → executor/run_job → izmenenie sostoyaniya uzla (realnoe deystvie pod L4).
 - Skrytye mosty:
-  1) Infoteoriya ↔ praktika: idempotency po plan.id — “szhatie” istorii vypolneniya v odin fakt «uzhe sdelano».
-  2) Kibernetika ↔ ekspluatatsiya: AB=A kak circuit breaker — kontur nablyudaet, no ne deystvuet.
+  1) Infoteoriya ↔ praktika: idempotency po plan.id - “szhatie” istorii vypolneniya v odin fakt “uzhe sdelano”.
+  2) Kibernetika ↔ ekspluatatsiya: AB=A kak circuit breaker - kontur nablyudaet, no ne deystvuet.
 
-ZEMNOY ABZATs: vnizu fayla.
-"""
+ZEMNOY ABZATs: vnizu fayla."""
 
 import argparse
 import json
@@ -51,7 +50,7 @@ def _read_json(p: Path, dflt: Any) -> Any:
 
 
 def _write_json_atomic(p: Path, obj: dict) -> None:
-    """Atomarnaya zapis JSON (cherez .tmp + replace)."""
+    """Atomic recording of JSION (via .tmp + replache)."""
     p.parent.mkdir(parents=True, exist_ok=True)
     tmp = p.with_suffix(p.suffix + ".tmp")
     tmp.write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -62,9 +61,8 @@ def _write_json_atomic(p: Path, obj: dict) -> None:
 def _get_usb_targets() -> List[Dict[str, Any]]:
     """Poluchenie spiska podklyuchennykh USB tseley.
 
-    Pytaemsya ispolzovat kanonicheskiy modul, inache — fallback.
-    Vozvraschaem spisok dict s klyuchom 'mount' (stroka).
-    """
+    Pytaemsya ispolzovat kanonicheskiy modul, inache - fallback.
+    Vozvraschaem spisok dict s klyuchom 'mount' (stroka)."""
     try:
         from modules.usb.recovery import list_usb_targets  # type: ignore
 
@@ -106,12 +104,12 @@ def _get_usb_targets() -> List[Dict[str, Any]]:
 
 # --- Autorun Plan logic ---
 def _subst(s: str, USB: Path, HOME: Path) -> str:
-    """Zamenyaet pleyskholdery $USB i $HOME."""
+    """Replaces the $USB and $HOME placeholders."""
     return str(s).replace("$USB", str(USB)).replace("$HOME", str(HOME))
 
 
 def _exec_plan(usb_root: Path, plan: Dict[str, Any], dry: bool) -> Dict[str, Any]:
-    """Vypolnyaet shagi iz autorun plana."""
+    """Executes steps from the autorin plan."""
     steps = plan.get("steps", []) or []
     HOME = Path.home()
     done: List[Dict[str, Any]] = []
@@ -175,11 +173,11 @@ def _exec_plan(usb_root: Path, plan: Dict[str, Any], dry: bool) -> Dict[str, Any
 
 
 def handle_autorun_plan(mount_point: str, seen_plans: dict) -> None:
-    """Proveryaet i vypolnyaet autorun plan na ustroystve (idempotent po plan.id)."""
-    # podderzhivaem dva rezhima: plan lezhit na korne USB ili vnutri ESTER
+    """Checks and executes the auto plan on the device (idempotent by plan.id)."""
+    # supports two modes: the plan lies on the USB root or inside ESTER
     mp = Path(mount_point)
 
-    # Esli mount_point — koren diska, ischem ESTER vnutri; inache predpolagaem, chto mount_point uzhe ESTER-root
+    # If mount_point is the root of the disk, look for ESTER inside; otherwise it assumes that mount_point is already ESTER-rooted
     usb_ester_dir = mp / "ESTER" if (mp / "ESTER").exists() else mp
     plan_path = usb_ester_dir / "autorun" / "plan.json"
 
@@ -203,7 +201,7 @@ def handle_autorun_plan(mount_point: str, seen_plans: dict) -> None:
     if not isinstance(plan, dict):
         return
 
-    # normalizuem zhurnal
+    # normalizes the log
     if not isinstance(seen_plans.get("done"), dict):
         seen_plans["done"] = {}
 
@@ -239,7 +237,7 @@ def handle_autorun_plan(mount_point: str, seen_plans: dict) -> None:
 
 # --- Recovery logic ---
 def handle_recovery(mount_point: str, recovery_cfg: dict) -> bool:
-    """Proveryaet marker i zapuskaet vosstanovlenie (esli vklyucheno)."""
+    """Validates the token and starts recovery (if enabled)."""
     try:
         from modules.usb.recovery import scan_usb, apply_recover  # type: ignore
     except Exception as e:
@@ -316,9 +314,7 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Eto “dezhurnyy avtomat” u dverey: uvidel nositel s planom — sdelal po instruktsii.
-No khoroshiy avtomat obyazan imet predokhranitel. Zdes predokhraniteli — AB_MODE (A=sukho),
-limity razmerov (plan/kopirovanie) i idempotentnost po plan.id: odin plan = odin raz.
-"""
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+This is “dezhurnyy avtomat” u dverey: uvidel nositel s planom - sdelal po instruktsii.
+No khoroshiy avtomat obyazan imet predokhranitel. Zdes predokhraniteli - AB_MODE (A=sukho),
+limity razmerov (plan/kopirovanie) i idempotentnost po plan.id: odin plan = odin raz."""

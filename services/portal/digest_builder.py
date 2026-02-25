@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-R5/services/portal/digest_builder.py — yadro sborki daydzhesta (zakrytaya korobka, offlayn).
+"""R5/services/portal/digest_builder.py - yadro sborki daydzhesta (zakrytaya korobka, offlayn).
 
 Mosty:
 - Yavnyy: Enderton (logika) — daydzhest kak kompozitsiya proveryaemykh predikatov: {est kandidaty} ∧ {validnaya struktura} ∧ {determinirovannaya zapis}.
-- Skrytyy #1: Cover & Thomas (infoteoriya) — szhimaem signal v korotkie summary (R4) i strukturiruem v JSON/MD (minimum shuma).
-- Skrytyy #2: Ashbi (kibernetika) — A/B-slot R5_MODE: B dobavlyaet gruppirovku/annotatsii; pri sboe — avtokatbek v A.
+- Skrytyy #1: Cover & Thomas (infoteoriya) — szhimaem signal v short summary (R4) i strukturiruem v JSON/MD (minimum noise).
+- Skrytyy #2: Ashbi (kibernetika) — A/B-slot R5_MODE: B dobavlyaet gruppirovku/annotatsii; pri sboe - avtokatbek v A.
 
 Zemnoy abzats (inzheneriya):
 Berem zaprosy/tegi iz plana, vyzyvaem R4 B-slot (s avtokatbekom v A-slot TF-IDF), formiruem
 edinyy JSON i Markdown. Nikakoy seti, tolko stdlib. Fayly kladem v PERSIST_DIR/portal/digests/.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import datetime as dt
 import json
@@ -88,7 +86,7 @@ def build_digest(plan: Dict[str, Any]) -> Dict[str, Any]:
 
     if mode == "B":
         try:
-            # Gruppirovka po tegam dlya vizualnykh «lentochek»
+            # Grouping by tags for visual ribbons
             tag_hist: Dict[str, int] = {}
             for s in sections:
                 for it in s.get("items", []):

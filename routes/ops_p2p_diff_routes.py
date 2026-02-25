@@ -23,15 +23,13 @@ def ops_p2p_diff_page():
 @bp_ops_p2p_diff.post("/ops/p2p/diff/json")
 @jwt_required(optional=True)
 def ops_p2p_diff_json():
-    """
-    Telo varianta A (udalennyy pir):
-      {"peer": "http://10.0.0.11:5000"}
-    Bariant B (bez seti, dlya testov/simulyatsii):
-      {"leaf_ids": [...], "leaf_hashes": [...]}
+    """Body of option A (remote peer):
+      ZZF0Z
+    Option B (without network, for tests/simulation):
+      ZZF1ZZ
 
-    Otvet:
-      {"ok": true, "diff_ids": [...], "local_count": N, "remote_count": M}
-    """
+    Answer:
+      ZZF2ZZ"""
     data = request.get_json(force=True, silent=True) or {}
     local_map = local_leaf_hashes(CRDT)
 
@@ -65,12 +63,10 @@ def ops_p2p_diff_json():
 
 
 @bp_ops_p2p_diff.post("/ops/p2p/diff/fetch")
-@jwt_required()  # zaschita ot massovogo vypleskivaniya
+@jwt_required()  # splash protection
 def ops_p2p_diff_fetch():
-    """
-    Zabiraet «zhirnye» zapisi u udalennogo pira po spisku id (posleduyuschiy merge lokalnoy logikoy).
-    Telo: {"peer": "http://10.0.0.11:5000", "ids": ["a","b",...]}
-    """
+    """Takes “fat” records from a remote peer according to a list of ids (followed by local logic).
+    Body: ZZF0Z"""
     d = request.get_json(force=True, silent=True) or {}
     peer = str(d.get("peer") or "")
     ids: List[str] = list(d.get("ids") or [])

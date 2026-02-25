@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-RBAC-politika: roli → razreshennye marshruty i metody.
-Prostaya tablitsa bez zavisimostey, ispolzuetsya v auth_rbac.py
-"""
+"""RBAC-politika: role → razreshennye marshruty i metody.
+Prostaya tablitsa bez zavisimostey, ispolzuetsya v auth_rbac.py"""
 
 from __future__ import annotations
 
@@ -12,7 +10,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 # Roli: PUBLIC (bez tokena), USER, OPERATOR, ADMIN
 ROLES: Tuple[str, ...] = ("PUBLIC", "USER", "OPERATOR", "ADMIN")
 
-# Spisok pravil: (method, path_prefix) dlya kazhdoy roli
+# List of rules: (method, path_prefix) for each role
 RBAC_POLICY: Dict[str, List[Tuple[str, str]]] = {
     "PUBLIC": [
         ("GET", "/"),
@@ -25,7 +23,7 @@ RBAC_POLICY: Dict[str, List[Tuple[str, str]]] = {
         ("GET", "/providers/status"),
         ("GET", "/providers/models"),
         ("POST", "/providers/select"),
-        # memory/trace (tolko chtenie)
+        # memory/trace (read only)
         ("GET", "/memory/search"),
         ("GET", "/trace/item"),
         # ingest
@@ -49,7 +47,7 @@ RBAC_POLICY: Dict[str, List[Tuple[str, str]]] = {
         ("GET", "/proactive/feed"),
     ],
     "ADMIN": [
-        # admin poluchaet dostup ko vsem upravlencheskim marshrutam
+        # admin gets access to all management routes
         ("POST", "/providers/select"),
         ("POST", "/rules"),
         ("POST", "/backup/"),

@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mentor_to_workflow_routes.py - eksport plana «Nastavnika» v JSON-workflow.
+"""routes/mentor_to_workflow_routes.py - eksport plana “Nastavnika” v JSON-workflow.
 
 Ruchka:
   POST /mentor/export_workflow {"text":"pokazhi kak polzovatsya notepad","name":"teach_notepad"}
 
-Pravila meppinga:
+Mapping Rules:
 - focus/rpa.open(app) -> step macro "open_portal_and_type" {app, text:""}
 - click (esli byl box/template) -> "click_xy" {x,y} - koordinaty nuzhno peredat (esli zaranee nashli)
 - type/rpa.type(text) -> "type_text" {text}
 - info -> propuskaem
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from typing import Any, Dict, List

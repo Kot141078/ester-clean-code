@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tests/synergy/test_device_adapters.py — skvoznye testy ingest-konveyera i adapterov.
+"""tests/synergy/test_device_adapters.py - skvoznye testy ingest-konveyera i adapterov.
 
 MOSTY:
 - (Yavnyy) Proveryaem acme/neo/ugv/robarm/sim protiv ozhidaniy.
-- (Skrytyy #1) A/B-rezhim: novyy konveyer i legacy-sovmestimost.
+- (Skrytyy #1) A/B-rezhim: newy konveyer i legacy-sovmestimost.
 - (Skrytyy #2) Kvoty i dedup: burst -> chast sobytiy otbrasyvaetsya s korrektnoy prichinoy.
 
 ZEMNOY ABZATs:
-Garantiya, chto «syroy» paket v lyuboy forme prevraschaetsya v kanon, a shum filtruetsya.
+Garantiya, what “syroy” paket v lyuboy forme prevraschaetsya v kanon, a shum filtruetsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -63,7 +61,7 @@ def test_legacy_fallback_compat():
 
 
 def test_rate_limit_and_dedup(monkeypatch):
-    # Szhimaem kvoty i okno, chtoby test byl bystrym
+    # We compress quotas and the window to make the test faster
     monkeypatch.setenv("SYNERGY_ADAPTER_MODE", "A")
     monkeypatch.setenv("SYNERGY_TEL_MAX_RPS", "5")
     monkeypatch.setenv("SYNERGY_TEL_DEDUP_WINDOW_MS", "2000")
@@ -71,7 +69,7 @@ def test_rate_limit_and_dedup(monkeypatch):
     vendor = "neo"
     payload = FIX[vendor]["payload"]
 
-    # Otpravim 10 odinakovykh sobytiy podryad
+    # Send 10 identical events in a row
     oks = 0
     dups = 0
     rate = 0
@@ -83,9 +81,9 @@ def test_rate_limit_and_dedup(monkeypatch):
             dups += 1
         elif res.reason == "rate_limited":
             rate += 1
-        time.sleep(0.01)  # chut rastyanem, chtoby tokeny podlivalis
+        time.sleep(0.01)  # Let's stretch it out a little so that the tokens flow in
 
-    # V predelakh okna dolzhny byt i dublikaty, i reyt-limity
+    # There must be both duplicates and rate limits within the window
     assert oks >= 1
     assert dups >= 1
     assert rate >= 1

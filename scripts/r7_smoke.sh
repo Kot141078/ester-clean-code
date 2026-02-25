@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# R7/scripts/r7_smoke.sh — offlayn-smoke nablyudaemosti
-# Mosty: (Yavnyy) Enderton — proveryaemye predikaty; (Skrytye) Ashbi — ustoychivost; Cover&Thomas — szhatyy otchet.
+# Р7/skripts/р7_stoke.sh - offline stock observability
+# Bridges: (Explicit) Enderton - verifiable predicates; (Hidden) Ashbi - stability; Carpet&Thomas - condensed report.
 # Zemnoy abzats: formiruet obs_report.md na stdlib.
 # c=a+b
 

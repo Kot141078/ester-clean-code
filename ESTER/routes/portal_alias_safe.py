@@ -44,7 +44,7 @@ def portal_alias():
 <title>Ester Portal (safe)</title></head>
 <body style="font-family:system-ui,Segoe UI,Arial,sans-serif;padding:24px">
 <h2>Ester Portal (safe alias)</h2>
-<p>Shablon <code>templates/portal.html</code> ne nayden. Podlozhite ego — i stranitsa otkroetsya bez 500.</p>
+<p>Template <code>templates/portal.html</code> ne nayden. Podlozhite ego - i stranitsa otkroetsya bez 500.</p>
 </body></html>"""
     return Response(html, 200, mimetype="text/html")
 

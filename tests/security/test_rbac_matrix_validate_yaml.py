@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/security/test_rbac_matrix_validate_yaml.py — minimalnaya validatsiya shtatnogo config/rbac_matrix.yaml.
-"""
+"""tesc/security/test_rach_matrix_validate_yaml.po - minimum validation of the standard config/rach_matrix.yaml."""
 from __future__ import annotations
 
 import os
@@ -29,7 +27,7 @@ def test_rbac_yaml_valid_and_nonempty():
     assert "roles" in data and "rules" in data
     assert isinstance(data["roles"], dict)
     assert isinstance(data["rules"], dict)
-    # Proverim, chto kritichnye klyuchi prisutstvuyut
+    # Let's check that critical keys are present
     assert "/ops/*" in data["rules"] or "/ops" in data["rules"]
     assert "/ingest/*" in data["rules"] or "/ingest" in data["rules"]
 # assert "/providers/select" in data["rules"]

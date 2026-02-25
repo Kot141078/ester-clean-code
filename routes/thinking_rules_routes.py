@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/thinking_rules_routes.py - REST: list/set/evaluate pravil «voli».
+"""routes/thinking_rules_routes.py - REST: list/set/evaluate rules "voli".
 
 Mosty:
 - Yavnyy: (Veb ↔ Volya) upravlyaem pravilami i vruchnuyu zapuskaem ikh.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Cron/Watch ↔ Avtonomiya) legko privyazyvaetsya k /watch/scan i /cron/tick.
 
 Zemnoy abzats:
-Panel «esli-to»: zapishi pravila - ispolnyay po sobytiyu iz watch/cron ili vruchnuyu.
+Panel “esli-to”: zapishi pravila - ispolnyay po sobytiyu iz watch/cron or vruchnuyu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os

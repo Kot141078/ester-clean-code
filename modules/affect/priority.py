@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/affect/priority.py — affect-aware: otsenka intensivnosti i prioriteta zapisi po prostym offlayn-evristikam.
+"""modules/affect/priority.py - affect-aware: otsenka intensivnosti i prioriteta zapisi po prostym offlayn-evristikam.
 
 Mosty:
-- Yavnyy: (Emotsii ↔ Memory) daem chislovoy «ves» zapisi dlya refleksii/recall.
-- Skrytyy #1: (UX ↔ Signaly) bez vneshnikh modeley: vosklitsaniya, kaps, «srochno» i slovar tonalnosti.
+- Yavnyy: (Emotsii ↔ Memory) daem chislovoy “ves” zapisi dlya refleksii/recall.
+- Skrytyy #1: (UX ↔ Signaly) bez vneshnikh modeley: vosklitsaniya, kaps, “srochno” i slovar tonalnosti.
 - Skrytyy #2: (RAG ↔ Ranzhirovanie) mozhet povyshat schet pri vydache (sm. hybrid).
 
 Zemnoy abzats:
-Kak ponyat, chto «vazhno/srochno», dazhe kogda net interneta i neyrosetey.
+Kak ponyat, chto “vazhno/srochno”, dazhe kogda net interneta i neyrosetey.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import re, json, os
 from typing import Any, Dict
@@ -35,5 +33,5 @@ def score_text(text: str) -> Dict[str,Any]:
     return {"ok": True, "score": score, "priority": pr, "ab": AFFECT_AB}
 
 def policy() -> Dict[str,Any]:
-    return {"ok": True, "ab": AFFECT_AB, "desc":"priority = 1.0 .. 2.0; vliyaet na ranzhirovanie/refleksiyu"}
+    return {"ok": True, "ab": AFFECT_AB, "desc":"priorities = 1.0 .. 2.0; influences ranking/reflection"}
 # c=a+b

@@ -3,8 +3,8 @@
 : <<'DOC'
 Mosty:
 - Yavnyy: (Matritsa ↔ P2P) obedinennyy smouk: bazovye testy + P2P blok.
-- Skrytyy #1: (Sovmestimost ↔ Nenarushaemost) suschestvuyuschiy scripts/smoke_matrix.sh ne trogaem — prosto zovem.
-- Skrytyy #2: (Avtonomnost ↔ Planirovschik) podkhodit dlya cron/CI/ruchnogo zapuska.
+- Skrytyy #1: (Sovmestimost ↔ Nenarushaemost) suschestvuyuschiy scripts/smoke_matrix.sh ne trogaem — just zovem.
+- Skrytyy #2: (Autonomy Scheduler) suitable for cron/CI/manual running.
 
 Zemnoy abzats:
 Eto «master-tester»: esli bazovyy smouk proyden — dobivaem P2P, inache srazu padaem.

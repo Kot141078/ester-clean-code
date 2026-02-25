@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/wa_templates.py — otpravka i predprosmotr WhatsApp shablonnykh soobscheniy (Cloud API).
+"""messaging/wa_templates.py - otpravka i predprosmotr WhatsApp shablonnykh soobscheniy (Cloud API).
 
 MOSTY:
-- (Yavnyy) preview_template(name, variables) — render teksta iz YAML-konfiga dlya predprosmotra v adminke.
+- (Yavnyy) preview_template(name, variables) — render teksta iz YAML-configa dlya predprosmotra v adminke.
 - (Skrytyy #1) Rasshirennyy YAML: polya `body` i `variables` (opisanie peremennykh) dlya lokalnogo prevyu.
 - (Skrytyy #2) DRYRUN: DEV_DRYRUN=1 vozvraschaet payload vmesto realnoy otpravki.
 
 ZEMNOY ABZATs:
-Operator vidit, chto uydet adresatu, prezhde chem nazhat «Otpravit» — ekonomit vremya i snimaet oshibki v tekstakh.
+Operator vidit, chto uydet adresatu, prezhde chem nazhat “Otpravit” - ekonomit vremya i snimaet oshibki v tekstakh.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json, os, re

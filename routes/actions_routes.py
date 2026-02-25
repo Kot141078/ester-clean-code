@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/actions_routes.py - REST dlya Action Hooks (create_note, set_tag, publish_tg_preview).
+"""routes/actions_routes.py - REST dlya Action Hooks (create_note, set_tag, publish_tg_preview).
 
 Mosty:
 - Yavnyy: (Marshruty ↔ Deystviya) HTTP-ruchki transliruyut vyzovy v modules.action_hooks.* bez izmeneniy kontraktov.
-- Skrytyy #1: (Faylovaya pamyat ↔ Dannye) vse operatsii bezopasny offlayn i pishut na disk.
+- Skrytyy #1: (Faylovaya pamyat ↔ Dannye) vse operatsii bezopasny offlayn i pishut on disk.
 - Skrytyy #2: (RBAC ↔ Nablyudaemost) podderzhka optional JWT i stabilnye JSON-otvety dlya zhurnalirovaniya.
 
 Zemnoy abzats:
-Eto «klemmnaya kolodka»: prostye vinty/kontakty dlya deystviy. Skrutil - derzhitsya, prozvonil - tok techet.
+This is “klemmnaya kolodka”: prostye vinty/kontakty dlya deystviy. Skrutil - derzhitsya, prozvonil - tok techet.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 
@@ -25,11 +23,11 @@ except Exception:
         def _wrap(fn): return fn
         return _wrap
 
-# Bekend deystviy (drop-in)
+# Backend actions (drop-in)
 from modules.action_hooks import create_note, set_tag, publish_tg_preview  # type: ignore
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Globalnyy BP (dlya avtozagruzchika) i registratsiya
+# Global BP (for autoloader) and registration
 bp = Blueprint("actions_routes", __name__, url_prefix="/actions")
 
 
@@ -76,8 +74,8 @@ def action_publish_tg_preview():
 
 
 def register(app) -> None:
-    """Standartnyy registrator dlya avtozagruzchika."""
-    # bezopasnaya registratsiya: povtornaya ne padaet
+    """Standard logger for autoloader."""
+    # secure registration: repeated registration does not crash
     name = bp.name
     if name in getattr(app, "blueprints", {}):
         return

@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-tests/smoke/test_memory_reflection.py
+"""tests/smoke/test_memory_reflection.py
 
 Smoke:
   - modul modules.memory.reflection importiruetsya;
   - run_daily_reflection() vozvraschaet dict (ok True/False ne vazhno).
 
 Mosty:
-- Yavnyy: (tests ↔ modules.memory.reflection) — proveryaem sam modul refleksii.
-- Skrytyy #1: (Struktura repo ↔ CI) — bootstrap sys.path k kornyu proekta.
+- Yavnyy: (tests ↔ modules.memory.reflection) — proveryaem sam modul reflection.
+- Skrytyy #1: (Struktura repo ↔ CI) - bootstrap sys.path k kornyu proekta.
 - Skrytyy #2: (Refleksiya ↔ Nochnoy tsikl) — nalichie modulya garantiruet gotovnost sloya insaytov.
 
 Zemnoy abzats:
 Eto prostoy multimetr: vidim, chto modul na meste i vyzyvaetsya, znachit
-nochnaya logika "podumat nad dnem" fizicheski podklyuchena i ne lomaet sborku.
-"""
+nochnaya logika "podumat nad dnem" fizicheski podklyuchena i ne lomaet sborku."""
 from __future__ import annotations
 
 import os

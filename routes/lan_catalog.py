@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/lan_catalog.py - UI/REST dlya kataloga uzlov LAN.
+"""routes/lan_catalog.py - UI/REST dlya kataloga uzlov LAN.
 
-Marshruty:
-  • GET  /admin/lan/catalog            - HTML
-  • GET  /admin/lan/catalog/status     - snimok self/peers + podskazki (ARP)
-  • POST /admin/lan/catalog/rescan     - mgnovennyy beacon + ARP-reskan
+Route:
+  • GET /admin/lan/catalog - HTML
+  • GET /admin/lan/catalog/status - snimok self/peers + podskazki (ARP)
+  • POST /admin/lan/catalog/rescan - mgnovennyy beacon + ARP-reskan
 
 Mosty:
-- Yavnyy (UX ↔ Kibernetika): «radar» s zhivym spiskom istochnikov.
-- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): TTL, versiya i score vidny polzovatelyu.
-- Skrytyy 2 (Praktika ↔ Sovmestimost): nichego ne menyaem v yadre; tolko infrastrukturnyy obzor.
+- Yavnyy (UX ↔ Kibernetika): “radar” s zhivym spiskom istochnikov.
+- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): TTL, version i score vidny polzovatelyu.
+- Skrytyy 2 (Praktika ↔ Sovmestimost): nichego ne menyaem v yadre; only infrastrukturnyy obzor.
 
 Zemnoy abzats:
-Eto «ekran radara»: kto v seti, kakie versii i kuda stuchatsya, chtoby zabrat portativnyy slot.
+Eto “ekran radara”: kto v seti, kakie versii i kuda stuchatsya, chtoby zabrat portativnyy slot.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os
 from pathlib import Path
@@ -51,7 +49,7 @@ def status():
 
 @bp_lanc.post("/admin/lan/catalog/rescan")
 def rescan():
-    # bystryy mayak - listener ego podberet; ARP dlya polzovatelya
+    # fast beacon - the listener will pick it up; ARP for the user
     from modules.lan.catalog import beacon_once  # type: ignore
     beacon_once(load_catalog_settings())
     return jsonify({"ok": True, "arp": arp_rescan()[:32]})

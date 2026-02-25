@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/selfdrive_routes.py - REST/UI dlya rezhima samovedeniya (SelfDrive).
+"""routes/selfdrive_routes.py - REST/UI dlya rezhima samovedeniya (SelfDrive).
 
 Ruchki:
-  POST /thinking/selfdrive/run_once  {"goal":"...", "params":{...}}
+  POST /thinking/selfdrive/run_once {"goal":"...", "params":{...}}
   POST /thinking/selfdrive/enable
   POST /thinking/selfdrive/disable
-  GET  /thinking/selfdrive/status
-  GET  /thinking/selfdrive/log
-  GET  /admin/selfdrive
+  GET /thinking/selfdrive/status
+  GET /thinking/selfdrive/log
+  GET /admin/selfdrive
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.thinking import selfdrive as SD

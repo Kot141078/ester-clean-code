@@ -1,32 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-ester_oneclick.py — single-file safe "one icon" launcher i .env-organayzer dlya Ester.
-Avtor: adaptatsiya pod zaprosy Owner.
+"""ester_oneclick.py — single-file safe "one icon" launcher i .env-organayzer dlya Ester.
+Author: adaptatsiya pod request Owner.
 
 Zapusk:
   python3 ester_oneclick.py
 
 Tseli:
   - Sdelat odnu ikonku/yarlyk na rabochem stole, zapuskayuschuyu "Ester" lokalno (esli zadan ESTER_START_CMD).
-  - Privesti bolshoy .env v udobnyy vid: sektsiya sekretov v nachale, dalee ostalnoe.
+  - Privesti bolshoy .env v udobnyy vid: sektsiya sekretov v beginning, further ostalnoe.
   - Sozdat rezervnye kopii i kartu peremennykh.
-  - Podgotovit instrumenty dlya ruchnogo rasprostraneniya na vashi mashiny (SSH klyuchi, upakovka).
+  - Prepare instrumenty dlya ruchnogo rasprostraneniya na vashi mashiny (SSH klyuchi, upakovka).
 
-Ogranicheniya bezopasnosti:
-  - NIKAKIKh avtomaticheskikh setevykh skanirovaniy/rasprostraneniy. SCP/SSH — tolko po yavnomu podtverzhdeniyu.
+Limitations of safety:
+  - NIKAKIKh avtomaticheskikh setevykh skanirovaniy/rasprostraneniy. SCP/SSH - tolko po yavnomu podtverzhdeniyu.
   - NIKAKIKh avtorizatsiy v oblaka bez vashego uchastiya.
 
-Mosty (trebovanie):
+Mosty (demand):
   - Yavnyy most: UI (menyu/yarlyk) ↔ Replikatsiya (ruchnye SCP/SSH punkty menyu).
   - Skrytye mosty:
-      (1) Anatomiya ↔ PO — struktura ~/.ester modeliruet telo/organy (sm. ZEMNOY).
-      (2) Kibernetika ↔ Arkhitektura — kontrolnye tochki/sloty A/B (checkpointing v backup + atomarnye zapisi).
+      (1) Anatomiya ↔ PO - struktura ~/.ester modeliruet telo/organy (sm. ZEMNOY).
+      (2) Kibernetika ↔ Arkhitektura - kontrolnye tochki/sloty A/B (checkpointing v backup + atomarnye zapisi).
 
 ZEMNOY ABZATs: vnizu fayla (ZEMNOY).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import getpass
@@ -78,7 +76,7 @@ def _desktop_dir() -> Path:
 
 DESKTOP_DIR = _desktop_dir()
 
-ICON_NAME = "Ester — Zapustit"
+ICON_NAME = "Esther - Launch"
 SCRIPT_PATH = Path(__file__).resolve()
 
 
@@ -124,7 +122,7 @@ def _atomic_write_text(path: Path, content: str, encoding: str = "utf-8") -> Non
 
 
 def find_env() -> Optional[Path]:
-    """Ischem .env po spisku kandidatov; vozvraschaem put ili None."""
+    """We are looking for .env from the list of candidates; returns path or None."""
     for p in ENV_PATH_CANDIDATES:
         if p.exists():
             return p
@@ -135,7 +133,7 @@ def find_env() -> Optional[Path]:
 # Podderzhivaem stroki vida:
 #   KEY=value
 #   export KEY=value
-# Prochee (kommenty/pustye) sokhranyaem kak raw.
+# Others (comments/empty) are saved as equal.
 ENV_KEY_RE = re.compile(r'^\s*(?:export\s+)?([A-Za-z0-9_]+)\s*=')
 
 
@@ -152,36 +150,32 @@ def parse_env_lines(lines: List[str]) -> List[Tuple[str, Optional[str], str]]:
 
 
 def is_secret_key(key: str) -> bool:
-    """Evristika sekretov — mozhno rasshiryat."""
+    """Secrets heuristic - extensible."""
     k = key.upper()
     secret_markers = ("KEY", "SECRET", "TOKEN", "PASS", "PRIVATE", "AWS", "GCP", "DB_", "JWT", "SSH", "API_")
     return any(m in k for m in secret_markers)
 
 
 def _dedupe_keep_last(items: List[Tuple[str, str]]) -> Tuple[List[Tuple[str, str]], Dict[str, List[str]]]:
-    """
-    items: [(key, line), ...] v poryadke poyavleniya.
+    """items: [(key, line), ...] v poryadke poyavleniya.
     Vozvraschaet:
-      - unique_items: tolko poslednee vkhozhdenie kazhdogo klyucha (poryadok — po poslednemu vkhozhdeniyu),
-      - dups: key -> [stroki-rannie-vkhozhdeniya] (dlya otcheta)
-    """
+      - unique_items: tolko poslednee vkhozhdenie kazhdogo klyucha (poryadok - po poslednemu vkhozhdeniyu),
+      - dups: key -> [stroki-rannie-vkhozhdeniya] (dlya otcheta)"""
     dups: Dict[str, List[str]] = {}
     seen: Dict[str, int] = {}
     for idx, (k, ln) in enumerate(items):
         if k in seen:
             dups.setdefault(k, []).append(items[seen[k]][1])
         seen[k] = idx
-    # sobiraem v poryadke poslednikh poyavleniy
+    # collected in order of last appearance
     last_indices = sorted(seen.values())
     unique = [items[i] for i in last_indices]
     return unique, dups
 
 
 def reorganize_env(src_path: Path, dest_path: Path, backup_dir: Path) -> None:
-    """
-    Sdelat rezervnuyu kopiyu, zatem sozdat novyy .env s sektsiey sekretov v nachale.
-    Pishem atomarno i sokhranyaem kartu klyuchey/dublikatov.
-    """
+    """Make a backup, then create a new .env with the secrets section at the beginning.
+    We write atomically and save a map of keys/duplicates."""
     if not src_path.exists():
         raise FileNotFoundError(f".env ne nayden po {src_path}")
 
@@ -213,13 +207,13 @@ def reorganize_env(src_path: Path, dest_path: Path, backup_dir: Path) -> None:
     others_unique, others_dups = _dedupe_keep_last(others_kv)
 
     out_lines: List[str] = []
-    out_lines.append("# === SECRETS (peremestil v nachalo; poslednee znachenie pobezhdaet) ===")
+    out_lines.append("# === SECRETS (moved to the beginning; last value wins) ===")
     for _, ln in secrets_unique:
         out_lines.append(ln)
     out_lines.append("# === END SECRETS ===")
     out_lines.append("")
-    out_lines.append("# === OTHER CONFIG (poslednee znachenie pobezhdaet) ===")
-    # Vazhno: raw stroki stavim pered konfigom, chtoby kommentarii/pustye stroki sokhranyalis “kak fon”
+    out_lines.append("# === OTHER CONFIG (last value wins) ===")
+    # Important: put equal lines before the config so that comments/empty lines are saved “as background”
     if raw_other:
         out_lines.extend(raw_other)
         if raw_other and raw_other[-1].strip() != "":
@@ -243,18 +237,16 @@ def reorganize_env(src_path: Path, dest_path: Path, backup_dir: Path) -> None:
             "secrets": {k: len(v) + 1 for k, v in secrets_dups.items()},
             "others": {k: len(v) + 1 for k, v in others_dups.items()},
         },
-        "notes": "Dublikaty klyuchey svernuty: ostavleno poslednee znachenie.",
+        "notes": "Duplicate keys are collapsed: the last value is retained.",
     }
     _atomic_write_text(map_path, json.dumps(var_map, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     info(f"Karta peremennykh -> {map_path}")
 
 
 def _dotenv_to_env_dict(dotenv_text: str) -> Dict[str, str]:
-    """
-    Mini-parser .env: berem tolko prostye KEY=VALUE.
-    - ne vypolnyaem podstanovki
-    - ne ispolnyaem shell
-    """
+    """Mini-parser .env: we take only simple KEY=VALUE.
+    - we do not perform substitutions
+    - we do not execute the shell"""
     env: Dict[str, str] = {}
     for ln in dotenv_text.splitlines():
         ln = ln.strip()
@@ -264,7 +256,7 @@ def _dotenv_to_env_dict(dotenv_text: str) -> Dict[str, str]:
         if not m:
             continue
         key = m.group(1)
-        # otdelyaem vse posle '=' kak value
+        # we separate everything after ъ=ь as value
         _, _, v = ln.partition("=")
         v = v.strip()
         # snimaem prostye kavychki
@@ -290,13 +282,11 @@ def _write_env_example(src_env_path: Path, out_path: Path) -> None:
 
 # -------------------- Yarlyk / ikonka --------------------
 def make_desktop_shortcut(python_path: Optional[str] = None) -> Optional[Path]:
-    """
-    Sozdaet yarlyk na rabochem stole, kotoryy zapuskaet etot skript v terminale.
+    """Sozdaet yarlyk na rabochem stole, kotoryy zapuskaet etot skript v terminale.
 
-    Linux: .desktop (Terminal=true) — rabotaet na bolshinstve DE bez privyazki k gnome-terminal.
+    Linux: .desktop (Terminal=true) — work on bolshinstve DE bez privyazki k gnome-terminal.
     macOS: .command (ispolnyaemyy)
-    Windows: .cmd + .vbs (vbs zapuskaet cmd v otdelnom okne)
-    """
+    Windows: .cmd + .vbs (vbs zapuskaet cmd v otdelnom okne)"""
     ensure_dirs()
     exe = python_path or sys.executable
     script_full = SCRIPT_PATH
@@ -334,7 +324,7 @@ def make_desktop_shortcut(python_path: Optional[str] = None) -> Optional[Path]:
         return cmd_file
 
     if sysname == "Windows":
-        # Vazhno: cmd lyubit BOM dlya UTF-8, inache mozhet porezat kavychki/puti.
+        # Important: cmd loves BOT for UTF-8, otherwise it may cut quotes/paths.
         cmd = desktop / "ester-start.cmd"
         vbs = desktop / "ester-start.vbs"
         cmd_content = "\r\n".join([
@@ -348,7 +338,7 @@ def make_desktop_shortcut(python_path: Optional[str] = None) -> Optional[Path]:
         cmd.write_text(cmd_content, encoding="utf-8-sig")
         vbs_content = f'CreateObject("Wscript.Shell").Run Chr(34) & "{cmd}" & Chr(34), 1, false'
         vbs.write_text(vbs_content, encoding="ascii")
-        info(f"Windows yarlyk sozdan (cmd + vbs) na rabochem stole: {cmd}, {vbs}")
+        info(f"Windows shortcut created (smd + vvs) on the desktop: ZZF0Z, ZZF1ZZ")
         return cmd
 
     warn("Platforma ne raspoznana: yarlyk ne sozdan.")
@@ -379,18 +369,18 @@ def package_ester(output_format: str = "tar") -> Path:
 
 
 def scp_send(archive_path: Path) -> bool:
-    """Vypolnit scp na tselevoy khost — tolko posle podtverzhdeniya."""
+    """Execute special command on the target host only after confirmation."""
     if not archive_path.exists():
         warn("Arkhiv ne nayden.")
         return False
 
-    info("SCP trebuet, chtoby SSH klyuchi byli nastroeny mezhdu mashinami.")
-    host = input("Tselevoy khost (IP ili DNS) ili pusto dlya otmeny: ").strip()
+    info("SSP requires that CCX keys be configured between machines.")
+    host = input("Target host (IP or DNS) or empty to cancel:").strip()
     if not host:
         info("Otmena.")
         return False
 
-    user = input("Polzovatel na tselevoy mashine (Enter=tekuschiy): ").strip() or getpass.getuser()
+    user = input("User on target machine (Enter=current):").strip() or getpass.getuser()
     path = input("Tselevoy put (naprimer ~/): ").strip() or "~/"
     port = input("Port SSH (Enter=22): ").strip() or "22"
 
@@ -403,36 +393,35 @@ def scp_send(archive_path: Path) -> bool:
     try:
         subprocess.check_call(cmd)
     except Exception as e:
-        warn(f"SCP ne udalsya: {e}")
+        warn(f"SSP failed: ZZF0Z")
         return False
 
     info("SCP uspeshen.")
     return True
 
 
-# -------------------- SSH klyuchi --------------------
+# -------------------- SSH keys --------------------
 def gen_ssh_keypair(keyname: str = "id_ester") -> Tuple[Path, Path]:
     priv = SSH_DIR / keyname
     pub = SSH_DIR / f"{keyname}.pub"
     if priv.exists() and pub.exists():
-        info(f"Klyuchi uzhe est: {priv} i {pub}")
+        info(f"The keys are already there: ZZF0Z and ZZF1ZZ")
         return priv, pub
 
     SSH_DIR.mkdir(parents=True, exist_ok=True)
     cmd = ["ssh-keygen", "-t", "ed25519", "-f", str(priv), "-N", "", "-C", "ester-oneclick"]
     subprocess.check_call(cmd)
-    info(f"SSH klyuchi sgenerirovany: {priv}, {pub}")
+    info(f"SS keys generated: ZZF0Z, ZZF1ZZ")
     return priv, pub
 
 
-# -------------------- Zapusk Ester (lokalno) --------------------
+# -------------------- Launching Esther (locally) --------------------
 def start_ester() -> None:
-    """
-    Zapuskaet komandu iz ESTER_START_CMD.
-    Nikakikh “magicheskikh” avto-poiskov: tolko yavnaya komanda.
-    Primer:
+    """Runs the command from ESTER_START_CMD.
+    No "magic" auto-discovery: only an explicit command.
+    Example:
       set ESTER_START_CMD=python run_ester_fixed.py
-    ili:
+    or:
       export ESTER_START_CMD="bash tools/run_ester_utf8.sh"
     """
     cmd = os.getenv("ESTER_START_CMD", "").strip()
@@ -441,7 +430,7 @@ def start_ester() -> None:
         warn('Primer: ESTER_START_CMD="python run_ester_fixed.py"')
         return
 
-    # Podmeshaem ~/.ester/.env (esli est), ne lomaya uzhe zadannye peremennye.
+    # Let's mix ~/.ester/.env (if any) without breaking the already defined variables.
     child_env = os.environ.copy()
     envf = ESTER_HOME / ".env"
     if envf.exists():
@@ -450,37 +439,37 @@ def start_ester() -> None:
             for k, v in d.items():
                 child_env.setdefault(k, v)
         except Exception as e:
-            warn(f"Ne smog prochitat ~/.ester/.env (propuskayu): {e}")
+            warn(f"Couldn't read ~/.ester/.env (skipping): ZZF0Z")
 
-    info(f"Zapuskayu (lokalno): {cmd}")
+    info(f"I run (locally): ZZF0Z")
     try:
-        # shell=True — potomu chto cmd mozhet byt strokoy s argumentami
+        # shell=Three - because cmd can be a string with arguments
         subprocess.Popen(cmd, shell=True, cwd=str(SCRIPT_PATH.parent), env=child_env)
-        info("Komanda otpravlena v zapusk (Popen).")
+        info("The command has been sent to launch (Popen).")
     except Exception as e:
-        warn(f"Ne udalos zapustit: {e}")
+        warn(f"Failed to start: ZZF0Z")
 
 
 # -------------------- CLI / Menyu --------------------
 def print_menu() -> None:
     print("\n=== Ester One-Click — menyu ===")
-    print("1) Initsializatsiya katalogov ~/.ester (sozdat app/ venv/ logs/ backups/ ssh/)")
-    print("2) Obrabotat .env (rezervnaya kopiya + perenesti sekrety v nachalo v ~/.ester/.env)")
-    print("3) Sozdat yarlyk/ikonku na rabochem stole (one-click)")
-    print("4) Sgenerirovat SSH-klyuchi (ed25519) v ~/.ester/ssh/")
+    print("1) Initialization of directories ~/.ester (create app/ venv/ logs/ backkups/ ssh/)")
+    print("2) Process .env (backup + move secrets to the beginning in ~/.ester/.env)")
+    print("3) Create a shortcut/icon on the desktop (one-click)")
+    print("4) Generate SS keys (d25519) in ~/.ester/ssh/")
     print("5) Upakovat ~/.ester v arkhiv (tar.gz)")
-    print("6) Otpravit arkhiv na vashu mashinu po SCP (trebuet klyuchey; podtverzhdenie yes)")
-    print("7) Pokazat kartu .env (~/.ester/.env.map.json)")
+    print("6) Send the archive to your machine via SCP (requires keys; EU confirmation)")
+    print("7) Show map .env (~/.ester/.env.map.zsion)")
     print("8) Sozdat env_meta.json i/ili .env.example iz ~/.ester/.env")
-    print("9) Ruchnoy bekap: sozdat arkhiv i pokazat put")
-    print("10) Zapustit Ester seychas (tolko esli zadan ESTER_START_CMD)")
+    print("i) Manual backup: create an archive and show the path")
+    print("10) Launch Esther now (only if ESTER_START_SMD is specified)")
     print("0) Vykhod\n")
 
 
 def init_deploy() -> None:
     ensure_dirs()
-    # Zdes namerenno nichego “ne skachivaem” i “ne stavim”:
-    # maksimum — polozhit lokalnyy damp (esli vy sami ego polozhili ryadom).
+    # Here we deliberately “don’t download” or “install” anything:
+    # the maximum is to put a local dump (if you put it nearby yourself).
     local_dump: Optional[Path] = None
     for candidate in ("dump", "ester-dump.zip", "ester-dump.tar.gz"):
         p = Path(candidate)
@@ -514,7 +503,7 @@ def init_deploy() -> None:
                         tf.extractall(APP_DIR)
                 info("Damp raspakovan.")
             except Exception as e:
-                warn(f"Oshibka raspakovki: {e}")
+                warn(f"Unpacking error: ЗЗФ0З")
 
     # README
     readme = ESTER_HOME / "README.txt"
@@ -522,19 +511,19 @@ def init_deploy() -> None:
         readme.write_text(
             "Ester One-Click\n"
             "- ~/.ester/.env soderzhit konfig\n"
-            "- ESTER_START_CMD zadaet komandu zapuska Ester\n"
+            "- ESTER_START_CMD specifies the start command for Esther"
             "  primer: ESTER_START_CMD=\"python run_ester_fixed.py\"\n",
             encoding="utf-8",
         )
 
-    info("Initsializatsiya zavershena.")
+    info("Initialization complete.")
 
 
 def handle_env_flow() -> None:
     ensure_dirs()
     env_path = find_env()
     if not env_path:
-        warn("Ne nayden .env v standartnykh mestakh. Polozhite .env ryadom so skriptom ili v ~/.env")
+        warn(".env not found in standard places. Place .env next to the script or in ~/.env")
         if input("Sozdat pustoy ~/.ester/.env.example? (yes/NO): ").strip().lower() == "yes":
             example = ESTER_HOME / ".env.example"
             _atomic_write_text(example, "# EXAMPLE .env\nDEBUG=\n", encoding="utf-8")
@@ -547,20 +536,20 @@ def handle_env_flow() -> None:
     try:
         reorganize_env(env_path, dest, BACKUP_DIR)
     except Exception as e:
-        warn(f"Oshibka pri obrabotke .env: {e}")
+        warn(f"Error processing .env: ЗЗФ0З")
         return
 
     # .env.example
     try:
         _write_env_example(dest, ESTER_HOME / ".env.example")
     except Exception as e:
-        warn(f"Ne udalos sozdat .env.example: {e}")
+        warn(f"Failed to create .env.example: ZZF0Z")
 
 
 def show_env_map() -> None:
     mapf = ESTER_HOME / ".env.map.json"
     if not mapf.exists():
-        warn("Karta .env ne naydena. Snachala vypolnite obrabotku .env (punkt 2).")
+        warn(".env card not found. First perform .env processing (step 2).")
         return
     print(_read_text_fallback(mapf))
 
@@ -568,7 +557,7 @@ def show_env_map() -> None:
 def create_env_meta() -> None:
     envf = ESTER_HOME / ".env"
     if not envf.exists():
-        warn("Net ~/.ester/.env. Snachala obrabotayte .env (punkt 2).")
+        warn("No ~/.ester/.env. First process .env (step 2).")
         return
 
     txt = _read_text_fallback(envf)
@@ -583,19 +572,19 @@ def create_env_meta() -> None:
         "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "keys": keys,
         "count": len(keys),
-        "notes": "Klyuchi perechisleny bez znacheniy.",
+        "notes": "Keys are listed without values.",
     }
     metaf = ESTER_HOME / "env_meta.json"
     _atomic_write_text(metaf, json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     info(f"env_meta.json -> {metaf}")
 
-    # .env.example (esli net)
+    # .env.example (if not present)
     ex = ESTER_HOME / ".env.example"
     if not ex.exists():
         try:
             _write_env_example(envf, ex)
         except Exception as e:
-            warn(f"Ne udalos sozdat .env.example: {e}")
+            warn(f"Failed to create .env.example: ZZF0Z")
 
 
 def main() -> None:
@@ -625,9 +614,9 @@ def main() -> None:
         elif choice == "8":
             create_env_meta()
         elif choice == "9":
-            info("Ruchnoy bekap: sozdayu arkhiv i pokazyvayu put.")
+            info("Manual backup: I create an archive and show the path.")
             p = package_ester()
-            info(f"Arkhiv {p} gotov. Skopiruyte ego vruchnuyu kuda nuzhno.")
+            info(f"The ZZF0Z archive is ready. Copy it manually where you need it.")
         elif choice == "10":
             start_ester()
         elif choice == "0":
@@ -638,27 +627,25 @@ def main() -> None:
 
 
 # -------------------- Zemnoy abzats --------------------
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Ester — organizm inzhenerno: ~/.ester — ee “telo”, app/ — “organy”, venv/ — “myshtsy”, logs/ — “pamyat”.
-Sekrety (klyuchi, tokeny) — kak krov: derzhite ikh otdelno, v legko otkatyvaemom rezerve i pod kontrolem.
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Ester - organizm inzhenerno: ~/.ester - ee “telo”, app/ - “organy”, venv/ - “myshtsy”, logs/ - “pamyat”.
+Sekrety (klyuchi, tokeny) - kak krov: derzhite ikh otdelno, v legko otkatyvaemom rezerve i pod kontrolem.
 Inzhenernaya rekomendatsiya:
-  1) Razdelyayte sektsii: secrets + config + runtime. Sekrety — v nachale .env i v secure storage (esli est).
+  1) Razdelyayte sektsii: secrets + config + runtime. Sekrety - v initial .env i v secure storage (esli est).
   2) Ispolzuyte SSH-klyuchi (ed25519) i dobavlyayte publichnyy klyuch vruchnuyu na kazhduyu svoyu mashinu.
-  3) Delayte bekapy atomarno i s “poslednee znachenie pobezhdaet” — eto snimaet polovinu zagadochnykh bagov.
-"""
+  3) Delayte bekapy atomarno i s “poslednee znachenie pobezhdaet” - eto snimaet polovinu zagadochnykh bagov."""
 
-# -------------------- Zapusk --------------------
+# -------------------- Launch --------------------
 if __name__ == "__main__":
     try:
         ensure_dirs()
         main()
     except KeyboardInterrupt:
-        info("Prervano polzovatelem — vykhod.")
+        info("Aborted by user - exit.")
     except Exception as e:
-        warn(f"Oshibka v rabote skripta: {e}")
+        warn(f"Error in the script: ZZF0Z")
         raise
     finally:
-        # Mozhno vklyuchit pechat “zemnogo abzatsa” pri vykhode:
+        # You can enable printing of the “earthly paragraph” when exiting:
         if os.getenv("ESTER_SHOW_ZEMNOY", "0").strip() == "1":
             print("\n" + ZEMNOY)

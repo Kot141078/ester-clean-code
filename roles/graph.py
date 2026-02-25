@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-roles/graph.py — prostoy graf vzaimodeystviy (lyudi↔lyudi) v obschey BD.
+"""roles/graph.py - prostoy graf vzaimodeystviy (lyudi↔lyudi) v obschey BD.
 
 MOSTY:
-- (Yavnyy) touch_edge(a,b,weight,context) i neighbors(agent) — fiksiruem «kto s kem rabotal» i otdaem okrestnost.
+- (Yavnyy) touch_edge(a,b,weight,context) i neighbors(agent) — fiksiruem “who s kem rabotal” i otdaem okrestnost.
 - (Skrytyy #1) cohesion_bonus_for(a,b) — vychislyaet bonus sygrannosti [0..1] s zatukhaniem po vremeni.
 - (Skrytyy #2) Tablitsa roles_edges ne konfliktuet s suschestvuyuschimi skhemami, obschiy SQLite (MESSAGING_DB_PATH).
 
 ZEMNOY ABZATs:
-Komanda — eto ne prosto «luchshie po otdelnosti». My pomnim, kto s kem «srabotan», i daem bonus pri sovmestnoy rabote.
+Komanda - eto ne prosto “luchshie po otdelnosti.” My pomnim, who s kem “srabotan”, i daem bonus pri sovmestnoy rabote.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, time, sqlite3, json, math
@@ -107,9 +105,7 @@ def neighbors(agent_id: str, limit: int = 50) -> List[Dict[str, Any]]:
     return out
 
 def cohesion_bonus_for(a: str, b: str) -> float:
-    """
-    0..1 — skolko dobavlyat k skoru za "sygrannost": sredniy ves * svezhest.
-    """
+    """0..1 — how much to add to the score for “teamwork”: average weight * freshness."""
     with _conn() as c:
         row = c.execute("SELECT AVG(weight), MAX(ts) FROM roles_edges WHERE a=? AND b=?", (a,b)).fetchone()
     if not row: return 0.0

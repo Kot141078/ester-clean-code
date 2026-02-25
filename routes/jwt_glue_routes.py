@@ -11,7 +11,7 @@ from flask_jwt_extended import (
     create_access_token,
 )
 
-# 1) Gotovyy Blueprint — bolshinstvo loaderov umeyut registrirovat ego sami
+# 1) Ready Blueprint - most loaders have to register it themselves
 bp = Blueprint("jwt_glue", __name__)
 
 @bp.get("/auth/glue/status")
@@ -42,13 +42,13 @@ def glue_mint():
 def glue_verify():
     return jsonify(ok=True, claims=get_jwt())
 
-# 2) Universalnye «kryuchki» — na sluchay, esli loader zhdet fabriku
+# 2) Universal “hooks” - in case the loader is waiting for the factory
 def init_app(app):  # pragma: no cover
     try:
         if "jwt_glue" not in getattr(app, "blueprints", {}):
             app.register_blueprint(bp)
     except Exception:
-        # esli uzhe zaregistrirovan — molchim
+        # if you are already registered - keep quiet
         pass
 
 def register(app):  # pragma: no cover

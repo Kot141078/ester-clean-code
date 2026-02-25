@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-RAG-modul Ester: izvlechenie iz VectorStore, MMR-diversifikatsiya, sbor konteksta i tsitat.
-Rabotaet v gibridnom rezhime: Sentence-Transformers (osnovnoy) ili TF-IDF (folbek).
+"""RAG-modul Ester: izvlechenie iz VectorStore, MMR-diversifikatsiya, sbor konteksta i tsitat.
+Rabotaet v gibridnom rezhime: Sentence-Transformers (osnovnoy) or TF-IDF (folbek).
 
 Yavnyy most: Ashby / requisite variety → MMR umenshaet “odnoobrazie” konteksta, povyshaya ustoychivost otveta.
 (Nenazvannye mosty): mutual information (Cover&Thomas) kak intuitsiya pro izbytochnost; max-entropy (Jaynes) kak intuitsiya pro balans.
 
 Zemnoy abzats (anatomiya/inzheneriya):
-Esli kormit mozg tolko “odnoy arteriey” (odnim blizkim k zaprosu kuskom), on stanovitsya khrupkim: tromb/shum — i vse.
-MMR — eto kak kollaterali: chut khuzhe po pryamoy “skorosti”, no luchshe po zhivuchesti i ustoychivosti k provalam/iskazheniyam.
-"""
+Esli kormit mozg tolko “odnoy arteriey” (odnim blizkim k zaprosu kuskom), on stanovitsya khrupkim: tromb/shum - i vse.
+MMR - eto kak kollaterali: chut khuzhe po pryamoy “skorosti”, no luchshe po zhivuchesti i ustoychivosti k provalam/iskazheniyam."""
 
 import os
 import time
@@ -20,7 +18,7 @@ import inspect
 from typing import Any, Dict, List, Optional, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Popytka importa VectorStore
+# Trying to import VectorStore
 try:
     from vector_store import VectorStore
 except ImportError:  # pragma: no cover
@@ -52,7 +50,7 @@ def _cos_sim(a, b) -> float:
         except Exception:
             return 0.0
 
-    # Folbek na numpy (esli est)
+    # Fullback on numpas (if any)
     if np is None:
         return 0.0
     try:
@@ -75,18 +73,16 @@ def _get_embedder() -> Optional["SentenceTransformer"]:
     try:
         _EMBEDDER = SentenceTransformer(model_name)
     except Exception as e:
-        logging.warning(f"[RAG] Ne udalos zagruzit SentenceTransformer '{model_name}': {e}")
+        logging.warning(f"YuRAGSH Failed to load SentenceTransformer ъЗЗФ0ЗЗь: ЗЗФ1ЗЗ")
         _EMBEDDER = None
     return _EMBEDDER
 
 
 def _embed(texts: List[str]):
-    """
-    Vozvraschaet matritsu embeddingov shape=(len(texts), dim).
+    """Vozvraschaet matritsu embeddingov shape=(len(texts), dim).
     ST: encode(..., normalize_embeddings=True)
     TF-IDF: fit_transform + normalize
-    Esli voobsche net zavisimostey — nuli.
-    """
+    Esli voobsche net zavisimostey - nulli."""
     model = _get_embedder()
     if model is not None:
         try:
@@ -113,10 +109,8 @@ def _embed(texts: List[str]):
 
 
 def _mmr(query_vec, cand_vecs, k: int, lambda_div: float = 0.5) -> List[int]:
-    """
-    Maximal Marginal Relevance.
-    Predpolagaem, chto vektory uzhe normalizovany → dot ≈ cos.
-    """
+    """Maximum Marginal Relevance.
+    Predpolagaem, chto vektory uzhe normalizovany → dot ≈ cos."""
     if np is None:
         # Bez numpy MMR bessmyslenen — vernem pervye k
         return list(range(min(k, len(cand_vecs))))
@@ -147,7 +141,7 @@ def _mmr(query_vec, cand_vecs, k: int, lambda_div: float = 0.5) -> List[int]:
         best_idx = candidates[0]
 
         for idx in candidates:
-            # maksimalnaya skhozhest s uzhe vybrannymi
+            # maximum similarity with already selected
             sim_to_selected = max(float(cand_vecs[idx] @ cand_vecs[j]) for j in selected)
             score = lambda_div * float(sim_to_query[idx]) - (1.0 - lambda_div) * sim_to_selected
             if score > best_score:
@@ -161,7 +155,7 @@ def _mmr(query_vec, cand_vecs, k: int, lambda_div: float = 0.5) -> List[int]:
 
 
 def _format_locator(meta: Dict[str, Any]) -> str:
-    """Formatirovanie lokatora/ssylki na istochnik (stranitsa/slayd/list/sektsiya)."""
+    """Formatting locator/source link (page/slide/sheet/section)."""
     if not meta:
         return ""
     locators = {
@@ -180,10 +174,8 @@ def _format_locator(meta: Dict[str, Any]) -> str:
 
 
 def _estimate_tokens(text: str) -> int:
-    """
-    Grubaya otsenka tokenov bez vneshnikh tokenizatorov.
-    Dlya RU/EN v srednem 1 token ~ 3.5–4.0 simvola.
-    """
+    """Rough valuation of tokens without external tokenizers.
+    For RU/EN, on average 1 token ~ 3.5–4.0 characters."""
     if not text:
         return 0
     return max(1, int(len(text) / 3.8))
@@ -209,7 +201,7 @@ def _normalize_hit(hit: Any) -> Optional[Dict[str, Any]]:
         text = hit.get("text") or hit.get("content") or hit.get("page_content") or hit.get("chunk") or ""
         score = hit.get("score")
         if score is None and "distance" in hit:
-            # distance menshe → luchshe. Preobrazuem v psevdo-score
+            # distance is less → better. Convert to pseudo-score
             try:
                 score = 1.0 - float(hit["distance"])
             except Exception:
@@ -226,10 +218,8 @@ def _normalize_hit(hit: Any) -> Optional[Dict[str, Any]]:
 
 
 def _store_search(store: Any, query: str, top_n: int) -> List[Dict[str, Any]]:
-    """
-    Pytaetsya dernut VectorStore raznymi sposobami, ne znaya ego tochnogo API.
-    Vozvraschaet spisok normalizovannykh hit-slovarey.
-    """
+    """Tries to pull VectorStore in different ways, without knowing its exact API.
+    Returns a list of normalized thread dictionaries."""
     if store is None:
         return []
 
@@ -254,7 +244,7 @@ def _store_search(store: Any, query: str, top_n: int) -> List[Dict[str, Any]]:
                 if kname in sig.parameters:
                     kwargs[kname] = int(top_n)
                     break
-            # Podbiraem imya parametra zaprosa
+            # Selecting the name of the request parameter
             # Obychno query / text / q
             if "query" in sig.parameters:
                 raw = fn(query=query, **kwargs)
@@ -275,7 +265,7 @@ def _store_search(store: Any, query: str, top_n: int) -> List[Dict[str, Any]]:
     if raw is None:
         return hits
 
-    # raw mozhet byt list / dict so spiskom
+    # equal can be leaf/dist with list
     if isinstance(raw, dict):
         # varianty: {"results": [...]}, {"documents": [...]}, {"matches": [...]}
         for key in ("results", "matches", "documents", "items"):
@@ -297,12 +287,10 @@ def _store_search(store: Any, query: str, top_n: int) -> List[Dict[str, Any]]:
 
 
 def _get_store() -> Optional[Any]:
-    """
-    Lenivoe sozdanie VectorStore.
-    Esli u tvoego VectorStore nuzhen path/config — podtsepish zdes cherez env.
-    """
+    """Lazy creation of VectorStore.
+    If your VectorStore needs a path/config, you can get it here via env."""
     try:
-        # Esli konstruktor bez argumentov — otlichno.
+        # If the constructor has no arguments, great.
         return VectorStore()  # type: ignore
     except Exception:
         return None
@@ -327,7 +315,7 @@ async def collect_context(
     if not query:
         return []
 
-    logging.info(f"[RAG] Zapros konteksta: {query[:80]}")
+    logging.info(f"yURAGSH Context request: ЗЗФ0З")
 
     k = max(1, int(k))
     max_context_tokens = max(200, int(max_context_tokens))
@@ -348,13 +336,13 @@ async def collect_context(
         query_vec = vecs[0]
         cand_vecs = vecs[1:]
     except Exception:
-        # esli _embed vernul spiski
+        # if _embed returned lists
         query_vec = vecs[0]
         cand_vecs = vecs[1:]
 
     mmr_idx = _mmr(query_vec, cand_vecs, k=k, lambda_div=lambda_div)
 
-    # Sobiraem otvet, soblyudaya byudzhet
+    # Collecting the answer while respecting the budget
     out: List[Dict[str, Any]] = []
     used = 0
     rank = 0
@@ -374,11 +362,11 @@ async def collect_context(
 
         cost = _estimate_tokens(text)
         if used + cost > max_context_tokens:
-            # dobiraem chastichno (myagko)
+            # we get it partially (softly)
             remaining = max_context_tokens - used
             if remaining < 50:
                 break
-            # ochen grubo: rezhem po simvolam
+            # very rough: cut by symbols
             approx_chars = int(remaining * 3.8)
             text = text[:max(0, approx_chars)].rstrip() + "…"
             cost = _estimate_tokens(text)

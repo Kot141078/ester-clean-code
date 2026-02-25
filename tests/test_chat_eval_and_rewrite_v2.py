@@ -6,7 +6,7 @@ from modules.chat_rewrite import rewrite
 
 
 def test_eval_basic_scores():
-    txt = "Vo-pervykh, sistema zapuskaetsya bystro. Odnako nuzhno uluchshit strukturu."
+    txt = "Firstly, the system starts up quickly. However, the structure needs to be improved."
     res = self_eval(txt)
     assert res["scores"]["clarity"] > 0.6
     assert res["scores"]["logic"] > 0.6
@@ -15,13 +15,12 @@ def test_eval_basic_scores():
 
 
 def test_rewrite_improves_and_keeps_code():
-    src = """ETO PLOKhO!!! Vo-pervykh, vse ochen ochen dlinno i povtoryaetsya.
+    src = """This is bad!!! First of all, everything is very very long and repetitive.
 
-```python
-def f(x):    # ne trogat
-    return x*2
-```
-"""
+yoyopothon
+def f(s): # don't touch
+    return s*2
+yoyo"""
     rewritten = rewrite(src)
     eval_before = self_eval(src)["scores"]["overall"]
     eval_after = self_eval(rewritten)["scores"]["overall"]

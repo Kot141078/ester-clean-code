@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/affect_reflect_routes.py - REST: korotkaya affekt-refleksiya (vyborka).
+"""routes/affect_reflect_routes.py - REST: korotkaya affekt-reflectsiya (vyborka).
 
 Mosty:
 - Yavnyy: (Veb ↔ Refleksiya) otdaem top-N dlya dalneyshego obdumyvaniya.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Payplayny ↔ Avtonomiya) legko vstraivaetsya v thinking_pipeline.
 
 Zemnoy abzats:
-Dostaem samoe «vazhnoe po chuvstvam» - i dumaem nad etim v pervuyu ochered.
+Dostaem samoe “vazhnoe po chuvstvam” - i dumaem nad etim v pervuyu ochered.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

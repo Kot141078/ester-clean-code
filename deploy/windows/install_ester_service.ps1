@@ -3,7 +3,7 @@ deploy/windows/install_ester_service.ps1 — ustanovka Ester kak Windows-servisa
 
 MOSTY:
 - (Yavnyy) Stavit servis "Ester Service" s zapuskom uvicorn asgi.app_main:app.
-- (Skrytyy #1) Parametry chitayutsya iz .env (esli ispolzuete dotenv — zadayte peremennye okruzheniya v sistemnykh «Dop. parametry»).
+- (Skrytyy #1) The parameters are read from .env (if you use dotenv, set the environment variables in the system “Advanced parameters”).
 - (Skrytyy #2) Skript stavit NSSM pri otsutstvii (v %ProgramData%\nssm).
 
 ZEMNOY ABZATs:

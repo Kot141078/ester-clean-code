@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-Avto-unikalizatsiya endpoint-ov i myagkaya zaschita ot nekorrektnykh vyzovov add_url_rule().
+"""Avto-unikalizatsiya endpoint-ov i myagkaya zaschita ot nekorrektnykh vyzovov add_url_rule().
 Ispolzuetsya dlya ustraneniya:
 - AssertionError('View function mapping is overwriting an existing endpoint function: ...')
 - AssertionError('expected view func if endpoint is not provided.')
 
 Upravlenie: ESTER_ROUTE_EP_SHIM_AB (A=vkl [po umolchaniyu], B=vykl)
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from typing import Any
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def _slug(text: str) -> str:
-    # kompaktnyy slug: bukvy/tsifry/podcherkivanie
+    # compact servants: letters/numbers/underlining
     return "".join(ch if ch.isalnum() else "_" for ch in text)[:64] or "ep"
 
 def apply() -> bool:
@@ -26,8 +24,8 @@ def apply() -> bool:
 
         def safe_add_url_rule(self: "flask.Flask", rule: str, endpoint: str | None = None,
                               view_func: Any | None = None, **options: Any) -> Any:
-            # 1) Esli view_func otsutstvuet (oshibochnyy vyzov) — propuskaem registratsiyu,
-            #    chtoby ne padat na 'expected view func ...'. Logiki ne teryaem: pravilnye decorators vyzovut eto pozzhe korrektno.
+            # 1) If view_function is missing (wrong call) - skip registration,
+            #    so as not to fall on the Expected View Function.... We don’t lose any logic: the right decorators will call this later correctly.
             if view_func is None:
                 # myagkiy no-op
                 return None
@@ -36,7 +34,7 @@ def apply() -> bool:
             ep = str(endpoint or getattr(view_func, "__name__", "view")).strip() or "view"
             vmap = getattr(self, "view_functions", {})
             if ep in vmap and vmap.get(ep) is not view_func:
-                # Sgeneriruem ustoychivoe unikalnoe imya s uchetom rule
+                # Will generate a stable unique name taking into account the steering wheel
                 suf = _slug(rule)
                 base = f"{ep}__{suf}"
                 cand = base

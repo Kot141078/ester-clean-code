@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/adapters/whatsapp.py — otpravka v WhatsApp Business Cloud API.
+"""messaging/adapters/whatsapp.py - otpravka v WhatsApp Business Cloud API.
 
 MOSTY:
-- (Yavnyy) send_text(to, text) → dict {sent,skipped,http_status,...}; podderzhivaet wa_id ili telefon (E.164).
+- (Yavnyy) send_text(to, text) → dict {sent,skipped,http_status,...}; podderzhivaet wa_id or telefon (E.164).
 - (Skrytyy #1) Logi v outbox → sovmestimost s retrayami.
-- (Skrytyy #2) Bazovye oshibki shablonov/24-chasovogo okna fiksiruyutsya dlya diagnostiki v outbox.raw_json.
+- (Skrytyy #2) Bazovye oshibki shablonov/24-hour okna fiksiruyutsya dlya diagnostiki v outbox.raw_json.
 
 ZEMNOY ABZATs:
-Ofitsialnyy kanal WhatsApp: akkuratno, s uchetom ogranicheniy (24 chasa/shablony) i bez «robota» v imeni kontakta.
+Ofitsialnyy kanal WhatsApp: akkuratno, s uchetom ogranicheniy (24 hours/shablony) i bez “robota” v imeni kontakta.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json, os

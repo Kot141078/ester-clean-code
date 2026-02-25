@@ -1,3 +1,3 @@
-# Prometheus dlya Ester
+# Promethneus for Esther
 
-`docker compose -f docker-compose.prom.yml up -d`, tsel: `host.docker.internal:5000` po umolchaniyu.
+docker compose -f docker-compose.prom.iml up -de, target: enost.docker.internal:5000yo default.

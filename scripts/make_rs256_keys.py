@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Generatsiya RSA-klyuchey dlya RS256 JWT (optsionalno).
-Flask-JWT-Extended budet ispolzovat:
+"""Generatsiya RSA-klyuchey dlya RS256 JWT (optsionalno).
+Flask-JWT-Extended will be used:
   JWT_ALGORITHM=RS256
   JWT_PRIVATE_KEY=<soderzhimoe privatnogo klyucha PEM>
   JWT_PUBLIC_KEY=<soderzhimoe publichnogo klyucha PEM>
 
 Skript sozdaet dva fayla v ukazannoy direktorii (po umolchaniyu ./secrets):
   - jwt_rs256_private.pem
-  - jwt_rs256_public.pem
-"""
+  - jwt_rs256_public.pem"""
 from __future__ import annotations
 
 import os
@@ -55,7 +53,7 @@ def main() -> int:
 
     print(f"Private: {priv_path}")
     print(f"Public : {pub_path}")
-    print("\nEksportiruyte v okruzhenie dlya Flask-JWT-Extended:")
+    print("Export to the environment for Flask-ZhVT-Extended:")
     print("  export JWT_ALGORITHM=RS256")
     print('  export JWT_PRIVATE_KEY="$(cat secrets/jwt_rs256_private.pem)"')
     print('  export JWT_PUBLIC_KEY="$(cat secrets/jwt_rs256_public.pem)"')

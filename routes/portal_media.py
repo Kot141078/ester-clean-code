@@ -1,7 +1,6 @@
 # routes/portal_media.py
 # -*- coding: utf-8 -*-
-"""
-routes/portal_media.py - stranitsa «Sozdat fleshku Ester» (HTML teper v strokovom literale, a ne «syroy» v .py).
+"""routes/portal_media.py - stranitsa “Sozdat fleshku Ester” (HTML teper v strokovom literale, a ne “syroy” v .py).
 
 Mosty:
 - Yavnyy (UI ↔ Portable/USB): chelovek zapuskaet podgotovku nositelya i zapis arkhiva/dampa.
@@ -9,10 +8,9 @@ Mosty:
 - Skrytyy 2 (Memory ↔ Inzheneriya): sostoyanie agenta mozhno posmotret odnoy knopkoy.
 
 Zemnoy abzats:
-Rout GET /portal/media otdaet HTML; JS obschaetsya s /self/usb/* i /portal/media/* (esli realizovano). Bez «syrogo» HTML v .py - Python bolshe ne pytaetsya parsit U+2014 kak kod.
+Rout GET /portal/media otdaet HTML; JS obschaetsya s /self/usb/* i /portal/media/* (esli realizovano). Bez "syrogo" HTML v .py - Python bolshe ne pytaetsya parsit U+2014 kak kod.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, Response, jsonify, request
@@ -22,9 +20,9 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp = Blueprint("portal_media", __name__)
 
-# HTML perenesen v strokovoy literal (vzyato iz dampa)
+# HTML moved to string literal (taken from dump)
 _HTML = '''<!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="utf-8"/>
   <title>Ester - Sozdat fleshku</title>
@@ -59,7 +57,7 @@ _HTML = '''<!doctype html>
 
   <section>
     <div class="row">
-      <button onclick="loadUsb()">Obnovit spisok USB</button>
+      <button onclick="loadUsb()">Upnovit spisok USB</button>
       <span id="usb_count" class="chip muted">-</span>
     </div>
     <table id="usb_tbl"><thead><tr><th>Mount</th><th>Deystviya</th></tr></thead><tbody></tbody></table>
@@ -69,7 +67,7 @@ _HTML = '''<!doctype html>
     <div class="row">
       <label>Fayl arkhiva (CID.zip): <input type="file" id="archive_file" accept=".zip"></label>
       <label>Fayl dampa (ester_dump.zip): <input type="file" id="dump_file" accept=".zip,.7z,.tar,.gz"></label>
-      <label>Kuda: 
+      <label>Where: 
         <select id="mount_sel"></select>
       </label>
       <button onclick="deploy()">Razvernut</button>
@@ -117,13 +115,13 @@ async function loadUsb(){
 async function prepare(mount){
   const r = await fetch('/self/usb/prepare', {method:'POST', headers: hdrs(), body: JSON.stringify({mount})});
   const j = await r.json().catch(()=>({ok:false,error:'bad json'}));
-  alert(j.ok?'Gotovo: '+(j.root||''):'Oshibka: '+(j.error||''));
+  alert(j.ok?'Gotovo: '+(j.root||''):'Error: '+(j.error||''));
 }
 
 async function formatFAT(mount){
   const r = await fetch('/self/usb/format', {method:'POST', headers: hdrs(), body: JSON.stringify({mount, fs:'fat32'})});
   const j = await r.json().catch(()=>({ok:false,error:'bad json'}));
-  alert(j.ok?'Formatirovano':'Oshibka: '+(j.error||''));
+  alert(j.ok?'Formatirovano':'Error: '+(j.error||''));
 }
 
 async function deploy(){
@@ -136,7 +134,7 @@ async function deploy(){
   const r = await fetch('/portal/media/deploy', {method:'POST', body: fd});
   const j = await r.json().catch(()=>({ok:false,error:'bad json'}));
   document.getElementById('deploy_status').textContent = j.ok ? 'OK' : 'ERR';
-  alert(j.ok?'Uspekh':'Oshibka: '+(j.error||j.stderr||''));
+  alert(j.ok?'Uspekh':'Error: '+(j.error||j.stderr||''));
 }
 
 async function loadState(){
@@ -150,8 +148,7 @@ document.getElementById('jwt').value = jwt();
 loadUsb().catch(()=>{});
 </script>
 </body>
-</html>
-'''
+</html>'''
 
 @bp.route("/portal/media", methods=["GET"])
 def portal_media_page() -> Response:
@@ -159,20 +156,18 @@ def portal_media_page() -> Response:
 
 @bp.route("/portal/media/state", methods=["GET"])
 def portal_media_state():
-    # Legkiy status; pri nalichii sobstvennykh sborok mozhno rasshirit
+    # Light status; if you have your own assemblies, you can expand
     return jsonify({"ok": True, "ts": int(time.time())})
 
 @bp.route("/portal/media/deploy", methods=["POST"])
 def portal_media_deploy():
-    """
-    Pri nalichii moduley «portable/replica» mozhno zdes vypolnit realnuyu zapis.
-    Seychas - bezopasnyy otvet (ne ronyaet UI), chtoby ubrat 500.
-    """
+    """If you have portable/replica modules, you can do the actual recording here.
+    Now the safe answer (doesn't drop OH) is to remove 500."""
     try:
         mount = request.form.get("mount") or ""
         if not mount:
             return jsonify({"ok": False, "error": "mount_required"}), 400
-        # Pytaemsya delegirovat, esli est integratsiya
+        # Tries to delegate if there is integration
         try:
             from modules.portable.usb import deploy as usb_deploy  # type: ignore
             res = usb_deploy(mount, request.files)

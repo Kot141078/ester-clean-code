@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-routes/rag_status_routes.py — status RAG s myagkim rezhimom.
+"""routes/rag_status_routes.py - status RAG s myagkim rezhimom.
 
 Ruchka:
   • GET /rag/status → {"ok":bool,"hybrid_available":bool,"soft":bool,"notes":[...]}
-Kod otveta:
+Code answer:
   • 200 — esli gibrid dostupen ILI vklyuchen myagkiy rezhim (ENV RAG_STATUS_SOFT=1)
-  • 500 — esli gibrid nedostupen i myagkiy rezhim vyklyuchen
+  • 500 — esli hybrid nedostupen i myagkiy rezhim vyklyuchen
 
 MOSTY:
-- Yavnyy: Diagnostika RAG ↔ Veb (stabilnaya proverka bez POST tel).
+- Yavnyy: Diagnostika RAG ↔ Web (stabilnaya proverka bez POST tel).
 - Skrytyy #1: Observability ↔ CI (precheck dlya payplaynov).
 - Skrytyy #2: ENV ↔ Povedenie (pereklyuchenie 200/500 cherez RAG_STATUS_SOFT).
 
 ZEMNOY ABZATs (inzheneriya):
 Statusnaya ruchka ne izmenyaet suschestvuyuschie kontrakty RAG. Ona lish soobschaet
-gotovnost podsistemy. "Soft mode" nuzhen, chtoby ne padali smoke‑testy
+gotovnost podsistemy. "Soft mode" nuzhen, why not padali smoke‑testy
 na stendakh bez vektornogo indeksa.
-# c=a+b
-"""
+# c=a+b"""
 import os
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

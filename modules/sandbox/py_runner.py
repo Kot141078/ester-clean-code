@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/sandbox/py_runner.py — bezopasnyy izolirovannyy zapusk Python-skriptov v podprotsesse.
+"""modules/sandbox/py_runner.py - bezopasnyy izolirovannyy zapusk Python-skriptov v podprotsesse.
 
 Mosty:
-- Yavnyy: (Kod ↔ Test/Samorazvitie) universalnyy ranner dlya guarded_apply, Fleet i CodeSmith+.
+- Yavnyy: (Kod ↔ Test/Samorazvitie) universalnyy runner dlya guarded_apply, Fleet i CodeSmith+.
 - Skrytyy #1: (Bezopasnost ↔ Ogranicheniya) taymaut, izolyatsiya (-I), proverka na banned, vremennaya papka bez setevykh vyzovov.
 - Skrytyy #2: (Audit ↔ Prozrachnost) vozvraschaet stdout/stderr/rc/dt dlya loga i analiza.
 
 Zemnoy abzats:
-Kak kapsula dlya eksperimentov: kladem kod vnutr, zapuskaem izolirovanno, s taymerom i uborkoy — bystro, chisto i bez riska dlya osnovnoy sistemy Ester.
+Kak kapsula dlya eksperimentov: kladem kod vnutr, zapuskaem izolirovanno, s taymerom i uborkoy - bystro, chisto i bez riska dlya osnovnoy sistemy Ester.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, subprocess, uuid, tempfile, textwrap
 from typing import Dict
@@ -22,7 +20,7 @@ TMP = os.getenv("PY_RUNNER_TMP", "data/sandbox")
 DEFAULT_TIMEOUT = int(os.getenv("SANDBOX_T_SEC", "10") or "10")
 
 def _banned_check(code: str) -> str | None:
-    """Proveryaet na zapreschennye tokeny (best-effort bezopasnost)."""
+    """Checks for prohibited tokens (best-effort security)."""
     banned = (
         "import os", "import sys", "import subprocess",
         "open(", "socket", "requests", "urllib"
@@ -33,10 +31,8 @@ def _banned_check(code: str) -> str | None:
     return None
 
 def run_py(code: str, timeout_sec: int = DEFAULT_TIMEOUT) -> Dict[str, any]:
-    """
-    Vypolnyaet Python-kod v izolirovannom podprotsesse (-I), s taymautom i auditom.
-    Vozvraschaet {"ok", "stdout", "stderr", "rc", "dt", "error"?}.
-    """
+    """Executes pothon code in an isolated subprocess(-I), with timeout and auditing.
+    Returns ZZF0Z."""
     if AB != "A":
         return {"ok": False, "error": "sandbox_disabled"}
     

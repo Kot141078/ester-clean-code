@@ -26,31 +26,31 @@ def _score(task: str) -> Tuple[str, str, str]:
     if any(k in t for k in ["health", "metrics", "oshib", "tormoz", "upal", "500", "cpu", "ram", "limit", "ingest"]):
         return (
             "est.ops.health_mvp.v1",
-            "Pokhozhe na problemu so zdorovem/metrikami/limitami — luchshe vsego spravitsya Ops/Health agent.",
-            "Sleduyuschiy shag: zapusti est.ops.health_mvp.v1 v dry-run i posmotri svodku.",
+            "Sounds like a health/metrics/limits issue - an Ops/Health agent would be best to handle it.",
+            "Next step: run eat.ops.healthn_mvp.v1 in dry-run and look at the summary.",
         )
 
     # librarian
     if any(k in t for k in ["naydi", "po baze", "dokument", "tsit", "rag", "pamyat", "profile", "kb", "knowledge"]):
         return (
             "est.librarian.knowledge_mvp.v1",
-            "Zapros pro poisk/kontekst/tsitirovanie — eto zona Knowledge/Librarian agenta.",
-            "Sleduyuschiy shag: sdelay hybrid search i verni tsitaty/vyzhimku.",
+            "The search/context/citation request is the Knovleje/Libgarian agent zone.",
+            "Next step: do a hybrid search and quotes/extracts are correct.",
         )
 
     # builder
     if any(k in t for k in ["novyy agent", "agenta", "yaml", "manifest", "skelet", "scaffold", "kod", "apply", "plan"]):
         return (
             "est.builder.suite_mvp.v1",
-            "Zapros pro konstruirovanie/planirovanie/skelety — eto Builder/Suite agent.",
-            "Sleduyuschiy shag: sgeneriruy YAML/plan v preview_only (bez apply).",
+            "Request for design/planning/skeletons is a Builder/Suit agent.",
+            "Next step: generate YML/plan in preview_only (without appli).",
         )
 
     # dispatcher fallback
     return (
         "est.dispatcher.synergy_mvp.v1",
-        "Obschiy/neyasnyy zapros — snachala Dispatcher vyberet ispolnitelya i utochnit kontekst.",
-        "Sleduyuschiy shag: poprosi utochnenie tseli i predlozhi luchshego agenta.",
+        "General/vague request - first the Dispatcher will select the executor and clarify the context.",
+        "Next step: ask for clarification of the goal and suggest the best agent.",
     )
 
 

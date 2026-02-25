@@ -8,7 +8,7 @@ import json
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 
-# EDINYY istochnik: pytaemsya ispolzovat reestr, no s myagkimi folbekami
+# SINGLE source: trying to use the roster, but with soft fullbacks
 from providers.registry import ProviderRegistry  # type: ignore
 try:
     from modules.auth.rbac import has_any_role as _has_any_role
@@ -54,7 +54,7 @@ def _reg() -> ProviderRegistry:
     return ProviderRegistry()  # type: ignore
 
 def _get_active_from_reg(pr: Any) -> Optional[str]:
-    # podderzhka raznykh realizatsiy
+    # support for different implementations
     for key in ("active", "get_active"):
         if hasattr(pr, key) and callable(getattr(pr, key)):
             try:
@@ -86,12 +86,12 @@ def _set_active_in_reg(pr: Any, name: str) -> Optional[str]:
         if hasattr(pr, key) and callable(getattr(pr, key)):
             try:
                 res = getattr(pr, key)(name)
-                # esli select() vozvraschaet dict — vytaschim active
+                # if select() returns dist - pull out the asset
                 if isinstance(res, dict):
                     v = res.get("active") or res.get("active_provider")
                     if isinstance(v, str) and v:
                         return v
-                # esli nichego ne vernul — schitaem aktivnym to, chto prosili
+                # if you haven’t returned anything, we consider what you asked for active
                 return name
             except Exception:
                 pass
@@ -140,9 +140,9 @@ def providers_select():
         return jsonify({"ok": False, "error": "empty name"}), 400
 
     pr = _reg()
-    # 1) pytaemsya cherez reestr
+    # 1) we try through the registry
     active = _set_active_in_reg(pr, name)
-    # 2) zerkalim v fayl-sostoyanie (edinyy istochnik dlya UI/statusa)
+    # 2) mirror into a state file (single source for UI/status)
     _set_active_to_file(active or name)
 
     # 3) perechityvaem «istinu»

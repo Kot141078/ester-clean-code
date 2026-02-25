@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/mem/mmgate.py — «zhestkaya» tochka vkhoda k menedzheru pamyati + lint pryamykh obkhodov.
+"""modules/mem/mmgate.py - “zhestkaya” tochka vkhoda k menedzheru pamyati + lint pryamykh obkhodov.
 
 Mosty:
 - Yavnyy: (Fabrika ↔ Metriki) schitaem obrascheniya cherez get_mm() i vyyavlyaem pryamye obkhody.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Rules/Cron ↔ Uluchsheniya) pravila mogut trebovat chistotu fabriki do zapuska payplaynov.
 
 Zemnoy abzats:
-Kak turniket na prokhodnoy: schitaem, kto proshel «kak polozheno», i lovim tekh, kto perelez cherez zabor.
+Kak turniket na prokhodnoy: schitaem, kto proshel “kak polozheno”, i lovim tekh, kto perelez cherez zabor.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, re, time
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -30,10 +28,8 @@ def note_factory_call()->None:
     j=_load(); j["factory_calls"]=int(j.get("factory_calls",0))+1; _save(j)
 
 def scan_sources(roots:list[str])->dict:
-    """
-    Best-effort: ischem patterny pryamoy initsializatsii VectorStore/Storage vmesto fabriki.
-    Nichego ne lomaet — tolko otchet.
-    """
+    """Best-effort: looking for patterns of direct initialization of the VectorStore/Storage instead of the factory.
+    It doesn't break anything - just the report."""
     suspects=[]
     patt=re.compile(r"(new|init|=)\s*(VectorStore|Storage|SimpleMemory|Chroma|Lance)\s*\\(", re.I)
     for root in roots or []:

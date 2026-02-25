@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/act_guard.py — storozh deystviy myshleniya: skhema/timeout/WIP/denylist.
+"""modules/thinking/act_guard.py - storozh deystviy myshleniya: skhema/timeout/WIP/denylist.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Bezopasnost) tsentralizovannyy kontrol zapuska ekshenov (limity, taymauty, denylist).
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Reestr ↔ Prozrachnost) khranit metadannye, schetchiki, zhurnal poslednikh zapuskov.
 
 Zemnoy abzats:
-Eto «dispetcher» v tsekhe: ne daet zapuskat lishnee, sledit za kolichestvom parallelnykh rabot i gasit zavisshie.
+Eto “dispetcher” v tsekhe: ne daet zapuskat lishnee, sledit za kolichestvom parallelnykh rabot i gasit zavisshie.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, threading
 from typing import Any, Dict, Callable
@@ -71,15 +69,13 @@ def _passport(note: str, meta: Dict[str,Any])->None:
         pass
 
 def hook_register():
-    """
-    Podklyuchaetsya poverkh suschestvuyuschego modules.thinking.action_registry (esli est).
-    Sovmestim so starymi i novymi signaturami register(...).
-    """
+    """Connects on top of the existing modules.thinking.action_registers (if any).
+    Compatible with old and new register(...) signatures."""
     try:
         import modules.thinking.action_registry as ar  # type: ignore
     except Exception:
         return False
-    if hasattr(ar, "_guard_wrapped"):  # uzhe podklyucheny
+    if hasattr(ar, "_guard_wrapped"):  # already connected
         return True
 
     orig_reg = getattr(ar, "register", None)
@@ -219,7 +215,7 @@ def run(name: str, args: Dict[str,Any]|None=None)->Dict[str,Any]:
             pass
         return {"ok": False, "error":"wip_limit"}
 
-    # zapusk s taymerom
+    # start with timer
     res: Dict[str,Any] = {"ok": False, "error":"not_started"}
     def target():
         nonlocal res
@@ -265,6 +261,6 @@ def run(name: str, args: Dict[str,Any]|None=None)->Dict[str,Any]:
         pass
     return res
 
-# pri importe — popytka podtsepitsya k iskhodnomu action_registry
+# when importing - an attempt to pick up the original action_registers
 hook_register()
 # c=a+b

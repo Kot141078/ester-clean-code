@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ops_hiring_routes.py - REST dlya formirovaniya skoupa «mikro-nayma».
+"""routes/ops_hiring_routes.py - REST dlya formirovaniya skoupa "mikro-nayma".
 
-Endpointy:
+Endpoint:
   • POST /ops/hiring/scope {"role","tasks":[], "budget_cap": number}
 
 Mosty:
@@ -11,10 +10,9 @@ Mosty:
 - Skrytyy #2: (Myshlenie ↔ Praktika) kaskad-plan mozhet predlagat naym kak strategiyu.
 
 Zemnoy abzats:
-Eto forma «chto nuzhno sdelat i za skolko» - bez lishnikh tseremoniy.
+This forma “what nuzhno sdelat i za skolko” - bez lishnikh tseremoniy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict, List
 from flask import Blueprint, jsonify, request

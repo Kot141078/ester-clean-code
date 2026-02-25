@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ingest_backpressure.py - myagkiy backpressure dlya /ingest/* cherez before_request i token-bakety.
+"""routes/ingest_backpressure.py - myagkiy backpressure dlya /ingest/* cherez before_request i token-bakety.
 
-Povedenie:
-  • Esli INGEST_BP_ENABLE=1 - pered lyubym /ingest/* delaem kontrol chastoty per-source (IP/X-Source-Key/host).
+Behavior:
+  • Esli INGEST_BP_ENABLE=1 - pered lyubym /ingest/* delaem kontrol frequency per-source (IP/X-Source-Key/host).
   • Token-baket: skorost = INGEST_BP_DEFAULT_RPS, burst = INGEST_BP_BURST. Pri nekhvatke - 429.
-  • Oshibki 429/5xx mozhno uchityvat na urovne vyzyvayuschey storony (backoff); server - «myagkiy ogranichitel».
+  • Oshibki 429/5xx mozhno uchityvat na urovne vyzyvayuschey storony (backoff); server - "myagkiy ogranichitel".
   • Metriki v /metrics/ingest_bp.
 
 Mosty:
-- Yavnyy: (Vvod ↔ Nadezhnost) zaschischaem ingest ot «zabivaniya» odnim istochnikom.
-- Skrytyy #1: (Infoteoriya ↔ Planirovanie) skorost/ochered → ponyatnye signaly v RuleHub.
+- Yavnyy: (Vvod ↔ Nadezhnost) zaschischaem ingest ot “zabivaniya” odnim istochnikom.
+- Skrytyy #1: (Infoteoriya ↔ Planning) skorost/ochered → ponyatnye signaly v RuleHub.
 - Skrytyy #2: (Kibernetika ↔ Kontrol) vse cherez before_request - drop-in dlya suschestvuyuschikh routov.
 
 Zemnoy abzats:
-Eto «semafor na rampe»: slishkom mnogo gruzovikov s odnogo vyezda - pritormazhivaem, chtoby trassa ne vstala.
+Eto “semafor na rampe”: slishkom mnogo gruzovikov s odnogo vyezda - pritormazhivaem, chtoby trasa ne vstala.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

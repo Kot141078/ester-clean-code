@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-ambient_proactive.py — Ambient‑prosloyka (proactive) dlya redkikh korotkikh «idey» v Telegram.
+"""ambient_proactive.py — Ambient‑prosloyka (proactive) dlya redkikh korotkikh “idey” v Telegram.
 
-Klyuchevaya pravka pod tvoy simptom:
+Klyuchevaya pravka pod tvoy symptom:
 - iskhodnik delal `from initiatives import choose_by_emotions`, no funktsiya mozhet otsutstvovat
   ili lezhat po drugomu puti (initsiativy kak paket, a ne modul).
 - teper import ustoychivyy (neskolko kandidatov), a esli funktsii vse ravno net —
@@ -15,7 +14,7 @@ Plyus uluchsheniya:
 - mozhno podklyuchit vneshniy katalog idey cherez JSON: AMBIENT_IDEAS_FILE=...
 - esli otpravka/people/chooser nedostupny — degradatsiya bez padeniy (log + molchanie).
 
-ENV (vse optsionalno):
+ENV (all optional):
 - AMBIENT_STATE_DIR=state
 - AMBIENT_MIN_MINUTES=35
 - AMBIENT_MAX_MINUTES=75
@@ -24,7 +23,7 @@ ENV (vse optsionalno):
 - AMBIENT_PER_USER_COOLDOWN_MINUTES=180
 - AMBIENT_MAX_PER_TICK=3
 - AMBIENT_IDEAS_FILE=path/to/ideas.json
-- ESTER_AMBIENT_AB_MODE=A|B  (ili AMBIENT_AB_MODE, AB_MODE fallback)
+- ESTER_AMBIENT_AB_MODE=A|B (ili AMBIENT_AB_MODE, AB_MODE fallback)
 
 MOSTY:
 - Yavnyy: kibernetika ↔ proaktivnost (nablyudenie → vybor → deystvie → zapis).
@@ -32,8 +31,7 @@ MOSTY:
 - Skrytyy #2: prava ↔ bezopasnost (A/B zdes — pravo “pingovat” polzovatelya).
 ZEMNOY ABZATs:
 Eto kak otdelnaya knopka dvernogo zvonka s predokhranitelem: dazhe esli v dome vse “v B”,
-zvonok mozhno ostavit v “A” (dry‑run), chtoby ne razbudit lyudey sluchaynym impulsom.
-"""
+zvonok mozhno ostavit v “A” (dry‑run), chtoby ne razbudit lyudey sluchaynym impulsom."""
 
 import hashlib
 import html
@@ -66,13 +64,11 @@ ChooserFn = Callable[[Dict[str, float]], Iterable[Dict[str, Any]]]
 
 
 def _read_ab_flag() -> str:
-    """
-    A/B dlya AMBIENT v poryadke prioriteta:
+    """A/B dlya AMBIENT v poryadke prioriteta:
       1) ESTER_AMBIENT_AB_MODE
       2) AMBIENT_AB_MODE
       3) AB_MODE (globalnyy fallback)
-    Vozvraschaet 'A' ili 'B'.
-    """
+    Vozvraschaet 'A' or 'B'."""
     for key in ("ESTER_AMBIENT_AB_MODE", "AMBIENT_AB_MODE", "AB_MODE"):
         v = os.getenv(key)
         if v is None:
@@ -84,12 +80,10 @@ def _read_ab_flag() -> str:
 
 
 def _try_import_chooser() -> Optional[ChooserFn]:
-    """
-    Probuem neskolko variantov, potomu chto u tebya initsiativy mogut byt:
-    - initiatives.py (modul)
+    """Probuem neskolko variantov, potomu chto u tebya initsiativy mogut byt:
+    - initiatives.py (module)
     - initiatives/ (paket) i funktsiya vnutri podpaketa
-    - modules/initiatives/... (esli pereneseno v modules)
-    """
+    - modules/initiatives/... (if transferred to modules)"""
     candidates = [
         ("initiatives", "choose_by_emotions"),
         ("initiatives.choose", "choose_by_emotions"),
@@ -122,12 +116,10 @@ def _load_ideas_file(path: str) -> List[Dict[str, Any]]:
 
 
 def _fallback_choose_by_emotions(emotions: Dict[str, float]) -> List[Dict[str, Any]]:
-    """
-    Mini‑chooser: ne “umnyy”, no stabilnyy.
-    Vozvraschaet spisok idey (dict: title/body/howto/tag).
+    """Mini-chooser: ne “smart”, no stabilnyy.
+    Vozvraschaet spisok idea (dict: title/body/howto/tag).
 
-    Idei — korotkie i “zemnye”: struktura → odin shag → proverka.
-    """
+    Idei - korotkie i “zemnye”: struktura → odin shag → proverka."""
     emo = emotions or {}
     def g(k: str) -> float:
         try:
@@ -143,11 +135,11 @@ def _fallback_choose_by_emotions(emotions: Dict[str, float]) -> List[Dict[str, A
 
     # bazovyy bank
     bank: List[Tuple[str, Dict[str, Any]]] = [
-        ("focus", {"tag": "focus", "title": "Odin punkt → tri shaga", "body": "Vyberi odnu zadachu i razlozhi ee na 3 proveryaemykh shaga.", "howto": "Shag 1: vkhody, shag 2: deystvie, shag 3: test/kriteriy gotovo."}),
-        ("calm", {"tag": "calm", "title": "Sniz shum", "body": "Snimi odin lishniy istochnik shuma/uvedomleniy na 2 chasa.", "howto": "Ostav tolko odin kanal i odin taymer."}),
-        ("stress", {"tag": "stress", "title": "Sdelay malenkuyu pobedu", "body": "Sdelay 10‑minutnuyu zadachu, kotoraya umenshaet khaos.", "howto": "Naprimer: privesti odin katalog/skript v poryadok."}),
-        ("joy", {"tag": "joy", "title": "Zafiksiruy uspekh", "body": "Zapishi odnoy strokoy: chto segodnya realno poluchilos.", "howto": "Eto povyshaet ustoychivost i snizhaet vnutrenniy shum."}),
-        ("anger", {"tag": "anger", "title": "Okhladi reaktsiyu", "body": "Sformuliruy pretenziyu kak trebovanie k sisteme, a ne k lyudyam.", "howto": "Odna fraza: “Nuzhen kontrol X, inache Y lomaetsya”."}),
+        ("focus", {"tag": "focus", "title": "Odin punkt → tri shaga", "body": "Choose one task and break it down into 3 testable steps.", "howto": "Step 1: Inputs, Step 2: Action, Step 3: Test/Criteria Done."}),
+        ("calm", {"tag": "calm", "title": "Sniz shum", "body": "Turn off one extra source of noise/notifications for 2 hours.", "howto": "Leave only one channel and one timer."}),
+        ("stress", {"tag": "stress", "title": "Make it a small victory", "body": "Do a 10-minute task that reduces chaos.", "howto": "Naprimer: privesti odin katalog/skript v poryadok."}),
+        ("joy", {"tag": "joy", "title": "Record your success", "body": "Write down in one line: what really happened today.", "howto": "This improves stability and reduces internal noise."}),
+        ("anger", {"tag": "anger", "title": "Cool down the reaction", "body": "Formulate the complaint as a demand for the system, not for people.", "howto": "One phrase: “You need control of C, otherwise I will break.”"}),
     ]
 
     # otsenka
@@ -159,7 +151,7 @@ def _fallback_choose_by_emotions(emotions: Dict[str, float]) -> List[Dict[str, A
         "anger": 0.9 * anger,
     }
 
-    # sortiruem bank po vesam kategorii (chtoby vernut neskolko kandidatov)
+    # sort the bank by category weights (to return several candidates)
     bank_sorted = sorted(bank, key=lambda x: weights.get(x[0], 0.0), reverse=True)
     return [item for _, item in bank_sorted]
 
@@ -293,7 +285,7 @@ def _pick_hash(pick: Dict[str, Any]) -> str:
 
 
 class AmbientProactiveDaemon(threading.Thread):
-    """Fonovyy potok, kotoryy izredka shlet «ideyu» v Telegram."""
+    """A background thread that occasionally sends an “idea” to Telegram."""
 
     def __init__(
         self,
@@ -319,7 +311,7 @@ class AmbientProactiveDaemon(threading.Thread):
         self._stop.set()
 
     def run(self) -> None:
-        # nebolshoy dzhitter, chtoby raznye demony ne sinkhronizirovalis
+        # slight jitter to keep different daemons out of sync
         time.sleep(random.uniform(2.0, 15.0))
         next_fire = time.time() + self._next_interval_seconds()
 
@@ -339,11 +331,11 @@ class AmbientProactiveDaemon(threading.Thread):
         return random.uniform(self.cfg.min_minutes * 60.0, self.cfg.max_minutes * 60.0)
 
     def _tick(self) -> None:
-        # perechityvaem AB kazhdyy tik — chtoby mozhno bylo pereklyuchat bez restarta
+        # re-read the AB every tick - so that you can switch without restarting
         self.ab = _read_ab_flag()
 
         if not callable(all_people) or not callable(tg_send):
-            # net obyazatelnykh zavisimostey — molchim
+            # there are no required dependencies - keep quiet
             return
 
         people = all_people() or {}
@@ -399,7 +391,7 @@ class AmbientProactiveDaemon(threading.Thread):
                 if self.ab != "B":
                     # dry-run
                     log.info("[ambient] dry-run to user=%s cid=%s: %s", user, cid, msg)
-                    self._mark_sent(user_key, pick)  # vse ravno dvigaem anti‑dubl, inache v dry-run budet “dolbit” odno i to zhe
+                    self._mark_sent(user_key, pick)  # we still move the anti-double, otherwise the same thing will be “hollowed” into the dry run
                     sent += 1
                     continue
 
@@ -422,7 +414,7 @@ class AmbientProactiveDaemon(threading.Thread):
         b = html.escape(body)
         h = html.escape(howto)
 
-        parts = [f"{u}, u menya est ideya: <b>{t}</b>"] if t else [f"{u}, u menya est ideya:"]
+        parts = [f"{u}, u menya est idea: <b>{t}</b>"] if t else [f"ZZF0Z, I have an idea:"]
         if b:
             parts.append(b)
         if h:
@@ -460,14 +452,14 @@ class AmbientProactiveDaemon(threading.Thread):
         return None
 
     def _iter_candidates(self, emotions: Dict[str, float]) -> Iterable[Dict[str, Any]]:
-        # 1) vneshniy fayl idey (esli zadan) — otdaem pervym, chtoby mozhno bylo upravlyat kontentom bez reliza koda
+        # 1) external idea file (if specified) - we give it first so that you can manage the content without releasing the code
         if self.cfg.ideas_file:
             if not self._ideas_cache:
                 self._ideas_cache = _load_ideas_file(self.cfg.ideas_file)
             if self._ideas_cache:
                 return list(self._ideas_cache)
 
-        # 2) chooser iz proekta, esli dostupen
+        # 2) Chaucer from the project, if available
         if callable(_CHOOSER):
             try:
                 cands = _CHOOSER(emotions)  # type: ignore[misc]

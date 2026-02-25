@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/computer_use/engine.py — A/B-dvizhok «Computer Use».
+"""modules/computer_use/engine.py - A/B-dvizhok “Computer Use”.
 
 Soderzhit: profili taymautov, hooks, input human-typing, captcha-politiku, sandbox,
 human-mouse (hover/scroll), profil klikov, stabilizator lokatorov, Stabilizer++ (networkidle/animations),
@@ -8,14 +7,13 @@ mini-replay, rate/throttle, anchors/fieldmap/valmask/bind i t.d.
 
 MOSTY:
 - Yavnyy: (Stabilizer++ ↔ Ispolnenie) — posle deystviy zhdem network-idle i okonchanie animatsiy.
-- Skrytyy №1: (Nablyudaemost ↔ Nadezhnost) — v extra shaga logiruyutsya ozhidaniya stabilizatsii.
-- Skrytyy №2: (Upravlenie ↔ Prozrachnost) — vklyuchenie cherez ENV ili per-step `after_wait`.
+- Skrytyy No. 1: (Nablyudaemost ↔ Nadezhnost) - v extra shaga logiruyutsya ozhidaniya stabilizatsii.
+- Skrytyy No. 2: (Upravlenie ↔ Prozrachnost) - vklyuchenie cherez ENV or per-step `after_wait`.
 
 ZEMNOY ABZATs:
-Eto «plavnyy tormoz»: snizhaem flap testov na dinamicheskikh saytakh — ne rvemsya dalshe, poka stranitsa ne uspokoilas.
+Eto “plavnyy tormoz”: snizhaem flap testov na dinamicheskikh saytakh - ne rvemsya dalshe, poka stranitsa ne uspokoilas.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 import importlib, os, hashlib, json, time, re, random
 from html.parser import HTMLParser

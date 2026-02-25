@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/security_routes.py - oflayn-autentifikatsiya i audit.
+"""routes/security_routes.py - oflayn-autentifikatsiya i audit.
 
 Ruchki:
-  GET  /auth/status                 -> {initialized:bool}
-  POST /auth/init {"password": "..."}        # (re)init lokalnogo operatora
-  POST /auth/login {"password": "..."}       # vydaet JWT s rolyu operator
-  POST /auth/rotate                 # rotatsiya JWT-sekreta (trebuet operator)
-  GET  /audit/rpa?tail=200          # poslednie N strok audita rpa.jsonl / rpa.log
+  GET /auth/status -> {initialized:bool}
+  POST /auth/init {"password": "..."} # (re)init lokalnogo operatora
+  POST /auth/login {"password": "..."} # vydaet JWT s rolyu operator
+  POST /auth/rotate # rotatsiya JWT-sekreta (trebuet operator)
+  GET /audit/rpa?tail=200 # poslednie N strok audita rpa.jsonl / rpa.log
 
 RBAC:
   - /auth/rotate, /audit/* trebuyut rol 'operator' (sm. security/rbac_utils.require_role)
@@ -20,8 +19,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Nikakikh vneshnikh IdP. Odin fayl s solenym kheshem i sekretom JWT. Pri rotatsii - starye tokeny nedeystvitelny.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, io, json
 from typing import List
@@ -90,7 +88,7 @@ def audit_rpa_tail():
     tail = max(1, min(10000, int(request.args.get("tail", "200") or "200")))
     for p in _rpa_log_paths():
         if os.path.exists(p):
-            # khvost bez chteniya vsego fayla
+            # tail without reading the whole file
             try:
                 with open(p, "rb") as f:
                     f.seek(0, io.SEEK_END)
@@ -104,7 +102,7 @@ def audit_rpa_tail():
                         data = f.read(size - pos) + data
                         size = pos
                     lines = data.decode("utf-8", "ignore").splitlines()[-tail:]
-                    # popytka rasparsit JSONL, inache - kak tekst
+                    # attempt to parse JSONL, otherwise - as text
                     items = []
                     for ln in lines:
                         try:

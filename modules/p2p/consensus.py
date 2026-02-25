@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-P2P Consensus — detsentralizovannoe soglasovanie faktov po golosam uzlov.
+"""P2P Consensus - detsentralizovannoe soglasovanie faktov po golosam uzlov.
 
 Mosty:
 - Yavnyy: (P2P ↔ Doverie) — kazhdyy uzel podpisyvaet golos za/protiv, reshenie nakaplivaetsya v zhurnale.
-- Skrytyy 1: (Kriptografiya ↔ Nablyudaemost) — HMAC-podpisi proveryayutsya i otrazhayutsya v verifikatsii.
-- Skrytyy 2: (Memory ↔ Ispolnenie) — prinyatye fakty mozhno «podnimat» v doverii (integratsiya s TrustIndex).
+- Skrytyy 1: (Kriptografiya ↔ Nablyudaemost) - HMAC-podpisi proveryayutsya i otrazhayutsya v verifikatsii.
+- Skrytyy 2: (Memory ↔ Ispolnenie) - prinyatye fakty mozhno “podnimat” v doverii (integratsiya s TrustIndex).
 
 Zemnoy abzats:
-Eto kak «podnyat ruki» v komnate: kto «za», kto «protiv». Kogda ruk dostatochno — schitaem, chto fakt prinyat.
-Bez interneta — rabotaem lokalno; podpis nuzhna, chtoby ruki byli «chestnymi».
-"""
+Eto kak “podnyat ruki” v komnate: kto “za”, kto “protiv”. Kogda ruk dostatochno - schitaem, chto fakt prinyat.
+Bez interneta - rabotaem lokalno; podpis nuzhna, chtoby ruki byli “chestnymi”."""
 from __future__ import annotations
 
 import os, json, time, hmac, hashlib
@@ -45,10 +43,8 @@ def _sig(payload: Dict[str, Any], secret: Optional[str]) -> str:
     return hmac.new(secret.encode("utf-8"), msg, hashlib.sha256).hexdigest()
 
 def propose(pid: str, text: str, author: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Sozdat predlozhenie s id=pid.
-    Slot A — pryamaya zapis. Slot B — avto-golos avtora «za» pri nalichii peer_id.
-    """
+    """Create an offer with id=pid.
+    Slot A - direct recording. Slot B - auto-vote for the author if there is a peer_id."""
     peer = os.getenv("P2P_PEER_ID", "local")
     with ab_switch("P2PCONS") as slot:
         db = _load()
@@ -58,15 +54,13 @@ def propose(pid: str, text: str, author: Optional[str] = None) -> Dict[str, Any]
         if slot == "B":
             # avto-golos avtora «za»
             v = vote(pid, vote_value=1, peer_id=peer, attach=False)
-            db = _load()  # uzhe zapisalos
+            db = _load()  # already signed up
         _save(db)
         return {"ok": True, "id": pid, "slot": slot}
 
 def vote(pid: str, vote_value: int, peer_id: Optional[str] = None, attach: bool = True) -> Dict[str, Any]:
-    """
-    Golos «za» (1) ili «protiv» (-1).
-    attach=False — vnutrenniy vyzov (ne vozvraschat vsyu nagruzku).
-    """
+    """Vote "for" (1) or "against" (-1).
+    attach=False - internal call (do not return the entire load)."""
     peer = peer_id or os.getenv("P2P_PEER_ID", "local")
     val = 1 if int(vote_value) >= 1 else -1
     secret = os.getenv("P2P_CONSENSUS_SECRET")
@@ -77,11 +71,11 @@ def vote(pid: str, vote_value: int, peer_id: Optional[str] = None, attach: bool 
             return {"ok": False, "error": "not_found", "id": pid}
         pay = {"id": pid, "peer": peer, "val": val, "ts": time.time()}
         pay["sig"] = _sig(pay, secret)
-        # zamenyaem golos uzla, esli uzhe golosoval
+        # replace the node's vote if it has already voted
         p["votes"] = [v for v in p["votes"] if v.get("peer") != peer]
         p["votes"].append(pay)
         db["history"].append({"op": "vote", **pay})
-        # obnovlenie sostoyaniya
+        # status update
         score = sum(v.get("val", 0) for v in p["votes"])
         quorum = int(os.getenv("P2P_MIN_QUORUM", "2") or "2")
         if abs(score) >= quorum:

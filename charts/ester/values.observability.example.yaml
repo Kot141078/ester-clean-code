@@ -1,5 +1,5 @@
-# Primer znacheniy dlya vklyucheniya nablyudaemosti i Istio v charte Ester.
-# Skopiruyte/adaptiruyte v koren kak values.observability.yaml,
+# Example values ​​for enabling observability and Istio in the Esther chart.
+# Copy/adapt to root as values.observabilities.yaml,
 # zatem primenyayte: helm upgrade --install ester ./charts/ester -n ester --create-namespace -f values.observability.yaml
 
 service:

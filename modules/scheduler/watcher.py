@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-modules.scheduler.watcher — konfiguratsiya votchera + planovye tiki.
-# c=a+b
-"""
+"""modules.scheduler.watcher - watcher configuration + scheduled ticks.
+# c=a+b"""
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional, Dict, Any
@@ -23,5 +21,5 @@ def plan_tick(cfg: WatchConfig | None = None) -> Dict[str, Any]:
     return {"ok": True, "inbox": cfg.inbox_dir}
 
 def apply_tick(cfg: WatchConfig | None = None) -> Dict[str, Any]:
-    # Semantika: takoy zhe «pustoy» tik, chtoby ne padali routy UI-planirovschika
+    # Semantics: the same “empty” tick so that UI scheduler routes do not crash
     return plan_tick(cfg)

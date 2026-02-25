@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/board_channels_routes.py - borda kanalov (JSON + legkiy HTML).
+"""routes/board_channels_routes.py - borda kanalov (JSON + legkiy HTML).
 
 MOSTY:
 - (Yavnyy) /board/messaging/stats → JSON; /board/messaging.html → mini-dashbord na fetch() bez vneshnikh zavisimostey.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Dannye berutsya iz observability.messaging_stats bez novykh zavisimostey.
 
 ZEMNOY ABZATs:
-Bystro uvidet: «ne shtormit li» dostavku, ne kopitsya li ochered i chto chasche vsego lomaetsya.
+Bystro uvidet: “ne shtormit li” dostavku, ne kopitsya li ochered i chto chasche vsego lomaetsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from fastapi import APIRouter, FastAPI
@@ -25,8 +23,7 @@ router = APIRouter()
 async def board_messaging_stats():
     return JSONResponse(collect_messaging_stats())
 
-_HTML = """
-<!doctype html><html><head><meta charset="utf-8"><title>Messaging Board</title>
+_HTML = """<!doctype html><html><head><meta charset="utf-8"><title>Messaging Board</title>
 <style>
 body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:16px;color:#222}
 .card{border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
@@ -43,7 +40,7 @@ async function load(){
   const c = d.channels, q=d.queue, l=d.log;
   function chRow(name, x){
     const rate1 = (x.sent_1h + x.fail_1h) ? Math.round(100*x.sent_1h/(x.sent_1h+x.fail_1h)) : 100;
-    const rate24 = (x.sent_24h + x.fail_24h) ? Math.round(100*x.sent_24h/(x.sent_24h+x.fail_24h)) : 100;
+    const rate24 = (x.sent_24h + x.fail_24h) ​​? Math.round(100*x.sent_24h/(x.sent_24h+x.fail_24h)) : 100;
     const err = (x.top_errors||[]).map(e=>`${e.code}:${e.count}`).join(', ') || '-';
     return `<tr><td>${name}</td><td>${x.sent_1h}/${x.fail_1h} <span class="${rate1>=95?'ok':'bad'}">(${rate1}%)</span></td>
             <td>${x.sent_24h}/${x.fail_24h} <span class="${rate24>=95?'ok':'bad'}">(${rate24}%)</span></td>
@@ -56,7 +53,7 @@ async function load(){
       <div class="muted">ts:</div><div class="muted">${new Date(d.ts*1000).toLocaleString()}</div>
     </div>
     <table style="margin-top:12px">
-      <thead><tr><th>Kanal</th><th>1 chas</th><th>24 chasa</th><th>Top oshibok</th></tr></thead>
+      <thead><tr><th>Kanal</th><th>1 hour</th><th>24 hours</th><th>Top oshibok</th></tr></thead>
       <tbody>
         ${chRow('Telegram', c.telegram)}
         ${chRow('WhatsApp', c.whatsapp)}
@@ -64,8 +61,7 @@ async function load(){
     </table>`;
 }
 load(); setInterval(load, 10000);
-</script></body></html>
-"""
+</script></body></html>"""
 
 @router.get("/board/messaging.html", response_class=HTMLResponse)
 async def board_messaging_html():

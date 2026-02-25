@@ -1,6 +1,6 @@
 import psutil
 import logging
-# Popytka importa NVML dlya Nvidia
+# Trying to import NVML for Nvidia
 try:
     import pynvml
     HAS_NVIDIA = True

@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/nopush_guard_routes.py - HTTP-upravlenie lokalnym «stop-kranom» push cherez flag-fayl.
+"""routes/nopush_guard_routes.py - HTTP-upravlenie lokalnym “stop-kranom” push cherez flag-fayl.
 
-Endpointy:
-  • GET  /admin/nopush/status  -> {"ok":true,"enabled":bool,"flag_path":".nopush","allow_env":0|1}
-  • POST /admin/nopush/enable  -> sozdat .nopush (zapretit push po umolchaniyu)
-  • POST /admin/nopush/disable -> udalit .nopush (snyat obschiy zapret; vse esche nuzhen ALLOW_PUSH=1 ili .allow_push)
+Endpoint:
+  • GET /admin/nopush/status -> {"ok":true,"enabled":bool,"flag_path":".nopush","allow_env":0|1}
+  • POST /admin/nopush/enable -> sozdat .nopush (zapretit push po umolchaniyu)
+  • POST /admin/nopush/disable -> udalit .nopush (snyat obschiy zapret; vse esche nuzhen ALLOW_PUSH=1 or .allow_push)
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

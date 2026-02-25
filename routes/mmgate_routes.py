@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mmgate_routes.py - REST: status i lint-skan dlya MM Gate.
+"""routes/mmgate_routes.py - REST: status i lint-skan dlya MM Gate.
 
 Mosty:
 - Yavnyy: (Veb ↔ Memory) prozrachnost ispolzovaniya fabriki get_mm().
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Rules/Cron ↔ Kachestvo) mozhno dergat iz nightly.
 
 Zemnoy abzats:
-Korotkiy otchet: kto khodit cherez dver, a kto «v okno». Pomogaet navesti poryadok bez polomok.
+Korotkiy otchet: kto khodit cherez dver, a kto “v okno”. Pomogaet naveti poryadok bez polomok.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

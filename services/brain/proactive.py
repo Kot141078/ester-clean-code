@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-U2/services/brain/proactive.py — «prokativnoe myshlenie» Ester: smotrim na pamyat i artefakty → reshaem, chto delat.
+"""U2/services/brain/proactive.py - “prokativnoe myshlenie” Ester: smotrim na pamyat i artefakty → reshaem, chto delat.
 
 Mosty:
 - Yavnyy: Enderton (logika) — plan kak kompozitsiya proveryaemykh predikatov: ustarelo li A ∧ net li B ∧ izmenilas li tema?.
-- Skrytyy #1: Cover & Thomas (infoteoriya) — szhimaem «signaly» sredy (mtime, kheshi tem, schetchiki) do kratkogo plana.
+- Skrytyy #1: Cover & Thomas (infoteoriya) — szhimaem “signaly” sredy (mtime, kheshi tem, schetchiki) do kratkogo plana.
 - Skrytyy #2: Ashbi (kibernetika) — regulyator prosche sistemy: A-slot — zhestkie pravila; B-slot — myagkaya perestanovka prioriteta.
 
 Zemnoy abzats (inzheneriya):
-ChITAEM TOLKO LOKALNYE FAYLY (ingest-audit, indeks, daydzhesty, obs-metriki, kartochki). Vozvraschaem plan: spisok
-deystviy (ingest/index/digest/rules/render/advice/slo/release) i obyasnenie. Zapis sostoyaniya — v `data/cortex/state.json`.
-V B-rezhime NE trebuem set: esli LMStudio nedostupen — otkat k A.
+CHITAEM TOLKO LOKALNYE FAYLY (ingest-audit, indexes, daydzhesty, obs-metriki, kartochki). Vozvraschaem plan: spisok
+deystviy (ingest/index/digest/rules/render/advice/slo/release) i obyasnenie. Zapis sostoyaniya - v `data/cortex/state.json`.
+V B-rezhime NE trebuem set: esli LMStudio nedostupen - otkat k A.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import glob, json, os, time, hashlib
 from typing import Any, Dict, List, Tuple
@@ -89,7 +87,7 @@ def think_and_plan(policy_path: str | None = None) -> Dict[str, Any]:
     pol = _load_policy(policy_path)
     pd = _persist_dir()
 
-    # Artefakty i vremena
+    # Artifacts and times
     p_audit = _p(pd, "ingest", "audit.jsonl")
     p_idx_docs = _p(pd, "reco", "tfidf_docs.json")
     p_idx_vocab = _p(pd, "reco", "tfidf_vocab.json")
@@ -109,17 +107,17 @@ def think_and_plan(policy_path: str | None = None) -> Dict[str, Any]:
     actions: List[str] = []
     explain: List[str] = []
 
-    # 1) Nuzhen li ingest?
+    # 1) Is ingest necessary?
     if (now - t_ing) / 3600.0 > float(pol["ingest_max_age_h"]):
         actions.append("ingest")
         explain.append("ingest: audit starshe poroga")
 
-    # 2) Nuzhen li reindex?
+    # 2) Is a reindex necessary?
     if pol.get("reindex_if_ingested", True) and (t_ing > t_idx):
         actions.append("index")
-        explain.append("index: indeks staree poslednikh ingenstov")
+        explain.append("index: index older than latest engineers")
 
-    # 3) digest, esli net/staryy/temy izmenilis
+    # 3) digest, if not/old/topics have changed
     need_digest = (t_dig == 0.0) or ((now - t_dig)/3600.0 > float(pol["digest_max_age_h"])) or topics_changed
     if need_digest:
         actions.append("digest")
@@ -145,15 +143,15 @@ def think_and_plan(policy_path: str | None = None) -> Dict[str, Any]:
     if pol.get("release_enabled", False):
         actions.append("release")
 
-    # A/B — tolko perestanovka prioritetov (bez izmeneniya nabora deystviy)
+    # A/B - only rearrangement of priorities (without changing the set of actions)
     mode = (os.getenv("U2_MODE") or "A").strip().upper()
     if mode == "B":
         try:
-            # myagko: esli LMStudio dostupen — dadim emu predlozhit uporyadochivanie
+            # softly: if LTStudio is available, let’s let it suggest ordering
             from services.reco.llm_client import LMStudioClient  # type: ignore
             client = LMStudioClient()
             msg = [
-                {"role":"system","content":"Uporyadochit shagi payplayna po ubyvaniyu polzy: ingest, index, digest, rules, render, advice, slo, release. Verni JSON {order:[...]}. Bez poyasneniy."},
+                {"role":"system","content":"Arrange the steps of the pipeline in descending order of benefit: ingest, index, digest, rule, render, adweek, layer, release. Return JSION ZZF0Z. No explanation."},
                 {"role":"user","content":json.dumps({"actions":actions, "signals":{"topics_changed":topics_changed}}, ensure_ascii=False)}
             ]
             js = json.loads(client.chat(msg, max_tokens=100, temperature=0.0))

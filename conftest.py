@@ -8,8 +8,7 @@ Tsel:
 
 Drop-in:
 - Ne menyaet logiku prilozheniya.
-- Aktiven tolko pri zapuske pytest.
-"""
+- Aktiven tolko pri zapuske pytest."""
 
 import sys
 from pathlib import Path

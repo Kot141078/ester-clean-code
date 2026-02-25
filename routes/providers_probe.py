@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/providers_probe.py - status provayderov LLM.
+"""routes/providers_probe.py - status provayderov LLM.
 
 MOSTY:
 - (Yavnyy) GET /providers/status - tekuschiy vybrannyy provayder i bazovye proverki.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Vozvraschaem kompaktnyy otchet dlya UI, ne trebuyuschiy vneshnego interneta.
 
 ZEMNOY ABZATs:
-Kak panel lampochek: vidno, kakaya «mozgovaya korobka» seychas aktivna i zhiva li «lokalnaya».
+Kak panel lampochek: vidno, kakaya “mozgovaya korobka” seychas aktivna i zhiva li “lokalnaya”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify

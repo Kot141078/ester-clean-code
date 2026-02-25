@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""modules/thinking/web_context_expander.py — rasshiritel konteksta (web search → optional read → optional ingest).
+"""modules/thinking/web_context_expander.py - expanded konteksta (web search → optional read → optional ingest).
 
 API:
   - expand(q: str, k: int = 5, autofetch: bool = False, max_fetch: int = 3, read_content: bool = True) -> dict
@@ -7,12 +7,12 @@ API:
   - reset_counters() -> dict
 
 A/B:
-  - WEB_CONTEXT_AB=A — polnotsennaya rabota (po umolchaniyu).
+  - WEB_CONTEXT_AB=A — complete work (by umolchaniyu).
   - WEB_CONTEXT_AB=B — tolko plan (bez vyzovov ingest endpoyntov).
 
 ENV:
   - WEB_CONTEXT_AUTOFETCH=0/1
-  - WEB_CONTEXT_ALLOW_HOSTS="example.com,news.site"  (esli zadan — ingest tolko iz allow-list)
+  - WEB_CONTEXT_ALLOW_HOSTS="example.com,news.site" (esli zadan — ingest only iz allow-list)
   - ESTER_BASE_URL="http://127.0.0.1:8090"
   - URL_INGEST_ENDPOINT="/ingest/url/fetch"
   - VIDEO_INGEST_ENDPOINT="/ingest/video/universal/fetch"
@@ -20,13 +20,12 @@ ENV:
   - WEB_CONTEXT_MAX_TEXT=5000
 
 Mosty:
-  - Yavnyy: «myshlenie» poluchaet vneshnie ssylki, a pri neobkhodimosti akkuratno kladet istochniki v pamyat cherez ingest.
+  - Yavnyy: “myshlenie” poluchaet vneshnie ssylki, a pri neobkhodimosti akkuratno kladet istochniki v pamyat cherez ingest.
   - Skrytye:
       1) Infoteoriya ↔ nadezhnost: allow-list + best-effort = kontrol kanala i otsutstvie “zhestkikh” padeniy.
-      2) Kibernetika ↔ kontrol: A/B (plan/vypolnenie) upravlyaetsya ENV i prozrachno v schetchikakh.
+      2) Kibernetika ↔ control: A/B (plan/vypolnenie) upravlyaetsya ENV i prozrachno v schetchikakh.
 
-ZEMNOY ABZATs: vnizu fayla.
-"""
+ZEMNOY ABZATs: vnizu fayla."""
 
 from __future__ import annotations
 
@@ -36,7 +35,7 @@ import re
 from typing import Any, Dict, List, Optional, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# === PATCH: import web_browser dlya chteniya stranits (optsionalno) ===
+# === PATCH: import web_browser to read pages (optional) ===
 try:
     from bridges.web_browser import browse, search_and_read, WebPage  # type: ignore
     WEB_BROWSER_AVAILABLE = True
@@ -79,7 +78,7 @@ def _ok_for_autofetch(url: str) -> bool:
     h = _host(url)
     if ALLOW:
         return h in ALLOW
-    return True  # po umolchaniyu doveryaem; ogranichivay cherez WEB_CONTEXT_ALLOW_HOSTS
+    return True  # trust by default; limit via WEB_CONTEXT_ALLOW_HOSTS
 
 
 def _resolve_post_url(path: str) -> str:
@@ -111,7 +110,7 @@ def _post(path: str, payload: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _read_pages(hits: List[Dict[str, Any]], max_fetch: int) -> List[Dict[str, Any]]:
-    """Best-effort chtenie stranits cherez bridges.web_browser.browse."""
+    """Best-effort reading pages through bridges.web_browser.browser."""
     out: List[Dict[str, Any]] = []
     if not (WEB_BROWSER_AVAILABLE and hits):
         return out
@@ -152,13 +151,12 @@ def expand(
     max_fetch: int = 3,
     read_content: bool = True,
 ) -> Dict[str, Any]:
-    """Rasshiryaet kontekst cherez veb-poisk.
+    """Rasshiryaet kontekst cherez web-poisk.
 
-    1) Delaet poisk cherez modules.web_search.search_web
-    2) Optsionalno chitaet soderzhimoe top-N stranits (esli bridges.web_browser dostupen)
-    3) Optsionalno otpravlyaet top-N URL v ingest endpoints (esli A/B razreshaet)
-    """
-    from modules.web_search import search_web  # lokalnyy import dlya ustoychivosti
+    1) Search through modules.web_search.search_web
+    2) Optionalno chitaet soderzhimoe top-N stranits (esli bridges.web_browser dostupen)
+    3) Optionalno otpravlyaet top-N URL v ingest endpoints (esli A/B razreshaet)"""
+    from modules.web_search import search_web  # local import for sustainability
 
     _CNT["expand_calls"] += 1
 
@@ -213,12 +211,12 @@ def expand(
 
 
 def counters() -> Dict[str, int]:
-    """Vozvraschaet tekuschie schetchiki (kopiyu)."""
+    """Returns the current counters (a copy)."""
     return dict(_CNT)
 
 
 def reset_counters() -> Dict[str, int]:
-    """Sbrasyvaet schetchiki i vozvraschaet novoe sostoyanie."""
+    """Resets the counters and returns a new state."""
     for k in list(_CNT.keys()):
         _CNT[k] = 0
     return dict(_CNT)
@@ -227,9 +225,7 @@ def reset_counters() -> Dict[str, int]:
 __all__ = ["expand", "counters", "reset_counters"]
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
 Eto kak podnesti “nos” k realnosti: my nyukhaem mir (search), mozhem pri neobkhodimosti poprobovat na vkus (read),
-i tolko potom reshaem — nesti na sklad (ingest) ili prosto zapisat plan. A/B‑tumbler zdes — kak predokhranitel
-v schitke: snachala sukhaya proverka, potom vklyuchenie moschnosti.
-"""
+i tolko potom reshaem - nesti na sklad (ingest) or prosto zapisat plan. A/B‑tumbler zdes — how predokhranitel
+v schitke: snachala sukhaya proverka, potom vklyuchenie moschnosti."""

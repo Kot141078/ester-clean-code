@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/mem/maintenance.py — tekhprotsedury pamyati (heal/compact/snapshot/reindex/validate).
+"""modules/mem/maintenance.py - tekhprotsedury pamyati (heal/compact/snapshot/reindex/validate).
 
 Mosty:
-- Yavnyy: (Memory ↔ Servis) edinaya tochka «pochinki» bez privyazki k konkretnoy BD.
+- Yavnyy: (Memory ↔ Servis) edinaya tochka “pochinki” bez privyazki k konkretnoy BD.
 - Skrytyy #1: (Profile ↔ Audit) fiksiruem operatsii i vykhodnye fayly.
 - Skrytyy #2: (Kron ↔ Taymer) dergaetsya iz planirovschika/ekshenov.
 
 Zemnoy abzats:
-Eto kak ezhegodnoe TO: proverit krepleniya, podtyanut indeksy, sdelat snimok «kak est». Teper s validatsiey — chtoby ne prosto chinit, a ubezhdatsya, chto vse na mazi.
+Eto kak ezhegodnoe TO: proverit krepleniya, podtyanut indeksy, sdelat snimok “kak est”. Teper s validatsiey - chtoby ne prosto chinit, a ubezhdatsya, chto vse na mazi.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, json, shutil, gzip
 from typing import Any, Dict
@@ -29,13 +27,13 @@ def _passport(note: str, meta: Dict[str, Any]) -> None:
         pass
 
 def _best_effort_heal() -> Dict[str, Any]:
-    # Mesto dlya realnykh proverok (tselostnost, schetchiki, orphan-uzly i pr.)
-    fixed = 0  # Mozhno dobavit logiku: proverit fayly/BD
+    # Place for real checks (integrity, counters, orphan nodes, etc.)
+    fixed = 0  # You can add logic: check files/DB
     return {"ok": True, "fixed": fixed}
 
 def _best_effort_compact() -> Dict[str, Any]:
-    # Mesto dlya realnogo szhatiya/vakuumizatsii
-    reduced_kb = 0  # Mozhno dobavit: udalit dublikaty ili optimizirovat indeksy
+    # Space for actual compression/vacuumization
+    reduced_kb = 0  # You can add: remove duplicates or optimize indexes
     return {"ok": True, "reduced_kb": reduced_kb}
 
 def _snapshot() -> Dict[str, Any]:
@@ -44,7 +42,7 @@ def _snapshot() -> Dict[str, Any]:
     d = os.path.join(SNAP_DIR, f"snap_{ts}")
     os.makedirs(d, exist_ok=True)
     
-    # Kopiruem klyuchevye fayly (iz pervogo varianta)
+    # Copy key files (from the first option)
     sources = [
         ("data/mem/passport.jsonl", "passport.jsonl"),
         ("data/social/ledger.json", "social_ledger.json"),
@@ -56,18 +54,18 @@ def _snapshot() -> Dict[str, Any]:
             shutil.copy2(src, os.path.join(d, name))
             copied.append(name)
     
-    # Dobavlyaem gzip-vygruzku (iz vtorogo, dlya backend-zapisey)
+    # Add gzip upload (from the second, for backend records)
     path = os.path.join(d, f"snapshot_{ts}.jsonl.gz")
     count = 0
     try:
         with gzip.open(path, "wt", encoding="utf-8") as f:
-            # «Maket» snimka + potentsialnaya vygruzka iz BD (rasshir, esli est backend)
+            # “Layout” of the image + potential upload from the database (extended if there is a backend)
             f.write(json.dumps({"ts": ts, "note": "snapshot_stub", "n": 0}, ensure_ascii=False) + "\n")
-            count = 1  # Zdes mozhno dobavit realnuyu iteratsiyu po zapisyam
+            count = 1  # Here you can add a real iteration through the records
     except Exception:
         pass
     
-    # Meta dlya direktorii
+    # Meta for directory
     open(os.path.join(d, "meta.json"), "w", encoding="utf-8").write(
         json.dumps({"ts": ts, "copied": copied, "gzip_file": path, "rows": count}, ensure_ascii=False, indent=2)
     )
@@ -75,7 +73,7 @@ def _snapshot() -> Dict[str, Any]:
     return {"ok": True, "dir": d, "files": copied, "gzip_file": path, "rows": count}
 
 def _reindex() -> Dict[str, Any]:
-    # Mesto dlya realnoy pereindeksatsii (vektor/leksika/ierarkhiya)
+    # Place for real reindexing (vector/lexicon/hierarchy)
     return {"ok": True}
 
 def heal() -> Dict[str, Any]:
@@ -99,7 +97,7 @@ def reindex() -> Dict[str, Any]:
     return rep
 
 def validate() -> Dict[str, Any]:
-    issues = 0  # Mesto dlya proverok: consistency, duplicates i t.d.
+    issues = 0  # Place for checks: consistency, duplication, etc.
     rep = {"ok": True, "issues": issues}
     _passport("mem_validate", rep)
 # return rep

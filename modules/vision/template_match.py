@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-modules/vision/template_match.py — sopostavlenie shablona (template matching) po skrinshotu.
+"""modules/vision/template_match.py ​​- sopostavlenie shablona (template matching) by screenshotu.
 
-Vkhod: base64 PNG ekrana i shablona, porog [0..1], metod: 'cv2' (esli dostupen) ili 'naive' (NumPy).
+Vkhod: base64 PNG ekrana i shablona, ​​threshold [0..1], metod: 'cv2' (if available) or 'naive' (NumPy).
 Vykhod: {ok, box:{left, top, width, height}, center:{x,y}, score}
 
 MOSTY:
@@ -11,11 +10,10 @@ MOSTY:
 - Skrytyy #2: (Kibernetika ↔ Volya) obraz→koordinata→klik — pryamaya petlya upravleniya.
 
 ZEMNOY ABZATs:
-Rabotaet oflayn. Esli OpenCV net — vklyuchaetsya prostaya korrelyatsiya (medlennee, no bez vneshnikh zavisimostey).
-Dlya stabilnosti luchshe ispolzovat «chetkie» malenkie shablony (logotipy/ikonki/zagolovki).
+Working offline. Esli OpenCV net - vklyuchaetsya prostaya korrelyatsiya (medlennee, no bez vneshnikh zavisimostey).
+Dlya stabilnosti luchshe ispolzovat “chetkie” malenkie shablony (logotipy/ikonki/zagolovki).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import base64, io
 from typing import Dict, Any, Tuple
@@ -40,7 +38,7 @@ def _cv2_match(screen: np.ndarray, templ: np.ndarray) -> Tuple[float, Tuple[int,
     return float(max_val), (int(max_loc[0]), int(max_loc[1]))
 
 def _naive_match(screen: np.ndarray, templ: np.ndarray) -> Tuple[float, Tuple[int,int]]:
-    # Normirovannaya korrelyatsiya (medlennaya, no bez opencv)
+    # Normalized correlation (slow, but without openq)
     H, W = screen.shape
     h, w = templ.shape
     if h>H or w>W:
@@ -49,7 +47,7 @@ def _naive_match(screen: np.ndarray, templ: np.ndarray) -> Tuple[float, Tuple[in
     t = (t - t.mean()) / (t.std() + 1e-6)
     best = -1.0
     best_xy = (0,0)
-    # shag 4 piks po umolchaniyu dlya skorosti (mozhno umenshit)
+    # Default 4px step for speed (can be reduced)
     step = 2 if (H*W) < 2_500_000 else 4
     for y in range(0, H-h+1, step):
         win = screen[y:y+h, :]

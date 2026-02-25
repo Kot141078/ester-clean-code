@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/passport_routes.py - REST: /mem/passport/append
+"""routes/passport_routes.py - REST: /mem/passport/append
 
 Mosty:
 - Yavnyy: (Veb ↔ Profile) edinaya tochka dlya shtampov ot moduley i vneshnikh agentov.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (SelfCatalog ↔ Prozrachnost) UI mozhet pokazyvat schetchiki.
 
 Zemnoy abzats:
-Knopka «proshtampovat»: vse vazhnye shagi popadayut v obschiy zhurnal, chtoby potom bylo chto proveryat.
+Knopka “proshtampovat”: vse vazhnye shagi popadayut v obschiy zhurnal, chtoby potom bylo chto proveryat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

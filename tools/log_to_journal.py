@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-tools/log_to_journal.py — prostoy CLI-logger v zhurnal pamyati Ester.
+"""tools/log_to_journal.py - prostoy CLI-logger v zhurnal pamyati Ester.
 
 MOSTY:
-- Yavnyy: (vneshnie klienty ↔ /memory/journal/event) — edinaya tochka zapisi sobytiy.
+- Yavnyy: (vneshnie klienty ↔ /memory/journal/event) - edinaya tochka zapisi sobytiy.
 - Skrytyy #1: (runtime ↔ nochnoy tsikl) — napolnyaem zhurnal tem, chto potom budet svorachivatsya vo sne.
-- Skrytyy #2: (lyuboy agent ↔ yadro pamyati) — pozvolyaet LM Studio / Judge pisat fakty bez znaniya vnutrenney skhemy.
+- Skrytyy #2: (lyuboy agent ↔ yadro pamyati) - pozvolyaet LM Studio / Judge pisat fakty bez znaniya vnutrenney skhemia.
 
 ZEMNOY ABZATs:
 Inzhenerno: utilita, kotoraya prinimaet tekst sobytiya i bet POST v HTTP API zhurnala.
-Ee mozhno vyzyvat iz khukov, batnikov, drugikh agentov — tak Ester "pomnit vse" po-chelovecheski.
+Ee mozhno vyzyvat iz khukov, batnikov, drugikh agentov - so Ester "pomnit vse" po-chelovecheski.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

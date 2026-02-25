@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-routes/rate_limiter_routes.py - REST dlya rate limit.
+"""routes/rate_limiter_routes.py - REST dlya rate limit.
 
 Ruchki:
   POST /rate/limit/set {"key":"hotkey","limit_per_min":30}
-  GET  /rate/limit/status
+  GET /rate/limit/status
 
-Integratsiya:
+Integratsia:
 - Pered chuvstvitelnym deystviem (hotkey/mix/workflow) mozhno zvat `/rate/limit/status`,
-  a ustanovku provodit cherez `/rate/limit/set` (kontrakty vyzyvayuschikh moduley ne lomaem).
+  a ustanovku provodit cherez `/rate/limit/set` (kontrakty vyzyvayuschikh modulary ne lomaem).
 
 Mosty:
-- Yavnyy: (Bezopasnost ↔ Veb) edinaya tochka upravleniya rate limit cherez REST.
-- Skrytyy #1: (Infoteoriya ↔ Shum) limiterator ogranichivaet «chastotu» signalov, snizhaya shum.
+- Yavnyy: (Bezopasnost ↔ Web) edinaya tochka upravleniya rate limit cherez REST.
+- Skrytyy #1: (Infoteoriya ↔ Shum) limiterator ogranichivaet “chastotu” signalov, snizhaya noise.
 - Skrytyy #2: (Kibernetika ↔ Kontrol) predikaty dopuska formalizuyut obratnuyu svyaz v konturakh.
 - Skrytyy #3: (Memory/Audit ↔ Prozrachnost) otvety determinirovany - ikh legko logirovat.
 
 Zemnoy abzats:
-Dumay o module kak o «serdechnom voditele ritma»: zadaem verkhnyuyu chastotu udarov (zaprosov v minutu),
-i sistema ne daet «fibrillirovat» servisu pod nagruzkoy.
+Dumay o module kak o “serdechnom voditele ritma”: zadaem verkhnyuyu chastotu udarov (zaprosov v minutu),
+i sistema ne daet “fibrillirovat” servisu pod nagruzkoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -29,7 +27,7 @@ from typing import Any, Dict
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Myagkiy import yadra limitera
+# Soft import of the limiter core
 try:
     from modules.security.rate_limiter import set_limit as _set_limit, status as _status  # type: ignore
 except Exception:  # pragma: no cover
@@ -40,7 +38,7 @@ bp = Blueprint("rate_limiter_routes", __name__, url_prefix="/rate/limit")
 
 @bp.post("/set")
 def set_():
-    """Ustanovit limit dlya klyucha (zaprosov v minutu)."""
+    """Set a limit for the key (requests per minute)."""
     if _set_limit is None:
         return jsonify({"ok": False, "error": "rate_limiter_unavailable"}), 500
 
@@ -62,7 +60,7 @@ def set_():
 
 @bp.get("/status")
 def st():
-    """Zaprosit tekuschie limity/metriki."""
+    """Request current limits/metrics."""
     if _status is None:
         return jsonify({"ok": False, "error": "rate_limiter_unavailable"}), 500
     try:
@@ -73,12 +71,12 @@ def st():
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta (kontrakt proekta)."""
+    """Drop-in registration of blueprint (project contract)."""
     app.register_blueprint(bp)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

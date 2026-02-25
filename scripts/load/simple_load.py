@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/load/simple_load.py — legkiy generator nagruzki dlya /api/v2/synergy/assign.
+"""scripts/load/simple_load.py - legkiy generator nagruzki dlya /api/v2/synergy/assign.
 
 MOSTY:
-- (Yavnyy) Asinkhronnye klienty shlyut podpisannye zaprosy; aggregiruem p50/p95 latency i RPS.
-- (Skrytyy #1) Avto-initsializatsiya demo-dannykh (agenty/komanda) pri neobkhodimosti.
+- (Yavnyy) Asinkhronnye klienty shlyut podpisannye zaprosy; aggregate p50/p95 latency i RPS.
+- (Skrytyy #1) Avto-initsializatsiya demo-dannykh (agency/komanda) pri neobkhodimosti.
 - (Skrytyy #2) Fail-safe: lyubye oshibki schitayutsya, no ne valyat progon; itogovaya svodka po zavershenii.
 
 ZEMNOY ABZATs:
-Pozvolyaet bystro proverit, kak zhivet servis pod 5–50 rps: idempotentnost, stabilnost, latentnost.
+Pozvolyaet bystro proverit, how zhivet servis pod 5–50 rps: idempotentnost, stabilnost, latentnost.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -34,7 +32,7 @@ def _sig(method: str, path: str, body: bytes, key: str, ts: int) -> str:
 
 async def _ensure_seed(base: str) -> None:
     async with httpx.AsyncClient(base_url=base, timeout=5.0) as cl:
-        # Pytaemsya poluchit bordu; esli 404 — eto ne nashi ruchki (propustim)
+        # We are trying to get a board; if 404 is not our pens (we’ll skip it)
         try:
             await cl.get("/synergy/board/data?team_id=Recon%20A")
         except Exception:

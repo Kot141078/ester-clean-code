@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-modules/learn/from_macro.py — obuchenie agenta iz makrosov (Arm→Disarm→Preview→Export→Apply).
+"""modules/learn/from_macro.py - obuchenie agenta iz makrosov (Arm→Disarm→Preview→Export→Apply).
 
-Naznachenie:
-- Zagruzit posledniy zapisannyy makros ili ukazannyy fayl.
-- Ochistit shum (melkie dvizheniya, dubli khotkeev).
+Name:
+- Zagruzit posledniy zapisannyy makros or ukazannyy fayl.
+- Ochistit noise (melkie dvizheniya, dubli khotkeev).
 - Prevratit shagi v unifitsirovannye operatsii planov (op/op + args).
 - Eksportirovat rezultat v pending_add.json (dlya ruchnogo ili avtomaticheskogo primeneniya).
 
 MOSTY:
-- Yavnyy: (Opyt ↔ Znanie) zapisannye deystviya → gotovye plan-shagi i shablony.
+- Yavnyy: (Opyt ↔ Znanie) zapisannye deystviya → gotovye plan-steps i shablony.
 - Skrytyy #1: (Infoteoriya ↔ Obuchenie) chistka shumov snizhaet entropiyu opyta.
 - Skrytyy #2: (Inzheneriya ↔ Sovmestimost) format sovpadaet s plan-builder'om.
 
 ZEMNOY ABZATs:
-Na praktike makros — eto JSON-zhurnal deystviy (click, type, hotkey…).  
+Na praktike makros - eto JSON-zhurnal deystviy (click, type, hotkey...).  
 Filtr stroit iz nego plan shagov, prigodnyy dlya povtornogo vosproizvedeniya ili sokhraneniya kak shablon.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import os, json, time

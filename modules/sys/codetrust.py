@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/sys/codetrust.py — doverie k faylam koda: sha256-«profile», whitelist i karantin.
+"""modules/sys/codetrust.py - doverie k faylam koda: sha256-“profile”, whitelist i quarantine.
 
 Mosty:
 - Yavnyy: (Kod ↔ Bezopasnost) schitaem sha256, vedem belyy spisok, blokiruem neznakomye.
 - Skrytyy #1: (Memory ↔ Profile) logiruem operatsii v obschuyu pamyat.
-- Skrytyy #2: (RBAC ↔ Politiki) whitelist dostupen tolko adminam cherez rout.
+- Skrytyy #2: (RBAC ↔ Politiki) whitelist dostupen only adminam cherez rout.
 
 Zemnoy abzats:
-Kak prokhodnaya zavoda: na vkhode proveryaem beydzh (khesh), neznakomykh — v komnatu dosmotra (karantin).
+Kak prokhodnaya zavoda: na vkhode proveryaem beydzh (khesh), neznakomykh - v komnatu dosmotra (quarantine).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hashlib, shutil
 from typing import Any, Dict, List
@@ -64,7 +62,7 @@ def quarantine(path: str, reason: str)->Dict[str,Any]:
         return {"ok": False, "error":"file_not_found"}
     j=_load()
     rec={"path": os.path.abspath(path), "sha256": sha256_of(path), "reason": reason, "ts": int(time.time())}
-    # Fayl ne trogaem (ne udalyaem), tolko fiksiruem karantin
+    # We don’t touch the file (we don’t delete it), we just fix the quarantine
     j["quarantine"].append(rec); _save(j)
     _passport("quarantine_mark", rec)
     return {"ok": True, "record": rec}

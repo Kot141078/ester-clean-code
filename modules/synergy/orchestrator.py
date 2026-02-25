@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/orchestrator.py — Naznachenie roley i puls sinergii.
+"""modules/synergy/orchestrator.py - Naznachenie roley i puls sinergii.
 
 Mosty:
 - (Yavnyy) Algoritm podbora (zhadnyy so shtrafami konfliktov) i uvedomleniya uchastnikov cherez /proactive/dispatch.
 - (Skrytyy #1) Politiki bezopasnosti/nagruzki iz YAML (rabochie chasy, nesovmestimosti roley).
-- (Skrytyy #2) Puls komandy: agregirovannyy «synergy score» dlya operatora.
+- (Skrytyy #2) Puls komandy: agregirovannyy “synergy score” dlya operatora.
 
 Zemnoy abzats:
 Sobiraet komandu iz lyudey i mashin pod zadachu. Otdaet prozrachnyy plan naznacheniya
-i obektivnyy indikator «naskolko komanda sbalansirovana».
+i obektivnyy indicator “naskolko komanda sbalansirovana”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Dict, Any, List, Tuple
@@ -29,7 +27,7 @@ POL_PATH = os.getenv("SYNERGY_POLICIES_PATH", "config/synergy_policies.yaml")
 
 DEFAULT_POL = {
     "max_roles_per_agent": 2,
-    "incompat": [["operator","strategist"]],  # po umolchaniyu luchshe razdelyat
+    "incompat": [["operator","strategist"]],  # by default it is better to separate
     "required_for_purpose": {
         "aerorazvedka": ["strategist","operator","platform"]
     }
@@ -60,7 +58,7 @@ def assign(team_name: str) -> Dict[str, Any]:
     assigned: Dict[str, str] = {}
     taken: Dict[str, int] = {}
 
-    # Zhadnyy podbor po maksimalnomu score dlya kazhdoy roli
+    # Greedy selection based on maximum quarrel for each role
     for role in roles_needed:
         best_id, best_s = None, -1.0
         for a in agents:
@@ -87,7 +85,7 @@ def synergy_pulse(team_name: str) -> Dict[str, Any]:
     if not roles:
         return {"ok": True, "team": team_name, "score": 0.0, "coverage": 0.0, "assigned": assigned}
 
-    # Otsenka: pokrytie roley + sredniy score naznachennykh
+    # Rating: role coverage + average quarrel assigned
     agents = {a["id"]: a for a in STORE.list_agents()}
     coverage = sum(1 for r in roles if r in assigned) / max(1, len(roles))
     comp = []
@@ -104,7 +102,7 @@ def notify_assignments(team_name: str, plan: Dict[str, str]) -> Dict[str, Any]:
     if os.getenv("SYNERGY_NOTIFY","0") != "1":
         return {"ok": True, "dry": True}
 
-    # Otpravlyaem v kanaly cherez lokalnyy /proactive/dispatch
+    # Send to channels via local /proactive/dispatch
     import urllib.request
     payloads = []
     for role, aid in plan.items():
@@ -112,14 +110,14 @@ def notify_assignments(team_name: str, plan: Dict[str, str]) -> Dict[str, Any]:
         ch = (agent.get("channels") or {})
         audience = "business"  # neytralnyy delovoy
         intent = "update"
-        content = f"Naznachenie roli: {role} v komande {team_name}."
+        content = f"Role assignment: ZZF0Z in the ZZF1ZZ team."
         body = {"audience": audience, "intent": intent, "content": content, "source_id": f"synergy:{team_name}:{role}:{aid}"}
         if "whatsapp" in ch:
             body["channel"] = "whatsapp"; body["to"] = ch["whatsapp"]
         elif "telegram" in ch:
             body["channel"] = "telegram"; body["to"] = ch["telegram"]
         else:
-            # dat shans pravilu po umolchaniyu
+            # give chance the default rule
             pass
         data = json.dumps(body).encode("utf-8")
         req = urllib.request.Request("http://127.0.0.1:8080/proactive/dispatch", data=data, headers={"Content-Type":"application/json"}, method="POST")

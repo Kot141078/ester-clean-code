@@ -10,7 +10,7 @@ User=ester
 Group=ester
 WorkingDirectory=/opt/ester
 Environment=PYTHONUNBUFFERED=1
-# Peremennye, vklyuchaya VECTOR_DIODE_CFG, — cherez EnvironmentFile
+# Variables including VECTOR_DIODE_KFG - via EnvironmentFile
 EnvironmentFile=-/etc/ester/ester.env
 ExecStart=/usr/bin/python3 -m modules.storage.vector_diode_ingestor
 Restart=always

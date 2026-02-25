@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tools/synergy_generate_schemas.py — generatsiya JSON-skhem modeley Synergy.
+"""tools/synergy_generate_schemas.py - generatsiya JSON-skhem modeley Synergy.
 
 MOSTY:
-- (Yavnyy) Serializuet Pydantic-skhemy v papku schemas/synergy/*.schema.json.
-- (Skrytyy #1) Ne trebuet zapuschennogo prilozheniya; chistyy skript.
+- (Yavnyy) Serializuet Pydantic-schemy v papku schemas/synergy/*.schema.json.
+- (Skrytyy #1) Ne trebuet zapuschennogo prilozheniya; clean script.
 - (Skrytyy #2) Spisok modeley — odna tochka pravdy dlya eksporta.
 
 ZEMNOY ABZATs:
 Skhemy nuzhny CI i integratsiyam: validirovat vkhod/vykhod bez pinkov bekenda.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import os

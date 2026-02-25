@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/trust/sign.py — lokalnye podpisi artefaktov (HMAC-SHA256) i proverka.
+"""modules/trust/sign.py - lokalnye podpisi artefaktov (HMAC-SHA256) i proverka.
 
 Mosty:
 - Yavnyy: (Bezopasnost ↔ Tselostnost) podpisyvaem fayly/manifesty i proveryaem pered zapuskom.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Avtonomiya ↔ Samosborka) relizy soderzhat manifest s podpisyami.
 
 Zemnoy abzats:
-Kak pechat na konverte — bez pravilnoy «mastiki» fayl ne primem.
+Kak pechat na konverte - bez pravilnoy “mastiki” fayl ne primem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, hmac, hashlib, time
 from typing import Any, Dict

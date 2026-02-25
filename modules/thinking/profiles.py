@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/profiles.py — presety profiley nagruzki dlya tsikla myshleniya.
+"""modules/thinking/profiles.py - presety profiley nagruzki dlya tsikla myshleniya.
 
 MOSTY:
-- Yavnyy: (Regulyatsiya ↔ Mysl) — tsentralizovannye profili v odnom meste.
-- Skrytyy #1: (Inzheneriya sistem ↔ Kibernetika) — parametry dlya «gubernatora» (porogi CPU/GPU).
-- Skrytyy #2: (UX/Operirovanie ↔ Stabilnost) — profili pod stsenarii: tikho/balans/maks.
+- Yavnyy: (Regulyatsiya ↔ Mysl) - tsentralizovannye profili v odnom meste.
+- Skrytyy #1: (Inzheneriya sistem ↔ Kibernetika) - parameter dlya “gubernatora” (porogi CPU/GPU).
+- Skrytyy #2: (UX/Operirovanie ↔ Stabilnost) — profile pod stsenarii: tikho/balans/maks.
 
 ZEMNOY ABZATs:
-Fayl daet prostye «tumblery moschnosti». Eto kak rezhimy noutbuka: ekonomiya, sbalansirovannyy,
+Fayl daet prostye “tumblery moschnosti.” This is how rezhimy noutbuka: ekonomiya, sbalansirovannyy,
 proizvoditelnyy. Tsikl myshleniya podstraivaet chastotu tikov i agressivnost, ne lomaya API.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -25,9 +23,9 @@ PROFILES: Dict[str, Dict[str, Any]] = {
         "daily_tick": True,
         "governor": {
             "pause_when_busy": True,
-            "cpu_high": 0.60,  # pri >60% CPU i pustoy ocheredi — udlinyaem pauzy
+            "cpu_high": 0.60,  # at >60% CNC and empty queue - lengthens pauses
             "cpu_low": 0.25,
-            "gpu_high": 0.50,  # pri >50% GPU i pustoy ocheredi — udlinyaem pauzy
+            "gpu_high": 0.50,  # at >50% GPU and empty queue - lengthens pauses
             "gpu_low": 0.20,
             "sleep_add_hi": 0.50,
             "sleep_add_lo": 0.10,
@@ -51,7 +49,7 @@ PROFILES: Dict[str, Dict[str, Any]] = {
     "max": {
         "tick_sleep": 0.05,
         "max_batch": 4,
-        "idle_probe": False,   # maksimum — menshe «fonovogo nyukha»
+        "idle_probe": False,   # maximum - less “background scent”
         "daily_tick": True,
         "governor": {
             "pause_when_busy": False,  # ne tormozim dazhe pri vysokoy zagruzke

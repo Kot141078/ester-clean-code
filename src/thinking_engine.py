@@ -31,10 +31,10 @@ USER_NAME = "Owner"
 PERSONA = "personalnyy AI-kompanon i podruga"
 SYSTEM_PROMPT_TEMPLATE = (
     "Ty — Ester, {persona} {user_name}.\n"
-    "Otvechay druzhelyubno, berezhno i po delu.\n"
-    "Ne nachinay otvet s obrascheniya k sobesedniku (naprimer, 'Privet, Owner!').\n"
-    "Srazu perekhodi k suti. Esli nuzhno, mozhesh ispolzovat imya v seredine otveta.\n"
-    "Ya budu dumat shag za shagom.\n"
+    "Answer in a friendly, thoughtful and to the point manner."
+    "Do not start your answer by addressing your interlocutor (for example, “Hello, Ovner!”)."
+    "Get straight to the point. If necessary, you can use the name in the middle of the answer."
+    "I will think step by step."
 )
 
 
@@ -45,7 +45,7 @@ def _render_context_block(
     lines: List[str] = []
     if mem_entries:
         lines.append(
-            "Kontekst iz pamyati (poslednie sovpadeniya):"
+            "Context from memory (last matches):"
         )
         for i, m in enumerate(mem_entries[:5], 1):
             q = (m.get("query") or "")[:180].replace("\n", " ")
@@ -67,16 +67,16 @@ def _needs_web_search(text: str) -> bool:
     t = (text or "").lower()
     triggers = [
         "kto takoy",
-        "chto takoe",
+        "what's happened",
         "kogda",
         "gde nakhoditsya",
         "kurs",
         "tsena",
         "novosti",
         "poslednie",
-        "kak sdelat",
+        "how to do",
         "skolko stoit",
-        "poslednie sobytiya",
+        "latest events",
         "vikipediya",
         "istochnik",
         "ssylka",
@@ -150,21 +150,21 @@ async def proactive_thought_pipeline(
     thoughts = "<|im_start|>system\n"
     thoughts += system_prompt
     thoughts += f"Seychas {now['date']} {now['time']} ({now['tz']}).\n"
-    thoughts += "Ya budu dumat shag za shagom.\n\n"
+    thoughts += "I will think step by step."
 
     thoughts += "<thought>\n"
-    thoughts += f"Analiziruyu zapros: '{user_query}'\n"
-    thoughts += f"Obnaruzheny emotsii: {', '.join(emotions_list) if emotions_list else 'ne opredeleny'}.\n"
-    thoughts += f"Generiruyu gipotezy: {len(hypotheses)} shtuk.\n"
-    thoughts += "Ispolzuyu semanticheskiy poisk po vektornoy baze dannykh dlya poiska v pamyati.\n"
+    thoughts += f"Analyzing the request: ъЗЗФ0ЗЗь"
+    thoughts += f"Emotions detected: ZZF0Z."
+    thoughts += f"I generate hypotheses: ZZF0Z pieces."
+    thoughts += "I use semantic search in a vector database to search in memory."
     if relevant_memories:
-        thoughts += f"Proveryayu kontekst iz pamyati: naydeno {len(relevant_memories)} zapisey.\n"
+        thoughts += f"I check the context from memory: ZZF0Z records found."
     else:
-        thoughts += "Proveryayu kontekst iz pamyati: relevantnyy kontekst ne nayden.\n"
+        thoughts += "I check the context from memory: the relevant context was not found."
     if will_search:
-        thoughts += "Trebuetsya aktualnaya informatsiya — initsiiruyu veb-poisk.\n"
+        thoughts += "I need up-to-date information - I initiate a web search."
     else:
-        thoughts += "Veb-poisk ne trebuetsya. Otvet budet osnovan na pamyati i logike.\n"
+        thoughts += "No web search required. The answer will be based on memory and logic."
     thoughts += "</thought>\n\n"
 
     context_block = _render_context_block(relevant_memories, web_results)

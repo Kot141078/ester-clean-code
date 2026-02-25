@@ -42,8 +42,8 @@
             <option value="doc" selected>doc</option>
             <option value="task">task</option>
           </select>
-          <input id="eid" placeholder="entity_id (esli est)">
-          <input id="ename" placeholder="ili imya — sozdat novuyu">
+          <input id="eid" placeholder="entity_id (if any)">
+          <input id="ename" placeholder="or name - create new">
           <select id="rel">
             <option value="mentions" selected>mentions</option>
             <option value="about">about</option>
@@ -81,7 +81,7 @@
     list.innerHTML = '';
     const r = await fetch('/mem/search?q=' + encodeURIComponent(q.value || ''));
     const j = await r.json();
-    if (!j.ok || !Array.isArray(j.items)) { list.textContent='Oshibka poiska'; return; }
+    if (!j.ok || !Array.isArray(j.items)) { list.textContent='Search error'; return; }
     for (const it of j.items) {
       const d = el('div','item');
       d.appendChild(el('div', 'id', `${it.layer} • ${it.kind} • ${it.id}`));
@@ -100,19 +100,19 @@
   }
 
   async function linkNow() {
-    if (!docId.value) { linkNote.textContent='Snachala vyberite zapis'; return; }
+    if (!docId.value) { linkNote.textContent='First select an entry'; return; }
     let entity_id = (eid.value||'').trim();
     const entity_type = etype.value;
     const name = (ename.value||'').trim();
-    // esli net id, no est imya — sozdadim suschnost
+    // if there is no id, but there is a name, we will create an entity
     if (!entity_id && name) {
       const r = await fetch('/mem/linker/create_entity', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({type: entity_type, name})});
       const j = await r.json();
-      if (!j.ok) { linkNote.textContent='Ne udalos sozdat suschnost'; return; }
+      if (!j.ok) { linkNote.textContent='Failed to create entity'; return; }
       entity_id = j.entity.id;
       eid.value = entity_id;
     }
-    if (!entity_id) { linkNote.textContent='Ukazhite entity_id ili imya'; return; }
+    if (!entity_id) { linkNote.textContent='Specify entity_id or name'; return; }
     const r2 = await fetch('/mem/linker/link', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
       doc_id: docId.value, entity_id, entity_type, rel: rel.value
     })});

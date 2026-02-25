@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mail_compose_routes.py - predprosmotr pisem s rasshirennymi auditoriyami.
+"""routes/mail_compose_routes.py - predprosmotr pisem s rashirnnymi auditoriyami.
 
 MOSTY:
 - (Yavnyy) /mail/compose/preview vozvraschaet gotovyy tekst pisma pod auditoriyu/namerenie.
 - (Skrytyy #1) Edinyy stil s messendzherami (intent te zhe, shablony glubzhe).
-- (Skrytyy #2) Pri zhelanii mozhno podlozhit vneshnyuyu LLM kak podskazchika, no finalnoe reshenie lokalno.
+- (Skrytyy #2) Pri zhelanii mozhno podlozhit vneshnyuyu LLM kak podskazchika, no finalnoe decision lokalno.
 
 ZEMNOY ABZATs:
-Daet Ester i Owner bystryy instrument proverki «kak budet zvuchat pismo» dlya advokata, banka, gosorgana i t.d.
+Daet Ester i Owner bystryy instrument proverki “kak budet zvuchat pismo” dlya advokata, banka, gosorgana i t.d.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, request, jsonify, render_template
 

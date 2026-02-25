@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Test dlya modules/ingest/dedup_index.py:
- - should_ingest/record_ingest/link_duplicate
-"""
+"""Test dlya modules/ingest/dedup_index.py:
+ - should_ingest/record_ingest/link_duplicate"""
 
 import os
 import secrets
@@ -27,7 +25,7 @@ def test_dedup_record_and_check(clean_env):
     sha_a = __import__("hashlib").sha256(data_a).hexdigest()
     sha_b = __import__("hashlib").sha256(data_b).hexdigest()
 
-    # do zapisi — mozhno inzhestit
+    # before recording - you can invest
     assert should_ingest(sha_a, size=len(data_a)) is True
 
     # zapisyvaem
@@ -39,10 +37,10 @@ def test_dedup_record_and_check(clean_env):
     )
     assert rec["size"] == len(data_a)
 
-    # teper eto dublikat
+    # now it's a duplicate
     assert should_ingest(sha_a, size=len(data_a)) is False
 
-    # drugoy sha — mozhno
+    # another sha - you can
     assert should_ingest(sha_b, size=len(data_b)) is True
 
     # linknem dublikat

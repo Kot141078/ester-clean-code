@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-metrics/usb_agent_stats.py — prostaya telemetriya agenta USB:
+"""metrics/usb_agent_stats.py - prostaya telemetriya agenta USB:
 schetchiki sobytiy i kvantilnye metriki latentnosti (p50/p95) bez vneshnikh zavisimostey.
 
 API:
   stats = USBStats(path=ENV or ~/.ester/usb_metrics.json)
-  stats.record(latency_s=..., ok=True/False)  # pishet tochku, obnovlyaet svodku
-  stats.snapshot() -> dict                      # tekuschie agregaty
+  stats.record(latency_s=..., ok=True/False) # pishet tochku, obnovlyaet svodku
+  stats.snapshot() -> dict # tekuschie agregaty
 
 Mosty:
-- Yavnyy (Kibernetika ↔ Nablyudenie): izmeryaem petlyu «signal→reaktsiya».
-- Skrytyy 1 (Infoteoriya ↔ Szhatie): kvantilnaya svodka daet maksimum polzy na minimum baytov.
+- Yavnyy (Kibernetika ↔ Nablyudenie): izmeryaem petlyu “signal→reaktsiya”.
+- Skrytyy 1 (Infoteoriya ↔ Szhatie): kvantilnaya svodka daet maximum polzy na minimum baytov.
 - Skrytyy 2 (Inzheneriya ↔ Ekspluatatsiya): chitaemyy JSON – dlya glaz i avtomatizatsii.
 
 Zemnoy abzats:
 Obychnyy JSON ryadom s agentom: skolko srabotok, kakova p95 zaderzhka, dolya oshibok.
 Mozhno kormit v Prometheus-push (v drugoy iteratsii).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -67,7 +65,7 @@ class USBStats:
         self._data["ok"] = int(self._data.get("ok", 0)) + (1 if ok else 0)
         self._data["err"] = int(self._data.get("err", 0)) + (0 if ok else 1)
         self._data["last_ts"] = ev["ts"]
-        # obnovim svodku
+        # update the summary
         lats = [float(e.get("latency_s", 0.0)) for e in arr if isinstance(e.get("latency_s"), (int, float))]
         self._data["p50"] = _q(lats, 0.50)
         self._data["p95"] = _q(lats, 0.95)

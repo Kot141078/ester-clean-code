@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/chaos_routes.py - prostye khaos-inektsii (disabled by default): tempfile, cleanup, sleep.
+"""routes/chaos_routes.py - prostye khaos-inektsii (disabled by default): tempfile, cleanup, sleep.
 
 Mosty:
 - Yavnyy: (Nadezhnost ↔ Test) sozdaem kontroliruemye sboi (disk/zaderzhka).
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Nablyudaemost ↔ Ruchka) otsenit reaktsii guard'ov i degradatsiy.
 
 Zemnoy abzats:
-Eto «uchebnaya trevoga»: potrenirovalis - uvideli, gde khrustit, pochinili do nastoyaschey bedy.
+This is “uchebnaya anxiety”: potrenirovalis - uvideli, where khrustit, pochinili do nastoyaschey bedy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time
 from flask import Blueprint, jsonify, request

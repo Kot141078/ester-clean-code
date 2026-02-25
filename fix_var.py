@@ -11,22 +11,22 @@ def fix_missing_var():
     with open(TARGET, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # Proveryaem, est li uzhe opredelenie (chtoby ne dublirovat, esli prichina v drugom)
+    # We check if there is already a definition (so as not to duplicate if the reason is different)
     if "DEDUP_MAXLEN =" in content:
         print("ℹ️ DEDUP_MAXLEN found in text, but maybe out of scope. Moving/Injecting to top.")
-        # Esli ona est, no gde-to vnizu, Python ee ne vidit na moment initsializatsii.
-        # Poetomu my vse ravno dobavim strakhovochnuyu kopiyu naverkhu.
+        # If it exists, but somewhere below, Potkhon does not see it at the time of initialization.
+        # So we'll still add a safety copy at the top.
 
-    # Vstavlyaem peremennuyu posle importov
-    # Ischem "import os" ili "import sys" ili prosto nachalo
+    # Inserting a variable after imports
+    # We are looking for “os import” or “sys import” or just the beginning
     
-    # Konstanta dlya dliny ocheredi soobscheniy (1000 khvatit za glaza)
+    # Constant for the length of the message queue (1000 is enough)
     fix_line = "\nDEDUP_MAXLEN = 1000  # Restored by Hotfix\n"
     
     if "import os" in content:
         content = content.replace("import os", "import os" + fix_line, 1)
     else:
-        # Esli vdrug import os net, vstavlyaem v nachalo
+        # If suddenly there is no OS import, insert it at the beginning
         content = fix_line + content
 
     with open(TARGET, "w", encoding="utf-8") as f:

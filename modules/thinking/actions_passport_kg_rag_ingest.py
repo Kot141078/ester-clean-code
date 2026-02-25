@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_passport_kg_rag_ingest.py — eksheny «voli» dlya Profile/KG/RAG/Ingest/RBAC.
+"""modules/thinking/actions_passport_kg_rag_ingest.py - eksheny "voli" dlya Profile/KG/RAG/Ingest/RBAC.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Infrastruktura) fiksirovat profile, linkovat suschnosti, iskat, dozirovat ingest.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Prozrachnost ↔ Samoopis) roli i sostoyanie dostupny v myslyakh.
 
 Zemnoy abzats:
-Gorst korotkikh komand — i Ester mozhet akkuratno «smotret mir», pomnit ego istochniki, nakhodit nuzhnoe i ne dushit set.
+Gorst korotkikh komand - i Ester mozhet akkuratno “smotret mir”, pomnit ego istochniki, nakhodit nuzhnoe i ne dushit set.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from typing import Any, Dict

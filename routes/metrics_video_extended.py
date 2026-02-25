@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-routes/metrics_video_extended.py — Prometheus-metriki dlya universal-videokonveyera.
+"""routes/metrics_video_extended.py - Prometheus-metriki dlya universal-videokonveyera.
 
 Endpoint:
   • GET /metrics/video_ex
 
-Eksportiruem:
+Export:
   - video_ex_cap_ffmpeg 0|1
   - video_ex_cap_ffprobe 0|1
   - video_ex_cap_ytdlp 0|1
@@ -18,10 +17,9 @@ Mosty:
 - Skrytyy #2: (Inzheneriya v†" Podderzhka) prostye binarnye schetchiki bez vneshnikh zavisimostey.
 
 Zemnoy abzats:
-Eto tablo «chto iz instrumentov est pod rukoy» — prezhde chem zvat ekskavator.
+Eto tablo “what iz instrumentov est pod rukoy” - prezhde chem zvat ekskavator.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, Response

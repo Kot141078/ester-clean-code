@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R6/tests/r6_smoke.py — myagkiy smouk R6: daydzhest → pravila → r6-daydzhest.
+"""R6/tests/r6_smoke.py - myagkiy smouk R6: daydzhest → pravila → r6-daydzhest.
 
 Mosty:
 - Yavnyy: Enderton — proveryaem predikaty: vkhodnoy digest nayden ∧ vykhodnye fayly sozdany.
-- Skrytyy #1: Cover & Thomas — schitaem metriki «do/posle» (posledovatelnost informativna).
+- Skrytyy #1: Cover & Thomas — schitaem metriki “do/after” (posledovatelnost informativna).
 - Skrytyy #2: Ashbi — A/B-slot cherez ENV, pri oshibkakh ne padaem (katbek).
 
 Zemnoy abzats (inzheneriya):
-Stroit daydzhest (esli nuzhno), zatem primenyaet pravila iz fikstury i pechataet statistiku.
+Build daydzhest (esli nuzhno), zatem primenyaet pravila iz fikstury i pechataet statistiku.
 Na stdlib, podkhodit dlya lokalki/CI.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import glob
 import json

@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/migrate_to_safe_routes.py - REST/UI migratsii stsenariev.
+"""routes/migrate_to_safe_routes.py - REST/UI migratsii stsenariev.
 
 Ruchki:
   POST /migrate/preview {"steps":[...]} -> safe-predprosmotr
-  POST /migrate/export  {"steps":[...]} -> finalnyy safe JSON
-  GET  /admin/migrate
+  POST /migrate/export {"steps":[...]} -> finalnyy safe JSON
+  GET /admin/migrate
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.coop.migrate_to_safe import preview, export

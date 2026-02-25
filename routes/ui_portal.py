@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ui_portal.py - Glavnyy portal i chat (avto-JWT dlya Papa).
+"""routes/ui_portal.py - Glavnyy portal i chat (avto-JWT dlya Papa).
 
 MOSTY:
 - (Yavnyy) Na GET /portal, esli tokena net - prostavlyaet kuku cherez auto_jwt.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Sobytiya UI ostayutsya v events_bus, chtoby lyubye slushateli mogli reagirovat.
 
 ZEMNOY ABZATs:
-«Podnesli propusk k turniketu» - i srazu proshli: token kladetsya sam, dialog nachinaetsya mgnovenno.
+“Podnesli propusk k turniketu” - i srazu proshli: token kladetsya sam, dialog startya mgnovenno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, json, base64
 from typing import Any, Dict, List
@@ -115,7 +113,7 @@ def chat_send():
     except Exception:
         pass
     if not reply_text:
-        reply_text = f"({ _mode_get() }) Ya uslyshala: {text}"
+        reply_text = f"(ЗЗФ0З) I heard: ЗЗФ1ЗЗ"
 
     now2 = time.time()
     msg_ai = {"id": f"m-{int(now2*1000)}-a", "ts": now2, "role": "assistant", "user": "Ester", "text": reply_text}
@@ -148,7 +146,7 @@ def chat_upload():
         except Exception:
             pass
     ts = time.time()
-    note = f"Fayl {f.filename} zagruzhen ({len(b)} bayt)" if ok else f"Ne udalos obrabotat {f.filename}"
+    note = f"Fayl {f.filename} zagruzhen ({len(b)} bayt)" if ok else f"Failed to process ZZF0Z"
     _append_line({"id": f"m-{int(ts*1000)}-sys", "ts": ts, "role": "system", "user": "Ester", "text": note})
     return jsonify({"ok": ok, "note": note})
 # c=a+b

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Proverka, chto offlayn-sformirovannyy HS256 JWT s rolyu admin daet dostup k /portal.
-Ne zavisit ot /auth/login (ENABLE_SIMPLE_LOGIN mozhet byt vyklyuchen).
-"""
+"""Checking that the offline-generated NS256 ZhVT with the admin role gives access to /portal.
+Does not depend on /outn/login (ENABLE_SIMPLE_LOGIN can be disabled)."""
 from __future__ import annotations
 
 import base64
@@ -30,11 +28,11 @@ def _mint(user: str, roles, hours: int, secret: str) -> str:
     return f"{h}.{p}.{s}"
 
 def test_portal_access_with_admin_jwt(monkeypatch):
-    # HS256 sekret, kak na servere
+    # NS256 secret, like on the server
     monkeypatch.setenv("JWT_ALG", "HS256")
     monkeypatch.setenv("JWT_SECRET", "devsecret")
     monkeypatch.setenv("RBAC_MODE", "matrix")
-    # optsionalno vklyuchim put k matritse (esli security.rbac ego chitaet)
+    # optionally include the path to the matrix (if security.vacc reads it)
     monkeypatch.setenv("RBAC_MATRIX_PATH", "rules/rbac_matrix.yaml")
 
     from app import app as flask_app

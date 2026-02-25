@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ops/window_ops.py — krossplatformennye operatsii s oknami:
+"""modules/ops/window_ops.py - krossplatformennye operatsii s oknami:
   - perechislenie okon (title, rect, id)
   - fokusirovka okna po id/chasti zagolovka
   - zakhvat izobrazheniya okna (base64 PNG)
   - otpravka goryachey klavishi (CTRL+S, ALT+TAB i t.p.)
 
 Windows: Win32 (ctypes), zakhvat cherez PIL.ImageGrab.grab(bbox=rect).
-Linux (X11): xdotool / wmctrl / xwininfo / xwd (trebuyutsya pakety: xdotool, wmctrl, x11-apps/netpbm/pngtools)
+Linux (X11): xdotool / wmctrl / xwininfo / xwd (trebuyutsya packagety: xdotool, wmctrl, x11-apps/netpbm/pngtools)
 
 MOSTY:
-- Yavnyy: (Volya ↔ Okno) vybor tseli («glaz») i deystvie («ruka») na urovne OS.
+- Yavnyy: (Volya ↔ Okno) vybor tseli (“glaz”) i deystvie (“ruka”) na urovne OS.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) ID/rect okna → determinirovannaya tsel dlya RPA/shablonov.
-- Skrytyy #2: (Anatomiya ↔ Inzheneriya) «fokus» kak povorot golovy; «snimok okna» kak fovea setchatki.
+- Skrytyy #2: (Anatomiya ↔ Inzheneriya) “fokus” kak povorot golovy; “snimok okna” kak fovea setchatki.
 
 ZEMNOY ABZATs:
-Daet Ester tochechnyy kontrol: ne ves ekran, a konkretnoe okno. Eto snizhaet shum i uskoryaet sensory.
+Daet Ester tochechnyy kontrol: ne ves ekran, a konkretnoe okno. This snizhaet noise i uskoryaet sensory.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import sys, os, platform, base64, io, subprocess, re
 from typing import List, Dict, Any, Optional, Tuple
@@ -178,7 +176,7 @@ else:
             return _b64_png(f.read())
 
     def capture_rect(rect: Dict[str, int]) -> str:
-        # zakhvat vsego ekrana i obrezka (fallback, trebuet ImageMagick/Pillow — ne ispolzuem; ostavim cherez xwd kornevogo)
+        # capturing the entire screen and cropping (false, requires ItageMagic/Pilov - we don’t use it; we’ll leave it through the root’s hvd)
         code = subprocess.call("xwd -silent -root | xwdtopnm | pnmtopng > /tmp/ester_root.png", shell=True)
         if code != 0:
             return ""

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ops/window_priority.py — prioritety okon «igry».
+"""modules/ops/window_priority.py - priority okon "play".
 
 Khranilische: data/desktop/window_priority.json
 Funktsii:
@@ -9,15 +8,14 @@ Funktsii:
 - pick_focus(): vybiraet dostupnoe okno po ubyvaniyu prioriteta i fokusiruet.
 
 MOSTY:
-- Yavnyy: (Igra ↔ Kontrol) Ester znaet, kakoe okno «glavnoe» seychas.
-- Skrytyy #1: (Kibernetika ↔ Nadezhnost) menshe promakhov klikom «ne v to okno».
-- Skrytyy #2: (Inzheneriya ↔ Psikhologiya) prioritet kak «vnimanie» igroka.
+- Yavnyy: (Igra ↔ Control) Ester znaet, kakoe okno “glavnoe” seychas.
+- Skrytyy #1: (Kibernetika ↔ Nadezhnost) menshe promakhov klikom “ne v to okno”.
+- Skrytyy #2: (Inzheneriya ↔ Psikhologiya) priorityt kak “vnimanie” igroka.
 
 ZEMNOY ABZATs:
-Prostoy JSON, oflayn. Rabotaet poverkh uzhe realizovannykh operatsiy okon.
+Simple JSON, offline. Rabotaet poverkh uzhe realizovannykh operatsiy okon.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from typing import List, Dict, Any

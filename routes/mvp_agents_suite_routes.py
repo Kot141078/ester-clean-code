@@ -44,10 +44,8 @@ def _resolve_suite_agent(suite_agent_id: str) -> Tuple[Optional[Dict[str, Any]],
 
 
 def _call_mvp_agent(runtime_id: str, payload: Dict[str, Any]) -> Tuple[bool, Dict[str, Any], int]:
-    """
-    Calls existing POST /mvp/agents/run internally (no network).
-    We use the known working schema: {"id": "<mvp_agent_id>", "payload": {...}}.
-    """
+    """Calls existing POST /mvp/agents/run internally (no network).
+    We use the known working schema: {"id": "<mvp_agent_id>", "payload": {...}}."""
     req = {"id": runtime_id, "payload": payload, "input": payload, "agent_id": runtime_id}
     with current_app.test_client() as c:
         r = c.post("/mvp/agents/run", json=req)

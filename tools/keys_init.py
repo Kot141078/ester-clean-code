@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-CLI — klyuchi uzla: init/status/sign/verify.
+"""CLI - klyuchi uzla: init/status/sign/verify.
 
 Most (yavnyy):
 - (CLI ↔ UI) Te zhe operatsii dostupny iz terminala i adminki.
 
 Mosty (skrytye):
-- (Nadezhnost ↔ Ekspluatatsiya) Stdlib + openssl/cryptography po vozmozhnosti, fallback na HMAC — net «zhestkikh» zavisimostey.
+- (Nadezhnost ↔ Ekspluatatsiya) Stdlib + openssl/cryptography po vozmozhnosti, fallback na HMAC - net “zhestkikh” zavisimostey.
 - (Infoteoriya ↔ Ekonomika) Edinyy format podpisi (sig) snizhaet trenie mezhdu uzlami.
 
 Zemnoy abzats:
 Komanda sozdaet klyuchi (v B), vyvodit meta/public, umeet podpisyvat/proveryat prostye JSON-peyloady.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -30,8 +28,8 @@ AB_MODE = (os.getenv("AB_MODE") or "A").strip().upper()
 
 def main():
     ap = argparse.ArgumentParser(description="Node keys (A/B).")
-    ap.add_argument("--status", action="store_true", help="Pokazat meta/public")
-    ap.add_argument("--init", action="store_true", help="Sozdat klyuchi (v B)")
+    ap.add_argument("--status", action="store_true", help="Show meta/public")
+    ap.add_argument("--init", action="store_true", help="Create keys (in B)")
     ap.add_argument("--sign", metavar="JSON", help="Podpisat ukazannyy JSON-obekt")
     ap.add_argument("--verify", metavar="JSON", help="Proverit JSON s polem 'sig'")
     args = ap.parse_args()

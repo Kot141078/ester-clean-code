@@ -1,12 +1,12 @@
-# SECURITY — RBAC i zaschita administrativnykh zon
+# SECURITY - RVACH and protection of administrative zones
 
-**Chto daet etot paket**
-- Roli **viewer / operator / admin** dlya `/admin/*`, optsionalno dlya `/export/*` i `/board/*`.
-- Rezhimy autentifikatsii: **Basic** (luchshe — cherez kheshi) ili **Token** (Bearer/`X-Admin-Token`).
-- Vstroennyy **rate limit** na zaschischennykh putyakh.
+**What does this package provide**
+- Roles **weaver / operator / admin** for е/admin/*е, optionally for е/export/*е and е/board/*е.
+- Authentication modes: **Basic** (preferably through hashes) or **Token** (Bearer/YOH-Admin-Token).
+- Built-in **rate limit** on protected paths.
 - Vse — bez lomki suschestvuyuschikh routov (middleware).
 
-## Podklyuchenie
+## Connection
 ```python
 from app_mount_all import mount_all
 from security.mount_security import mount_security

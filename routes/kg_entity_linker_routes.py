@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-routes/kg_entity_linker_routes.py — REST dlya NER v†' KG/gipotezy.
+"""routes/kg_entity_linker_routes.py - REST dlya NER v†' KG/gipotezy.
 
-Endpointy:
-  • POST /mem/kg/link_entities          {"text": "...", "meta"?:{...}, "hypothesis_id"?: "..."}
-  • POST /mem/hypothesis/link_entities  {"hypothesis_id": "...", "entities":[...]}
+Endpoint:
+  • POST /mem/kg/link_entities {"text": "...", "meta"?:{...}, "hypothesis_id"?: "..."}
+  • POST /mem/hypothesis/link_entities {"hypothesis_id": "...", "entities":[...]}
 
 RBAC: viewer (chtenie/izvlechenie) i operator (linkovka/zapis).
 
@@ -14,10 +13,9 @@ Mosty:
 - Skrytyy #2: (Kibernetika v†" Nadezhnost) fallback ocheredi — dannye ne teryayutsya pri nedostupnom KG.
 
 Zemnoy abzats:
-Eto priemnyy stol: iz «syroy bumagi» vydelyaem familii/mesta/daty Re tut zhe vnosim v kartoteku.
+Eto priemnyy stol: iz “syroy bumagi” vydelyaem familii/mesta/daty Re tut zhe vnosim v kartoteku.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List

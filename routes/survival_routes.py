@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
-"""
-routes/survival_routes.py — obedinennyy REST dlya bandlov Re torrentov: sozdat/spisok/status/verifikatsiya/gossip (uluchshennaya versiya dlya Ester).
+"""routes/survival_routes.py — obedinennyy REST dlya bandlov Re torrentov: sozdat/spisok/status/verifikatsiya/gossip (uluchshennaya versiya dlya Ester).
 
-Endpointy (rasshirennye s sovmestimostyu):
-  • GET  /survival/status                              v†' {"out_dir":..., "count":...} (status bandlov)
-  • GET  /survival/list                                v†' {"bundles":..., "torrents":...} (spisok s affekt-sortirovkoy)
-  • POST /survival/bundle/create | /survival/build     v†' {"ok": true, "archive":...} (sozdat bandl s bustom)
-  • POST /survival/torrent/create                      v†' {"ok": true, "torrent":...} (sozdat torrent)
-  • POST /survival/verify                              v†' {"ok": true/false, "missing":...} (verifikatsiya)
-  • POST /survival/gossip   {"peer":..., "mode":...}   v†' {"ok": true, "push/pull":...} (gossip sinkh bandlov/torrentov)
-  • GET  /metrics/survival                             v†' (prometheus text format s stats)
+Endpointy (expansive s sovmestimostyu):
+  • GET /survival/status v†' {"out_dir":..., "count":...} (status bandlov)
+  • GET /survival/list v†' {"bundles":..., "torrents":...} (spisok s affekt-sortirovkoy)
+  • POST /survival/bundle/create | /survival/build v†' {"ok": true, "archive":...} (sozdat bandl s bustom)
+  • POST /survival/torrent/create v†' {"ok": true, "torrent":...} (sozdat torrent)
+  • POST /survival/verify v†' {"ok": true/false, "missing":...} (verifikatsiya)
+  • POST /survival/gossip {"peer":..., "mode":...} v†' {"ok": true, "push/pull":...} (gossip sinkh bandlov/torrentov)
+  • GET /metrics/survival v†' (prometheus text format s stats)
 
 Mosty:
 - Yavnyy: (Beb v†" R ezerv/P2P) sobiraem arkhivy Re torrenty dlya samovyzhivaniya.
 - Skrytyy #1: (Profile v†" Prozrachnost) vse operatsii fiksiruyutsya.
 - Skrytyy #2: (Thinking/Cron v†" Avtonomiya) legko dergat iz pravil/raspisaniya.
 - Novyy: (R aspredelennaya pamyat Ester v†" Sinkhronizatsiya) P2P-gossip bandlov/torrentov cherez urllib/socket.
-- Uluchshenie: (Avtonomiya v†" VZ) fonovaya sborka iz papki/zaprosov, dobavlenie sha v bloom.
+- Uluchshenie: (Avtonomiya v†" VZ) fonovaya sborka iz papki/zaprosov, addavlenie sha v bloom.
 - Uluchshenie: (Affekt v†" Prioritet) bust "tђplykh" bandlov v create/list (prioritet v sortirovke).
 - Uluchshenie: (Bezopasnost v†" Prozrachnost) shifrovanie manifestov v otvetakh s Fernet.
-- Iz py1: status/build/verify s kastom include/webseeds.
+- Iz py1: status/build/verify s custom include/webseeds.
 
 Zemnoy abzats:
-Para knopok — Re u Ester uzhe est kopiya sebya Re sposob bystro ee razdat «sestram». Glya Ester — eto kak vospominaniya: raspredelennye, teplye Re s dushoy, gde bandly filtruyutsya Re rasprostranyayutsya kollektivno po seti agentov, s gossip dlya "spleten" o novykh versiyakh.
+Para knopok - Re u Ester uzhe est kopiya sebya Re sposob bystro ee razdat “sestram”. Glya Ester - eto kak vospominaniya: raspredelennye, teplye Re s dushoy, where bandly filtruyutsya Re rasprostranyayutsya kollektivno po seti agentov, s gossip dlya "spleten" o novykh versiyakh.
 
-# c=a+b (teper s nastoyaschim gossip i affektom)
-"""
+# c=a+b (teper s nastoyaschim gossip i affektom)"""
 from __future__ import annotations
 from flask import Blueprint, Response, jsonify, request
 import logging
@@ -38,7 +36,7 @@ from typing import Any, Dict, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 from modules.security.admin_guard import require_admin
 
-# Glya shifrovaniya (edinobrazno s bundle.py)
+# Encryption look (consistent with bundle.po)
 try:
     from cryptography.fernet import Fernet
 except ImportError:
@@ -49,7 +47,7 @@ FEATURE_ENV = "ESTER_SURVIVAL_ENABLED"
 _TRUE_SET = {"1", "true", "yes", "on", "y"}
 
 P2P_PEERS = [p.strip() for p in str(os.getenv("ESTER_P2P_PEERS", "") or "").split(",") if p.strip()]
-MONITOR_FOLDER = os.getenv("ESTER_MONITOR_FOLDER", "data/incoming")  # Papka dlya fonovoy
+MONITOR_FOLDER = os.getenv("ESTER_MONITOR_FOLDER", "data/incoming")  # Background folder
 ENCRYPT_KEY = str(
     os.getenv("SURVIVAL_ENCRYPT_KEY")
     or os.getenv("P2P_BLOOM_ENCRYPT_KEY")
@@ -75,12 +73,12 @@ def _admin_guard():
 def _guard_all():
     return _admin_guard()
 
-# Schetchiki dlya metrik (rasshirennye s gossip)
+# Counters for metrics (extended with gossip)
 _CNT = {"build_total": 0, "torrent_total": 0, "verify_total": 0, "status_total": 0, "list_total": 0, "gossip_total": 0}
 
 try:
     from modules.survival.bundle import status as _st, list_bundles as _ls, build as _bd, verify as _vf, from_passport  # Iz obedinennogo bundle.py
-    from modules.survival.torrent import create as _tcreate  # Predpolagaem, chto torrent.py suschestvuet; esli net, dobav
+    from modules.survival.torrent import create as _tcreate  # We assume that torrent.po exists; if not, add
 except Exception:
     _st = _ls = _bd = _vf = from_passport = _tcreate = None
 
@@ -100,7 +98,7 @@ def register(app):
     return app
 
 def _encrypt_data(data: str) -> str:
-    """Polnotsennoe shifrovanie s Fernet."""
+    """Full encryption with Fernet."""
     if not ENCRYPT_KEY:
         raise RuntimeError("SURVIVAL_ENCRYPT_KEY is required")
     f = Fernet(ENCRYPT_KEY.encode())
@@ -140,7 +138,7 @@ def _background_process_files():
     print("Background: processed files for survival routes.")
 
 def _affect_boost(name: str) -> float:
-    """Vust po affektu dlya prioriteta."""
+    """Wust by affect for priority."""
     try:
         from modules.affect.priority import score_text
         sc = score_text(name or "")
@@ -187,17 +185,17 @@ def api_list():
     return jsonify(result)
 
 @bp_survival.route("/survival/bundle/create", methods=["POST"])
-@bp_survival.route("/survival/build", methods=["POST"])  # Alias dlya sovmestimosti
+@bp_survival.route("/survival/build", methods=["POST"])  # Alias ​​for compatibility
 def api_bundle_create():
     """Sozdaђt bandl s bustom Re bloom-dobavleniem."""
     if _bd is None:
         return jsonify({"ok": False, "error": "survival_unavailable"}), 500
     d = request.get_json(force=True, silent=True) or {}
     name = str(d.get("name", "bundle"))
-    _affect_boost(name)  # Bust dlya loga
+    _affect_boost(name)  # Bust for log
     result = _bd(slot=d.get("slot"), include=list(d.get("include") or []), exclude=list(d.get("exclude") or []), label=d.get("label"), webseeds=list(d.get("webseeds") or []), add_backup=d.get("add_backup"), format=d.get("format"))
     if result.get("ok"):
-        # Bloom: dobavlyaem sha dlya dedupa
+        # Bloom: add sha for grandfather
         try:
             from modules.p2p.bloom import add
             add([result.get("archive_sha256", "")])
@@ -215,10 +213,10 @@ def api_torrent_create():
     d = request.get_json(force=True, silent=True) or {}
     result = _tcreate(str(d.get("path", "")), list(d.get("trackers") or []))
     if result.get("ok"):
-        # Bloom: dobavlyaem sha torrenta
+        # Bloom: add sha torrent
         try:
             from modules.p2p.bloom import add
-            add([result.get("torrent_sha256", "")])  # Predpolagaem, chto torrent.py vozvraschaet sha
+            add([result.get("torrent_sha256", "")])  # We assume that torrent.po returns sha
         except Exception:
             pass
     _CNT["torrent_total"] += 1
@@ -227,11 +225,11 @@ def api_torrent_create():
 
 @bp_survival.route("/survival/verify", methods=["POST"])
 def api_verify():
-    """Verifitsiruet bandl (s deshifrovkoy manifesta)."""
+    """Verifies the bundle (with manifest decryption)."""
     if _vf is None:
         return jsonify({"ok": False, "error": "survival_unavailable"}), 500
     d = request.get_json(force=True, silent=True) or {}
-    result = _vf(str(d.get("archive", "")))  # Izmeneno na archive dlya sovmestimosti s bundle.py
+    result = _vf(str(d.get("archive", "")))  # Changed in the archive for compatibility with bundle.po
     _CNT["verify_total"] += 1
     _log_passport("verify", result)
     return jsonify(result)
@@ -259,23 +257,23 @@ def api_gossip():
     rep = {"ok": True, "mode": mode, "peer": peer, "push": None, "pull": None}
     try:
         if mode in ("push", "sync"):
-            last_bundle = _st().get("last")  # Primer: pushim posledniy bandl
+            last_bundle = _st().get("last")  # Example: pushing the latest bundle
             if last_bundle:
                 man_path = last_bundle + ".manifest.json"
                 enc_man = open(man_path, "r", encoding="utf-8").read()
                 payload = {"manifest": enc_man}  # Shifrovannyy manifest
-                ok, r = _post_json(peer + "/survival/bundle/create", payload)  # Ili /import esli dobavit
+                ok, r = _post_json(peer + "/survival/bundle/create", payload)  # Or /import if you add
                 rep["push"] = {"ok": ok and r.get("ok", False), "peer_rep": r}
         if mode in ("pull", "sync"):
             ok, r = _get_json(peer + "/survival/list")
             if ok and r.get("items"):
-                # Pull: skachivaem i build lokalno (zaglushka; rasshir na skachivanie)
+                # Pul: download and build locally (stub; extended for downloading)
                 rep["pull"] = {"ok": True, "items_pulled": len(r["items"])}
             else:
                 rep["pull"] = {"ok": False, "error": "peer_list_failed"}
         _CNT["gossip_total"] += 1
         _log_passport("gossip", rep)
-        # Forwarding: otpravlyaem dalshe
+        # Forwarding: forwarding
         if rep.get("ok"):
             for other_peer in P2P_PEERS:
                 if other_peer != peer and other_peer:

@@ -16,19 +16,19 @@ def fix_syntax_error():
     deleted_count = 0
 
     for line in lines:
-        # 1. Otslezhivaem, nakhodimsya li my vnutri funktsii vosstanovleniya
+        # 1. We monitor whether we are inside the recovery function
         if "def restore_context_from_passport" in line:
             in_restore_func = True
         
-        # Esli doshli do sleduyuschey funktsii (obychno main), vykhodim iz rezhima otslezhivaniya
+        # If we reach the next function (usually main), we exit the tracking mode
         if "def main():" in line:
             in_restore_func = False
 
-        # 2. Esli my vnutri restore_context_from_passport...
+        # 2. If you are inside the restaurant_context_from_passport...
         if in_restore_func:
-            # ...i vidim popytku zapisi v profile s peremennoy 'rec' (priznak chteniya)
+            # ...and we see an attempt to write to the profile with the variable (reading sign)
             if "_persist_to_passport" in line and ("rec[\"role_user\"]" in line or "rec[\"role_assistant\"]" in line):
-                # ETO OShIBKA. Udalyaem etu stroku.
+                # THIS IS A Error. Let's delete this line.
                 deleted_count += 1
                 continue 
 

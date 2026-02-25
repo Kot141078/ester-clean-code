@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# scripts/no_push_guard.sh — ustanovka/upravlenie lokalnym pre-push «stop-kranom».
+# skripts/no_push_guard.sh - installation/control of a local pre-push “stop tap”.
 # Mosty:
 # - Yavnyy: (Inzheneriya ↔ Bezopasnost) lokalnyy khuk garantiruet, chto push ne uydet sluchayno.
 # - Skrytyy #1: (Kibernetika ↔ Volya) flag .nopush i ENV ALLOW_PUSH — yavnye rychagi dlya vremennogo razresheniya.
 # - Skrytyy #2: (UX ↔ Prozrachnost) status/doctor obyasnyayut tekuschee sostoyanie.
 # Zemnoy abzats:
-# Eto «mekhanicheskiy zamok» na rychage: po umolchaniyu ne daet vklyuchit peredachu (push), poka yavno ne snimesh zaschelku.
+# This is a “mechanical lock” on the lever: by default it does not allow you to engage the gear (push) until you explicitly remove the latch.
 # c=a+b
 
 set -euo pipefail
@@ -29,7 +29,7 @@ install_hook() {
   fi
   cp -f "$HOOK_SRC" "$HOOK_DST"
   chmod +x "$HOOK_DST"
-  # vklyuchaem zapret po umolchaniyu (fayl-flag)
+  # enables default prohibition (flag file)
   if [[ ! -f "$FLAG_NOPUSH" ]]; then
     : > "$FLAG_NOPUSH"
   fi

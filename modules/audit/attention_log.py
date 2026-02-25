@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-modules/audit/attention_log.py — zhurnal vnimaniya (taymlayn tseley i deystviy).
+"""modules/audit/attention_log.py - zhurnal vnimaniya (taymlayn tseley i deystviy).
 
-Khranilische: data/audit/attention/log.jsonl (po odnoy stroke JSON na sobytie)
+Khranilische: data/audit/attention/log.jsonl (by one stroke JSON na sobytie)
 API:
 - append(event:str, detail:dict)
 - list_last(N) -> poslednie sobytiya
@@ -10,14 +9,13 @@ API:
 
 MOSTY:
 - Yavnyy: (Vnimanie ↔ Memory) fiksiruem kuda smotreli i chto delali.
-- Skrytyy #1: (Infoteoriya ↔ Analitika) gotovo dlya post-analiza.
+- Skrytyy #1: (Infoteoriya ↔ Analitika) gotovo dlya post-analysis.
 - Skrytyy #2: (Kibernetika ↔ Uluchshenie) vidno, chto/kogda zapuskalo deystvie.
 
 ZEMNOY ABZATs:
-Obychnyy JSONL. Zapolnyayut: triggery, «ochki vnimaniya», rezhisser. Bez vneshnikh BD.
+Obychnyy JSONL. Zapolnyayut: triggery, “ochki vnimaniya”, rezhisser. Bez vneshnikh BD.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Dict, Any, List

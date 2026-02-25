@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-routes/error_helpers.py - edinoe mesto dlya myagkikh operatsionnykh podskazok.
+"""routes/error_helpers.py - edinoe mesto dlya myagkikh operatsionnykh podskazok.
 - RuntimeError s klyuchevymi slovami OCR → druzhelyubnyy otvet i ssylka na /ops/ingest/help
-- Inye RuntimeError → akkuratnyy JSON bez stekov.
-"""
+- Inye RuntimeError → akkuratnyy JSON bez stekov."""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, render_template, request
@@ -20,13 +18,11 @@ def _is_ocr_runtime(err: RuntimeError) -> bool:
 
 @bp_error.app_errorhandler(RuntimeError)
 def handle_runtime_error(err: RuntimeError):
-    """
-    Unifitsirovannaya obrabotka RuntimeError:
-      - OCR-zavisimosti → html/help ili json/hint
-      - prochee → kompaktnyy JSON bez trassy
-    """
+    """Unifitsirovannaya obrabotka RuntimeError:
+      - OCR-dependent → html/help or json/hint
+      - prochee → kompaktnyy JSON bez trassy"""
     if _is_ocr_runtime(err):
-        # HTML dlya UI i JSON dlya API (content negotiation)
+        # HTML for UI and YSON for API (content negotiation)
         wants_html = "text/html" in (request.headers.get("Accept") or "")
         payload = {
             "ok": False,
@@ -38,16 +34,16 @@ def handle_runtime_error(err: RuntimeError):
             return render_template("ops_ingest_help.html"), 200
         return jsonify(payload), 400
 
-    # Obschiy sluchay - bez lishnikh podrobnostey
+    # General case - without unnecessary details
     return jsonify({"ok": False, "error": "runtime_error", "message": str(err)}), 400
 
 
 def register_error_helpers(app) -> None:  # pragma: no cover
-    """Drop-in registratsiya blyuprinta s obrabotchikami oshibok."""
+    """Drop-in blueprint registration with error handlers."""
     app.register_blueprint(bp_error)
 
 
-# Sovmestimye khuki i eksport - po konventsii proekta
+# Compatible hooks and export - according to the project convention
 def register(app):  # pragma: no cover
     app.register_blueprint(bp_error)
 

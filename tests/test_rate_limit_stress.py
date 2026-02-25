@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-Stress-test dlya security/rate_limit.py:
+"""Stress-test dlya security/rate_limit.py:
  - 1000 bystrykh chekov ne dolzhny vyzyvat _save na kazhdom obraschenii (anti I/O-storm).
- - Kontroliruem chastotu flashey cherez ENV i monkeypatch.
-"""
+ - Kontroliruem often flashey cherez ENV i monkeypatch."""
 from __future__ import annotations
 
 import importlib
@@ -17,22 +15,22 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 def tuned_env(tmp_path, monkeypatch):
     # izolyatsiya persista
     monkeypatch.setenv("PERSIST_DIR", str(tmp_path))
-    # schedrye limity, chtoby ne spotknutsya o blokirovki
+    # generous limits to avoid tripping over blockages
     monkeypatch.setenv("RATE_LIMIT_PER_MIN_IP", "60000")
     monkeypatch.setenv("RATE_LIMIT_PER_MIN_TOKEN", "60000")
     monkeypatch.setenv("RATE_LIMIT_BURST_MULT", "2.0")
 
-    # flash delaem «redkim» i batchevym
-    monkeypatch.setenv("RATE_LIMIT_FLUSH_MIN_SEC", "10.0")         # chtoby time-flush pochti ne srabotal
-    monkeypatch.setenv("RATE_LIMIT_FLUSH_MAX_JITTER_SEC", "0.0")   # bez dzhittera dlya determinizma
-    monkeypatch.setenv("RATE_LIMIT_FLUSH_BATCH_WRITES", "400")     # flash kazhdye 400 zapisey
+    # we make the flush “rare” and batch
+    monkeypatch.setenv("RATE_LIMIT_FLUSH_MIN_SEC", "10.0")         # so that time-flush almost doesn’t work
+    monkeypatch.setenv("RATE_LIMIT_FLUSH_MAX_JITTER_SEC", "0.0")   # no jitter for determinism
+    monkeypatch.setenv("RATE_LIMIT_FLUSH_BATCH_WRITES", "400")     # flush every 400 records
 
     yield
 
 def test_batched_flush_under_rps(tuned_env, monkeypatch):
     import security.rate_limit as rl_mod
 
-    # perezagruzim modul, chtoby pereskhvatil ENV i sbrosil singleton
+    # reboot the module to re-catch the ENV and reset the singleton
     importlib.reload(rl_mod)
 
     save_calls = {"n": 0}
@@ -40,16 +38,16 @@ def test_batched_flush_under_rps(tuned_env, monkeypatch):
     def _save_stub(data):
         save_calls["n"] += 1
 
-    # perekhvatyvaem faylovyy flash
+    # intercepts file flash
     monkeypatch.setattr(rl_mod, "_save", _save_stub, raising=True)
 
     rl = rl_mod.get_rate_limiter()
 
-    # Sgeneriruem 1000 zaprosov (kazhdyy chek pishet 2 zapisi: ip i token)
+    # Generates 1000 requests (each check writes 2 entries: IP and token)
     for i in range(1000):
         ok, retry_after, info = rl.check(ip="127.0.0.1", token_id=f"user{i%10}")
-        assert ok, "Limit ne dolzhen srabatyvat v stress-teste"
+        assert ok, "The limit should not be triggered in a stress test"
 
-    # Otsenka chisla flashey: kazhdye 400 zapisey, zapisey 2000 (dve na chek).
-    # To est <= 5 flashey. Dopustim nebolshoy lyuft na servisnye vyzovy.
-# assert 1 <= save_calls["n"] <= 6, f"slishkom mnogo flashey: {save_calls['n']}"
+    # Estimated number of flushes: every 400 entries, 2000 entries (two per check).
+    # That is <= 5 flushes. We will allow a small gap for service calls.
+# assertion 1 <= save_callsew"n"sch <= 6, f"too many flushes: ZZF0Z"

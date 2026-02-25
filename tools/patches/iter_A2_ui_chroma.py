@@ -239,7 +239,7 @@ def list_():
             ch = get_chroma_ui()
             if (not ESTER_MEM_FACADE) and ch is not None and ch.available():
                 # prostaya vydacha: poslednie N cherez poisk po pustomu zaprosu ne delaem
-                # vmesto etogo UI polzuetsya /search; /list v chroma mozhno dobavit pozzhe
+                # instead, the UI uses /search; /leaf in chrome can be added later
                 pass
         except Exception:
             pass

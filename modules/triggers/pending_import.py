@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-modules/triggers/pending_import.py — import «pending_add» v master dobavleniya triggerov.
+"""modules/triggers/pending_import.py — import “pending_add” v master add triggerov.
 
-Naznachenie:
-- Prinyat fayl iz pending_export (ili analogichnyy massiv) i podgotovit:
-  * dry-run: spisok «gotovykh POST-zaprosov» dlya sozdaniya triggera
-  * try_apply: popytka vyzvat /triggers/add (esli v sborke suschestvuet)
-  * fallback: eksport spiska POST-zaprosov kak artefakt (dlya ruchnogo primeneniya)
+Name:
+- Prinyat fayl iz pending_export (or analogichnyy massiv) i podgotovit:
+  * dr-run: list of “ready POST requests” for creating a trigger
+  * three_apply: attempt to call /triggers/add (if it exists in the assembly)
+  * fake: exporting a list of POST requests as an artifact (for manual use)
 
-Kontrakty:
+Contract:
 - NIChEGO ne menyaem v suschestvuyuschikh ruchkakh; /triggers/add mozhet otsutstvovat → korrektno soobschaem.
 
 MOSTY:
-- Yavnyy: (Diagnostika ↔ Deystvie) perenosim pending → «sozdanie» bez syurprizov.
+- Yavnyy: (Diagnostika ↔ Deystvie) perenosim pending → “sozdanie” bez syurprizov.
 - Skrytyy #1: (Infoteoriya ↔ Prozrachnost) dry-run pokazyvaet tochnye tela zaprosov.
 - Skrytyy #2: (Inzheneriya ↔ Sovmestimost) myagkiy fallback na artefakt.
 
 ZEMNOY ABZATs:
-Chistyy REST/JSON, offlayn. Esli /triggers/add net — ne delaem nichego s sistemoy.
+Chistyy REST/JSON, offlayn. Esli /triggers/add net - ne delaem nichego s sistemoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import json, time, http.client

@@ -1,12 +1,10 @@
 
 # -*- coding: utf-8 -*-
-"""
-routes/app_discover_routes.py - discover/diagnostics endpoints (fixed).
+"""routes/app_discover_routes.py - discover/diagnostics endpoints (fixed).
 Mosty: yavnyy (Veb↔Dvizhok deystviy), skrytye (Memory↔Inspektsiya; UI↔Diagnostika).
-Zemnoy abzats: ruchki zdorovya/skanirovaniya marshrutov nuzhny dlya knopok «obnaruzhit/perezagruzit».
-Ranee padalo iz‑za opechatki jupytext(...) vmesto jsonify(...). Teper vse bezopasno.
-c=a+b
-"""
+Zemnoy abzats: ruchki zdorovya/skanirovaniya marshrutov nuzhny dlya knopok “obnaruzhit/perezagruzit”.
+Ranee padalo iz‑za opechatki jupytext(...) vmesto jsonify(...). Now everything is safe.
+c=a+b"""
 from __future__ import annotations
 import importlib, os
 from typing import Any, Dict, List, Tuple

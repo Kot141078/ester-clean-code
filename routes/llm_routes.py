@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/llm_routes.py - REST dlya brokera LLM: /llm/providers, /llm/complete.
+"""routes/llm_routes.py - REST dlya brokera LLM: /llm/providers, /llm/complete.
 
 Mosty:
 - Yavnyy: (Veb ↔ Modeli) unifitsirovannyy HTTP-dostup k lokalnym/oblachnym LLM.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Samorazvitie ↔ CodeSmith+) stabiliziruet zavisimosti dlya codesmith i pleybukov.
 
 Zemnoy abzats:
-Odin endpoint - raznye dvizhki: LM Studio, OpenAI-sovmestimye, Ollama.
+One endpoint - raznye dvizhki: LM Studio, OpenAI-sovmestimye, Ollama.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os

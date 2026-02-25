@@ -1,6 +1,6 @@
 # scripts/installers/install_usb_agent_windows_service.ps1
-# Ustanovka Windows Service dlya agenta «odin vopros» (optsionalno).
-# Trebuet prava administratora. Pytaetsya postavit pywin32; pri neuspekhe predlozhit Planirovschik zadach.
+# Installation of Windows Service for the “one question” agent (optional).
+# Requires administrator rights. Tries to impose guilt32; if unsuccessful, suggest Task Scheduler.
 
 param(
   [string]$PythonExe = "python"

@@ -1,12 +1,10 @@
 
 # -*- coding: utf-8 -*-
-"""
-Google Drive adapter dlya bekapov (Service Account).
+"""Google Drive adapter dlya bekapov (Service Account).
 Trebuetsya: google-api-python-client, google-auth
 ENV:
   GDRIVE_SERVICE_ACCOUNT_FILE=./secrets/gdrive_sa.json
-  GDRIVE_BACKUP_FOLDER_ID=<folder_id>
-"""
+  GDRIVE_BACKUP_FOLDER_ID=<folder_id>"""
 from __future__ import annotations
 
 import io
@@ -41,7 +39,8 @@ def list_files(prefix: str = '', folder_id: str = None) -> List[Tuple[str, str]]
     folder_id = folder_id or os.getenv('GDRIVE_BACKUP_FOLDER_ID', 'root')
     q = f"'{folder_id}' in parents and trashed=false"
     if prefix:
-        q += f" and name contains '{prefix.replace("'", "\'")}'"
+        prefix_safe = prefix.replace("'", "\\'")
+        q += f" and name contains '{prefix_safe}'"
     items = []
     page_token = None
     while True:

@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/resource_scheduler.py - UI/REST «Resursnyy planirovschik LLM».
+"""routes/resource_scheduler.py - UI/REST “Resursnyy planirovschik LLM”.
 
-Marshruty:
-  • GET  /admin/resources/scheduler            - HTML
-  • GET  /admin/resources/scheduler/status     - status()
-  • POST /admin/resources/scheduler/choose     - vybrat resurs pod req
-  • POST /admin/resources/scheduler/run        - prognat prompt cherez alias (AB-aware)
+Route:
+  • GET /admin/resources/scheduler - HTML
+  • GET /admin/resources/scheduler/status - status()
+  • POST /admin/resources/scheduler/choose - vybrat resources pod req
+  • POST /admin/resources/scheduler/run - prognat prompt cherez alias (AB-aware)
 
 Mosty:
 - Yavnyy (UX ↔ Orkestratsiya): v odnom meste - vybor i zapusk.
@@ -14,10 +13,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): OpenAI-sovmestimyy vyzov lokalnykh resursov; yadro ne trogaem.
 
 Zemnoy abzats:
-Eto «panel dispetchera»: podbiraem luchshuyu lokalnuyu model po trebovaniyam i zapuskaem ee v odin klik, ne narushaya limitov.
+Eto “panel dispetchera”: podbiraem luchshuyu lokalnuyu model po trebovaniyam i zapuskaem ee v odin klik, ne narushaya limitov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

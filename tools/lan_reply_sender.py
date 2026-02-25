@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tools/lan_reply_sender.py — utilita otpravki LAN-kvitantsii (HTTP/UDP).
+"""tools/lan_reply_sender.py - utilita otpravki LAN-kvitantsii (HTTP/UDP).
 
 Primery:
   # HTTP:
@@ -12,13 +11,12 @@ Primery:
 Mosty:
 - Yavnyy (Ispolnitel ↔ Dispetcher): prostoy sposob soobschit rezultat.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): odna i ta zhe kvitantsiya dlya oboikh transportov.
-- Skrytyy 2 (Praktika ↔ Sovmestimost): stdlib, offlayn; sekret optsionalen.
+- Skrytyy 2 (Praktika ↔ Sovmestimost): stdlib, offlayn; secret options.
 
 Zemnoy abzats:
-Nebolshaya «ratsiya»: nazhal — soobschil «gotovo» i poshel dalshe.
+Nebolshaya "ratsiya": nazhal - soobschil "gotovo" i poshel dalshe.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, os, socket, sys, urllib.request
 from modules.lan_reply.protocol import normalize, sign  # type: ignore

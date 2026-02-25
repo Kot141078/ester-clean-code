@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-routes/thinking_web_context_routes.py - REST dlya «rasshiritelya konteksta» + metriki + admin-UI.
+"""routes/thinking_web_context_routes.py - REST dlya "rasshiritelya konteksta" + metrics + admin-UI.
 
-Endpointy:
+Endpoint:
   • POST /thinking/web_context/expand {"q","k"?:5,"autofetch"?:false,"max_fetch"?:3}
-  • GET  /metrics/web_context
-  • GET  /admin/web_search  - mini-panel proverki poiska/plana
+  • GET /metrics/web_context
+  • GET /admin/web_search - mini-panel proverki poiska/plana
 
 Mosty:
 - Yavnyy: (Myshlenie ↔ Vvod) agent mozhet sam dobirat istochniki i zagruzhat ikh v pamyat.
@@ -14,11 +13,10 @@ Mosty:
 - Skrytyy #3: (Inzheneriya ↔ Kontrakty) determinirovannye JSON-otvety i Prometheus-metriki.
 
 Zemnoy abzats:
-Eto «panel avtopodkormki»: zadal temu - sistema nashla istochniki i (esli razresheno) sama podvezla ikh v konveyer.
+Eto “panel avtopodkormki”: zadal temu - sistema nashla istochniki i (esli razresheno) sama podvezla ikh v konveyer.
 Prostye vkhody/vykhody, nichego lishnego - udobno dlya payplaynov i UI.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -28,7 +26,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp_wc = Blueprint("web_context", __name__, template_folder="../templates", static_folder="../static")
 
-# Myagkiy import rasshiritelya
+# Soft import expander
 try:  # pragma: no cover
     from modules.thinking.web_context_expander import expand, counters  # type: ignore
 except Exception:  # pragma: no cover
@@ -45,7 +43,7 @@ def init_app(app):  # pragma: no cover
 
 @bp_wc.post("/thinking/web_context/expand")
 def api_expand():
-    """Rasshirit zapros istochnikami i (optsionalno) avtozagruzit v pamyat."""
+    """Expand the query with sources and (optionally) autoload into memory."""
     if expand is None:
         return jsonify({"ok": False, "error": "web_context_expander_unavailable"}), 500
     data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
@@ -72,7 +70,7 @@ def api_expand():
 
 @bp_wc.get("/metrics/web_context")
 def metrics():
-    """Prometheus-metriki raboty rasshiritelya konteksta."""
+    """Prometheus metrics for context expander performance."""
     if counters is None:
         body = (
             "web_context_expand_calls 0\n"
@@ -96,7 +94,7 @@ def metrics():
 
 @bp_wc.get("/admin/web_search")
 def admin_web_search():
-    """Mini-panel ruchnoy proverki poiska/plana zagruzki."""
+    """Mini-panel for manual search/load plan verification."""
     return render_template("admin_web_search.html")
 
 

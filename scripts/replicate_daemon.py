@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/replicate_daemon.py — periodicheskiy pull-demon P2P replikatsii.
+"""scripts/replicate_daemon.py - periodicheskiy pull-demon P2P replikatsii.
 Ne menyaet kanon: ispolzuet p2p_replicator.PeerReplicator().pull_once()
-Intervaly upravlyayutsya cherez REPLICATION_PULL_INTERVAL_SECS (defolt 30).
-"""
+Intervaly upravlyayutsya cherez REPLICATION_PULL_INTERVAL_SECS (defolt 30)."""
 from __future__ import annotations
 
 import json
@@ -44,7 +42,7 @@ def main():
                 json.dumps({"ts": int(time.time()), "error": str(e)}, ensure_ascii=False),
                 file=sys.stderr,
             )
-        # plavnyy son s proverkoy flaga
+        # smooth sleep with flag check
         for _ in range(interval):
             if not _run:
                 break

@@ -36,15 +36,15 @@ nodes:
     out: "final_branch"
     depends: ["human_check"]
 
-  # Fan-in: sobiraem rezultaty vsekh dochernikh vetok
+  # Fine-in: collecting the results of all child branches
   - id: gather
     type: join
     from: "fork"          # sobrat detey, porozhdennykh uzlom fork
     out: "joined"         # sokhranit v kontekst osnovnoy vetki
-    select:               # kakie polya vytaschit iz kazhdoy vetki
+    select:               # which fields to pull from each branch
       file: "{{item.file}}"
       approval: "{{ctx.approval}}"
       summary: "{{ctx.final_branch}}"
     mode: list            # itog: spisok slovarey
-    await_nodes: ["finalize"]  # v dochkakh zhdat zaversheniya finalize
+    await_nodes: ["finalize"]  # in daughters wait for the finale to finish
     depends: ["finalize"]

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-modules/chat/output_guard.py
+"""modules/chat/output_guard.py
 
 Myagkiy predokhranitel na urovne HTTP-otvetov:
 - lovit tipichnye zatsiklivaniya i bessmyslennye povtory v polyakh answer/text/content/output,
@@ -12,11 +11,10 @@ Myagkiy predokhranitel na urovne HTTP-otvetov:
 MOSTY:
 - Yavnyy: LLM-vykhod ↔ UI — srezaem musor, ostavlyaem smysl.
 - Skrytyy #1: Infoteoriya ↔ praktika — nizkaya entropiya/povtoryaemost kak signal degradatsii.
-- Skrytyy #2: Kibernetika ↔ bezopasnost — predokhranitel kak kontur stabilizatsii.
+- Skrytyy #2: Kibernetika ↔ bezopasnost - predokhranitel kak kontur stabilizatsii.
 
 ZEMNOY ABZATs:
-Kak termostat na kotle: on ne delaet vodu umnoy, no ne daet ey vykipet do sukha.
-"""
+Kak termostat na kotle: on ne delaet vodu umnoy, no ne daet ey vykipet do sukha."""
 
 import json
 import re
@@ -35,12 +33,10 @@ def _strip_spaces(s: str) -> str:
 
 
 def _repeat_ratio(s: str) -> float:
-    """
-    Ochen grubaya otsenka «zatsiklennosti»:
+    """Ochen grubaya otsenka “zatiklennosti”:
     - normalizuem probely,
-    - schitaem chastoty 3-gramm,
-    - esli kakaya-to 3-gramma vstrechaetsya slishkom chasto — znachit, model zaela.
-    """
+    - schitaem frequency 3-gramm,
+    - esli kakaya-to 3-gramma vstrechaetsya slishkom chasto - znachit, model zaela."""
     s = _strip_spaces(s)
     words = s.split()
     if len(words) < 60:
@@ -58,9 +54,7 @@ def _repeat_ratio(s: str) -> float:
 
 
 def _guard_text(text: str) -> Optional[str]:
-    """
-    Vozvraschaet *novyy* tekst, esli nado obrezat/otmetit, inache None.
-    """
+    """Returns *new* text if trimmed/marked, None otherwise."""
     if not isinstance(text, str):
         return None
     if len(text) < MIN_LEN_TO_CHECK:
@@ -69,7 +63,7 @@ def _guard_text(text: str) -> Optional[str]:
     rr = _repeat_ratio(text)
     if rr >= MAX_REPEAT_RATIO:
         cut = min(len(text), 1800)
-        return text[:cut].rstrip() + "\n\n[output-guard] obrezano: obnaruzhen zatsiklennyy povtor."
+        return text[:cut].rstrip() + "yutput-guard cut off: looped repeat detected."
 
     if len(text) > MAX_CHARS:
         return text[:MAX_CHARS].rstrip() + "\n\n[output-guard] obrezano: slishkom dlinnyy vyvod."
@@ -135,8 +129,6 @@ def _install_guard(app) -> None:
 
 
 def register(app) -> None:
-    """
-    Tochka vkhoda dlya autoload_modules_fs() v app.py.
-    Nichego ne vozvraschaet, prosto naveshivaet after_request-khuk.
-    """
+    """Entry point for autoload_modules_fs() in app.
+    It doesn't return anything, it just adds an after_request hook."""
     _install_guard(app)

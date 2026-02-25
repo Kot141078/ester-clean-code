@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/network_overview.py - UI/REST: svodnaya «Set uzlov» (sosedi + info-kesh + bystrye deystviya).
+"""routes/network_overview.py - UI/REST: svodnaya “Set uzlov” (sosedi + info-kesh + bystrye deystviya).
 
-Marshruty:
-  • GET  /admin/network               - HTML
-  • GET  /admin/network/status        - {peers, info_cache, local_tasks}
-  • POST /admin/network/hello         - razoslat hello seychas (LAN_GROUP:LAN_PORT)
-  • POST /admin/network/info-request  - zaprosit info u vsekh ili u konkretnogo IP
-  • POST /admin/network/task-ping     - postavit zadachu ping na IP (ili broadcast)
-  • POST /admin/network/clear-cache   - ochistit info-kesh
+Route:
+  • GET /admin/network - HTML
+  • GET /admin/network/status - {peers, info_cache, local_tasks}
+  • POST /admin/network/hello - razoslat hello seychas (LAN_GROUP:LAN_PORT)
+  • POST /admin/network/info-request - zaprosit info u vsekh or u konkretnogo IP
+  • POST /admin/network/task-ping - postavit zadachu ping na IP (or broadcast)
+  • POST /admin/network/clear-cache - ochistit info-cash
 
 Mosty:
 - Yavnyy (Nablyudaemost ↔ Orkestratsiya): odin ekran vidit sosedey i sostoyanie vorkerov (read-only).
@@ -16,10 +15,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): formaty sovpadayut s uzhe suschestvuyuschimi LAN/LAN-tasks.
 
 Zemnoy abzats:
-Eto «schitok dispetchera»: kto vokrug, kto rabotaet, skolko zadach - i para knopok «pozvat» i «proverit».
+Eto “schitok dispetchera”: kto vokrug, kto rabotaet, skolko zadach - i para knopok “pozvat” i “verit”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json, os, socket, time

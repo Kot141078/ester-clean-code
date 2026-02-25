@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-routes/replication_guarded_test.py - zaschischennye testovye ruchki replikatsii (mTLS + rol "replicator").
+"""routes/replication_guarded_test.py - zaschischennye testovye ruchki replikatsii (mTLS + rol "replicator").
 
-Marshruty:
-  GET  /replication/test_snapshot  -> {"ok":true,"type":"snapshot","items":0}
-  POST /replication/test_apply     -> {"ok":true,"type":"apply","got":{...}}
+Route:
+  GET /replication/test_snapshot -> {"ok":true,"type":"snapshot","items":0}
+  POST /replication/test_apply -> {"ok":true,"type":"apply","got":{...}}
 
 Mosty:
-- Yavnyy: (Bezopasnost ↔ Replikatsiya) dostup k testovym ruchkam tolko pri roli «replicator».
+- Yavnyy: (Bezopasnost ↔ Replikatsiya) dostup k testovym ruchkam tolko pri roli “replicator”.
 - Skrytyy #1: (Logika ↔ Kontrakty) strogiy JSON-otvet i kody 200/403 dlya avtomatizirovannykh smoke-testov.
-- Skrytyy #2: (Inzheneriya ↔ Sovmestimost) «myagkiy» import rolemap - modul ne padaet pri otsutstvii mappera.
+- Skrytyy #2: (Inzheneriya ↔ Sovmestimost) “myagkiy” import rolemap - modul ne padaet pri otsutstvii mappera.
 
 Zemnoy abzats:
-Eto «kontrolnyy turniket» na vkhod v kontur replikatsii: ingress kladet zagolovki mTLS,
+Eto “kontrolnyy turniket” na vkhod v kontur replikatsii: ingress kladet zagolovki mTLS,
 my sveryaem rol i tolko potom pozvolyaem vypolnyat operatsii (pust i testovye).
 
-c=a+b
-"""
+c=a+b"""
 
 from typing import Optional, Callable, Any
 from functools import wraps
@@ -29,7 +27,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 # Not a pytest module despite its historical filename.
 __test__ = False
 
-# Myagkiy import role-map: pri otsutstvii vozvraschaem None (dostup budet zapreschen)
+# Soft import of role-map: if absent, return to None (access will be denied)
 try:
     from security.mtls_rolemap import map_dn_to_role  # type: ignore
 except Exception:  # pragma: no cover
@@ -39,7 +37,7 @@ bp = Blueprint("replication_guarded", __name__, url_prefix="/replication")
 
 
 def _mtls_role_from_headers() -> Optional[str]:
-    """Sovmestimo s ingress, prokidyvayuschim zagolovki pri uspeshnom mTLS."""
+    """Compatible with ingress that forwards headers upon successful mTLS."""
     if (request.headers.get("X-Client-Verified") or "").upper() != "SUCCESS":
         return None
     dn = request.headers.get("X-Client-DN", "") or ""
@@ -47,7 +45,7 @@ def _mtls_role_from_headers() -> Optional[str]:
 
 
 def _require_roles(roles: list[str]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-    """Dekorator dopuska tolko dlya spiska roley (403 pri nesootvetstvii)."""
+    """Permission decorator for role list only (403 on mismatch)."""
     def decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(fn)
         def wrapper(*a: Any, **kw: Any):
@@ -62,14 +60,14 @@ def _require_roles(roles: list[str]) -> Callable[[Callable[..., Any]], Callable[
 @bp.get("/test_snapshot")
 @_require_roles(["replicator"])
 def replication_test_snapshot():
-    """Zaschischennaya ruchka: razreshena tolko roli 'replicator'. Vozvraschaet fiktivnyy «snepshot»."""
+    """Protected Handle: Only the Replicator role is allowed. Returns a dummy \"snapshot\"."""
     return jsonify({"ok": True, "type": "snapshot", "items": 0})
 
 
 @bp.post("/test_apply")
 @_require_roles(["replicator"])
 def replication_test_apply():
-    """Primenenie «snepshota» (testovoe). Prinimaet proizvolnyy JSON i vozvraschaet ego v otvete."""
+    """Application of “snapshot” (test). Accepts an arbitrary JSION and returns it in a response."""
     try:
         payload = request.get_json(force=True, silent=True) or {}
     except Exception:
@@ -78,11 +76,11 @@ def replication_test_apply():
 
 
 def register_replication_guarded(app) -> None:  # pragma: no cover
-    """Istoricheskaya sovmestimaya registratsiya blyuprinta (imya iz dampa)."""
+    """Historical compatible blueprint registration (name from dump)."""
     app.register_blueprint(bp)
 
 
-# Unifitsirovannye khuki proekta
+# Unified project hooks
 def register(app) -> None:  # pragma: no cover
     app.register_blueprint(bp)
 

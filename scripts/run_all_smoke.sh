@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# S0/scripts/run_all_smoke.sh — obertka edinogo progona smoukov dlya *nix
-# Mosty: (Yavnyy) Ashbi — prostoy regulyator; (Skrytye) Enderton — proveryaemye predikaty; Cover&Thomas — minimizatsiya neopredelennosti sostoyaniem otchetov.
-# Zemnoy abzats: odin vkhod dlya lokalnoy proverki; ne menyaet rantaym, artefakty — routes.md, matrix.md.
+# С0/skripts/run_all_stoke.sh - a wrapper for a single knock run for *them
+# Bridges: (Explicit) Ashby - simple regulator; (Hidden) Enderton - testable predicates; Carpet&Thomas - minimizing uncertainty in the status of reports.
+# Earth paragraph: one input for local check; does not change runtime, artifacts - rutes.md, matrix.md.
 # c=a+b
 
 set -euo pipefail

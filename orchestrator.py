@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-orchestrator.py — dispetcher fonovykh moduley Ester.
+"""orchestrator.py - dispetcher fonovykh moduley Ester.
 
-Ideya:
-- Ne padat, esli moduley net ili oni passivnye.
-- Maksimalno myagko podtsepit modules.thinking / selfevo / ingest / p2p / cron.
+Ideaya:
+- Ne padat, esli modular net ili oni passivnye.
+- Maximalno myagko podtsepit modules.thinking / selfevo / ingest / p2p / cron.
 - Perezapuskat modul TOLKO pri padenii (isklyuchenii), a ne pri normalnom zavershenii.
 
-Kontrakt:
+Contract:
 - Esli modul soderzhit odnu iz funktsiy:
-    start_background / run_background / run_scheduler /
-    start_loop / start / run_forever / serve /
-    worker / loop / run / main / bootstrap / entry
+    start_background/run_background/run_scheduler/
+    start_loop/start/run_forever/serve/
+    worker/loop/run/main/bootstrap/entry
   — ona vyzyvaetsya v otdelnom daemon-potoke.
-- Esli podkhodyaschey tochki vkhoda net — modul pomechaetsya kak passive.
-"""
+- Esli podkhodyaschey tochki vkhoda net - modul pomechaetsya kak passive."""
 
 from __future__ import annotations
 
@@ -58,13 +56,13 @@ _BASE_CANDIDATES = (
 
 
 def _pick_entry(mod, candidates: Iterable[str]) -> Optional[Callable[..., Any]]:
-    # 1) Yavnye imena
+    # 1) Explicit names
     for name in candidates:
         fn = getattr(mod, name, None)
         if callable(fn):
             return fn
 
-    # 2) Khevristika: lyubaya funktsiya s run/loop/worker/scheduler v imeni
+    # 2) Heuristics: any function with run/loop/worker/scheduler in the name
     for name, fn in vars(mod).items():
         if not callable(fn):
             continue
@@ -94,23 +92,21 @@ def _call_entry(fn: Callable[..., Any], app=None) -> None:
                     kwargs[name] = app
         fn(**kwargs)
     except TypeError:
-        # esli promakhnulis s kwargs — zapuskaem bez argumentov
+        # if you missed with quargs - run without arguments
         fn()
 
 
 def _spawn(name: str, target, app=None, retry_on_error: bool = True) -> None:
-    """
-    Zapustit target v otdelnom potoke.
-    - Pri normalnom zavershenii — vykhodim.
-    - Pri isklyuchenii — log i (opts.) povtor cherez 5 sek.
-    """
+    """Run the target in a separate thread.
+    - If the completion is normal, we exit.
+    - If an exception occurs, log and (optional) repeat after 5 seconds."""
     def runner():
         while True:
             try:
                 _log(f"starting {name}")
                 _call_entry(target, app=app)
                 _log(f"{name} finished (normal)")
-                return  # NORMALNYY VYKhOD — BEZ PEREZAPUSKA
+                return  # NORMAL Exit - NO RESTART
             except KeyboardInterrupt:
                 _log(f"{name} interrupted")
                 return
@@ -141,10 +137,8 @@ def _try_module(mod_name: str, app=None, retry_on_error: bool = True) -> bool:
 
 
 def start_background(app=None) -> None:
-    """
-    Podnyat vse, chto vklyucheno flazhkami v .env i realno suschestvuet.
-    Vyzyvaetsya iz app.py odin raz (bez dubley pri debug-reloader).
-    """
+    """Raise everything that is included in the flags in .env and actually exists.
+    Called from the app once (without duplicates during debug reloader)."""
     # Thinking
     if _flag("THINKING_ENABLE", False):
         _try_module("modules.thinking", app=app)

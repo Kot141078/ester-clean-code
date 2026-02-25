@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-clean_bom.py — Ochistka BOM (U+FEFF) iz faylov Ester.
+"""clean_bom.py - Ochistka BOM (U+FEFF) iz faylov Ester.
 Skaniruet .py/.txt/.json, udalyaet nevidimye simvoly, sokhranyaet original kak .bak.
-Rasshirenie: Log v vstore, sha-proverka dlya pamyati Ester.
+Rasshirenie: Log vstore, sha-proverka dlya pamyati Ester.
 
 Zapusk: python clean_bom.py
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import hashlib
 import json
@@ -29,7 +27,7 @@ def compute_sha(file_path: Path) -> str:
 def clean_file(file_path: Path) -> bool:
     try:
         content = file_path.read_text(encoding="utf-8")
-        cleaned = content.replace("\ufeff", "")  # Udalyaem BOM
+        cleaned = content.replace("\ufeff", "")  # Delete HERE
         if cleaned != content:
             bak_path = file_path.with_suffix(file_path.suffix + ".bak")
             file_path.rename(bak_path)  # Bekap originala
@@ -51,7 +49,7 @@ def main():
                     sha = compute_sha(path)
                     cleaned_files.append({"relpath": str(path.relative_to(PROJECT_ROOT)), "sha": sha})
 
-    # Log v vstore dlya pamyati Ester
+    # Log in the store for the memory of Esther
     state_dir = Path(os.getenv("ESTER_STATE_DIR", str(Path.home() / ".ester")))
     vstore_dir = state_dir / "vstore"
     vstore_dir.mkdir(parents=True, exist_ok=True)

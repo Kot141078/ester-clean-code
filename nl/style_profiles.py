@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-nl/style_profiles.py — stili pisem/soobscheniy dlya raznykh adresatov (RU).
+"""nl/style_profiles.py — stili pisem/soobscheniy dlya raznykh adresatov (RU).
 
 MOSTY:
-- (Yavnyy) render_style(kind, intent, ctx) — "lawyer|student|friend|neutral".
-- (Skrytyy #1) A/B-slot (`AUTHORING_STYLE_AB=A|B`) — variant formulirovok; bystryy otkat po env.
+- (Yavnyy) render_style(kind, intent, ctx) - "lawyer|student|friend|neutral".
+- (Skrytyy #1) A/B-slot (`AUTHORING_STYLE_AB=A|B`) - variant formulirovok; bystryy otkat po env.
 - (Skrytyy #2) Stels-persona (MSG_STEALTH_PERSONA) vliyaet na vvodnye/ton.
 
 ZEMNOY ABZATs:
-Pishem «kak dlya lyudey»: yuristu — sukho i strukturno; shkolniku — prosto; drugu — teplo; po umolchaniyu — neytralno-delovoy.
+Pishem “kak dlya lyudey”: yuristu - sukho i strukturno; shkolniku - simple; drugu - warmth; po umolchaniyu — neytralno-delovoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -32,37 +30,37 @@ def _wrap(text: str) -> str:
 def _lawyer(intent: str, ctx: Dict) -> str:
     if _ab() == "A":
         return _wrap(
-            f"Proshu rassmotret vopros: {intent}. Kratkie fakty: {ctx.get('facts','—')}. "
-            "Nuzhna otsenka riskov i posledovatelnost deystviy. Esli nuzhny dopolnitelnye svedeniya, soobschite."
+            f"Please consider the issue: ZZF0Z. Quick Facts: ZZF1ZZ."
+            "A risk assessment and sequence of actions are needed. If you need additional information, please let me know."
         )
     else:
         return _wrap(
-            f"Dobryy den. Tema: {intent}. Fakty: {ctx.get('facts','net dannykh')}. "
-            "Pozhaluysta, ukazhite pravovye riski, veroyatnye sroki i pervyy shag."
+            f"Good afternoon. Topic: ZZF0Z. Facts: ZZF1ZZ."
+            "Please indicate legal risks, likely time frame and first step."
         )
 
 def _student(intent: str, ctx: Dict) -> str:
     if _ab() == "A":
         return _wrap(
-            f"Davay razberemsya prosto: {intent}. Snachala — ideya, zatem primer, potom korotkaya proverka. "
-            "Nachni s shaga 1: obyasni ideyu na bytovom primere."
+            f"Let's get it simple: ZZF0Z. First an idea, then an example, then a short test."
+            "Start with step 1: explain the idea using an everyday example."
         )
     else:
         return _wrap(
-            f"{intent}. Obyasni «na paltsakh», privedi odin ponyatnyy primer i day malenkoe uprazhnenie iz 3 minut."
+            f"ZZF0Z. Explain “on your fingers”, give one clear example and give a small exercise of 3 minutes."
         )
 
 def _friend(intent: str, ctx: Dict) -> str:
     if _ab() == "A":
         return _wrap(f"{intent} 🙌 Esli udobno — skazhi paru slov seychas; esli net, napomnyu pozzhe.")
     else:
-        return _wrap(f"{intent} — korotko i po-dobromu. Ya ryadom, esli chto.")
+        return _wrap(f"ZZF0Z - short and kind. I'm nearby if anything happens.")
 
 def _neutral(intent: str, ctx: Dict) -> str:
     if _ab() == "A":
-        return _wrap(f"{intent}. Otvechu kratko i po delu, pri neobkhodimosti — detali posle podtverzhdeniya.")
+        return _wrap(f"ZZF0Z. I will answer briefly and to the point, if necessary - details after confirmation.")
     else:
-        return _wrap(f"{intent}. Snachala kratkiy otvet, zatem — varianty.")
+        return _wrap(f"ZZF0Z. First the short answer, then the options.")
 
 def render_style(kind: str, intent: str, ctx: Dict | None = None) -> str:
     ctx = ctx or {}

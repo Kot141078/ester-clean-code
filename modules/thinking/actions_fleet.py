@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_fleet.py — eksheny «voli» dlya flota i garazha.
+"""modules/thinking/actions_fleet.py - eksheny “voli” dlya flota i garazha.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Flot) volya mozhet zapuskat naznachenie i tik vorkera.
 - Skrytyy #1: (Ostorozhnost ↔ Podskazki) submit vozvraschaet hint pro HTTP+pilyulyu.
-- Skrytyy #2: (Garazh ↔ Plan) generiruem plan i otpravlyaem zadachi.
+- Skrytyy #2: (Garazh ↔ Plan) generate plan i otpravlyaem zadachi.
 
 Zemnoy abzats:
-Mozg govorit: «raskiday zadachi» — i flot nachinaet dvizhenie; «sdelay shag» — i vorkery berut naryady.
+Brain govorit: “raskiday zadachi” - i flot nachinaet dvizhenie; “sdelay shag” - i vorkery berut naryady.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -33,7 +31,7 @@ def _reg():
     register("fleet.worker.tick", {}, {"ok":"bool","got":"int"}, 6, a_worker)
 
     def a_submit(args: Dict[str,Any]):
-        # Napryamuyu stavit zadachi sleduet cherez HTTP (pod pilyuley)
+        # Directly sets tasks through HTTP (under the pill)
         return {"ok": True, "hint":"use /fleet/task/submit with pill", "spec": args.get("spec")}
     register("fleet.task.submit", {"spec":"dict"}, {"ok":"bool"}, 2, a_submit)
 

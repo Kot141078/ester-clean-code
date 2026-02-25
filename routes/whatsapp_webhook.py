@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/whatsapp_webhook.py - verifikatsiya i priem vkhodyaschikh iz WhatsApp Cloud API.
+"""routes/whatsapp_webhook.py - verifikatsiya i priem vkhodyaschikh iz WhatsApp Cloud API.
 
 MOSTY:
 - (Yavnyy) GET /webhooks/whatsapp - Verify Token dance; POST - sobytiya, teksty → roles.store.upsert_observation().
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Oshibki/nestandartnye sobytiya - 200 OK (idempotentnost), bez pobochnykh effektov.
 
 ZEMNOY ABZATs:
-Legalnaya integratsiya WhatsApp s obucheniem na realnykh dialogakh - bez «khakov» i obkhoda pravil.
+Legalnaya integratsiya WhatsApp s obucheniem na realnykh dialogakh - bez “khakov” i obkhoda pravil.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

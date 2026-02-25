@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
 # routes/upload.py
-"""
-routes/upload.py - zagruzka faylov (bezopasno offlayn) s postanovkoy v inzhest.
+"""routes/upload.py - zagruzka faylov (bezopasno offlayn) s postanovkoy v inzhest.
 
-Endpointy:
-  • POST /ingest/file         - multipart/form-data: file=<file>; meta: source?, tags?
-  • GET  /ingest/formats      - spisok podderzhivaemykh/zapreschennykh formatov
-  • GET  /ingest/help         - kratkaya spravka po API
+Endpoint:
+  • POST /ingest/file - multipart/form-data: file=<file>; meta: source?, tags?
+  • GET /ingest/formats - spisok podderzhivaemykh/zapreschennykh formatov
+  • GET /ingest/help - kratkaya spravka po API
 
 Sovmestimost:
   • Signatura registratora: register_upload_routes(app, url_prefix="/ingest")
   • Dlya avtozagruzchika predusmotren register(app).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, base64, hashlib, hmac
 from typing import Any, Dict, List
@@ -63,7 +61,7 @@ def upload_file():
     name = f.filename or f"upload_{ts}"
     path = os.path.join("data", "uploads", name)
     f.save(path)
-    # Postanovka v «ochered inzhesta» (drop-in)
+    # Placement in the “ingest queue” (drop-in)
     q_dir = os.getenv("INGEST_QUEUE_DIR", os.path.join("data", "ingest", "queue"))
     os.makedirs(q_dir, exist_ok=True)
     meta = {
@@ -76,7 +74,7 @@ def upload_file():
     return jsonify({"ok": True, "stored": {"path": path}, "queued": True})
 
 def register_upload_routes(app, url_prefix: str = "/ingest") -> None:
-    # esli nuzhen drugoy prefiks - sozdadim vtoroy bp s tem zhe view
+    # if you need a different prefix, create a second bp with the same view
     if bp.name not in getattr(app, "blueprints", {}):
         app.register_blueprint(bp)
     if url_prefix and url_prefix != "/ingest":

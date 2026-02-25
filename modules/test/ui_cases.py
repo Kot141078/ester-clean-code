@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-modules/test/ui_cases.py — vizualnye test-keysy poverkh suschestvuyuschikh detektorov (OCR/shablony).
+"""modules/test/ui_cases.py - vizualnye test-keysy poverkh suschestvuyuschikh detektorov (OCR/shablony).
 
 Spetsifikatsiya testa:
 {
   "name": "Menu has 'Fayl'",
-  "kind": "ocr_contains",   # ili template_match
+  "kind": "ocr_contains", # or template_match
   "params": {"text":"Fayl","lang":"rus+eng"},
   "timeout_ms": 2000
 }
@@ -13,7 +12,7 @@ Spetsifikatsiya testa:
 API:
 - add_case(case), list_cases(), clear_cases()
 - run_all() -> {"total":N,"passed":M,"failed":K,"results":[...]}
-- export_json() -> JSON rezultata poslednego progona
+- export_json() -> JSON resultata poslednego progona
 
 MOSTY:
 - Yavnyy: (Triggery ↔ Testy) prevraschaem priznaki v proveryaemye trebovaniya.
@@ -21,10 +20,9 @@ MOSTY:
 - Skrytyy #2: (Memory ↔ Uluchshenie) istoriya progonov prigodna dlya analiza.
 
 ZEMNOY ABZATs:
-Odin vyzov ekrana i detektorov na keys, taymaut. Logi — JSON v data/test/ui.
+Odin vyzov ekrana i detektorov na keys, taymaut. Logi - JSON v data/test/ui.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import os, json, time, http.client

@@ -1,22 +1,22 @@
-# Preset RuleHub dlya bezopasnogo avtoprimeneniya Agent Builder
-# Naznachenie: razreshat zapis artefaktov tolko pri strogikh usloviyakh,
-# inache — ostavlyat v preview-rezhime (log sokhranyaetsya).
+# RuleNov preset for safe auto-use Agent Builder
+# Purpose: Allow recording of artifacts only under strict conditions,
+# otherwise, leave it in preview mode (the log is saved).
 #
 # Mosty:
 # - Yavnyy: (Pravila ↔ Mysli) — reguliruem vyzovy "agent.builder.apply" po okruzheniyu.
-# - Skrytyy #1: (Pravila ↔ UX) — YAML redaktiruetsya iz docs/agent_builder.html → /rulehub/config.
+# - Skrytyy #1: (Pravila ↔ UX) - YAML redaktiruetsya iz docs/agent_builder.html → /rulehub/config.
 # - Skrytyy #2: (Pravila ↔ Memory) — logi resheniy pishem v profile/zhurnal pri otkaze/razreshenii.
 #
 # Zemnoy abzats:
-# Eta politika — remen bezopasnosti. Poka slot ne A i zapis ne razreshena yavno, Builder rabotaet tolko v prevyu.
-# Pri vypolnenii usloviy — razreshaem guarded_apply. Tak my isklyuchaem «samoispravleniya» bez sanktsii.
+# This policy is a seat belt. As long as the slot is not A and recording is not explicitly allowed, Builder only works in preview.
+# If the conditions are met, we allow guarded_appli. This way we exclude “self-correction” without sanction.
 # c=a+b
 
 meta:
   preset: agent_builder_safe_apply
   version: 1
 
-enabled: 0   # Po umolchaniyu vyklyuchen. Vklyuchayte vruchnuyu posle proverki.
+enabled: 0   # Off by default. Turn it on manually after checking.
 
 guards:
   - id: ab_slot_must_be_A
@@ -61,4 +61,4 @@ policies:
 
 telemetry:
   record: true
-  redact_keys: ["files.content"]  # primer skrytiya «tela» faylov iz logov
+  redact_keys: ["files.content"]  # example of hiding the “body” of files from logs

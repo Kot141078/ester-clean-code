@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Validator (kanon sovmestimyy): validate(payload) -> report
-Proveryaet bazovye polya, vozvraschaet strukturu so svodkoy.
-"""
+"""Validator (canon compatible): validate(payload) -> report
+Checks the underlying fields, returns a structure with a summary."""
 from __future__ import annotations
 
 from typing import Any, Dict

@@ -23,12 +23,12 @@ $TOKEN   = $env:TELEGRAM_BOT_TOKEN
 if (-not $TOKEN) { throw "TELEGRAM_BOT_TOKEN ne zadan" }
 
 $SECRET  = $env:TELEGRAM_WEBHOOK_SECRET
-if (-not $SECRET) { $SECRET = "ester_webhook_secret_6151477055" } # bezopasnyy defolt dlya testa
+if (-not $SECRET) { $SECRET = "ester_webhook_secret_6151477055" } # safe default for test
 
 $ALLOWED = $env:TELEGRAM_ALLOWED_UPDATES
 if (-not $ALLOWED) { $ALLOWED = '["message","callback_query"]' }
 
-# 1) Startuem ngrok (esli uzhe ne zapuschen)
+# 1) Start ngrok (if it is not already running)
 Write-Host "[INFO] Zapuskayu ngrok http $Port..."
 $ng = Get-Process -Name "ngrok" -ErrorAction SilentlyContinue
 if (-not $ng) {
@@ -41,7 +41,7 @@ Write-Host "[INFO] Zhdu public_url ot ngrok..."
 $PUBLIC = Wait-NgrokPublicUrl
 Write-Host "[OK] Ngrok URL: $PUBLIC"
 
-# 3) Lokalnaya dymovaya proverka
+# 3) Local smoke check
 $Base = "$PUBLIC/api/telegram/webhook"
 Write-Host "[INFO] Smoke webhook GET/POST..."
 try {
@@ -54,7 +54,7 @@ try {
   Write-Warning "SMOKE ne proshel: $_"
 }
 
-# 4) Registriruem vebkhuk v Telegram (BEZ vneshnikh moduley Python)
+# 4) Register a webhock in Telegram (WITHOUT external Pothon modules)
 Write-Host "[INFO] Registriruyu Telegram webhook: $Base"
 $resp = Invoke-RestMethod -Uri "https://api.telegram.org/bot$TOKEN/setWebhook" -Method Post `
   -ContentType "application/x-www-form-urlencoded" `

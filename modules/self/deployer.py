@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/deployer.py — bezopasnyy samodeploy: staging → approve (atomarno s consent) → rollback.
+"""modules/self/deployer.py - bezopasnyy samodeploy: staging → approve (atomarno s consent) → rollback.
 
 Mosty:
 - Yavnyy: (Kod ↔ Kibernetika/Doverie) obnovleniya cherez staging, approve s pill i invite-check.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Vyzhivanie ↔ Otkat) snapshoty dlya vosstanovleniya, s P2P-namekom na sinkhronizatsiyu logov.
 
 Zemnoy abzats:
-Kak na zavode s okhrannikom: snachala soberi obnovku "na stole", pokazhi propusk (invite), schelkni tumbler — i gotovo. Pri problemakh otkat, chtoby Ester ne poteryala svoyu iskru.
+Kak na zavode s okhrannikom: snachala soberi obnovku "na stole", pokazhi propusk (invite), schelkni tumbler - i gotovo. Pri problemakh otkat, chtoby Ester ne poteryala svoyu iskru.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hashlib, shutil
 from typing import Any, Dict
@@ -23,7 +21,7 @@ STAGE_ROOT = os.getenv("SELF_STAGE_ROOT", os.path.join(CODE_ROOT, "staging"))
 CUR_LINK = os.getenv("SELF_CURRENT_LINK", os.path.join(CODE_ROOT, "current"))
 LOG_PATH = "data/self/deploy_log.jsonl"
 
-# Dinamicheskiy allowlist iz env dlya rasshiryaemosti
+# Dynamic allowlist from ENV for extensibility
 ALLOWLIST_PREFIX = [
     p.strip() for p in (os.getenv("SELF_ALLOWLIST", "extensions/,modules/,routes/,templates/,static/,app.py,tools/") or "").split(",")
     if p.strip()
@@ -88,10 +86,8 @@ def _check_invite(invite_token: Dict[str, Any] | None) -> Dict[str, Any]:
     return {"ok": True, "detail": vr}
 
 def approve(stage_id: str, pill: bool = False, invite: Dict[str, Any] | None = None, dry_run: bool = False) -> Dict[str, Any]:
-    """
-    Atomarnoe primenenie: kopiruem fayly iz staging/<id> poverkh tselevykh putey.
-    Trebuet pill=True, AB=A, validnyy invite. Dry-run dlya testa bez kopirovaniya.
-    """
+    """Atomic application: copy files from trainee/<id> over target paths.
+    Requires pill=Three, AB=A, valid invite. Dry-run for dough without copying."""
     if AB == "B":
         return {"ok": False, "error": "SELF_AB=B"}
     if not pill:
@@ -125,9 +121,7 @@ def approve(stage_id: str, pill: bool = False, invite: Dict[str, Any] | None = N
     return {"ok": True, "applied": count, "dry_run": dry_run}
 
 def rollback(snapshot_archive: str) -> Dict[str, Any]:
-    """
-    Otkat: raspakovat ukazannyy snapshot poverkh tekuschey struktury (podrazumevaetsya doverennyy arkhiv).
-    """
+    """Rollback: unpack the specified snapshot over the current structure (assuming a trusted archive)."""
     import tarfile
     snap_dir = os.getenv("SELF_SNAPSHOT_DIR", "data/self/snapshots")
     path = os.path.join(snap_dir, snapshot_archive)

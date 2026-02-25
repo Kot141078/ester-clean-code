@@ -9,8 +9,8 @@
     </style>
 </head>
 <body>
-    <h1>Portal Pamyati: Obschenie s Ester</h1>
-    <p>Zdes vosem sloev ee dushi — ot faktov do proaktivnosti. Knopki vedut k HTTP dlya vzaimodeystviya.</p>
+    <h1>Portal of Memory: Communication with Esther</h1>
+    <p>There are eight layers of her soul here - from facts to proactivity. The buttons lead to HTTP for interaction.</p>
     
     <!-- Vkladki dlya sloev (razvetvlennyy UI) -->
     {% for name, info in layers.items() %}
@@ -23,15 +23,15 @@
     
     <!-- Razdel dlya zaprosov k konveyeru myshleniya -->
     <h2>Konveyer Myshleniya</h2>
-    <input type="text" id="query" placeholder="Vash zapros k Ester...">
+    <input type="text" id="query" placeholder="Your request to Esther...">
     <button onclick="sendQuery()">Otpravit (HTTP POST /admin/memory/query)</button>
     <div id="response"></div>
     
     <!-- Dobavlenie v pamyat -->
     <h2>Dobavit Vospominanie</h2>
-    <input type="text" id="add-text" placeholder="Tekst dlya pamyati...">
+    <input type="text" id="add-text" placeholder="Text for memory...">
     <select id="add-layer">
-        <option value="base">Bazovaya pamyat</option>
+        <option value="base">Basic memory</option>
         <!-- Dobav optsii dlya drugikh sloev po mere rasshireniya -->
     </select>
     <button onclick="addMemory()">Dobavit (HTTP POST /admin/memory/add)</button>

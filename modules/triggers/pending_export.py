@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-modules/triggers/pending_export.py — eksport «pending_add» iz plana v perenosimyy JSON.
+"""modules/triggers/pending_export.py - eksport "pending_add" iz plana v perenosimyy JSON.
 
-Naznachenie:
-- Prinimaem massiv «pending_add» (elementy plana bez index) i gotovim fayl-artefakt:
+Name:
+- Prinimaem massiv “pending_add” (elementy plana bez index) i gotovim fayl-artefakt:
   [{name,bbox:{l,t,w,h},threshold,lang,note}] — bez zapisi v triggery.
 
 API:
@@ -11,15 +10,14 @@ API:
 - to_file(items, filename="pending_templates.json") -> bytes (soderzhimoe fayla) + metadannye
 
 MOSTY:
-- Yavnyy: (Diagnostika ↔ Operatsionka) yavno otdelyaem «kandidaty na dobavlenie» ot patchey.
+- Yavnyy: (Diagnostika ↔ Operatsionka) yavno otdelyaem “kandidaty na dobavlenie” ot patchey.
 - Skrytyy #1: (Infoteoriya ↔ Reproduktsiya) perenosimyy JSON dlya ruchnogo revyu.
 - Skrytyy #2: (Inzheneriya ↔ Protsedury) ne lomaem kontrakty, tolko vneshniy artefakt.
 
 ZEMNOY ABZATs:
-Chistyy JSON, offlayn. Fayl otdaem kak bytes v HTTP-otvete (base64 v UI ne nuzhen).
+Clean JSON, offline. Fayl otdaem kak bytes v HTTP-otvete (base64 v UI ne nuzhen).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import json, time

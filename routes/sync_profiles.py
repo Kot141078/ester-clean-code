@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/sync_profiles.py — UI/REST dlya profiley sinkhronizatsii.
+"""routes/sync_profiles.py - UI/REST dlya profiley sinkhronizatsii.
 
-Marshruty:
-  • GET  /admin/sync-profiles
-  • GET  /admin/sync-profiles/list
-  • GET  /admin/sync-profiles/get?id=...
+Route:
+  • GET /admin/sync-profiles
+  • GET /admin/sync-profiles/list
+  • GET /admin/sync-profiles/get?id=...
   • POST /admin/sync-profiles/save
   • POST /admin/sync-profiles/delete
-  • GET  /admin/sync-profiles/export?id=...
+  • GET /admin/sync-profiles/export?id=...
   • POST /admin/sync-profiles/import
 
 Mosty:
@@ -17,10 +16,9 @@ Mosty:
 - Skrytyy 2 (Praktika v†" Vezopasnost): net setevykh pobochnykh effektov.
 
 Zemnoy abzats:
-Eto katalog «skhem skladirovaniya» — chtoby komanda ne sporila, kuda klast.
+Eto katalog “skhem skladirovaniya” - chtoby komanda ne sporila, kuda klast.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

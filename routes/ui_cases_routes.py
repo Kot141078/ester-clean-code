@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ui_cases_routes.py - REST/UI dlya vizualnykh test-keysov.
+"""routes/ui_cases_routes.py - REST/UI dlya vizualnykh test-keysov.
 
 Ruchki:
-  POST /ui/cases/add   {"name":"..","kind":"ocr_contains","params":{"text":"Fayl","lang":"rus+eng"},"timeout_ms":2000}
-  GET  /ui/cases/list
+  POST /ui/cases/add {"name":"..","kind":"ocr_contains","params":{"text":"Fayl","lang":"rus+eng"},"timeout_ms":2000}
+  GET /ui/cases/list
   POST /ui/cases/clear
   POST /ui/cases/run
-  GET  /ui/cases/export
+  GET /ui/cases/export
 
 UI: /admin/ui_tests
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.test.ui_cases import add_case, list_cases, clear_cases, run_all, export_json

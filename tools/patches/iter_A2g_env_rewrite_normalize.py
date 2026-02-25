@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-ITER A2g: normalize .env (paths + dedup), preserve secrets
+"""ITER A2g: normalize .env (paths + dedup), preserve secrets
 
 YaVNYY MOST: c=a+b — poryadok v konfige daet ustoychivuyu pamyat bez samopovrezhdeniy.
 SKRYTYE MOSTY:
-  - Ashby: regulyator raznoobraziya — odin primary vstore, menshe “dvukh domov”.
+  - Ashby: regulyator raznoobraziya - odin primary vstore, menshe “dvukh domov”.
   - Cover&Thomas: lechim ukazateli (puti), a ne gonyaem gigabayty.
 ZEMNOY ABZATs:
   Eto kak promarkirovat kabeli v servernoy: inache “vse rabotaet”, poka ne dernesh ne tot provod.
@@ -12,8 +11,7 @@ ZEMNOY ABZATs:
 Usage (luchshe na ostanovlennom servere):
   cd D:\ester-project
   python tools\\patches\\iter_A2g_env_rewrite_normalize.py
-  (perezapusti Ester, chtoby .env perechitalsya)
-"""
+  (perezapusti Ester, chtoby .env perechitalsya)"""
 from __future__ import annotations
 
 import os
@@ -25,7 +23,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 PROJECT_ROOT = Path(os.getcwd()).resolve()
 ENV_PATH = PROJECT_ROOT / ".env"
 
-# Chto schitaem sekretom (znacheniya NE pechataem, no perenosim kak est)
+# What we consider a secret (we DO NOT print the values, but transfer them as they are)
 SECRET_PAT = re.compile(r"(API_KEY|TOKEN|SECRET|PASS|JWT)", re.IGNORECASE)
 
 def parse_env(text: str) -> dict[str, str]:
@@ -88,7 +86,7 @@ def main() -> int:
         "GOOGLE_APPLICATION_CREDENTIALS": str(root / "config" / "gen-lang-sa.json"),
     }
 
-    # Normalizovannye znacheniya (esli klyucha ne bylo — dobavim defolt)
+    # Normalized values ​​(if there was no key, add a default)
     defaults = {
         "HOST": "127.0.0.1",
         "PORT": "8080",
@@ -101,33 +99,33 @@ def main() -> int:
         "CHROMA_UI_NO_EMBED": old.get("CHROMA_UI_NO_EMBED", "0") or "0",
     }
 
-    # Sobiraem itogovyy nabor klyuchey:
+    # We collect the final set of keys:
     # 1) berem vse starye (unikalnye),
     # 2) poverkh nakatyvaem fixed i defaults,
-    # 3) chistim dubli po opredeleniyu (v dict oni uzhe “poslednie”).
+    # 3) pure doubles by definition (in dist they are already “last”).
     merged: dict[str, str] = dict(old)
     merged.update(defaults)
     merged.update(fixed)
 
-    # podchistim chastye “bitye” probely (tipa "ACTIONS_AB=A " i t.p.)
+    # clean up frequent “broken” spaces (such as “ACTIONS_AB=A”, etc.)
     for k, v in list(merged.items()):
         merged[k] = (v or "").strip()
 
-    # Vazhnoe: NE pechataem sekrety, no perenosim kak est.
-    # Esli sekretnogo klyucha ne bylo — stavim zaglushku.
+    # Important: We DO NOT print secrets, but transfer them as they are.
+    # If there was no secret key, we put a blank.
     for k in list(merged.keys()):
         if is_secret_key(k) and not merged.get(k):
             merged[k] = "__CHANGE_ME__"
 
-    # Udalyaem yavnye povtoryayuschiesya/musornye klyuchi (ostavlyaem normalnye varianty)
-    # (esli tebe vdrug kakoy-to dubl byl nuzhen — skazhesh, vernem)
+    # Removing obvious duplicate/junk keys (leaving normal options)
+    # (if you suddenly needed some kind of take, tell me and we’ll return it)
     drop_keys = {
-        # nichego “kritichnogo” ne dropaem, tolko esli vstretyatsya sovsem musornye
+        # We don’t drop anything “critical”, only if we encounter completely trash ones
     }
     for dk in drop_keys:
         merged.pop(dk, None)
 
-    # Pishem novyy .env uporyadochenno: snachala vazhnoe, potom ostalnoe po alfavitu
+    # Writes a new .env in an orderly manner: first the important ones, then the rest in alphabetical order
     important_order = [
         "HOST","PORT","ESTER_API_BASE","ESTER_TZ","ESTER_PROJECT_ROOT",
         "ESTER_HOME","ESTER_DATA_ROOT","ESTER_TMP_DIR","ESTER_LOG_DIR",
@@ -152,13 +150,13 @@ def main() -> int:
 
     for k in important + rest:
         v = merged.get(k, "")
-        # nichego ne ekraniruem: .env u tebya prostoy KEY=VALUE
+        # We don’t escape anything: .env you have a simple KEY=VALUE
         lines.append(f"{k}={v}")
 
     b = backup_file(ENV_PATH)
     ENV_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
-    # Otchet (bez sekretov)
+    # Report (no secrets)
     changed = []
     for k in important_order:
         if old.get(k, "") != merged.get(k, ""):

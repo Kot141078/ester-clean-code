@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/selfmanage/health.py — bazovye health-proby Ester.
+"""modules/selfmanage/health.py - bazovye health-proby Ester.
 
 MOSTY:
 - (Yavnyy) check_db(), check_http_paths(), check_internal() — edinyy format HealthStatus.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Legkaya degradatsiya: oshibki ne vzryvayut protsess, vozvraschayut status="warn"/"fail" s reason.
 
 ZEMNOY ABZATs:
-Daet bystryy otvet: «zhivy li BD/routy/vnutrennie komponenty?». Podkhodit dlya cron/CI i watchdog.
+Daet bystryy otvet: “zhivy li BD/routy/vnutrennie komponenty?” Podkhodit dlya cron/CI i watchdog.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -50,7 +48,7 @@ def check_db() -> HealthStatus:
     t0 = time.monotonic()
     try:
         s = AssignmentStore.default()
-        # prostaya operatsiya: upsert plan v testovuyu komandu i chtenie
+        # simple operation: upsert plan into test command and read
         s.upsert_plan("__health__", {"noop": "noop"}, "trace", 0.0, 0.0)
         snap = s.get_latest_plan("__health__")
         ok = bool(snap and snap["assigned"].get("noop") == "noop")
@@ -62,8 +60,7 @@ def check_db() -> HealthStatus:
 
 
 def check_http_paths(fetch: Optional[Any] = None) -> HealthStatus:
-    """
-    Proveryaet lokalnye HTTP-puti (esli prilozhenie uzhe podnyato).
+    """Checks local HTTP paths (if the app is already running).
     ENV SELF_HEALTH_HTTP_PROBE="/health,/api/v2/health"
     """
     t0 = time.monotonic()
@@ -100,7 +97,7 @@ def _default_fetch(url: str) -> Tuple[int, str]:
 def check_internal() -> HealthStatus:
     t0 = time.monotonic()
     try:
-        # Proverim, chto PlanCache rabotaet (put/get)
+        # Let's check that PlanKache is working (path/get)
         d = {"team": "H", "assigned": {"noop": "noop"}}
         CACHE.put_plan("health-key", d)
         back = CACHE.get_plan("health-key")

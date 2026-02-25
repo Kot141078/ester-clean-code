@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-R2/services/ingest/rss_ingestor.py — prosteyshiy RSS/Atom parser i ingenst v CardsMemory.
+"""R2/services/ingest/rss_ingestor.py - prosteyshiy RSS/Atom parser i ingenst v CardsMemory.
 
 Mosty:
 - Yavnyy: Enderton — predmetnaya model (item) kak kortezh predikatov: title ∧ link ∧ summary ∧ ts.
-- Skrytyy #1: Cover & Thomas — berem «signal» (zagolovok+annotatsiya), otbrasyvaem «shum» (HTML).
+- Skrytyy #1: Cover & Thomas — berem “signal” (zagolovok+annotatsiya), otbrasyvaem “shum” (HTML).
 - Skrytyy #2: Ashbi — regulyator prost: tolko stdlib XML, bez vneshnikh lib; ne lomaet sistemu pri sboyakh.
 
 Zemnoy abzats:
-Chitaet RSS/Atom po URL (http(s) ili file://), vytaskivaet title/link/summary/updated, normalizuet,
-i dobavlyaet kartochki v CardsMemory cherez mm_access.get_mm(). Dedup po sha256 teksta, zhurnal v data/ingest/rss_seen.json.
+Chitaet RSS/Atom po URL (http(s) or file://), vytaskivaet title/link/summary/updated, normalizuet,
+i addavlyaet kartochki v CardsMemory cherez mm_access.get_mm(). Dedup po sha256 teksta, zhurnal v data/ingest/rss_seen.json.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import os
@@ -84,9 +82,7 @@ def _parse_rss_atom(xml_bytes: bytes) -> List[Dict[str, str]]:
     return items
 
 def ingest_rss(url: str, user: str = "Owner", tag: str = "rss") -> Dict[str, int]:
-    """
-    Zagruzhaet RSS/Atom, normalizuet i pishet kartochki.
-    """
+    """Loads RSS/Atom, normalizes and writes cards."""
     _persist_paths()
     assert SEEN_PATH is not None
     try:
@@ -96,7 +92,7 @@ def ingest_rss(url: str, user: str = "Owner", tag: str = "rss") -> Dict[str, int
 
     items = _parse_rss_atom(raw)
     mm = get_mm()
-    # zagruzit zhurnal
+    # download magazine
     seen = json.load(open(SEEN_PATH, "r", encoding="utf-8"))
     seen_map: Dict[str, float] = dict(seen.get("seen") or {})
     added = 0
@@ -115,7 +111,7 @@ def ingest_rss(url: str, user: str = "Owner", tag: str = "rss") -> Dict[str, int
             # ne preryvaem tsikl
             continue
 
-    # sokhranit zhurnal
+    # save log
     with open(SEEN_PATH, "w", encoding="utf-8") as f:
         json.dump({"seen": seen_map}, f, ensure_ascii=False, indent=2)
     return {"ok": 1, "added": added, "seen": len(seen_map), "errors": 0}

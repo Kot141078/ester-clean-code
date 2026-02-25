@@ -15,13 +15,11 @@ class ShareBridge:
         os.makedirs(os.path.dirname(SHARED_STORE), exist_ok=True)
 
     def _generate_content_hash(self, content: str) -> str:
-        """Predotvraschaet dublikaty v pamyati."""
+        """Prevents duplicates in memory."""
         return hashlib.md5(content.encode()).hexdigest()
 
     def process_share(self, source_type: str, author_id: str, content: Any, metadata: Optional[Dict] = None) -> str:
-        """
-        Uluchsheno: Dobavlena deduplikatsiya i avtomaticheskaya privyazka k grafu.
-        """
+        """Improved: Added deduplication and automatic binding to the graph."""
         content_str = str(content)
         c_hash = self._generate_content_hash(content_str)
         
@@ -43,16 +41,16 @@ class ShareBridge:
         with open(SHARED_STORE, "a", encoding="utf-8") as f:
             f.write(json.dumps(payload, ensure_ascii=False) + "\n")
         
-        # Avtomaticheskaya integratsiya v graf, esli on podklyuchen
+        # Automatic integration into the graph if it is connected
         if self.graph:
             self._auto_link_to_graph(payload)
             
         return share_id
 
     def _estimate_priority(self, text: str, meta: Optional[Dict]) -> int:
-        """Prostaya logika opredeleniya vazhnosti kontenta."""
+        """Simple logic for determining the importance of content."""
         low_text = text.lower()
-        # Esli prislal Owner (Owner) ili est markery srochnosti
+        # If sent by Ovner (Ovner) or there are urgency markers
         if "vazhno" in low_text or "srochno" in low_text:
             return 3
         if meta and meta.get("is_pinned"):
@@ -60,7 +58,7 @@ class ShareBridge:
         return 1
 
     def _auto_link_to_graph(self, data: Dict):
-        """Sozdaet pervichnye neyronnye svyazi v grafe."""
+        """Creates primary neural connections in the graph."""
         try:
             self.graph.add_entity(data["id"], "shared_content", {
                 "priority": data["priority"],
@@ -68,18 +66,18 @@ class ShareBridge:
             })
             self.graph.add_relation(data["author"], data["id"], "authored", weight=1.0)
             
-            # Poisk klyuchevykh slov dlya bystrykh svyazey
+            # Finding keywords for quick connections
             for word in ["proekt", "bag", "ideya", "plan"]:
                 if word in str(data["content"]).lower():
                     self.graph.add_relation(data["id"], word, "references", weight=0.8)
         except Exception as e:
-            print(f"Oshibka avtolinkovki: {e}")
+            print(f"Autolink error: ZZF0Z")
 
     def get_pending_tasks(self) -> List[Dict]:
-        """Vozvraschaet neobrabotannyy kontent dlya Deep Thinking sessii."""
+        """Returns the raw content for the Deep Thinking session."""
         if not os.path.exists(SHARED_STORE): return []
         with open(SHARED_STORE, "r", encoding="utf-8") as f:
             return [json.loads(l) for l in f if json.loads(l).get("status") == "new"]
 
-# Ekzemplyar dlya importa
+# Instance to import
 # bridge = ShareBridge(graph_engine=EsterKnowledgeGraph())

@@ -21,11 +21,9 @@ def _require_fields(d: Dict[str, Any], keys: list[str]) -> None:
 @bp_ingest_crdt_adapter.post("/ingest/crdt/put")
 @jwt_required()
 def ingest_put():
-    """
-    Prinimaet: {"id": "<string>", "payload": {..lyuboy obekt pamyati..}}
+    """Prinimaet: {"id": "<string>", "payload": {..lyuboy obekt pamyati..}}
     Sokhranyaet payload v CAS (cid), a v CRDT — legkuyu metu Re pointer na CAS.
-    Bozvraschaet {"ok": true, "id": ..., "cid": ..., "meta": {...}}
-    """
+    Bozvraschaet {"ok": true, "id": ..., "cid": ..., "meta": {...}}"""
     data = request.get_json(force=True, silent=True) or {}
     _require_fields(data, ["id", "payload"])
     adapter = VectorCRDTAdapter()
@@ -53,10 +51,8 @@ def ingest_fetch():
 @bp_ingest_crdt_adapter.delete("/ingest/crdt/rem")
 @jwt_required()
 def ingest_remove():
-    """
-    Logicheskoe udalenie zapisi (remove v CRDT). CAS-bloki ostayutsya deduplitsirovannymi.
-    Telo: {"id": "<string>"}
-    """
+    """Logical deletion of an entry (Remove in MDG). HOUR blocks remain deduplicated.
+    Body: ZZF0Z"""
     data = request.get_json(force=True, silent=True) or {}
     _require_fields(data, ["id"])
     adapter = VectorCRDTAdapter()

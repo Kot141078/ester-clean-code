@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/desktop_rpa_routes.py - REST-proksi k lokalnomu RPA-agentu Ester (127.0.0.1:8732).
+"""routes/desktop_rpa_routes.py - REST-proksi k lokalnomu RPA-agentu Ester (127.0.0.1:8732).
 
 MOSTY:
 - Yavnyy: (Veb ↔ Deystviya) edinyy HTTP-proksi k RPA i OCR.
@@ -8,11 +7,10 @@ MOSTY:
 - Skrytyy #2: (Kibernetika ↔ Volya) s UI i pravilami mysley razdelyayut odin transport.
 
 ZEMNOY ABZATs:
-Server Ester ne znaet detaley OS: on delegiruet v lokalnyy agent.
-Dobavleny ekran/ocr/slot - dostatochno dlya bazovoy avtonomii bez oblakov.
+Server Ester ne znaet detail OS: on delegiruet v lokalnyy agent.
+Add ekran/ocr/slot - dostatochno dlya bazovoy avtonomii bez oblakov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

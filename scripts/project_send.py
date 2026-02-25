@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/project_send.py — CLI: sformirovat konvert i otpravit (LAN/Telegram).
+"""scripts/project_send.py - CLI: sformirovat konvert i otpravit (LAN/Telegram).
 
 Primer:
-  python -m scripts.project_send --mode lan --ttl 3600 \
+  python -m scripts.project_send --mode lan --ttl 3600\
     --project-id P1 --name "Demo" --summary "..." --data-file /path/data.json
 
 Mosty:
 - Yavnyy (Kibernetika ↔ Svyaz): konvert + transport, bez UI.
 - Skrytyy 1 (Infoteoriya ↔ CLI): strogiy JSON-vyvod (dlya payplaynov).
-- Skrytyy 2 (Praktika ↔ Bezopasnost): TTL po umolchaniyu; HMAC pri nalichii sekreta.
+- Skrytyy 2 (Praktika ↔ Bezopasnost): TTL po umolchaniyu; HMAC pri nalichii secreta.
 
 Zemnoy abzats:
-Udobno «v pole»: sobrat i otoslat proekt s servera bez brauzera.
+Udobno “v pole”: sobrat i otoslat proekt s servera bez brauzera.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -37,7 +35,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--project-id", required=True)
     ap.add_argument("--name", required=True)
     ap.add_argument("--summary", default="")
-    ap.add_argument("--tags", default="", help="cherez zapyatuyu")
+    ap.add_argument("--tags", default="", help="separated by commas")
     ap.add_argument("--data-file", default="", help="put k JSON")
     args = ap.parse_args(argv)
 

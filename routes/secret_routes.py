@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/secret_routes.py - REST dlya lokalnogo sekret-stora.
+"""routes/secret_routes.py - REST dlya lokalnogo sekret-stora.
 
 Mosty:
 - Yavnyy: (Veb ↔ Sekrety) prostye operatsii nad sekretami.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Kuda klast tokeny: syuda.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

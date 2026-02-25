@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# R8/scripts/r8_smoke.sh — offlayn-smoke bezopasnosti/reliza
-# Mosty: (Yavnyy) Enderton; (Skrytye) Ashbi; Cover&Thomas.
+# Р8/skripts/р8_stoke.sh - offline security/release stock
+# Bridges: (Explicit) Enderton; (Hidden) Ashby; Carpet&Thomas.
 # Zemnoy abzats: formiruet sec_report.md i release/*.tar.gz, manifest.json.
 # c=a+b
 

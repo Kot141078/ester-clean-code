@@ -36,8 +36,8 @@
           <div id="model-cache-note" class="model-cache-note" aria-live="polite"></div>
         </label>
 
-        <button id="refresh-status" class="btn" type="button" title="Obnovit status provayderov">Status</button>
-        <button id="refresh-models" class="btn" type="button" title="Obnovit spisok modeley">Modeli</button>
+        <button id="refresh-status" class="btn" type="button" title="Update providers status">Status</button>
+        <button id="refresh-models" class="btn" type="button" title="Update model list">Modeli</button>
       </div>
     </div>
   </header>
@@ -51,7 +51,7 @@
       {% include 'partials/trace_panel.html' %}
       <div class="trace-status-mini" id="trace-status-mini"
            aria-live="polite"
-           title="Nazhmite «Modeli», chtoby pokazat srok kesha modeley"></div>
+           title="Click \"Models\" to show model cache age"></div>
       <div id="trace-copy-toolbar" class="trace-copy-toolbar" hidden>
         <button id="trace-copy-all" class="btn btn-xxs" type="button" title="Skopirovat ves log">Kopirovat log</button>
       </div>

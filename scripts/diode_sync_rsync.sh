@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# scripts/diode_sync_rsync.sh — odnostoronnyaya sinkhronizatsiya OUTBOX → INBOX dlya "data diode".
+# scripts/diode_sync_rsync.sh - odnostoronnyaya sinkhronizatsiya OUTBOX → INBOX dlya "data diode".
 # Trebovaniya: rsync
-# Istochniki putey berutsya iz VECTOR_DIODE_CFG (rules/vector_diode.yaml) ili ENV-peremennykh.
+# Path sources are taken from VECTOR_DIODE_KFG (rules/vector_diode.yaml) or ENV variables.
 # ENV:
 #   VECTOR_DIODE_CFG=rules/vector_diode.yaml
 #   DIODE_INBOX_OWNER=ester
@@ -11,13 +11,13 @@ set -euo pipefail
 
 CFG="${VECTOR_DIODE_CFG:-rules/vector_diode.yaml}"
 
-# Primitivnyy YAML-parser dlya klyuch: znachenie (bez kavychek, na odnoy stroke)
+# A primitive YML parser for key: value (without quotes, on one line)
 yaml_val () {
   local key="$1"
   local val
   # Ischem stroku vida: key: "value" ili key: value
   if val="$(grep -E "^[[:space:]]*${key}:[[:space:]]*" "$CFG" | head -n1 | sed -E 's/^[[:space:]]*[^:]+:[[:space:]]*//')" ; then
-    # Schischaem kavychki i probely
+    # Remove quotes and spaces
     val="${val%\"}"; val="${val#\"}"
     val="${val%\'}"; val="${val#\'}"
     val="$(echo -n "$val" | tr -d '[:space:]')"
@@ -43,7 +43,7 @@ if [[ -z "$OUTBOX" || -z "$INBOX" ]]; then
   exit 3
 fi
 
-# Razvorachivaem tildy, esli est
+# Expand tildes, if any
 expand_path () {
   local p="$1"
   if [[ "$p" == "~/"* ]]; then
@@ -58,15 +58,15 @@ INBOX="$(expand_path "$INBOX")"
 
 mkdir -p "$OUTBOX" "$INBOX"
 
-# Prava/vladenie INBOX (ne obyazatelno, no pomogaet izbezhat syurprizov)
+# INBOX Rights/Ownership (not required, but helps avoid surprises)
 CHOWN_USER="${DIODE_INBOX_OWNER:-ester}"
 CHOWN_GROUP="${DIODE_INBOX_GROUP:-ester}"
 if id -u "$CHOWN_USER" >/dev/null 2>&1 ; then
   chown -R "$CHOWN_USER":"$CHOWN_GROUP" "$INBOX" || true
 fi
 
-# Odnostoronnee kopirovanie tolko *.json; perenosim (remove-source-files), ne perezapisyvaem suschestvuyuschee.
-# --prune-empty-dirs udalyaet pustye katalogi iz spiska peredachi.
+# Single-sided copying *.zhsion only; we transfer (remove-source-files), we do not overwrite the existing one.
+# --prune-empty-dirs Removes empty directories from the transfer list.
 rsync -rtvu \
   --ignore-existing \
   --remove-source-files \
@@ -75,7 +75,7 @@ rsync -rtvu \
   --exclude='*' \
   "${OUTBOX}/./" "${INBOX}/"
 
-# Posle uspeshnoy peredachi chistim pustye direktorii v OUTBOX
+# After a successful transfer, we clean empty directories in OTBOKs
 find "$OUTBOX" -type d -empty -delete 2>/dev/null || true
 
 echo "diode_sync: $(date -u +'%Y-%m-%dT%H:%M:%SZ') synced OUTBOX->INBOX ($OUTBOX -> $INBOX)"

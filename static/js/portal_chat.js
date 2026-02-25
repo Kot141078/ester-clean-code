@@ -7,7 +7,7 @@
  * - (Skrytyy #2) Knopki rezhimov vliyayut na bekend cherez /ui/mode.
  *
  * ZEMNOY ABZATs:
- * Schelknul tumbler rezhima, otpravil soobschenie — srazu vidno, «gorit» li nuzhnaya lampochka.
+ * I clicked the mode switch, sent a message, and it was immediately clear whether the required light was “on.”
  *
  * c=a+b
  */
@@ -52,7 +52,7 @@ async function applyModel() {
     if (!val) { /* sbrosim vybor */ }
     const r = await fetch('/ui/model', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({model: val})});
     const j = await r.json();
-    addBubble('system', j.ok ? `Model ustanovlena: ${val || '(po umolchaniyu)'}` : 'Ne udalos primenit model', (Date.now()/1000));
+    addBubble('system', j.ok ? `Model ustanovlena: ${val || '(po umolchaniyu)'}` : 'Failed to apply model', (Date.now()/1000));
     refreshStatus();
   } catch(e) {}
 }
@@ -131,7 +131,7 @@ if (modelSel && modelApply) {
           const j = await r.json();
           if (j.ok) {
             for (const bb of modeButtons) bb.classList.toggle('active', bb === b);
-            refreshStatus(); // obnovlyaem status provaydera
+            refreshStatus(); // updates provider status
           }
         } catch (e) {}
       });
@@ -145,7 +145,7 @@ if (modelSel && modelApply) {
     try {
       const r = await fetch('/ui/chat/upload', {method:'POST', body: fd});
       const j = await r.json();
-      addBubble('system', j.note || (j.ok ? 'Fayl prinyat' : 'Oshibka zagruzki'), (Date.now()/1000));
+      addBubble('system', j.note || (j.ok ? 'Fayl prinyat' : 'Loading error'), (Date.now()/1000));
     } catch (e) {}
   }
 

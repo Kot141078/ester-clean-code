@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-modules/security/consent_gate.py — «shlyuz soglasiya» dlya sessiy polnogo kontrolya.
+"""modules/security/consent_gate.py - “shlyuz soglasiya” dlya sessiy polnogo kontrolya.
 
 Model:
-- Sessiya: {scope:str, ttl_sec:int, granted_at:epoch}
-- Podderzhivaemye scope: "full_control" (kliki/klaviatura/goryachie deystviya), "read_only" i dr. mozhno dobavit.
+- Session: {scope:str, ttl_sec:int, granted_at:epoch}
+- Podderzhivaemye scope: "full_control" (kliki/klaviatura/goryachie deystviya), "read_only" i dr. mozhno add.
 
 API:
 - grant(scope, ttl_sec) -> ok, until
-- check(scope)          -> {allowed:bool, remaining_sec:int}
-- revoke(scope)         -> ok
-- status()              -> vse aktivnye
+- check(scope) -> {allowed:bool, remaining_sec:int}
+- revoke(scope) -> ok
+- status() -> vse active
 
 MOSTY:
 - Yavnyy: (Etika ↔ Kontrol) deystviya silnogo effekta razreshayutsya polzovatelem.
 - Skrytyy #1: (Infoteoriya ↔ Prozrachnost) prostoy status i TTL.
-- Skrytyy #2: (Inzheneriya ↔ Sovmestimost) integriruetsya vyzovom /consent/check iz moduley deystviy.
+- Skrytyy #2: (Inzheneriya ↔ Sovmestimost) integriruetsya vyzovom /consent/check iz modular deystviy.
 
 ZEMNOY ABZATs:
-Vse v pamyati protsessa; mozhno dopolnit zapisyu v fayl pri neobkhodimosti.
+All v pamyati protsessa; mozhno dopolnit zapisyu v fayl pri neobkhodimosti.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any
 import time

@@ -3,9 +3,7 @@ from typing import Dict, Any, Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 class EsterSkill(ABC):
-    """
-    Bazovyy kontrakt dlya lyubogo navyka Ester.
-    """
+    """Basic contract for any Esther skill."""
     
     @property
     @abstractmethod
@@ -16,12 +14,12 @@ class EsterSkill(ABC):
     @property
     @abstractmethod
     def description(self) -> str:
-        """Opisanie dlya System Prompt"""
+        """Description for System Prompt"""
         pass
 
     @property
     def parameters(self) -> Dict[str, str]:
-        """Opisanie argumentov (dlya JSON skhemy)"""
+        """Description of the arguments (for the JSCN scheme)"""
         return {}
 
     @abstractmethod

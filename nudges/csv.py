@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-nudges/csv.py — eksport nudges_log v CSV (dlya audita/analitiki).
+"""nudges/csv.py - eksport nudges_log v CSV (dlya audita/analitiki).
 
 MOSTY:
 - (Yavnyy) export_log_csv(limit=10000) → bytes s kolonkami id,ts,key,kind,intent,status,http_status,event_id.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Sortirovka po ts DESC (kak na admin-ekrane).
 
 ZEMNOY ABZATs:
-Odnoy knopkoy vygruzhaem istoriyu nudzhey i analiziruem ee privychnymi instrumentami.
+Odnoy knopkoy vygruzhaem istoriyu nudzhey i analyze ee privychnymi instruments.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import csv, io, os

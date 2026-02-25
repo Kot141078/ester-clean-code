@@ -34,10 +34,8 @@ _sensor_logger = logging.getLogger("ester.sensors")
 
 
 class DeterministicSensors:
-    """
-    Precise data fetchers that return structured results with timestamps.
-    Unlike web search snippets, these give exact values from authoritative APIs.
-    """
+    """Precise data fetchers that return structured results with timestamps.
+    Unlike web search snippets, these give exact values ​​from authoritative APIs."""
     
     TIMEOUT = 10  # seconds
     
@@ -408,8 +406,8 @@ if __name__ == "__main__":
     test_queries = [
         "latest stable PyTorch version",
         "What is the current Bitcoin price?",
-        "Skolko stoit troyskaya untsiya zolota XAU/USD?",
-        "Kakaya pogoda v Bryussele?",
+        "How much does a troy ounce of gold cost?",
+        "What's the weather like in Brussels?",
         "Who is first in EPL standings?",
     ]
     
@@ -419,4 +417,4 @@ if __name__ == "__main__":
         if result:
             print(f"  Routed to sensor: {deterministic_sensors.format_sensor_result(result)[:200]}...")
         else:
-            print("  -> No sensor match, would fallback to web search")
+            print("-> No sensor match, would fallback to web search")

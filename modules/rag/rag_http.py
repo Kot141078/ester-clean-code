@@ -16,9 +16,7 @@ rag_bp = Blueprint("rag_docs_bp", __name__, url_prefix="/ester/rag/docs")
 # ---------- utility ----------
 
 def _env_bool(*keys: str, default: bool = False) -> bool:
-    """
-    Chitaem nabor vozmozhnykh klyuchey-flagov. Lyuboe istinnoe znachenie => True.
-    """
+    """We read a set of possible flag keys. Any true value => Three."""
     truthy = {"1", "true", "yes", "on", "y", "t"}
     for k in keys:
         v = os.getenv(k, "")
@@ -28,13 +26,11 @@ def _env_bool(*keys: str, default: bool = False) -> bool:
 
 
 def _resolve_base_path(candidate: Optional[str]) -> str:
-    """
-    Privodim put k stroke, rasshiryaem %VAR% / $VAR / ~, normalizuem sleshi.
-    Nichego ne trogaem na urovne prav — tolko vychislyaem korrektnyy put.
-    """
+    """We bring the path to the string, expand ZZF0ZZAR% / $VAR / ~, normalizes slashes.
+    We don’t touch anything at the permissions level—we just calculate the correct path."""
     if not candidate:
         return ""
-    # Snachala expandvars, zatem expanduser. Na vkhode vsegda stroka.
+    # First expandvars, then expandoser. The input is always a string.
     s = str(candidate)
     s = os.path.expandvars(s)
     s = os.path.expanduser(s)
@@ -43,10 +39,8 @@ def _resolve_base_path(candidate: Optional[str]) -> str:
 
 
 def _get_docs_base_from_env() -> str:
-    """
-    Sobiraem kandidatov iz neskolkikh klyuchey; pervyy suschestvuyuschiy — pobeditel.
-    Esli nichego ne nashlos, vernem prosto normalizovannyy put iz pervogo klyucha.
-    """
+    """Sobiraem kandidatov iz neskolkikh klyuchey; pervyy suschestvuyuschiy - pobeditel.
+    Esli nichego ne nashlos, vernem prosto normalizovannyy put iz pervogo klyucha."""
     keys = [
         "ESTER_RAG_FORCE_PATH",
         "RAG_DOCS_PATH",
@@ -61,7 +55,7 @@ def _get_docs_base_from_env() -> str:
             resolved[k] = path
             if os.path.isdir(path):
                 return path
-    # fallback: esli ni odin ne suschestvuet, no khot chto-to bylo — vernem pervoe nepustoe
+    # false: if none exists, but at least there was something, return the first non-empty one
     for k in keys:
         if resolved.get(k):
             return resolved[k]
@@ -71,10 +65,8 @@ def _get_docs_base_from_env() -> str:
 
 
 def _ingest_allowed() -> bool:
-    """
-    Edinaya tochka prinyatiya resheniya: vklyuchen li RAG voobsche i imenno HTTP-ingest.
-    Daem shirokiy «belyy spisok» klyuchey, chtoby ne zaviset ot konkretnogo imeni.
-    """
+    """Edinaya tochka prinyatiya resheniya: vklyuchen li RAG voobsche i imenno HTTP-ingest.
+    Daem shirokiy “belyy spisok” klyuchey, chtoby ne zaviset ot konkretnogo imeni."""
     return _env_bool(
         "ESTER_RAG_ENABLE",
         "RAG_ENABLE",
@@ -95,7 +87,7 @@ def status() -> Any:
     except Exception as e:
         debug = {"error": f"{type(e).__name__}: {e}"}
 
-    # Pokazyvaem, chto uvidit imenno HTTP-sloy, a ne tolko file_readers
+    # Shows what the HTTP layer will see, and not just the file_reader
     http_view = {
         "http_ingest_allowed": _ingest_allowed(),
         "http_docs_base": _get_docs_base_from_env(),
@@ -118,7 +110,7 @@ def ingest() -> Any:
     reindex = (request.get_json(silent=True) or {}).get("reindex")
 
     try:
-        # file_readers: ispolzuem maksimalno «shirokuyu» tochku vkhoda
+        # file_readers: use the widest possible entry point
         if hasattr(fr, "ingest_base"):
             res = fr.ingest_base(base=base, tag=tag, reindex=reindex)
         elif hasattr(fr, "ingest_dir"):
@@ -126,7 +118,7 @@ def ingest() -> Any:
         else:
             return jsonify({"ok": False, "reason": "no_ingest_entry_in_file_readers"})
 
-        # Normalizuem otvet
+        # Normalizes the response
         if not isinstance(res, dict):
             res = {"ok": True, "total": 0, "ingested": 0, "note": "non-dict result from file_readers", "result": str(res)}
 

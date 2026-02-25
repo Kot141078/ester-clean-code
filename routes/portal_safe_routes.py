@@ -10,7 +10,7 @@ bp = Blueprint("portal_safe", __name__, url_prefix="/_safe")
 def portal():
     try:
         return render_template("portal.html", config=current_app.config)
-    except Exception as e:  # esli shablon nedostupen - otdaem prostoy HTML
+    except Exception as e:  # if the template is not available, give us a simple HTML
         html = f"""<!doctype html><meta charset="utf-8"><title>/_safe/portal (fallback)</title>
         <h1>/_safe/portal - fallback</h1>
         <p>Oshibka rendera shablona: <code>{e}</code></p>"""

@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_reports.py - panel otchetov.
+"""routes/admin_reports.py - panel otchetov.
 
-Marshruty:
-  • GET  /admin/reports                   - HTML
-  • GET  /admin/reports/status            - spisok lokalnykh otchetov + podskazka po USB
-  • POST /admin/reports/build             - {include_raw?, limit?, export_usb?, usb_mount?} → build_report()
-  • GET  /admin/reports/download          - ?name=<file> → otdat lokalnyy otchet iz ~/.ester/reports/
+Route:
+  • GET /admin/reports - HTML
+  • GET /admin/reports/status - spisok lokalnykh otchetov + podskazka po USB
+  • POST /admin/reports/build - {include_raw?, limit?, export_usb?, usb_mount?} → build_report()
+  • GET /admin/reports/download - ?name=<file> → otdat lokalnyy otchet iz ~/.ester/reports/
 
 Mosty:
 - Yavnyy (UX ↔ Report Builder): odna knopka sobiraet otchet i, pri neobkhodimosti, kladet kopiyu na fleshku.
-- Skrytyy 1 (Infoteoriya ↔ Prozrachnost): status pokazyvaet, kuda sokhranili i chto voshlo.
+- Skrytyy 1 (Infoteoriya ↔ Prozrachnost): status pokazyvaet, where sokhranili i chto voshlo.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): nikakoy lomki kontraktov, prostye JSON-fayly.
 
 Zemnoy abzats:
-Eto kak «knopka snyat pokazaniya priborov»: odnim nazhatiem fiksiruem sostoyanie tsekha i kladem v papku.
+Eto kak “knopka snyat pokazaniya priborov”: odnim nazhatiem fiksiruem sostoyanie tsekha i kladem v papku.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from pathlib import Path
@@ -46,9 +44,9 @@ def api_build():
     limit = int(body.get("limit", int(os.getenv("REPORTS_MAX_ITEMS","200"))))
     export_usb = body.get("export_usb")
     usb_mount = (body.get("usb_mount") or "").strip() or None
-    # Primechanie: usb_mount seychas ispolzuetsya v sources.find_usb_reports_root() cherez ENV-put (minimum svyaznosti)
+    # Note: usb_mount is now used in sources.find_usb_reports_root() via the ENV path (minimum connectivity)
     if usb_mount:
-        os.environ["PORTABLE_DEST_LABEL"] = Path(usb_mount).name  # myagkaya podskazka
+        os.environ["PORTABLE_DEST_LABEL"] = Path(usb_mount).name  # soft hint
     res = build_report({"include_raw": include_raw, "limit": limit, "export_usb": export_usb})
     return jsonify(res)
 

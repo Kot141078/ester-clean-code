@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_core15.py — eksheny «voli» dlya paketa Core15 (autolink, prioritize, cron).
+"""modules/thinking/actions_core15.py - eksheny "voli" dlya paketa Core15 (autolink, prioritize, cron).
 
 Mosty:
 - Yavnyy: (Mysli ↔ Memory/CRON) edinye korotkie komandy dlya novykh vozmozhnostey.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Zhurnal ↔ Profile) sami podchinennye moduli uzhe kladut profile.
 
 Zemnoy abzats:
-Eto «goryachie klavishi» dlya novykh funktsiy — chtoby mozgu bylo udobno.
+This is “goryachie klavishi” dlya novykh funktsiy - chtoby mozgu bylo udobno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

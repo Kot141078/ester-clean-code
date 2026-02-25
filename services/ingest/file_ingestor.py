@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-R2/services/ingest/file_ingestor.py — skaner lokalnoy papki i ingenst tekstov.
+"""R2/services/ingest/file_ingestor.py - scanner lokalnoy papki i ingenst tekstov.
 
 Mosty:
-- Yavnyy: Enderton — invarianty: fayl→normalizatsiya→dedup→kartochka (chetkie predikaty na kazhdom shage).
+- Yavnyy: Enderton - invarianty: fayl→normalizatsiya→dedup→kartochka (chetkie predikaty na kazhdom shage).
 - Skrytyy #1: Ashbi — prostaya regulyatsiya nagruzki: posledovatelnaya obrabotka, bez fonovykh demonov.
-- Skrytyy #2: Cover & Thomas — minimalnyy «signal» (tekst) dlya popolneniya pamyati, bez lishnego shuma (binarniki ignorim).
+- Skrytyy #2: Cover & Thomas — minimalnyy “signal” (tekst) dlya popolneniya pamyati, bez lishnego shuma (binarniki ignorim).
 
 Zemnoy abzats:
-Rekursivno obkhodit `INBOX_DIR` (ili peredannyy put), parsit .txt/.md/.html, normalizuet,
-kladet v CardsMemory, khranit dedup-kheshi v `data/ingest/inbox_seen.json`. Bez vneshnikh zavisimostey.
+Rekursivno obkhodit `INBOX_DIR` (or peredannyy put), parsit .txt/.md/.html, normalizuet,
+kladet v CardsMemory, khranit dedup-kheshi v `data/ingest/inbox_seen.json`. No matter what.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import fnmatch
 import json

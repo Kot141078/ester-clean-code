@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-providers/registry.py — minimalnyy reestr aktivnogo provaydera dlya UI/routov.
+"""providers/registry.py - minimalnyy reestr aktivnogo provaydera dlya UI/routov.
 
 Sovmestimost:
 - from providers.registry import ProviderRegistry
@@ -11,8 +10,7 @@ Sovmestimost:
 - ProviderRegistry.get_active() -> str
 
 Khranit aktivnyy provayder v data/app/providers/active.json
-i delaet rezervnuyu kopiyu active.prev.json.
-"""
+i delaet rezervnuyu kopiyu active.prev.json."""
 
 import json
 import os

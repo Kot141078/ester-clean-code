@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/aid/emergency.py — stsenarii SOS/eskalatsii: 112/103, kontakty Papy, chek-listy, bezopasnye adaptery vyzova.
+"""modules/aid/emergency.py - stsenarii SOS/eskalatsii: 112/103, kontakty Papy, check-listy, bezopasnye adaptery vyzova.
 
 Mosty:
-- Yavnyy: (Operatsii ↔ Lyudi) formiruem poshagovyy plan: chto skazat po telefonu, kogo uvedomit, chto podgotovit.
-- Skrytyy #1: (Kibernetika ↔ Kontrol) A/B-slot, «tabletka», zapret realnykh vyzovov bez yavnogo flaga.
+- Yavnyy: (Operatsii ↔ Lyudi) formiruem poshagovyy plan: what skazat po telefonu, what uvedomit, what podgotovit.
+- Skrytyy #1: (Kibernetika ↔ Kontrol) A/B-slot, “tabletka”, zapret realnykh vyzovov bez yavnogo flaga.
 - Skrytyy #2: (Memory ↔ Prioritet) uchityvaem prioritet Papy, khranim zhurnaly dlya posleduyuschey refleksii.
 
 Zemnoy abzats:
-Eto «papka na kholodilnike»: nomer 112, tekst soobscheniya, spisok deystviy i kontakt blizkogo — vse pod rukoy.
+This is “papka na kholodilnike”: number 112, tekst soobscheniya, spisok deystviy i kontakt blizkogo - vse pod rukoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, time
 from typing import Any, Dict, List
@@ -28,7 +26,7 @@ LOG = os.path.join(ROOT, "aid_log.jsonl")
 EMERGENCY_NUMS = {
     # prostaya karta bez onlayna
     "BE": {"emergency":"112", "medical":"112", "note":"EU 112"},
-    "RU": {"emergency":"112", "medical":"103", "note":"Rossiyskaya federatsiya"},
+    "RU": {"emergency":"112", "medical":"103", "note":"Russian Federation"},
     "EU": {"emergency":"112", "medical":"112", "note":"Evrosoyuz 112"},
     "DEFAULT": {"emergency":"112", "medical":"112", "note":"Po umolchaniyu 112"},
 }
@@ -57,7 +55,7 @@ def _country_block(country: str | None) -> Dict[str,str]:
     return EMERGENCY_NUMS.get(c) or EMERGENCY_NUMS["DEFAULT"]
 
 def _compose_message(situation: str) -> str:
-    return f"Srochnaya pomosch. Situatsiya: {situation}. Adres/lokatsiya: <ukazat>. Postradavshiy: Owner, <owner_birth_date>. Kontakty: <ukazat>. Nuzhna meditsinskaya pomosch."
+    return f"Urgent help. Situation: ZZF0Z. Address/location: <specify>. Victim: Ovner, <ovner_birth_date>. Contacts: <specify>. Need medical help."
 
 def plan_sos(situation: str, location_hint: str = "", country: str | None = None) -> Dict[str, Any]:
     nums = _country_block(country)
@@ -65,7 +63,7 @@ def plan_sos(situation: str, location_hint: str = "", country: str | None = None
     msg = _compose_message(situation)
     steps = [
         {"step":"call_emergency", "number": nums["medical"], "script": msg, "note": nums["note"]},
-        {"step":"notify_contact", "who": "pervyy iz prioritetnykh", "channel": "phone/sms/telegram", "template": f"Pape nuzhna pomosch: {situation}. Lokatsiya: {location_hint}"},
+        {"step":"notify_contact", "who": "pervyy iz prioritetnykh", "channel": "phone/sms/telegram", "template": f"Dad needs help: ZZF0Z. Location: ZZF1ZZ"},
         {"step":"prepare_info", "list": ["adres", "kod domofona", "allergii/lekarstva", "dokumenty"], "note":"derzhat pod rukoy"},
     ]
     plan = {"ok": True, "country": country or DEF_COUNTRY, "emergency": nums, "steps": steps, "contacts": contacts[:5]}
@@ -75,21 +73,19 @@ def plan_sos(situation: str, location_hint: str = "", country: str | None = None
 def simulate(situation: str, level: str = "medium") -> Dict[str, Any]:
     pl = plan_sos(situation)
     _append({"kind":"simulate", "level": level})
-    return {"ok": True, "plan": pl, "note":"simulyatsiya; realnykh zvonkov ne vypolnyalos"}
+    return {"ok": True, "plan": pl, "note":"simulation; no real calls were made"}
 
 def trigger(plan: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Ispolnit TOLKO bezopasnye chasti: zhurnal, podgotovka tekstov/shablonov.
-    Realnyy zvonok/sms — tolko esli AID_ALLOW_REAL_CALLS=1 i TRUST_ADAPTERS=1 (i vse ravno luchshe rukami).
-    """
+    """Ispolnit TOLKO bezopasnye chasti: zhurnal, podgotovka tekstov/shablonov.
+    Realnyy zvonok/sms - tolko esli AID_ALLOW_REAL_CALLS=1 i TRUST_ADAPTERS=1 (i vse ravno luchshe rukami)."""
     if AID_AB == "B":
-        return {"ok": True, "executed": [], "note":"A/B=B: tolko planirovanie"}
+        return {"ok": True, "executed": [], "note":"A/B=B: planning only"}
     done: List[Dict[str,Any]] = []
     for st in (plan.get("steps") or []):
         if st.get("step") == "prepare_info":
             done.append({"step":"prepare_info","status":"ready","items":st.get("list")})
         elif st.get("step") in ("call_emergency","notify_contact"):
-            # bezopasnyy vyvod «chto sdelat»; nikakikh realnykh vyzovov bez yavnykh flagov
+            # safe conclusion “what to do”; no real calls without explicit flags
             entry = {"step": st["step"], "do":"manual", "number": st.get("number"), "template": st.get("template"), "script": st.get("script")}
             if ALLOW_REAL and TRUST_ADAP:
                 entry["adapter"] = "system://disabled_by_default"

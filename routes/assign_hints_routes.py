@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/assign_hints_routes.py - podskazki dlya naznacheniy na baze profiley i (optsionalno) grafa.
+"""routes/assign_hints_routes.py - podskazki dlya naznacheniy na baze profiley i (optsionalno) grafa.
 
 MOSTY:
 - (Yavnyy) /synergy/assign/hints → otdaet ranzhirovannyy spisok kandidatov s poyasneniyami, ne menyaya osnovnoy orchestrator.
-- (Skrytyy #1) Mozhet uchityvat graf vzaimodeystviy (ASSIGN_HINTS_USE_GRAPH=1) kak bonus «sygrannosti».
-- (Skrytyy #2) Signaly berutsya iz roles.store i roles.graph, tak chto eto chistyy add-on sloy.
+- (Skrytyy #1) Mozhet uchityvat graf vzaimodeystviy (ASSIGN_HINTS_USE_GRAPH=1) kak bonus “sygrannosti”.
+- (Skrytyy #2) Signaly berutsya iz roles.store i roles.graph, so it is chistyy add-on layer.
 
 ZEMNOY ABZATs:
-Eto «podskazchik»: podskazyvaet, kto luchshe spravitsya i s kem im budet legche rabotat - bez vmeshatelstva v osnovnoy planirovschik.
+This is “podskazchik”: podskazyvaet, kto luchshe spravitsya i s kem im budet legche rabotat - bez vmeshatelstva v osnovnoy planirovschik.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -30,7 +28,7 @@ async def assign_hints(payload: Dict[str, Any] = Body(...)):
     task_text = str(payload.get("task_text") or "")
     dims = payload.get("dims") or {}
     top_n = int(payload.get("top_n") or 5)
-    with_agent = payload.get("with_agent")  # esli nuzhno podobrat «v paru» k konkretnomu agentu
+    with_agent = payload.get("with_agent")  # if you need to be matched with a specific agent
     base = rank_for_task(task_text if task_text else None, dims, top_n=1000)
 
     use_graph = (os.getenv("ASSIGN_HINTS_USE_GRAPH","1") == "1")

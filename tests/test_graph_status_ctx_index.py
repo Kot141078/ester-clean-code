@@ -41,7 +41,7 @@ nodes:
     depends: ["annotate"]
 
   - id: gather
-    type: join
+    type:join
     from: "fork"
     out: "joined"
     select:
@@ -49,8 +49,7 @@ nodes:
       t: "{{ctx.tag}}"
     mode: list
     await_nodes: ["noop_finish"]
-    depends: ["noop_finish"]
-"""
+    depends: ["noop_finish"]"""
 
 
 def _wait_until(cond, timeout=5.0, step=0.02):
@@ -66,7 +65,7 @@ def test_status_with_context_index():
     with tempfile.TemporaryDirectory() as tmp:
         os.environ["DAG_RUN_ROOT"] = os.path.join(tmp, "runs")
         os.environ["DAG_BRANCH_ROOT"] = os.path.join(tmp, "branches")
-        os.environ["LLM_API_BASE"] = ""  # ne nuzhen LLM
+        os.environ["LLM_API_BASE"] = ""  # no need for LLM
         os.environ["LLM_MODEL"] = "gpt-4o-mini"
 
         app = Flask(__name__)
@@ -78,21 +77,21 @@ def test_status_with_context_index():
         assert r.status_code == 200 and r.get_json().get("ok") is True
         run_id = r.get_json()["run_id"]
 
-        # dozhdatsya zaversheniya
+        # wait for completion
         assert _wait_until(lambda: bool(load_state(run_id).get("finished")), timeout=5.0)
 
-        # zapros statusa s include_ctx=1
+        # status request with include_sth=1
         r2 = client.get(f"/graph/status/{run_id}?include_ctx=1")
         assert r2.status_code == 200
         data = r2.get_json()
         assert data.get("ok") is True
         idx = data.get("contexts_index") or {}
-        # Dolzhny byt main i dve dochernie vetki
+        # There must be a main and two child branches
         assert "main" in idx
-        # dochernie vetki po shablonu main#NN
+        # child branches using the main#NN template
         children = [k for k in idx.keys() if k.startswith("main#")]
         assert len(children) == 2
-        # spisok klyuchey konteksta dolzhen byt spiskom
+        # the list of context keys must be a list
         assert isinstance(idx["main"], list)
         for ch in children:
             assert isinstance(idx[ch], list)

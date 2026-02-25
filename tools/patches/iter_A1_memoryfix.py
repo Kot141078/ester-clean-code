@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-ITER A1: stabilizatsiya JSON-pamyati (UI) bez poteri dannykh.
+"""ITER A1: stabilizatsiya JSON-pamyati (UI) bez poteri dannykh.
 - fiksirovannaya razmernost vec
 - avto-migratsiya: vec_legacy sokhranyaetsya, vec pereschityvaetsya
 - put pamyati -> ESTER_STATE_DIR/ESTER_HOME
@@ -11,8 +10,7 @@ SKRYTYE MOSTY:
   - Cover&Thomas: fiksiruem "propusknuyu sposobnost" predstavleniya (dim) -> menshe entropii.
 ZEMNOY ABZATs:
   Eto kak standartizirovat rezbu na vsekh boltakh: poka M16 i M22 v odnoy korobke —
-  ty khot tresni, gayka ne nakrutitsya. My privodim vse k odnomu standartu, staroe ne vybrasyvaem.
-"""
+  Ty khot tresni, gayka ne nakrutitsya. My privodim vse k odnomu standartu, staroe ne vybrasyvaem."""
 from __future__ import annotations
 
 import os
@@ -120,7 +118,7 @@ def embed(text: str) -> List[float]:
         try:
             arr = m.encode([t], normalize_embeddings=True)
             vec = np.asarray(arr[0], dtype=np.float32)
-            # esli vdrug model ne 384 — privodim k _DIM cherez folding
+            # if suddenly the model is not 384 - leads to _SMOKE through folding
             return normalize_vec(vec.tolist(), _DIM)
         except Exception:
             pass

@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/multi_leader.py — «multi-lider»: ochered/peredacha roli veduschego.
+"""modules/coop/multi_leader.py - "multi-leader": ochered/peredacha roli veduschego.
 
 Model:
 - room -> { leader:str, queue:[str], members:set }
 API:
 - create(room, leader) -> ok
-- add(room, user)      -> ok
-- baton(room, to)      -> peredat «zhezl» konkretnomu polzovatelyu (esli chlen komnaty)
-- rotate(room)         -> tsiklicheskaya rotatsiya po queue
-- status(room)         -> sostoyanie komnaty
+- add(room, user) -> ok
+- baton(room, to) -> peredat “zhezl” konkretnomu polzovatelyu (esli chlen komnaty)
+- rotate(room) -> tsiklicheskaya rotatsiya po queue
+- status(room) -> sostoyanie room
 
 Integratsii:
 - coop/game_sync, sync_keyboard, webrtc/dc mogut chitat tekuschego lidera dlya markirovki UI.
@@ -20,10 +19,9 @@ MOSTY:
 - Skrytyy #2: (Kibernetika ↔ Kontrol) peredacha roli — yavnyy akt, fiksiruetsya v sostoyanii.
 
 ZEMNOY ABZATs:
-V pamyati protsessa; chistye JSON ruchki. Net fonovykh demonov.
+V pamyati protsessa; clean JSON handles. Net fonovykh demonov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Set
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -48,11 +46,11 @@ def baton(room: str, to: str) -> Dict[str, Any]:
     if not r or to not in r["members"]:
         return {"ok": False, "error": "no_room_or_member"}
     if r["leader"] != to:
-        # tekuschego lidera perenosim v konets ocheredi (esli on ne pust)
+        # move the current leader to the end of the queue (if it is not empty)
         old = r["leader"]
         if old and old not in r["queue"]:
             r["queue"].append(old)
-        # «to» udalyaem iz ocheredi, delaem liderom
+        # “that” is removed from the queue and made the leader
         r["queue"] = [x for x in r["queue"] if x != to]
         r["leader"] = to
     return {"ok": True, **status(room)}

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/sys_autoreg_routes.py - REST: avto-registratsiya moduley i upravlenie doverennymi kheshami.
+"""routes/sys_autoreg_routes.py - REST: auto-registratsiya moduley i upravlenie doverennymi kheshami.
 
 Mosty:
 - Yavnyy: (Veb ↔ Avtosborka) pozvolyaet Ester samoy podkhvatyvat novye moduli.
-- Skrytyy #1: (RBAC ↔ Bezopasnost) whitelist - tolko admin; autoreg/tick - operator|admin.
+- Skrytyy #1: (RBAC ↔ Bezopasnost) whitelist - only admin; autoreg/tick - operator|admin.
 - Skrytyy #2: (Memory ↔ Profile) vse klyuchevye deystviya logiruyutsya cherez modul.
 
 Zemnoy abzats:
 Nazhal knopku - i sistema akkuratno podklyuchila novye bloki, nepodkhodyaschie - pometila.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os

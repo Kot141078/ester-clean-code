@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/data_govern_routes.py - REST dlya klassov dannykh/retenshna/zabveniya.
+"""routes/data_govern_routes.py - REST dlya klassov dannykh/retenshna/zabveniya.
 
 Mosty:
 - Yavnyy: (Veb ↔ Politika dannykh) yavnye ruchki dlya klassifikatsii i srokov khraneniya.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Memory ↔ Bezopasnost) uvazhaet DG_PROTECT_TAGS.
 
 Zemnoy abzats:
-Polozhili yarlyk - poluchili srok. Po zaprosu - zabyli.
+Polozhili yarlyk - poluchili srok. By request - zabyli.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-modules/mm/lint.py — «zhestche prinudit get_mm()»: poisk obkhodov fabriki pamyati (best-effort).
+"""modules/mm/lint.py - “zhestche prinudit get_mm()”: poisk obkhodov fabriki pamyati (best-effort).
 
 Mosty:
-- Yavnyy: (Kachestvo ↔ Memory) podsvetka mest v kode, gde initsializiruyut pamyat napryamuyu.
+- Yavnyy: (Kachestvo ↔ Memory) podsvetka place v kode, where initsializiruyut pamyat napryamuyu.
 - Skrytyy #1: (Audit ↔ Prozrachnost) otchet v JSON dlya bystroy pravki.
 - Skrytyy #2: (Kibernetika ↔ Avtonomiya) mozhno privyazat k cron kak lint-shag.
 
 Zemnoy abzats:
-Nakhodim «dyrki» gde lezut mimo `get_mm()` i zakryvaem ikh.
-# c=a+b
-"""
+Nakhodim "dyrki" gde lezut mimo `get_mm()` i zakryvaem ikh.
+# c=a+b"""
 from __future__ import annotations
 import os, re
 from typing import Any, Dict, List

@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-Legkiy logger namereniy i faktov samoizmeneniya v pamyat Ester.
+"""Legkiy logger namereniy i faktov samoizmeneniya v pamyat Ester.
 
 Trebovaniya:
-- ne lomat rabotu, esli memory-adapterov net;
+- ne lomat work, esli memory-adapterov net;
 - ne delat setevykh vyzovov;
 - ne pisat nichego v zapreschennye zony;
 - byt mostom mezhdu voley/samomodom i sloyami pamyati (events / journal).
 
-Esli nuzhnykh funktsiy v pamyati net — molcha vykhodim.
-"""
+Esli nuzhnykh funktsiy v pamyati net - molcha vykhodim."""
 
 import time
 from typing import Any, Dict, List, Optional
@@ -17,7 +15,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def _get_events_adapter():
-    """Pytaemsya nayti edinyy adapter sobytiy pamyati (best-effort)."""
+    """We are trying to find a single memory event adapter (best-effort)."""
     try:
         from modules.memory import events_unified_adapter as ev  # type: ignore
         return ev
@@ -26,7 +24,7 @@ def _get_events_adapter():
 
 
 def _emit(adapter, event: Dict[str, Any]) -> None:
-    """Otpravka sobytiya v adapter, s podderzhkoy neskolkikh signatur."""
+    """Sending an event to the adapter, with support for multiple signatures."""
     try:
         if hasattr(adapter, "log_event"):
             adapter.log_event(event)  # type: ignore[attr-defined]
@@ -40,7 +38,7 @@ def _emit(adapter, event: Dict[str, Any]) -> None:
 
 
 def log_selfmod_event(source: str, body: Dict[str, Any], result: Dict[str, Any]) -> None:
-    """Fiksiruem fakt namereniya/samoizmeneniya v pamyati (esli vozmozhno)."""
+    """Fixes the fact of intention/self-change in memory (if possible)."""
     adapter = _get_events_adapter()
     if not adapter:
         return
@@ -71,5 +69,5 @@ def log_selfmod_event(source: str, body: Dict[str, Any], result: Dict[str, Any])
 
         _emit(adapter, event)
     except Exception:
-        # Nikogda ne ronyaem osnovnoy potok iz-za loggera.
+        # Never drops the main thread because of the logger.
         return

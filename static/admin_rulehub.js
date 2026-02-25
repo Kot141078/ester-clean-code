@@ -46,7 +46,7 @@
       state.textContent = JSON.stringify(j, null, 2);
       await loadState();
     }catch(e){
-      state.textContent = 'Oshibka toggle: '+e;
+      state.textContent = 'Toggle error:'+e;
     }
   }
 
@@ -56,7 +56,7 @@
       const j = await r.json();
       cfg.value = j.yaml || '';
     }catch(e){
-      cfg_out.textContent = 'Oshibka zagruzki YAML: '+e;
+      cfg_out.textContent = 'YML loading error:'+e;
     }
   }
 
@@ -66,7 +66,7 @@
       const j = await r.json();
       cfg_out.textContent = JSON.stringify(j, null, 2);
     }catch(e){
-      cfg_out.textContent = 'Oshibka sokhraneniya YAML: '+e;
+      cfg_out.textContent = 'Error saving YML:'+e;
     }
   }
 

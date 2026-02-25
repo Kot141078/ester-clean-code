@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/audit_recplay_routes.py - REST-pult skvoznogo audita REC→PLAY.
+"""routes/audit_recplay_routes.py - REST-pult skvoznogo audita REC→PLAY.
 
 Ruchki:
-  POST /audit/recplay/run   {"workflow":"wf_demo","session":"s_demo"} -> {ok,audit_id,summary}
-  GET  /audit/recplay/get   ?id=<audit_id> -> polnyy otchet
-  GET  /audit/recplay/list  -> poslednie audity
+  POST /audit/recplay/run {"workflow":"wf_demo","session":"s_demo"} -> {ok,audit_id,summary}
+  GET /audit/recplay/get ?id=<audit_id> -> polnyy otchet
+  GET /audit/recplay/list -> poslednie audity
 
 MOSTY:
-- Yavnyy: (Memory ↔ Deystvie) edinyy otchet «kak sygrali to, chto zapisali».
+- Yavnyy: (Memory ↔ Deystvie) edinyy otchet “kak sygrali to, chto zapisali.”
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) viden raznoboy REC i PLAY.
 - Skrytyy #2: (Kibernetika ↔ Kontrol) regulyarnyy zamer kachestva stsenariev.
 
 ZEMNOY ABZATs:
-Fayly v data/audit/recplay, nichego bolshe ne trebuetsya. Vorkflou zapuskaetsya standartnoy ruchkoy.
+Fayly v data/audit/recplay, nichego bolshe ne trebuetsya. Workflow zapuskaetsya standartnoy ruchkoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from typing import Any, Dict, List

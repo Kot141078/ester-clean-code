@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Smoke dlya KOMPAT-002: zapuskaetsya iz podkataloga tools, sam dobavlyaet koren proekta v sys.path.
+"""Smoke dlya KOMPAT-002: zapuskaetsya iz podkataloga tools, sam dobavlyaet koren proekta v sys.path.
 MOSTY: (yavnyy) tools↔core importy; (skrytyy 1) sys.path↔struktura proekta; (skrytyy 2) JSON↔chtenie v PS5.
-ZEMNOY ABZATs: isklyuchaem vliyanie tekuschego kataloga — proveryaem imenno proektnye importy.
-c=a+b
-"""
+ZEMNOY ABZATs: isklyuchaem vliyanie tekuschego kataloga - proveryaem imenno proektnye importy.
+c=a+b"""
 from __future__ import annotations
 import sys, os, json
 from pathlib import Path

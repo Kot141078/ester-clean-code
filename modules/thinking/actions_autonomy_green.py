@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_autonomy_green.py — avtonomnyy vybor tseley i plan deystviy (zelenoe napravlenie).
+"""modules/thinking/actions_autonomy_green.py - avtonomnyy vybor tseley i plan deystviy (zelenoe napravlenie).
 
 Mosty:
 - Yavnyy: (Mysli/Deystviya ↔ Kaskad/Memory) predlagaem tseli, sobiraem plan s /thinking/act-shagayuschimi vyzovami i otmetkami v profilee.
@@ -9,8 +8,7 @@ Mosty:
 
 Zemnoy abzats:
 Ester sama vybiraet zelenye tseli iz svoikh sledov/kontenta i formiruet ispolnimyy plan: opisat agenta, nakidat fayly-prevyu, skomponovat brif/metriki i (po razresheniyu) primenit izmeneniya. Kontrakty API prezhnie.
-# c=a+b.
-"""
+# c=a+b."""
 from __future__ import annotations
 import os, io, json, re, time
 from typing import Any, Dict, List, Tuple
@@ -52,7 +50,7 @@ def _read_json(path: str):
         return None
 
 def _scan_memory_candidates() -> List[Tuple[str,float,str]]:
-    # Chitaem pamyat i schitaem «podskazki» po klyuchevym terminam
+    # Reads memory and counts “hints” for key terms
     cands: Dict[str, float] = {}
     def feed(text: str, source: str):
         s = text.lower()
@@ -76,28 +74,28 @@ def _scan_memory_candidates() -> List[Tuple[str,float,str]]:
                 for v in x: walk(v)
         walk(obj)
 
-    # Dobavim prioritety po nalichiyu cheklistov
+    # Let's add priorities based on the availability of checklists
     for name in ("smb_quick_audit","zero_waste_event"):
         p = os.path.join(CHECK_DIR, f"{name}.md")
         if os.path.isfile(p):
             cands[f"checklist:{name}"] = cands.get(f"checklist:{name}", 0.0) + 1.0
 
-    # Sformiruem nabor kanonicheskikh tseley
+    # Let's create a set of canonical goals
     goals: List[Tuple[str,float,str]] = []
     pairs = [
         ("Snizit potreblenie elektroenergii na 15% za 6 mes", "energy"),
-        ("Sokratit otkhody i povysit pererabotku na meropriyatiyakh", "waste_event"),
+        ("Reduce waste and increase recycling at events", "waste_event"),
         ("Optimizirovat logistiku posledney mili (-10% CO₂e/zakaz)", "logistics"),
         ("Pereyti na ustoychivuyu upakovku v top-3 SKU", "packaging"),
         ("Sokratit vodopotreblenie na 10% v ofise", "water")
     ]
-    # Myagko vzvesim tseli po indikatoram iz pamyati
+    # Gently weigh the goals using indicators from memory
     for goal, tag in pairs:
         base = 1.0
         for k, w in KEY_TERMS:
             if (tag in k) or (k in tag):
                 base += w*0.1
-        # podnimem score esli est relevantnye «istochniki» v pamyati
+        # let's start a fight if there are relevant “sources” in memory
         mem_bonus = 0.0
         for src, s in cands.items():
             if tag in src or ("checklist" in src and tag in ("waste_event","energy","packaging")):
@@ -117,7 +115,7 @@ def _top_goals(n: int) -> List[Dict[str,Any]]:
     return out
 
 def _plan_for_goals(goals: List[Dict[str,Any]]) -> Dict[str,Any]:
-    # Sobiraem bezopasnyy poshagovyy plan (ispolnyaetsya cherez /thinking/cascade/execute)
+    # Putting together a safe step-by-step plan (executed via /thinking/cascade/esesote)
     steps: List[Dict[str,Any]] = []
     # Obschaya otmetka
     steps.append({
@@ -125,7 +123,7 @@ def _plan_for_goals(goals: List[Dict[str,Any]]) -> Dict[str,Any]:
         "endpoint":"/thinking/act",
         "body":{"name":"mem.passport.append","args":{"note":"AUTONOMY: start zelenogo plana","meta":{"from":"actions_autonomy_green","n":len(goals)},"source":"thinking://autonomy.green"}}
     })
-    # Dlya kazhdoy tseli dobavim blok iz soglasovannykh shagov
+    # For each goal, add a block of agreed steps
     for g in goals:
         goal = g["goal"]
         # 1) Refleksiya
@@ -137,12 +135,12 @@ def _plan_for_goals(goals: List[Dict[str,Any]]) -> Dict[str,Any]:
         # 4) Brif po kitu
         steps.append({"kind":"act","endpoint":"/thinking/act","body":{"name":"sustainability.kit.compose_brief","args":{"goal":goal,"sector":"SMB"}}})
         # 5) Fayly-prevyu
-        steps.append({"kind":"act","endpoint":"/thinking/act","body":{"name":"agent.builder.scaffold.files","args":{"spec":{"name":"EkoRazum","description":f"Avtonomnaya tsel: {goal}","instructions":"Korotko, po delu, izmerimo.","capabilities":["plans.cascade","files.analyze","rules.policy.hints"]}}}})
+        steps.append({"kind":"act","endpoint":"/thinking/act","body":{"name":"agent.builder.scaffold.files","args":{"spec":{"name":"EkoRazum","description":f"Autonomous target: ZZF0Z","instructions":"Korotko, po delu, izmerimo.","capabilities":["plans.cascade","files.analyze","rules.policy.hints"]}}}})
         # 6) Chernovoy otchet (MD → HTML)
-        steps.append({"kind":"act","endpoint":"/thinking/act","body":{"name":"report.compose.md","args":{"title":f"Eko-otchet: {goal}","goal":goal,"brief":{"outline":[goal]},"checklist_md":"(sm. KIT)","metrics":{}}}})
-        steps.append({"kind":"act","endpoint":"/thinking/act","body":{"name":"report.compose.html","args":{"title":f"Eko-otchet: {goal}","markdown":"(sm. vyshe shag MD)"}}})
-        # 7) Primenenie (tolko esli razresheno sredoy; inache prevyu)
-        steps.append({"kind":"act","endpoint":"/thinking/act","body":{"name":"agent.builder.apply","args":{"spec":{"name":"EkoRazum","description":f"Avtonomnaya tsel: {goal}"}, "preview_only": not (AB_SLOT=='A' and ALLOW_WRITE)}}})
+        steps.append({"kind":"act","endpoint":"/thinking/act","body":{"name":"report.compose.md","args":{"title":f"Eco-report: ZZF0Z","goal":goal,"brief":{"outline":[goal]},"checklist_md":"(sm. KIT)","metrics":{}}}})
+        steps.append({"kind":"act","endpoint":"/thinking/act","body":{"name":"report.compose.html","args":{"title":f"Eco-report: ZZF0Z","markdown":"(see MD step above)"}}})
+        # 7) Application (only if allowed by the environment; otherwise preview)
+        steps.append({"kind":"act","endpoint":"/thinking/act","body":{"name":"agent.builder.apply","args":{"spec":{"name":"EkoRazum","description":f"Autonomous target: ZZF0Z"}, "preview_only": not (AB_SLOT=='A' and ALLOW_WRITE)}}})
     return {"ok": True, "goal": "Avtonomnye zelenye tseli", "steps": steps, "ab": AB_SLOT, "auto": ALLOW_AUTO}
 
 def _reg():
@@ -150,7 +148,7 @@ def _reg():
     if not register:
         return
 
-    # 1) autonomy.green.suggest_goals — predlozhit tseli (Ester sama reshaet prioritet)
+    # 1) autonomy.green.suggest_voice - suggest goals (Esther decides the priority herself)
     def a_suggest(args: Dict[str,Any]):
         hint = str(args.get("hint","") or "")
         n = int(args.get("max_goals") or MAX_GOALS or 1)
@@ -160,7 +158,7 @@ def _reg():
         return {"ok": True, "ab": AB_SLOT, "auto": ALLOW_AUTO, "goals": goals, "hint": hint}
     register("autonomy.green.suggest_goals", {"hint":"str","max_goals":"int"}, {"ok":"bool"}, 1, a_suggest)
 
-    # 2) autonomy.green.plan — sformirovat ispolnyaemyy plan pod top-tseli
+    # 2) autonomy.green.plan - create an executable plan for top goals
     def a_plan(args: Dict[str,Any]):
         n = int(args.get("max_goals") or MAX_GOALS or 1)
         goals = _top_goals(n)
@@ -168,7 +166,7 @@ def _reg():
         return {"ok": True, "ab": AB_SLOT, "plan": plan, "auto": ALLOW_AUTO}
     register("autonomy.green.plan", {"max_goals":"int"}, {"ok":"bool"}, 2, a_plan)
 
-    # 3) autonomy.green.batch.plan — yavnaya pachka tseley (esli peredany snaruzhi)
+    # 3) autonomy.green.batch.plan - an explicit packet of targets (if transmitted externally)
     def a_batch(args: Dict[str,Any]):
         goals_in = args.get("goals") or []
         goals = []

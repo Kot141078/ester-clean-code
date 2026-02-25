@@ -35,7 +35,7 @@
   -->
   <div class="wrap">
     <h1>One-Click Green Agent</h1>
-    <p class="muted">Rabotaet poverkh suschestvuyuschikh API: <code>/thinking/act</code>, <code>/thinking/cascade/*</code>. JWT — obschiy (kak v adminke).</p>
+    <p class="muted">Works on top of existing APIs: <code>/thinking/act</code>, <code>/thinking/cascade/*</code>. ZhVT - general (as in the admin panel).</p>
 
     <div class="card">
       <h3>JWT</h3>
@@ -47,7 +47,7 @@
       <div class="grid" style="margin-top:12px;">
         <div class="card">
           <h4>Okruzhenie</h4>
-          <button id="btnEnv">Proverit okruzhenie</button>
+          <button id="btnEnv">Check environment</button>
           <pre id="state" class="muted">{}</pre>
         </div>
         <div class="card">
@@ -60,18 +60,18 @@
     <div class="grid" style="margin-top:16px;">
       <div class="card">
         <h3>Parametry</h3>
-        <input id="goal" placeholder="Tsel (napr. Ekologicheskiy sovetnik dlya SMB)">
+        <input id="goal" placeholder="Purpose (e.g. Environmental advisor for SMEs)">
         <div class="row">
           <input id="audience" placeholder="Auditoriya (napr. SMB)">
           <input id="domain" placeholder="Domen (napr. sustainability)">
         </div>
-        <input id="name" placeholder="Imya agenta (optsionalno)">
+        <input id="name" placeholder="Agent name (optional)">
         <div class="row" style="margin-top:8px;">
           <button id="btnOne">One-Click</button>
           <button id="btnPlan">Vypolnit plan</button>
         </div>
         <label class="row" style="margin-top:8px;">
-          <span class="muted">Razreshit zapis</span>
+          <span class="muted">Allow recording</span>
           <input id="write" type="checkbox">
           <button id="btnApply">Primenit fayly</button>
         </label>

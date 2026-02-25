@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/volition_registry.py — reestr volevykh impulsov dlya myshleniya.
+"""modules/thinking/volition_registry.py - registry volevykh impulsov dlya myshleniya.
 
 Mosty:
 - Yavnyy: (Volya ↔ Myshlenie) — tsentralizovannyy spisok tseley dlya avtonomnogo osmysleniya.
-- Skrytyy #1: (Impulsy ↔ Memory) — impulsy mogut rozhdatsya iz sobytiy pamyati ili vneshnikh marshrutov.
+- Skrytyy #1: (Impulsy ↔ Memory) — impulsy mogut rozhdatsya iz sobytiy pamyati or vneshnikh marshrutov.
 - Skrytyy #2: (Bezopasnost ↔ Avtomatizm) — rezhim A gasit lyubye pobochnye effekty.
 
 A/B-slot:
   ESTER_VOLITION_MODE = "A" | "B"
     A (defolt): impulsy ignoriruyutsya (povedenie kak ranshe).
-    B: impulsy stavyatsya v ochered i mogut byt obrabotany modules.always_thinker.
+    B: impulsy stavyatsya v ochered i can byt obrabotany modules.always_thinker.
 
 Zemnoy abzats:
     from modules.thinking import volition_registry
     volition_registry.add_impulse({"goal": "peresobrat nedelnyy otchet"})
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -31,13 +29,11 @@ _lock = threading.Lock()
 
 
 def add_impulse(impulse: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Dobavit volevoy impuls.
+    """Add volevous impulses.
 
-    Bezopasnost:
+    Safety:
     - V rezhime A (defolt) impuls ne aktiviruetsya (vozvrat ignored=True).
-    - V rezhime B impuls pomeschaetsya v ochered.
-    """
+    - V rezhime B impuls pomeschaetsya v ochered."""
     if _VOLITION_MODE != "B":
         return {"ok": False, "ignored": True}
     if not isinstance(impulse, dict):
@@ -52,7 +48,7 @@ def add_impulse(impulse: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def get_next_impulse() -> Optional[Dict[str, Any]]:
-    """Poluchit sleduyuschiy impuls (ili None)."""
+    """Get the next pulse (or None)."""
     if _VOLITION_MODE != "B":
         return None
     with _lock:
@@ -62,6 +58,6 @@ def get_next_impulse() -> Optional[Dict[str, Any]]:
 
 
 def pending_count() -> int:
-    """Tekuschee kolichestvo ozhidayuschikh impulsov."""
+    """Current number of pending pulses."""
     with _lock:
         return len(_impulses)

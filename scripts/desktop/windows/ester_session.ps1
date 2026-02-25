@@ -1,12 +1,12 @@
 # scripts\desktop\windows\ester_session.ps1
-# Naznachenie: zapustit agent v seanse polzovatelya "ester" i uderzhivat ego zhivym.
+# Purpose: to launch the agent in the user session "esther" and keep it alive.
 param(
   [string]$User = "ester"
 )
 
 $ErrorActionPreference = "Stop"
 
-# Proverka nalichiya agenta v aktivnom slote
+# Checking for an agent in the active slot
 $slot = (Get-Content "C:\Ester\releases\active.slot" -Encoding ASCII).Trim()
 $agentPath = "C:\Ester\releases\$slot\ester_agent.ps1"
 if (-not (Test-Path $agentPath)) {
@@ -15,11 +15,11 @@ if (-not (Test-Path $agentPath)) {
 
 Write-Host "==> Zapusk agenta iz slota $slot"
 
-# VNIMANIE: RunAs zaprosit parol odin raz (sokhranite bezopasno).
+# ATTENTION: RunAs will ask for a password once (save it securely).
 $cmd = "powershell -ExecutionPolicy Bypass -NoLogo -NoProfile -File `"$agentPath`""
 Start-Process -FilePath "runas.exe" -ArgumentList "/user:$env:COMPUTERNAME\$User `"$cmd`""
 
-# Prostoy watchdog: zhdem podnyatiya health, inache pereklyuchaem slot
+# Simple watchdog: wait for the healthtn to be raised, otherwise switch the slot
 $ok = $false
 for ($i=0; $i -lt 20; $i++) {
   try {

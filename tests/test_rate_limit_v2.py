@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-Test dlya security/rate_limit.py:
- - proveryaem, chto pri nizkikh limitakh zaprosy nachinayut otklonyatsya
- - proveryaem razdelnost klyuchey (ip vs token)
-"""
+"""Test for security/rate_limit.by:
+ - we check that at low limits requests begin to be rejected
+ - check the separability of the keys (ip vs token)"""
 
 import os
 import time
@@ -26,7 +24,7 @@ def test_rate_limit_blocks(env_limits):
     from security.rate_limit import get_rate_limiter
 
     rl = get_rate_limiter()
-    # 6 bystrykh zaprosov podryad — ok, 7-y dolzhen byt otklonen
+    # 6 quick requests in a row - ok, 7 should be rejected
     ok_count = 0
     hit_retry = None
     for i in range(7):
@@ -39,7 +37,7 @@ def test_rate_limit_blocks(env_limits):
     assert ok_count == 6
     assert hit_retry is not None and hit_retry > 0.0
 
-    # drugoy token s togo zhe IP — zablokiruetsya iz-za IP-limita
+    # another token from the same IP will be blocked due to the IP limit
     ok, retry_after, info = rl.check(ip="1.2.3.4", token_id="userB")
     assert ok is False
 

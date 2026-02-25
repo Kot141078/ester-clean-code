@@ -8,7 +8,7 @@
 
 <section class="card" style="margin-bottom:12px">
   <div class="row" style="gap:10px">
-    <button class="btn" onclick="loadProviders()">Obnovit status</button>
+    <button class="btn" onclick="loadProviders()">Update status</button>
     <input id="provFilter" class="input" placeholder="filtr po imeni/tipu…" oninput="renderProviders()" />
     <div class="spacer"></div>
     <label class="stack" style="align-items:center">
@@ -26,7 +26,7 @@
 <section class="card">
   <div class="row" style="margin-bottom:8px">
     <h3 style="margin:0">Spisok provayderov</h3>
-    <span class="muted right">Nazhmi «Sdelat aktivnym» — otpravitsya POST /providers/select</span>
+    <span class="muted right">Click “Make active” - POST /providers/select will be sent</span>
   </div>
   <div id="tableWrap" class="box" style="overflow:auto">
     <table id="provTable" style="width:100%;border-collapse:collapse">
@@ -52,7 +52,7 @@
 
   function normRows(data){
     if(!data) return [];
-    // Podderzhka raznykh formatov: {providers:[...]}, [...], {items:[...]}
+    // Supports different formats: ZZF0Z, yu...sch, ZZF1ZZ
     if(Array.isArray(data)) return data;
     if(Array.isArray(data.providers)) return data.providers;
     if(Array.isArray(data.items)) return data.items;
@@ -66,14 +66,14 @@
     for(const url of targets){
       try{
         resp = await $fetch(url, {method:'GET'});
-        // esli vernulsya HTML — popytka json upadet; poymaem i poprobuem drugoy URL
+        // if HTML is returned, the attempt will fail; let's catch it and try another URL
         out = await resp.json();
         break;
       }catch(e){ lastErr=e; out=null; }
     }
     if(!out){
       document.getElementById('stateOut')?.scrollIntoView();
-      alert('Ne udalos poluchit status provayderov'+(lastErr?': '+lastErr:''));
+      alert('Failed to obtain provider status'+(lastErr?': '+lastErr:''));
       return;
     }
     providers = normRows(out).map(x => ({
@@ -103,7 +103,7 @@
       tr.appendChild(td(p.latency_ms+' ms'));
 
       const act = document.createElement('td'); act.style.padding='8px 6px'; act.style.borderBottom='1px solid var(--border)';
-      const btn = document.createElement('button'); btn.className='btn'; btn.textContent='Sdelat aktivnym';
+      const btn = document.createElement('button'); btn.className='btn'; btn.textContent='Make active';
       btn.onclick = ()=> selectProvider(p.name);
       act.appendChild(btn);
       tr.appendChild(act);
@@ -124,7 +124,7 @@
         alert('Ok: aktiven '+name+' ('+role+')');
         loadProviders();
       }else{
-        alert('Oshibka vybora: '+(data.error||r.statusText));
+        alert('Selection error:'+(data.error||r.statusText));
       }
     }catch(e){
       alert('Set: '+e);

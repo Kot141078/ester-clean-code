@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tools/dotenv_sanitize.py — otchistka .env i otchet po krivym strokam.
+"""tools/dotenv_sanitize.py - otchistka .env i otchet po krivym strokam.
 
 MOSTY:
 - Yavnyy: (Fayl .env ↔ Servis) bystro poluchit chistuyu versiyu bez ruchnogo kovyryaniya.
@@ -10,8 +9,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Skript delaet .env.sanitized s validnymi KEY=VALUE i skladyvaet podozritelnye stroki v .env.bad_lines — udobno dlya dalneyshey pravki.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 import argparse, pathlib, re, sys
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,30 +1,28 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/safe_scenarios.py — seyf-stsenarii (atomarnye shagi s proverkoy i otkatom).
+"""modules/coop/safe_scenarios.py - seyf-stsenarii (atomarnye shagi s proverkoy i otkatom).
 
-Format shaga:
+Format steps:
 {
   "title": "Otkryt menyu",
-  "do":   {"type":"hotkey","seq":"ALT+F"},
+  "do": {"type":"hotkey","seq":"ALT+F"},
   "check":{"kind":"ocr_contains","text":"Fayl","timeout_ms":4000},
-  "undo": {"type":"hotkey","seq":"ESC"}   # optsionalno
+  "undo": {"type":"hotkey","seq":"ESC"} #optsionalno
 }
 
-Ispolnenie:
-- Vypolnyaem shagi po poryadku. Esli proverka provalena — po steku otkatyvaem vse proshedshie shagi (esli zadan undo).
+Performance:
+- Vypolnyaem shagi po poryadku. Esli proverka provalena - po steku otkatyvaem vse proshedshie shagi (esli zadan undo).
 - V zhurnal /attention/journal/append pishem sobytiya: safe_step_ok / safe_step_fail / safe_rollback.
 - Status khranitsya v module.
 
 MOSTY:
-- Yavnyy: (Kontrol ↔ Nadezhnost) lyubye deystviya — s vstroennoy strakhovkoy.
-- Skrytyy #1: (Infoteoriya ↔ Diagnostika) zhurnal daet fakty «gde upalo».
+- Yavnyy: (Control ↔ Nadezhnost) lyubye deystviya - s vstroennoy strakhovkoy.
+- Skrytyy #1: (Infoteoriya ↔ Diagnostika) zhurnal daet fakty “where upalo”.
 - Skrytyy #2: (Inzheneriya ↔ UX) stsenarii ispolzuyut te zhe primitivy, chto interaktivnyy pleybek.
 
 ZEMNOY ABZATs:
 Nikakikh novykh kontraktov: vse cherez suschestvuyuschie ruchki /desktop/* i /attention/journal/*.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import http.client, json, time

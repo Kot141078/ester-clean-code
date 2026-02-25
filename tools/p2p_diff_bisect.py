@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-CLI: bystryy dvoichnyy poisk raskhozhdeniy po merklu s udalennym uzlom.
+"""CLI: bystryy dvoichnyy poisk raskhozhdeniy po merklu s udalennym uzlom.
 Rabotaet paketno, skachivaya kheshi urovnya 0 (listya) chastyami.
 Primer:
   python -m tools.p2p_diff_bisect http://10.0.0.12:5000 [chunk=2048]
-Vyvodit JSON so spiskom nesovpadayuschikh id.
-"""
+Vyvodit JSON so spiskom nesovpadayuschikh id."""
 from __future__ import annotations
 
 import json
@@ -19,7 +17,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def run(base_url: str, chunk: int = 2048) -> dict:
-    # poluchim obschuyu statistiku
+    # we get general statistics
     st0 = state_level(base_url, level=0, offset=0, limit=1)
     if not st0.get("ok"):
         return {"ok": False, "err": st0.get("error") or st0.get("status")}

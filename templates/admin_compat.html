@@ -25,7 +25,7 @@
     <h3>Manifest & Baseline</h3>
     <div id="mhead">—</div>
     <div style="margin-top:8px; display: flex; flex-wrap: wrap; gap: 8px;">
-      <button onclick="refreshHead()">Obnovit shapku manifesta</button>
+      <button onclick="refreshHead()">Update manifest header</button>
       <button onclick="autoBaseline()">Avto-baseline na fleshku</button>
       <button onclick="buildBaseline()">Sgenerirovat baseline</button>
       <button onclick="writeBaseline()">Zapisat baseline na USB</button>
@@ -36,8 +36,8 @@
   </section>
 
   <section>
-    <h3>Proverka po manifestu</h3>
-    <p class="muted">Esli na fleshke est manifest, on budet ispolzovan avtomaticheski. Esli net, berem iz <code>COMPAT_DEV_MANIFEST</code> (po umolchaniyu <code>/mnt/data/ester_manifest.json</code>), libo mozhno vstavit JSON vruchnuyu nizhe.</p>
+    <h3>Manifest verification</h3>
+    <p class="muted">If there is a manifest on the flash drive, it will be used automatically. If not, we take it from <code>COMPAT_DEV_MANIFEST</code> (po umolchaniyu <code>/mnt/data/ester_manifest.json</code>), or you can insert JSION manually below.</p>
     <textarea id="manifest" placeholder='{"env":{"FOO":"..."},"routes":[{"method":"GET","path":"/health"}]}' style="width:100%;min-height:120px"></textarea>
     <div style="margin-top:8px">
       <button onclick="scan()">Skanirovat</button>

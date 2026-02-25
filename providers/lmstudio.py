@@ -8,10 +8,8 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 class LMStudioClient:
-    """
-    LM Studio (lokalnyy OpenAI-sovmestimyy server)
-    Po umolchaniyu rabotaet na http://127.0.0.1:1234/v1
-    """
+    """LM Studio (local OpenAI-compatible server)
+    By default it works on http://127.0.0.1:1234/v1"""
 
     name = "lmstudio"
 

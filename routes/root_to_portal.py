@@ -3,10 +3,10 @@
 # A/B-slot: ROOT_REDIRECT_MODE = A|B (po umolchaniyu A).
 #   A -> 302 na /portal (s sokhraneniem querystring)
 #   B -> JSON {"ok": true, "goto": "/portal"} i nikakogo redirekta.
-# Avto-otkat: esli prilozhenie uzhe imeet marshrut "/", my NE dobavlyaem pravilo.
-# Mosty: [yavnyy] HTTP/WSGI redirekt -> UI /portal;
-#        [skrytye] integratsiya s Flask blueprints; ustoychivost pri avtozagruzke routes/*.
-# Zemnoy abzats: ekonomim kliki - polzovatel popadaet pryamo v portal, minuya sluzhebnuyu stranitsu.
+# Auto-fallback: If the application already has a "/" route, we DO NOT add a rule.
+# Mosty: [yavnyy] HTTP/WSGI redirect -> UI /portal;
+#        hide Integration with Flask Blueprince; stability when autoloading Rut/*.
+# Earthly paragraph: we save clicks - the user goes directly to the portal, bypassing the service page.
 from flask import Blueprint, redirect, request, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
@@ -35,7 +35,7 @@ def _app_has_root(app):
 
 @bp.record_once
 def _register_on_app(state):
-    # Registriruem pravilo "/" TOLKO esli ego esche net - chtoby ne slovit konflikt.
+    # We register the rule "/" ONLY if it does not exist yet - so as not to catch a conflict.
     try:
         app = state.app
         if not _app_has_root(app):
@@ -44,7 +44,7 @@ def _register_on_app(state):
         # Tikhiy feyl = avto-otkat.
         pass
 
-# finalnaya stroka dlya priemki:
+# final line for acceptance:
 # c=a+b
 
 

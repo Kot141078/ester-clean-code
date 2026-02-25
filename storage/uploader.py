@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-modules/storage/uploader.py — universalnyy zagruzchik artefaktov na targety (local/s3/webdav/email).
+"""modules/storage/uploader.py - universalnyy zagruzchik artefaktov na targety (local/s3/webdav/email).
 
 Funktsii:
-  • upload_file(target, file_path, dest_name=None) -> {"ok": True, "url": "..."} ili {"ok": False, "error": "..."}
+  • upload_file(target, file_path, dest_name=None) -> {"ok": True, "url": "..."} or {"ok": False, "error": "..."}
   • test_target(target) -> {"ok": True, ...} | {"ok": False, "error": "..."}
 
-Zavisimosti:
-  - stdlib; optsionalno: boto3 (s3), requests (webdav). Esli moduley net — akkuratno soobschaem.
-"""
+Dependency:
+  - stdlib; optsionalno: boto3 (s3), requests (webdav). Esli modular net - akkuratno soobschaem."""
 
 from __future__ import annotations
 
@@ -21,7 +19,7 @@ from typing import Any, Dict, List, Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
-# Optsionalnye zavisimosti — zagruzhaem lenivo
+# Optional dependencies - lazy loading
 def _opt_import(name: str):
     try:
         return __import__(name)
@@ -65,7 +63,7 @@ def test_target(target: Dict[str, Any]) -> Dict[str, Any]:
                 region_name=cfg.get("region") or None,
             )
             s3 = session.resource("s3", endpoint_url=cfg.get("endpoint_url") or None)
-            # Pytaemsya poluchit bucket (bez sozdaniya)
+            # Trying to get a bosquet (without creating)
             _ = s3.Bucket(cfg["bucket"]).creation_date
             return {"ok": True, "bucket": cfg["bucket"]}
         except Exception as e:
@@ -109,9 +107,7 @@ def test_target(target: Dict[str, Any]) -> Dict[str, Any]:
 def upload_file(
     target: Dict[str, Any], file_path: str, dest_name: Optional[str] = None
 ) -> Dict[str, Any]:
-    """
-    Zagruzhaet fayl na target. Vozvraschaet {"ok": True, "url": "..."} libo {"ok": False, "error": "..."}.
-    """
+    """Uploads the file to the target. Returns ZZF0Z or ZZF1ZZ."""
     t = target or {}
     ttype = str(t.get("type") or "")
     cfg = t.get("config") or {}

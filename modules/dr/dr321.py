@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/dr/dr321.py — offsayt-rezerv po pravilu 3-2-1: kopii snapshotov v otdelnuyu zonu s retenshnom.
+"""modules/dr/dr321.py - offsayt-rezerv po pravilu 3-2-1: kopii snapshotov v otdelnuyu zonu s retenshnom.
 
 Mosty:
 - Yavnyy: (Nadezhnost ↔ Khranenie) perenosim .tar.gz/.sig.json v OFFSITE_DIR, derzhim poslednie N.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Vyzhivanie ↔ Samosoborka) restore vozvraschaet arkhiv obratno v osnovnuyu zonu dlya otkata.
 
 Zemnoy abzats:
-Esli osnovnoy disk «umret» — kopiya lezhit ryadom, no otdelno. Kholodnaya prostaya strakhovka.
+Esli osnovnoy disk “die” - kopiya lezhit ryadom, no otdelno. Kholodnaya prostaya strakhovka.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, shutil, json
 from typing import Any, Dict, List
@@ -39,7 +37,7 @@ def run_backup() -> Dict[str, Any]:
         if not os.path.isfile(dst):
             if DR_AB == "A":
                 shutil.copy2(src, dst)
-                # ryadom podpis/manifest — esli est, tozhe skopiruem
+                # next to the signature/manifest - if there is one, we’ll copy it too
                 for extra in (f"{fn}.manifest.json", f"{fn}.sig.json"):
                     p = os.path.join(SNAP_DIR, extra)
                     if os.path.isfile(p): shutil.copy2(p, os.path.join(OFF_DIR, extra))

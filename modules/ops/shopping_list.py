@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ops/shopping_list.py — spisok pokupok i zadaniya «Pape»/operatoru.
+"""modules/ops/shopping_list.py - spisok pokupok i zadaniya "Pape"/operatoru.
 
 Mosty:
 - Yavnyy: (Operatsii ↔ Ekonomika) kazhdaya pokupka mozhet byt uvyazana s rezervom/spisaniem.
-- Skrytyy #1: (Poisk ↔ Praktika) pri neobkhodimosti podskazyvaem postavschikov cherez web_search (snaruzhi).
+- Skrytyy #1: (Search ↔ Praktika) pri neobkhodimosti podskazyvaem postavschikov cherez web_search (snaruzhi).
 - Skrytyy #2: (Kibernetika ↔ Kontrol) zadaniya fiksiruyutsya i zakryvayutsya cherez REST.
 
 Zemnoy abzats:
-Eto chek-list v magazin: chto kupit, skolko stoit, gde otchitatsya.
+This check-list v magazin: what kupit, skolko stoit, where otchitatsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, time, uuid
 from typing import Any, Dict, List

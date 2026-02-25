@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-modules/agents/desktop_vision_plus.py — OCR/annotatsii/teplokarty.
+"""modules/agents/desktop_vision_plus.py - OCR/annotatsii/teplokarty.
 
 Vozmozhnosti:
-- OCR (esli dostupny Pillow+pytesseract), inache graceful-degradation: vozvraschaem pustoy spisok bez oshibki.
+- OCR (esli dostupny Pillow+pytesseract), inache graceful-degradation: vozvraschaem empty spisok bez oshibki.
 - Poisk teksta: klyuchevye slova/regulyarki, blizhayshiy boks, tsentr → koordinata klika.
 - Annotatsiya: risuem boksy/podsvetku i sokhranyaem fayl (PNG) v ESTER_DVPP_OUTDIR.
 - Teplokarta: grubaya setka uverennosti po sovpadeniyam (bez heavy-CV).
 
 MOSTY:
-- Yavnyy: (Zrenie ↔ Drayver OS) — «klik po tekstu» s dokazatelstvom (annotirovannyy kadr).
-- Skrytyy #1: (Infoteoriya ↔ Obyasnimost) — OCR-sloi/tsitaty na kadre ↓ entropiya nedoveriya.
-- Skrytyy #2: (Kibernetika ↔ Nadezhnost) — ostavlyaem «sled» kadra v zhurnale pamyati.
+- Yavnyy: (Zrenie ↔ Drayver OS) - “klik po tekstu” s dokazatelstvom (annotirovannyy kadr).
+- Skrytyy #1: (Infoteoriya ↔ Obyasnimost) - OCR-sloi/tsitaty na kadre ↓ entropiya nedoveriya.
+- Skrytyy #2: (Kibernetika ↔ Nadezhnost) — ostavlyaem “sled” kadra v zhurnale pamyati.
 
 ZEMNOY ABZATs:
-Inzhenerno — izvlechenie teksta s koordinatami i prostaya vizualizatsiya; praktichno — «nazhmi na knopku, gde napisano OK», s sokhranennym kadrom do/posle kak dokazatelstvom.
+Inzhenerno - izvlechenie teksta s koordinatami i prostaya vizualizatsiya; praktichno - “nazhmi na knopku, gde napisano OK”, s sokhranennym kadrom do/posle kak dokazatelstvom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple, Optional
 import os, time, re, json, math, random
@@ -104,7 +102,7 @@ def annotate(path:str, boxes:List[Dict[str,Any]], save_as:str|None=None, title:s
     boxes: [{"box":[x,y,w,h], "label":"...", "color":"auto"}]
     """
     if not _PIL: 
-        # otdaem «virtualnuyu» annotatsiyu kak JSON
+        # give the “virtual” annotation as JSION
         return {"ok":True,"virtual":True,"items":boxes,"note":"Pillow not available"}
     img=Image.open(path).convert("RGB")
     dr=ImageDraw.Draw(img)
@@ -119,9 +117,7 @@ def annotate(path:str, boxes:List[Dict[str,Any]], save_as:str|None=None, title:s
     return {"ok":True,"path":fn}
 
 def heatmap(path:str, hits:List[Tuple[int,int,float]])->Dict[str,Any]:
-    """
-    hits: [(x,y,confidence), ...] — risuem poluprozrachnye tochki.
-    """
+    """prostrate: yu(s,i,confidence), ...sch - draw translucent dots."""
     if not _PIL:
         return {"ok":True,"virtual":True,"hits":hits}
     base=Image.open(path).convert("RGBA")

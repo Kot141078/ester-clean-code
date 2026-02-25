@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R0/tests/r0_auth_smoke.py — integratsionnyy smouk JWT-knopki i adminki (offlayn, bez vneshnikh zavisimostey).
+"""R0/tests/r0_auth_smoke.py - integratsionnyy smouk JWT-knopki i adminki (offlayn, bez vneshnikh zavisimostey).
 
 Mosty:
 - Yavnyy: Enderton (logika) → proveryaemye predikaty na /auth/auto i /admin: {poluchen token} ∧ {/admin 2xx/3xx s JWT}.
-- Skrytyy #1: Dzheynes (bayes) → statusy otvetov — nablyudeniya, povyshayuschie pravdopodobie gipotezy «kontur autentifikatsii zhiv».
-- Skrytyy #2: Cover & Thomas (infoteoriya) → minimalnyy «signal» (dve HTTP-pary) dostatochen dlya obnaruzheniya klassa oshibok.
+- Skrytyy #1: Dzheynes (bayes) → statusy otvetov - nablyudeniya, povyshayuschie pravdopodobie gipotezy “kontur autentifikatsii zhiv”.
+- Skrytyy #2: Cover & Thomas (infoteoriya) → minimalnyy “signal” (dve HTTP-pary) dostatochen dlya obnaruzheniya klassa oshibok.
 
 Zemnoy abzats (inzheneriya):
 Skript delaet POST na `/auth/auto/api/issue` (JSON `{"user":"Owner"}`), dostaet JWT, zatem khodit na `/admin` bez
-i s tokenom. Bezopasnyy rezhim: esli servis nedostupen — pechataet WARN i zavershaet 0. Podkhodit dlya lokalki/CI.
+i s tokenom. Bezopasnyy rezhim: esli servis nedostupen - pechataet WARN i zavershaet 0. Podkhodit dlya lokalki/CI.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import os
@@ -59,8 +57,8 @@ def main() -> int:
             token = None
 
     if not token:
-        print("[R0] WARN: ne udalos poluchit token cherez /auth/auto/api/issue.")
-        print("[R0] Podstrakhovka: poprobuyu /auth/login (esli ENABLE_SIMPLE_LOGIN=1).")
+        print("yuR0sch VARN: failed to obtain token via /autn/auto/api/issue.")
+        print("yuR0sch Safety net: I’ll try /outn/login (if ENABLE_SIMPLE_LOGIN=1).")
         code2, body2 = _http_json("POST", "/auth/login", {"user": "Owner", "role": "admin"})
         if code2 in (200, 201) and body2:
             try:
@@ -71,26 +69,26 @@ def main() -> int:
     if token:
         print(f"[R0] OK: token poluchen (pervye 24 simv): {token[:24]}…")
     else:
-        print("[R0] WARN: token ne poluchen — dalneyshie proverki /admin budut chastichno propuscheny.")
+        print("yuR0sch VARN: token not received - further checks /admin will be partially skipped.")
 
     # 2) /admin bez tokena
     code_admin_no, _ = _http_json("GET", "/admin")
     if code_admin_no is None:
-        print("[R0] INFO: servis ne otvechaet — zavershayu myagko.")
+        print("yuR0sch INFO: the service is not responding - I’m ending it gently.")
         return 0
     if code_admin_no in (200, 201):
         print("[R0] WARN: /admin vernul 2xx bez tokena — prover RBAC.")
     else:
-        print(f"[R0] /admin bez tokena => {code_admin_no} (ozhidaetsya 401/403/302/404 — lyubye ne-2xx ok)")
+        print(f"yuR0sch /admin without token => ZZF0Z (expected 401/403/302/404 - any non-2xx ok)")
 
-    # 3) /admin s tokenom (esli est)
+    # 3) /admin with token (if any)
     if token:
         code_admin_yes, _ = _http_json("GET", "/admin", headers={"Authorization": f"Bearer {token}"})
         print(f"[R0] /admin s JWT => {code_admin_yes}")
         if code_admin_yes in (200, 302):
-            print("[R0] OK: kontur autentifikatsii rabotaet")
+            print("yP0sch OK: authentication loop is working")
         else:
-            print("[R0] WARN: /admin s JWT otvetil ne 200/302 — prover roli/sekret.")
+            print("yuR0sch VARN: /admin from ZhVT answered not 200/302 - check the roles/secret.")
     else:
         print("[R0] INFO: net tokena — propuskayu pozitivnyy keys /admin.")
 

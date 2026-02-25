@@ -4,7 +4,7 @@ import os
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def test_metrics_ui_access_admin(monkeypatch):
-    # Razreshaem prostoy login i matritsu RBAC
+    # We allow a simple login and the RVACH matrix
     monkeypatch.setenv("ENABLE_SIMPLE_LOGIN", "1")
     monkeypatch.setenv("RBAC_MODE", "matrix")
     monkeypatch.setenv("RBAC_MATRIX_PATH", "rules/rbac_matrix.yaml")

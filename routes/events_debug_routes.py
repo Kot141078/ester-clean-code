@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-routes/events_debug_routes - prostaya otladka shiny sobytiy.
+"""routes/events_debug_routes - prostaya otladka shiny sobytiy.
 
 MOSTY:
-- Yavnyy: (Razrabotchik/operatsii ↔ Shina) /debug/events - lenta; /debug/events/publish - ruchnoy push.
+- Yavnyy: (Razrabotchik/operatsii ↔ Shina) /debug/events - lenta; /debug/events/publish - hand push.
 - Skrytyy #1: (Planirovschik ↔ Vizualizatsiya) udobno videt sobytiya ot run_due().
 - Skrytyy #2: (Diagnostika ↔ Istoriya) bystryy obzor poslednego uchastka bez chteniya faylov.
 
 ZEMNOY ABZATs:
-Eto «okoshko v zhurnal»: odnim zaprosom vidno, chto napublikovali zadachi i chto realno prishlo.
+This is “okoshko v zhurnal”: odnim zaprosom vidno, chto napublikovali zadachi i chto realno prishlo.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Lokalnaya zaschita finalnoy stroki
+# Local final line protection
 try:
     a  # type: ignore[name-defined]
     b  # type: ignore[name-defined]

@@ -124,12 +124,12 @@ rollouts:
     slo:
       availability: 0.995
       errorBudget: 0.005
-      # Bystrye porogi dlya canary fast-fail
+      # Fast rapids for the Canary fast file
       maxErrorRateFast: 0.02
       p95LatencyBudgetMs: 800
       p99LatencyBudgetMs: 1500
 
-# --- OpenTelemetry (primer, esli est otel-agent) ---
+# --- OpenTelemeters (example, if there is a hotel agent) ---
 opentelemetry:
   enabled: false
   collectorEndpoint: "http://otel-collector.observability.svc.cluster.local:4317"
@@ -161,7 +161,7 @@ gatekeeper:
     excludedNamespaces: ["kube-system","gatekeeper-system"]
 
 # =========================
-# G+++ (novye sektsii nizhe)
+# G+++ (new sections below)
 # =========================
 
 # 1) Golden-paths web provider (AnalysisTemplate)
@@ -171,7 +171,7 @@ probes:
     interval: 1m
     count: 3
 
-# 2) Recording Rules (PrometheusRule dlya deshevykh metrik)
+# 2) Recording Rules (Prometneus Rules for cheap metrics)
 recordingRules:
   enabled: true
 
@@ -181,7 +181,7 @@ failover:
     enabled: false
     # Zaschita: zagolovok X-Auth-Token
     token: "CHANGE_ME"
-    # Chto patchit (Service|Ingress)
+    # What to patch (Service|Ingress)
     targetKind: "Service"
     targetName: "ester"
     targetNamespace: "ester"

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tools.blueprint_guard — bezopasnaya registratsiya blyuprintov (dlya verify-rezhima).
+"""tools.blueprint_guard - bezopasnaya registratsiya blyuprintov (dlya verify-rezhima).
 
 MOSTY:
-- Yavnyy: (Flask ↔ Registratsiya) install_blueprint_guard() podmenyaet register_blueprint.
+- Yavnyy: (Flask ↔ Registration) install_blueprint_guard() podmenyaet register_blueprint.
 - Skrytyy #1: (Diagnostika ↔ Ustoychivost) proglatyvaet povtornuyu registratsiyu.
 - Skrytyy #2: (Logi ↔ Prozrachnost) pechataet preduprezhdenie v stderr.
 
 ZEMNOY ABZATs:
-Verifikator prokhodit skvoz «povtornye provoda» ne ostanavlivaya sborku.
+Verifikator prokhodit skvoz “povtornye provoda” ne ostanavlivaya sborku.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import sys
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

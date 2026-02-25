@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-modules/security/rate_limiter.py — ogranichitel chastoty sobytiy (per key).
+"""modules/security/rate_limiter.py - ogranichitel frequency sobytiy (per key).
 
 Fayly: data/security/rate_limiter.json
-Strategiya: skolzyaschee okno 60s, limit sobytiy na klyuch (naprimer, "hotkey" ili "workflow:name").
+Strategy: skolzyaschee okno 60s, limit sobytiy na klyuch (for example, "hotkey" or "workflow:name").
 
 API:
 - set_limit(key:str, limit_per_min:int)
@@ -16,10 +15,9 @@ MOSTY:
 - Skrytyy #2: (Memory ↔ Ekspluatatsiya) fayl s limitami dlya povtornogo starta.
 
 ZEMNOY ABZATs:
-Odin JSON-fayl s limitami, pamyat protsessa — taymstampy poslednikh sobytiy.
+Odin JSON-fayl s limitami, pamyat protsessa - taymstampy poslednikh sobytiy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Dict, Any, List

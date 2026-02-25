@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_social.py — eksheny «voli» dlya kampaniy/kitov/ledzhera, s aploadom i monitoringom.
+"""modules/thinking/actions_social.py - eksheny “voli” dlya kampaniy/kitov/ledzhera, s aploadom i monitoringom.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Sotsdeploy) daet korotkie komandy dlya planirovaniya, sborki, aploada i zhurnala.
@@ -9,10 +8,9 @@ Mosty:
 - Skrytyy #3: (P2P ↔ Raspredelenie) posle uspekha sinkhroniziruem metriki v detsentralizovannuyu BZ.
 
 Zemnoy abzats:
-Mozg govorit: «zaplaniruy kampaniyu», «soberi kit», «opublikuy», «zapishi prosmotry», «pokazhi status» — i Ester obsluzhivaet ves tsikl, s yumorom: 'Ya v sotssetyakh — zvezda!'.
+Mozg govorit: “zaplaniruy kampaniyu”, “soberi kit”, “opublikuy”, “zapishi prosmotry”, “pokazhi status” - i Ester obsluzhivaet ves tsikl, s yumorom: 'Ya v sotssetyakh - zvezda!'.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 import json, os, time, urllib.request
@@ -24,13 +22,13 @@ def _passport(note: str, meta: dict) -> None:
         from modules.mem.passport import upsert_with_passport  # type: ignore
         mm = get_mm()
         upsert_with_passport(mm, note, meta, source="thinking://actions_social")
-        # P2P-sinkhronizatsiya: Zdes mozhno dobavit rasprostranenie metadannykh po seti agentov
+        # P2P synchronization: Here you can add metadata distribution across a network of agents
         # Naprimer: _p2p_sync(meta, nodes=["node1:port", "node2:port"])
     except Exception:
-        pass  # Ester molchit ob oshibkakh, no pomnit
+        pass  # Esther is silent about mistakes, but remember
 
 def _p2p_sync(meta: dict, nodes: list[str]) -> None:
-    # Offline queue: zapisyvaem namerenie sinkhronizatsii bez setevykh vyzovov.
+    # Offline cue: record sync intent without network calls.
     queue_path = os.getenv("SOCIAL_P2P_SYNC_QUEUE", "data/social/p2p_sync_queue.jsonl")
     os.makedirs(os.path.dirname(queue_path) or ".", exist_ok=True)
     safe_nodes = [str(n).strip() for n in (nodes or []) if str(n).strip()][:16]
@@ -83,7 +81,7 @@ def _reg():
                             _passport("social.kit.build", {"ok": True, "platform": platform, "mode": "rest"})
                             return result
                 except Exception:
-                    if mode == "rest": raise  # Esli yavno rest, to oshibka
+                    if mode == "rest": raise  # If it's clearly a rest, then it's an error.
 
             # Fallback na local
             from modules.social.kit import build
@@ -153,7 +151,7 @@ def _reg():
         try:
             # Novyy ekshen: Sobiraet status kampanii iz ledger i plan
             campaign_id = str(args.get("id", ""))
-            # Snachala plan (esli nuzhno)
+            # Plan first (if needed)
             plan_result = a_plan({"id": campaign_id}) if args.get("include_plan", True) else {}
             # Zatem ledger list, filtr po campaign
             ledger_result = a_ledger_list({})

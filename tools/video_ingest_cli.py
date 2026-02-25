@@ -1,28 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-tools/video_ingest_cli.py — oflayn CLI dlya yadra video-konveyera (URL/fayl → metadannye/subtitry/ASR → konspekt → pamyat).
+"""tools/video_ingest_cli.py - oflayn CLI dlya yadra video-konveyera (URL/fayl → metadannye/subtitry/ASR → konspekt → pamyat).
 
 Optsii:
-  --url URL             Istochnik-URL (YouTube i dr.)
-  --file PATH           Lokalnyy fayl (mp4/mkv/…)
-  --probe               Tolko metadannye (ffprobe)
-  --transcript          Izvlech transkript (subtitry/ASR)
-  --summary             Sformirovat chernovoy konspekt
-  --chunk-ms N          Razmer chanka audio v millisekundakh (po umolchaniyu 300000)
-  --prefer-audio        Dlya URL pytatsya skachivat audio-only
-  --keep                Ne udalyat rabochuyu direktoriyu (dlya otladki)
+  --url URL Istochnik-URL (YouTube i dr.)
+  --file PATH Local fayl (mp4/mkv/…)
+  --probe Tolko metadannye (ffprobe)
+  --transcript Izvlech transkript (subtitry/ASR)
+  --summary Sformirovat chernovoy konspekt
+  --chunk-ms N Razmer chanka audio v millisekundakh (po umolchaniyu 300000)
+  --prefer-audio Dlya URL pytatsya skachivat audio-only
+  --keep Ne udalyat rabochuyu direktoriyu (dlya otladki)
 
 Mosty:
 - Yavnyy: (UX ↔ Inzheneriya) Prozrachnaya CLI dlya tekhpodderzhki i oflayn-proverok.
-- Skrytyy #1: (Logika ↔ Nadezhnost) A/B-flag VIDEO_INGEST_AB, avto-otkat — bystryy «strakhovochnyy» stsenariy.
-- Skrytyy #2: (Kibernetika ↔ Planirovanie) Chank-parametry — ruchka regulyatora «menshe/bystree» vs «bolshe/kachestvennee».
+- Skrytyy #1: (Logika ↔ Nadezhnost) A/B-flag VIDEO_INGEST_AB, avto-otkat — bystryy “strakhovochnyy” stsenariy.
+- Skrytyy #2: (Kibernetika ↔ Planirovanie) Chank-parametry — ruchka regulyatora “menshe/bystree” vs “bolshe/kachestvennee”.
 
 Zemnoy abzats:
-Eto «ruchnoy pult» linii: mozhno zapuskat uzly konveyera po odnomu (probe) ili skvoznyakom (transcript+summary), proveryaya stabilnost.
+Eto “ruchnoy pult” linii: mozhno zapuskat uzly konveyera po odnomu (probe) ili skvoznyakom (transcript+summary), proveryaya stabilnost.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -41,7 +39,7 @@ def main(argv=None) -> int:
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--url", type=str, help="Istochnik-URL")
     g.add_argument("--file", type=str, help="Lokalnyy fayl")
-    ap.add_argument("--probe", action="store_true", help="Tolko metadannye")
+    ap.add_argument("--probe", action="store_true", help="Only metadannye")
     ap.add_argument("--transcript", action="store_true", help="Izvlech transkript (subtitry/ASR)")
     ap.add_argument("--summary", action="store_true", help="Sformirovat chernovoy konspekt")
     ap.add_argument("--chunk-ms", type=int, default=300000)
@@ -64,7 +62,7 @@ def main(argv=None) -> int:
         chunk_ms=int(args.chunk_ms),
     )
     print(json.dumps(rep, ensure_ascii=False, indent=2))
-    # Rabochuyu direktoriyu ostavlyaem tolko po flagu --keep
+    # We leave the working directory only using the --keep flag
     if not args.keep:
         try:
             wd = (rep.get("source") or {}).get("workdir")

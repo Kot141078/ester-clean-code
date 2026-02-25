@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_smoke_env.py — eksheny «voli» dlya ENV-dokov i smoke-progona.
+"""modules/thinking/actions_smoke_env.py - eksheny "voli" dlya ENV-dokov i smoke-progona.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Diagnostika/Doki) korotkie komandy: pokazat ENV, zapustit smoke.
 - Skrytyy #1: (Passport ↔ Prozrachnost) opiraetsya na bazovye ruchki s logirovaniem.
-- Skrytyy #2: (Planner/Cron ↔ Avtonomiya) legko povesit na nochnye proverki.
+- Skrytyy #2: (Planner/Cron ↔ Avtonomiya) easy povesit na nochnye proverki.
 
 Zemnoy abzats:
-Udobnye knopki dlya samoproverki i napominaniy «chto krutitsya v okruzhenii».
+Udobnye knopki dlya samoproverki i napominaniy “what krutitsya v okruzhenii.”
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

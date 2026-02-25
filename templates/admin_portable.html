@@ -25,7 +25,7 @@
   <h1>Portable Builder <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
 
   <section>
-    <h3>HUB — obzor i bystrye deystviya</h3>
+    <h3>NUB - review and quick actions</h3>
     <div class="grid" id="hub">
       <div class="card">
         <b>USB</b>
@@ -39,7 +39,7 @@
       <div class="card">
         <b>USB Jobs</b>
         <div class="kpi" id="k_jobs">—</div>
-        <div class="muted">ochered zadach</div>
+        <div class="muted">task queue</div>
         <div class="row" style="margin-top:8px">
           <button onclick="runJobs()">Vypolnit USB-ochered</button>
           <button onclick="openPage('/admin/usb_runner')">Otkryt</button>
@@ -65,7 +65,7 @@
       </div>
       <div class="card">
         <b>Bootable</b>
-        <div class="muted">sdelat fleshku zagruzochnoy</div>
+        <div class="muted">make the flash drive bootable</div>
         <div class="row" style="margin-top:8px">
           <button onclick="bootPlan()">Plan</button>
           <button onclick="bootApply()">Vypolnit</button>
@@ -83,7 +83,7 @@
         <input id="mount" placeholder="/media/USER/USB ili D:\" style="width:100%"/>
       </div>
       <pre id="status">—</pre>
-      <small class="muted">Ostav pusto — sistema podberet avtomaticheski.</small>
+      <small class="muted">Leave it blank - the system will select it automatically.</small>
     </div>
 
     <div>
@@ -137,7 +137,7 @@
     </div>
     <div class="grid" style="margin-top:8px">
       <div>
-        <h4 class="warn">Ozhidayut podtverzhdeniya</h4>
+        <h4 class="warn">Awaiting confirmation</h4>
         <div id="pending">—</div>
       </div>
       <div>
@@ -148,7 +148,7 @@
   </section>
 
   <section>
-    <h3>Proverka fleshki</h3>
+    <h3>Checking the flash drive</h3>
     <div class="row">
       <label><input type="checkbox" id="autofix" checked/> Avtopochinka</label>
       <label><input type="checkbox" id="rewrite" checked/> Perepisat launchery run_ester.*</label>
@@ -209,7 +209,7 @@ async function bootPlan(){
 async function bootApply(){
   const plan = await fetchJSON('/admin/portable/bootable_plan',{label:'ESTER',mode:'fat-uefi'});
   const res = await fetchJSON('/admin/portable/bootable_apply',{plan, allow_dangerous:false});
-  alert(res.ok!==false ? "Vypolneno (bez opasnykh shagov)" : "ERR");
+  alert(res.ok!==false ? "Completed (no dangerous steps)" : "ERR");
   await refreshHub();
 }
 async function lanPlan(){
@@ -289,7 +289,7 @@ async function ocPrepare(){
 
 // --- Hot-Ask ---
 function renderPending(list){
-  if(!list || !list.items || !list.items.length) return "<p class='muted'>Net zaprosov</p>";
+  if(!list || !list.items || !list.items.length) return "<p class='muted'>No requests</p>";
   let h="";
   for(const it of list.items){
     h += `<div style="border:1px solid #273244;border-radius:10px;padding:8px;margin:6px 0">

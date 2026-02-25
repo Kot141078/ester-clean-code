@@ -71,4 +71,4 @@ Exit codes:
 - Hidden bridge #2 (anatomy/neuro): `BASE` is integrity reflex, `HRO` is contextual control, `FULL` is executive traceability through volition and system events.
 
 ## Earth paragraph
-Eto kak tri rezhima proverki na proizvodstve: `BASE` — proverili plomby i nomera naryadov, `HRO` — podnyali akty laboratorii i sverili podpisi, `FULL` — sverili esche i zhurnal dopuska smeny: kto otkryl/kto zakryl, po kakomu osnovaniyu i s kakim artefaktom. Odna komanda auditora dolzhna umet skazat «da/net» bez ruchnogo detektiva.
+Eto kak tri rezhima proverki na proizvodstve: `BASE` - proverili plomby i nomera naryadov, `HRO` - podnyali akty laboratorii i sverili podpisi, `FULL` - sverili esche i zhurnal dopuska change: kto otkryl/kto zakryl, po kakomu osnovaniyu i s kakim artefaktom. Odna komanda auditora dolzhna umet skazat “da/net” bez ruchnogo detektiva.

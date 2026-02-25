@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Temporal Helper for Ester: rabota s vremenem, datami.
-Rasshiren: dobavil tekuschuyu datu, timezone.
-"""
+"""Temporal Helper for Esther: working with time and dates.
+Expanded: added current date, timezone."""
 from datetime import datetime
 from typing import Dict
 

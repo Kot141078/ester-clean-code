@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/messenger_bridge.py — Unifitsirovannyy most dlya messendzherov.
+"""modules/messenger_bridge.py - Unifitsirovannyy most dlya messendzherov.
 
 Mosty:
 - (Yavnyy) Edinyy interfeys send_text() dlya WA; Telegram uzhe realizovan v proekte.
-- (Skrytyy #1) A/B-slot proaktivnosti (MSG_STYLE_AB=A|B) — bezopasnoe usilenie «chelovechnosti».
+- (Skrytyy #1) A/B-slot proaktivnosti (MSG_STYLE_AB=A|B) — bezopasnoe usilenie “chelovechnosti”.
 - (Skrytyy #2) Bystryy avtokatbek: esli vneshniy API nedostupen — myagkiy otkaz i dry echo.
 
 Zemnoy abzats:
-Daet Ester prostoy vyzov «otpravit cheloveku tekst» s korrektnoy formalizatsiey,
-ne lomaya tekuschikh routov Telegram; WA dobavlyaetsya kak drop-in.
+Daet Ester prostoy vyzov “otpravit cheloveku tekst” s korrektnoy formalizatsiey,
+ne lomaya tekuschikh routov Telegram; WA addavlyaetsya kak drop-in.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 import json
@@ -27,11 +25,9 @@ MSG_STYLE_AB = os.environ.get("MSG_STYLE_AB", os.environ.get("MSG_STYLE_FALLBACK
 
 
 class WhatsAppSender:
-    """
-    Obertka nad WA Cloud API.
-    Variant A (po umolchaniyu): esli net tokena/ID — vsegda dry-run; zapros naruzhu ne ukhodit.
-    Variant B: probovat skhodit naruzhu, no padat myagko, vozvraschaya echo.
-    """
+    """Obertka nad WA Cloud API.
+    Variant A (by default): esli net tokena/ID - vsegda dry-run; request naruzhu ne ukhodit.
+    Option B: try skhodit naruzhu, no padat myagko, vozvraschaya echo."""
     def __init__(self, access_token: str, phone_number_id: str, timeout: float = 6.0):
         self.access_token = (access_token or "").strip()
         self.phone_number_id = (phone_number_id or "").strip()
@@ -63,11 +59,9 @@ class WhatsAppSender:
             return False, {"error": str(e)}
 
     def send_text(self, to: str, text: str, dry_run: bool = False) -> Tuple[bool, Dict[str, Any]]:
-        """
-        Vozvraschaet (ok, result). Nikogda ne brosaet isklyucheniy vverkh.
-        """
+        """Returns (ok, resilt). Never throws exceptions up."""
         if dry_run or not (self.access_token and self.phone_number_id):
-            # Echo-put bez vneshnikh effektov.
+            # An echo path without external effects.
             return True, {
                 "mode": "dry",
                 "to": to,
@@ -87,7 +81,7 @@ class WhatsAppSender:
 
         ok, res = self._post_json(url, payload)
         if not ok and MSG_STYLE_AB == "B":
-            # Myagkiy avtokatbek (B): replitsiruem kak dry
+            # Soft autocutback (B): replicated like trash
             return True, {
                 "mode": "fallback-dry",
                 "to": to,

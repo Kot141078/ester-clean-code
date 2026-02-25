@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/dev/mm_lint.py — lint «zhestkoy tochki vkhoda k pamyati»: prinuzhdenie get_mm().
+"""modules/dev/mm_lint.py - lint "zhestkoy tochki vkhoda k pamyati": prinuzhdenie get_mm().
 
 Mosty:
 - Yavnyy: (Kod ↔ Pravilo) nakhodit podozritelnye obrascheniya k pamyati/vektornym BD vne fabriki.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Plan ↔ Refaktoring) otchet mozhno sokhranit i proytis po faylam.
 
 Zemnoy abzats:
-Eto kak «revizor»: ischet pryamye new MemoryManager()/pryamye vyzovy storadzhey i napominaet idti cherez fabriku get_mm().
+This is how “revizor”: ischet pryamye new MemoryManager()/pryamye vyzovy storadzhey i napominaet idti cherez fabriku get_mm().
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, re, json
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -28,7 +26,7 @@ SUSPECT_PATTERNS = [
     r"\bnew\s+MemoryManager\b"
 ]
 ALLOWLIST = [
-    "services/mm_access.py",  # zdes kak raz fabrika
+    "services/mm_access.py",  # there's a factory here
     "modules/dev/mm_lint.py"
 ]
 

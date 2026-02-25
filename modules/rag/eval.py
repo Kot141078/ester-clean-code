@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.rag.eval — offlayn‑otsenka RAG bez vneshnikh embeddingov.
+"""modules.rag.eval - offlayn‑otsenka RAG bez vneshnikh embeddingov.
 
 Format primerov (.jsonl):
 {"q": "vopros", "gold": ["etalonnyy fragment 1", "fragment 2"]}
 
-Osnovnye metriki:
-- hit@k: est li v top‑k retrieval fragment, perekryvayuschiysya po slovam s gold (ili tochnoe sovpadenie id/text).
+Basic metrics:
+- hit@k: est li v top‑k retrieval fragment, perekryvayuschiysya po slovam s gold (ili exact sovpadenie id/text).
 - coverage: dolya slov voprosa, vstrechayuschikhsya v otvete (0..1).
 - jaccard: J(A,B) dlya mnozhestv tokenov gold vs otveta.
 
 ENV:
-- ESTER_RAG_EVAL_AB=A|B — A: vklyucheno; B: no‑op.
+- ESTER_RAG_EVAL_AB=A|B - A: vklyucheno; B: no-op.
 
 Zemnoy abzats:
-Eto kak «shablonnyy indikator na schitke»: daet bystruyu prikidku — ischetsya li nuzhnoe i khvataet li otveta po soderzhaniyu.
-# c=a+b
-"""
+Eto kak “shablonnyy indikator na schitke”: daet bystruyu prikidku - ischetsya li nuzhnoe i khvataet li otveta po soderzhaniyu.
+# c=a+b"""
 import os, json, time, re
 from typing import Any, Dict, List, Optional, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -58,7 +56,7 @@ def _hub_search(q: str, k:int=3) -> Dict[str, Any]:
         return {"ok": False, "items": []}
 
 def _rag_answer(q: str, top_k:int=3) -> str:
-    # 1) pytaemsya cherez sovmestimyy ekshen
+    # 1) try through a compatible action
     try:
         from modules.thinking import compat_actions as ca
         r = ca.rag_answer(q, top_k=top_k)
@@ -74,7 +72,7 @@ def _rag_answer(q: str, top_k:int=3) -> str:
             return str(fn(q, top_k=top_k))
     except Exception:
         pass
-    # 3) posledniy fallback — pusto
+    # 3) last fake - empty
     return ""
 
 def _hit_k(q: str, gold: List[str], k:int=3) -> int:
@@ -82,7 +80,7 @@ def _hit_k(q: str, gold: List[str], k:int=3) -> int:
     items = res.get("items") or []
     for it in items[:k]:
         t = (it.get("text") or "")
-        # khit, esli est perekrytie >= 0.2 s lyubym gold
+        # hit if there is overlap >= 0.2 with any gold
         for g in gold:
             if _overlap(t, g) >= 0.2 or t.strip() == g.strip():
                 return 1
@@ -105,7 +103,7 @@ def evaluate_examples(examples: List[Dict[str, Any]], k:int=3) -> Dict[str, Any]
         h = _hit_k(q, gold, k=k)
         hit += h
         ans = _rag_answer(q, top_k=k)
-        # berem luchshiy gold dlya sravneniya po Zhakkaru
+        # we take the best gold for comparison according to Jaccard
         best = max(((_overlap(ans, g), g) for g in gold), default=(0.0, ""))[1]
         cov_i = _coverage(q, ans)
         jac_i = _overlap(ans, best)

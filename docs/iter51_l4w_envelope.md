@@ -74,5 +74,5 @@ Persisted references:
 - Hidden bridge #2 (physiology): immune memory stores signatures/traces, then reconstructs detail on demand via disclosure.
 
 ## Earth Paragraph
-Eto kak zhurnal dopuska na opasnyy uchastok: kazhdyy dopusk podpisan, svyazan s predyduschim nomerom, a chuvstvitelnye detali (kto chto skazal i pochemu) ne visyat na doske — vmesto etogo est kommitmenty, i pri proverke mozhno predyavit tolko nuzhnye stranitsy, ne raskryvaya vse ostalnoe.
+Eto kak zhurnal dopuska na opasnyy uchastok: kazhdyy dopusk podpisan, svyazan s predyduschim nomerom, a chuvstvitelnye detail (kto chto skazal i pochemu) ne visyat na doske - vmesto etogo est kommitmenty, i pri proverke mozhno predyavit just nuzhnye stranitsy, ne raskryvaya vse ostalnoe.
 

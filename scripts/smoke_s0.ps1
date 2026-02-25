@@ -1,6 +1,6 @@
-# S0/scripts/smoke_s0.ps1 — udobnyy smouk dlya Windows PowerShell
-# Mosty: (Yavnyy) Enderton — predikaty proverok; (Skrytye) Ashbi — prostota regulyatora; Cover&Thomas — minimizatsiya "shuma" proverok.
-# Zemnoy abzats: ne trogaet runtime; pomogaet bystro poymat grubye konflikty marshrutov i RBAC.
+# C0/skripts/stoke_s0.ps1 - convenient smoke for Windows PowerShell
+# Bridges: (Explicit) Enderton - check predicates; (Hidden) Ashby - simplicity of the regulator; Carpet&Thomas - minimizing the "noise" of inspections.
+# Earthly paragraph: does not touch the rintite; helps to quickly catch gross conflicts between routes and RVACH.
 # c=a+b
 
 Write-Host "[S0] Python version:"

@@ -1,18 +1,16 @@
 # routes/portable_usb_routes.py
 # -*- coding: utf-8 -*-
-"""
-routes/portable_usb_routes.py - USB-ruchki dlya podgotovki nositelya (myagkaya zavisimost ot enterprise-modulya).
+"""routes/portable_usb_routes.py - USB-ruchki dlya podgotovki nositelya (myagkaya zavisimost ot enterprise-modulya).
 
 Mosty:
-- Yavnyy (UI ↔ Portable/USB): UI «Sozdat fleshku» dergaet eti ruchki: spisok, podgotovka /ESTER, formatirovanie.
-- Skrytyy #1 (Bezopasnost ↔ Ekspluatatsiya): esli modules.portable.usb otsutstvuet - vozvraschaem 501, a ne padaem.
+- Yavnyy (UI ↔ Portable/USB): UI “Sozdat fleshku” dergaet eti ruchki: spisok, podgotovka /ESTER, formatirovanie.
+- Skrytyy #1 (Bezopasnost ↔ Ekspluatatsiya): esli modules.portable.usb otsutstvuet - vozvraschaem 501, not padaem.
 - Skrytyy #2 (Profile ↔ Audit): pri nalichii passport logiruem operatsii polzovatelya.
 
 Zemnoy abzats:
-Daet REST-obertku vokrug nizkourovnevykh funktsiy raboty s USB. Importy obernuty v try/except, poetomu sborki bez
+Daet REST-obertku vokrug nizkourovnevykh funktsiy work s USB. Import obernuty v try/except, poetomu sborki bez
 enterprise-komponentov ne lomayutsya - UI poluchaet predskazuemye JSON-otvety.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Dict, Any, List
@@ -21,11 +19,11 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp = Blueprint("portable_usb", __name__)
 
-# ---- Optsionalnye importy (zaschischennye) ----
+# ---- Optional imports (protected) ----
 _list_roots = _prepare_root = _format_root = None  # podmenim pri udachnom importe
 
 try:
-    # Predpochtitelnaya signatura enterprise-modulya
+    # Preferred enterprise module signature
     from modules.portable.usb import list_roots as _list_roots  # type: ignore
     from modules.portable.usb import prepare_root as _prepare_root  # type: ignore
     from modules.portable.usb import format_root as _format_root  # type: ignore

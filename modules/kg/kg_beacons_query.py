@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules.kg_beacons_query — poisk «mayakov» v KB.
+"""modules.kg_beacons_query - poisk "mayakov" v KB.
 
 MOSTY:
 - Yavnyy: (routes.kg_beacons_routes ↔ Mayaki) find_beacons(query, topk)
@@ -8,10 +7,9 @@ MOSTY:
 - Skrytyy #2: (Nadezhnost ↔ Fallback) vozvraschaet predskazuemyy otvet offlayn.
 
 ZEMNOY ABZATs:
-Dlya UI vazhnee stabilnost importa i bazovyy otvet, chem polnota KB — eto daet imenno eto.
+Dlya UI vazhnee stabilnost importa i bazovyy otvet, chem polnota KB - eto daet imenno eto.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import List, Dict, Any
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

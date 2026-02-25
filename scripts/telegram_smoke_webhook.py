@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/telegram_smoke_webhook.py
+"""scripts/telegram_smoke_webhook.py
 
-Proverka dostupnosti Telegram webhook v Ester.
+Verka dostupnosti Telegram webhook v Ester.
 
 Delaet:
-1) GET /api/telegram/webhook — ping.
+1) GET /api/telegram/webhook - ping.
 2) POST /api/telegram/webhook s testovym apdeytom:
    - s X-Telegram-Bot-Api-Secret-Token, esli TELEGRAM_WEBHOOK_SECRET/TELEGRAM_SECRET_TOKEN zadan.
 
-Marshrut:
-- Ispolzuet /api/telegram/webhook iz routes/telegram_webhook_routes.py.
+Route:
+- Use /api/telegram/webhook iz routes/telegram_webhook_routes.py.
 - Bazovyy URL mozhno pereopredelit argumentom ili ENV ESTER_WEBHOOK_BASE_URL.
 
 Zapusk (iz kornya proekta):
     python scripts/telegram_smoke_webhook.py
-    python scripts/telegram_smoke_webhook.py http://localhost:8000
-"""
+    python scripts/telegram_smoke_webhook.py http://localhost:8000"""
 
 from __future__ import annotations
 
@@ -77,7 +75,7 @@ def main() -> int:
     if not base:
         base = _base_url_from_env()
     if not base:
-        # tipichnyy variant dlya lokalnogo Flask
+        # typical option for local Flask
         base = "http://localhost:8000"
     base = _norm_base(base)
 
@@ -93,7 +91,7 @@ def main() -> int:
         print("[OK] /api/telegram/webhook otvechaet 200.")
     else:
         print(f"[WARN] /api/telegram/webhook vernul kod {code}. Telo: {body}")
-        # Ne srazu padaem: vozmozhno, marshrut drugoy ili esche ne smontirovan.
+        # It does not crash immediately: perhaps the route is different or has not yet been installed.
 
     # Gotovim testovyy apdeyt
     fake_update = {
@@ -109,7 +107,7 @@ def main() -> int:
     headers = {}
     if secret:
         headers["X-Telegram-Bot-Api-Secret-Token"] = secret
-        print("[INFO] Ispolzuem sekret dlya zagolovka X-Telegram-Bot-Api-Secret-Token.")
+        print("uINFOsch We use the secret for the header S-Telegram-Here-Api-Secret-Token.")
 
     post_url = f"{base}/api/telegram/webhook"
     print(f"[INFO] POST {post_url} (test update)")
@@ -117,11 +115,11 @@ def main() -> int:
 
     if code == 200:
         print("[OK] Webhook prinyal testovyy apdeyt (200).")
-        print("[SMOKE] telegram_smoke_webhook zavershen uspeshno.")
+        print("ySMOKESh telegram_stock_webhook completed successfully.")
         return 0
 
-    print(f"[WARN] Webhook otvetil kodom {code}. Telo: {body}")
-    print("[WARN] Proverte marshrut /api/telegram/webhook i sekret.")
+    print(f"YuVARNsch Webhook responded with the code ZZF0Z. Tel: ZZF1ZZ")
+    print("YuVARNsch Check the route /api/telegram/webhook and secret.")
     return 1
 
 

@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-modules/instructor/hud.py — HUD instruktora: metriki latentnosti i «krasnye zony» poverkh ekrana.
+"""modules/instructor/hud.py - HUD instruktora: metrics latentnosti i “krasnye zony” poverkh ekrana.
 
-Ideya:
+Ideaya:
 - Poluchaem svezhie sobytiya zhurnala (poslednie N), schitaem latentnost (kak v flight_review.analyze)
-  i sobiraem kompaktnyy PNG-overley s tekstovoy «lineykoy» metrik (p50/p90/p99, bad_segments).
-- Vkl/vykl khranitsya v pamyati, generatsiya — po zaprosu (bez fonovykh demonov).
+  i sobiraem kompaktnyy PNG-overley s tekstovoy “lineykoy” metrik (p50/p90/p99, bad_segments).
+- Vkl/vykl khranitsya v pamyati, generatsiya - po zaprosu (bez fonovykh demonov).
 
 API:
 - enable(flag) / status()
 - build(n=200) -> {png_b64, stats}
 
 MOSTY:
-- Yavnyy: (Obuchenie ↔ Kontrol) instruktor vidit sostoyanie sessii «zdes i seychas».
+- Yavnyy: (Obuchenie ↔ Kontrol) instruktor vidit sostoyanie sessii “zdes i seychas.”
 - Skrytyy #1: (Infoteoriya ↔ Videnie) edinyy overley s metrikami + teplokartoy oshibok.
 - Skrytyy #2: (Inzheneriya ↔ Prostota) chistyy RGBA-render, offlayn.
 
 ZEMNOY ABZATs:
 Nikakikh vneshnikh zavisimostey: chitaem zhurnal, renderim PNG, vozvraschaem base64 v UI.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple
 import http.client, json, base64, zlib, struct, math
@@ -66,7 +64,7 @@ def _heat(w: int,h: int, pts: List[Tuple[int,int]], radius: int=44) -> List[floa
     return [v/m for v in field]
 
 def _compose(w: int,h: int, stats: Dict[str,Any], heat: List[float]) -> bytes:
-    # fon prozrachnyy; vnizu risuem plashku s metrikami
+    # transparent background; below we draw a block with metrics
     rows=[]
     bar_h=80
     for y in range(h):

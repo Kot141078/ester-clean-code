@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-tools/fix_no_entry_routes.py — avto-dobavlenie bezopasnykh vkhodov register(app) dlya marshrutov bez tochek registratsii.
+"""tools/fix_no_entry_routes.py - avto-dobavlenie bezopasnykh vkhodov register(app) dlya marshrutov bez tochek registratsii.
 
 Mosty
 - Yavnyy: (Flask/FastAPI ↔ Routy) — unifitsiruem kontrakt podklyucheniy cherez edinyy register(app).
 - Skrytyy #1: (Infoteoriya ↔ Inzheneriya) — snizhaem entropiyu interfeysov: odna tochka vkhoda vmesto mnozhestva variantov.
-- Skrytyy #2: (Kibernetika Ashbi ↔ Ustoychivost) — dobavlyaem «raznoobrazie adapterov», chtoby sistema pogloschala razlichiya moduley.
+- Skrytyy #2: (Kibernetika Ashbi ↔ Ustoychivost) - add “raznoobrazie adapterov”, chtoby sistema pogloschala razlichiya moduley.
 
 Zemnoy abzats
-Kak v santekhnike: esli u tebya truby raznykh standartov, stavish perekhodnik. Zdes takim «perekhodnikom» sluzhit korotkaya funktsiya register(app), kotoraya libo registriruet suschestvuyuschiy bp/router, libo vyzyvaet register_*_routes(...), libo stavit vremennuyu zaglushku do poyavleniya realnoy logiki.
+Kak v santekhnike: esli u tebya truby raznykh standartov, stavish perekhodnik. Zdes takim “perekhodnikom” sluzhit korotkaya funktsiya register(app), kotoraya libo registriruet suschestvuyuschiy bp/router, libo vyzyvaet register_*_routes(...), libo stavit vremennuyu zaglushku do poyavleniya realnoy logiki.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 import os, re, sys, shutil
 from pathlib import Path
 from typing import Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Spisok moduley iz tvoego otcheta skipped.no_entry (basename fayla bez .py)
+# List of modules from your report skipped.no_entry (basenate file without .po)
 TARGETS = [
     "admin_p2p",
     "beacons_routes",
@@ -50,7 +48,7 @@ TARGETS = [
     "test_research_routes",
 ]
 
-# Gde iskat: snachala routes/, zatem ESTER/routes/ (na vsyakiy sluchay)
+# Where to look: first rutes/, then ESTER/rutes/ (just in case)
 def find_route_file(root: Path, name: str) -> Optional[Path]:
     cands = [
         root / "routes" / f"{name}.py",
@@ -75,10 +73,8 @@ def has_router(text: str) -> bool:
     return re.search(r"^\s*router\s*=\s*APIRouter\(", text, re.M) is not None
 
 def find_register_func_name(text: str) -> Optional[str]:
-    """
-    Ischem funktsii-vkhody vida: def register_xxx_routes(app, ...
-    Berem pervuyu podkhodyaschuyu — etogo dostatochno dlya shima.
-    """
+    """We are looking for function-inputs of the form: def register_xxx_rutes(app, ...
+    We take the first suitable one - this is enough for the shim."""
     m = re.search(r"^\s*def\s+(register_[A-Za-z0-9_]+_routes)\s*\(\s*app\b", text, re.M)
     return m.group(1) if m else None
 
@@ -101,13 +97,13 @@ def build_shim_for_bp_router(module_name: str) -> str:
 def build_shim_for_register_func(func_name: str) -> str:
     return AUTOSHIM_HEADER + (
         f"def register(app):\n"
-        f"    # vyzyvaem suschestvuyuschiy {func_name}(app) (url_prefix beretsya po umolchaniyu vnutri funktsii)\n"
+        f"# calls an existing ZZF0Z(app) (url_prefix is ​​taken by default inside the function)"
         f"    return {func_name}(app)\n"
     ) + AUTOSHIM_FOOTER
 
 def build_noop_shim(module_name: str) -> str:
     return AUTOSHIM_HEADER + (
-        f"# zaglushka dlya {module_name}: poka net bp/router/register_*_routes\n"
+        f"# stub for ZZF0Z: no power supply/router/register_*_rutes yet"
         f"def register(app):\n"
         f"    return True\n"
     ) + AUTOSHIM_FOOTER
@@ -117,7 +113,7 @@ def process_file(path: Path, dry: bool = False) -> str:
     if has_register(text):
         return f"[skip] {path} — register(app) uzhe est"
 
-    # prioritet: yavnyy bp/router → obertka; inache ischem register_*_routes; inache noop
+    # priority: yavnyy bp/router → obertka; inache ischem register*routes; different noop
     if has_bp(text) or has_router(text):
         shim = build_shim_for_bp_router(path.stem)
     else:
@@ -125,13 +121,13 @@ def process_file(path: Path, dry: bool = False) -> str:
         if func:
             shim = build_shim_for_register_func(func)
         else:
-            # fayl pustoy ili sluzhebnyy — stavim noop
+            # the file is empty or service - set noop
             shim = build_noop_shim(path.stem)
 
     if dry:
         return f"[dry]  {path} — dobavil by AUTOSHIM"
 
-    # rezervnaya kopiya
+    # backup
     bak = path.with_suffix(path.suffix + ".bak")
     if not bak.exists():
         shutil.copyfile(path, bak)

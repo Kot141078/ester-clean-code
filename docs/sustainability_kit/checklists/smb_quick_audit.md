@@ -1,27 +1,27 @@
-# Cheklist: Bystryy eko-audit dlya SMB
+# Checklist: Quick eco-audit for SMBs
 
 ## Energiya
-- Schetchiki: snimite tekuschie pokazaniya (kVt·ch), otsenite pik.
-- Oborudovanie: inventar krupnykh potrebiteley, taymery/rezhim sna.
-- VIE: vozmozhnost na kryshe/PPT, offset cherez sertifitsirovannye programmy.
+- Meters: take current readings (kWh), estimate peak.
+- Equipment: inventory of large consumers, timers/sleep mode.
+- VYE: possibility on the roof/PPT, offset through certified programs.
 
 ## Materialy i upakovka
 - Spisok top-5 materialov po obemu i masse.
-- Alternativy: pererabotannaya bumaga, karton, biopolimery, mnogorazovyy tsikl.
+- Alternatives: recycled paper, cardboard, biopolymers, reusable.
 
 ## Logistika
-- Marshruty i zagruzka: planirovanie dlya snizheniya pustykh probegov.
-- Poslednyaya milya: peshie/velokurery, punkty vydachi.
+- Routes and loading: planning to reduce empty runs.
+- Last mile: walking/bicycle couriers, pick-up points.
 
 ## Otkhody
 - Karta potokov (bumaga, plastik, metall, organika, opasnye).
-- Soglasheniya s pererabotchikami; obuchenie personala.
+- Agreements with processors; personnel training.
 
 ## Otchetnost
 - Bazovaya liniya: CO₂e/zakaz, CO₂e/sht., kWh/m².
-- Tseli na 12 mesyatsev: -20..30% po dvum klyuchevym metrikam.
+- Goals for 12 months: -20..30% for two key metrics.
 
 **Zemnoy abzats**  
-Nabor chekov na odin den: snyat bazu, nayti «legkie pobedy», otmetit strukturnye shagi. Ester prevraschaet eto v plan kaskada i svodku dlya rukovodstva.
+A set of checks for one day: remove the base, find “easy wins”, mark structural steps. Esther turns this into a waterfall plan and executive summary.
 
 c=a+b

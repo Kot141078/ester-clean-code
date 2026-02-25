@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/vision/misrec_guard.py — avto-stop pri serii neuspeshnykh raspoznavaniy.
+"""modules/vision/misrec_guard.py - avto-stop pri serii neuspeshnykh raspoznavaniy.
 
 Parametry:
 - window: razmer okna poslednikh popytok (N)
@@ -8,20 +7,19 @@ Parametry:
 
 API:
 - set_policy(window:int, max_fails:int) -> ok
-- report(success:bool) — soobschit o rezultate popytki (OCR/Template)
+- report(success:bool) — soobschit o resultate popytki (OCR/Template)
 - status() -> {blocked:bool, fails:int, window:int, max_fails:int}
 - reset()
 
 MOSTY:
-- Yavnyy: (Nadezhnost ↔ Kontrol) seriya promakhov — «tormoz».
+- Yavnyy: (Nadezhnost ↔ Kontrol) seriya promakhov - “tormoz”.
 - Skrytyy #1: (Infoteoriya ↔ Diagnostika) prozrachno vidno, pochemu blok.
-- Skrytyy #2: (Kibernetika ↔ Bezopasnost) zaschischaet ot «uleta» v nevernye kliki.
+- Skrytyy #2: (Kibernetika ↔ Bezopasnost) zaschischaet ot “uleta” v nevernye kliki.
 
 ZEMNOY ABZATs:
-Prostoy schetchik v pamyati, optsionalno vyzyvaetsya iz OCR/Template-koda i triggerov.
+Simple schetchik v pamyati, optsionalno vyzyvaetsya iz OCR/Template-koda i triggerov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

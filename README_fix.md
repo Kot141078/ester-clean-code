@@ -1,10 +1,10 @@
 # Goryachiy fiks: /portal 500, /favicon.ico 500, .env parsing
 
-## Chto eto
-Nabor drop-in faylov bez pravki suschestvuyuschikh moduley: alias portala, favikon‑fallback i myagkaya zagruzka `.env` cherez `sitecustomize.py`.
+## What is this
+A set of drop-in files without editing existing modules: portal alias, favicon-false and soft loading of yo.enve through yositekostomise.pye.
 
-## Kak primenit
-1. **Raspakovat** v koren proekta (`D:\ester-project`), chtoby fayly legli kak:
+## How to apply
+1. **Unpack** into the root of the project (yD:eester-prozhektyo) so that the files go like this:
    - `sitecustomize.py`
    - `routes\portal_routes_alias.py`
    - `routes\favicon_fallback_routes.py`
@@ -22,13 +22,13 @@ Nabor drop-in faylov bez pravki suschestvuyuschikh moduley: alias portala, favik
    ```powershell
    .\scripts\smoke_portal.ps1 -Port 8080
    ```
-5. **Proverit .env** (optsionalno):
+5. **Check .env** (optional):
    ```powershell
    python tools\dotenv_sanitize.py --env .env
    Get-Content data\.env.sanitize.log -Raw
    ```
 
-## Pochemu eto chinit vashu oshibku
+## Why is it fixing your mistake
 - `/portal` teper otrisovyvaetsya napryamuyu iz `templates/portal.html` cherez otdelnyy blueprint → 500 ischezaet.
 - `/favicon.ico` vsegda otdaet validnuyu ikonku → bolshe net 500 ot otsutstvuyuschego staticheskogo fayla.
 - `.env` podkhvatyvaetsya do starta prilozheniya dazhe pri krivykh strokakh → preduprezhdeniya python‑dotenv bolshe ne meshayut.

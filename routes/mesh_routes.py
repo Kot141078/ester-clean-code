@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mesh_routes.py - REST: sposobnosti uzla i ochered zadach (submit/claim/heart/finish/pull/list).
+"""routes/mesh_routes.py - REST: sposobnosti uzla i ochered zadach (submit/claim/heart/finish/pull/list).
 
 Mosty:
-- Yavnyy: (Veb ↔ Mesh) daet frontu i «vole» polnyy kontrol nad zadachami uzla.
+- Yavnyy: (Veb ↔ Mesh) daet frontu i “vole” polnyy kontrol nad zadachami uzla.
 - Skrytyy #1: (P2P ↔ Dedup) dergaet Bloom-filtr v ocheredi.
 - Skrytyy #2: (Backpressure ↔ Ostorozhnost) sovmestimo s ingest.guard.* pered vneshnim setevym pull.
 
 Zemnoy abzats:
-Panel «sester»: chto ya umeyu i kakie zakazy v ocheredi - vzyat, prodlit, sdat, podtyanut u sosedey.
+Panel “sister”: what ya umeyu i kakie zakazy v ocheredi - vzyat, prodlit, sdat, podtyanut u sosedey.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

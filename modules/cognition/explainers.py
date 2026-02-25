@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-Explainers — metaforicheskie i vizualnye obyasniteli dlya otvetov Ester.
+"""Explainers - metaforicheskie i vizualnye obyasniteli dlya otvetov Ester.
 
 Mosty:
-- Yavnyy: (Logika ↔ Ritorika) — sukhoy vyvod prevraschaem v ponyatnoe obyasnenie dlya cheloveka.
+- Yavnyy: (Logika ↔ Ritorika) - sukhoy vyvod prevraschaem v ponyatnoe obyasnenie dlya cheloveka.
 - Skrytyy 1: (Memory ↔ Personalizatsiya) — nakladyvaem predpochteniya auditorii/konteksta na shablon obyasneniya.
 - Skrytyy 2: (Infoteoriya ↔ Estetika) — szhimaem smysl i upakovuem ego v metaforu/mini-skhemu dlya bystrykh kanalov.
 
 Zemnoy abzats:
-Eto «perevodchik s mashinnogo na chelovecheskiy». On beret sukhoy tekst i delaet ego yasnym: prostoe obyasnenie,
-analogiyu na zhiteyskom primere i malenkuyu «slovesnuyu diagrammu», esli nuzhno.
-"""
+This is “perevodchik s mashinnogo na chelovecheskiy.” On beret sukhoy tekst i delaet ego yasnym: prostoe obyasnenie,
+analogiyu na zhiteyskom primere i malenkuyu “slovesnuyu diagrammu”, esli nuzhno."""
 from __future__ import annotations
 
 from typing import Dict, Any
@@ -37,14 +35,14 @@ def _detect_audience(text: str, audience: str | None) -> str:
 def _make_metaphor_core(text: str, audience: str) -> str:
     t = text.strip()
     if not t:
-        return "My reshaem prostuyu zadachu, kak nalit stakan vody, ne raspleskav."
+        return "We solve a simple problem, how to pour a glass of water without spilling."
     if audience == "engineer":
-        return f"Podumay ob etom kak o nagruzochnom rezistore: {t}. My derzhim tok v bezopasnom diapazone i snimaem shum."
+        return f"Think of it as a load resistor: ZZF0Z. We keep the current within a safe range and eliminate noise."
     if audience == "finance":
-        return f"Predstav eto kak portfel iz aktivov: {t}. Balansiruem risk i ozhidaemuyu dokhodnost, rebalansiruya po signalam."
+        return f"Think of it as a portfolio of assets: ZZF0Z. We balance risk and expected return by rebalancing according to signals."
     if audience == "cook":
-        return f"Eto kak retsept na kukhne: {t}. My doziruem spetsii i derzhim temperaturu, chtoby blyudo bylo stabilnym."
-    return f"Prosche govorya: {t}. Kak doroga s razvyazkami — my vybiraem polosu i edem bezopasno i bystro."
+        return f"It's like a recipe in the kitchen: ZZF0Z. We dose the spices and keep the temperature so that the dish is stable."
+    return f"Simply put: ZZF0Z. Like a road with junctions, we choose a lane and drive safely and quickly."
 
 
 def _make_visual(text: str) -> str:
@@ -60,11 +58,9 @@ def _make_visual(text: str) -> str:
 
 
 def explain(text: str, audience: str | None = None) -> Dict[str, Any]:
-    """
-    Vozvraschaet paket obyasneniy: plain / metaphor / visual.
-    """
+    """Returns an explanation package: plain/metaphor/visual."""
     aud = _detect_audience(text, audience)
-    plain = text.strip() or "Korotkiy otvet: vkhod pustoy."
+    plain = text.strip() or "Short answer: the input is empty."
     metaphor = _make_metaphor_core(plain, aud)
     visual = _make_visual(plain)
     return {"ok": True, "audience": aud, "plain": plain, "metaphor": metaphor, "visual": visual}

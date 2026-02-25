@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/game_profiles.py — profilnyy slovar igr/prilozheniy.
+"""modules/thinking/game_profiles.py - profilnyy slovar igr/prilozheniy.
 
 Soderzhimoe:
-- Predustanovlennye profili: shablony khotkeev/deystviy, chastoty, bezopasnyy ritm.
+- Predustanovlennye profili: shablony khotkeev/deystviy, frequency, bezopasnyy ritm.
 - Privyazka profilya k oknu po chasti zagolovka (persist JSON).
-- Poluchenie «aktivnogo profilya» po oknu.
+- Poluchenie “aktivnogo profilya” po oknu.
 
 Fayl-khranilische: data/desktop/game_profiles.json
-Struktura:
+Structure:
 {
   "bindings": [{"title":"Diablo","profile":"FPS_basic"}],
   "profiles": {
@@ -18,15 +17,14 @@ Struktura:
 }
 
 MOSTY:
-- Yavnyy: (Igra ↔ Kontrol) gotovye raskladki i temp deystviy.
-- Skrytyy #1: (Infoteoriya ↔ Nadezhnost) standartizovannye «patterny klikov/klavish» umenshayut oshibku operatora.
-- Skrytyy #2: (Kibernetika ↔ Volya) profil = «sostoyanie vnimaniya/motoriki» Ester.
+- Yavnyy: (Igra ↔ Control) gotovye raskladki i temp deystviy.
+- Skrytyy #1: (Infoteoriya ↔ Nadezhnost) standartizovannye “patterny klikov/klavish” umenshayut oshibku operatora.
+- Skrytyy #2: (Kibernetika ↔ Volya) profil = “sostoyanie vnimaniya/motoriki” Ester.
 
 ZEMNOY ABZATs:
-Oflayn JSON. Privyazka po zagolovku okna bez SDK igr. Khotkei uvodyatsya cherez uzhe realizovannyy otpravitel.
+Offline JSON. Privyazka po zagolovku okna bez SDK igr. Khotkei uvodyatsya cherez uzhe realizovannyy otpravitel.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from typing import Dict, Any, List, Optional
@@ -40,17 +38,17 @@ PRESETS: Dict[str, Dict[str, Any]] = {
     "FPS_basic": {
         "hotkeys": ["CTRL+SHIFT+1", "CTRL+SHIFT+2", "CTRL+SHIFT+3"],
         "pace": "human_fast",
-        "notes": "Bystrye deystviya, korotkie pauzy, dlya dinamiki."
+        "notes": "Quick actions, short pauses, for dynamics."
     },
     "RTS_basic": {
         "hotkeys": ["CTRL+1", "CTRL+2", "CTRL+3", "CTRL+S"],
         "pace": "human_norm",
-        "notes": "Umerennyy temp, aktsent na khotkeyakh grupp."
+        "notes": "Moderate pace, emphasis on group hotkeys."
     },
     "Editor_notepad": {
         "hotkeys": ["CTRL+S", "CTRL+N", "CTRL+O"],
         "pace": "human_slow",
-        "notes": "Uchebnyy profil dlya Bloknota."
+        "notes": "Study profile for Notepad."
     }
 }
 

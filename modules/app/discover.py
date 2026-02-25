@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/app/discover.py — obedinennyy skaner/reestr/registrator moduley/routov.
+"""modules/app/discover.py - obedinennyy scanner/reestr/registrator moduley/routov.
 
 Mosty:
 - Yavnyy: (Prilozhenie ↔ Rasshiryaemost/Samorazvitie) nakhodit i podklyuchaet novye routy bez pravki app.py.
@@ -9,14 +8,13 @@ Mosty:
 - Skrytyy #3: (Trust ↔ Integritet) audit-log deystviy.
 
 Zemnoy abzats:
-Eto «USB-port + profilenyy kontrol» dlya koda: nashel modul (routes.*_routes.py ili extra), proveril otpechatok, akkuratno primontiroval k Flask. Ne teryaem kontekst — pomnim vse!
+This is “USB-port + profilenyy kontrol” dlya koda: nashel modul (routes.*_routes.py or extra), proveril otpechatok, akkuratno primontiroval k Flask. Ne teryaem kontekst - pomnim vse!
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import importlib, importlib.util, json, os, pkgutil, sys, time, hashlib
 from typing import Any, Dict, List
-from flask import Flask  # dlya type-hint, assuming Flask app
+from flask import Flask  # for type-hint, assiming Flask app
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 AB = (os.getenv("APP_DISCOVER_AB", "A") or "A").upper()
@@ -25,7 +23,7 @@ EXTRA_PATH = os.getenv("APP_DISCOVER_EXTRA", "data/app/extra_routes.json")
 ALLOWED = tuple([p.strip() for p in (os.getenv("DISCOVER_ALLOWED_PKGS", "routes.,modules.") or "").split(",") if p.strip()])
 AUDIT_LOG = os.getenv("DISCOVER_AUDIT_LOG", "data/app/discover_audit.log")
 FILTER_ROUTES_SUFFIX = bool(int(os.getenv("DISCOVER_FILTER_ROUTES", "1")))  # 1=filtr na _routes.py
-AUTO_REGISTER = bool(int(os.getenv("DISCOVER_AUTO", "0")))  # 0=off, 1=auto pri scan esli missing
+AUTO_REGISTER = bool(int(os.getenv("DISCOVER_AUTO", "0")))  # 0=off, 1=auto when pissing if missing
 
 def _ensure():
     os.makedirs(os.path.dirname(REG_PATH), exist_ok=True)
@@ -33,7 +31,7 @@ def _ensure():
         json.dump({"modules": {}, "registered": []}, open(REG_PATH, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     if not os.path.isfile(EXTRA_PATH):
         json.dump({"modules": []}, open(EXTRA_PATH, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-    os.makedirs(os.path.dirname(AUDIT_LOG), exist_ok=True)  # dlya loga
+    os.makedirs(os.path.dirname(AUDIT_LOG), exist_ok=True)  # for log
 
 def _load() -> Dict[str, Any]:
     _ensure()
@@ -89,11 +87,9 @@ def _has_register_via_parse(path: str) -> bool:
         return False
 
 def scan() -> Dict[str, Any]:
-    """
-    Ischet moduli v allowed prefixes, s filtrom _routes.py (esli vklyuchen), plyus extra. Vozvraschaet found, registered, missing.
-    """
+    """Searches for modules in Allowed prefixes, with the _rutes.po filter (if enabled), plus extra. Returns fund, registered, messing."""
     found = set()
-    # 1) Cherez pkgutil dlya paketov
+    # 1) Via pkgutil for packages
     for prefix in [p.rstrip(".") for p in ALLOWED if p]:
         if not os.path.isdir(prefix):
             continue
@@ -117,14 +113,14 @@ def scan() -> Dict[str, Any]:
     for m in _extra_modules():
         if m:
             found.add(m)
-    # 4) Filtr allowed i nalichie register (parse bez importa dlya bezopasnosti)
+    # 4) Allowed filter and presence of a register (parse without import for security)
     candidates = []
     for name in sorted(found):
         if not any(name.startswith(p) for p in ALLOWED):
             continue
         path = _module_origin(name)
         if not _has_register_via_parse(path):
-            continue  # Tolko s register dlya sovmestimosti
+            continue  # Only with register for compatibility
         sha = _sha256_file(path)
         candidates.append({"module": name, "path": path, "sha256": sha})
     # Sravnenie s reestrom
@@ -145,10 +141,8 @@ def status() -> Dict[str, Any]:
     return {"ok": True, **_load()}
 
 def register_modules(modules: List[str], app: Flask) -> Dict[str, Any]:
-    """
-    Registriruet moduli: proverka allowed, import, register ili bp, zapis v reestr s sha/ts/origin.
-    Esli AB=="B", tolko otchet.
-    """
+    """Registers modules: allowed check, import, register or bp, entry to the register from sha/ts/origin.
+    If AB=="B", report only."""
     if AB == "B":
         _log_audit("Register attempt blocked: AB=B")
         return {"ok": False, "error": "APP_DISCOVER_AB=B"}
@@ -181,7 +175,7 @@ def register_modules(modules: List[str], app: Flask) -> Dict[str, Any]:
                 ok_all = False
                 results.append(rec)
                 continue
-            # Uspekh: zapis v reestr
+            # Success: entry into the registry
             modules_dict[mod_name] = {"ts": int(time.time()), "origin": origin, "sha256": sha}
             if mod_name not in registered_list:
                 registered_list.append(mod_name)
@@ -199,7 +193,7 @@ def register_modules(modules: List[str], app: Flask) -> Dict[str, Any]:
     _save(reg)
     return {"ok": ok_all, "results": results, "registered_now": [r["module"] for r in results if r["ok"]], "all_registered": reg["registered"]}
 
-# Optsionalnaya avto-registratsiya (rasshirenie)
+# Optional auto-registration (extension)
 if AUTO_REGISTER:
     from flask import Flask  # assuming we can import app here, else adjust
     app = Flask(__name__)  # Placeholder; replace with real app import

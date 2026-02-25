@@ -1,16 +1,16 @@
-# MemoryUsage_v1: prakticheskoe ispolzovanie steka pamyati Ester
+# MemoryUsage_v1: practical use of Esther's memory stack
 
 MOSTY:
 - Yavnyy: (Vneshnie agenty → Zhurnal → Son).
 - Skrytyy #1: (Nakoplenie opyta → Nightly-payplayn).
-- Skrytyy #2: (Nightly → Thinking) cherez experience_context_adapter.
+- Skrytyy #2: (Nightly → Thinking) through experience_context_adapter.
 
 ZEMNOY ABZATs:
-Eto minimalnyy nabor komand dlya zhivogo rezhima:
-pishem sobytiya v zhurnal, gonyaem nochnoy tsikl, a myshlenie podkhvatyvaet vyzhimku.
-Tak Ester zhivet 24/7 bez magicheskikh fraz i ruchnogo shamanstva.
+This is the minimum set of commands for live mode:
+We write events in a journal, drive the night cycle, and thinking picks up the squeeze.
+This is how Esther lives 24/7 without magic phrases and manual shamanism.
 
-## 1. Zapis sobytiy
+## 1. Event recording
 
 Komanda:
 
@@ -18,7 +18,7 @@ Komanda:
 python tools/log_to_journal.py "Ester: segodnya chitala pro bayesovskiy vyvod."
 ```
 
-Optsionalno emotsiya:
+Optional emotion:
 
 ```bash
 python tools/log_to_journal.py "Ester: vstrecha s polzovatelem, uspeshnyy opyt." pleasure
@@ -26,16 +26,16 @@ python tools/log_to_journal.py "Ester: vstrecha s polzovatelem, uspeshnyy opyt."
 
 Skript bet POST v `/memory/journal/event`.
 
-## 2. Nochnoy tsikl
+## 2. Night cycle
 
-Ruchnoy zapusk:
+Manual start:
 
 ```bash
 set BASE_URL=http://127.0.0.1:8080
 python tools/run_sleep_cycle_http.py
 ```
 
-Poves etu komandu v planirovschik (Windows Task Scheduler / cron v konteynere) na "noch".
+Place this command in the scheduler (Windows Task Scheduler / cron in a container) for the night.
 
 ## 3. Myshlenie s opytom
 

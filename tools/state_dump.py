@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-tools/state_dump.py — svodka po faylam sostoyaniya v ESTER_STATE_DIR.
+"""tools/state_dump.py - svodka po faylam sostoyaniya v ESTER_STATE_DIR.
 
 Mosty:
 - Yavnyy: (QA ↔ Memory) — pokazyvaet razmery i metki vremeni klyuchevykh state-faylov.
-- Skrytyy 1: (Diagnostika ↔ Infrastruktura) — pomogaet bystro ponyat, chto imenno pishet kazhdaya podsistema.
+- Skrytyy 1: (Diagnostika ↔ Infrastruktura) - help bystro ponyat, chto imenno pishet kazhdaya podsistema.
 - Skrytyy 2: (Planirovanie ↔ Rezervnoe kopirovanie) — prigodno dlya prinyatiya resheniya o bekape.
 
 Zemnoy abzats:
-Skript probegaet po osnovnym faylam (kg, trust, emotion, p2p, heartbeat, tiers) i pechataet, chto est i skolko vesit.
-"""
+Skript probegaet po osnovnym faylam (kg, trust, emotion, p2p, heartbeat, tiers) i pechataet, what est i skolko vesit."""
 from __future__ import annotations
 import os, json, time
 from pathlib import Path

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-# Modul svyazki voli Ester, setevogo mosta i pamyati.
+# Module for linking Esther's will, network bridge and memory.
 #
 # Naznachenie:
-# - Dat volevomu planirovschiku ponyatnyy interfeys:
-#   * kogda mozhno ispolzovat vneshniy poisk,
-#   * kakim endpointom,
-#   * kak fiksirovat eto v pamyati kak osoznannoe deystvie.
-# - Ne vmeshivatsya v kaskad myshleniya i yadro pamyati: tolko nadstroyka.
+# - Give strong-willed planners a clear interface:
+#   * when you can use external search,
+#   * what endpoint,
+#   * how to record this in memory as a conscious action.
+# - Do not interfere with the cascade of thinking and the core of memory: only a superstructure.
 #
 # Mosty:
 # - Yavnyy: will_plan_ext ↔ net/search.
@@ -14,8 +14,8 @@
 # - Skrytyy #2: net_will_adapter ↔ memory.events_unified_adapter.
 #
 # Zemnoy abzats:
-# Kak blok v PLK nad liniey: on ne perepaivaet silovuyu chast,
-# a tolko reshaet, kogda i chto vklyuchit, i zapisyvaet "vklyuchal po prichine".
+# Like a block in a PLC above the line: it does not solder the power part,
+# but only decides when and what to turn on, and writes down “turned on for a reason.”
 
 from __future__ import annotations
 
@@ -28,9 +28,9 @@ try:
 except Exception:  # pragma: no cover
     google_search_bridge = None  # type: ignore
 
-# memory events (optsionalno)
+# memory events (optional)
 _events_mod = None
-try:  # pragma: no cover - myagkaya integratsiya
+try:  # pragma: but the carpet is soft integration
     from modules.memory import events_unified_adapter as _events_mod  # type: ignore
 except Exception:
     _events_mod = None
@@ -55,10 +55,8 @@ def get_autonomy(app) -> Dict[str, Any]:
 
 
 def extend_plan_with_net(base_plan: Dict[str, Any], autonomy: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Rasshiryaet plan voli setevymi zadachami.
-    Ne menyaet suschestvuyuschie polya, tolko dobavlyaet novye tasks[*].
-    """
+    """Expands the will plan with network tasks.
+    Does not change existing fields, only adds new tasks."""
     plan = dict(base_plan or {})
     tasks: List[Dict[str, Any]] = list(plan.get("tasks") or [])
 
@@ -71,13 +69,13 @@ def extend_plan_with_net(base_plan: Dict[str, Any], autonomy: Dict[str, Any]) ->
     scope = (autonomy.get("scope") or {}) if isinstance(autonomy, dict) else {}
     net_ok = bool(scope.get("network", False))
 
-    # 1) Zadacha dlya operatora — ruchnoy bezopasnyy vyzov mosta.
+    # 1) The task for the operator is to manually call the bridge safely.
     tasks.append(
         {
             "id": "net_search_operator_manual",
             "kind": "network",
-            "title": "Ruchnoy veb-poisk cherez most",
-            "reason": "Operator mozhet zaprosit vneshniy poisk cherez /ester/net/search.",
+            "title": "Manual web search via bridge",
+            "reason": "The operator can request an external search via /ester/net/search.",
             "safe_auto": False,
             "needs_consent": False,
             "area": "network",
@@ -88,14 +86,14 @@ def extend_plan_with_net(base_plan: Dict[str, Any], autonomy: Dict[str, Any]) ->
         }
     )
 
-    # 2) Zadacha dlya samoy Ester — ispolzovat poisk kak chast myshleniya.
+    # 2) The task for Esther herself is to use search as part of thinking.
     if mode == "B" and allow_ester and net_ok:
         tasks.append(
             {
                 "id": "net_search_ester_contextual",
                 "kind": "network",
                 "title": "Kontekstnyy veb-poisk po vole Ester",
-                "reason": "Ester mozhet zaprashivat vneshniy poisk dlya utochneniya faktov.",
+                "reason": "Esther can request an external search to clarify facts.",
                 "safe_auto": True,
                 "needs_consent": True,
                 "area": "network",
@@ -112,13 +110,11 @@ def extend_plan_with_net(base_plan: Dict[str, Any], autonomy: Dict[str, Any]) ->
 
 
 def _try_log_event(query: str, source: str, autonomy: Dict[str, Any], result: Dict[str, Any]) -> bool:
-    """
-    Zafiksirovat setevoy poisk kak osoznannoe deystvie.
+    """Zafiksirovat setevoy poisk kak osoznannoe deystvie.
     Politika:
-    - Esli net adaptera sobytiy — tikho vykhodim.
-    - A-rezhim: logiruem tolko metadannye.
-    - B-rezhim: mozhno dobavit verkhniy rezultat.
-    """
+    - Esli net adaptera sobytiy - tikho vykhodim.
+    - A-rezhim: logiruem only metadannye.
+    - B-rezhim: mozhno dobavit verkhniy rezultat."""
     if _events_mod is None:
         return False
 
@@ -154,10 +150,8 @@ def _try_log_event(query: str, source: str, autonomy: Dict[str, Any], result: Di
 
 
 def search_and_log(app, query: str, limit: int, source: str) -> Dict[str, Any]:
-    """
-    Vypolnit poisk cherez google_search_bridge i, pri uspekhe, zapisat sobytie.
-    Ispolzuetsya marshrutom /ester/net/search_logged i mozhet vyzyvatsya ee kaskadom.
-    """
+    """Vypolnit poisk cherez google_search_bridge i, pri uspekhe, zapisat sobytie.
+    Ispolzuetsya route /ester/net/search_logged i mozhet vyzyvatsya ee kaskadom."""
     if google_search_bridge is None or not google_search_bridge.is_ready():
         return {
             "ok": False,

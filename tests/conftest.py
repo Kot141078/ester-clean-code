@@ -1,11 +1,9 @@
 # tests/conftest.py
 # -*- coding: utf-8 -*-
-"""
-Globalnye nastroyki pytest dlya stabilnosti CI:
+"""Globalnye nastroyki pytest dlya stabilnosti CI:
 — Fiksiruem TZ, chtoby testy, zavisyaschie ot vremeni/logov, ne plavali.
-— Otklyuchaem setevye pobochki po umolchaniyu.
-— Chistim klyuchevye ENV, chtoby import app.py ne padal ot otsutstvuyuschikh integratsiy.
-"""
+—Otklyuchaem setevye pobochki po umolchaniyu.
+— Chistim klyuchevye ENV, chtoby import app.py ne padal ot otsutstvuyuschikh integratsiy."""
 import os
 import io
 
@@ -17,7 +15,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 def _ci_env_guard():
     os.environ.setdefault("TZ_NAME", "UTC")
     os.environ.setdefault("ALLOW_NET", "0")
-    # Bazovye znacheniya, chtoby importy moduley, ozhidayuschikh konfig, ne padali
+    # Basic values ​​so that imports of modules waiting for config do not crash
     os.environ.setdefault("PRIMARY_PROVIDER", "local")
     os.environ.setdefault("K_RETRIEVAL", "8")
     os.environ.setdefault("MIN_MEAN_SCORE", "0.0")
@@ -72,7 +70,7 @@ def app():
     from app import app as flask_app
 
     # Determiniruem nalichie mem/kg API v testovom rantayme:
-    # v proekte est neskolko alternativnykh registratorov, i ne vse sborki podnimayut /mem/kg/*.
+    # There are several alternative recorders in the project, and not all assemblies raise /those/kg/*.
     try:
         if not any(r.rule == "/mem/kg/upsert" for r in flask_app.url_map.iter_rules()):
             from routes.mem_kg_routes import register_mem_kg_routes

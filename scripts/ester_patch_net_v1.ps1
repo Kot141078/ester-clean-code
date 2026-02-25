@@ -46,7 +46,7 @@ import json
 import os
 import traceback
 
-# Nastroyki (berem iz ENV ili khardkod dlya nadezhnosti)
+# Settings (take from ENV or hardcode for reliability)
 SERPAPI_KEY = os.getenv("SERPAPI_KEY", "c41e3c88410de59c14deb4bfa4707bddcb5dec61d6db3052d82780d7556f1e1e")
 
 def google_search(query):

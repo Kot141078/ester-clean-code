@@ -7,7 +7,7 @@ bp = Blueprint("hypotheses_routes", __name__)
 
 @bp.get("/hypotheses")
 def list_hypotheses():
-    """Legkaya zaglushka: chtoby UI ne padal. Realnaya logika mozhet zhit v modulyakh."""
+    """Light plug: so that the UI does not fall. Real logic can live in modules."""
     return jsonify({"ok": True, "items": []})
 
 @bp.post("/hypotheses")

@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-routes/thinking_video_bridge.py — most dlya pravil myshleniya: avtopoisk video po teme v†' postanovka na fetch.
+"""routes/thinking_video_bridge.py — most dlya pravil myshleniya: avtopoisk video po teme v†' postanovka na fetch.
 
 Endpoint:
   • POST /thinking/video/autosearch {"topic":"...", "limit":2, "lang"?: "ru|en"}
 
 Logika:
-  • Pytaemsya nayti video cherez yt-dlp (ytsearchN:topic) ili legkiy veb-poisk (esli yt-dlp nedostupen — best-effort).
+  • Pytaemsya nayti video cherez yt-dlp (ytsearchN:topic) or legkiy web-poisk (esli yt-dlp nedostupen - best-effort).
   • Glya kazhdogo naydennogo URL sozdaem zadanie fetch cherez universal-ekstraktor (mode uchityvaet VIDEO_UNIVERSAL_AB).
   • Bozvraschaem spisok kandidatov Re statusy postanovki.
 
 Mosty:
-- Yavnyy: (Myshlenie v†" Video) «volya» Ester zaprashivaet video po teme bez vmeshatelstva polzovatelya.
+- Yavnyy: (Myshlenie v†" Video) "volya" Ester zaprashivaet video po teme bez vmeshatelstva polzovatelya.
 - Skrytyy #1: (Infoteoriya v†" R esursy) ogranichenie limit Re otsutstvie skachivaniya na stadii poiska.
 - Skrytyy #2: (Memory v†" Poisk) rezultaty srazu konvertiruyutsya v otchety dlya pamyati/vektora.
 
 Zemnoy abzats:
-Eto kak poruchit pomoschniku: «Naydi paru rolikov po teme Re sdelay vyzhimki» — tikho, regulyarno, po raspisaniyu.
+Eto kak poruchit pomoschniku: “Naydi paru rolikov po teme Re sdelay vyzhimki” - tikho, regulyarno, po raspisaniyu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -58,7 +56,7 @@ def api_autosearch():
     lang = (data.get("lang") or "").strip() or None
     if not topic:
         return jsonify({"ok": False, "error": "topic is required"}), 400
-    # Poisk cherez yt-dlp: ytsearchN:
+    # Search via from-dlp: search:
     urls: List[str] = []
     code, out, err = _run([YTDLP, "-J", f"ytsearch{max(1, min(5, limit))}:{topic}"])
     if code == 0 and out.strip():
@@ -69,7 +67,7 @@ def api_autosearch():
                     urls.append(e["webpage_url"])
         except Exception:
             pass
-    # fallback: nichego — pusto
+    # false: nothing - empty
     results: List[Dict[str, Any]] = []
     for u in urls:
         req = {"url": u, "want": {"subs": True, "summary": True, "meta": True}, "lang": lang}

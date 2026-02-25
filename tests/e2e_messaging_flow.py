@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/e2e_messaging_flow.py — skvoznoy test: preset → predprosmotr → proaktivnaya otpravka.
+"""tests/e2e_messaging_flow.py - skvoznoy test: preset → predprosmotr → proaktivnaya otpravka.
 
 MOSTY:
 - (Yavnyy) Registriruem vse blyuprinty v in-memory Flask i progonyaem tsepochku zaprosov.
@@ -8,11 +7,10 @@ MOSTY:
 - (Skrytyy #2) Dry-run kanalov (WA/TG) bez vneshnego interneta — determinirovannye otvety.
 
 ZEMNOY ABZATs:
-Daet bystryy uverennyy signal, chto Ester mozhet «kak chelovek» sobrat tekst i korrektno
+Daet bystryy uverennyy signal, chto Ester mozhet “kak chelovek” sobrat tekst i korrektno
 ego razoslat po nuzhnomu kanalu, ne lomaya nichego v proekte.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, io, json, tempfile
 import pytest
@@ -33,20 +31,18 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 @pytest.fixture
 def app(tmp_path):
-    # ENV dlya dry-run
+    # ENV for dry runes
     os.environ.setdefault("WHATSAPP_VERIFY_TOKEN", "devcheck")
     os.environ.pop("WHATSAPP_ACCESS_TOKEN", None)       # otsutstvuet => dry
     os.environ.pop("WHATSAPP_PHONE_NUMBER_ID", None)    # otsutstvuet => dry
     os.environ.pop("TELEGRAM_BOT_TOKEN", None)          # otsutstvuet => dry
 
-    # Sozdadim vremennyy fayl pravil marshrutizatsii
+    # Let's create a temporary routing rules file
     rules_path = tmp_path / "messaging_rules.yaml"
     rules_path.write_text(
-        """
-routes:
+        """routes:
   bank: { channel: whatsapp, to: "15550001122" }
-  engineer: { channel: telegram, to: 777001 }
-        """.strip(),
+  engineer: { channel: telegram, to: 777001 }""".strip(),
         encoding="utf-8",
     )
     os.environ["PROACTIVE_RULES_PATH"] = str(rules_path)
@@ -80,14 +76,14 @@ def test_compose_and_dispatch_bank(client):
     text = r.get_json()["text"]
     assert "Proshu podtverdit status perevoda" in text
 
-    # 2) Predprosmotr pisma kak otdelnyy shag
-    r2 = client.post("/mail/compose/preview", json={"audience":"bank","intent":"letter","content":"Proverka statusa perevoda TR-84921."})
+    # 2) Email preview as a separate step
+    r2 = client.post("/mail/compose/preview", json={"audience":"bank","intent":"letter","content":"Checking the translation status of TR-84921."})
     assert r2.status_code == 200
     j2 = r2.get_json()
     assert j2["ok"] is True
     assert "Zdravstvuyte" in j2["text"]
 
-    # 3) Proaktivnaya otpravka (marshrut beretsya iz pravil)
+    # 3) Proactive sending (the route is taken from the rules)
     r3 = client.post("/proactive/dispatch", json={
         "audience":"bank","intent":"letter","content":"Proshu podtverdit status perevoda TR-84921.","source_id":"test-e2e-1"
     })

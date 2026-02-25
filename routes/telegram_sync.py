@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/telegram_sync.py - import Telegram-soobscheniy (JSON Updates) v pamyat «Ester».
-Drop-in utilita: chitaet JSON (odin Update ili massiv Updates) iz fayla ili STDIN i pishet v StructuredMemory.
+"""scripts/telegram_sync.py - import Telegram-soobscheniy (JSON Updates) v pamyat "Ester".
+Drop-in utilita: chitaet JSON (odin Update or massiv Updates) iz fayla or STDIN i pishet v StructuredMemory.
 
-Ispolzovanie:
+Use:
   python scripts/telegram_sync.py --file updates.json
   cat updates.json | python scripts/telegram_sync.py
 
@@ -16,11 +15,10 @@ Mosty:
 - Skrytyy #2: (Kibernetika ↔ Konveyer) determinirovannyy stdout prigoden dlya payplaynov/orkestratorov.
 
 Zemnoy abzats (anatomiya/inzheneriya):
-Dumay ob etom kak o «sheykere dlya zametok»: berem portsiyu apdeytov, vstryakhivaem i akkuratno
+Dumay ob etom kak o “sheykere dlya zametok”: berem portsiyu apdeytov, vstryakhivaem i akkuratno
 vylivaem v konteyner pamyati. Emkost standartnaya, interfeysy - prostye i proveryaemye.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -31,7 +29,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def _build_mm():
-    """Sobrat MemoryManager iz lokalnykh komponentov (bez zhestkikh zavisimostey)."""
+    """Build MemoryManager from local components (without hard dependencies)."""
     try:
         from cards_memory import CardsMemory  # type: ignore
         from memory_manager import MemoryManager  # type: ignore
@@ -59,7 +57,7 @@ def _build_mm():
 
 
 def _read_updates(path: Optional[str]) -> List[Dict[str, Any]]:
-    """Prochitat JSON s Update/Updates iz fayla (esli put zadan) ili iz STDIN."""
+    """Read JSION with Update/Updates from a file (if the path is specified) or from STDIN."""
     try:
         if path:
             with open(path, "r", encoding="utf-8") as f:
@@ -105,7 +103,7 @@ def main(argv: List[str]) -> int:
             if rid:
                 ok += 1
         except Exception as e:
-            # Logiruem oshibku, no prodolzhaem import sleduyuschikh zapisey
+            # Log the error, but continue importing the following records
             print(f"update failed: {e}", file=sys.stderr)
 
     print(json.dumps({"ok": True, "imported": ok, "total": len(updates)}, ensure_ascii=False))
@@ -119,7 +117,7 @@ if __name__ == "__main__":
 
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
-# zaglushka dlya telegram_sync: poka net bp/router/register_*_routes
+# stub for telegram_sync: no power supply/router/register_*_rutes yet
 def register(app):
     return True
 

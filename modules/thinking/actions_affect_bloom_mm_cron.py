@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_affect_bloom_mm_cron.py — eksheny «voli»: MMGate, Affect, Nightly, Bloom.
+"""modules/thinking/actions_affect_bloom_mm_cron.py - eksheny "voli": MMGate, Affect, Nightly, Bloom.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Operatsii) knopki dlya kontrolya pamyati/affekta/nochnykh zadach/P2P.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Rules/Cron ↔ Avtonomiya) tsepochki legko sobirat v Thinking Rules.
 
 Zemnoy abzats:
-Nuzhno — proverila chistotu fabriki, otsortirovala «emotsionalnuyu» pamyat, zapustila nochnoy servis i obyavila id v seti.
+Nuzhno — proverila chistotu fabriki, otsortirovala “emotsionalnuyu” pamyat, zapustila nochnoy servis i obyavila id v seti.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

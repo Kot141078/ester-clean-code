@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
-"""
-modules/vision/auto_template_labeler.py — avto-razmetka shablonov iz makrologov.
+"""modules/vision/auto_template_labeler.py - avto-razmetka shablonov iz makrologov.
 
 Vkhod:
 - Syrye sobytiya makrorekordera (/macro/preview) i/ili vruchnuyu peredannye zapisi:
-  { "screen_b64": "...", "click": {"x":..,"y":..}, "title":"..." }
+  { "screen_b64": "...", "click": {"x":..,"y":..}, "title": "..." }
 
-Ideya:
+Ideaya:
 - Dlya kazhdogo klika/goryachey klavishi pytaemsya izvlech okrestnost (bbox ~ 120x48) vokrug tochki klika
-  ili predpolagaemoy pozitsii vidzheta (esli est box v zhurnale) — kak «kandidat shablona».
+  ili predpolagaemoy pozitsii vidzheta (esli est box v zhurnale) - kak “kandidat shablona”.
 - Formiruem plan shablonov: [{name, bbox:{l,t,w,h}, threshold, lang, note}], bez zapisi v triggery.
 
 API:
-- ingest(samples) -> dobavit syrye primery (v pamyati)
-- suggest(opts)   -> postroit plan ({threshold_base, win=okno okrestnosti})
-- export()        -> vernut i ochistit ochered
+- ingest(samples) -> add syrye primery (v pamyati)
+- suggest(opts) -> build plan ({threshold_base, win=okno okrestnosti})
+- export() -> return i ochistit ochered
 
 MOSTY:
-- Yavnyy: (Memory ↔ Videnie) «chto nazhimali» → «chto iskat».
-- Skrytyy #1: (Infoteoriya ↔ Nadezhnost) edinye parametry threshold/lang.
+- Yavnyy: (Memory ↔ Videnie) “what nazhimali” → “what iskat.”
+- Skrytyy #1: (Infoteoriya ↔ Nadezhnost) edinye parameter threshold/lang.
 - Skrytyy #2: (Inzheneriya ↔ UX) vydaem plan bez pobochnykh effektov.
 
 ZEMNOY ABZATs:
-Offlayn: my ne vyrezaem PNG (t.k. bez PIL), a sokhranyaem bbox/metadannye dlya vneshnego izvlecheniya; skleyka — na suschestvuyuschikh /desktop/rpa/screen + downstream.
+Offlayn: my ne vyrezaem PNG (t.k. bez PIL), a sokhranyaem bbox/metadannye dlya vneshnego izvlecheniya; skleyka - na suschestvuyuschikh /desktop/rpa/screen + downstream.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

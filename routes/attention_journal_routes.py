@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/attention_journal_routes.py - zhurnal vnimaniya.
+"""routes/attention_journal_routes.py - zhurnal vnimaniya.
 
 Ruchki:
   POST /attention/journal/append {"event":"...","detail":{...}}
-  GET  /attention/journal/list   ?n=200
-  GET  /attention/journal/dump
+  GET /attention/journal/list ?n=200
+  GET /attention/journal/dump
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.audit.attention_log import append as aj_append, list_last, dump_all

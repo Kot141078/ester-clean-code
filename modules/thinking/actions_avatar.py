@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_avatar.py — eksheny «voli» dlya orkestratora i veduschego.
+"""modules/thinking/actions_avatar.py - eksheny “voli” dlya orkestratora i veduschego.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Orkestrator) vybrat provaydery, sobrat rolik.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Ekonomika) v buduschem dopolnim otsenkoy CostFence pryamo v selektore.
 
 Zemnoy abzats:
-Komanda «soberi veduschego iz vot etogo teksta» — i konveyer sdelaet vse sam.
+Komanda “soberi veduschego iz vot etogo teksta” - i konveyer sdelaet vse sam.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

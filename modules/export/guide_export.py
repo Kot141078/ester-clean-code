@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-modules/export/guide_export.py — eksport stsenariya v video-gayd.
+"""modules/export/guide_export.py - eksport stsenariya v video-gayd.
 
-Fayly:
+Faily:
 - data/export/<name>/frame_0001.png ... — kadry
-- data/export/<name>/guide.srt         — subtitry
-- data/export/<name>/ffmpeg_win.bat    — komanda sborki (Windows)
-- data/export/<name>/ffmpeg_unix.sh    — komanda sborki (Unix)
+- data/export/<name>/guide.srt — subtitry
+- data/export/<name>/ffmpeg_win.bat — komanda sborki (Windows)
+- data/export/<name>/ffmpeg_unix.sh — komanda sborki (Unix)
 
-Kak rabotaet:
+How it works:
 - Snimok ekrana cherez /desktop/rpa/screen.
 - Esli peredan spisok shagov/podskazok — formiruem subtitry s taymkodom.
 - Skladyvaem vse v papku; vozvraschaem put i arkhiv ZIP.
@@ -19,10 +18,9 @@ MOSTY:
 - Skrytyy #2: (Kibernetika ↔ Kommunikatsiya) polzovatel mozhet delitsya gaydom oflayn.
 
 ZEMNOY ABZATs:
-Nikakogo ffmpeg vnutri; tolko skripty. Vse oflayn i lokalno.
+Nikakogo ffmpeg vnutri; just scripty. All oflayn i localno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, io, json, base64, zipfile, time, http.client
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

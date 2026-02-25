@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/presets_routes_plus.py - Rasshirennye routy dlya presetov (baza + extra).
+"""routes/presets_routes_plus.py - Rasshirennye routey dlya presetov (baza + extra).
 
 MOSTY:
 - (Yavnyy) /presetsx/list i /presetsx/compose chitayut bazovye PRESETS i PRESETS_EXTRA.
-- (Skrytyy #1) Ne menyaet suschestvuyuschie /presets/* - vse drop-in; mozhno ispolzovat oba API.
+- (Skrytyy #1) Ne menyaet suschestvuyuschie /presets/* - vse drop-in; mozhno ispolzovat both API.
 - (Skrytyy #2) Pryamaya integratsiya s audience_infer (optsionalno) - avtopodbor auditorii pri compose.
 
 ZEMNOY ABZATs:
 Pozvolyaet dobavlyat presety bez pravok ranee vydannykh faylov, sokhranyaya stabilnost kontrakta.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from flask import Blueprint, request, jsonify
@@ -57,7 +55,7 @@ def compose():
     except Exception as e:
         return jsonify({"ok": False, "error": "compose_failed", "detail": str(e)}), 400
 
-    # Optsionalno - popytka opredelit auditoriyu dlya dalneyshego marshruta
+    # Optionally - an attempt to determine the audience for the further route
     audience = None; conf = None
     if auto:
         audience, conf = infer_audience(meta=meta, text=text)

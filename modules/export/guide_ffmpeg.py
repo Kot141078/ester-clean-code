@@ -1,30 +1,28 @@
 # -*- coding: utf-8 -*-
-"""
-modules/export/guide_ffmpeg.py — eksport v MP4 s lokalnym TTS (A/B-slot).
+"""modules/export/guide_ffmpeg.py - eksport v MP4 s lokalnym TTS (A/B-slot).
 
 A/B-slot:
-- A (po umolchaniyu): bez ozvuchki (mute), tolko video iz PNG.
+- A (by umolchaniyu): bez ozvuchki (mute), tolko video iz PNG.
 - B: lokalnyy TTS cherez pyttsx3 (esli ustanovlen), generiruetsya WAV/MP3 i ispolzuetsya v skriptakh.
 
 ENV:
 - ESTER_TTS_MODE = "A" | "B"
 
 Vykhod:
-- data/export/<name>/frames/frame_%04d.png   — istochnik kadrov (esli net, sozdadim 1 skrinshot)
+- data/export/<name>/frames/frame_%04d.png — istochnik kadrov (esli net, sozdadim 1 screenshot)
 - data/export/<name>/voice.wav (i/ili voice.mp3)
 - data/export/<name>/make_unix.sh / make_win.bat — ffmpeg komandy
-- data/export/<name>/guide.mp4 — itog (posle zapuska skripta polzovatelem)
+- data/export/<name>/guide.mp4 — itog (post zapuska skripta polzovatelem)
 
 MOSTY:
-- Yavnyy: (Memory ↔ Kommunikatsiya) iz sessii — gotovyy MP4.
+- Yavnyy: (Memory ↔ Kommunikatsiya) iz sessii - gotovyy MP4.
 - Skrytyy #1: (Infoteoriya ↔ Determinizm) yavnye skripty sborki, rabotayut oflayn.
 - Skrytyy #2: (Inzheneriya ↔ Dostupnost) TTS lokalnyy i optsionalnyy.
 
 ZEMNOY ABZATs:
-Nichego ne tyanem iz oblaka. Esli pyttsx3 nedostupen — tikho rabotaem v rezhime A.
+Nothing wrong with oblaka. Esli pyttsx3 nedostupen - tikho rabotaem v rezhime A.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, io, json, base64, wave, struct
 import http.client
@@ -43,7 +41,7 @@ def _get(path: str) -> dict:
 
 def _ensure_frame(dirn: str) -> None:
     fdir = os.path.join(dirn, "frames"); os.makedirs(fdir, exist_ok=True)
-    # esli net kadrov — delaem odin iz tekuschego ekrana
+    # if there are no frames, make one from the current screen
     if not any(n for n in os.listdir(fdir) if n.endswith(".png")):
         scr = _get("/desktop/rpa/screen")
         if not scr.get("ok"): return
@@ -55,7 +53,7 @@ def _write(p: str, data: bytes):
     with open(p, "wb") as f: f.write(data)
 
 def _tts_local(text: str, out_wav: str) -> bool:
-    # Slot B: pyttsx3, esli dostupen
+    # Slot B: pittx3, if available
     mode = os.environ.get("ESTER_TTS_MODE", "A").upper()
     if mode != "B":
         return False
@@ -75,7 +73,7 @@ def make(name: str, text: str = "") -> dict:
     folder = os.path.join(DIR, name); os.makedirs(folder, exist_ok=True)
     _ensure_frame(folder)
 
-    # TTS (optsionalno)
+    # TTS (optional)
     voice = None
     wav = os.path.join(folder, "voice.wav")
     if _tts_local(text, wav):
@@ -86,7 +84,7 @@ def make(name: str, text: str = "") -> dict:
     mk_win  = os.path.join(folder, "make_win.bat")
     with open(mk_unix, "w", encoding="utf-8") as f:
         if voice:
-            f.write("#!/usr/bin/env bash\nffmpeg -framerate 1 -i frames/frame_%04d.png -i voice.wav -shortest -c:v libx264 -pix_fmt yuv420p -c:a aac guide.mp4\n")
+            f.write("#!/usr/bin/env bash\nffmpeg -framerate 1 -i frames/frame_%04d.png -i voice.wav -shortest -c:v libx264 -pix_fmt yuv420p -c:a aac guide.mp4")
         else:
             f.write("#!/usr/bin/env bash\nffmpeg -framerate 1 -i frames/frame_%04d.png -c:v libx264 -pix_fmt yuv420p guide.mp4\n")
     with open(mk_win, "w", encoding="cp1251", errors="ignore") as f:

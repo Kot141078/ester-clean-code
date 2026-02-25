@@ -1,13 +1,12 @@
 """Ester thinking manifest: sborka i opisanie statusa myslitelnykh moduley.
 
-Etot modul ne delaet setevykh vyzovov i ne zavisit ot Flask.
+This modul ne delaet setevykh vyzovov i ne zavisit ot Flask.
 On mozhet ispolzovatsya:
-- kak CLI / skript (cherez scripts.ester_thinking_check/ester_thinking_mode),
+- kak CLI/skript (cherez scripts.ester_thinking_check/ester_thinking_mode),
 - HTTP-routami (/ester/thinking/manifest, /ester/thinking/check),
 - vnutrennimi proverkami kachestva.
 
-Vazhno: ne trogaem suschestvuyuschie yadro-moduli i ikh API.
-"""
+Vazhno: ne trogaem suschestvuyuschie yadro-moduli i ikh API."""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -15,10 +14,9 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def get_status() -> Dict[str, Any]:
-    """Kratkiy snimok klyuchevykh flagov okruzheniya.
+    """A quick snapshot of key environment flags.
 
-    Nikakikh pobochnykh effektov: tolko chtenie os.environ.
-    """
+    No side effects: only reading os.environ."""
     import os
 
     volition = {
@@ -51,11 +49,10 @@ def get_status() -> Dict[str, Any]:
 
 
 def _probe_module(path: str) -> bool:
-    """Proverka: mozhno li importirovat modul.
+    """Checking whether the module can be imported.
 
-    Nikakikh pobochnykh effektov, krome popytki importa.
-    Ispolzuetsya dlya otsenki coverage.
-    """
+    No side effects other than trying to import.
+    Used to evaluate sovereignty."""
     import importlib
 
     try:
@@ -68,14 +65,13 @@ def _probe_module(path: str) -> bool:
 def build_manifest() -> Dict[str, Any]:
     """Formiruet polnyy manifest po tekuschey ustanovke.
 
-    Struktura:
+    Structure:
     {
       "ok": bool,
-      "status": {...},        # get_status()
-      "modules": {...},       # nalichie klyuchevykh moduley
-      "coverage": float,      # 0.0 .. 1.0
-    }
-    """
+      "status": {...}, # get_status()
+      "modules": {...}, # nalichie klyuchevykh moduley
+      "coverage": float, # 0.0 .. 1.0
+    }"""
     status = get_status()
 
     modules = {
@@ -107,7 +103,7 @@ def build_manifest() -> Dict[str, Any]:
 
 
 def human_report(manifest: Dict[str, Any]) -> str:
-    """Cheloveko-chitaemoe rezyume po manifest."""
+    """A human-readable summary of the manifesto."""
     status = manifest.get("status", {})
     vol = status.get("volition", {})
     trace = status.get("trace", {})
@@ -117,22 +113,22 @@ def human_report(manifest: Dict[str, Any]) -> str:
 
     # Volya
     if vol.get("ESTER_VOLITION_MODE") == "B":
-        parts.append("volya v aktivnom chelovecheskom rezhime")
+        parts.append("will in active human mode")
     else:
-        parts.append("volya v passivnom rezhime (ESTER_VOLITION_MODE != B)")
+        parts.append("will in passive mode (ESTER_VOLITION_MODE != B)")
 
     # Treys
     if trace.get("ESTER_TRACE_AB") == "B":
-        parts.append("glubokiy treys myshleniya vklyuchen")
+        parts.append("deep thinking trace enabled")
     else:
-        parts.append("kratkiy treys myshleniya dostupen pri nalichii adaptera")
+        parts.append("short thinking trace is available with an adapter")
 
     # Fon
     if bg.get("ESTER_BG_DISABLE") == "0":
-        hb = bg.get("THINK_HEARTBEAT_SEC") or "?"  # mozhet byt None
-        parts.append(f"fonovye myslitelnye tsikly razresheny (interval {hb} sek)")
+        hb = bg.get("THINK_HEARTBEAT_SEC") or "?"  # maybe None
+        parts.append(f"background thought cycles of permissions (interval ZZF0Z sec)")
     else:
-        parts.append("fonovye myslitelnye tsikly otklyucheny")
+        parts.append("background thought loops are disabled")
 
     # Sborka stroki
     return "; ".join(parts)
@@ -142,8 +138,7 @@ def get_manifest() -> Dict[str, Any]:
     """Publichnyy helper dlya HTTP-routov i skriptov.
 
     Vozvraschaet polnyy manifest v tom zhe formate, chto build_manifest().
-    Vydelen otdelno, chtoby ne lomat suschestvuyuschie importy.
-    """
+    Vydelen otdelno, chtoby ne lomat suschestvuyuschie importy."""
     return build_manifest()
 
 
@@ -151,8 +146,7 @@ def describe_manifest(manifest: Dict[str, Any] | None = None) -> Dict[str, Any]:
     """Kompaktnoe predstavlenie manifest dlya HTTP-endpointov.
 
     Ispolzuetsya /ester/thinking/manifest i /ester/thinking/check.
-    Ne delaet setevykh vyzovov i ne trogaet globalnoe sostoyanie.
-    """
+    Ne delaet setevykh vyzovov i ne trogaet globalnoe sostoyanie."""
     if manifest is None:
         manifest = build_manifest()
 

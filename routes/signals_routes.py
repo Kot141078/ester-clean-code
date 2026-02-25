@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/signals_routes.py - UI/REST dlya indikatsiy sostoyaniya (fizicheskikh i virtualnykh).
+"""routes/signals_routes.py - UI/REST dlya indikatsiy sostoyaniya (fizicheskikh i virtualnykh).
 
 Mosty:
 - Yavnyy: (HTTP UI ↔ PhysIO) - knopki v adminke otdayut impulsy v modul signalov.
 - Skrytyy 1: (Diagnostika ↔ Memory) - zhurnal sobytiy dostupen REST'om, prigoden dlya korrelyatsii intsidentov.
-- Skrytyy 2: (Bezopasnost ↔ UX) - A/B-slot otobrazhaetsya v UI, chtoby vklyuchat «smelyy» rezhim osoznanno.
+- Skrytyy 2: (Bezopasnost ↔ UX) - A/B-slot otobrazhaetsya v UI, chtoby vklyuchat “smelyy” rezhim osoznanno.
 
 Zemnoy abzats:
-Stranichka s tremya knopkami - «info», «vnimanie», «oshibka». Nazhal - Ester podala znak i zapisala v zhurnal.
-Polezno, kogda ekran daleko: slyshno/vidno, chto ona zhiva i reagiruet.
-"""
+Stranichka s tremya knopkami - “info”, “vnimanie”, “oshibka”. Nazhal - Ester podala znak i zapisala v zhurnal.
+Polezno, kogda ekran daleko: slyshno/vidno, chto ona zhiva i reagiruet."""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request, render_template

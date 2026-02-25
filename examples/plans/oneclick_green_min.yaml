@@ -1,8 +1,8 @@
-# One-Click Green: minimalnyy plan dlya zapuska v kaskade
+# One-Klitschk Green: minimum plan for launching in a cascade
 # Mosty:
 # - Yavnyy: (LLM/Plan ↔ UX) — zapuskaetsya temi zhe ruchkami /thinking/cascade/execute.
 # - Skrytyy #1: (Memory ↔ Plan) — fiksiruem start v profilee.
-# - Skrytyy #2: (Plan ↔ Dokumentatsiya) — rezultat — chernovye sektsii, gotovye k konvertatsii v MD/HTML.
+# - Skrytyy #2: (Plan ↔ Dokumentatsiya) - result - chernovye sektsii, gotovye k konvertatsii v MD/HTML.
 
 run_id: oneclick_green_min
 branch_id: main

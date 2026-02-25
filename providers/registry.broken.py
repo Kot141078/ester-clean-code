@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-Drop-in refaktor vmesto bitogo providers/registry.py.
+"""Drop-in refaktor vmesto bitogo providers/registry.py.
 Sovmestimost:
-- from providers.registry import ProviderRegistry      (OK)
-- ProviderRegistry().select(name) -> dict              (OK)
-- ProviderRegistry().status() -> dict                  (OK)
-- ProviderRegistry.get_active() -> str                 (OK)
+- from providers.registry import ProviderRegistry (OK)
+- ProviderRegistry().select(name) -> dict (OK)
+- ProviderRegistry().status() -> dict (OK)
+- ProviderRegistry.get_active() -> str (OK)
 
 Povedenie: khranit aktivnogo provaydera v fayle data/app/providers/active.json,
 avtomaticheski sozdaet katalogi, vedet rezervnuyu kopiyu active.prev.json.
-Nikakikh vneshnikh zavisimostey.
-"""
+Nikakikh vneshnikh zavisimostey."""
 
 import json
 import os
@@ -22,7 +20,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def _data_root() -> str:
-    # Podderzhivaem oba varianta, kak v proekte
+    # We support the botn option, as in the project
     return os.environ.get("ESTER_DATA_DIR") or os.environ.get("ESTER_DATA_ROOT") or os.path.abspath("data")
 
 
@@ -58,7 +56,7 @@ class _State:
         except FileNotFoundError:
             return cls()
         except Exception:
-            # Korruptsiya fayla — otkat k prev, esli est
+            # File corruption - rollback to previous, if any
             try:
                 with open(_state_prev_path(), "r", encoding="utf-8") as f:
                     obj = json.load(f)
@@ -69,7 +67,7 @@ class _State:
 
     def save(self) -> None:
         _ensure_dirs()
-        # rezervnaya kopiya predyduschego sostoyaniya
+        # backup of previous state
         try:
             if os.path.exists(_state_path()):
                 with open(_state_path(), "r", encoding="utf-8") as f:
@@ -94,11 +92,11 @@ class ProviderRegistry:
       - get_active() -> str
     """
 
-    # Kesh na protsess (bez obyazatelstva kross-protsessnoy sinkhronizatsii)
+    # Cache per process (no cross-process synchronization obligation)
     _active_cache: Optional[str] = None
 
     def __init__(self, *_: Any, **__: Any) -> None:
-        # Initsializatsiya lenivo chitaet sostoyanie
+        # Initialization lazily reads state
         if ProviderRegistry._active_cache is None:
             st = _State.load()
             ProviderRegistry._active_cache = st.active_provider
@@ -107,7 +105,7 @@ class ProviderRegistry:
 
     @classmethod
     def get_active(cls) -> str:
-        # Esli kesh pust — perechitaem s diska
+        # If it’s a cache, we’ll reread it from disk
         if cls._active_cache is None:
             cls._active_cache = _State.load().active_provider
         return cls._active_cache or "lmstudio"
@@ -117,13 +115,13 @@ class ProviderRegistry:
         if not name:
             return {"ok": False, "error": "provider name is empty"}
 
-        # Myagkaya validatsiya izvestnykh imen, no ne zapreschaem kastomnye
+        # Soft validation of known names, but we do not prohibit custom ones
         known = {"lmstudio", "openai", "anthropic", "azure", "vertexai", "ollama"}
         if name not in known:
-            # prosto preduprezhdenie, kontrakt ne lomaem
+            # just a warning, we don’t break the contract
             warn = f"unknown provider '{name}'"
 
-        # Sokhranyaem novoe sostoyanie
+        # Saving the new state
         st = _State(active_provider=name)
         st.save()
         ProviderRegistry._active_cache = name
@@ -137,7 +135,7 @@ class ProviderRegistry:
         return {
             "ok": True,
             "active_provider": ProviderRegistry.get_active(),
-            # Ostalnoe obychno dobavlyaet sam rout (probe i t.p.),
-            # no zdes ostavim polya, kotorye uzhe videlis v otvetakh:
+            # The rest is usually added by the root itself (test, etc.),
+            # but here we will leave the fields that have already been seen in the answers:
             "authoring_backend": "local",
         }

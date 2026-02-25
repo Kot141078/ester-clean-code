@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-modules/llm/providers_gemini.py — Adapter dlya Google Gemini API.
+"""modules/llm/providers_gemini.po - Adapter for Google Gemini API.
 
-Rezhim: Cloud Native.
-Integratsiya: Identity Core (Passport).
-"""
+Mode: Cloud Native.
+Integration: Identity Kore (Passport)."""
 import os
 import logging
 import importlib
@@ -35,8 +33,8 @@ log = logging.getLogger(__name__)
 class GeminiProvider:
     def __init__(self):
         self.api_key = os.getenv("GOOGLE_API_KEY")
-        # Po umolchaniyu berem 1.5 Flash (bystraya) ili Pro.
-        # Esli u tebya realno 2.0/2.5 (early access), vpishi tochnoe nazvanie modeli v .env
+        # By default we take 1.5 Flash (fast) or Pro.
+        # If you really have 2.0/2.5 (Early Access), enter the exact model name in .env
         self.model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
         
         if not self.api_key:
@@ -47,14 +45,14 @@ class GeminiProvider:
         try:
             genai, _, _ = _load_genai()
             genai.configure(api_key=self.api_key)
-            self.model = None # Initsializiruem lenivo pri pervom zaprose ili obnovlenii sistemnogo prompta
+            self.model = None # Initializes lazily on first request or system prompt updates
             log.info(f"[Gemini] Configured for model: {self.model_name}")
         except Exception as e:
             log.error(f"[Gemini] Init failed: {e}")
             self.model = None
 
     def _get_identity_prompt(self) -> str:
-        """Tyanem lichnost iz profilea."""
+        """We pull the personality from the profile."""
         if passport:
             return passport.get_identity()
         return "Ty — Ester. Your owner — Owner."
@@ -74,19 +72,19 @@ class GeminiProvider:
         except Exception as e:
             return f"[ERROR] Gemini: google.generativeai missing ({e})"
 
-        # 1. Formiruem sistemnuyu instruktsiyu
-        # Esli peredali spets. prompt (napr. dlya summarizatsii) - berem ego.
-        # Inache - berem Lichnost Ester.
+        # 1. We create a system instruction
+        # If the special prompt (for example, for summarization) - take it.
+        # Otherwise, we take the Personality of Esther.
         current_sys_instruction = system_prompt if system_prompt else self._get_identity_prompt()
 
         try:
-            # Sozdaem konfiguratsiyu generatsii
+            # Creating a generation configuration
             generation_config = genai.types.GenerationConfig(
                 temperature=temperature,
                 max_output_tokens=max_tokens if max_tokens > 0 else 8192,
             )
 
-            # Nastroyki bezopasnosti (chtoby ne blokirovala obychnye obsuzhdeniya)
+            # Security settings (so that it does not block normal discussions)
             safety_settings = {
                 HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
                 HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_ONLY_HIGH,
@@ -131,6 +129,6 @@ class GeminiProvider:
 # Singlton
 adapter = GeminiProvider()
 
-# Obertka dlya sovmestimosti
+# Compatibility wrapper
 def generate(prompt, system_prompt="", **kwargs):
     return adapter.generate(prompt, system_prompt, **kwargs)

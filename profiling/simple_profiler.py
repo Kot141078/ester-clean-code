@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-profiling/simple_profiler.py — minimalistichnyy profilirovschik pod nagruzki Ester.
+"""profiling/simple_profiler.py — minimalistichnyy profilirovschik pod nagruzki Ester.
 
 Funktsii:
 - profile_block(path) — kontekst-menedzher cProfile -> .prof fayl + svodka pstats.
 - time_http(method, url, headers=None, json=None, data=None, timeout=10) -> (status, ms)
-- run_http_burst(urls, concurrency=10, duration_sec=30, headers=None) -> metriki
-- CLI: python -m profiling.simple_profiler --url http://localhost:5000/backup/run --concurrency 20 --duration 30
-"""
+- run_http_burst(urls, concurrency=10, duration_sec=30, headers=None) -> metrics
+- CLI: python -m profiling.simple_profiler --url http://localhost:5000/backup/run --concurrency 20 --duration 30"""
 from __future__ import annotations
 
 import argparse
@@ -137,10 +135,8 @@ def run_http_burst(
     duration_sec: int = 30,
     headers: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Dict]:
-    """
-    urls: spisok (method, url)
-    Vozvraschaet metriki po kazhdomu URL.
-    """
+    """urls: list(method, url)
+    Returns metrics for each URL."""
     stop_at = time.time() + duration_sec
     metrics: Dict[str, Metrics] = {u: Metrics() for _, u in urls}
     lock = threading.Lock()
@@ -164,13 +160,13 @@ def _cli():
     ap.add_argument(
         "--url",
         action="append",
-        help="URL dlya nagruzki (mozhno neskolko, metod po umolchaniyu GET)",
+        help="URL for load (several possible, default method is GET)",
         default=[],
     )
     ap.add_argument(
         "--post",
         action="append",
-        help="POST URL dlya nagruzki (mozhno neskolko)",
+        help="POST URL for load (several possible)",
         default=[],
     )
     ap.add_argument("--concurrency", type=int, default=16)
@@ -185,7 +181,7 @@ def _cli():
         "--profile-out",
         type=str,
         default="",
-        help="Put dlya .prof fayla (optsionalno)",
+        help="Path for the .pro file (optional)",
     )
     args = ap.parse_args()
 

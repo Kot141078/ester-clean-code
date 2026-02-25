@@ -1,9 +1,7 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-Patched line: optsionalnaya integratsiya s RAG cherez modules.media.rag_sink.maybe_ingest_text(meta)
-"""
+"""Patched line: optional integration with RAG via modules.media.rag_sync.taybe_engest_text (meta)"""
 import os, json, time, shutil
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional

@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-routes/director_routes.py - REST+UI dlya «zhivogo rezhissera».
+"""routes/director_routes.py - REST+UI dlya "zhivogo rezhissera".
 
 Ruchki:
-  POST /director/start   {"topic":"..."} -> {session, steps}
-  POST /director/chat    {"session":"..","text":".."} -> {suggestions}
+  POST /director/start {"topic":"..."} -> {session, steps}
+  POST /director/chat {"session":"..","text":".."} -> {suggestions}
   POST /director/suggest {"session":".."} -> {step}
-  POST /director/apply   {"session":"..","step":{...}} -> {count}
+  POST /director/apply {"session":"..","step":{...}} -> {count}
   POST /director/overlay {"session":"..","index":0,"template_b64"?:...,"threshold"?:0.78} -> {overlay_b64}
-  POST /director/run     {"session":"..","index":0} -> {ok}
+  POST /director/run {"session":"..","index":0} -> {ok}
 
 UI:
-  GET  /admin/director
+  GET /admin/director
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from typing import Any, Dict

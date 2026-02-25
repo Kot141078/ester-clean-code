@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/synergy_board_routes.py - UI «shakhmatka roley».
+"""routes/synergy_board_routes.py - UI “shakhmatka roley”.
 
 MOSTY:
 - (Yavnyy) /synergy/teams/board stranitsa s matritsey prigodnosti (agenty×roli) + primenenie overraydov.
@@ -11,8 +10,7 @@ ZEMNOY ABZATs:
 Daet operatoru bystryy vizualnyy sposob uvidet, kto luchshe podkhodit na rol,
 i vruchnuyu zakrepit klyuchevye pozitsii.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, request, render_template, jsonify
 from modules.synergy.state_store import STORE

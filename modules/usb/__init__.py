@@ -1,16 +1,14 @@
 
 # -*- coding: utf-8 -*-
-"""
-modules.usb — dinamicheskiy most k USB slushatelyam/drayveram.
+"""modules.usb - dinamicheskiy most k USB slushatelyam/drayveram.
 Mosty:
-- Yavnyy: (modules.usb.X ↔ listeners.usb_X) — __getattr__ podbiraet realizatsiyu.
-- Skrytyy #1: (Setevoe telo ↔ I/O) — edinoobraznyy vkhod dlya USB-potokov.
+- Yavnyy: (modules.usb.X ↔ listeners.usb_X) - __getattr__ podbiraet realizatsiyu.
+- Skrytyy #1: (Setevoe telo ↔ I/O) - edinoobraznyy vkhod dlya USB-potokov.
 - Skrytyy #2: (DX ↔ Nadezhnost) — A/B-slot s myagkim otkatom.
 
 Zemnoy abzats:
-Kogda kod zhdet `modules.usb.scanner`, a est `listeners/usb_scanner.py`, etot paket pomogaet «skhlopnut» importy bez pravok.
-# c=a+b
-"""
+Kogda kod zhdet `modules.usb.scanner`, a est `listeners/usb_scanner.py`, etot paket pomogaet “skhlopnut” importy bez pravok.
+# c=a+b"""
 from __future__ import annotations
 import importlib, os
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

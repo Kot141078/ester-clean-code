@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/bind_stt_routes.py - REST: /bind/stt/* (status/run)
+"""routes/bind_stt_routes.py - REST: /bind/stt/* (status/run)
 
 Mosty:
 - Yavnyy: (Veb ↔ STT Bind) ruchnoy zapusk i prosmotr sostoyaniya.
 - Skrytyy #1: (Profile ↔ Trassirovka) fiksatsiya progonov.
-- Skrytyy #2: (Cron/Rules ↔ Avtonomiya) udobno veshat na nightly ili sobytie ingest.
+- Skrytyy #2: (Cron/Rules ↔ Avtonomiya) udobno veshat na nightly or sobytie ingest.
 
 Zemnoy abzats:
 Para ruchek - i subtitry nachinayut poyavlyatsya na vse novye roliki bez uchastiya cheloveka.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

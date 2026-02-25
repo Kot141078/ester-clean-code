@@ -1,11 +1,11 @@
 /* -*- coding: utf-8 -*-
  * app.js — legkaya frontovaya logika:
  * - mini-panel statusov provayderov (v Trace)
- * - tultip/leybl "cached_until" dlya vidzhetov
- * - myagkie oshibki i degradatsiya: esli API nedostupny/net JWT — UI ne padaet
+ * - tooltip/label "kached_until" for widgets
+ * - soft errors and degradation: if the IPs are not available/there is no GVT - OH does not crash
  *
- * Ozhidaetsya, chto JWT kladetsya libo v window.JWT, libo v localStorage["jwt"].
- * Esli nichego net — zaprosy uydut bez avtorizatsii i vernut 401 (UI pokazhet plashku).
+ * It is expected that ZhVT is placed either in Windows.ZhVT or in localStorage"zhvt"sch.
+ * If there is nothing, the requests will go away without authorization and return 401 (the UI will show a blank).
  */
 
 (function () {
@@ -89,7 +89,7 @@
     const untilTs = nowTs() + (secondsFromNow || 60);
     el.dataset.cachedUntil = String(untilTs);
     el.textContent = "do " + formatTime(untilTs);
-    el.title = "Dannye deystvitelny do ukazannogo vremeni";
+    el.title = "Data is valid until the specified time";
   }
 
   function refreshCachedUntilBadges() {
@@ -178,9 +178,9 @@
     const btn = $("#btn-refresh-providers");
     if (btn) btn.addEventListener("click", () => refreshProvidersBlock());
 
-    // avto-obnovlenie kazhdye 60s dlya statusov provayderov
+    // auto-update every 60s for provider statuses
     setInterval(refreshProvidersBlock, 60000);
-    // apdeyt tsveta beydzhey cached_until raz v 2s
+    // badge color update kached_until every 2nd
     setInterval(refreshCachedUntilBadges, 2000);
   }
 

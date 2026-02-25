@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-engines/google_search_bridge.py
+"""engines/google_search_bridge.py
 
-Most dlya kontroliruemogo dostupa Ester k veb-poisku cherez Google Custom Search.
+Most dlya kontroliruemogo dostupa Ester k web-poisku cherez Google Custom Search.
 
-Zadacha etoy versii (dekabr 2025):
-- Vremenno ubrat vse "myagkie" filtry dlya samoy Ester;
+Zadacha etoy versii (December 2025):
+- Temporarily ubrat vse "myagkie" filtry dlya samoy Ester;
 - Ostavit odin yavnyy "rubilnik" cherez ENV (ESTER_NET_HARD_KILL), esli nuzhno polnostyu
-  vyklyuchit setevoy poisk;
-- Save kontrakt funktsii search(...) i format otveta.
+  vyklyuchit setevoy search;
+- Save kontrakt funktsii search(...) i format answer.
 
 Mosty:
 - Yavnyy: volya/avtonomiya ↔ HTTP Google CSE.
@@ -21,8 +20,7 @@ esli tolko ty sam ne polozhil ryadom krasnyy rubilnik "KILL". Provodka
 (net_bridge/web_search) ostaetsya prezhney, my prosto ubrali lishnie
 promezhutochnye predokhraniteli.
 
-# c = a + b
-"""
+# c = a + b"""
 
 from __future__ import annotations
 
@@ -31,7 +29,7 @@ import os
 from typing import Any, Dict, List, Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-try:  # pragma: no cover - v testakh mozhno podmenyat
+try:  # pragma: but the carpet can be replaced in tests
     import requests  # type: ignore
 except Exception:  # pragma: no cover
     requests = None  # type: ignore
@@ -42,11 +40,9 @@ TIMEOUT_S = float(os.getenv("ESTER_NET_TIMEOUT_SEC", "10"))
 
 
 def _mode() -> str:
-    """
-    A/B-flag ostavlyaem dlya sovmestimosti, no v etoy versii on
-    ne ogranichivaet vykhod v set. Ispolzuetsya tolko kak metka
-    v otvete.
-    """
+    """We leave the A/B flag for compatibility, but in this version it is
+    does not restrict access to the network. Used as a mark only
+    in the answer."""
     return (os.getenv("ESTER_NET_SEARCH_AB") or "B").strip().upper() or "B"
 
 
@@ -64,23 +60,19 @@ def _get_creds() -> Optional[Dict[str, str]]:
 
 
 def is_ready() -> bool:
-    """
-    Bystraya proverka, mozhet li most voobsche rabotat (bez ucheta politiki).
-    """
+    """A quick check to see if the bridge can work at all (without taking into account politics)."""
     return requests is not None and _get_creds() is not None and not _hard_kill_enabled()
 
 
 def _decide_allow(source: str, autonomy: Dict[str, Any]) -> bool:
-    """
-    VREMENNAYa politika dopuska v set.
+    """VREMENNAYa politika dopuska v set.
 
     Seychas logika predelno prostaya:
     - esli vklyuchen ESTER_NET_HARD_KILL -> vsegda False;
     - inache True dlya lyubogo source ("operator", "ester", i t.d.).
 
     Kogda budem delat "krasivuyu politiku", syuda vernetsya razbor autonomy
-    i profiley voli.
-    """
+    i profiley will."""
     if _hard_kill_enabled():
         return False
     return True
@@ -141,14 +133,13 @@ def _run_google_cse(query: str, max_items: int) -> Dict[str, Any]:
 
 
 def search(query: str, limit: int, source: str, autonomy: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Vypolnit kontroliruemyy poisk.
+    """Vypolnit kontroliruemyy poisk.
 
     Kontrakt otveta sokhranyaem sovmestimym:
 
     {
       "ok": bool,
-      "reason": str,    # esli ok == False
+      "reason": str, # esli ok == False
       "mode": "A"|"B"|...,
       "source": "...",
       "query": "...",
@@ -156,8 +147,7 @@ def search(query: str, limit: int, source: str, autonomy: Dict[str, Any]) -> Dic
         {"title": "...", "link": "...", "snippet": "..."},
         ...
       ]
-    }
-    """
+    }"""
     mode = _mode()
     src = (source or "operator").strip().lower() or "operator"
     q = (query or "").strip()
@@ -172,7 +162,7 @@ def search(query: str, limit: int, source: str, autonomy: Dict[str, Any]) -> Dic
             "items": [],
         }
 
-    # Politika dopuska (vremenno maksimalno razreshitelnaya).
+    # Admission policy (temporarily maximum permissive).
     if not _decide_allow(src, autonomy or {}):
         return {
             "ok": False,
@@ -205,8 +195,8 @@ def search(query: str, limit: int, source: str, autonomy: Dict[str, Any]) -> Dic
     }
 
 
-if __name__ == "__main__":  # nebolshoy ruchnoy test
-    # Zemnoy test: zapuskaetsya iz konsoli, bez Flask.
+if __name__ == "__main__":  # small manual test
+    # Earth test: launched from the console, without Flask.
     demo_autonomy: Dict[str, Any] = {"scope": {"network": True}}
     out = search("RTX 5090 novosti 2025", limit=3, source="ester", autonomy=demo_autonomy)
     from pprint import pprint

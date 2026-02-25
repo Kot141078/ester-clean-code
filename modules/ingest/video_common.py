@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ingest/video_common.py — nizkourovnevye utility dlya video/audio konveyera (ffprobe/ffmpeg, chanking, bezopasnyy zapusk).
+"""modules/ingest/video_common.py - nizkourovnevye utility dlya video/audio konveyera (ffprobe/ffmpeg, chanking, bezopasnyy zapusk).
 
 Mosty:
 - Yavnyy: (Infoteoriya → Kibernetika) Ogranichenie slozhnykh potokov do unifitsirovannykh blokov (chanki audio) ⇢ upravlyaemost payplayna (Ashbi).
-- Skrytyy #1: (Bayes ↔ Memory) Proba i metadannye — apriori dlya posleduyuschey interpretatsii ASR; rezultaty zapisyvayutsya v StructuredMemory (pri nalichii).
+- Skrytyy #1: (Bayes ↔ Memory) Proba i metadannye - apriori dlya posleduyuschey interpretatsii ASR; result zapisyvayutsya v StructuredMemory (pri nalichii).
 - Skrytyy #2: (Logika ↔ Inzheneriya PO) Determinirovannyy split + idempotent zapis faylov ⇢ proveryaemost/povtoryaemost.
 
 Zemnoy abzats:
-Eto «tokarnyy stanok» dlya media: ffprobe — shtangentsirkul (izmeryaem parametry), ffmpeg — rezets (narezaem zagotovku na ravnye plashki zvuka), dalee ikh mozhno obrabatyvat parallelno i nadezhno skladyvat.
+This is “tokarnyy stanok” dlya media: ffprobe - shtangentsirkul (izmeryaem parametry), ffmpeg - rezets (narezaem zagotovku na ravnye plashki zvuka), dalee ikh mozhno obrabatyvat parallelno i nadezhno skladyvat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import hashlib
@@ -26,7 +24,7 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Myagkie importy «yadra» ingest (drop-in, bez zhestkikh svyazey)
+# Soft imports of the ingest “core” (drop-in, without hard connections)
 try:
     from modules.ingest.common import persist_dir, save_bytes  # type: ignore
 except Exception:
@@ -55,10 +53,8 @@ def _safe_run(cmd: List[str], timeout: float = 120.0) -> Tuple[int, str, str]:
     return proc.returncode, out, err
 
 def ffprobe(path: str) -> ProbeResult:
-    """
-    Vozvraschaet ProbeResult po lokalnomu puti.
-    Trebuet ffprobe v PATH. Esli net — ok=False, error.
-    """
+    """Returns ProveResolve at the local path.
+    Requires ffprobe at PATH. If not, ok=False, error."""
     if not os.path.isfile(path):
         return ProbeResult(False, {}, 0.0, [], "", error=f"file-not-found: {path}")
     code, out, err = _safe_run(["ffprobe", "-v", "error", "-print_format", "json", "-show_format", "-show_streams", path], timeout=60.0)
@@ -74,10 +70,8 @@ def ffprobe(path: str) -> ProbeResult:
     return ProbeResult(True, data, dur, streams, str(fmt.get("format_name") or ""))
 
 def extract_subs_ffmpeg(path: str, out_dir: str) -> List[str]:
-    """
-    Pytaetsya vytaschit vstroennye subtitry (esli est) v SRT.
-    Vozvraschaet spisok putey srt, mozhet byt pustym.
-    """
+    """Tries to pull out built-in subtitles (if any) in SRT.
+    Returns a list of srt paths, which may be empty."""
     pr = ffprobe(path)
     if not pr.ok:
         return []
@@ -99,9 +93,7 @@ def _first_index(streams: List[Dict[str, object]], codec_type: str) -> int:
     return 0
 
 def audio_to_wav(path: str, out_wav: str, sr: int = 16000, mono: bool = True) -> str:
-    """
-    Izvlekaet audio v WAV (16kHz mono po umolchaniyu) — optimalno dlya ASR/Whisper.
-    """
+    """Extracts audio to VAV (16xz mono by default) - optimal for ACP/Vnisper."""
     args = ["ffmpeg", "-y", "-i", path, "-ar", str(sr)]
     if mono:
         args += ["-ac", "1"]
@@ -119,21 +111,19 @@ def sha256_file(path: str) -> str:
     return h.hexdigest()
 
 def chunk_wav(path: str, out_dir: str, chunk_ms: int = 5 * 60 * 1000, overlap_ms: int = 5 * 1000) -> List[Tuple[str, float, float]]:
-    """
-    Rezhet WAV na kuski so sdvigom (overlap) dlya ustoychivosti ASR.
-    Vozvraschaet spisok (chunk_path, start_sec, end_sec).
-    """
-    # Poluchim dlitelnost cherez ffprobe
+    """Cuts VAV into pieces with a shift (overlap) for stability of the ACP.
+    Returns a list (chunk_path, start_sec, end_sec)."""
+    # Let's get the duration through ffprobe
     pr = ffprobe(path)
     if not pr.ok:
-        # zapasnoy sposob — cherez sox/ffprobe uzhe upal
+        # backup method - through sox/ffprobe has already fallen
         raise RuntimeError(f"ffprobe failed for wav: {pr.error}")
 
     duration = pr.duration or 0.0
     chunk_sec = chunk_ms / 1000.0
     overlap = overlap_ms / 1000.0
     if duration <= 0.0:
-        # Na vsyakiy sluchay narezhem 1 kusok
+        # Just in case, cut 1 piece
         dst = os.path.join(out_dir, "chunk_000.wav")
         shutil.copyfile(path, dst)
         return [(dst, 0.0, 0.0)]

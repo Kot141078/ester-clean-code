@@ -18,7 +18,7 @@ $keys = @(
 
 $raw = if (Test-Path $EnvPath) { Get-Content $EnvPath -Raw -Encoding UTF8 } else { "" }
 
-# 1) ubrat vse dublikaty po klyucham spiska
+# 1) remove all duplicates by list keys
 foreach($k in $keys){
   $raw = [regex]::Replace($raw, "^(?m)\s*$([regex]::Escape($k))\s*=.*\r?\n?", "")
 }
@@ -26,7 +26,7 @@ foreach($k in $keys){
 # 2) garantirovat perevod stroki v kontse
 if ($raw.Length -gt 0 -and -not $raw.TrimEnd().EndsWith("`n")){ $raw += "`r`n" }
 
-# 3) vernut uzhe imeyuschiesya nezatronutye stroki kak est, zatem — dobavit kritichnoe
+# 3) return the existing unaffected lines as is, then add the critical one
 $absVec = Join-Path $env:USERPROFILE ".ester\vstore\vectors"
 $raw += "ESTER_VECTOR_DIR=$absVec`r`n"
 

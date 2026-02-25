@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Pereklyuchenie vesa DNS (external-dns, Route53/CloudDNS/Cloudflare — ispolzuyte nuzhnye annotatsii).
+# Switching DNS weight (external-dns, Route53/CloudDNS/Cloudflare - use the necessary annotations).
 # Primer:
 #   RES=svc/ester NS=ester ID=ester-primary WEIGHT=100 ./failover_dns_weighted.sh
 

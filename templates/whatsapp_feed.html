@@ -16,10 +16,10 @@
   </style>
 </head>
 <body>
-  <header>Lenta WhatsApp (tolko chtenie)</header>
+  <header>WhatsApp feed (read only)</header>
   <div class="chat">
     {% if not items %}
-      <div class="msg system">Net soobscheniy. Proverte MESSAGING_DB_PATH i tokeny WhatsApp Cloud.</div>
+      <div class="msg system">No messages. Check MESSAGING_DB_PATH and WhatsApp Cloud tokens.</div>
     {% endif %}
     {% for m in items %}
     <div class="msg {{ m.role }}">

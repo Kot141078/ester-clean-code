@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# scripts/hooks/prepush_export_guard.sh — pre-push guard (eksport-sanktsii)
+# scripts/hooks/prepush_export_guard.sh - pre-push guard (eksport-sanktsii)
 # MOSTY:
-# - (Yavnyy) Blokiruet push na GitHub, esli v kommite est zapreschennye puti.
-# - (Skrytyy #1) Belyy spisok isklyucheniy iz config/export_whitelist.txt.
-# - (Skrytyy #2) Pereklyuchatel ALLOW_PUBLIC_SYNERGY_PUSH=1 dlya osoznannoy publikatsii.
+# - (Explicit) Blocks push to GitHov if there are prohibited paths in the commit.
+# - (Hidden #1) White list of exceptions from config/export_vnitlist.txt.
+# - (Hidden #2) Switch ALLOV_PUBLIC_SYNERGY_PUSH=1 for conscious publication.
 # ZEMNOY ABZATs:
-# Deshevyy i nadezhnyy barer ot sluchaynogo vykladyvaniya zakrytykh moduley v publichnyy repozitoriy. c=a+b
+# A cheap and reliable barrier against accidentally releasing closed modules into a public repository. c=a+b
 set -euo pipefail
 
 REMOTE_NAME="${1:-origin}"
 REMOTE_URL="${2:-${REMOTE_NAME}}"
 
-# Esli yavno razresheno — vykhodim
+# If it is clearly allowed, we exit.
 if [[ "${ALLOW_PUBLIC_SYNERGY_PUSH:-0}" == "1" ]]; then
   exit 0
 fi
 
-# Srabatyvaem tolko dlya GitHub (imitatsiya privat/pablik cherez URL)
+# Works only for GitHov (imitation of private/public via URL)
 if ! grep -qiE 'github\.com' <<< "$REMOTE_URL"; then
   exit 0
 fi
@@ -39,7 +39,7 @@ done
 # Unikaliziruem
 mapfile -t changed_files < <(printf "%s\n" "${changed_files[@]:-}" | grep -v '^$' | sort -u)
 
-# Esli net izmeneniy — vykhodim
+# If there are no changes, we exit.
 if [[ "${#changed_files[@]}" -eq 0 ]]; then
   exit 0
 fi

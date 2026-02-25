@@ -1,33 +1,31 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/action_safety.py — "remen bezopasnosti" pered deystviyami.
+"""modules/thinking/action_safety.py - "remen bezopasnosti" pered deystviyami.
 
 Funktsii:
-  evaluate(action:str, meta:dict) -> dict  # otsenka riska/stoimosti + reshenie
-  simulate(action:str, meta:dict, trials:int=50) -> dict  # bystraya Monte-Karlo otsenka
-  commit(action:str, meta:dict) -> dict    # fiksatsiya raskhoda byudzheta (posle allow)
-  config_get()/config_set()                # chtenie/izmenenie porogov
-  budget_status()                          # ostatok byudzheta na sutki
-  decide(action:str, meta:dict) -> dict    # evaluate + (po pravilam) auto-commit/require-consent
+  evaluate(action:str, meta:dict) -> dict # otsenka riska/stoimosti + reshenie
+  simulate(action:str, meta:dict, trials:int=50) -> dict # bystraya Monte-Carlo otsenka
+  commit(action:str, meta:dict) -> dict # fiksatsiya raskhoda byudzheta (post allow)
+  config_get()/config_set() # chtenie/izmenenie porogov
+  budget_status() # ostatok byudzheta na sutki
+  decide(action:str, meta:dict) -> dict # evaluate + (by pravilam) auto-commit/require-consent
 
-Naznachenie:
+Name:
   — Pered zapuskom RPA/kaskada/payplayna otsenivaem "stoimost" i "risk", proveryaem
     pravila, dnevnoy byudzhet i trebuem li podtverzhdenie polzovatelya.
 
 MOSTY:
 - Yavnyy: (Mysl ↔ Deystvie) — vstavka safety-resheniya mezhdu planom i aktom.
 - Skrytye:
-  1) (Infoteoriya ↔ Ekonomiya) — byudzhet i udelnaya "stoimost" deystviy.
-  2) (Kibernetika ↔ Nadezhnost) — simulyatsiya posledstviy + stop-krany.
-  3) (Inzheneriya ↔ UX) — edinyy REST/UI, prozrachnye prichiny resheniya.
+  1) (Infoteoriya ↔ Ekonomiya) - byudzhet i udelnaya "stoimost" deystviy.
+  2) (Kibernetika ↔ Nadezhnost) - simulyatsiya posledstviy + stop-krany.
+  3) (Inzheneriya ↔ UX) - edinyy REST/UI, prozrachnye prichiny resheniya.
 
 ZEMNOY ABZATs:
-Inzhenerno — eto kalkulyator riska/stoimosti s prostym pravilom vybora.
+Inzhenerno - eto kalkulyator riska/stoimosti s prostym pravilom vybora.
 Prakticheski — Ester perestaet "zhat na vse": ona snachala dumaet, skolko eto
 stoit i naskolko riskovanno, i tolko potom deystvuet (ili prosit soglasie).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import os, time, json, math, random
@@ -35,7 +33,7 @@ from modules.memory import store
 from modules.memory.events import record_event
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# --- Konfiguratsiya/byudzhet ---
+# --- Configuration/Budget ---
 _CFG = {
     "enabled": os.environ.get("ESTER_ACTION_SAFETY_ENABLED","1") == "1",
     "risk_tol": float(os.environ.get("ESTER_ACTION_SAFETY_RISK_TOL","0.35")),
@@ -100,7 +98,7 @@ def _match_rule(action:str)->Dict[str,Any]:
     return {}
 
 def _meta_cost(meta:Dict[str,Any])->float:
-    # bystrye evristiki: masshtab, chislo faylov/okon, glubina avtomatizatsii…
+    # quick heuristics: scale, number of files/windows, depth of automation...
     scale = float(meta.get("scale", 1.0))
     files = int(meta.get("files", 0))
     steps = int(meta.get("steps", 1))
@@ -132,23 +130,23 @@ def evaluate(action:str, meta:Dict[str,Any]|None=None)->Dict[str,Any]:
     }
     return out
 
-# --- Bystraya simulyatsiya iskhodov (Monte-Karlo) ---
+# --- Fast simulation of outcomes (Monte Carlo) ---
 def simulate(action:str, meta:Dict[str,Any]|None=None, trials:int=50)->Dict[str,Any]:
     meta = meta or {}
     ev = evaluate(action, meta)
     risk = float(ev["risk"])
-    # veroyatnost "uspekha" kak 1 - risk (grubo, no operabelno)
+    # probability of "success" as 1 - risk (roughly, but operationally)
     p_success = max(0.0, min(1.0, 1.0 - risk))
     succ=0; fail=0; near=0
     for _ in range(max(1,int(trials))):
         r = random.random()
         if r < p_success: succ+=1
-        elif r < (p_success + (risk*0.3)): near+=1   # pochti uspeshno/chastichnyy rezultat
+        elif r < (p_success + (risk*0.3)): near+=1   # almost successful/partial result
         else: fail+=1
     return {"ok": True, "action": action, "trials": trials, "p_success": round(p_success,2),
             "hist": {"success": succ, "near": near, "fail": fail}}
 
-# --- Prinyatie resheniya i fiksatsiya ---
+# --- Decision making and committing ---
 def commit(action:str, meta:Dict[str,Any]|None=None)->Dict[str,Any]:
     ev = evaluate(action, meta or {})
     if ev["decision"] == "deny":
@@ -156,7 +154,7 @@ def commit(action:str, meta:Dict[str,Any]|None=None)->Dict[str,Any]:
     # spisyvaem byudzhet
     _STATE["spent_today"] += float(ev["cost"])
     record_event("safety", "commit", True, {"action": action, "cost": ev["cost"], "risk": ev["risk"]})
-    # sled v pamyat dlya trassirovki
+    # memory trace for tracing
     memory_add("event", f"safety:commit {action}", {"cost": ev["cost"], "risk": ev["risk"]})
     return {"ok": True, **ev}
 
@@ -168,7 +166,7 @@ def decide(action:str, meta:Dict[str,Any]|None=None)->Dict[str,Any]:
     if ev["decision"] == "allow":
         return commit(action, meta)
     if ev["decision"] == "needs_user_consent":
-        # fiksiruem zapros na soglasie (UI/chat mozhet podkhvatit)
+        # We record a request for consent (OY/chat can pick up)
         record_event("safety", "consent_required", True, {"action": action, "cost": ev["cost"], "risk": ev["risk"]})
         memory_add("event", f"safety:consent {action}", {"cost": ev["cost"], "risk": ev["risk"]})
         return ev

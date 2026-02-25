@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-asgi/security_headers.py — ASGI-midlvar strogikh zagolovkov.
+"""asgi/security_headers.py - ASGI-midlvar strogikh zagolovkov.
 
 MOSTY:
 - (Yavnyy) CSP/HSTS/X-Frame-Options/Referrer-Policy/Permissions-Policy; vklyuchenie cherez ENV.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Myagko vklyuchaetsya: esli SECURITY_HEADERS_ENABLE=0 — midlvar ne delaet nichego.
 
 ZEMNOY ABZATs:
-Vystavlyaet «boevye» zagolovki bezopasnosti poverkh lyubogo ASGI-prilozheniya bez pravok routov.
+Vystavlyaet "boevye" zagolovki bezopasnosti poverkh lyubogo ASGI-prilozheniya bez pravok routov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

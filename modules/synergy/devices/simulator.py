@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/devices/simulator.py — adapter simulyatora/ekho.
+"""modules/synergy/devices/simulator.py - adapter simulyatora/ekho.
 
 MOSTY:
 - (Yavnyy) Prinimaet lyubye polya, akkuratno kapiruet v kanon.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Nikakoy logiki vendora, tolko bezopasnye defolty.
 
 ZEMNOY ABZATs:
-Kogda «zheleza» net pod rukoy — simulyator pozvolyaet obkatat ves konveyer.
+Kogda "zheleza" net pod rukoy - simulyator pozvolyaet obkatat ves konveyer.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict

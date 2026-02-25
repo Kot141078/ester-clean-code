@@ -23,7 +23,7 @@ def test_rbac_deny_ops_for_user(client, auth_hdr_user):
 
 
 def test_replication_apply_bad_signature(client, auth_hdr_admin, monkeypatch):
-    # Prishlem musornyy zip bez korrektnoy podpisi — ozhidaem 400
+    # We'll send you a garbage zip without a correct signature - expect 400
     payload = b"PK\x03\x04\x14\x00\x00\x00\x00\x00fakezip"
     r = client.post(
         "/replication/apply",

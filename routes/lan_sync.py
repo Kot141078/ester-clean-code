@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-routes/lan_sync.py — UI/REST dlya LAN-sshivki Ester.
+"""routes/lan_sync.py - UI/REST dlya LAN-sshivki Ester.
 
-Marshruty:
-  • GET  /admin/lan             — HTML
-  • GET  /admin/lan/status      — JSON: status vorkera, nastroyki, piry, inboks
-  • POST /admin/lan/start       — zapustit vorker (interval)
-  • POST /admin/lan/stop        — ostanovit vorker
-  • POST /admin/lan/settings    — obnovit nastroyki (send/listen/telegram)
-  • POST /admin/lan/invite      — otpravit testovyy project_invite
-  • POST /admin/lan/accept      — prinyat priglashenie (sokhranit konvert v envelopes/)
+Route:
+  • GET /admin/lan - HTML
+  • GET /admin/lan/status - JSON: status vorkera, nastroyki, piry, inboxes
+  • POST /admin/lan/start – zapustit vorker (interval)
+  • POST /admin/lan/stop — ostanovit vorker
+  • POST /admin/lan/settings - obnovit nastroyki (send/listen/telegram)
+  • POST /admin/lan/invite — otpravit testovyy project_invite
+  • POST /admin/lan/accept – prinyat priglashenie (sokhranit konvert v envelopes/)
 
 Mosty:
-- Yavnyy (Kibernetika v†" UX): odin pult upravlyaet LAN-uvedomleniyami.
+- Yavnyy (Kibernetika v†" UX): odin remote upravlyaet LAN-uvedomleniyami.
 - Skrytyy 1 (Infoteoriya v†" Vezopasnost): nichego ne otpravlyaem bez klyucha/AB=B/flaga send.
-- Skrytyy 2 (Praktika v†" Sovmestimost): priem konverta — obychnyy fayl v inboks (ne trogaem mozg/pamyat/volyu).
+- Skrytyy 2 (Praktika v†" Sovmestimost): priem konverta - obychnyy fayl v inboks (ne trogaem mozg/pamyat/volyu).
 
 Zemnoy abzats:
-Eto «koridor svyazi»: vklyuchili peydzher, vidim sosedey, prinimaem ikh zapiski. Nikakoy avtomatiki, opasnykh deystviy — tolko uvedomleniya Re fayly.
+This is “corridor svyazi”: vklyuchili peydzher, vidim sosedey, prinimaem ikh zapiski. Nikakoy avtomatiki, opasnykh deystviy — tolko uvedomleniya Re fayly.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -32,7 +30,7 @@ from typing import Dict, Any
 
 from flask import Blueprint, jsonify, render_template, request
 
-from modules.listners import *  # type: ignore  # (zaschitnyy import na sluchay opechatok rannikh versiy)
+from modules.listners import *  # type: ignore # (protective import in case of typos in earlier versions)
 from modules.listeners.lan_sync_watcher import start as lan_start, stop as lan_stop, status as lan_status, tick_once  # type: ignore
 from modules.selfmanage.lan_state import settings as get_settings, update_settings, list_inbox  # type: ignore
 from modules.transport.envelope import make_envelope  # type: ignore

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_agent_activity.py — agregator logov Builder/KIT/Report.
+"""modules/thinking/actions_agent_activity.py - agregator logov Builder/KIT/Report.
 
 Mosty:
 - Yavnyy: (Mysli/Deystviya ↔ Memory/Pravila) sobiraem sobytiya iz pamyati (fayly dannykh) i RuleHub-lenty dlya otobrazheniya v UI.
@@ -8,9 +7,8 @@ Mosty:
 - Skrytyy #2: (Kaskad ↔ UX) vozvraschaem strukturu, sovmestimuyu s kaskadom i suschestvuyuschimi admin-instrumentami.
 
 Zemnoy abzats:
-Eto «lupa» po sledam Ester: v odin vyzov mozhno uvidet, chto delal Builder/KIT/Report — plany, zametki, rezultaty. Pomogaet kontrolyu i razboru poletov, nichego ne lomaet.
-# c=a+b.
-"""
+Eto "lupa" po sledam Ester: v odin vyzov mozhno uvidet, chto delal Builder/KIT/Report - plany, zametki, result. Pomogaet kontrolyu i razboru poletov, nichego ne lomaet.
+# c=a+b."""
 from __future__ import annotations
 import os, io, json, time, re
 from typing import Any, Dict, List, Tuple
@@ -23,7 +21,7 @@ DATA_DIR = os.path.join(ROOT, "data")
 SM_STORE = os.path.join(DATA_DIR, "structured_mem", "store.json")
 ESTER_MEM = os.path.join(DATA_DIR, "ester_memory.json")
 
-# evristiki dlya poiska nashikh sobytiy
+# heuristics for finding our events
 PATTERNS = [
     r"AgentBuilder", r"thinking://agent\.builder",
     r"\bKIT:\b", r"\bREPORT:\b",
@@ -56,10 +54,8 @@ def _iter_candidates() -> List[Tuple[str, Any]]:
     return items
 
 def _extract_events(obj: Any, q: str | None = None) -> List[Dict[str, Any]]:
-    """
-    Nestrogiy parser: idem po slovaryam/spiskam, vytaskivaem zametki/fragmenty,
-    pomechaem istochniki/vremya po vozmozhnosti. Poputno filtruem po patternam.
-    """
+    """Lax parser: we go through dictionaries/lists, pull out notes/fragments,
+    Labels sources/times whenever possible. At the same time, we filter by patterns."""
     q = (q or "").strip()
     rx = [re.compile(p, re.I) for p in PATTERNS]
     evs: List[Dict[str, Any]] = []
@@ -67,11 +63,11 @@ def _extract_events(obj: Any, q: str | None = None) -> List[Dict[str, Any]]:
     def walk(x: Any, path: str = ""):
         try:
             if isinstance(x, dict):
-                # raspoznaem tipichnye polya
+                # recognizes typical fields
                 note = str(x.get("note") or x.get("text") or "")
                 src  = str(x.get("source") or x.get("from") or x.get("origin") or "")
                 ts   = x.get("ts") or x.get("time") or x.get("timestamp")
-                # evristika: to, chto kogda-to my klali v profile
+                # heuristics: what we once put in our profile
                 if any(r.search(note) for r in rx) or any(r.search(src) for r in rx):
                     full = json.dumps(x, ensure_ascii=False)
                     if not q or (q.lower() in full.lower()):
@@ -96,7 +92,7 @@ def _merge_and_sort(all_evs: List[List[Dict[str,Any]]], limit: int) -> List[Dict
     merged: List[Dict[str,Any]] = []
     for chunk in all_evs:
         merged.extend(chunk)
-    # esli net metok vremeni — ispolzuem ubyvayuschiy indeks kak surrogat
+    # if there are no timestamps, use the descending index as a surrogate
     def key(e): return int(e.get("ts") or 0)
     merged.sort(key=key, reverse=True)
     if limit > 0:
@@ -127,7 +123,7 @@ def _reg():
     if not register:
         return
 
-    # 1) agent.activity.scan — sobrat poslednie sobytiya s filtrami
+    # 1) agent.activity.scan - collect the latest events with filters
     def a_scan(args: Dict[str,Any]):
         q = str(args.get("q","") or "")
         limit = int(args.get("limit", 50))
@@ -138,8 +134,8 @@ def _reg():
         return {"ok": True, "ab": AB_SLOT, "events": merged, "limit": limit}
     register("agent.activity.scan", {"q":"str","limit":"int"}, {"ok":"bool"}, 1, a_scan)
 
-    # 2) agent.activity.stats — svodnaya statistika po poslednemu skanu
-    # (dlya prostoty pereskaniruem s temi zhe parametrami)
+    # 2) agent.activity.stats - summary statistics for the last scan
+    # (for simplicity, we will rescan with the same parameters)
     def a_stats(args: Dict[str,Any]):
         q = str(args.get("q","") or "")
         limit = int(args.get("limit", 200))
@@ -150,14 +146,14 @@ def _reg():
         return {"ok": True, "ab": AB_SLOT, "stats": _stats(merged), "count": len(merged)}
     register("agent.activity.stats", {"q":"str","limit":"int"}, {"ok":"bool"}, 2, a_stats)
 
-    # 3) agent.activity.digest.plan — mini-plan LLM-daydzhesta (pod /thinking/cascade/execute)
+    # 3) agent.activity.digest.plan - mini-plan LLM-daydzhesta (pod /thinking/cascade/execute)
     def a_digest_plan(args: Dict[str,Any]):
-        title = str(args.get("title") or "Daydzhest aktivnosti Ester")
+        title = str(args.get("title") or "Esther's activity digest")
         q = str(args.get("q","") or "")
         limit = int(args.get("limit", 40))
         plan = {
             "ok": True,
-            "goal": f"Sobrat daydzhest aktivnosti: {title}",
+            "goal": f"Collect activity digest: ZZF0Z",
             "steps": [
                 {"kind":"reflect.enqueue", "endpoint":"/thinking/reflection/enqueue", "body":{"item":{"text":title, "meta":{"importance":0.5}}}},
                 {"kind":"mem.passport.append", "endpoint":"/thinking/act", "body":{"name":"mem.passport.append","args":{"note":"DIGEST: start formirovaniya","meta":{"from":"actions_agent_activity","q":q,"limit":limit},"source":"thinking://digest"}}}

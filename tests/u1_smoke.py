@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-U1/tests/u1_smoke.py — myagkiy smouk «Sovetnika».
+"""U1/tests/u1_smoke.py - myagkiy smouk “Sovetnika”.
 
 Mosty:
 - Yavnyy: Enderton — proveryaem: temy izvlecheny ∧ portal/sovet sgenerirovany.
@@ -9,10 +8,9 @@ Mosty:
 - Skrytyy #2: Cover & Thomas — kratkie artefakty dlya bystroy priemki.
 
 Zemnoy abzats (inzheneriya):
-Zapuskaet `u1_advisor.py` na lokalnom demo-kontekste. Proveryaet, chto fayly poyavilis.
+Zapuskaet `u1_advisor.py` na lokalnom demo-kontekste. Proveryaet, what fayly poyavilis.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, subprocess, sys
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

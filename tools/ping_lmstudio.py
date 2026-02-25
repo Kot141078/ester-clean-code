@@ -28,7 +28,7 @@ def main():
 
     body = {
         "model": MODEL,
-        "messages": [{"role":"user","content":"Otvet slovom PONG"}],
+        "messages": [{"role":"user","content":"Answer with the word PONG"}],
         "max_tokens": 16,
         "temperature": 0.0,
         "stream": False

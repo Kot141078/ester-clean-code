@@ -36,7 +36,7 @@ c=a+b
   }
 
   async function composeMD(){
-    const title = E('title').value.trim() || 'Otchet aktivnosti Ester';
+    const title = E('title').value.trim() || 'Esther Activity Report';
     const q = E('q').value.trim();
     const limit = parseInt(E('limit').value||'50',10);
     const r = await fetchJSON('/thinking/act', {method:'POST', body: JSON.stringify({name:'activity.report.compose.md', args:{title, q, limit}})});
@@ -45,9 +45,9 @@ c=a+b
   }
 
   async function composeHTML(){
-    const title = E('title').value.trim() || 'Otchet aktivnosti Ester';
+    const title = E('title').value.trim() || 'Esther Activity Report';
     const markdown = E('md').value || '# Pusto';
-    // Ispolzuem uzhe dobavlennyy report.compose.html dlya obertki (iz paketa-06),
+    // We use the already added report.compose.html for the wrapper (from package-06),
     // no vyzyvaem nash action, kotoryy poprobuet ego zadeystvovat iznutri.
     const r = await fetchJSON('/thinking/act', {method:'POST', body: JSON.stringify({name:'activity.report.compose.html', args:{title, markdown}})});
     E('html').value = (r && r.html) ? r.html : '';
@@ -55,7 +55,7 @@ c=a+b
   }
 
   async function saveFiles(){
-    const title = E('title').value.trim() || 'Otchet aktivnosti Ester';
+    const title = E('title').value.trim() || 'Esther Activity Report';
     const markdown = E('md').value || '';
     const html = E('html').value || '';
     const r = await fetchJSON('/thinking/act', {method:'POST', body: JSON.stringify({name:'activity.report.save', args:{title, markdown, html}})});
@@ -63,7 +63,7 @@ c=a+b
   }
 
   async function planQuick(){
-    const title = E('title').value.trim() || 'Sobrat otchet iz aktivnosti';
+    const title = E('title').value.trim() || 'Collect a report from an activity';
     const r = await fetchJSON('/thinking/act', {method:'POST', body: JSON.stringify({name:'activity.report.plan.quick', args:{title}})});
     E('plan').value = pjson(r.plan || {});
   }

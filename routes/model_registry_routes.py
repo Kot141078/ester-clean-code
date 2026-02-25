@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/model_registry_routes.py - REST: proverka dopuska modeli /models/verify?id=...
+"""routes/model_registry_routes.py - REST: proverka dopuska modeli /models/verify?id=...
 
 Mosty:
-- Yavnyy: (Bezopasnost ↔ Veb) tsentralizuet politiku dostupa k modelyam cherez edinyy REST.
+- Yavnyy: (Bezopasnost ↔ Web) tsentralizuet politiku dostupa k modelyam cherez edinyy REST.
 - Skrytyy #1: (Logika ↔ Kontrakty) determinirovannyy JSON-otvet dlya avtomaticheskikh proverok.
-- Skrytyy #2: (Memory/Audit ↔ Prozrachnost) legko podklyuchaetsya «profile» dlya zhurnalirovaniya.
+- Skrytyy #2: (Memory/Audit ↔ Prozrachnost) legko podklyuchaetsya “profile” dlya zhurnalirovaniya.
 - Skrytyy #3: (Kibernetika ↔ Kontrol) bystryy predikat dopuska vstraivaetsya v payplayny.
 
 Zemnoy abzats:
-Dumay o module kak o «turnikete» v servernoy: na vkhod podayut model_id - turniket govorit,
-mozhno li prokhodit i chto izvestno o modeli (meta). Prostoy i nadezhnyy predikat.
+Dumay o module kak o “turnikete” v servernoy: na vkhod podayut model_id - turniket govorit,
+mozhno li prokhodit i chto izvestno o modeli (meta). Just i nadezhnyy predikat.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -51,12 +49,12 @@ def verify():
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta (kontrakt proekta)."""
+    """Drop-in registration of blueprint (project contract)."""
     app.register_blueprint(bp_models)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

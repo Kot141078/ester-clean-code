@@ -4,7 +4,7 @@ from __future__ import annotations
 from flask import Blueprint, render_template
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Otdelnaya stranitsa dlya upravleniya bekapami: /backup/ui
+# Separate page for managing backups: /backup/oh
 backup_ui_bp = Blueprint("backup_ui", __name__)
 
 
@@ -19,10 +19,8 @@ def backup_ui_index_slash():
 
 
 def register_backup_ui(app, url_prefix: str | None = None) -> None:
-    """
-    Sovmestimyy s dampom registrator. Po umolchaniyu registriruet /backup/ui.
-    Esli peredan url_prefix — dobavit dubl po {url_prefix}/backup/ui.
-    """
+    """Dump compatible logger. By default it registers /bachkup/oh.
+    If url_prefix is ​​passed, add a duplicate for ZZF0Z/bachkup/oh."""
     if url_prefix:
         prefixed = Blueprint("backup_ui_prefixed", __name__, url_prefix=url_prefix)
 

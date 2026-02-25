@@ -1,8 +1,8 @@
-# config/wa_templates.yaml — rasshirennaya biblioteka WA-shablonov s predprosmotrom
+# config/va_templates.yaml - extended library of VA templates with preview
 # MOSTY:
-# - (Yavnyy) Nabor tipovykh stsenariev: napominaniya, podtverzhdeniya, sbor dokumentov, follou-ap, «myagkiy tolchok».
-# - (Skrytyy #1) Peremennye {{1}}, {{2}}, ...; opisaniya variables — dlya podskazok operatoru.
-# - (Skrytyy #2) Language/namespace mogut byt zadany ENV-om (WA_TEMPLATE_LANG/WA_TEMPLATE_NAMESPACE).
+# - (Explicit) A set of typical scenarios: reminders, confirmations, collection of documents, follow-up, “soft push”.
+# - (Hidden #1) Variables {ЗЗФ0З}, {ЗЗФ1ЗЗ}, ...; Variables descriptions - for hints to the operator.
+# - (Hidden #2) Language/NameSpace can be set to ENV-from (VA_TEMPLATE_LANG/VA_TEMPLATE_NAMESPACE).
 
 templates:
   reminder_deadline:

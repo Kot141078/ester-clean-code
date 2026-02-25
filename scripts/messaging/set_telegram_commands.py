@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/messaging/set_telegram_commands.py — ustanovka Bot API komand.
+"""scripts/messaging/set_telegram_commands.py - ustanovka Bot API komand.
 
 MOSTY:
-- (Yavnyy) Registriruet nabor: /start, /stop, /help, /silence, /resume.
-- (Skrytyy #1) --dry vyvodit payload bez obrascheniya k seti; DEV_DRYRUN=1 — analogichno.
-- (Skrytyy #2) Podskazki pomogayut «ne pugat»: myagkie formulirovki.
+- (Yavnyy) Registriruet set: /start, /stop, /help, /silence, /resume.
+- (Skrytyy #1) --dry vyvodit payload bez obrascheniya k seti; DEV_DRYRUN=1 - analogical.
+- (Skrytyy #2) Podskazki pomogayut “ne pugat”: myagkie formulirovki.
 
 ZEMNOY ABZATs:
 Komandy vidny polzovatelyu i zadayut ozhidaniya: kak vklyuchit/vyklyuchit proaktivnost i chto bot umeet.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse, json, os, urllib.request
@@ -20,11 +18,11 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 API = "https://api.telegram.org/bot{token}/setMyCommands"
 
 CMDS = [
-  {"command":"start","description":"podklyuchit assistenta"},
-  {"command":"stop","description":"vyklyuchit uvedomleniya"},
-  {"command":"help","description":"chto ya umeyu"},
+  {"command":"start","description":"connect an assistant"},
+  {"command":"stop","description":"turn off notifications"},
+  {"command":"help","description":"what can I do"},
   {"command":"silence","description":"tikhiy rezhim na chas"},
-  {"command":"resume","description":"snyat tikhiy rezhim"},
+  {"command":"resume","description":"remove quiet mode"},
 ]
 
 def main():

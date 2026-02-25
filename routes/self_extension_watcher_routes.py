@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_extension_watcher_routes.py - REST dlya nablyudatelya rasshireniy.
+"""routes/self_extension_watcher_routes.py - REST dlya nablyudatelya rashirniy.
 
-Endpointy:
-  • GET  /self/extensions/watch/status
+Endpoint:
+  • GET /self/extensions/watch/status
   • POST /self/extensions/watch/scan
   • POST /self/extensions/watch/approve
   • POST /self/extensions/watch/reject
   • POST /self/extensions/watch/pill
-  • GET  /self/extensions/watch/chain
+  • GET /self/extensions/watch/chain
 
 Mosty:
 - Yavnyy: (Inzheneriya ↔ Volya) edinoe okno upravleniya priemkoy novykh sposobnostey.
-- Skrytyy #1: (Bezopasnost ↔ Audit) karantin i tsepochka sobytiy dostupny cherez API.
-- Skrytyy #2: (UX ↔ Podderzhka) «tabletka» daet operatoru myagkiy overrayd na ogranichennoe vremya.
+- Skrytyy #1: (Bezopasnost ↔ Audit) quarantine i tsepochka sobytiy dostupny cherez API.
+- Skrytyy #2: (UX ↔ Podderzhka) “tabletka” daet operatoru myagkiy overrayd na ogranichennoe vremya.
 
 Zemnoy abzats:
 Eto kak prokhodnaya s okhranoy: proveryaem, vpuskaem po spisku, somnitelnykh - v storonku, vse zapisano.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from flask import Blueprint, jsonify, request

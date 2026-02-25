@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-tests/profiling/test_simple_profiler_unit.py — yunity dlya percentile/metrics.
-Bez realnykh HTTP-zaprosov.
-"""
+"""tesc/profiling/test_simple_profiler_unit.po - units for percentile/matrix.
+No real HTTP requests."""
 from __future__ import annotations
 
 from profiling.simple_profiler import Metrics, percentile
@@ -20,7 +18,7 @@ def test_percentile_basic():
 
 def test_metrics_accumulation():
     m = Metrics()
-    # oshibki
+    # errors
     m.add(-1, 10.0)
     # 2xx
     m.add(200, 5.0)

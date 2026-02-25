@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.reports.routes_http — markdown otchet po routam i kolliziyam.
-Rout: `/compat/reports/routes.md` (FastAPI/Flask).
-# c=a+b
-"""
+"""modules.reports.rutes_http - markdovn report on routes and collisions.
+Route: e/comp/reports/rutes.mdyo (FastAPI/Flask).
+# c=a+b"""
 import os
 from typing import Optional, Dict, List, Tuple
 from collections import defaultdict

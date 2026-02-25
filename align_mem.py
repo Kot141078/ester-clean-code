@@ -14,14 +14,14 @@ def align_memory_hooks():
     fixed_count = 0
     
     for i, line in enumerate(lines):
-        # 1. Ispravlyaem khuk Assistenta (assistant hook)
+        # 1. Fixing the Assistant hook (assistant hook)
         if '_persist_to_passport("assistant", final_text)' in line:
-            # Smotrim na otstup predyduschey stroki (st.append)
+            # We look at the indentation of the previous line (st. appendix)
             prev_line = lines[i-1]
             if "st.append" in prev_line:
-                # Vychislyaem otstup predyduschey stroki
+                # Calculate the indentation of the previous line
                 indent = len(prev_line) - len(prev_line.lstrip())
-                # Sozdaem novuyu stroku s takim zhe otstupom
+                # Create a new line with the same indentation
                 current_indent = len(line) - len(line.lstrip())
                 
                 if current_indent != indent:
@@ -30,7 +30,7 @@ def align_memory_hooks():
                     fixed_count += 1
                     continue
 
-        # 2. Ispravlyaem khuk Polzovatelya (user hook)
+        # 2. Fix the User hook (user hook)
         if '_persist_to_passport("user", text)' in line:
             prev_line = lines[i-1]
             if "st.append" in prev_line:

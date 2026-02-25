@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-routes/graph_routes.py — HTTP-obvyazka dlya DAG-orkestratora.
+"""routes/graph_routes.py - HTTP-obvyazka dlya DAG-orkestratora.
 Podklyuchenie v app.py:
   from routes.graph_routes import bp_graph
-  app.register_blueprint(bp_graph)
-"""
+  app.register_blueprint(bp_graph)"""
 
 from __future__ import annotations
 
@@ -25,17 +23,15 @@ from modules.graph.dag_engine import (
 
 bp_graph = Blueprint("graph", __name__, url_prefix="/graph")
 
-# R' pamyati budem khranit zapuschennye dvizhki (demo). R' prod — kak servisy/systemd.
+# The memory space will store running engines (demo). Rb prod - as services/systems.
 RUNNERS: Dict[str, DAGEngine] = {}
 LOCK = threading.Lock()
 
 
 @bp_graph.post("/submit")
 def submit():
-    """
-    Prinimaet YAML/JSON plan, zapuskaet v fone prostoy ranner.
-    Bozvraschaet run_id.
-    """
+    """Accepts the YML/ZHSION plan and launches a simple runner in the background.
+    Returns run_id."""
     try:
         text = request.data.decode("utf-8")
         if not text.strip():
@@ -59,7 +55,7 @@ def status(run_id: str):
     include_ctx = request.args.get("include_ctx", "0") in ("1", "true", "yes")
     data: Dict[str, Any] = {"ok": True, "state": st}
     if include_ctx:
-        # vernem kratkuyu svodku po vetkam (klyuchi kontekstov bez soderzhimogo)
+        # return a summary of branches (context keys without content)
         run_dir = get_run_dir(run_id)
         contexts = {}
         if run_dir.exists():
@@ -74,14 +70,8 @@ def status(run_id: str):
 
 @bp_graph.post("/human_complete")
 def human_complete():
-    """
-    Imitatsiya otveta cheloveka:
-    {
-      "run_id": "...",
-      "task_id": "hum_xxx",
-      "result": "Odobryayu/popravki..."
-    }
-    """
+    """Imitation of a human response:
+    ZZF0Z"""
     data = request.get_json(force=True, silent=False)
     run_id = data.get("run_id")
     task_id = data.get("task_id")
@@ -91,12 +81,12 @@ def human_complete():
     with LOCK:
         eng = RUNNERS.get(run_id)
     if not eng:
-        # dvizhok mog byt v drugom protsesse — poprobuem cherez sostoyanie
+        # the engine could be in another process - let's try through the state
         st = load_state(run_id)
         if not st:
             return jsonify({"ok": False, "error": "unknown_run"}), 404
-        # vremennyy «kholodnyy» dvizhok dlya kommita rezultata
-        # vosstanovim perechen uzlov iz sostoyaniya osnovnoy vetki (esli est)
+        # temporary “cold” engine for committing the result
+        # restore the list of nodes from the state of the main branch (if any)
         main_nodes = list((st.get("branches", {}).get("main", {}) or {}).get("nodes", {}).keys())
         eng = DAGEngine(
             {
@@ -112,10 +102,8 @@ def human_complete():
 
 @bp_graph.post("/start")
 def start():
-    """
-    Zapusk uzhe zagruzhennogo plana po run_id (esli byl sozdan, no ne zapuschen).
-    Glya sovmestimosti: /submit uzhe startuet plan, no etot endpoint ne pomeshaet.
-    """
+    """Launching an already loaded plan by run_id (if it was created but not launched).
+    Looking at compatibility: /subtit already starts the plan, but this endpoint won’t hurt."""
     data = request.get_json(force=True, silent=False)
     run_id = (data or {}).get("run_id")
     if not run_id:

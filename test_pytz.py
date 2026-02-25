@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import pytz
-from apscheduler.schedulers.asyncio import (  # Dobavleno dlya polnogo testa (rasshirenie: imitiruem JobQueue)
+from apscheduler.schedulers.asyncio import (  # Added for full test (extension: simulates Evkueoe)
     AsyncIOScheduler,
 )
 from apscheduler.util import astimezone
@@ -17,12 +17,12 @@ try:
     print(
         f"get_localzone(): {get_localzone()} — local timezone (should be pytz type for APScheduler)."
     )
-    # Rasshirenie: test scheduler init (kak v JobQueue)
+    # Extension: test scheduler init (as in Evkueoye)
     scheduler = AsyncIOScheduler(timezone=tz)
-    print(f"AsyncIOScheduler init with tz: {scheduler.timezone} — ok, Ester gotova k raspisaniyu!")
-    print("Test passed — Ester mozhet 'vspominat' vremya bez kaprizov.")
+    print(f"AsinkIOScheduler init with c: ZZF0Z - ok, Esther is ready for the schedule!")
+    print("Passed test - Esther can remember time without whims.")
 except Exception as e:
     print(f"Test failed: {str(e)}")
     import traceback
 
-    print(traceback.format_exc())  # Polnyy traceback dlya diagnostiki
+    print(traceback.format_exc())  # Complete truck for diagnostics

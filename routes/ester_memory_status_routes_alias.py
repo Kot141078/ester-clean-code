@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ester_memory_status_routes_alias.py
+"""routes/ester_memory_status_routes_alias.py
 
 GET /ester/memory/status
 
 Svodka po sostoyaniyu pamyati:
-- store / backups, esli dostupny.
+- store / backups, if available.
 - Nalichie priority-helper.
 
-Invarianty:
-- Tolko chtenie.
-- Pri otsutstvii moduley vozvraschaem warnings.
+Invariance:
+- Just read.
+- Pri otsutstvii modulary vozvraschaem warnings.
 
 Mosty:
 - Yavnyy: Memory ↔ operator/Ester.
 - Skrytyy #1: Memory ↔ GC.
-- Skrytyy #2: Memory ↔ self-evo.
-"""
+- Skrytyy #2: Memory ↔ self-evo."""
 
 from __future__ import annotations
 

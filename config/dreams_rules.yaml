@@ -3,9 +3,9 @@
 #
 # Format:
 # rules:
-#   - query: "*"                  # zapros k flashback (sm. memory_manager.flashback)
+#   - query: "*" # requests k flashback (sm. memory_manager.flashback)
 #     k: 200                      # skolko vspominaniy brat
-#     ngram: 3                    # razmer n-gramm dlya klasterizatsii
+#     ngram: 3 # n-gram size for clustering
 #     min_cluster_size: 2         # minimalnyy razmer klastera
 #     max_hypotheses_per_cluster: 2
 
@@ -16,7 +16,7 @@ rules:
     min_cluster_size: 2
     max_hypotheses_per_cluster: 2
 
-  # Primer tematicheskogo nochnogo progona po «ingest/ocr/pdf»
+  # An example of a thematic night run on “ingest/environment/pdf”
   - query: "pdf ocr invoice receipt contract soglashenie dogovor chek"
     k: 150
     ngram: 2

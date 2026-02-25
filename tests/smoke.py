@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-tools/smoke.py — CLI-obertka poverkh /tools/smoke/run: polezno dlya lokalnoy proverki.
+"""tools/smoke.py - CLI-obertka poverkh /tools/smoke/run: polezno dlya lokalnoy proverki.
 
 Zemnoy abzats:
 Zapusk iz konsoli dlya bystrogo pinga — udobno v CI ili pered vykatom.
 
-# c=a+b
-"""
+# c=a+b"""
 import json, urllib.request, sys
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 

@@ -6,11 +6,10 @@ Esli v proekte est DVA fayla:
   D:\ester-project\modules\memory\journal.py
 
 to `import journal` pochti navernyaka podkhvatit VERKhNIY (root) i nachnetsya ad.
-Etot fayl delaet root-journal bezopasnym: on prosto reeksportiruet kanonicheskiy modul.
+This fayl delaet root-journal bezopasnym: on prosto reeksportiruet kanonicheskiy modul.
 
-Rekomenduemoe: voobsche pereimenovat/udalit root journal.py.
-Esli udalit nelzya — ostav etot wrapper.
-"""
+Recommenduemoe: voobsche pereimenovat/udalit root journal.py.
+Esli udalit nelzya - ostav etot wrapper."""
 
 from __future__ import annotations
 

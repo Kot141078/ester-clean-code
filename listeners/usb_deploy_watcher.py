@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/usb_deploy_watcher.py — fonovye skan i avtodeploy s doverennykh fleshek.
+"""listeners/usb_deploy_watcher.py - fonovye skan i avtodeploy s trustennykh fleshek.
 
-Povedenie:
+Behavior:
   • Kazhdye interval sek prosmatrivaem list_targets().
-  • Dlya kazhdogo toma vyzyvaem apply_deploy(); v AB=A — tolko plan.
-  • Logi pishutsya v usb_deploy_log.jsonl; zaschita ot povtorov — v usb_deploy_stamps.json.
+  • Dlya kazhdogo toma vyzyvaem apply_deploy(); v AB=A — only plan.
+  • Logi pishutsya v usb_deploy_log.jsonl; zaschita ot povtorov - v usb_deploy_stamps.json.
 
 ENV/CFG:
   • USB_DEPLOY_ENABLE=0|1
@@ -15,13 +14,12 @@ ENV/CFG:
 Mosty:
 - Yavnyy (Ekspluatatsiya ↔ Bezopasnost): zero-click pri soblyudenii doveriya, okna vremeni i versii.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): logi i shtampy na diske; vosproizvodimost.
-- Skrytyy 2 (Praktika ↔ Sovmestimost): dry-run cherez AB; modulnyy drop-in.
+- Skrytyy 2 (Praktika ↔ Sovmestimost): dry-run cherez AB; modular drop-in.
 
 Zemnoy abzats:
-Eto «dezhurnyy ustanovschik»: zamechaet svoyu fleshku, sveryaet vse po bumazhkam i akkuratno kladet novyy reliz.
+This is “dezhurnyy ustanovschik”: zamechaet svoyu fleshku, sveryaet vse po bumazhkam i akkuratno kladet novyy reliz.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse, os, time

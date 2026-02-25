@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/synergy_forwarder.py - integratsionnyy forvarder sobytiy Synergy:
+"""routes/synergy_forwarder.py - integratsionnyy forvarder sobytiy Synergy:
 - push: vneshnyaya sistema POST-it massiv sobytiy;
-- pull: skaner cherez ukazannyy provayder (ENV SYNERGY_FORWARDER_PROVIDER) s chekpointom.
+- pull: scanner cherez ukazannyy provayder (ENV SYNERGY_FORWARDER_PROVIDER) s checkpointom.
 
 MOSTY:
-- (Yavnyy) /synergy/forwarder/push i /synergy/forwarder/scan razrulivayut «kak dostat sobytiya» bez izmeneniya Synergy Store.
-- (Skrytyy #1) Chekpoint khranitsya v tom zhe SQLite, chto i messaging/nudges (bez vneshnikh migratsiy).
+- (Yavnyy) /synergy/forwarder/push i /synergy/forwarder/scan razrulivayut “kak dostat sobytiya” bez izmeneniya Synergy Store.
+- (Skrytyy #1) Checkpoint khranitsya v tom zhe SQLite, chto i messaging/nudges (bez vneshnikh migratsiy).
 - (Skrytyy #2) Pryamoy vyzov nudges_event() - drop-in bez setevykh krugov.
 
 ZEMNOY ABZATs:
-Est otkuda vzyat sobytiya - cherez push ili cherez vash provayder. Net - nichego ne lomaem; chekpoint garantiruet «ne zadvaivaem».
+Est otkuda vzyat sobytiya - cherez push or cherez your provayder. Net - nichego ne lomaem; checkpoint garantiruet “ne zadvaivaem”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import importlib, os, time, sqlite3
@@ -22,7 +20,7 @@ from typing import Any, Callable, Dict, List, Optional
 from fastapi import APIRouter, FastAPI
 from fastapi.responses import JSONResponse
 
-from routes.nudges_routes import nudges_event  # pryamoy vyzov obrabotchika
+from routes.nudges_routes import nudges_event  # direct call to handler
 from nudges.store import _conn as _nudges_conn
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
@@ -66,10 +64,8 @@ def _load_provider() -> Optional[Callable[[float], List[Dict[str, Any]]]]:
 
 @router.post("/synergy/forwarder/push")
 async def synergy_forwarder_push(payload: Dict[str, Any]):
-    """
-    Prinimaet {"events":[{event_type, entity_id, ts?, payload{...}}, ...]}
-    i prokidyvaet kazhdyy v /nudges/event (lokalnyy vyzov).
-    """
+    """Accepts {"events":у{event_type, entity_id, ts?, payloadZZF0Z}, ... }
+    and sends each one to /news/event (local call)."""
     events = payload.get("events") or []
     ok = 0; failed = 0
     for e in events:
@@ -82,10 +78,8 @@ async def synergy_forwarder_push(payload: Dict[str, Any]):
 
 @router.post("/synergy/forwarder/scan")
 async def synergy_forwarder_scan():
-    """
-    Vyzyvaet provayder (esli ukazan v ENV) i prokidyvaet novye sobytiya v /nudges/event.
-    Khranit chekpoint (last_ts) v lokalnoy tablitse.
-    """
+    """Calls the provider (if specified in the ENV) and throws new events into /news/event.
+    Store checkpoint (last_ts) in a local table."""
     provider = _load_provider()
     if not provider:
         return JSONResponse({"ok": False, "error": "no provider configured (SYNERGY_FORWARDER_PROVIDER)"}, status_code=400)

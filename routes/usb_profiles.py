@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-routes/usb_profiles.py — upravlenie profilyami (UI/REST).
+"""routes/usb_profiles.py - upravlenie profilyami (UI/REST).
 
-Marshruty:
-  • GET  /admin/usb/profiles           — HTML-stranitsa
-  • GET  /admin/usb/profiles/list      — spisok profiley
-  • GET  /admin/usb/profiles/get?id=…  — profil
-  • POST /admin/usb/profiles/save      — sozdat/obnovit
-  • POST /admin/usb/profiles/delete    — udalit
-  • GET  /admin/usb/profiles/export?id=… — eksport (JSON)
-  • POST /admin/usb/profiles/import    — import (JSON)
+Route:
+  • GET /admin/usb/profiles - HTML-stranitsa
+  • GET /admin/usb/profiles/list - spisok profiley
+  • GET /admin/usb/profiles/get?id=… – profil
+  • POST /admin/usb/profiles/save - sozdat/obnovit
+  • POST /admin/usb/profiles/delete - delete
+  • GET /admin/usb/profiles/export?id=… - eksport (JSON)
+  • POST /admin/usb/profiles/import - import (JSON)
 
 Mosty:
-- Yavnyy (Kibernetika v†" UX): «sokhrani Re pereispolzuy» konfiguratsii sborki.
-- Skrytyy 1 (Infoteoriya v†" Minimalizm): REST na prostom JSON, bez skrytykh sayd-effektov.
+- Yavnyy (Kibernetika v†" UX): "sokhrani Re pereispolzuy" konfiguratsii sborki.
+- Skrytyy 1 (Infoteoriya v†" Minimalizm): REST na prostom JSON, bez skrytykh said-effektov.
 - Skrytyy 2 (Praktika v†" Vezopasnost): ni klyuchey/sekretov — tolko parametry upakovki.
 
 Zemnoy abzats:
-Profile — kak meditsinskaya karta patsienta: po ney bystro gotovim «nabor» dlya operatsii (sborki USB).
+Profile - kak meditsinskaya karta patsienta: po ney bystro gotovim “nabor” dlya operatsii (sborki USB).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

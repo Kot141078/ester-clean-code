@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/providers_models.py - spisok/vybor modeli.
+"""routes/providers_models.py - spisok/vybor modeli.
 
 MOSTY:
 - (Yavnyy) GET /providers/models - LM Studio /v1/models (+ vybrannaya).
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Ne lomaet suschestvuyuschie provaydery - eto lish podskazka registry.
 
 ZEMNOY ABZATs:
-Tumbler «kakim golosom dumaem»: vybral model - dalshe ves UI rabotaet cherez nee.
+Tumbler “kakim golosom dumaem”: vybral model - dalshe ves UI rabotaet cherez nee.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.providers.lmstudio_models import list_models, get_preferred_model, set_preferred_model

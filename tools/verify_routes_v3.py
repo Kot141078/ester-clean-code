@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tools/verify_routes_v3.py — edinyy otchet po Flask+FastAPI.
+"""tools/verify_routes_v3.py - edinyy otchet po Flask+FastAPI.
 
 MOSTY:
 - (Yavnyy) Damp blyuprintov/pravil Flask i routov FastAPI (esli importiruetsya).
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Ne zavisit ot nalichiya FastAPI — sektsiya asgi pustaya, esli net.
 
 ZEMNOY ABZATs:
-Odin «ommetr» na dve shiny: Flask i ASGI na odnom liste — udobno lovit konflikty i probely.
+Odin “ommetr” na dve shiny: Flask i ASGI na odnom liste — udobno lovit konflikty i probely.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Dict, Any

@@ -3,7 +3,7 @@ import os
 import logging
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-print("=== PROVERKA IMPORTOV ADAPTEROV ===\n")
+print("=== CHECKING ADAPTER IMPORTS ===")
 
 def try_import(module_name):
     print(f"Popytka importa: {module_name} ...", end=" ")
@@ -18,13 +18,13 @@ def try_import(module_name):
         print(f"❌ CRITICAL: {e}")
         return False
 
-# 1. Proveryaem biblioteki
+# 1. Checking the libraries
 print("--- 1. Biblioteki Python ---")
 libs = ["openai", "google.generativeai"]
 for l in libs:
     try_import(l)
 
-# 2. Proveryaem fayly adapterov
+# 2. Check adapter files
 print("\n--- 2. Vnutrennie moduli Ester ---")
 adapters = [
     "modules.providers.openai_adapter",

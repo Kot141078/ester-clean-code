@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-routes/metrics_ingest_bp_routes.py — Prometheus ekspozitsiya backpressure.
+"""routes/metrics_ingest_bp_routes.py - Prometheus ekspozitsiya backpressure.
 
 Endpoint:
   • GET /metrics/ingest_backpressure
 
-Eksportiruem:
+Export:
   - ingest_allowed_total <count>
   - ingest_blocked_total <count>
 
 Mosty:
 - Yavnyy: (Nablyudaemost v†" Nagruzka) vidim vliyanie limitera na potok.
 - Skrytyy #1: (Kibernetika v†" R egulyatsiya) mozhno alertit na vspleski blocked.
-- Skrytyy #2: (Inzheneriya v†" Ekspluatatsiya) otdelnyy put — ne konfliktuet s obschimi metrikami.
+- Skrytyy #2: (Inzheneriya v†" Ekspluatatsiya) otdelnyy put - ne konfliktuet s obschimi metrikami.
 
 Zemnoy abzats:
-Eto para schetchikov u vorot: skolko mashin proekhalo Re skolko zavernuli.
+Eto para schetchikov u vorot: skolko mashin proekkhalo Re skolko zavernuli.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, Response, jsonify

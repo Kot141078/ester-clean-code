@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/vision/overlay.py — otrisovka podskazok poverkh skrinshota.
+"""modules/vision/overlay.py - otrisovka podskazok poverkh screenshota.
 
 Funktsii:
 - draw_box_label(screen_b64, box, label) -> overlay_b64
@@ -8,14 +7,13 @@ Funktsii:
 
 MOSTY:
 - Yavnyy: (Zrenie ↔ Obyasnenie) chto/kuda nazhat — vidno na skrine.
-- Skrytyy #1: (Infoteoriya ↔ UX) minimalnaya grafika → maksimum yasnosti.
-- Skrytyy #2: (Anatomiya ↔ Psikhologiya) strelka/ramka kak «nastavnik u plecha».
+- Skrytyy #1: (Infoteoriya ↔ UX) minimalnaya grafika → maximum yasnosti.
+- Skrytyy #2: (Anatomiya ↔ Psikhologiya) strelka/ramka kak “nastavnik u plecha”.
 
 ZEMNOY ABZATs:
 Obychnyy PIL, lokalno, bez vneshnikh zavisimostey. Legkoe i bystroe nalozhenie.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, Tuple
 import base64, io

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-X Trends Search: Poisk trendov na X (Twitter).
-Novyy: Dobavlen s ispolzovaniem Twitter API (simulyatsiya s requests).
-"""
+"""With Trends Search: Search for trends on X (Twitter).
+New: Added using Twitter API (simulation with reguess)."""
 from typing import Any, Dict, List
 import os
 

@@ -2,9 +2,7 @@
 from __future__ import annotations
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 def list_resources():
-    """
-    Spisok resursov (minimum dlya sovmestimosti).
-    Mosty i Zemnoy abzats sm. v projects.py.
-    # c=a+b
-    """
+    """List of resources (minimum for compatibility).
+    Bridges and Earth paragraph art. in projection
+    # c=a+b"""
     return []

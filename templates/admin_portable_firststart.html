@@ -37,16 +37,16 @@
     <div style="margin-top:8px">
       <button onclick="applyEnv()">Primenit (zapisat v ESTER/portable)</button>
       <span id="apply_res" class="chip">—</span>
-      <span class="muted">V AB=A — dry, nichego ne pishem.</span>
+      <span class="muted">In AB=A it’s trash, we don’t write anything.</span>
     </div>
   </section>
 
   <section>
-    <h3>Svyaz s kopiyami (cherez Telegram, offlayn)</h3>
-    <p class="muted">Budet sgenerirovan korotkiy kod i payload-fayl v <code>ESTER/payloads/outbox</code>. Tekst mozhno prosto pereslat sebe v «Izbrannoe».</p>
+    <h3>Communication with copies (via Telegram, offline)</h3>
+    <p class="muted">Budet sgenerirovan korotkiy kod i payload-fayl v <code>ESTER/payloads/outbox</code>. You can simply send the text to your “Favorites”.</p>
     <textarea id="meta" placeholder='{"hint":"lyuboy komment"}' style="width:100%;min-height:80px"></textarea>
     <div style="margin-top:8px">
-      <button onclick="makeHello()">Sdelat «rukopozhatie»</button>
+      <button onclick="makeHello()">Make a handshake</button>
       <span id="hello_res" class="chip">—</span>
     </div>
     <pre id="hello_msg">—</pre>

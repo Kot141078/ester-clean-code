@@ -552,7 +552,7 @@ def main() -> int:
     )
     notes_profile = (
         "# Profiles in Bundle Context\n\n"
-        "- BASE: chain + envelope hashes/signatures + refs consistency.\n"
+        "- BASE: chain + envelope hashes/signatures + refs consistency."
         "- HRO: BASE + evidence signature/payload hash (needs evidence files unless allow flag).\n"
         "- FULL: HRO + cross-layer refs (cross_refs.json or external events/volition paths).\n"
     )

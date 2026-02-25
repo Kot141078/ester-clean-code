@@ -10,7 +10,7 @@ def test_rbac_deny_ops_for_user(client, auth_hdr_user):
 
 def test_replication_token_and_signature(client):
     token = os.getenv("REPLICATION_TOKEN", "")
-    # snapshot bez tokena (esli token zadan) -> 401
+    # snapshot without token (if token is specified) -> 401
     r0 = client.get("/replication/snapshot")
     if token:
         assert r0.status_code == 401
@@ -20,7 +20,7 @@ def test_replication_token_and_signature(client):
     sig = r.headers.get("X-Signature", "")
     assert sig
 
-    # apply s plokhoy podpisyu -> 400
+    # apps with bad signature -> 400
     r2 = client.post(
         "/replication/apply",
         data=r.data,

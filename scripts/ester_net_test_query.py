@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/ester_net_test_query.py
+"""scripts/ester_net_test_query.py
 
 Test starogo net-mosta (modules/net_bridge.py) v otryve ot Flask.
 
 Zemnoy abzats:
 Skript imitiruet to, chto delaet Ester pri obychnom setevom poiske, no bez HTTP.
-Polezen, chtoby ponyat: problema v marshrutakh/Flask ili v samom net-dvigatele.
-"""
+Polezen, chtoby ponyat: problema v marshrutakh/Flask or v samom net-dvigatele."""
 
 from __future__ import annotations
 

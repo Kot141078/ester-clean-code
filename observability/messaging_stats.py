@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-observability/messaging_stats.py — metriki po kanalam i ocheredyam.
+"""observability/messaging_stats.py - metriki po kanalam i ocheredyam.
 
 MOSTY:
 - (Yavnyy) collect_messaging_stats(now_ts=None) → slovar dlya bordy/alertov (1ch/24ch, kody oshibok, ocheredi).
-- (Skrytyy #1) Istochniki: outbox, nudges_pending, nudges_log — bez izmeneniy skhem ranee dobavlennykh moduley.
-- (Skrytyy #2) Bezopasnye defolty: esli tablits net, vozvraschaem nuli (borda ne padaet).
+- (Skrytyy #1) Istochniki: outbox, nudges_pending, nudges_log — bez izmeneniy skhem ranee addavlennykh moduley.
+- (Skrytyy #2) Safe defolty: esli tablits net, vozvraschaem nuli (borda ne padaet).
 
 ZEMNOY ABZATs:
-Odin vyzov — i u vas kartina: skolko ushlo/ne ushlo, chto v ocheredi, chto «gorit» i kakie kody byut chasche vsego.
+Odin vyzov - i u vas kartina: skolko ushlo/ne ushlo, chto v ocheredi, chto “gorit” i kakie kody byut chasche vsego.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, time, sqlite3
@@ -46,7 +44,7 @@ def collect_messaging_stats(now_ts: float | None = None) -> Dict[str, Any]:
     }
 
     with _conn() as c:
-        # outbox — uspekhi/oshibki po kanalam
+        # otbox - successes/errors by channel
         if _exists(c, "outbox"):
             for ch in ("telegram","whatsapp"):
                 s1 = c.execute("SELECT COUNT(*) FROM outbox WHERE ts>=? AND channel=? AND status LIKE 'ok%'", (hour_ago,ch)).fetchone()[0]
@@ -64,7 +62,7 @@ def collect_messaging_stats(now_ts: float | None = None) -> Dict[str, Any]:
                 """, (day_ago,ch)).fetchall()
                 out["channels"][ch]["top_errors"] = [{"code": int(r[0] or 0), "count": int(r[1] or 0)} for r in rows]
 
-        # nudges_pending/log — sostoyanie ocheredi
+        # newges_pending/log - queue status
         if _exists(c, "nudges_pending"):
             total = c.execute("SELECT COUNT(*) FROM nudges_pending WHERE status='new'").fetchone()[0]
             due   = c.execute("SELECT COUNT(*) FROM nudges_pending WHERE status='new' AND due_ts<=?", (now,)).fetchone()[0]

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/media/ingest_video.py — edinaya orkestratsiya: URL/put → metadannye → subtitry → konspekt → pamyat.
+"""modules/media/ingest_video.py - edinaya orkestratsiya: URL/put → metadannye → subtitry → konspekt → pamyat.
 
 Mosty:
 - Yavnyy: (Memory ↔ Media) skladyvaem artefakty v pamyat s meta.provenance (profile).
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Myshlenie ↔ Deystviya) eksportiruem deystviya dlya volevogo vyzova (media.fetch/media.outline/media.ingest).
 
 Zemnoy abzats:
-«Prokrutil rolik cherez voronku» — i u nas v pamyati lezhit meta, tekst i opornyy konspekt.
+“Prokrutil rolik cherez voronku” - i u nas v pamyati lezhit meta, tekst i opornyy konspekt.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hashlib
 from typing import Any, Dict
@@ -39,7 +37,7 @@ def ensure_dir():
 
 def probe(source: str) -> Dict[str, Any]:
     if source.startswith("http://") or source.startswith("https://"):
-        # popytaemsya skachat tolko metadannye? yt-dlp --dump-json — optsionalno; uproschaem: ne dergaem set
+        # Let's try to download only the metadata? from-dlp --dump-zhsion - optional; simplifies: does not disrupt the network
         return {"ok": True, "online": True, "source": source, "note":"online_source"}
     # lokalnyy fayl
     try:
@@ -68,16 +66,16 @@ def ingest(source: str, prefer: str | None = None, k: int = 8) -> Dict[str, Any]
     if AB=="B":
         return {"ok": False, "error":"MEDIA_AB=B"}
     ensure_dir()
-    # 1) poluchit subtitry (ili tekstovyy istochnik)
+    # 1) get subtitles (or text source)
     sub_rep = extract_subs(source, prefer)
     if not sub_rep.get("ok"):
-        # dopuskaem inzhest tolko metadannykh
+        # We allow ingestion of only metadata
         meta = probe(source)
         return {"ok": True, "ingested": {"meta_only": True, "probe": meta}, "note": sub_rep}
     srt_path = sub_rep.get("path")
     # 2) konspekt
     out = outline_from(srt_path, k) if srt_path else {"ok": False, "error":"no_srt"}
-    # 3) zapis v pamyat
+    # 3) recording to memory
     mm = _mm()
     if not mm:
         return {"ok": False, "error":"memory_unavailable", "subs": sub_rep, "outline": out}

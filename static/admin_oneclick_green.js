@@ -50,7 +50,7 @@ c=a+b
   async function applyFiles(){
     if(!bundle){ out.textContent='Net bundle'; return; }
     const allow = E('write').checked;
-    if(!allow){ out.textContent='Vklyuchite chekboks «Razreshit zapis»'; return; }
+    if(!allow){ out.textContent='Enable the “Allow recording” checkbox'; return; }
     const r = await fetchJSON('/thinking/act', {method:'POST', body: JSON.stringify({name:'oneclick.green.apply', args:{bundle}})});
     out.textContent = pjson(r);
   }

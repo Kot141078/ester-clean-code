@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/desktop_window_routes.py - REST-pult okon/goryachikh klavish.
+"""routes/desktop_window_routes.py - REST-pult okon/goryachikh klavish.
 
 Ruchki:
-  GET  /desktop/window/list
-  POST /desktop/window/focus {"id":12345}  | {"title":"Bloknot"}
-  POST /desktop/window/capture {"id":12345}  -> {ok, png_b64}
+  GET /desktop/window/list
+  POST /desktop/window/focus {"id":12345} | {"title":"Bloknot"}
+  POST /desktop/window/capture {"id":12345} -> {ok, png_b64}
   POST /desktop/window/hotkey {"seq":"CTRL+S"} -> {ok}
 
 MOSTY:
-- Yavnyy: (Okno ↔ Deystvie) vybor tseli, fokus, zum.
+- Yavnyy: (Window ↔ Deystvie) vybor tseli, fokus, zum.
 - Skrytyy #1: (Zrenie ↔ Infoteoriya) zakhvat okna umenshaet shum dlya shablonov/OCR.
 - Skrytyy #2: (Kibernetika ↔ Volya) goryachaya klavisha kak bystraya komanda.
 
 ZEMNOY ABZATs:
-Bez pravok agenta: rabotaem cherez Win32/X11 utility. Vse lokalno.
+Without pravok agenta: rabotaem cherez Win32/X11 utility. Everything is local.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from typing import Any, Dict, Optional

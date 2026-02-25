@@ -8,7 +8,7 @@ PY="${PYTHON_BIN:-python}"
 
 if [[ ! -f "$COVERAGE_XML" ]]; then
   echo "❌ Ne nayden fayl pokrytiya: $COVERAGE_XML"
-  # Sozdadim minimalnyy dod_status.json, chtoby artefakt vsegda suschestvoval.
+  # Let's create a minimum dod_status.zsion so that the artifact always exists.
   cat > "$DOD_JSON" <<JSON
 {
   "ok": false,
@@ -19,7 +19,7 @@ JSON
   exit 2
 fi
 
-# Porogovye znacheniya iz peremennykh okruzheniya (sm. CI env)
+# Threshold values ​​from environment variables (see SI env)
 export DOD_LINES_MIN="${DOD_LINES_MIN:-0.85}"
 export DOD_BRANCH_MIN="${DOD_BRANCH_MIN:-0.85}"
 
@@ -32,7 +32,7 @@ echo "    - Porog po vetvleniyam: ${DOD_BRANCH_MIN}"
 echo "➡️  Proverka Memory Facade (no direct writes):"
 "$PY" "$(dirname "$0")/memory_facade_lint.py"
 
-# Skript sam sozdaet dod_status.json i vystavlyaet korrektnyy kod vykhoda
+# The script itself creates dod_status.jsion and sets the correct exit code
 "$PY" "$(dirname "$0")/check_dod.py" \
   --coverage-xml "$COVERAGE_XML" \
   --output-json "$DOD_JSON"

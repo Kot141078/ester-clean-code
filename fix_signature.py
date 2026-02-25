@@ -16,13 +16,13 @@ def repair_signatures():
     
     # 1. Ispravlyaem synthesize_thought
     # Ischem: async def synthesize_thought(..... daily_report: str) -> str:
-    # Zadacha: vstavit ", chat_id: int = None" pered zakryvayuschey skobkoy
+    # Task: insert ", chat_id: int = None" before the closing parenthesis
     
-    # Regulyarka ischet konets argumentov funktsii, gde est daily_report
+    # Regular searches for the end of the function arguments, where there is a dialo_report
     # (daily_report: str) ... (anything) ... ) -> str
     pattern_synth = r"(daily_report:\s*str)(\s*,?\s*)(\)\s*->\s*str:)"
     
-    # Proveryaem, est li uzhe chat_id v etoy funktsii
+    # Checking if there is already a chat_id in this function
     # Berem kusok teksta ot def synthesize_thought do -> str
     synth_match = re.search(r"def synthesize_thought.*?->\s*str:", content, re.DOTALL)
     if synth_match:

@@ -25,6 +25,6 @@ def test_build_spec_paths_present():
     # khotya by odin put
     assert len(spec["paths"]) >= 1
 
-    # Dopolnitelno proverim, chto safe_dump ne padaet
+    # Additionally, check that safe_dump does not crash
     text = yaml.safe_dump(spec, sort_keys=False, allow_unicode=True)
 # assert "openapi:" in text

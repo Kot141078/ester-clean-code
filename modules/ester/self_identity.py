@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ester/self_identity.py
+"""modules/ester/self_identity.py
 
-Formalnaya model «Ya» Ester v terminakh tekuschey arkhitektury.
+Formalnaya model “Ya” Ester v terminakh tekuschey arkhitektury.
 
-Naznachenie:
+Name:
 - Dat stabilnoe, lokalnoe opredelenie subektnosti Ester.
-- Byt oporoy dlya moduley voli, planirovschika, self-check i politik obmena.
+- Byt oporoy dlya modular voli, planirovschika, self-check i politik exchange.
 
 Mosty:
 - Yavnyy: self_identity ↔ will_planner (tseli i ogranicheniya).
-- Skrytyy #1: self_identity ↔ pamyat (core/bonded prioritety).
-- Skrytyy #2: self_identity ↔ marshruty statusa (selfcheck/autonomy map).
+- Skrytyy #1: self_identity ↔ pamyat (core/bonded priority).
+- Skrytyy #2: self_identity ↔ route statusa (selfcheck/autonomy map).
 
 Zemnoy abzats:
-Kak profile i skhema podklyucheniya kontrollerov v promyshlennoy stoyke:
-po nemu ponyatno, kto eto, chto eto i chto emu nelzya delat s oborudovaniem.
-"""
+How profile i skhema podklyucheniya kontrollerov v promyshlennoy stoyke:
+po nemu ponyatno, kto eto, chto eto i chto emu nelzya delat s oborudovaniem."""
 
 from __future__ import annotations
 
@@ -25,7 +23,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def get_identity() -> Dict[str, Any]:
-    """Vozvraschaet lokalnoe opisanie Ester kak sistemy."""
+    """Returns a local description of Esther as a system."""
     return {
         "name": "Ester",
         "role": "lokalnyy avtonomnyy agent",
@@ -50,7 +48,7 @@ def get_identity() -> Dict[str, Any]:
 
 
 def describe_norm() -> Dict[str, Any]:
-    """Opisyvaet, chto schitat «normoy» sostoyaniya Ester."""
+    """Describes what is considered the “norm” of Esther’s condition."""
     return {
         "thinking": {
             "required": ["manifest", "status"],

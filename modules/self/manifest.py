@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/manifest.py — samoopisanie vozmozhnostey i sostava Ester (SelfMap).
+"""modules/self/manifest.py - samoopisanie vozmozhnostey i sostava Ester (SelfMap).
 
 Mosty:
-- Yavnyy: (Samosoznanie ↔ Memory) formiruet SelfMap i po zaprosu kladet ego v pamyat s «profileom».
-- Skrytyy #1: (RAG ↔ Navigatsiya) karta prigodna dlya bystrykh otvetov «chto ya umeyu?».
+- Yavnyy: (Samosoznanie ↔ Memory) formiruet SelfMap i po zaprosu kladet ego v pamyat s “profileom”.
+- Skrytyy #1: (RAG ↔ Navigatsiya) karta prigodna dlya bystrykh otvetov “what ya umeyu?”
 - Skrytyy #2: (Bezopasnost ↔ Audit) fiksiruet versii i sha vazhnykh moduley.
 
 Zemnoy abzats:
-Kak karta organizma i navykov: chto est, gde lezhit, kakoy versii — i kogda obnovlyalos.
+Kak karta organizma i navykov: what est, where lezhit, kakoy versii - i kogda obnovlyalos.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, importlib.util, hashlib
 from typing import Any, Dict, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 KEY_MODULES = [
-    # yadro tekuschey sessii
+    # current session kernel
     "modules.llm.broker",
     "modules.app.discover",
     "modules.volition.pulse",

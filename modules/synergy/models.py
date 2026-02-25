@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/models.py — Kontrakty dannykh dlya Synergy (Pydantic).
+"""modules/synergy/models.py - Kontrakty dannykh dlya Synergy (Pydantic).
 
 MOSTY:
 - (Yavnyy) Edinye modeli: Role/Capability/Agent/Policy/Override/Assignment*/Outcome/Telemetry/Risk.
@@ -11,8 +10,7 @@ ZEMNOY ABZATs:
 Dannye stabilizirovany i samodokumentirovany: v API/khranilische gulyayut proverennye struktury,
 kotorye legko validirovat, serializovat i podpisyvat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import datetime as dt
@@ -32,11 +30,11 @@ def _uid() -> str:
 
 class VersionedModel(BaseModel):
     model: str = Field(..., description="Imya modeli (tip)")
-    version: str = Field("1.0", description="Skhema-versiya modeli")
+    version: str = Field("1.0", description="Schematic version of the model")
     uid: str = Field(default_factory=_uid, description="Lokalnyy UID obekta")
     created_at: dt.datetime = Field(default_factory=lambda: dt.datetime.utcnow().replace(tzinfo=dt.timezone.utc))
     updated_at: Optional[dt.datetime] = Field(
-        default=None, description="Moment poslednego obnovleniya. Avtozapolnyaetsya pri izmeneniyakh."
+        default=None, description="Time of last update. Auto-fills when changes occur."
     )
 
     class Config:
@@ -60,7 +58,7 @@ class RoleName(str, Enum):
 
 class Capability(BaseModel):
     name: str = Field(..., description="Nazvanie sposobnosti (reaction/strategy/comms/...)")
-    score: confloat(ge=0.0, le=1.0) = Field(..., description="Normirovannaya otsenka [0..1]")
+    score: confloat(ge=0.0, le=1.0) = Field(..., description="Normalized estimate 00..1")
 
 
 class Role(BaseModel):
@@ -80,7 +78,7 @@ class HumanProfile(BaseModel):
     name: str = Field(..., min_length=1)
     age: PositiveInt = Field(..., ge=14, le=120)
     exp_years: int = Field(0, ge=0, le=80)
-    domains: List[str] = Field(default_factory=list, description="Klyuchevye domeny (upravlenie/drony/taktika)")
+    domains: List[str] = Field(default_factory=list, description="Key Domains (Command/Drones/Tactics)")
     extras: Dict[str, Any] = Field(default_factory=dict)
 
 
@@ -102,9 +100,9 @@ class Channels(BaseModel):
 class Agent(VersionedModel):
     model: str = "synergy.Agent"
     kind: AgentKind
-    id: str = Field(..., description="Cheloveko/mashino-chitaemyy ID")
+    id: str = Field(..., description="Human/machine-readable ID")
     profile: HumanProfile | DeviceProfile
-    bio: Optional[str] = Field(None, description="Korotkaya svobodnaya biografiya/opisanie")
+    bio: Optional[str] = Field(None, description="Short free biography/description")
     channels: Optional[Channels] = None
     capabilities: List[Capability] = Field(default_factory=list)
 
@@ -114,9 +112,7 @@ class Agent(VersionedModel):
 
     @staticmethod
     def from_legacy(raw: Mapping[str, Any]) -> "Agent":
-        """
-        Preobrazuet staryy STORE-agent (id/kind/profile/bio/channels) v strogiy Agent.
-        """
+        """Converts the old STORE agent (id/kind/profile/bio/hannels) into a strict Agent."""
         kind = str(raw.get("kind") or "").strip().lower()
         prof = dict(raw.get("profile") or {})
         bio = raw.get("bio")
@@ -193,7 +189,7 @@ class Override(BaseModel):
         return Override(mapping=m)
 
 
-# ===== Zapros/Plan/Shag/Iskhod =====
+# ===== Request/Plan/Step/Outcome =====
 
 class AssignmentStep(BaseModel):
     description: str
@@ -233,7 +229,7 @@ class TelemetryEvent(VersionedModel):
     agent_id: str = Field(..., description="ID agenta/ustroystva")
     vendor: Optional[str] = Field(None, description="Istochnik (acme_uav/neo/...)")
     payload: Dict[str, Any] = Field(default_factory=dict)
-    # Kanonicheskie polya (esli izvestny)
+    # Canonical fields (if known)
     latency_ms: Optional[float] = Field(None, ge=0.0, le=5000.0)
     flight_time_min: Optional[float] = Field(None, ge=0.0, le=360.0)
     payload_g: Optional[float] = Field(None, ge=0.0, le=50000.0)

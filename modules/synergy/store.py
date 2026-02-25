@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/store.py — persistentnost Synergy: event-sourcing + audit hash-chain (SQLite).
+"""modules/synergy/store.py - persistentnost Synergy: event-sourcing + audit hash-chain (SQLite).
 
 MOSTY:
 - (Yavnyy) Tablitsy: events (s khesh-tsepochkoy), plans (aktualnoe naznachenie po team_id), edits (redaktiruemyy kanal).
@@ -9,10 +8,9 @@ MOSTY:
 
 ZEMNOY ABZATs:
 Daet vosproizvodimost i audit: kazhdoe naznachenie i ego iskhod popadaet v neizmenyaemuyu tsepochku sobytiy.
-Esli chto-to poshlo ne tak — po tsepochke mozhno vosstanovit pravdu i plan na lyuboy moment vremeni.
+Esli chto-to poshlo ne tak - po tsepochke mozhno vosstanovit pravdu i plan na lyuboy moment vremeni.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import dataclasses
@@ -51,28 +49,27 @@ def _conn_path() -> str:
     # fallback
     return url
 
-# ================== SKhEMA / INITsIALIZATsIYa ==================
+# ==== Schema/Initialization ==================
 
-_SCHEMA_SQL = """
-PRAGMA foreign_keys=ON;
+_SCHEMA_SQL = """PRAGMA foreign_keys=ON;
 CREATE TABLE IF NOT EXISTS events(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   ts INTEGER NOT NULL,
   team_id TEXT NOT NULL,
-  type TEXT NOT NULL,              -- AssignmentRequested|Planned|Applied|OutcomeReported|Edit
-  payload TEXT NOT NULL,           -- canonical JSON
-  request_id TEXT,                 -- idempotentnost
-  who TEXT,                        -- optsionalno: kto initsiiroval
-  meta TEXT,                       -- optsionalno: metadannye zaprosa/kanala
-  prev_hash TEXT,                  -- khesh predyduschego sobytiya v obschey tsepochke
-  hash TEXT NOT NULL               -- khesh tekuschego sobytiya: sha256(prev_hash|ts|team_id|type|sha256(payload)|request_id)
+  type TEXT NOT NULL, -- AssignmentRequested|Planned|Applied|OutcomeReported|Edit
+  payload TEXT NOT NULL, -- canonical JSON
+  request_id TEXT, -- idempotentnost
+  who TEXT, -- optsionalno: kto initsiiroval
+  meta TEXT, -- optsionalno: metadannye zaprosa/kanala
+  prev_hash TEXT, -- khesh predyduschego sobytiya v obschey tsepochke
+  hash TEXT NOT NULL -- khesh tekuschego sobytiya: sha256(prev_hash|ts|team_id|type|sha256(payload)|request_id)
 );
 CREATE INDEX IF NOT EXISTS ix_events_team_ts ON events(team_id, ts);
 CREATE INDEX IF NOT EXISTS ix_events_req ON events(request_id);
 
 CREATE TABLE IF NOT EXISTS plans(
   team_id TEXT PRIMARY KEY,
-  assigned TEXT NOT NULL,          -- JSON dict {role: agent_id}
+  assigned TEXT NOT NULL, -- JSON dict {role: agent_id}
   trace_id TEXT,
   total REAL,
   penalty REAL,
@@ -87,8 +84,7 @@ CREATE TABLE IF NOT EXISTS edits(
   new_value TEXT,
   ts INTEGER NOT NULL,
   FOREIGN KEY(event_id) REFERENCES events(id) ON DELETE CASCADE
-);
-"""
+);"""
 
 # ================== KLASS KhRANILISchA ==================
 
@@ -113,10 +109,8 @@ class VerifyReport:
 
 
 class AssignmentStore:
-    """
-    Legkiy SQLite-storan dlya event-sourcing Synergy.
-    Potokobezopasnyy cherez vnutrennyuyu blokirovku; soedineniya otkryvayutsya po trebovaniyu.
-    """
+    """Lightweight SGLite-side for event-sourcing Synergy.
+    Thread safe via internal locking; connections are opened on demand."""
 
     def __init__(self, path: Optional[str] = None):
         self.path = path or _conn_path()
@@ -192,10 +186,8 @@ class AssignmentStore:
         return [self._row_to_event(r) for r in rows]
 
     def verify_chain(self, team_id: Optional[str] = None) -> VerifyReport:
-        """
-        Proveryaet nepreryvnost khesh-tsepochki (v predelakh team_id ili globalno).
-        """
-        sql = "SELECT id,ts,team_id,type,payload,request_id,prev_hash,hash FROM events "
+        """Checks the continuity of the hash chain (within team_ids or globally)."""
+        sql = "SELECT id,ts,team_id,type,payload,request_id,prev_hash,hash FROM events"
         if team_id:
             sql += "WHERE team_id=? "
         sql += "ORDER BY id ASC"
@@ -265,17 +257,13 @@ class AssignmentStore:
 
     # ---------- utility integratsii (drop-in) ----------
     def hook_assign_request(self, team_id: str, roles: List[str], overrides: Dict[str, str], request_id: Optional[str] = None, who: Optional[str] = None, meta: Optional[Dict[str, Any]] = None) -> Event:
-        """
-        Zapisat fakt zaprosa naznacheniya (do vyzova orkestratora).
-        """
+        """Record the fact of the assignment request (before calling the orchestrator)."""
         payload = {"roles": roles, "overrides": overrides}
         return self.record_event(team_id, "AssignmentRequested", payload, request_id=request_id, who=who, meta=meta)
 
     def hook_assign_result(self, team_id: str, result: Dict[str, Any], request_id: Optional[str] = None, who: Optional[str] = None, meta: Optional[Dict[str, Any]] = None) -> Event:
-        """
-        Zapisat plan, sokhranit aktualnyy snapshot.
-        Ozhidaet result v formate assign_v2(...).
-        """
+        """Write down the plan, save the current snapshot.
+        Expects a result in the format assign_v2(...)."""
         assigned = dict(result.get("assigned") or {})
         total = float(result.get("total") or 0.0)
         penalty = float(result.get("penalty") or 0.0)
@@ -285,24 +273,18 @@ class AssignmentStore:
         return ev
 
     def hook_apply(self, team_id: str, plan: Dict[str, Any], request_id: Optional[str] = None, who: Optional[str] = None, meta: Optional[Dict[str, Any]] = None) -> Event:
-        """
-        Zafiksirovat primenenie plana (naprimer, kogda naznacheniya realno vstupili v silu v vneshnikh sistemakh).
-        """
+        """Record the application of the plan (for example, when the assignments actually took effect in external systems)."""
         ev = self.record_event(team_id, "Applied", {"plan": plan}, request_id=request_id, who=who, meta=meta)
         return ev
 
     def hook_outcome(self, team_id: str, outcome: str, notes: str = "", request_id: Optional[str] = None, who: Optional[str] = None, meta: Optional[Dict[str, Any]] = None) -> Event:
-        """
-        Finalnyy iskhod operatsii.
-        """
+        """The final outcome of the operation."""
         ev = self.record_event(team_id, "OutcomeReported", {"outcome": outcome, "notes": notes}, request_id=request_id, who=who, meta=meta)
         return ev
 
-    # ---------- rekonstruktsiya po sobytiyam ----------
+    # ---------- reconstruction based on events ----------
     def rebuild_plan_from_events(self, team_id: str) -> Dict[str, Any]:
-        """
-        Prokhodit po sobytiyam komandy i vosstanavlivaet poslednee naznachenie i izvestnye atributy.
-        """
+        """Walks through command events and restores the last assignment and known attributes."""
         events = self.list_events(team_id, limit=10_000, offset=0)
         last_result: Optional[Dict[str, Any]] = None
         last_trace: Optional[str] = None
@@ -337,4 +319,4 @@ class AssignmentStore:
             hash=r["hash"],
         )
 
-# Konets modulya
+# End of module

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/garage_ops_routes.py - REST: propozal, skelet, schet, portfolio, flot-assayn.
+"""routes/garage_ops_routes.py - REST: propozal, skelet, schet, portfolio, flot-assayn.
 
 Mosty:
-- Yavnyy: (Veb ↔ Operatsii garazha) «s odnoy knopki» ves tsikl ot offera do scheta.
+- Yavnyy: (Veb ↔ Operatsii garazha) “s odnoy knopki” ves tsikl ot offera do scheta.
 - Skrytyy #1: (Memory ↔ Profile) operatsii pishut profile.
 - Skrytyy #2: (Volya ↔ Avtonomiya) vse dostupno ekshenam.
 
 Zemnoy abzats:
 Panel upravleniya v masterskoy: sobrat offer, razvernut karkas, vypisat schet, pokazat portfolio, razdat zadachi.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/board_ops_home.py - «Tsentr upravleniya»: svodka kanalov, ssylki na bordy, tumblery ENV.
+"""routes/board_ops_home.py - "Tsentr upravleniya": svodka kanalov, ssylki na bordy, tumblery ENV.
 
 MOSTY:
 - (Yavnyy) /admin/control.html - edinaya panel operatoru/inzheneru.
@@ -10,8 +9,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Odna stranitsa - i vse klyuchevye mesta pod rukoy: dostavka soobscheniy, roli, sovetnik, overley i nastroyki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from fastapi import APIRouter, FastAPI
@@ -20,8 +18,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 router = APIRouter()
 
-_HTML = """
-<!doctype html><html><head><meta charset="utf-8"><title>Ester • Tsentr upravleniya</title>
+_HTML = """<!doctype html><html><head><meta charset="utf-8"><title>Ester • Tsentr upravleniya</title>
 <style>
 body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:16px;color:#222}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -98,14 +95,13 @@ async function saveEnv(){
   });
   const r = await fetch('/admin/runtime/env',{method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
   const d = await r.json();
-  alert('Sokhraneno. '+(d.changed||[]).length+' parametrov obnovleno.'
-        + '\\n'+((d.entries||[]).some(x=>!x.live)?'Chast nastroek vstupit posle restarta.':''));
+  alert('Sokhraneno. '+(d.changed||[]).length+' parameters updated.'
+        + '\\n'+((d.entries||[]).some(x=>!x.live)?'Chast nastroek vstupit after restarta.':''));
 }
 loadMetrics(); setInterval(loadMetrics, 10000);
 loadEnv();
 </script>
-</body></html>
-"""
+</body></html>"""
 
 @router.get("/admin/control.html", response_class=HTMLResponse)
 async def admin_control_html():

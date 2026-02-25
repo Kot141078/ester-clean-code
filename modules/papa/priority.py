@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/papa/priority.py — profil Papy i vesa prioritetov (care/funds/safety), bez setey i platezhey.
+"""modules/papa/priority.py - profil Papy i vesa prioritetov (care/funds/safety), bez setey i platezhey.
 
 Mosty:
 - Yavnyy: (Semya ↔ Politiki) yavnye vesa dlya planirovschika.
 - Skrytyy #1: (Infoteoriya ↔ Memory) profil khranitsya lokalno i mozhet sinkhronizirovatsya tvoimi sredstvami.
-- Skrytyy #2: (Kibernetika ↔ Ostorozhnost) tolko myagkie signaly, nikakoy «magii» perevoda sredstv.
+- Skrytyy #2: (Kibernetika ↔ Ostorozhnost) tolko myagkie signaly, nikakoy “magii” perevoda sredstv.
 
 Zemnoy abzats:
-Dokument «chto dlya Papy vazhno» — chtoby Ester planirovala s oglyadkoy.
+Dokument “what dlya Papy vazhno” - what Ester planirovala s oglyadkoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, time
 from typing import Any, Dict

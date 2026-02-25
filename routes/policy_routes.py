@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/policy_routes.py - REST/UI dlya politik.
+"""routes/policy_routes.py - REST/UI dlya politik.
 
 Ruchki:
-  GET  /policy/list
-  POST /policy/save           { ...polnyy obekt politik... }
-  POST /policy/decide         {"agent":"desktop","kind":"click","subject":"user:default","meta":{...},"safety":"allow","ctx":{"mode":"A","real_enabled":false,"requires_admin":false,"steps":3}}
-  GET  /admin/policies
+  GET /policy/list
+  POST /policy/save { ...polnyy obekt politik... }
+  POST /policy/decide {"agent":"desktop","kind":"click","subject":"user:default","meta":{...},"safety":"allow","ctx":{"mode":"A","real_enabled":false,"requires_admin":false,"steps":3}}
+  GET /admin/policies
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.policy import engine as PE

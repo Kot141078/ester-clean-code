@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/media/subs.py — parsing .srt/.vtt → spisok fragmentov i syroy tekst.
+"""modules/media/subs.py - parsing .srt/.vtt → spisok fragmentov i syroy tekst.
 
 Mosty:
-- Yavnyy: (Media ↔ Tekst) prevraschaem subtitry v udobnye kuski.
+- Yavnyy: (Media ↔ Text) prevraschaem subtitry v udobnye kuski.
 - Skrytyy #1: (KG ↔ Linker) mozhno kormit izvlechennyy tekst v KG.
 - Skrytyy #2: (Memory ↔ Passport) gotovim tekst k upsert_with_passport.
 
 Zemnoy abzats:
-Berem subtitry — delaem iz nikh chitaemye abzatsy, chtoby mozgu bylo za chto zatsepitsya.
+Berem subtitry - delaem iz nikh chitaemye abzatsy, chtoby mozgu bylo za chto zatsepitsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import re, os
 from typing import List, Dict, Any
@@ -57,7 +55,7 @@ def _from_vtt(text:str)->List[Dict[str,Any]]:
     for block in cur:
         tline=block[0]
         content=" ".join([x for x in block[1:] if x and not x.startswith("NOTE")])
-        # vremennye metki vida 00:00:03.500 --> 00:00:05.000
+        # timestamps like 00:00:03.500 --> 00:00:05.000
         ts=[x.strip() for x in tline.split("-->")]
         def to_sec_vtt(x:str)->float:
             m=TIME_RE.search(x or "")

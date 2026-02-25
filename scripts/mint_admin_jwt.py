@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-scripts/mint_admin_jwt.py — offlayn-generator JWT (HS256) dlya «Ester».
+"""scripts/mint_admin_jwt.py - offflayn-generator JWT (HS256) dlya "Ester".
 
-Ispolzovanie:
+Use:
   export JWT_SECRET="devsecret"
   python scripts/mint_admin_jwt.py --user owner --roles admin user --hours 12
 
@@ -12,8 +11,7 @@ Vyvodit gotovyy token v stdout.
 Polya:
   - sub: <user>
   - roles: ["admin", ...]
-  - iat/exp: unix-metki
-"""
+  - iat/exp: unix-tag"""
 from __future__ import annotations
 
 import argparse
@@ -54,7 +52,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--user", default="admin", help="znachenie sub")
     ap.add_argument("--roles", nargs="+", default=["admin"], help="spisok roley")
-    ap.add_argument("--hours", type=int, default=24, help="srok zhizni tokena, chasov")
+    ap.add_argument("--hours", type=int, default=24, help="token lifetime, hours")
     args = ap.parse_args()
     print(mint(args.user, args.roles, args.hours))
 

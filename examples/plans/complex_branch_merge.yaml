@@ -43,7 +43,7 @@ nodes:
     await_nodes: ["polish"]
     depends: ["polish"]
 
-  # Finalnyy otchet na kornevoy vetke na osnove join-rezultata
+  # Final report on the root branch based on the ein result
   - id: final_report
     type: llm.generate
     prompt: "Sformiruy obschiy otchet po elementam={{ctx.joined_list}}. Kratko rezyumiruy po kazhdomu i day obschiy vyvod."

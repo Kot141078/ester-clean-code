@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R1/tests/r1_telegram_smoke.py — integratsionnyy smouk Telegram-konturov (v zakrytoy korobke, bez realnogo Telegram).
+"""R1/tests/r1_telegram_smoke.py - integratsionnyy smouk Telegram-konturov (v zakrytoy korobke, bez realnogo Telegram).
 
 Mosty:
-- Yavnyy: Enderton (logika) — proveryaem predikaty: webhook prinimaet JSON s sekretom; ctrl API otvechaet; UI dostupen.
+- Yavnyy: Enderton (logika) — proveryaem predikaty: webhook prinimaet JSON s sekretom; ctrl API response; UI available.
 - Skrytyy #1: Ashbi (kibernetika) — regulyator prosche sistemy: minimalnye zaprosy (get_me, prostoy webhook), myagkie otkazy.
-- Skrytyy #2: Cover & Thomas (infoteoriya) — dostatochno malogo chisla nablyudeniy (kodov), chtoby otdelit «zhiv/ne zhiv».
+- Skrytyy #2: Cover & Thomas (infoteoriya) - dostatochno malogo chisla nablyudeniy (kodov), chtoby otdelit “zhiv/ne zhiv”.
 
 Zemnoy abzats (inzheneriya):
 Skript ne trogaet rantaym, ne trebuet realnogo bota. Otpravlyaet fikstury v `/api/telegram/webhook` s zagolovkom
-`X-Telegram-Bot-Api-Secret-Token`, proveryaet 2xx/4xx kody i optsionalnye ctrl-endpointy. Esli servis ne podnyat —
+`X-Telegram-Bot-Api-Secret-Token`, proveryaet 2xx/4xx kody i optsionalnye ctrl-endpointy. Esli service ne podnyat —
 pechataet WARN i zavershaetsya 0 (myagkiy rezhim).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import os
@@ -74,20 +72,20 @@ def _fixture_link(name: str = "Owner"):
 
 def main() -> int:
     print(f"[R1] BASE_URL={BASE_URL}")
-    # 0) Prostoy GET k ctrl UI (esli est)
+    # 0) Simple GET to strl UI (if any)
     code_ui, _ = _http_json("GET", "/tg/ctrl/ui")
     if code_ui is None:
-        print("[R1] INFO: servis nedostupen — myagkoe zavershenie.")
+        print("yR1sch INFO: service unavailable - soft termination.")
         return 0
     if code_ui in (200, 302, 404):
-        print(f"[R1] /tg/ctrl/ui => {code_ui} (lyuboy iz 200/302/404 dopustim dlya smouka)")
+        print(f"yuR1sch /tg/strl/oh => ZZF0Z (any of 200/302/404 is acceptable for smoke)")
 
-    # 1) get_me (esli est ctrl API)
+    # 1) get_me (est ctrl API)
     code_me, body_me = _http_json("GET", "/tg/ctrl/api/get_me")
     if code_me in (200, 404):
         print(f"[R1] /tg/ctrl/api/get_me => {code_me}")
     elif code_me in (401, 403):
-        print(f"[R1] INFO: ctrl zaschischen (RBAC/JWT) — ok dlya etoy konfiguratsii.")
+        print(f"yR1sch INFO: strl protected (RVACH/ZhVT) - ok for this configuration.")
     elif code_me is None:
         pass
     else:
@@ -99,9 +97,9 @@ def main() -> int:
     if code_ws in (200, 202, 204):
         print("[R1] webhook /start => OK")
     elif code_ws in (401, 403):
-        print("[R1] WARN: webhook otvergnut (sekret ne prinyat?) — prover TELEGRAM_WEBHOOK_SECRET.")
+        print("yUR1sch VARN: reject the webhook (not accept the secret?) - check TELEGRAM_WEBHOOK_SECRET.")
     elif code_ws == 404:
-        print("[R1] INFO: webhook put ne nayden — vozmozhno, marshrut vyklyuchen. Eto dopustimo dlya smouka.")
+        print("yR1sch INFO: webhook path not found - the route may be disabled. This is acceptable for smoke.")
     else:
         print(f"[R1] WARN: webhook /start => HTTP {code_ws}")
 
@@ -110,7 +108,7 @@ def main() -> int:
     if code_wl in (200, 202, 204):
         print("[R1] webhook /link => OK")
     elif code_wl in (401, 403, 404, None):
-        print(f"[R1] INFO: /link mozhet byt ne realizovan ili zakryt pravami — kod={code_wl}. Eto ok dlya smouka.")
+        print(f"yR1sch INFO: /link may not be implemented or may be closed with rights - code=ZZF0Z. It's ok for smoke.")
     else:
         print(f"[R1] WARN: webhook /link => HTTP {code_wl}")
 

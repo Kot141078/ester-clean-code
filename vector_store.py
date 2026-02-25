@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-VectorStore dlya Ester: SQLite + FTS5 (leksika) + optsionalnye embeddingi (sentence-transformers).
+"""VectorStore dlya Ester: SQLite + FTS5 (leksika) + optsionalnye embeddingi (sentence-transformers).
 
 Yavnyy most (kibernetika / Ashby):
 - ustoychivost trebuet raznoobraziya kanalov nablyudeniya → gibrid (FTS + embeddings), a ne “odna knopka”.
 
 Skrytye mosty:
-- Cover&Thomas: ne polagatsya na odin korrelirovannyy signal (leksika ili semantika).
+- Cover&Thomas: ne polagatsya na odin korrelirovannyy signal (leksika or semantika).
 - Jaynes: luchshe chestnaya aposteriornaya smes signalov, chem “vera v odnu model”.
 
 Zemnoy abzats:
 Eto ne “zapisnaya knizhka”, a zhurnal na sklade: tranzaktsii, WAL, i bystryy indeks po slovam.
-Kogda svet morgnul — dannye ne dolzhny prevraschatsya v kashu.
-"""
+Kogda svet morgnul - dannye ne dolzhny prevraschatsya v kashu."""
 
 import json
 import logging
@@ -122,7 +120,7 @@ class VectorStore:
 
         os.makedirs(persist_dir, exist_ok=True)
 
-        # db_name: v tvoem .env ESTER_VECTOR_DB=chroma (legacy). Ne lomaemsya, prosto ispolzuem sqlite.
+        # db_name: in your .env ESTER_VECTOR_DB=chroma (legacy). It doesn't break, just use it.
         if not db_name:
             db_name = os.environ.get("ESTER_VECTOR_DB", "").strip()
         if not db_name or db_name.lower() in ("chroma", "chromadb", "vectors", "vector", "db"):
@@ -341,7 +339,7 @@ class VectorStore:
                 ids.append(doc_id)
 
                 s = str(txt or "")
-                # Predokhranitel ot “??????” (obychno eto shell/pipe encoding)
+                # Fuse for “??????” (usually this is shell/pipe encoding)
                 if s and s.count("?") >= max(8, int(len(s) * 0.25)):
                     logging.warning("[VectorStore] text looks mojibake (many '?'). Check PowerShell $OutputEncoding / UTF-8 pipe.")
 

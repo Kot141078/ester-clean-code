@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-R4/services/reco/llm_client.py — minimalistichnyy OpenAI-sovmestimyy HTTP-klient dlya LM Studio (/v1/chat/completions).
+"""R4/services/reco/llm_client.py - minimalistichnyy OpenAI-sovmestimyy HTTP-client dlya LM Studio (/v1/chat/completions).
 
 Mosty:
 - Yavnyy: Enderton — protokol kak nabor predikatov nad (url, method, payload) s chetkoy proverkoy uspekha.
-- Skrytyy #1: Ashbi — prostoy regulyator: odin POST s taymautom; pri sboyakh — kontroliruemoe povedenie.
-- Skrytyy #2: Cover & Thomas — vyzhimaem "signal" (strogiy JSON-otvet) i otbrasyvaem shum (lishniy tekst), trebuya JSON-rezhim.
+- Skrytyy #1: Ashbi — prostoy regulyator: odin POST s taymautom; pri sboyakh - control behavior.
+- Skrytyy #2: Cover & Thomas — vyzhimaem "signal" (strogiy JSON-otvet) i otbrasyvaem noise (lishniy tekst), trebuya JSON-rezhim.
 
 Zemnoy abzats:
-Klient rabotaet tolko na stdlib (`urllib`), bez vneshnikh zavisimostey. Po umolchaniyu stuchitsya k LM Studio
-na `http://127.0.0.1:1234/v1/chat/completions`. Esli zapros ne udalsya/taymaut — kidaet isklyuchenie.
-Vyzyvayuschaya storona obyazana sdelat avtokatbek (B→A).
+Klient rabotaet tolko na stdlib (`urllib`), bez vneshnikh zavisimostey. By umolchaniyu stuchitsya k LM Studio
+na `http://127.0.0.1:1234/v1/chat/completions`. Esli zapros ne udalsya/taymaut - kidaet isklyuchenie.
+Vyzyvayuschaya side obyazana sdelat avtokatbek (B→A).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import os
@@ -49,7 +47,7 @@ class LMStudioClient:
 
         try:
             js = json.loads(raw)
-            # OpenAI-sovmestimyy otvet
+            # OpenAI-compatible answer
             return (js.get("choices") or [{}])[0].get("message", {}).get("content", "")
         except Exception:
             raise RuntimeError("LMStudio: invalid JSON response")

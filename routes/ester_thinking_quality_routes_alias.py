@@ -1,7 +1,6 @@
-"""
-Ester thinking quality HTTP alias + quality guard.
+"""Ester thinking quality HTTP alias + quality guard.
 
-Marshrut:
+Route:
   POST /ester/thinking/quality_once
     {
       "goal": "...",          # tsel kaskada
@@ -10,25 +9,24 @@ Marshrut:
     }
 
 Povedenie (rezhim A/B):
-- Vsegda:
-    * dobavlyaet volevoy impuls (volition_priority_adapter ili volition_registry),
+- Always:
+    * add volevoy impuls (volition_priority_adapter or volition_registry),
     * vyzyvaet always_thinker.consume_once(),
-    * izvlekaet kaskad (result ili ves dict),
-    * analiziruet kachestvo cherez modules.ester.thinking_quality.analyze_cascade.
+    * izvlekaet kaskad (result or ves dict),
+    * analyze kachestvo cherez modules.ester.thinking_quality.analyze_cascade.
 - ESTER_THINK_QONCE_AB = "A" (defolt):
-    * tolko diagnostika kachestva, bez vmeshatelstva v khod myshleniya.
+    * only diagnostics of quality, without interference in the course of thinking.
 - ESTER_THINK_QONCE_AB = "B":
-    * esli human_like=False ili score nizhe poroga, avtomaticheski zapuskaet
+    * if human_like=False or quarrel below the threshold, automatically starts
       glubokiy lokalnyy kaskad cherez modules.thinking.cascade_closed.run_cascade(goal),
-      povtorno analiziruet kachestvo i, esli ono luchshe i human_like=True,
-      prikladyvaet rezultat kak escalation.
+      povtorno analyzet kachestvo i, esli ono luchshe i human_like=True,
+      prikladyvaet resultat kak escalation.
     * iskhodnyy otvet always_thinker ostaetsya netronutym (prozrachnaya nadstroyka).
 
 Zemnoy abzats:
 Kak v inzhenernoy sisteme upravleniya: snachala izmeryaem signal (kachestvo kaskada),
 zatem po determinirovannomu pravilu vklyuchaem bolee tochnyy kontur, esli pervyy
-prokhod slishkom grubyy. Bez skrytykh pobochnykh effektov i s ponyatnym flagom rezhima.
-"""
+prokhod slishkom grubyy. Bez skrytykh pobochnykh effektov i s ponyatnym flagom rezhima."""
 
 from __future__ import annotations
 
@@ -62,7 +60,7 @@ def create_blueprint() -> Blueprint:
         priority = (data.get("priority") or "high").strip() or "high"
         trace_wanted = bool(data.get("trace", True))
 
-        # Importy s myagkim fallback — ne lomaem okruzhenie, esli chego-to net.
+        # Imports with soft falsification - we don’t break the environment if something is missing.
         try:
             from modules.thinking import volition_priority_adapter as vpa
         except Exception:
@@ -114,7 +112,7 @@ def create_blueprint() -> Blueprint:
                 "error": f"always_thinker.consume_once failed: {e.__class__.__name__}: {e}",
             }), 500
 
-        # 3) Dostaem kaskad dlya analiza (simple / multi / profile-based)
+        # 3) We take out the cascade for analysis (simple / multi / profile-vased)
         cascade = raw.get("result") or raw
 
         # 4) Bazovyy analiz human_like-kachestva
@@ -129,7 +127,7 @@ def create_blueprint() -> Blueprint:
         escalation = None
         ab_mode = _get_env_ab("ESTER_THINK_QONCE_AB", "A")
 
-        # 5) Optsionalnaya avto-eskalatsiya (rezhim B)
+        # 5) Optional auto-escalation (mode B)
         if (
             ab_mode == "B"
             and isinstance(quality, dict)
@@ -158,7 +156,7 @@ def create_blueprint() -> Blueprint:
                             "cascade": deep,
                             "quality": deep_q,
                         }
-                        # Obnovlyaem vidimuyu metriku kachestva: pokazyvaem, chto Ester uglubilas
+                        # We update the visible quality metrics: it shows that Esther has gone deeper
                         quality = {
                             "ok": True,
                             "meta": deep_q.get("meta", {}),
@@ -205,9 +203,8 @@ def create_blueprint() -> Blueprint:
 def register(app) -> None:
     """AUTO-REG entry dlya faylovogo avtoloadera marshrutov.
 
-    Nichego ne menyaem v suschestvuyuschem app.py:
-    esli /ester/thinking/quality_once uzhe est — vykhodim tikho.
-    """
+    Nothing ne menyaem v suschestvuyuschem app.py:
+    esli /ester/thinking/quality_once uzhe est - vykhodim tikho."""
     try:
         bp = create_blueprint()
     except Exception as e:

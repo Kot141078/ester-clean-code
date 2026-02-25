@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/voice_webrtc_routes.py - REST+UI dlya lokalnogo audio-mosta WebRTC (ruchnoy SDP).
+"""routes/voice_webrtc_routes.py - REST+UI dlya lokalnogo audio-mosta WebRTC (ruchnoy SDP).
 
 Ruchki:
-  POST /voice/offer  {"cid":"room1","sdp":"..."}
-  GET  /voice/offer  ?cid=room1
+  POST /voice/offer {"cid":"room1","sdp":"..."}
+  GET /voice/offer ?cid=room1
   POST /voice/answer {"cid":"room1","sdp":"..."}
-  GET  /voice/answer ?cid=room1
-  GET  /admin/voice
+  GET /voice/answer ?cid=room1
+  GET /admin/voice
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.voice.webrtc_store import store_offer, get_offer, store_answer, get_answer

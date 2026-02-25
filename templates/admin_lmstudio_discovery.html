@@ -94,7 +94,7 @@ document.getElementById("btnApply").onclick = async () => {
   try {
     const data = await postJSON("{{ url_for('admin_lmstudio_discovery.api_apply') }}");
     s.textContent = "Status: ok=" + data.ok + ", added=" + (data.added || []).join(", ");
-    // Posle primeneniya mozhno povtorno skanirovat dlya obnovleniya tablitsy env.
+    // After application, you can rescan to update the ENV table.
   } catch (e) {
     s.textContent = "Oshibka: " + e;
   }

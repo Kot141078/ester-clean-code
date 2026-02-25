@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/knowledge/registry.py — reestr istochnikov znaniy.
+"""modules/knowledge/registry.py - reestr istochnikov znaniy.
 
 Funktsii:
   add_source(url:str, title:str, meta:dict={}) -> dict
@@ -8,22 +7,21 @@ Funktsii:
   get_source(id:str) -> dict
   update_source(id:str, patch:dict) -> dict
   remove_source(id:str) -> dict
-  touch_source(id:str, ok:bool, bytes:int=0) -> dict  # obnovlyaet metriki
+  touch_source(id:str, ok:bool, bytes:int=0) -> dict # obnovlyaet metrics
   normalize_url(url) -> str
 
-Dannye khranyatsya v data/knowledge/registry.json (prostoy JSON-reestr).
+Dannye khranyatsya v data/knowledge/registry.json (prostoy JSON-registr).
 
 MOSTY:
-- Yavnyy: (Istochniki ↔ Memory) — kazhdaya zapis pomnit proiskhozhdenie.
+- Yavnyy: (Istochniki ↔ Memory) - kazhdaya zapis pomnit proiskhozhdenie.
 - Skrytyy #1: (Infoteoriya ↔ Dostovernost) — metriki dostupa/oshibok vliyayut na ves.
-- Skrytyy #2: (Kibernetika ↔ Ekspluatatsiya) — prozrachnyy reestr → upravlyaemost.
+- Skrytyy #2: (Kibernetika ↔ Ekspluatatsiya) - prozrachnyy reestr → upravlyaemost.
 
 ZEMNOY ABZATs:
-Inzhenerno — eto telefonnaya kniga istochnikov s schetchikami. Prakticheski — «profile»,
+Inzhenerno - eto telefonnaya kniga istochnikov s schetchikami. Prakticheski - “profile”,
 kotoryy prikladyvaetsya k lyuboy informatsii, chtoby znat, otkuda ona i naskolko nadezhna.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import os, json, time, hashlib, re

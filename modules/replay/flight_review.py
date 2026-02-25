@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/replay/flight_review.py — «razbor poletov»: analiz i repley s podsvetkoy latentnosti.
+"""modules/replay/flight_review.py - “razbor poletov”: analiz i repley s podsvetkoy latentnosti.
 
 Vkhod (events):
 [
@@ -10,20 +9,19 @@ Vkhod (events):
 ]
 
 Funktsii:
-- analyze(events) -> agregaty: lat_ms mezhdu input→oklik (ocr_ok/template_ok), raspredelenie, «krasnye» khvosty, korotkiy otchet.
-- overlay(events) -> base64-PNG podsvetka mest s plotnym «fail» (ispolzuem prostuyu teplovuyu masku).
-- replay(events, speed=1.0) -> «sukhoy» spisok shagov vosproizvedeniya (ts_rel, hint), bez pobochnykh effektov.
+- analyze(events) -> agregaty: lat_ms mezhdu input→oklik (ocr_ok/template_ok), raspredelenie, “krasnye” khvosty, korotkiy otchet.
+- overlay(events) -> base64-PNG podsvetka place s plotnym “fail” (ispolzuem prostuyu teplovuyu masku).
+- replay(events, speed=1.0) -> “sukhoy” spisok shagov vosproizvedeniya (ts_rel, hint), bez pobochnykh effektov.
 
 MOSTY:
 - Yavnyy: (Infoteoriya ↔ Kachestvo) schitaem latentnost i pokazyvaem problemnye zony.
-- Skrytyy #1: (Kibernetika ↔ Obuchenie) «repley» daet material dlya instruktora.
-- Skrytyy #2: (Inzheneriya ↔ Videnie) overlay ispolzuet tot zhe mekhanizm heatmap, no iz lokalnogo bufera.
+- Skrytyy #1: (Kibernetika ↔ Obuchenie) “repley” daet material dlya instruktora.
+- Skrytyy #2: (Inzheneriya ↔ Videnie) overlay ispolzuet tot zhe mekhanizm heatmap, no iz lokalnogo buffera.
 
 ZEMNOY ABZATs:
 Nikakikh vneshnikh zavisimostey; tolko arifmetika i lokalnyy PNG-render.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple
 import math, base64, zlib, struct

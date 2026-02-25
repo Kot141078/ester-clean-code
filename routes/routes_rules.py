@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
-"""
-routes/routes_rules.py - REST API dlya raboty s YAML-pravilami avtomatizatsiy.
+"""routes/routes_rules.py - REST API dlya raboty s YAML-pravilami avtomatizatsiy.
 
-Endpointy (JWT):
-  GET  /rules/config            - otdat tekuschiy bundle (s putem fayla)
-  POST /rules/install_triggers  - ustanovit vse triggery v planirovschik
-  POST /rules/run               - vypolnit avtomatizatsiyu po id (ruchnoy zapusk)
-  POST /rules/run_due           - zapustit planirovschik (prinuditelno «seychas»)
+Endpoint (JWT):
+  GET /rules/config - otdat tekuschiy bundle (s putem fayla)
+  POST /rules/install_triggers - installovit vse triggery v planirovschik
+  POST /rules/run - vypolnit avtomatizatsiyu po id (ruchnoy zapusk)
+  POST /rules/run_due - zapustit planirovschik (prinuditelno “seychas”)
 
-Registratsiya:
+Registration:
   from routes.routes_rules import register_rules_routes
   register_rules_routes(app, url_prefix="/rules")
 
 Mosty:
 - Yavnyy: (Planirovschik ↔ Logika) tsentralizovannyy REST dlya ustanovki/zapuska pravil.
-- Skrytyy #1: (Prozrachnost ↔ Audit) determinirovannye JSON-otvety - legko logirovat v «profile».
+- Skrytyy #1: (Prozrachnost ↔ Audit) determinirovannye JSON-otvety - legko logirovat v “profile”.
 - Skrytyy #2: (Infoteoriya ↔ Shum) tochechnye vyzovy run/run_due snizhayut izbytochnyy fon sobytiy.
 
 Zemnoy abzats:
-Eto «pult upravleniya» avtomatizatsiyami: posmotret konfig, postavit triggery, vruchnuyu dernut
-pravilo ili skazat planirovschiku «pora». Nikakoy magii - tolko chetkie knopki.
+This is “pult upravleniya” avtomatizatsiyami: posmotret konfig, postavit triggery, vruchnuyu dernut
+pravilo ili skazat planirovschiku "pora". Nikakoy magii - tolko chetkie knopki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import jsonify, request
@@ -99,7 +97,7 @@ __all__ = ["register_rules_routes"]
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
 def register(app):
-    # vyzyvaem suschestvuyuschiy register_rules_routes(app) (url_prefix beretsya po umolchaniyu vnutri funktsii)
+    # calls an existing register_rules_rutes(app) (url_prefix is ​​taken by default inside the function)
     return register_rules_routes(app)
 
 # === /AUTOSHIM ===

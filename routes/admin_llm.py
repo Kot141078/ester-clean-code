@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_llm.py — UI «Lokalnye LLM (LM Studio/Ollama)V» Re JSON-ruchki.
+"""routes/admin_llm.py - UI “Lokalnye LLM (LM Studio/Ollama)V” Re JSON-ruchki.
 
-Marshruty:
-  • GET  /admin/llm         — HTML-stranitsa
-  • GET  /admin/llm/list    — JSON: kandidaty Re modeli (bez bencha)
-  • POST /admin/llm/bench   — JSON: mikrobench vybrannoy modeli na vybrannom BASE
+Route:
+  • GET /admin/llm - HTML pages
+  • GET /admin/llm/list - JSON: kandidaty Re modeli (bez bencha)
+  • POST /admin/llm/bench - JSON: mikrobench vybrannoy modeli na vybrannom BASE
 
 Sovmestimost:
-  • Drop-in: ne menyaem suschestvuyuschie kontrakty; blyuprint izolirovan.
-  • R egistratsiya predpolagaetsya cherez vyzov register_admin_llm(app) (dobavim v app.py pozzhe obschim paketom).
+  • Drop-in: ne menyaem suschestvuyuschie kontrakty; blueprint isolated.
+  • Registration predpolagaetsya cherez vyzov register_admin_llm(app) (dobavim v app.py pozzhe obschim paketom).
 
 Mosty:
-  • Yavnyy (Kibernetika v†" Orkestratsiya): vidimye «myshtsy» uzla (modeli), knopka «szhat kulak» (bench).
-  • Skrytyy 1 (Infoteoriya v†" UI): otdaem kompaktnyy JSON — udobno Re cheloveku, Re avtomatike.
+  • Yavnyy (Kibernetika v†" Orkestratsiya): vidimye "myshtsy" uzla (modeli), knopka "szhat kulak" (bench).
+  • Skrytyy 1 (Infoteoriya v†" UI): otdaem kompaktnyy JSON - udobno Re cheloveku, Re avtomatike.
   • Skrytyy 2 (Vayes v†" Judge): bench daet apriori dlya vesov uzla (skorost/stabilnost) bez uchastiya polzovatelya.
 
 Zemnoy abzats:
-Stranitsa — instrument tekhnika: «vizhu server — meryayu skorost — zapisyvayu profil».
-Eto podgotovka k avto-raspredeleniyu zadach: tyazhelye — na bystryy uzel, legkie — na kompaktnyy.
+Stranitsa - instrument tekhnika: "vizhu server - meryayu skorost - zapisyvayu profile."
+Eto podgotovka k avto-raspredeleniyu zadach: tyazhelye - na bystryy uzel, legkie - na kompaktnyy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -62,7 +60,7 @@ def api_llm_bench():
 def register_admin_llm(app, url_prefix: str | None = None) -> None:
     app.register_blueprint(bp_admin_llm)
     if url_prefix:
-        # optsionalnyy dubl pod prefiksom (dlya mikroshardinga UI)
+        # optional double under the prefix (for UI microsharding)
         pref = Blueprint("admin_llm_pref", __name__, url_prefix=url_prefix)
 
         @pref.get("/admin/llm")

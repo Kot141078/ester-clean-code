@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/backup_cli.py — CLI dlya eksporta/importa bandla i sborki fleshki-repliki.
+"""scripts/backup_cli.py - CLI dlya eksporta/importa bandla i sborki fleshki-repliki.
 
 Primery:
   # Eksport v fayl
   python -m scripts.backup_cli --export /tmp/ester_bundle.json
 
-  # Import iz fayla (merge | overwrite), AB_MODE=B — primenit
+  # Import iz fayla (merge | overwrite), AB_MODE=B - primenit
   AB_MODE=B python -m scripts.backup_cli --import /tmp/ester_bundle.json --mode merge
 
-  # Sozdat fleshku-repliku na /media/USB (v AB_MODE=B — realno zapishet)
+  # Sozdat fleshku-repliku na /media/USB (v AB_MODE=B - realno zapishet)
   AB_MODE=B python -m scripts.backup_cli --clone /media/USB --label ESTER
 
 Flagi (vzaimoisklyuchayuschie):
   --export <path>
   --import <path> [--mode merge|overwrite]
-  --clone  <mount> [--label <name>]
+  --clone <mount> [--label <name>]
 
 Mosty:
 - Yavnyy (Ekspluatatsiya ↔ Orkestratsiya): to zhe, chto UI, no iz konsoli i skriptov.
@@ -25,8 +24,7 @@ Mosty:
 Zemnoy abzats:
 Mozhno snyat/nalozhit nastroyki i sobrat repliku bez brauzera — udobno dlya avtomatizatsii.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse

@@ -2,8 +2,8 @@
 param(
   [Parameter(Mandatory=$true)][string]$Uri,
   [ValidateSet('POST','PUT','PATCH')][string]$Method='POST',
-  # Pri zapuske cherez -File argumenty prikhodyat strokami.
-  # Razreshaem I stroku (gotovyy JSON), I khesh-tablitsu.
+  # When run via -File, the arguments come in strings.
+  # We resolve both the string (ready JSION) and the hash table.
   [Parameter(Mandatory=$true)][object]$Body
 )
 $ErrorActionPreference='Stop'
@@ -13,12 +13,12 @@ function Convert-ToUtf8Bytes([string]$s) {
 }
 
 if ($Body -is [string]) {
-  # Esli eto JSON-stroka
+  # If this is a JSION string
   $json = $Body
 } elseif ($Body -is [hashtable] -or $Body -is [System.Collections.IDictionary]) {
   $json = ($Body | ConvertTo-Json -Depth 10 -Compress)
 } else {
-  # Poprobuem na vsyakiy sluchay serializovat kak obekt
+  # Let's try to serialize as an object just in case
   $json = ($Body | ConvertTo-Json -Depth 10 -Compress)
 }
 

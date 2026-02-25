@@ -1,15 +1,15 @@
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 # -*- coding: utf-8 -*-
 def main():
-    # 1) Poluchim otvet ot RAG (cherez sovmestimyy ekshen)
+    # 1) Receive a response from the RAG (via a compatible action)
     try:
         from modules.thinking import compat_actions as ca
-        q = "Kto takaya Ester i chto ona delaet?"
+        q = "Who is Esther and what does she do?"
         res = ca.rag_answer(q)
         text = (res.get("text") or "").strip()
     except Exception:
-        q = "Chto takoe RAG?"
-        text = "lokalnyy otvet: RAG — poisk po fragmentam i kratkaya vyzhimka."
+        q = "What is RAG?"
+        text = "local answer: RAG - search by fragments and short summary."
     # 2) Logiruem
     from modules.rag import feedback as fb
     ev = fb.log(q, text, sources=[{"id":"doc_demo","text":"demo source"}])

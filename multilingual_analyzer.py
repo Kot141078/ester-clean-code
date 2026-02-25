@@ -1,30 +1,29 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""multilingual_analyzer.py — analiz mnogoyazychnykh dokumentov s (optsionalnym) perevodom i empatiey.
+"""multilingual_analyzer.py - analiz mnogoyazychnykh dokumentov s (optsionalnym) perevodom i empatiey.
 
 Problema iz loga:
   No module named 'googletrans'
 
 Prichina:
-  googletrans ne ustanovlen (i chasto nestabilen/lomaetsya), a modul importiruet ego bez fallback.
+  googletrans ne ustanovlen (i often nestabilen/lomaetsya), a modul importiruet ego bez fallback.
 
-Chto sdelano:
-- Perevod stal OPTsIONALNYM: esli googletrans net — rabotaem bez perevoda (identity translator).
+What was done:
+- Perevod stal OPTsIONALNYM: esli googletrans net - rabotaem bez perevoda (identity translator).
 - Vse vneshnie zavisimosti sdelany best-effort (ne valim kontur, esli chego-to net).
-- Dobavlen bezopasnyy ingest fallback (esli ingest_file ne nayden): chitaem tekstovyy fayl i rezhem na chanki.
+- Add bezopasnyy ingest fallback (esli ingest_file ne nayden): chitaem tekstovyy fayl i rezhem na chanki.
 - Shifrovanie best-effort: esli ENCRYPTION_KEY ne zadan — generiruem klyuch na vremya protsessa (i preduprezhdaem).
-- Chroma: PersistentClient s putem iz PERSIST_DIR (po umolchaniyu ./data). Esli chromadb net — rabotaem bez vektornoy BD.
-- Dobavlen CLI dlya ruchnogo zapuska.
+- Chroma: PersistentClient s putem iz PERSIST_DIR (po umolchaniyu ./data). Esli chromadb net - rabotaem bez vektornoy BD.
+- Add CLI dlya ruchnogo zapuska.
 
-Mosty (trebovanie):
+Mosty (demand):
 - Yavnyy most: ingest → (translate?) → emotion → (encrypt?) → store (chroma + structured memory).
 - Skrytye mosty:
   1) Infoteoriya ↔ praktichnost: fingerprint/metadannye vmesto “vsego teksta” v summary — ekonomiya kanala.
-  2) Kibernetika ↔ ekspluatatsiya: fail-open (net googletrans/net chroma) → analiz vse ravno vydaet rezultat.
+  2) Kibernetika ↔ ekspluatatsiya: fail-open (net googletrans/net chroma) → analiz vse ravno vydaet result.
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 import argparse
 import hashlib
@@ -107,7 +106,7 @@ def _chunk_text(text: str, max_chars: int = 1200) -> List[str]:
 
 
 class IdentityTranslator:
-    """Fallback perevodchik: vozvraschaet iskhodnyy tekst."""
+    """Falbatsk translator: returns the original text."""
 
     def translate(self, text: str, dest: str = "ru") -> str:
         return text
@@ -139,8 +138,8 @@ def _translate(translator: Any, text: str, dest: str) -> str:
 
 
 def _load_ingest() -> Optional[Any]:
-    """Probuem nayti ingest_file v neskolkikh mestakh."""
-    # 1) kak v iskhodnike
+    """We are trying to find ingest_fillet in several places."""
+    # 1) as in the source
     try:
         from file_ingest import ingest_file  # type: ignore
         return ingest_file
@@ -156,7 +155,7 @@ def _load_ingest() -> Optional[Any]:
 
 
 def _load_emotion_analyzer() -> Any:
-    """Probuem podklyuchit emotional engine, inache prostoy fallback."""
+    """We are trying to connect the emotional engine, otherwise it is a simple falsification."""
     try:
         from emotional_engine import EmotionalAnalyzer  # type: ignore
         return EmotionalAnalyzer()
@@ -225,7 +224,7 @@ class MultilingualAnalyzer:
         if self.cfg.encrypt and Fernet is not None:
             key = (os.getenv("ENCRYPTION_KEY") or "").strip()
             if not key:
-                # Vazhno: ne valim modul, no preduprezhdaem.
+                # Important: we are not bringing down the module, but we are warning you.
                 try:
                     gen = Fernet.generate_key()  # type: ignore
                     key = gen.decode("utf-8", errors="ignore")
@@ -345,8 +344,8 @@ class MultilingualAnalyzer:
 def main(argv: Optional[List[str]] = None) -> int:
     ap = argparse.ArgumentParser(description="Multilingual document analyzer (best-effort, offline-friendly)")
     ap.add_argument("file", help="Put k faylu")
-    ap.add_argument("--lang", default="ru", help="Tselevoy yazyk perevoda (po umolchaniyu ru)")
-    ap.add_argument("--no-encrypt", action="store_true", help="Ne shifrovat sokhranennye chanki")
+    ap.add_argument("--lang", default="ru", help="Target language of translation (default ru)")
+    ap.add_argument("--no-encrypt", action="store_true", help="Don't encrypt saved chunks")
     args = ap.parse_args(argv)
 
     cfg = AnalyzerConfig(target_lang=str(args.lang), encrypt=not bool(args.no_encrypt))
@@ -360,9 +359,7 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Esli net perevodchika — eto kak esli u cheloveka net obschego yazyka s sobesednikom: on vse ravno mozhet
-zametit ton (emotsii), strukturu i klyuchevye povtoryayuschiesya slova. Perevod — eto usilitel signala,
-no kontur ne dolzhen padat bez usilitelya: inache lyubaya meloch vyklyuchit sistemu.
-"""
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Esli net perevodchika - eto kak esli u cheloveka net obschego yazyka s sobesednikom: on vse ravno mozhet
+zametit ton (emotsii), strukturu i klyuchevye povtoryayuschiesya slova. Translation - eto usilitel signala,
+no kontur ne dolzhen padat bez usilitelya: inache lyubaya meloch vyklyuchit sistemu."""

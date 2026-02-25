@@ -1,25 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-tools/hybrid_selfcheck.py — proverka dostupnosti komponentov gibridnogo poiska.
+"""tools/hybrid_selfcheck.py — proverka dostupnosti komponentov gibridnogo poiska.
 
-Proveryaem:
+Check it out:
   • ENV: HYBRID_SEARCH_AB, HYBRID_ALPHA, HYBRID_COARSE_LIMIT
-  • coarse: modules.hier_index.search_coarse ili StructuredMemory.search_bm25
-  • dense: modules.memory.vector_store.vector_search ili VectorStore.search / vstore_simple.VStore.search
+  • coarse: modules.hier_index.search_coarse or StructuredMemory.search_bm25
+  • dense: modules.memory.vector_store.vector_search or VectorStore.search / vstore_simple.VStore.search
 
-Vykhod: JSON-otchet.
+Vykhod: JSON report.
 
 Mosty:
 - Yavnyy: (Nablyudaemost ↔ Poisk) bystro vidno, pochemu gibrid ne rabotaet.
 - Skrytyy #1: (Inzheneriya ↔ Podderzhka) bez vneshnikh zavisimostey.
-- Skrytyy #2: (Kibernetika ↔ Resursy) kontrol parametrov ansamblya (alpha/limit).
+- Skrytyy #2: (Kibernetika ↔ Resursy) control parametrov ensemble (alpha/limit).
 
 Zemnoy abzats:
-Eto kak proverit, chto u tebya est i polka, i skaner shtrikhkodov — inache ansambl ne zavedetsya.
+Eto kak proverit, chto u tebya est i polka, i scaner shtrikhkodov - inache ensemble ne zavedetsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

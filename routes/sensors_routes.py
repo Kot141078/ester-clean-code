@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/sensors_routes.py - REST/UI dlya datchikov konteksta.
+"""routes/sensors_routes.py - REST/UI dlya datchikov konteksta.
 
 Mosty:
 - Yavnyy: (UI/HTTP ↔ Sensors) - bystryy snapshot okruzheniya offlayn.
@@ -8,8 +7,7 @@ Mosty:
 - Skrytyy 2: (Nablyudaemost ↔ Diagnostika) - mozhno dergat iz health-stranits.
 
 Zemnoy abzats:
-Otkryl stranitsu - vidish, «zhiva li mashina», skolko mesta na diske i kakov obschiy tonus sistemy.
-"""
+Otkryl stranitsu - vidish, “zhiva li mashina”, skolko mesta na diske i kakov obschiy tonus sistemy."""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, render_template
@@ -29,7 +27,7 @@ def snap():
 
 @bp.get("/admin")
 def admin():
-    # minimalnaya adminka bez otdelnogo shablona
+    # minimal admin panel without a separate template
     return render_template("admin_sensors.html")
 
 def register(app):

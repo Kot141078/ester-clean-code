@@ -14,7 +14,7 @@ def test_mem_hypothesis_crud(client, admin_jwt, monkeypatch, tmp_path):
     r_add = client.post(
         "/mem/hypothesis/add",
         json={
-            "text": "Ideya: vynesti OCR-invoysy v otdelnyy pipeline",
+            "text": "Idea: move OCD invoices to a separate pipeline",
             "topic": "topic::ocr",
             "tags": ["dreams", "cluster"],
             "score": 0.7,
@@ -44,9 +44,9 @@ def test_mem_hypothesis_crud(client, admin_jwt, monkeypatch, tmp_path):
     assert r_fb.status_code in (
         200,
         404,
-    )  # esli zapis uzhe propala — 404, inache 200
+    )  # if the record is already missing - 404, otherwise 200
     if r_fb.status_code == 200:
         item = r_fb.get_json()["item"]
-        # kanonichnyy HypothesisStore uvelichivaet pole "uses"
+        # canonical HopotnessStore increases the "uses" field
         assert item.get("used") in (True, False)
 # assert item.get("uses", 0) >= 1

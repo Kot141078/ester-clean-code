@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tests/wa_smoke.py — izolirovannye pytest-testy dlya WA-mosta.
+"""tests/wa_smoke.py - isolated pytest-testy dlya WA-mosta.
 
 MOSTY:
-- (Yavnyy) Registratsiya blyuprintov lokalno v testovom Flask-prilozhenii.
+- (Yavnyy) Registration blyuprintov lokalno v testovom Flask-prilozhenii.
 - (Skrytyy #1) Kontrakt /api/whatsapp/webhook (GET verify, POST inbound).
 - (Skrytyy #2) Kontrakt /wa/send i /wa/ctrl/api/style/preview.
 
 ZEMNOY ABZATs:
 Testy ne trebuyut vneshnego interneta i realnykh klyuchey; gonyayutsya bystro i determinirovanno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import os
@@ -20,7 +18,7 @@ import pytest
 
 from flask import Flask
 
-# Importiruem nashi blyuprinty napryamuyu.
+# We import our blueprints directly.
 from routes.whatsapp_webhook_routes import register as reg_webhook
 from routes.whatsapp_send_routes import register as reg_send
 from routes.whatsapp_control_routes import register as reg_ctrl
@@ -61,7 +59,7 @@ def test_inbound_ok(client):
 
 def test_style_preview(client):
     r = client.post("/wa/ctrl/api/style/preview", json={
-        "audience":"lawyer","intent":"letter","content":"Soobschayu o perenose zasedaniya na 15:00 zavtra."
+        "audience":"lawyer","intent":"letter","content":"I inform you that the meeting has been postponed to 15:00 tomorrow."
     })
     assert r.status_code == 200
     j = r.get_json()
@@ -73,7 +71,7 @@ def test_send_dry_run(client):
         "to":"15551234567",
         "audience":"friend",
         "intent":"update",
-        "content":"Uvidimsya v 18:30 u vkhoda."
+        "content":"See you at 18:30 at the entrance."
     })
     assert r.status_code == 200
     j = r.get_json()

@@ -13,7 +13,7 @@ def main():
         # povtor
         @app.get("/echo")
         def _dup(): return {"ok": False}
-        # proverka: vtoroy ne dolzhen dobavitsya
+        # check: the second one should not be added
         paths = [(r.path, sorted(list(r.methods or []))) for r in app.routes]
         print("routes:", [p for p in paths if "/echo" in p[0]])
     except Exception as e:

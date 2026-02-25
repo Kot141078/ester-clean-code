@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tests/observability/test_otel_metrics.py — smoke no-op i bazovaya initsializatsiya.
+"""tests/observability/test_otel_metrics.py - smoke no-op i bazovaya initsializatsiya.
 
 MOSTY:
 - (Yavnyy) Proveryaem, chto bez SDK vse vyzovy prokhodyat (no-op) i nichego ne padaet.
 - (Skrytyy #1) S SDK (esli ustanovlen v okruzhenii CI) proveryaem uspeshnyy init_otel().
-- (Skrytyy #2) Metriki mozhno dergat do init — lenivoe sozdanie instrumentov.
+- (Skrytyy #2) Metriki mozhno dergat do init - lazy sozdanie instrumentov.
 
 ZEMNOY ABZATs:
-Garantiya, chto vklyuchenie nablyudaemosti ne lomaet proekt — dazhe esli OTel esche ne postavili.
+Garantiya, chto vklyuchenie nablyudaemosti ne lomaet proekt - dazhe esli OTel esche ne postavili.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

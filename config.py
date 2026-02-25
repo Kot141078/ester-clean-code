@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""config.py — konfiguratsiya Ester.
+"""config.py - configuratsiya Ester.
 
-Fiks pod oshibku:
+Fix pod error:
   cannot import name 'TZ' from 'config'
 
 Nekotorye moduli (group_evening i pokhozhie) ozhidayut, chto v config.py est konstanta TZ.
 V iskhodnike byl tolko cfg = EsterConfig(), bez TZ.
 
-Chto sdelano:
-- Dobavlena sovmestimost: TZ i helper get_timezone().
-- Nichego ne lomaem: klass EsterConfig i cfg ostayutsya kak byli.
+What was done:
+- Added sovmestimost: TZ i helper get_timezone().
+- Nothing ne lomaem: class EsterConfig i cfg ostayutsya kak byli.
 
 Mosty:
-- Yavnyy most: konfig TZ → planirovschiki (evening/group_digest) → predskazuemaya “fiziologiya” raspisaniy.
-- Skrytyy most: kibernetika ↔ kod — backward-compat eksport snizhaet khrupkost avtoloaderov.
-
-"""
+- Yavnyy most: config TZ → planirovschiki (evening/group_digest) → predskazuemaya “fiziologiya” raspisaniy.
+- Skrytyy most: kibernetika ↔ kod - backward-compat eksport snizhaet khrupkost avtoloaderov."""
 
 import os
 import json
@@ -46,7 +44,7 @@ def _env_int(name: str, default: int) -> int:
         return int(default)
 
 
-# --- Sovmestimost dlya starykh moduley ---
+# --- Compatible for older modules ---
 # Prioritet: ESTER_TZ → TZ → UTC
 TZ = (os.getenv("ESTER_TZ") or os.getenv("TZ") or "UTC").strip() or "UTC"
 
@@ -95,7 +93,7 @@ class EsterConfig:
         self.reload()
 
     def _default_params(self) -> dict:
-        """Defoltnye nastroyki, esli fayl runtime_config.json otsutstvuet."""
+        """Default settings if the Rintite_config.jsion file is missing."""
         return {
             "mode": "professional",  # professional / creative / observer
             "gpu_layers": int(os.getenv("GPU_LAYERS", 32)),
@@ -104,16 +102,16 @@ class EsterConfig:
         }
 
     def reload(self):
-        """Zagruzka dinamicheskikh nastroek iz JSON."""
+        """Loading dynamic settings from ZhSON."""
         if os.path.exists(self.CONFIG_PATH):
             try:
                 with open(self.CONFIG_PATH, "r", encoding="utf-8") as f:
                     self.params.update(json.load(f))
             except Exception as e:
-                logging.error(f"Oshibka zagruzki dinamicheskogo konfiga: {e}")
+                logging.error(f"Error loading dynamic config: ЗЗФ0З")
 
     def save(self):
-        """Sokhranenie tekuschikh nastroek (naprimer, cherez Telegram-komandu)."""
+        """Saving current settings (for example, via a Telegram command)."""
         os.makedirs(os.path.dirname(self.CONFIG_PATH), exist_ok=True)
         with open(self.CONFIG_PATH, "w", encoding="utf-8") as f:
             json.dump(self.params, f, ensure_ascii=False, indent=2)

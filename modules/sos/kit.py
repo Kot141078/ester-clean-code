@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/sos/kit.py — SOS-konfig i eskalatsiya (plan deystviy).
+"""modules/sos/kit.py - SOS-config i eskalatsiya (plan deystviy).
 
 Mosty:
 - Yavnyy: (Zabota ↔ Operatsii) khranit kontakty Papy/adresa/porogi srabatyvaniya.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Memory ↔ Audit) logiruet intsidenty (JSONL).
 
 Zemnoy abzats:
-Trevozhnaya knopka: zapisat intsident i vydat ponyatnyy plan — kogo/kak uvedomit.
+Trevozhnaya knopka: zapisat intsident i vydat ponyatnyy plan - kogo/kak uvedomit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict

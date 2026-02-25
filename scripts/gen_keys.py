@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Generator klyuchey dlya Ester:
+"""Generator klyuchey dlya Ester:
 - Ed25519 (raw 32 bayta privatnyy, raw 32 bayta publichnyy) -> secrets/ed25519.sk, secrets/ed25519.pk
-- AES Master Key (base64url 32 bayta) -> pechat v stdout i .env podskazka
-"""
+- AES Master Key (base64url 32 bayta) -> pechat v stdout i .env podskazka"""
 import base64
 import os
 import pathlib

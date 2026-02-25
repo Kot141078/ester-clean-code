@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mem_prov_routes.py - REST: /mem/prov/*
+"""routes/mem_prov_routes.py - REST: /mem/prov/*
 
 Mosty:
 - Yavnyy: (Veb ↔ Memory) upravlenie i status provenansa.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (KG/Linker ↔ Kontekst) istochniki prigodyatsya pri linkovke.
 
 Zemnoy abzats:
-Vidim, prikruchen li «shtamp» k pamyati, i skolko raz on srabotal.
+Vidim, prikruchen li “stamp” k pamyati, i skolko raz on srabotal.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

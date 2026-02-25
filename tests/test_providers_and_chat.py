@@ -8,7 +8,7 @@ def test_providers_status_and_select(client, auth_hdr_admin):
     j = r.get_json()
     assert "providers" in j and "active" in j
 
-    # select (esli rout podklyuchen)
+    # select (if the route is connected)
     sel = client.post("/providers/select", headers=auth_hdr_admin, json={"name": j.get("active")})
     assert sel.status_code in (200, 400)
 

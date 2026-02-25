@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_garage_sisters_ab.py — eksheny «voli» dlya Garazha/Sester/A-B.
+"""modules/thinking/actions_garage_sisters_ab.py - eksheny “voli” dlya Garazha/Sester/A-B.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Masterskaya/Set/Bezopasnost) edinye knopki dlya postroeniya i raspredeleniya.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 S etimi komandami Ester sama sozdaet moduli, gonyaet sborku, podklyuchaet i rassylaet zadachi po seti.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

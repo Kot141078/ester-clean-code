@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# U1/scripts/u1_smoke.sh — offlayn-smoke soveta
-# Mosty: (Yavnyy) Enderton; (Skrytye) Ashbi; Cover&Thomas.
-# Zemnoy abzats: odna knopka «naydi temy → daydzhest → sovet».
+# U1/skripts/u1_stoke.sh - offline stock council
+# Bridges: (Explicit) Enderton; (Hidden) Ashby; Carpet&Thomas.
+# Zemnoy abzats: odna knopka “naydi temy → daydzhest → sovet.”
 # c=a+b
 
 set -euo pipefail

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/sigpack.py — podpis/proverka snapshotov (arkhivov) s ispolzovaniem keystore (ed25519 ili HMAC-follbek).
+"""modules/self/sigpack.py - podpis/proverka snapshotov (arkhivov) s ispolzovaniem keystore (ed25519 or HMAC-follbek).
 
 Mosty:
 - Yavnyy: (Inzheneriya ↔ Doverie) podpisyvaem arkhiv i manifest dlya proverki tselostnosti.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Vyzhivanie ↔ Samodeploy) proverka podpisi pered otkatom/appruvom.
 
 Zemnoy abzats:
-Arkhiv bez podpisi — prosto fayl. S podpisyu — proveryaemaya «posylka», kotoruyu mozhno smelo primenyat.
+Arkhiv bez podpisi - simply fayl. S podpisyu - proveryaemaya “posylka”, kotoruyu mozhno smelo primenyat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, hashlib
 from typing import Any, Dict

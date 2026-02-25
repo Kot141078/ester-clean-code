@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/game_sync.py — «sovmestnaya igra»: kadry, kvoty, latentnost.
+"""modules/coop/game_sync.py - “sovmestnaya game”: kadry, kvoty, latentnost.
 
 Funktsii:
-- configure(tick_rate, peers, quota_per_sec) — start parametrov
+- configure(tick_rate, peers, quota_per_sec) — start parameters
 - tick() — uvelichivaet schetchik, shlet heartbeat v peers (cherez /webrtc/dc/send, esli zadan room)
 - ingest_action(peer_id, action) — uchityvaet kvoty (per-peer actions/sec)
-- status() — tekuschie metriki
+- status() — tekuschie metrics
 
 Action format (primer):
 {"kind":"input","type":"hotkey","seq":"CTRL+S"} | {"kind":"cursor","x":100,"y":200}
 
 MOSTY:
-- Yavnyy: (Orkestratsiya ↔ Igra) edinyy «takt» s limitami.
+- Yavnyy: (Orkestratsiya ↔ Igra) edinyy “takt” s limitami.
 - Skrytyy #1: (Infoteoriya ↔ Spravedlivost) kvoty vyravnivayut nagruzku.
-- Skrytyy #2: (Kibernetika ↔ Bezopasnost) mozhno podklyuchit consent_gate na storone potrebiteley deystviy.
+- Skrytyy #2: (Kibernetika ↔ Bezopasnost) mozhno podklyuchit consent_gate on side potrebiteley deystviy.
 
 ZEMNOY ABZATs:
-Bez vneshnikh soketov: metriki v pamyati, rassylka cherez psevdo-DC ili REST.
+Bez vneshnikh soketov: metriki v pamyati, rassylka cherez psevdo-DC or REST.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import time, json, threading
 from typing import Dict, Any, List, Optional
@@ -123,7 +121,7 @@ def ingest_action(peer_id: str, action: Dict[str, Any]) -> Dict[str, Any]:
         except Exception:
             pass
         return {"ok": False, "reason": "quota_exceeded"}
-    # transliruem v komnatu srazu, chtoby drugie klienty uvideli
+    # broadcast to the room immediately so that other clients can see
     _send_room({"type":"action","from": peer_id, "payload": action})
     return {"ok": True}
 

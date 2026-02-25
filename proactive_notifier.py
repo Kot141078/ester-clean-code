@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-proactive_notifier.py — proaktivnyy “pin” polzovatelyu pod realnymi ogranicheniyami.
+"""proactive_notifier.py — proaktivnyy “pin” polzovatelyu pod realnymi ogranicheniyami.
 
 Problema, kotoruyu ty podnyal:
 - globalnyy ENV `AB_MODE` neudoben, esli v sisteme uzhe mnogo nezavisimykh A/B-pereklyuchateley.
   Odin obschiy flag prevraschaetsya v “rubilnik na ves dom”.
 
-Reshenie:
+Resolution:
 - vvodim NEYMSPEYS dlya etogo modulya:
     1) ESTER_PROACTIVE_AB_MODE
     2) AB_MODE_PROACTIVE
@@ -16,11 +15,11 @@ Reshenie:
   To est ty mozhesh derzhat AB_MODE=B dlya chego ugodno, a proaktivnost ostavit v A.
 
 Funktsionalnye uluchsheniya (po sravneniyu s iskhodnikom):
-- konfig iz ENV + razumnye defolty;
-- jitter (chtoby uzly ne “tikáli” sinkhronno);
+- config iz ENV + razumnye default;
+- jitter (that’s why it’s not “tikáli” sinkhronno);
 - dnevnaya kvota + minimalnyy interval mezhdu soobscheniyami;
 - quiet-hours (nochyu ne budit);
-- best-effort integratsiya s core (generate_* / send_*), no bez zhestkikh zavisimostey;
+- best-effort integratsiya s core (generate_* / send_*), no matter what;
 - A/B: A = dry-run (logiruem), B = realno shlem.
 
 MOSTY:
@@ -28,8 +27,7 @@ MOSTY:
 - Skrytyy #1: infoteoriya ↔ ustoychivost (shumnyy signal filtruem kvotami/tikhimi chasami).
 - Skrytyy #2: “privilegii” ↔ bezopasnost (A/B zdes — ogranichenie prava “pinat” polzovatelya).
 ZEMNOY ABZATs:
-Eto kak otdelnyy predokhranitel na tsep “zvonok”: dazhe esli ves dom v rezhime B, zvonok mozhno ostavit v A.
-"""
+Eto kak otdelnyy predokhranitel na tsep “zvonok”: dazhe esli ves dom v rezhime B, zvonok mozhno ostavit v A."""
 
 import json
 import logging
@@ -49,7 +47,7 @@ STATE_DIR.mkdir(parents=True, exist_ok=True)
 STATE_FILE = STATE_DIR / "proactive_state.json"
 
 try:
-    # esli est atomic.py — ispolzuem atomarnuyu zapis
+    # if there is atomic.po - use atomic notation
     from atomic import atomic_write_json, read_json  # type: ignore
 except Exception:  # pragma: no cover
     atomic_write_json = None  # type: ignore[assignment]
@@ -57,13 +55,11 @@ except Exception:  # pragma: no cover
 
 
 def _read_ab_flag() -> str:
-    """
-    A/B dlya PROAKTIVNOSTI v poryadke prioriteta:
+    """A/B dlya PROAKTIVNOSTI v poryadke prioriteta:
       1) ESTER_PROACTIVE_AB_MODE
       2) AB_MODE_PROACTIVE
       3) AB_MODE (globalnyy fallback)
-    Vozvraschaet 'A' ili 'B'.
-    """
+    Vozvraschaet 'A' or 'B'."""
     for key in ("ESTER_PROACTIVE_AB_MODE", "AB_MODE_PROACTIVE", "AB_MODE"):
         v = os.getenv(key)
         if v is None:
@@ -180,7 +176,7 @@ class ProactiveNotifier:
         self.cfg = config or ProactiveConfig.from_env()
         self.rng = rng or random.Random()
 
-        # vazhnoe: AB dlya etogo modulya otdelnyy (sm. _read_ab_flag)
+        # important: AB for this module is separate (see _ed_ab_flag)
         self.ab = _read_ab_flag()
 
         st = _load_state()
@@ -224,7 +220,7 @@ class ProactiveNotifier:
         )
 
     def status(self) -> Dict[str, Any]:
-        # perechityvaem AB kazhdyy raz — chtoby mozhno bylo pereklyuchat bez restarta
+        # re-read the AB every time - so that you can switch without restarting
         self.ab = _read_ab_flag()
         return {
             "ok": True,
@@ -292,7 +288,7 @@ class ProactiveNotifier:
     def tick(self, now: Optional[float] = None, force: bool = False) -> Dict[str, Any]:
         now = float(time.time() if now is None else now)
 
-        # perechityvaem AB kazhdyy tik — mozhno pereklyuchit bez restarta protsessa
+        # re-read the AB every tick - you can switch without restarting the process
         self.ab = _read_ab_flag()
 
         if not force and now < self.next_due_ts:
@@ -319,7 +315,7 @@ class ProactiveNotifier:
 
         text = self._core_generate() if self.core is not None else None
         if not text:
-            text = "Ya zdes. Esli est zadacha — day odin punkt, ya razlozhu po shagam."
+            text = "I'm here. If you have a task, give me one point, I’ll break it down step by step."
 
         sent_ok = self._core_send(text)
 

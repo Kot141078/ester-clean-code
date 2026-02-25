@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-routes/routes_chat.py — Logika Lii (Liah) s Identichnostyu Ester.
-Tsel: Maksimalnaya prostota, otsutstvie lishnikh filtrov, zhestkaya privyazka k Profileu.
-"""
+"""rutes/rutes_chat.po - Logic of Leah (Lyakh) with the Identity of Esther.
+Goal: Maximum simplicity, absence of unnecessary filters, strict connection to the Profile."""
 
 import logging
 import time
@@ -13,7 +11,7 @@ from typing import Any, Dict, List
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Esli jwt net, rabotaem bez nego (zaglushka)
+# If there is no railway station, we work without it (stub)
 try:
     from flask_jwt_extended import jwt_required
 except ImportError:
@@ -22,15 +20,15 @@ except ImportError:
         return wrapper
 
 # --- IMPORTY (Bezopasnye) ---
-# 1. Profile (Samoe vazhnoe - "Kto ya?")
+# 1. Profile (The most important thing is “Who am I?”)
 try:
     from modules.memory.passport import get_identity
 except ImportError:
-    # Avariynyy khardkod, esli fayl profilea nedostupen
+    # Emergency hardcode if profile file is not available
     def get_identity(): 
-        return "YOU ARE ESTER. Your owner — Owner. Ty — Suverennaya Tsifrovaya Lichnost. U tebya net chelovecheskogo tela, ty ne khodish v shkolu."
+        return "YOU ARE ESTER. Yur ovner - Ovner. You are a Sovereign Digital Personality. You don't have a human body, you don't go to school."
 
-# 2. Emotsii (Optsionalno)
+# 2. Emotions (Optional)
 try:
     from modules.emotion_tagging import detect_emotions
 except ImportError:
@@ -50,7 +48,7 @@ def _rag_hits(vstore, query: str, use_rag: bool, k: int = 5) -> List[Dict[str, A
     if not use_rag:
         return []
     try:
-        # Pytaemsya nayti cherez vstore (ChromaDB)
+        # We are trying to find it through the store (ChromaDB)
         if hasattr(vstore, 'search'):
             return vstore.search(query, k=k)
         return []
@@ -60,11 +58,11 @@ def _rag_hits(vstore, query: str, use_rag: bool, k: int = 5) -> List[Dict[str, A
 
 
 def _synthesize(mode: str, providers, prompt: str, system_prompt: str, temperature: float) -> str:
-    """Generatsiya otveta. Probrasyvaem system_prompt vnutr."""
+    """Generating a response. We forward the system_prompt inside."""
     try:
         prov = providers.get_active()
         if hasattr(prov, 'generate'):
-            # VAZhNO: Peredaem max_tokens=-1, chtoby LM Studio ne rezala otvet
+            # Important: We pass max_tokens=-1 so that LM Studio does not cut the answer
             return prov.generate(
                 prompt=prompt, 
                 system_prompt=system_prompt, 
@@ -85,7 +83,7 @@ def register_chat_routes(app, vstore, memory_manager, providers, cards, url_pref
     def chat_message():
         start_ts = time.time()
         
-        # 1. Razbor zaprosa
+        # 1. Parsing the request
         body: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
         query = (body.get("query") or body.get("text") or "").strip()
         
@@ -94,34 +92,34 @@ def register_chat_routes(app, vstore, memory_manager, providers, cards, url_pref
             
         # Parametry
         try:
-            # Prinuditelno 'local', esli ne ukazano inoe (chtoby ne vklyuchalsya Gemini-tsenzor)
+            # Force locale unless otherwise specified (to avoid turning on the Gemini Censor)
             mode = str(body.get("mode") or "local").lower()
         except:
             mode = "local"
             
         use_rag = bool(body.get("use_rag", True))
-        temperature = float(body.get("temperature", 0.7)) # Chut teplee dlya Ester (bylo 0.2 u Lii)
+        temperature = float(body.get("temperature", 0.7)) # A little warmer for Esther (was 0.2 for Leah)
         user = str(body.get("user") or "Owner")
         session_id = str(body.get("session_id") or "default")
         
-        # 2. YaDRO: Zagruzhaem lichnost Ester
+        # 2. Core: Loading Esther's personality
         identity_anchor = get_identity()
 
         # 3. RAG: Ischem kontekst
         memory_hits = _rag_hits(vstore, query, use_rag, k=5)
 
         # 4. Sborka prompta
-        # My kladem naydennye vospominaniya pryamo v prompt (kak u Lii), eto nadezhnee
+        # We put the found memories directly into the prompt (like Leah), it’s more reliable
         rag_context_str = ""
         if memory_hits:
             rag_context_str = "\n".join(f"- {h.get('text','').strip()}" for h in memory_hits)
         
-        # Formiruem Sistemnyy Prompt (Lichnost + Vremya)
+        # Generates a System Prompt (Personality + Time)
         full_system_prompt = (
             f"{identity_anchor}\n"
             f"TEKUSchAYa DATA: {time.strftime('%Y-%m-%d %H:%M')}\n"
             f"KONTEKST PAMYaTI (RAG):\n{rag_context_str}\n"
-            f"INSTRUKTsIYa: Otvechay Owner estestvenno, teplo, gluboko."
+            f"Instructions: Answer Ovner naturally, warmly, deeply."
         )
 
         # 5. Generatsiya (Samoe glavnoe)
@@ -130,13 +128,13 @@ def register_chat_routes(app, vstore, memory_manager, providers, cards, url_pref
         # 6. Emotsii (Post-processing)
         emotions = detect_emotions(query + " " + response_text)
         
-        # 7. Proaktiv (Esli est mysli)
+        # 7. Proactive (If you have any thoughts)
         proactive = proactive_thought_pipeline(
             query, user, "Ester", getattr(app, "PROACTIVE_RULES_PATH", None)
         )
 
-        # 8. Zapis v pamyat
-        # (Nikakikh filtrov vyvoda! My doveryaem Ester)
+        # 8. Memory recording
+        # (No output filters! We trust Esther)
         try:
             if memory_manager:
                 # Short Term
@@ -155,7 +153,7 @@ def register_chat_routes(app, vstore, memory_manager, providers, cards, url_pref
         except Exception as e:
             log.warning(f"Memory write failed: {e}")
 
-        # 9. Otvet klientu
+        # I. Response to client
         out = {
             "ok": True,
             "response": response_text,

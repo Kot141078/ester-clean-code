@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/runtime/abslots.py — upravlenie A/B-slotami rantayma (sovmestimostnyy fasad).
+"""modules/runtime/abslots.py - upravlenie A/B-slotami rantayma (sovmestimostnyy fasad).
 
 Mosty:
 - Yavnyy: (Runtime A/B ↔ Edinoe yadro) API sokhranen, logika pereklyucheniya/deploya unifitsirovana.
@@ -8,9 +7,8 @@ Mosty:
 - Skrytyy #2: (Komponenty ↔ Runtime) status vozvraschaet i aktivnyy slot, i sostoyanie komponentnykh slotov.
 
 Zemnoy abzats:
-Ostavlyaem te zhe funktsii (`status/deploy/health/switch`), no obschaya realizatsiya — menshe dreyfa i syurprizov.
-# c=a+b
-"""
+Ostavlyaem te zhe funktsii (`status/deploy/health/switch`), no obschaya realizatsiya - menshe dreyfa i syurprizov.
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Dict, Any, List, Optional

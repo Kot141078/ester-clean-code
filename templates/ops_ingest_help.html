@@ -10,8 +10,8 @@
 </section>
 
 <section class="card">
-  <h3>Chto ustanovit offlayn</h3>
-  <p>Esli pri vyzove <code>/ingest/ocr</code> vy vidite oshibki vida «OCR: trebuetsya pytesseract i Pillow», «dlya PDF nuzhen pdf2image/poppler», ustanovite zavisimosti lokalno.</p>
+  <h3>What to install offline</h3>
+  <p>If when calling <code>/ingest/ocr</code> you see errors like “OCR: Pietesseract and Pilov are required”, “PDF requires PDF2ymage/poppler”, install the dependency locally.</p>
 
   <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap:16px">
     <div class="box">
@@ -19,7 +19,7 @@
       <pre class="code">choco install tesseract
 # Popolnite PATH tesseract'a i poppler'a (bin)
 pip install pytesseract pillow pdf2image</pre>
-      <p>Skachayte <b>poppler</b> dlya Windows i dobavte ego <code>bin</code> v <b>PATH</b>.</p>
+      <p>Skachayte <b>poppler</b> for Windows and add it <code>bin</code> v <b>PATH</b>.</p>
     </div>
 
     <div class="box">
@@ -39,7 +39,7 @@ pip install pytesseract pillow pdf2image</pre>
   <h3>Proverka</h3>
   <pre class="code">python -c "import pytesseract; from PIL import Image; import pdf2image; print('OK')"</pre>
 
-  <h3>Pochemu eto vazhno</h3>
-  <p>Bez etikh paketov OCR dlya PDF/izobrazheniy ne zarabotaet (moduli <code>modules/ingest/ocr_engine.py</code> kidayut <code>RuntimeError</code> s poyasneniem). Eto <em>operatsionnaya</em> zavisimost i ona stavitsya na khoste, gde krutitsya Ester.</p>
+  <h3>Why is this important</h3>
+  <p>Without these packages, OCD for PDF/images will not work (modules <code>modules/ingest/ocr_engine.py</code> kidayut <code>RuntimeError</code> with explanation). This <em>operatsionnaya</em> dependency and it is installed on the host where Esther is running.</p>
 </section>
 {% endblock %}

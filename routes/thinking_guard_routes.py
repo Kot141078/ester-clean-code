@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/thinking_guard_routes.py - REST: storozh deystviy (status/nastroyka/test).
+"""routes/thinking_guard_routes.py - REST: storozh deystviy (status/nastroyka/test).
 
 Mosty:
 - Yavnyy: (Veb ↔ Mysli) upravlyaet limitami, taymautami i daet bezopasnyy zapusk.
 - Skrytyy #1: (Memory ↔ Profile) storozh uzhe logiruet akty/taymauty.
-- Skrytyy #2: (RBAC ↔ Ostorozhnost) konfig - dlya operator/admin (esli RBAC vklyuchen).
+- Skrytyy #2: (RBAC ↔ Ostorozhnost) config - dlya operator/admin (esli RBAC vklyuchen).
 
 Zemnoy abzats:
-Kak «schitok» s avtomatami: mozhno podkrutit nominal ili vyklyuchit problemnuyu liniyu.
+How “schitok” s avtomatami: mozhno podkrutit nominal or vyklyuchit problemnuyu liniyu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os

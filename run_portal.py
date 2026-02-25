@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-Mosty:
+"""Mosty:
 - Yavnyy: Flask ↔ fayl portal.html.
 - Skrytye: (ENV↔put), (prostaya proverka↔osnovnoy stek).
 
 Zemnoy abzats:
-Eto «polevoy akkumulyator»: pitaet portal napryamuyu, minuya slozhnuyu skhemu.
+This is “polevoy akkumulyator”: pitaet portal napryamuyu, minuya slozhnuyu skhemu.
 
-c=a+b
-"""
+c=a+b"""
 from pathlib import Path
 from flask import Flask, Response
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

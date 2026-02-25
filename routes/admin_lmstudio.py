@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_lmstudio.py - panel LM Studio: obnaruzhenie modeley/portov, HW-profil, aliasy, test inferensa.
+"""routes/admin_lmstudio.py - panel LM Studio: obnaruzhenie modeley/portov, HW-profil, aliasy, test inferensa.
 
-Marshruty:
-  • GET  /admin/lmstudio
-  • GET  /admin/lmstudio/status
+Route:
+  • GET /admin/lmstudio
+  • GET /admin/lmstudio/status
   • POST /admin/lmstudio/aliases
-  • POST /admin/lmstudio/test_infer      {base?:"http://127.0.0.1:1234", prompt?}
+  • POST /admin/lmstudio/test_infer {base?:"http://127.0.0.1:1234", prompt?}
 
 Mosty:
 - Yavnyy (UX ↔ Ekspluatatsiya): v odnom meste - vse o lokalnom inferense.
@@ -14,10 +13,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): offlayn, stdlib; ne trogaem yadro myshleniya/pamyati/voli.
 
 Zemnoy abzats:
-Eto «pult LM Studio»: vidno, kakie modeli lezhat, kakie porty slushayut, i odnoy knopkoy - test.
+This is “pult LM Studio”: vidno, kakie modeli lezhat, kakie porty slushayut, i odnoy knopkoy - test.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

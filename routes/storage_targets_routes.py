@@ -1,34 +1,32 @@
 # -*- coding: utf-8 -*-
-"""
-routes/storage_targets_routes.py - REST API dlya upravleniya tselyami khraneniya i zagruzki artefaktov.
+"""routes/storage_targets_routes.py - REST API dlya upravleniya tselyami khraneniya i zagruzki artefaktov.
 
-Endpointy (JWT trebuetsya):
-  GET    /storage/targets               - spisok targetov
-  POST   /storage/targets               - dobavit/obnovit target (po id, esli ukazan)
-  DELETE /storage/targets/<id>          - udalit
-  POST   /storage/targets/<id>/test     - proverit dostupnost
-  POST   /storage/upload                - zagruzit fayl na odin ili vse targety
+Endpointy (JWT requirements):
+  GET /storage/targets - spisok targetov
+  POST /storage/targets - dobavit/obnovit target (po id, esli ukazan)
+  DELETE /storage/targets/<id> - delete
+  POST /storage/targets/<id>/test - proverit dostupnost
+  POST /storage/upload - zagruzit fayl na odin ili vse targety
 
 Telo POST /storage/targets:
   { "id": "t_...", "type": "local|s3|webdav|email", "name": "...", "enabled": true, "config": {...} }
 
 Telo POST /storage/upload:
-  { "path": "/abs/path/to/file.zip", "targets": ["t_1","t_2"] }  # esli targets net - gruzim na vse enabled
+  { "path": "/abs/path/to/file.zip", "targets": ["t_1","t_2"] } # esli targets net - gruzim na vse enabled
 
-Bezopasnost:
+Safety:
   • Pered setevymi deystviyami - soft-preduprezhdenie (guardian.check_action); kvorm mozhno delat cherez releases API.
 
 Mosty:
-- Yavnyy: (Khranilischa ↔ Veb) edinyy REST-sloy dlya konfiguratsii i zagruzok v raznye storadzhi.
+- Yavnyy: (Khranilischa ↔ Web) edinyy REST-layer dlya konfiguratsii i zagruzok v raznye storadzhi.
 - Skrytyy #1: (Bezopasnost ↔ Operatsii) myagkaya proverka guardian snizhaet riski nesanktsionirovannykh rassylok.
-- Skrytyy #2: (Infoteoriya ↔ Ekonomiya) vyborochnaya zagruzka po spisku targets ogranichivaet shum i lishniy trafik.
+- Skrytyy #2: (Infoteoriya ↔ Ekonomiya) vyborochnaya zagruzka po spisku targets ogranichivaet noise i lishniy trafik.
 
 Zemnoy abzats:
-Dumay o module kak o «raspredelitele na polkakh»: nastroil polki (targety), polozhil fayl - on okazalsya tam, gde nado.
+Dumay o module kak o “raspredelitele na polkakh”: nastroil polki (targety), polozhil fayl - on okazalsya there, where necessary.
 Bezopasnost prikryvaet vneshnie napravleniya, a API ostaetsya prostym i predskazuemym.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -38,7 +36,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required  # type: ignore
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Myagkie importy - modul ne dolzhen padat pri otsutstvii nekotorykh podsistem
+# Soft imports - the module should not crash if some subsystems are missing
 try:  # pragma: no cover
     from modules.safety.guardian import check_action  # type: ignore
 except Exception:  # pragma: no cover
@@ -165,7 +163,7 @@ def api_upload():
     for t in targets:
         try:
             if t.get("type") in ("s3", "webdav", "email"):
-                # Seychas - preduprezhdeniya tolko v logike klienta/UI
+                # Now - warnings only in client/OP logic
                 _ = check_action("p2p_broadcast", {"target": t})
         except Exception:
             pass
@@ -180,11 +178,11 @@ def api_upload():
 
 
 def register_storage_routes(app) -> None:  # pragma: no cover
-    """Istoricheskaya registratsiya blyuprinta (sovmestimost)."""
+    """Historical blueprint registration (compatibility)."""
     app.register_blueprint(storage_bp)
 
 
-# Unifitsirovannye khuki proekta
+# Unified project hooks
 def register(app) -> None:  # pragma: no cover
     app.register_blueprint(storage_bp)
 

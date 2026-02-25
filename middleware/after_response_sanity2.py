@@ -22,10 +22,10 @@ def _sanity(resp):
         r.headers["X-Ester-AfterSanity2"] = "fixed"
         return r
     try:
-        # U vsekh Response est zagolovki — stavim marker v lyubom sluchae
+        # All Responses have headings - put a marker in any case
         resp.headers["X-Ester-AfterSanity2"] = resp.headers.get("X-Ester-AfterSanity2", "ok")
     except Exception:
-        # Na vsyakiy sluchay
+        # Just in case
         r = make_response("", 204)
         r.headers["X-Ester-AfterSanity2"] = "fallback"
         return r

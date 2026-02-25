@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
-"""
-modules/security/safe_windows.py — chernyy spisok okon/prilozheniy (safe-okna).
+"""modules/security/safe_windows.py - chernyy spisok okon/prilozheniy (safe-okna).
 
 Funktsii:
-- set_policy(deny:list[str], allow:list[str]) — podstrochnye filtry zagolovkov; allow imeet prioritet.
+- set_policy(deny:list[str], allow:list[str]) — podstrochnye filtry zagolovkov; allow priority.
 - is_safe(title:str) -> bool — mozhno li deystvovat (True — mozhno, False — zablokirovano).
 - guard_call(kind, title, payload) -> {ok|skipped} — vrapper dlya RPA-zovov.
 
 Khranilische: data/security/safe_windows.json
 
-Integratsiya:
-- Vyzovy khotkeev/miksov/vorkflou mogut proveryat is_safe(title) pered otpravkoy.
-- Dobavlyaem REST-ruchki v routes/safe_windows_routes.py.
+Integratsia:
+- Vyzovy khotkeev/miksov/vorkflou can proveryat is_safe(title) pered otpravkoy.
+- Add REST-ruchki v routes/safe_windows_routes.py.
 
 MOSTY:
-- Yavnyy: (Bezopasnost ↔ Kontrol) zapret deystviy v chuvstvitelnykh oknakh.
+- Yavnyy: (Bezopasnost ↔ Control) zapret deystviy v chuvstvitelnykh oknakh.
 - Skrytyy #1: (Logika ↔ Ekspluatatsiya) prostye pravila: deny/allow.
-- Skrytyy #2: (Memory ↔ UX) odna nastroyka — zaschita vsego kontura.
+- Skrytyy #2: (Memory ↔ UX) one nastroyka — zaschita vsego kontura.
 
 ZEMNOY ABZATs:
-Prostoy JSON, podstrochnoe sravnenie zagolovka, bez SDK prilozheniy.
+Simple JSON, podstrochnoe sravnenie zagolovka, bez SDK prilozheniy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from typing import Dict, Any, List

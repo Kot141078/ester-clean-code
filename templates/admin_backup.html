@@ -2,7 +2,7 @@
 {% block title %}Ester Admin — Backup{% endblock %}
 {% block content %}
   <h1>Operatsii Backup</h1>
-  <p>Deystviya trebuyut JWT s rolyu <code>operator</code> ili <code>admin</code> (sm. RBAC).</p>
+  <p>Actions require GVT with a role <code>operator</code> ili <code>admin</code> (sm. RBAC).</p>
 
   <div class="card">
     <h3>Run backup</h3>
@@ -16,7 +16,7 @@
 
   <div class="card">
     <h3>Restore from backup</h3>
-    <textarea id="restoreBody" placeholder='Optsionalno: JSON tela zaprosa'></textarea>
+    <textarea id="restoreBody" placeholder='Optional: request body'></textarea>
     <button onclick="callApi('POST','/ops/backup/restore', getRestoreBody())">Vosstanovit</button>
   </div>
 

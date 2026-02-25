@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/intent_routes.py - NL-intenty → vypolnenie (s soglasiyami) + UI-pult.
+"""routes/intent_routes.py - NL-intenty → vypolnenie (s soglasiyami) + UI-pult.
 
 Ruchki:
   POST /intent/parse {"text":"..."} -> {ok, actions, need_install?}
   POST /intent/parse_run {"text":"..."} -> {ok, executed:[...], prompts?}
-  GET  /admin/intent (UI)
+  GET /admin/intent (UI)
 
-Ispolnenie:
-- type="rpa", name="open"           => POST /desktop/rpa/open
-- type="macro", name="..."          => POST /desktop/rpa/macro/run
-- type="info"                       => vozvraschaetsya polzovatelyu kak podskazka
+Performance:
+- type="rpa", name="open" => POST /desktop/rpa/open
+- type="macro", name="..." => POST /desktop/rpa/macro/run
+- type="info" => vozvraschaetsya polzovatelyu kak podskazka
 
-Konsens:
-- Zaprashivaem soglasie po domain (naprimer, rpa.open, rpa.demo, rpa.coop, install.*)
+Consensus:
+- Zaprashivaem soglasie po domain (for example, rpa.open, rpa.demo, rpa.coop, install.*)
 - Esli soglasiya net - vozvraschaem {prompt:"razreshit?"}
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from typing import Any, Dict, List
@@ -59,12 +57,12 @@ def intent_parse_run():
     domain = res.get("domain") or "rpa.unknown"
     if domain_needs_consent(domain):
         if consent_mode in ("allow","deny","ask","ask_once"):
-            # polzovatel yavno otvetil - sokhranim
+            # the user clearly answered - save
             set_rule(domain, consent_mode, persist=(consent_mode!="ask_once"))
             if consent_mode == "deny":
                 return jsonify({"ok": False, "error": "denied", "domain": domain}), 403
         else:
-            return jsonify({"ok": False, "prompt": f"Razreshit deystvie v domene {domain}?", "domain": domain})
+            return jsonify({"ok": False, "prompt": f"Allow action in domain ZZF0Z?", "domain": domain})
 
     executed: List[Dict[str, Any]] = []
     for act in res.get("actions", []):

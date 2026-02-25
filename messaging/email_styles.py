@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/email_styles.py — mepping profilya poluchatelya v stil pisma (ton, forma, struktura).
+"""messaging/email_styles.py - mepping profilya poluchatelya v stil pisma (ton, forma, struktura).
 
 MOSTY:
 - (Yavnyy) pick_style(vec, labels, kind_hint, signature_opt) → dict s polyami {formality, direct, empathy, brevity, subject_prefix, greeting, signoff}.
-- (Skrytyy #1) Agregator po klyucham iz roles.store uzhe est v messaging.styler — zdes povtor logiki ne nuzhen; modul prinimaet gotovyy vektor/yarlyki.
+- (Skrytyy #1) Agregator po klyucham iz roles.store uzhe est v messaging.styler - zdes povtor logiki ne nuzhen; modul prinimaet gotovyy vektor/yarlyki.
 - (Skrytyy #2) Parametry stilya ispolzuyutsya kak v evristicheskom generatore, tak i v LLM-rezhime B (edinyy plan).
 
 ZEMNOY ABZATs:
-Yuristu — chetko i formalno, studentu — prosche i druzhelyubnee, drugu — korotko i teplo. Vybor tona — funktsiya profilya, a ne «magiya».
+Yuristu - chetko i formalno, studentu - prosche i druzhelyubnee, drugu - korotko i teplo. Vybor tona - funktsiya profilya, a ne “magiya”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -25,7 +23,7 @@ def pick_style(vec: Dict[str,float] | None, labels: list[str] | None, kind_hint:
     labs = set(labels or [])
     s = _base_style()
 
-    # Po yarlykam/osyam smeschaem parametry
+    # Shift parameters along labels/axes
     if "lawyer" in labs or v.get("law",0) > 0.7:
         s["formality"]=0.95; s["direct"]=0.85; s["empathy"]=0.4; s["subject_prefix"]="Zapros: "; s["greeting"]="Uvazhaemye kollegi"; s["signoff"]="S uvazheniem"
     if "teacher" in labs or v.get("edu",0) > 0.7:

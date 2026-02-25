@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ester/thinking_quality.py
+"""modules/ester/thinking_quality.py
 
 Otsenka "chelovechnosti" kaskadnogo myshleniya Ester poverkh suschestvuyuschego treys-adaptera.
 
 Mosty:
 - Yavnyy: (modules.thinking.thought_trace_adapter <-> inzhener) — prevraschaet treys kaskada v metriki kachestva.
 - Skrytyy #1: (ester_thinking_check / ester_thinking_mode <-> quality) — daet chislovoy otvet, naskolko rezhim blizok k chelovecheskomu.
-- Skrytyy #2: (HTTP /ester/thinking/once <-> offline-analiz) — odni i te zhe kriterii dlya CLI i HTTP.
+- Skrytyy #2: (HTTP /ester/thinking/once <-> offline-analiz) - odni i te zhe kriterii dlya CLI i HTTP.
 
 Zemnoy abzats:
 Inzheneru nuzhen bystryy otvet: eto byl "zhivoy" kaskad s obdumyvaniem,
 ili ploskiy prokhod po payplaynu. Modul daet chislovoy skor i binarnyy flag human_like,
 osnovannyy na glubine, vetvlenii, refleksii i obraschenii k pamyati.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -41,13 +39,11 @@ def _as_bool(val: Any, default: bool) -> bool:
 
 
 def _merge_variants_meta(cascade_result: Dict[str, Any], base_meta: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Popytka "dochitat" glubinu i slozhnost iz multi-variants (ethics/science/engineering),
+    """Popytka "dochitat" glubinu i slozhnost iz multi-variants (ethics/science/engineering),
     kotorye formiruyutsya always_thinker dlya human_like-rezhima.
 
     Rabotaet tolko kogda bazovyy treys vyglyadit ploskim (depth ~0, bez vetvleniya/refleksii),
-    chtoby ne lomat normalnye odinochnye kaskady.
-    """
+    chtoby ne lomat normalnye odinochnye kaskady."""
     try:
         if (
             base_meta.get("depth", 0.0) >= 1.0
@@ -112,7 +108,7 @@ def _merge_variants_meta(cascade_result: Dict[str, Any], base_meta: Dict[str, An
     if refl_flags:
         new_meta["has_reflect"] = bool(base_meta.get("has_reflect") or any(refl_flags))
 
-    # nalichie neskolkikh variantov traktuem kak vetvlenie tochek zreniya
+    # the presence of several options is interpreted as branching points of view
     try:
         br_cnt = int(len(variants))
     except Exception:
@@ -145,7 +141,7 @@ def analyze_cascade(cascade_result: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     if _tta is None:
-        # Bez adaptera ne mozhem gluboko otsenit, no ne lomaemsya.
+        # Without an adapter, it cannot deeply evaluate, but does not break.
         return {
             "ok": True,
             "score": 0.0,
@@ -175,7 +171,7 @@ def analyze_cascade(cascade_result: Dict[str, Any]) -> Dict[str, Any]:
         "complexity": float(info.get("complexity") or 0.0),
     }
 
-    # Esli eto multi-variant human_like (ethics/science/engineering) — doobogaschaem metu.
+    # If this is a multi-variant of human_like (ethniss/scene/engineering), we further enrich the meta.
     meta = _merge_variants_meta(cascade_result, base_meta)
 
     depth = float(meta.get("depth") or 0.0)
@@ -186,7 +182,7 @@ def analyze_cascade(cascade_result: Dict[str, Any]) -> Dict[str, Any]:
     has_branch = bool(meta.get("has_branch") or (branch_cnt > 0))
     complexity = float(meta.get("complexity") or 0.0)
 
-    # Porogovye znacheniya (myagkie), mozhno nastroit cherez ENV
+    # Threshold values ​​(soft), can be configured via ENV
     min_depth = float(os.getenv("ESTER_THINK_MIN_DEPTH", "4"))
     min_complexity = float(os.getenv("ESTER_THINK_MIN_COMPLEXITY", "3.5"))
     min_branch = int(os.getenv("ESTER_THINK_MIN_BRANCHES", "1"))
@@ -207,7 +203,7 @@ def analyze_cascade(cascade_result: Dict[str, Any]) -> Dict[str, Any]:
     score_parts.append(min(complexity / max(min_complexity, 0.1), 1.0))
     # Refleksiya
     score_parts.append(1.0 if has_reflect else 0.0)
-    # Memory (esli trebuetsya)
+    # Memory (if required)
     if require_recall:
         score_parts.append(1.0 if has_recall else 0.0)
 
@@ -231,10 +227,10 @@ def analyze_cascade(cascade_result: Dict[str, Any]) -> Dict[str, Any]:
         reasons.append("net refleksii")
     if require_recall and not has_recall:
         human_like = False
-        reasons.append("net obrascheniy k pamyati")
+        reasons.append("no memory accesses")
 
     if not reasons:
-        reasons.append("kaskad sootvetstvuet tselevym kriteriyam human_like")
+        reasons.append("the cascade meets the target criteria human_like")
 
     return {
         "ok": True,

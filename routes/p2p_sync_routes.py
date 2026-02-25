@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/p2p_sync_routes.py - REST/UI dlya P2P Knowledge Sync (CRDT LWW + Merkle).
+"""routes/p2p_sync_routes.py - REST/UI dlya P2P Knowledge Sync (CRDT LWW + Merkle).
 
 Mosty:
 - Yavnyy: (UI ↔ Sync) - summari, pull/push, yavnyy merge.
@@ -8,9 +7,8 @@ Mosty:
 - Skrytyy 2: (Ontologiya/KG ↔ Normalizatsiya) - normalizuem tekst pri merzhe dlya soglasovannosti.
 
 Zemnoy abzats:
-Dve knopki - «vytyanut» i «zalit». Esli korni sovpali - nichego delat ne nado.
-Esli net - gonyaem tolko otlichiya, bez tyazhelykh baz.
-"""
+Dve knopki - “vytyanut” i “zalit”. Esli korni sovpali - nichego delat ne nado.
+Esli net - gonyaem tolko otlichiya, bez tyazhelykh baz."""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request, render_template

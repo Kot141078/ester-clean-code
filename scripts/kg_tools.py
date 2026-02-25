@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/kg_tools.py — universalnyy CLI dlya KG: export/import/repair/neighbors.
+"""scripts/kg_tools.py - universalnyy CLI dlya KG: export/import/repair/neighbors.
 
 Primery:
   # Eksport grafa v fayl
@@ -12,9 +11,8 @@ Primery:
   # Repair
   python -m scripts.kg_tools repair
 
-  # Neighbors
-  python -m scripts.kg_tools neighbors --id topic::ocr --json
-"""
+  #Neighbours
+  python -m scripts.kg_tools neighbors --id topic::ocr --json"""
 
 from __future__ import annotations
 
@@ -92,7 +90,7 @@ def main(argv=None) -> int:
 
     p_exp = sub.add_parser("export", help="Eksport grafa")
     p_exp.add_argument(
-        "--out", type=str, default=None, help="Put dlya sokhraneniya JSON"
+        "--out", type=str, default=None, help="The way to save ZhSON"
     )
     p_exp.set_defaults(func=cmd_export)
 

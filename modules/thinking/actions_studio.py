@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_studio.py — eksheny «voli» dlya studii kontenta.
+"""modules/thinking/actions_studio.py - eksheny “voli” dlya studii kontenta.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Studiya) zapuskaet generatsiyu promptov, audio, video, muzyki i Patreon-kit.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Garazh ↔ Integratsiya) rezultat legko privyazat k proektam.
 
 Zemnoy abzats:
-Nuzhen short — sdelali, nuzhen nabor dlya Patreon — gotovo; mozg otdaet korotkuyu komandu.
+Nuzhen short - made, nuzhen nabor dlya Patreon - gotovo; mozg otdaet korotkuyu komandu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

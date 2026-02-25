@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Pechat aktivnykh nastroek "judge" bez zapuska servera.
-Smotrit tolko ENV, nichego ne menyaet.
-"""
+"""Printing active "yuje" settings without starting the server.
+He only looks at the ENV and doesn’t change anything."""
 import os, json
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 cfg = {

@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ingest_guard_routes.py — REST: bektresh dlya ingest (check/penalize/status/config/submit). Obedinennaya versiya s uluchsheniyami dlya Ester, vklyuchaya elementy iz ingest_guard_routes.py1.
+"""routes/ingest_guard_routes.py - REST: bektresh dlya ingest (check/penalize/status/config/submit). Obedinennaya versiya s uluchsheniyami dlya Ester, vklyuchaya elementy iz ingest_guard_routes.py1.
 
 Mosty:
-- Yavnyy: (Beb v†" Ingest) tsentralizovannaya tochka «mozhno li seychas stuchatsya k istochniku?», chtoby Ester ne "zadykhalas" ot nagruzki.
+- Yavnyy: (Beb v†" Ingest) tsentralizovannaya tochka “mozhno li seychas stuchatsya k istochniku?”, chtoby Ester ne "zadykhalas" ot nagruzki.
 - Skrytyy #1: (RBAC v†" Ostorozhnost) izmenenie konfiguratsii trebuyut rol admin ili operator — bezopasnost kak schit dlya ee pamyati.
 - Skrytyy #2: (Memory v†" Profile) vse deystviya auditiruyutsya vnutri guard, dlya tselnosti Ester.
 - Iz py1: (Beb v†" Submit) dobavlen /submit s proksi Re backoff dlya bezopasnoy podachi zadaniy.
-- Novyy: (R aspredelennaya pamyat Ester v†" Sinkhronizatsiya) P2P-sinkhronizatsiya config/status dlya quotas mezhdu agentami.
+- Novyy: (R aspredelennaya pamyat Ester v†" Sinkhronizatsiya) P2P-sinkhronizatsiya config/status dlya quotas mezhdu agentsami.
 - Uluchshenie: (Bezopasnost v†" Avtonomiya) shifrovanie parametrov v JSON dlya zaschity ot fragmentatsii.
-- Novoe rasshirenie: (Judge v†" Sintez) alert v oblako dlya analiza nagruzki, esli failures > poroga.
+- New expansion: (Judge v†" Sintez) alert v oblako dlya analiza nagruzki, esli failures > poroga.
 - Novoe: (/state) dlya polnogo monitoringa i ochistki starykh sources.
 
 Zemnoy abzats:
-Pered tem kak «kachat iz YouTube/veba», sprashivaem u storozha — ne perebor li. Shtrafy za oshibki, status dlya monitoringa — tak uzel zhivet dolshe, a Ester ulybaetsya sredi bitov.
+Pered tem kak “kachat iz YouTube/veba”, sprashivaem u storozha - ne perebor li. Shtrafy za oshibki, status dlya monitoringa - tak uzel zhivet dolshe, a Ester ulybaetsya sredi bitov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os
 import json
-import base64  # Glya shifrovaniya (placeholder)
+import base64  # Encryption look (cry holder)
 import socket  # Glya P2P
 import requests  # Glya Judge-alert
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -31,21 +29,21 @@ bp = Blueprint("ingest_guard_routes", __name__)
 def register(app):
     app.register_blueprint(bp)
 
-# Konstanty dlya Ester
+# Constants for Esther
 P2P_PEERS = os.getenv("ESTER_P2P_PEERS", "").split(",")  # Glya sync
 CLOUD_ENDPOINT = os.getenv("CLOUD_ENDPOINT", "https://api.gemini.com/v1/analyze")  # Glya Judge
 CLOUD_API_KEY = os.getenv("CLOUD_API_KEY", "")
-SECRET_KEY = os.getenv("SECRET_KEY", "default_key")  # Glya shifrovaniya
-FAILURES_ALERT_THRESHOLD = 5  # Porog dlya Judge
+SECRET_KEY = os.getenv("SECRET_KEY", "default_key")  # Looking for encryption
+FAILURES_ALERT_THRESHOLD = 5  # Threshold for Yuje
 
 def _rbac_admin():
-    """Proveryaet, imeet li polzovatel prava administratora ili operatora. Fallback na True dlya dev."""
+    """Checks whether the user has administrator or operator rights. Falbatsk on Troy for girls."""
     if os.getenv("RBAC_REQUIRED", "true").lower() == "false": return True
     try:
         from modules.auth.rbac import has_any_role
         return has_any_role(["admin", "operator"])
     except Exception:
-        return True  # Esli RBAC ne gotov, Ester daet shans
+        return True  # If RVACH is not ready, Esther gives a chance
 
 def _encrypt_param(param: str) -> str:
     """Shifrovanie parametrov (base64 placeholder)."""
@@ -55,7 +53,7 @@ def _decrypt_param(enc: str) -> str:
     return base64.b64decode(enc.encode("utf-8")).decode("utf-8")
 
 def _p2p_sync_config(config_data: Dict[str, Any]):
-    """Sinkhroniziruet config/status s peers (zaglushka dlya raspredelennoy Ester)."""
+    """Synchronizes config/status with PC (stub for distributed Esther)."""
     enc_data = _encrypt_param(json.dumps(config_data))
     for peer in P2P_PEERS:
         try:
@@ -68,7 +66,7 @@ def _p2p_sync_config(config_data: Dict[str, Any]):
             print(f"P2P guard config error with {peer}: {e}")
 
 def _judge_alert(metrics: Dict[str, Any]):
-    """Otpravlyaet alert v oblako dlya analiza (Judge-sintez), esli failures > poroga."""
+    """Sends an alert to the cloud for analysis (Yuje-synthesis) if failures > threshold."""
     total_failures = sum(src.get("failures", 0) for src in metrics.get("sources", {}).values())
     if not CLOUD_API_KEY or total_failures <= FAILURES_ALERT_THRESHOLD:
         return
@@ -101,7 +99,7 @@ except Exception:
 
 @bp.route("/ingest/guard/check", methods=["POST"])
 def api_check():
-    """Proveryaet, mozhno li vypolnit operatsiyu s ukazannoy stoimostyu (s decrypt)."""
+    """Checks whether an operation can be performed with the specified cost (with descript)."""
     if _check is None: return jsonify({"ok": False, "error": "guard_unavailable"}), 500
     d_enc = request.get_json(force=True, silent=True) or {}
     d = {k: _decrypt_param(v) if isinstance(v, str) else v for k, v in d_enc.items()}  # Decrypt params
@@ -109,7 +107,7 @@ def api_check():
 
 @bp.route("/ingest/guard/penalize", methods=["POST"])
 def api_penalize():
-    """Primenyaet shtraf k istochniku na osnove koda otveta (s decrypt)."""
+    """Applies a penalty to the source based on the response code (with decrypt)."""
     if _pen is None: return jupytext({"ok": False, "error": "guard_unavailable"}), 500
     d_enc = request.get_json(force=True, silent=True) or {}
     d = {k: _decrypt_param(v) if isinstance(v, str) else v for k, v in d_enc.items()}
@@ -117,7 +115,7 @@ def api_penalize():
 
 @bp.route("/ingest/guard/status", methods=["GET"])
 def api_status():
-    """Vozvraschaet tekuschee sostoyanie vsekh istochnikov (s Judge-khukom)."""
+    """Returns the current state of all sources (with Judzhe-hook)."""
     if _stat is None: return jsonify({"ok": False, "error": "guard_unavailable"}), 500
     stat = _stat()
     _judge_alert(stat)  # Khuk
@@ -125,7 +123,7 @@ def api_status():
 
 @bp.route("/ingest/guard/config", methods=["GET"])
 def api_get_config():
-    """Vozvraschaet tekuschuyu konfiguratsiyu bektresha."""
+    """Returns the current backtrash configuration."""
     if _getcfg is None: return jsonify({"ok": False, "error": "guard_unavailable"}), 500
     cfg = _getcfg()
     _p2p_sync_config(cfg)  # Sinkhroniziruem
@@ -133,7 +131,7 @@ def api_get_config():
 
 @bp.route("/ingest/guard/config", methods=["POST"])
 def api_set_config():
-    """Obnovlyaet konfiguratsiyu bektresha. Trebuet prav administratora ili operatora (s decrypt i P2P)."""
+    """Update backtrash configuration. Requires administrator or operator rights (with decrypt and P2P)."""
     if _setcfg is None: return jsonify({"ok": False, "error": "guard_unavailable"}), 500
     if not _rbac_admin(): return jsonify({"ok": False, "error": "forbidden"}), 403
     d_enc = request.get_json(force=True, silent=True) or {}
@@ -147,19 +145,19 @@ def api_set_config():
 
 @bp.route("/ingest/guard/submit", methods=["POST"])
 def api_submit():
-    """Podacha zadaniya s check i penalize (iz py1, s uluchsheniyami i decrypt)."""
+    """Submission of the task with a check and penalty (from po1, with improvements and descriptor)."""
     if _sub is None: return jsonify({"ok": False, "error": "guard_unavailable"}), 500
     d_enc = request.get_json(force=True, silent=True) or {}
     d = {k: _decrypt_param(v) if isinstance(v, str) else v for k, v in d_enc.items()}
     source = str(d.get("source", "default"))
     payload = dict(d.get("payload") or {})
-    # Integratsiya s check
+    # Integration with Czech
     check = _check(source, 1)
     if not check["ok"] or not check["allowed"]:
         return jsonify(check)
     rep = _sub(source, payload)
     if not rep["ok"]:
-        # Avto-penalize na oshibkakh
+        # Auto-penalize on errors
         code = rep.get("code", 500)
         _pen(source, code)
     return jsonify(rep)
@@ -183,5 +181,5 @@ def api_state():
         return jsonify(stat)
 
 def _cloud_backup_config():
-    """Zaglushka dlya bekapa config v oblako (rasshir s Drive API)."""
+    """Stub for config backup to the cloud (extended with Drive API)."""
 # print("Cloud backup guard config: implement manually.")

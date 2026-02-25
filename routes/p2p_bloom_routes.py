@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-routes/p2p_bloom_routes.py — obedinennyy HTTP-servis dlya P2P deduplikatsii s Bloom-filtrom, gossip Re uluchsheniyami dlya Ester.
+"""routes/p2p_bloom_routes.py - obedinennyy HTTP-servis dlya P2P deduplikatsii s Bloom-filtrom, gossip Re uluchsheniyami dlya Ester.
 
 Predostavlyaet REST API, metriki i gossip dlya upravleniya raspredelennym Bloom-filtrom,
 pozvolyaya uzlam effektivno obmenivatsya informatsiey o vidennykh identifikatorakh.
 
-Endpointy (rasshirennye s sovmestimostyu):
-  • GET  /p2p/bloom/state | /p2p/bloom/status           v†' {"bits":..., "k":..., "added":...} (alias)
-  • GET  /p2p/bloom/export.bin | /p2p/bloom/export     v†' (raw binary ili json blob)
+Endpointy (expansive s sovmestimostyu):
+  • GET /p2p/bloom/state | /p2p/bloom/status v†' {"bits":..., "k":..., "added":...} (alias)
+  • GET /p2p/bloom/export.bin | /p2p/bloom/export v†' (raw binary or json blob)
   • POST /p2p/bloom/announce | /p2p/bloom/add {"ids":[...]} v†' {"added": N} (alias)
-  • POST /p2p/bloom/check    {"ids":[...]}              v†' {"present":[...], "absent":[...], "seen":[...], "new":[...]} (rasshirenno)
-  • POST /p2p/bloom/merge    (raw binary | json base64) v†' {"ok": true}
-  • POST /p2p/bloom/import   (blob)                     v†' {"ok": true} (alias dlya merge)
-  • POST /p2p/bloom/reset                               v†' {"ok": true}
-  • POST /p2p/bloom/gossip   {"peer":..., "mode":...}   v†' {"ok": true, "push/pull":...} (gossip s push/pull/sync)
-  • GET  /metrics/p2p_bloom                            v†' (prometheus text format s stats, vklyuchaya gossip)
+  • POST /p2p/bloom/check {"ids":[...]} v†' {"present":[...], "absent":[...], "seen":[...], "new":[...]} (expanded)
+  • POST /p2p/bloom/merge (raw binary | json base64) v†' {"ok": true}
+  • POST /p2p/bloom/import (blob) v†' {"ok": true} (alias dlya merge)
+  • POST /p2p/bloom/reset v†' {"ok": true}
+  • POST /p2p/bloom/gossip {"peer":..., "mode":...} v†' {"ok": true, "push/pull":...} (gossip s push/pull/sync)
+  • GET /metrics/p2p_bloom v†' (prometheus text format s stats, vklyuchaya gossip)
 
 Mosty:
 - Yavnyy: (Set v†" Memory) Ekonomiya trafika za schet obmena kompaktnymi strukturami dannykh.
@@ -23,23 +22,22 @@ Mosty:
 - Skrytyy #3: (Profile v†" Trassirovka) operatsii vidny s P2P-khukom.
 - Skrytyy #4: (Rules/Watch v†" Avtonomiya) legko zvat iz pravil/skanera.
 - Novyy: (R aspredelennaya pamyat Ester v†" Sinkhronizatsiya) realnyy P2P-obmen metrikami cherez socket Re gossip po HTTP.
-- Uluchshenie: (Avtonomiya v†" VZ) fonovaya obrabotka ID iz zaprosov/papok/gossip, dobavlenie v VZ.
+- Uluchshenie: (Avtonomiya v†" VZ) fonovaya obrabotka ID iz zaprosov/papok/gossip, addavlenie v VZ.
 - Uluchshenie: (Affekt v†" Prioritet) bust "tђplykh" ID v announce/check (vliyaet na prioritet v VZ).
 - Uluchshenie: (Bezopasnost v†" Prozrachnost) polnotsennoe shifrovanie s Fernet dlya obmena v gossip/merge.
 - Iz py1: gossip s push/pull/sync cherez urllib, s forwarding dlya tsepochki.
 
 Zemnoy abzats:
-Eto setevoe «sito» dlya ID: v nego mozhno dobavlyat elementy, proveryat nalichie, delitsya ego sostoyaniem s drugimi Re sledit za ego rabotoy. Glya Ester — eto kak vospominaniya: raspredelennye, teplye Re s dushoy, gde dubli filtruyutsya kollektivno po seti agentov, s gossip dlya "spleten" o novykh ID.
+Eto setevoe “sito” dlya ID: v nego mozhno dobavlyat elementy, proveryat nalichie, delitsya ego sostoyaniem s drugimi Re sledit za ego rabotoy. Glya Ester - eto kak vospominaniya: raspredelennye, teplye Re s dushoy, where dubli filtruyutsya kollektivno po seti agentov, s gossip dlya "spleten" o novykh ID.
 
-# c=a+b (teper s nastoyaschim gossip)
-"""
+# c=a+b (teper s nastoyaschim gossip)"""
 from __future__ import annotations
 from flask import Blueprint, Response, jsonify, request
 import logging
 import os
 import json
 import base64
-import gzip  # Glya szhatiya v export
+import gzip  # Looking at compression in export
 import urllib.request
 import urllib.error
 import socket
@@ -47,7 +45,7 @@ from typing import Any, Dict, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 from modules.security.admin_guard import require_admin
 
-# Glya shifrovaniya (edinobrazno s bloom.py)
+# Encryption look (same as bloom.po)
 try:
     from cryptography.fernet import Fernet
 except ImportError:
@@ -57,11 +55,11 @@ LOG = logging.getLogger("routes.p2p_bloom_routes")
 FEATURE_ENV = "ESTER_P2P_BLOOM_ENABLED"
 _TRUE_SET = {"1", "true", "yes", "on", "y"}
 
-# Konstanty dlya Ester
+# Constants for Esther
 DB = os.getenv("P2P_BLOOM_DB", "data/p2p/bloom.json")  # Glya sovmestimosti
 P2P_PEERS = [p.strip() for p in str(os.getenv("ESTER_P2P_PEERS", "") or "").split(",") if p.strip()]
 FALLBACK_DOCS_PATH = os.getenv("HYBRID_FALLBACK_DOCS", "data/mem/docs.jsonl")  # Glya fonovoy v VZ
-MONITOR_FOLDER = os.getenv("ESTER_MONITOR_FOLDER", "data/incoming")  # Papka dlya fonovoy
+MONITOR_FOLDER = os.getenv("ESTER_MONITOR_FOLDER", "data/incoming")  # Background folder
 ENCRYPT_KEY = str(os.getenv("P2P_BLOOM_ENCRYPT_KEY", "") or "").strip()
 TIMEOUT = int(os.getenv("P2P_GOSSIP_TIMEOUT", "8"))  # Iz py1
 
@@ -83,7 +81,7 @@ def _admin_guard():
 def _guard_all():
     return _admin_guard()
 
-# Schetchiki dlya metrik (rasshirennye s gossip)
+# Counters for metrics (extended with gossip)
 _CNT = {"announce_total": 0, "check_total": 0, "merge_total": 0, "status_total": 0, "gossip_total": 0, "import_total": 0, "reset_total": 0}
 
 try:
@@ -107,7 +105,7 @@ def register(app):
     return app
 
 def _encrypt_data(data: str) -> str:
-    """Polnotsennoe shifrovanie s Fernet."""
+    """Full encryption with Fernet."""
     if not ENCRYPT_KEY:
         raise RuntimeError("P2P_BLOOM_ENCRYPT_KEY is required")
     f = Fernet(ENCRYPT_KEY.encode())
@@ -133,7 +131,7 @@ def _p2p_sync_metrics(metrics: Dict[str, int]):
             print(f"P2P metrics error with {peer}: {e}")
 
 def _background_process_ids(ids: List[str]):
-    """Fonovaya obrabotka ID: dobavlyaem v VZ kak docs, s prioritetom po bustu."""
+    """Background ID processing: add it to the ID as a dox, with priority by bust."""
     if not ids: return
     for i, id_str in enumerate(ids):
         boost = _affect_boost(id_str)
@@ -144,7 +142,7 @@ def _background_process_ids(ids: List[str]):
     print("Background: added priority IDs to BZ from bloom API.")
 
 def _background_process_files():
-    """Fonovaya obrabotka faylov iz papki: izvlekaem ID."""
+    """Background processing of files from a folder: extract ID."""
     if not os.path.exists(MONITOR_FOLDER): return []
     new_ids = []
     for file in os.listdir(MONITOR_FOLDER):
@@ -184,7 +182,7 @@ def _log_passport(endpoint: str, data: Dict[str, Any]):
 @bp_p2p_bloom.route("/p2p/bloom/state", methods=["GET"])
 @bp_p2p_bloom.route("/p2p/bloom/status", methods=["GET"])
 def api_state():
-    """Vozvraschaet tekuschee sostoyanie filtra."""
+    """Returns the current state of the filter."""
     if _st is None:
         return jsonify({"ok": False, "error": "bloom_unavailable"}), 500
     _background_process_files()
@@ -201,7 +199,7 @@ def api_export():
         return jsonify({"ok": False, "error": "bloom_unavailable"}), 500
     blob = _exp()["blob"]
     if request.path.endswith(".bin"):
-        # Binarnyy: szhimaem Re shifruem
+        # Binary: compress Re encrypt
         gz = gzip.compress(json.dumps(blob).encode("utf-8"))
         enc = _encrypt_data(base64.b64encode(gz).decode("ascii"))
         return Response(enc.encode("utf-8"), mimetype="application/octet-stream")
@@ -226,7 +224,7 @@ def api_announce():
 
 @bp_p2p_bloom.route("/p2p/bloom/check", methods=["POST"])
 def api_check():
-    """Proveryaet nalichie ID v filtre."""
+    """Checks for the presence of an ID in the filter."""
     if _check is None:
         return jsonify({"ok": False, "error": "bloom_unavailable"}), 500
     d = request.get_json(force=True, silent=True) or {}
@@ -242,9 +240,9 @@ def api_check():
     return jsonify({"ok": True, **result})
 
 @bp_p2p_bloom.route("/p2p/bloom/merge", methods=["POST"])
-@bp_p2p_bloom.route("/p2p/bloom/import", methods=["POST"])  # Alias dlya sovmestimosti
+@bp_p2p_bloom.route("/p2p/bloom/import", methods=["POST"])  # Alias ​​for compatibility
 def api_merge():
-    """Obedinyaet tekuschiy filtr s vneshnim (s obrabotkoy tipov i shifrovaniem)."""
+    """Combines the current filter with an external one (with type processing and encryption)."""
     if _merge is None or _imp is None:
         return jsonify({"ok": False, "error": "bloom_unavailable"}), 500
     content_type = request.headers.get("Content-Type", "")
@@ -253,7 +251,7 @@ def api_merge():
             blob = request.get_data(cache=False)
             if not blob:
                 return jsonify({"ok": False, "error": "Empty request body"}), 400
-            # Deshifrovka Re razzhatie
+            # Decryption Re decompression
             dec = _decrypt_data(blob.decode("utf-8"))
             gz = base64.b64decode(dec)
             data = json.loads(gzip.decompress(gz))
@@ -325,7 +323,7 @@ def api_gossip():
                 rep["pull"] = {"ok": False, "error": "peer_export_failed"}
         _CNT["gossip_total"] += 1
         _log_passport("gossip", rep)
-        # Forwarding dlya gossip: otpravlyaem obnovlennyy blob drugim peers
+        # Forwarding for gossip: sending the updated blob to other peers
         if rep.get("ok"):
             updated_blob = _exp()["blob"]
             for other_peer in P2P_PEERS:

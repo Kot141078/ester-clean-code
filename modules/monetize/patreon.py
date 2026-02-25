@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/monetize/patreon.py — generatsiya startovogo nabora Patreon (tiers + posty).
+"""modules/monetize/patreon.py - generatsiya startovogo nabora Patreon (tiers + posty).
 
 Mosty:
-- Yavnyy: (Monetizatsiya ↔ Dokumenty) sozdaem JSON urovney i chernoviki postov dlya zagruzki.
+- Yavnyy: (Monetizatsiya ↔ Dokumenty) sozdaem JSON urovney i chernoviki postsov dlya zagruzki.
 - Skrytyy #1: (Memory ↔ Profile) fiksiruem fakt podgotovki kampanii.
 - Skrytyy #2: (Garazh ↔ Portfolio) posty mogut ssylatsya na proekty/assety studii.
 
 Zemnoy abzats:
-Eto kak «startovyy paket» — urovni podderzhki i pervye posty uzhe lezhat na diske.
+Eto kak “startovyy paket” - urovni podderzhki i pervye posty uzhe lezhat na diske.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict, List
@@ -24,7 +22,7 @@ def kit(creator: str, tiers: List[Dict[str,Any]], welcome: str, posts: List[Dict
     tj={"creator": creator, "tiers": tiers, "welcome": welcome}
     tpath=os.path.join(OUT, "patreon_tiers.json"); json.dump(tj, open(tpath,"w",encoding="utf-8"), ensure_ascii=False, indent=2)
     count=0
-    for p in (posts or [{"title":"Dobro pozhalovat","body":welcome},{"title":"Za kulisami #1","body":"Pervyy shag: studiya gotova."}]):
+    for p in (posts or [{"title":"Dobro pozhalovat","body":welcome},{"title":"Za kulisami #1","body":"First step: the studio is ready."}]):
         fn=os.path.join(OUT, f"patreon_post_{int(time.time())}_{count}.md")
         open(fn,"w",encoding="utf-8").write(f"# {p.get('title','')}\n\n{p.get('body','')}\n")
         count+=1

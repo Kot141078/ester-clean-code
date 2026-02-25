@@ -1,10 +1,10 @@
 # requirements.txt
 # Mosty:
-#  • (Infrastruktura ↔ Prilozhenie) — bazovye zavisimosti vyneseny v odin fayl, kotoryy chitayut dev/ci/prod.
+#  • (Infrastruktura ↔ Prilozhenie) - bazovye zavisimosti vyneseny v odin fayl, kotoryy chitayut dev/ci/prod.
 # Skrytye mosty:
-#  • (Constraints ↔ Runtime) — vse stroki prokhodyat cherez -c requirements/constraints.txt.
+#  • (Constraints ↔ Runtime) - vse stroki prokhodyat cherez -c requirements/constraints.txt.
 #  • (Parsery ↔ RAG) — nabor I/O-bibliotek stabilen dlya payplayna ingest→index→query.
-# Zemnoy abzats: eto «osnovnoy sklad detaley» — tolko to, bez chego servis ne zapuskaetsya.
+# Earthly paragraph: this is the “main warehouse of parts” - only that without which the service does not start.
 # c=a+b
 
 -c requirements/constraints.txt

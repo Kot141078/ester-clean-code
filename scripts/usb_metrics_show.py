@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/usb_metrics_show.py — vyvod tekuschikh metrik agenta USB (JSON).
+"""scripts/usb_metrics_show.py - vyvod tekuschikh metrik agenta USB (JSON).
 
 Mosty:
 - Yavnyy (Nablyudenie ↔ Ekspluatatsiya): momentalnyy snimok sostoyaniya.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy 2 (Inzheneriya ↔ Nadezhnost): prigodno dlya health-chekov i alertov.
 
 Zemnoy abzats:
-Otkladka «v pole»: bystro ponyat, kak chasto srabatyvaem i kakaya p95 zaderzhka.
+Otkladka “v pole”: bystro ponyat, kak often srabatyvaem i kakaya p95 zaderzhka.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

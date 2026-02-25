@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/social_routes.py - REST: kampanii, upload-kit, ledzher.
+"""routes/social_routes.py - REST: kampanii, upload-kit, ledzher.
 
 Mosty:
 - Yavnyy: (Veb ↔ Sotsseti) sozdaem kampanii, plany, sborki kitov i vedem uchet.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Memory ↔ Profile) vse klyuchevye sobytiya logiruyutsya v pamyat modulyami.
 
 Zemnoy abzats:
-Knopki «sozdat kampaniyu», «sobrat kit», «zapisat prosmotry/dokhod» - polnyy tsikl pod rukoy.
+Knopki “sozdat kampaniyu”, “sobrat kit”, “zapisat prosmotry/dokhod” - polnyy tsikl pod rukoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os, glob, json
@@ -46,7 +44,7 @@ def api_build():
     if _build is None: return jsonify({"ok": False, "error":"social_unavailable"}), 500
     d=request.get_json(True, True) or {}
     cid=str(d.get("id",""))
-    # esli campaign ukazan - vozmem ee posledniy plan kak defolt assetov
+    # if champaign is specified - take its last plan as asset default
     assets = d.get("assets")
     if cid and not assets and _get is not None:
         c=_get(cid)

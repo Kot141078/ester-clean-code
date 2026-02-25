@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-/portal: sovmestimyy legacy-entry.
+"""/portal: sovmestimyy legacy-entry.
 
 Kanonicheskiy vkhod teper /admin/portal, zdes ostavlyaem tolko 302-redirekt.
 
@@ -9,10 +8,9 @@ Mosty:
 - Skrytye: ENV↔FS (ESTER_PROJECT_ROOT), Jinja↔Fallback.
 
 Zemnoy abzats:
-Staryy vyklyuchatel ostavlen, no provod pereveden na novuyu klemmu.
+Staryy vyklyuchatel ostavlen, no wire pereveden na novuyu klemmu.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, redirect
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

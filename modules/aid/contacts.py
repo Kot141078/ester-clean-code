@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/aid/contacts.py — reestr kontaktov i predpochteniy dlya ekstrennoy pomoschi Pape.
+"""modules/aid/contacts.py - reestr kontaktov i predpochteniy dlya ekstrennoy pomoschi Pape.
 
 Mosty:
-- Yavnyy: (Lyudi ↔ Operatsii) tsentralizovannyy spisok «kogo i kak» uvedomlyat (Papa, semya, sosedi, vrach, sluzhby).
+- Yavnyy: (Lyudi ↔ Operatsii) tsentralizovannyy spisok “kogo i kak” uvedomlyat (Papa, semya, sosedi, vrach, sluzhby).
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) proverka kontaktov (verify code), profile zapisi s sha i ts.
 - Skrytyy #2: (Politika ↔ Prioritet) pometki family_sensitive + bias k Pape dlya planirovschikov.
 
 Zemnoy abzats:
-Prakticheski — eto «kartochka telefona» s prioritetami i pometkami «proveren», chtoby v kriticheskiy moment ne gadat.
+Prakticheski - eto “kartochka telefona” s prioritetami i pometkami “proveren”, chtoby v kriticheskiy moment ne gadat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import hashlib, json, os, time, uuid
 from typing import Any, Dict, List
@@ -55,10 +53,8 @@ def add(kind: str, name: str, channel: str, value: str, priority: int = 5, note:
     return {"ok": True, "id": cid, "sha256": entry["sha256"]}
 
 def verify(cid: str, code: str) -> Dict[str, Any]:
-    """
-    «Verifikatsiya» po kodu — ruchnaya otmetka (operator/Papa vvodit kod, kotoryy otpravlyalsya izvne).
-    V nashem drop-in net realnoy rassylki, no zhurnalim fakt podtverzhdeniya.
-    """
+    """“Verifikatsiya” po kodu - ruchnaya otmetka (operator/Papa ​​vvodit kod, kotoryy otpravlyalsya izvne).
+    V nashem drop-in net realnoy rassylki, no zhurnalim fakt podtverzhdeniya."""
     _ensure()
     st = json.load(open(CONTACTS,"r",encoding="utf-8"))
     for c in st["contacts"]:

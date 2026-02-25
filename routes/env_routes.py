@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/env_routes.py - status i peresborka .env.
+"""routes/env_routes.py - status i peresborka .env.
 
 MOSTY:
 - (Yavnyy) GET /env/status - svodka po klyucham; POST /env/rebuild {public_only}
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Umeet vypuskat .env.public (dlya publichnogo eksporta) bez izmeneniya lokalnogo .env.
 
 ZEMNOY ABZATs:
-Pult «pitanie/kabeli»: bystro vidno, chto podklyucheno, i srazu mozhno sobrat publichnyy .env.
+Pult “pitanie/kabeli”: bystro vidno, chto podklyucheno, i srazu mozhno sobrat publichnyy .env.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from flask import Blueprint, jsonify, request

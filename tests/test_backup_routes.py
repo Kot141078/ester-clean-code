@@ -7,7 +7,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 def test_backup_run_verify_restore(client, auth_hdr_admin, monkeypatch, tmp_path):
     monkeypatch.setenv("PERSIST_DIR", str(tmp_path))
     monkeypatch.setenv("BACKUP_HMAC_KEY", "bksecret")
-    # Dobavim nebolshoy fayl dlya bekapa
+    # Let's add a small file for backup
     (tmp_path / "foo").mkdir(exist_ok=True)
     (tmp_path / "foo" / "bar.txt").write_text("hello", encoding="utf-8")
 
@@ -42,6 +42,6 @@ def test_backup_run_verify_restore(client, auth_hdr_admin, monkeypatch, tmp_path
 
 def test_backup_missing_key(client, auth_hdr_admin, monkeypatch, tmp_path):
     monkeypatch.setenv("PERSIST_DIR", str(tmp_path))
-    # klyuch ne zadan
+    # key not specified
     r = client.post("/ops/backup/run", headers=auth_hdr_admin)
 # assert r.status_code in (503, 404)

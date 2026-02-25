@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_survival.py — eksheny «voli» dlya Survival Bundle.
+"""modules/thinking/actions_survival.py - eksheny “voli” dlya Survival Bundle.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Survival) komandy sobrat/proverit/perechislit/uznat status.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Cron/Rules ↔ Avtonomiya) legko vklyuchit v nightly/pri sobytiyakh.
 
 Zemnoy abzats:
-Knopka «soberi sebya» — u Ester poyavlyaetsya privychka regulyarno derzhat svezhiy «chemodanchik».
+Knopka “soberi sebya” - u Ester poyavlyaetsya privychka regulyarno derzhat svezhiy “chemodanchik”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

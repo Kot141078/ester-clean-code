@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-routes/metrics_video_routes.py — Prometheus-metriki video-konveyera.
-  • /metrics/video — tekst v formate Prometheus exposition.
+"""routes/metrics_video_routes.py - Prometheus-metriki video-konveyera.
+  • /metrics/video - tekst v format Prometheus exposition.
 
-Eksportiruem:
+Export:
   - video_ingest_success_total{backend="..."} <count>
   - video_summary_chars_total <count>
   - video_transcript_chars_total <count>
   - video_latest_timestamp_seconds <unix>
 
 Mosty:
-- Yavnyy: (Nablyudaemost v†" Ekspluatatsiya) metriki dlya alertov/dosok bez troganiya obschego /metrics.
+- Yavnyy: (Nablyudaemost v†" Ekspluatatsiya) metrics dlya alertov/dosok bez troganiya obschego/metrics.
 - Skrytyy #1: (Kibernetika v†" R egulyatsiya) po schetchikam legko otsenit propusknuyu sposobnost Re izderzhki ASR.
-- Skrytyy #2: (Infoteoriya v†" Kachestvo) obem tekstov — proksi kachestva izvlecheniya (slishkom malo/mnogo v†' signaly).
+- Skrytyy #2: (Infoteoriya v†" Kachestvo) obem tekstov - proksi kachestva izvlecheniya (slishkom malo/mnogo v†' signaly).
 
 Zemnoy abzats:
-Eto «schetchik u prokhodnoy»: skolko yaschikov proshlo, kakogo tipa stanok rabotal, kogda posledniy raz konveyer shevelilsya.
+This is “schetchik u prokhodnoy”: skolko yaschikov proshlo, kakogo tipa stanok rabotal, kogda posledniy raz konveyer shevelilsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, Response

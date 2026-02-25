@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-security/nonce_store.py — TTL-khranilische odnorazovykh znacheniy (replay guard).
+"""security/nonce_store.py - TTL-khranilische odnorazovykh znacheniy (replay guard).
 
 MOSTY:
-- (Yavnyy) check_and_remember(token, ttl) — True, esli novyy; False, esli povtor (replay).
+- (Yavnyy) check_and_remember(token, ttl) — True, if not new; False, esli povtor (replay).
 - (Skrytyy #1) Ogranichenie razmera i LRU-ochistka bez vneshnikh zavisimostey.
 - (Skrytyy #2) Potokobezopasnost (RLock), TTL po monotonnym chasam.
 
 ZEMNOY ABZATs:
 Blokiruet povtornuyu otpravku togo zhe zaprosa v fiksirovannom okne (napr., 10 minut), dazhe esli podpis i metka vremeni byli validny.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, threading
 from typing import Dict, Tuple, Optional
@@ -26,7 +24,7 @@ class NonceStore:
     def _evict_if_needed(self):
         if len(self._d) <= self._max:
             return
-        # udalit ~10% samykh starykh po last_access
+        # remove ~10% of the oldest last_access
         n = max(1, self._max // 10)
         items = sorted(self._d.items(), key=lambda kv: kv[1][1])[:n]
         for k,_ in items:

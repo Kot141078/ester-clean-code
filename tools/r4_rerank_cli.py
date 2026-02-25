@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R4/tools/r4_rerank_cli.py — CLI: poluchit rerank+summary dlya zaprosa (B-slot s avtokatbekom).
+"""R4/tools/r4_rerank_cli.py - CLI: poluchit rerank+summary dlya zaprosa (B-slot s avtokatbekom).
 
 Mosty:
 - Yavnyy: Enderton — formalnye predikaty nad parametrami i rezultatami (JSON).
@@ -10,10 +9,9 @@ Mosty:
 
 Zemnoy abzats:
 Rabotaet s LM Studio (esli R4_MODE=B i servis dostupen) ili bez nego (A-rezhim).
-Vyvod — chelovekochitaemyy JSON (UTF-8). Udobno dlya payplayna daydzhesta/portala.
+Vyvod - chelovekochitaemyy JSON (UTF-8). Udobno dlya payplayna daydzhesta/portala.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse
 import json
@@ -23,7 +21,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="R4 rerank+summary (B-slot with fallback)")
-    ap.add_argument("--query", required=True, help="Tekst zaprosa")
+    ap.add_argument("--query", required=True, help="Request text")
     ap.add_argument("--top", type=int, default=5, help="Skolko vernut")
     ap.add_argument("--tags", default="", help="Filtr po tegam: comma-separated")
     args = ap.parse_args()

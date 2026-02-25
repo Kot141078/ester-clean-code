@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R2/tools/r2_ingest_cli.py — edinyy CLI dlya ingensta RSS i papki inbox.
+"""R2/tools/r2_ingest_cli.py - edinyy CLI dlya ingensta RSS i papki inbox.
 
 Mosty:
-- Yavnyy: Enderton — komandy CLI kak predikaty (rss-pull | inbox-scan) nad parametrami.
+- Yavnyy: Enderton - komandy CLI kak predikaty (rss-pull | inbox-scan) nad parametrami.
 - Skrytyy #1: Ashbi — prostoy regulyator: lineynoe vypolnenie, bez fonovykh tredov/demonov.
-- Skrytyy #2: Cover & Thomas — minimalnyy «signal» (kratkie svodki) snizhaet neopredelennost pri priemke.
+- Skrytyy #2: Cover & Thomas — minimalnyy “signal” (kratkie svodki) snizhaet neopredelennost pri priemke.
 
 Zemnoy abzats:
 Komandy:
-  rss-pull  — `--url` (http/https/file), `--user`, `--tag`
-  inbox-scan — `--dir`, `--user`, `--tag`, `--pattern` (po umolchaniyu *.txt;*.md;*.html)
-Rabotaet tolko na stdlib. Nichego ne lomaet. Pishet kartochki v `PERSIST_DIR/ester_cards.json`.
+  rss-pull - `--url` (http/https/file), `--user`, `--tag`
+  inbox-scan - `--dir`, `--user`, `--tag`, `--pattern` (by default *.txt;*.md;*.html)
+Rabotaet tolko na stdlib. No problem. Pishet kartochki v `PERSIST_DIR/ester_cards.json`.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse
 import json
@@ -38,7 +36,7 @@ def main() -> int:
     p_rss.add_argument("--user", default=os.getenv("ESTER_USER", "Owner"))
     p_rss.add_argument("--tag", default="rss")
 
-    p_inb = sub.add_parser("inbox-scan", help="Proskanirovat lokalnuyu papku i dobavit v pamyat")
+    p_inb = sub.add_parser("inbox-scan", help="Scan local folder and add to memory")
     p_inb.add_argument("--dir", default=os.getenv("INBOX_DIR") or os.path.abspath(os.path.join(os.getcwd(), "inbox")))
     p_inb.add_argument("--user", default=os.getenv("ESTER_USER", "Owner"))
     p_inb.add_argument("--tag", default="inbox")

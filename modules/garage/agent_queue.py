@@ -97,12 +97,10 @@ def _template_requires_approval(template_id: str) -> Optional[bool]:
 
 
 def _agent_enabled_state(agent_id: str) -> Optional[bool]:
-    """
-    Returns:
-      True  -> agent exists and enabled
+    """Returns:
+      True -> agent exists and enabled
       False -> agent exists and disabled
-      None  -> unknown/unavailable (legacy compatibility path)
-    """
+      None -> unknown/unavailable (legacy compatibility path)"""
     aid = str(agent_id or "").strip()
     if not aid:
         return None

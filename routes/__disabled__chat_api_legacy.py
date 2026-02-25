@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/chat_api.py — «sovmestimyy» chat-router dlya Ester.
+"""routes/chat_api.py - “sovmestimyy” chat-router dlya Ester.
 
 MOSTY:
 - (Yavnyy) UI/bot ↔ /chat|/ester/chat/message (edinyy kontrakt {message, mode, use_rag, temperature}).
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Avtologirovanie v ~/.ester/vstore/ester_chat_log.json dlya pamyati.
 
 ZEMNOY ABZATs:
-Kak elektrik s testerom: u nas odna «vilka» (klient), neskolko «rozetok» (provayderov).
-Etot fayl — raspredelitelnaya korobka: prinimaet odin format i bezopasno podaet pitanie tuda,
-kuda poprosili, ne dopuskaya «ne toy rozetki» i korotkogo zamykaniya.
-"""
+Kak elektrik s testerom: u nas odna “vilka” (klient), neskolko “rozetok” (provayderov).
+Etot fayl - raspredelitelnaya korobka: prinimaet odin format i bezopasno podaet pitanie tuda,
+kuda poprosili, ne dopuskaya “ne toy rozetki” i korotkogo zamykaniya."""
 from __future__ import annotations
 from typing import Any, Dict, List, Optional
 from flask import Blueprint, request, jsonify
@@ -25,20 +23,20 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 # -------- Konfig provayderov (cherez ENV) --------
 LMSTUDIO_BASE  = os.getenv("LMSTUDIO_BASE", "http://127.0.0.1:1234")
 LMSTUDIO_MODEL = os.getenv("LMSTUDIO_MODEL", "qwen/qwen3-vl-8b")
-LMSTUDIO_API_KEY = os.getenv("LMSTUDIO_API_KEY", "")  # obychno ne nuzhen
+LMSTUDIO_API_KEY = os.getenv("LMSTUDIO_API_KEY", "")  # usually not needed
 
 OPENAI_API_BASE  = os.getenv("OPENAI_API_BASE", "https://api.openai.com")
 OPENAI_API_KEY   = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL     = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
-# judge mozhet byt otdelnym agregatorom; esli ne zadan — ispolzuem cloud-nastroyki
+# yuje can be a separate aggregator; if not specified, use cloud settings
 JUDGE_BASE     = os.getenv("JUDGE_BASE", OPENAI_API_BASE)
 JUDGE_API_KEY  = os.getenv("JUDGE_API_KEY", OPENAI_API_KEY)
 JUDGE_MODEL    = os.getenv("JUDGE_MODEL", os.getenv("OPENAI_JUDGE_MODEL", OPENAI_MODEL))
 
 DEFAULT_MODE   = os.getenv("ESTER_DEFAULT_MODE", "lmstudio")
 
-# -------- Vneshnie mosty (optsionalno) --------
+# -------- External bridges (optional) --------
 try:
     from modules.net_bridge import search as net_search  # type: ignore
 except Exception:
@@ -66,7 +64,7 @@ def _chat_log(entry: Dict[str, Any]) -> None:
         # log — best effort
         pass
 
-# -------- Unifitsirovannyy vyzov OpenAI-sovmestimykh API --------
+# -------- Unified call to OpenAI-compatible APIs --------
 def _call_openai_chat(
     base_url: str,
     api_key: str,
@@ -123,7 +121,7 @@ def _maybe_enrich_with_net(message: str, sid: Optional[str]) -> (str, bool, int)
             _chat_log({"ts": datetime.utcnow().isoformat(), "sid": sid, "query": message, "net_error": str(e)})
     return message, False, 0
 
-# Osnovnaya ruchka; delaem dva puti na odnu funktsiyu (sovmestimost frontov)
+# Main handle; we make two paths for one function (front compatibility)
 @bp.post("/chat/message")
 @bp.post("/ester/chat/message")
 def chat_message():
@@ -137,7 +135,7 @@ def chat_message():
     if not message:
         return jsonify({"ok": False, "error": "no_message"}), 400
 
-    # enrich (optsionalno)
+    # enrich (optional)
     msg_for_llm = message
     net_used = False
     net_count = 0
@@ -148,7 +146,7 @@ def chat_message():
 
     try:
         if mode == "lmstudio":
-            # LM Studio obychno sovmestim s OpenAI API (bez klyucha)
+            # LM Studio is usually compatible with OpenAI API (keyless)
             res = _call_openai_chat(
                 base_url=LMSTUDIO_BASE,
                 api_key=LMSTUDIO_API_KEY,
@@ -173,9 +171,9 @@ def chat_message():
             answer = res["answer"]
 
         elif mode == "judge":
-            # judge — otdelnyy bazovyy URL/model (po umolchaniyu = cloud)
+            # yuje - separate base URL/model (default = cloud)
             if not JUDGE_API_KEY and "api.openai.com" in (JUDGE_BASE or ""):
-                # esli judge zavyazan na OpenAI — klyuch obyazatelen
+                # if you are connected to OpenAI, the key is required
                 return jsonify({"ok": False, "error": "judge_api_key_missing"}), 500
             res = _call_openai_chat(
                 base_url=JUDGE_BASE,
@@ -212,11 +210,9 @@ def chat_message():
     return jsonify(out)
 
 def register(app):
-    """
-    Gibkaya registratsiya:
-    - Po umolchaniyu LEGASI-rout otklyuchen (ESTER_DISABLE_LEGACY_CHAT="1") — chtoby ne konfliktovat s novym chatom.
-    - Postav ESTER_DISABLE_LEGACY_CHAT="0", esli khochesh yavno vklyuchit etu ruchku.
-    """
+    """Gibkaya registratsiya:
+    - Po umolchaniyu LEGASI-rout otklyuchen (ESTER_DISABLE_LEGACY_CHAT="1") - chtoby ne konfliktovat s novym chatom.
+    - Postav ESTER_DISABLE_LEGACY_CHAT="0", esli khochesh yavno vklyuchit etu ruchku."""
     if os.getenv("ESTER_DISABLE_LEGACY_CHAT", "1") == "1":
         print("[chat_api legacy] disabled")
         return

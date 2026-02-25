@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ingest_proxy_routes.py - proksi dlya /ingest/submit s backpressure i bekoffom.
+"""routes/ingest_proxy_routes.py - proksi dlya /ingest/submit s backpressure i bekoffom.
 
 Mosty:
 - Yavnyy: (Ingest ↔ Kvoty) reguliruem potoki per-source.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Sovmestimost ↔ Proksirovanie) kontrakt /ingest/submit neizmenen - my lish obertka.
 
 Zemnoy abzats:
-Kak «umnaya priemnaya»: prinimaet pachku, vydaet talonchik i otpravlyaet dalshe, no bez ocheredey-v-khaos.
+Kak “umnaya priemnaya”: prinimaet pachku, vydaet talonchik i otpravlyaet dalshe, no bez ocheredey-v-khaos.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import json, time
@@ -45,7 +43,7 @@ def api_ingest_submit_proxy():
     gate=_allow(source, weight)
     if not gate.get("allow", True):
         return jsonify({"ok": False, "error":"rate_limited", "gate": gate}), 429
-    # fiksiruem «vozrast» dlya monitoringa
+    # we record “age” for monitoring
     tid=f"I{int(time.time())}"
     _qage(tid, int(time.time()))
     try:

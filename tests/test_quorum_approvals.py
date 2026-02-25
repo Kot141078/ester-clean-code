@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/test_quorum_approvals.py — proverka kvoruma odobreniy.
-"""
+"""tesc/test_corum_approvals.po - checking quorum approval."""
 
 from __future__ import annotations
 

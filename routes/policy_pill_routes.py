@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/policy_pill_routes.py - REST: /policy/pill/* - konfiguratsiya patternov «pilyuli».
+"""routes/policy_pill_routes.py - REST: /policy/pill/* - configuratsiya patternov "pilyuli".
 
 Mosty:
 - Yavnyy: (Politika ↔ Guard) tsentralizovannoe upravlenie spiskom trebuyuschikh podtverzhdeniya ruchek.
 - Skrytyy #1: (Profile ↔ Audit) zapis fakta izmeneniya politiki.
-- Skrytyy #2: (RBAC ↔ Bezopasnost) izmenenie karty - administrativnaya operatsiya.
+- Skrytyy #2: (RBAC ↔ Bezopasnost) izmenenie karty - administrative operatsiya.
 
 Zemnoy abzats:
-Spisok «krasnykh knopok» pod steklom. Menyaem ego v odnom meste, guard podkhvatit avtomaticheski.
+Spisok “krasnykh knopok” pod steklom. Menyaem ego v odnom meste, guard podkhvatit avtomaticheski.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os, json, time

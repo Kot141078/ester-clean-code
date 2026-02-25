@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/studio_routes.py - REST: studiya kontenta (prompty, audio, video, muzyka, Patreon).
+"""routes/studio_routes.py - REST: studiya kontenta (prompty, audio, video, muzyka, Patreon).
 
 Mosty:
 - Yavnyy: (Veb ↔ Studiya) edinaya tochka starta dlya tvorcheskikh konveyerov.
 - Skrytyy #1: (FFmpeg/TTS ↔ Bezopasnost) operatsii pomecheny v politike predostorozhnosti.
-- Skrytyy #2: (Garazh/Flot ↔ Integratsiya) rezultat mozhno dobavlyat v proekty/portfolio.
+- Skrytyy #2: (Garazh/Flot ↔ Integratsiya) rezultat mozhno addavlyat v proekty/portfolio.
 
 Zemnoy abzats:
-Knopki «sdelat ideyu», «ozvuchit», «skleit video», «podgotovit Patreon» - vse pod rukoy.
+Knopki “sdelat ideyu”, “ozvuchit”, “skleit video”, “podgotovit Patreon” - vse pod rukoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os, glob, json

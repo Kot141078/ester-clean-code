@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-routes_memory.py — REST API dlya pamyati (v9).
+"""routes_memory.py - REST API dlya pamyati (v9).
 
-Endpointy:
-- GET  /memory/flashback?user=&q=&k=
-- GET  /memory/stats
-- POST /memory/alias   {"old_doc_id": "...", "new_doc_id": "..."}
+Endpoint:
+- GET /memory/flashback?user=&q=&k=
+- GET /memory/stats
+- POST /memory/alias {"old_doc_id": "...", "new_doc_id": "..."}
   (takzhe prinimayutsya klyuchi old_id/new_id)
 - POST /memory/compact {"dry_run": true}
 
 Dizayn-printsipy:
 - ne padat iz-za nesovpadeniya API u memory_manager (sovmestimost s raznymi versiyami);
 - predskazuemye kody oshibok: 400 (vvod), 503 (net memory_manager), 500 (oshibka vypolneniya);
-- maksimum poleznoy diagnostiki v logakh, minimum utechek steka v otvet polzovatelyu.
-"""
+- maximum poleznoy diagnostiki v logakh, minimum utechek steka v otvet polzovatelyu."""
 
 import inspect
 import logging
@@ -60,11 +58,9 @@ def _parse_k(raw: Any, default: int = 8, min_k: int = 1, max_k: int = 50) -> int
 
 
 def _call_flashback(mm: Any, user: str, query: str, k: int):
-    """
-    Sovmestimost:
-    - novaya versiya: mm.flashback(query, k)
-    - staraya versiya: mm.flashback(user=user, query=query, k=k) ili mm.flashback(user, query, k)
-    """
+    """Compatibility:
+    - new version: mm.flashtank(cuers, k)
+    - old version: mm.flashtank(user=user, kuery=kuery, k=k) or mm.flashtank(user, kuery, k)"""
     fn = getattr(mm, "flashback", None)
     if not callable(fn):
         raise AttributeError("memory_manager.flashback not callable")
@@ -72,7 +68,7 @@ def _call_flashback(mm: Any, user: str, query: str, k: int):
     try:
         sig = inspect.signature(fn)
         params = list(sig.parameters.values())
-        # metody: pervyy parametr self uzhe «svyazan», signature() vidit realnuyu signaturu kak obyavlena
+        # methods: the first parameter self is already “bound”, signature() sees the real signature as declared
         names = [p.name for p in params]
         # 1) po imenam
         if "user" in names and ("query" in names or "q" in names):
@@ -86,7 +82,7 @@ def _call_flashback(mm: Any, user: str, query: str, k: int):
         if "q" in names:
             return fn(q=query, k=k)
     except Exception:
-        # esli chto-to poshlo ne tak s introspect — fallback nizhe
+        # if something went wrong with the introspect - falsify below
         pass
 
     # Fallback: poprobuem rasprostranennye varianty vyzova
@@ -97,11 +93,9 @@ def _call_flashback(mm: Any, user: str, query: str, k: int):
 
 
 def _call_alias(mm: Any, old_id: str, new_id: str) -> Dict[str, Any]:
-    """
-    Sovmestimost:
-    - novaya versiya: mm.alias(old_id, new_id)
-    - staraya versiya: mm.alias_doc_id(old_id, new_id)
-    """
+    """Compatibility:
+    - new version: mm.alias(old_id, new_id)
+    - old version: mm.alias_daughter_id(old_id, new_id)"""
     if hasattr(mm, "alias") and callable(getattr(mm, "alias")):
         res = mm.alias(old_id, new_id)
         return res if isinstance(res, dict) else {"ok": True, "result": res}
@@ -170,7 +164,7 @@ def memory_alias():
             return jsonify({"ok": False, "error": "memory_manager not available"}), 503
 
         res = _call_alias(mm, old_id, new_id)
-        ok = bool(res.get("ok", True))  # nekotorye realizatsii vozvraschayut dict bez ok
+        ok = bool(res.get("ok", True))  # some implementations return dist without ok
         code = 200 if ok else 400
         payload = {"ok": ok, **res}
         return jsonify(payload), code
@@ -199,7 +193,7 @@ def memory_compact():
             ok = bool(res.get("ok", True))
             return jsonify({"ok": ok, **res}), (200 if ok else 500)
 
-        # esli compact vozvraschaet ne dict — vse ravno otdaem
+        # if the compact is not returned by dist, it still returns
         return jsonify({"ok": True, "result": res}), 200
 
     except Exception as e:
@@ -209,12 +203,10 @@ def memory_compact():
 
 # --------- registration ---------
 def register_memory_routes(app, memory_manager, url_prefix: str = "/memory") -> None:
-    """
-    Registriruet Blueprint i prikreplyaet memory_manager k app.
+    """Register Blueprint i prikreplyaet memory_manager k app.
 
     Vazhno:
-    - delaem i app.memory_manager, i app.extensions['memory_manager'] dlya sovmestimosti.
-    """
+    - delaem i app.memory_manager, i app.extensions['memory_manager'] dlya sovmestimosti."""
     try:
         setattr(app, "memory_manager", memory_manager)
     except Exception:

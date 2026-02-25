@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-modules/guard/mm_guard.py — «zhestkaya» tochka vkhoda k pamyati: proksi get_mm() i metriki obkhoda fabriki.
+"""modules/guard/mm_guard.py - “zhestkaya” tochka vkhoda k pamyati: proksi get_mm() i metriki obkhoda fabriki.
 
-Povedenie:
-  • Pri importe (esli PROVENANCE_ENFORCE=1) — patchit services.mm_access.get_mm:
+Behavior:
+  • Pri importe (esli PROVENANCE_ENFORCE=1) - patchit services.mm_access.get_mm:
       vozvraschaet proksi MemoryManager, avtomaticheski dobavlyayuschiy meta.provenance pri zapisyakh.
-  • Esli MM_GUARD_REPORT=1 — vedet schetchiki vyzovov get_mm() i grubuyu evristiku «pryamykh initsializatsiy» (best-effort).
+  • Esli MM_GUARD_REPORT=1 — vedet schetchiki vyzovov get_mm() i grubuyu evristiku “pryamykh initsializatsiy” (best-effort).
 
 Publichnoe API:
   • counters() -> dict
 
 Mosty:
-- Yavnyy: (Memory ↔ Kontrol) odna dver v pamyat cherez fabriku — prosche soblyudat invarianty.
+- Yavnyy: (Memory ↔ Control) odna dver v pamyat cherez fabriku - prosche soblyudat invarianty.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) proksi garantiruet profile na vse novye zapisi.
-- Skrytyy #2: (Inzheneriya ↔ Podderzhka) metriki pokazyvayut «kto idet v obkhod», ne lomaya legasi.
+- Skrytyy #2: (Inzheneriya ↔ Podderzhka) metriki pokazyvayut “who idet v obkhod”, ne lomaya legasi.
 
 Zemnoy abzats:
-Eto kak turniket pered arkhivom: vse prokhodyat cherez odin prokhod — vsem stavyat shtamp i schitayut posescheniya.
+Eto kak turniket pered arkhivom: vse prokhodyat cherez odin prokhod - vsem stavyat shtamp i schitayut posescheniya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import importlib
@@ -55,10 +53,8 @@ def _try_patch_get_mm():
         pass
 
 def _install_direct_init_probe():
-    """
-    Best-effort: pytaemsya obnaruzhit pryamye new Storage/VectorStore i uvelichit schetchik.
-    Realizatsiya myagkaya (bez blokirovok): patchim kandidatov, esli oni est.
-    """
+    """Best-effort: pytaemsya obnaruzhit pryamye new Storage/VectorStore i uvelichit schetchik.
+    Realizatsiya myagkaya (bez blokirovok): patchim kandidatov, esli oni est."""
     try:
         # Primer: modules.memory.storage.Storage / modules.memory.vector.VectorStore (imena uslovny)
         for mod_name, cls_name in [("modules.memory.storage", "Storage"),

@@ -1,10 +1,10 @@
 # Ester — bystryy start (bordy, kanaly, sovetnik, pisma)
 
-**Chto eto:** minimalnyy nabor shagov, chtoby zapustit novye vozmozhnosti bez izmeneniya suschestvuyuschikh kontraktov.
+**What it is:** The minimum set of steps to launch new opportunities without changing existing contracts.
 
 ## 1) Ustanovka i ENV
 
-Sozdayte `.env` (ili peremennye okruzheniya), podstaviv svoi znacheniya:
+Create e.enve (or environment variables) by substituting your values:
 
 ```bash
 MESSAGING_DB_PATH=./data/messaging.db

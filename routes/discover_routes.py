@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/discover_routes.py — REST: status, skan, registratsiya, refresh avto-diskavera.
+"""routes/discover_routes.py - REST: status, scan, registratsiya, refresh avto-diskavera.
 
 Mosty:
 - Yavnyy: (Beb/UI/CLI v†" Giskaver) ruchki dlya upravleniya poiskom Re podklyucheniem moduley.
 - Skrytyy #1: (RBAC v†" Bezopasnost) registratsiya Re refresh dostupny tolko admin.
 - Skrytyy #2: (Profile v†" Audit) vse iskhody fiksiruyutsya v zhurnale.
-- Skrytyy #3: (Cron/Bolya v†" Avtonomiya) legko veshaetsya na nightly ili na sobytie.
+- Skrytyy #3: (Cron/Bolya v†" Avtonomiya) legko veshaetsya na nightly or na sobytie.
 - Skrytyy #4: (Memory v†" Prozrachnost) sostoyanie khranitsya na diske.
 
 Zemnoy abzats:
-Panel «nayti i podklyuchit»: vidno, chto obnaruzheno i chto uzhe v stroyu. Mozhno odnim vyzovom dokrutit novoe, bez perezapuska, no s proverkoy prav.
+Panel “nayti i podklyuchit”: vidno, chto obnaruzheno i chto uzhe v stroyu. Mozhno odnim vyzovom dokrutit novoe, bez perezapuska, no s proverkoy prav.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os

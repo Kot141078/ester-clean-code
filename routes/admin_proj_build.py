@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_proj_build.py - lokalnaya sborka paketa proekta (plan/ZIP/publikatsiya).
+"""routes/admin_proj_build.py - lokalnaya sborka paketa proekta (plan/ZIP/publikatsiya).
 
-Marshruty:
-  • GET  /admin/proj_build
-  • POST /admin/proj_build/manifest    {project_dir}
-  • POST /admin/proj_build/plan        {project_dir}
-  • POST /admin/proj_build/build       {project_dir, publish?, out_dir?, max_bytes?, quotas?}
+Route:
+  • GET /admin/proj_build
+  • POST /admin/proj_build/manifest {project_dir}
+  • POST /admin/proj_build/plan {project_dir}
+  • POST /admin/proj_build/build {project_dir, publish?, out_dir?, max_bytes?, quotas?}
 
 Mosty:
-- Yavnyy (UX ↔ Sborka): «proverit → splanirovat → sobrat → opublikovat».
-- Skrytyy 1 (Infoteoriya ↔ Prozrachnost): ploskie JSON, otchet ob ogranicheniyakh/kvotakh.
+- Yavnyy (UX ↔ Sborka): “verit → splanirovat → sobrat → opublikovat.”
+- Skrytyy 1 (Infoteoriya ↔ Prozrachnost): flat JSON, otchet ob ogranicheniyakh/kvotakh.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): builder i manifest v otdelnykh modulyakh; AB-rezhim uchityvaetsya.
 
 Zemnoy abzats:
-Eto «knopka upakovki»: operator bez CLI sobiraet ZIP i vklyuchaet ego v katalog dlya sosedey.
+This is “knopka upakovki”: operator bez CLI sobiraet ZIP i vklyuchaet ego v katalog dlya sosedey.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

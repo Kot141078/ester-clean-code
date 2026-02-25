@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-Vspomogatelnyy chat-rout (esli obschiy registrator blyuprintov rabotaet).
+"""Vspomogatelnyy chat-rout (esli obschiy registrar blyuprintov rabotaet).
 
-POST /chat_boot/send  {text, user?}
+POST /chat_boot/send {text, user?}
 
 MOSTY:
 - Yavnyy: Kommunikatsiya ↔ Memory - kazhdoe soobschenie fiksiruem.
@@ -10,8 +9,7 @@ MOSTY:
 - Skrytyy 2: UI ↔ Health - mozhno vyzyvat iz brauzera/skriptov.
 
 ZEMNOY ABZATs:
-Dvertsa dlya razgovora: skazal - poluchil otvet, vse sokhranilos.
-"""
+Dvertsa dlya razgovora: skazal - poluchil otvet, vse sokhranilos."""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

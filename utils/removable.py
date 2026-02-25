@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-utils/removable.py — opredelenie podklyuchennykh semnykh tomov (Windows/Linux/macOS) bez vneshnikh zavisimostey.
+"""utils/removable.py - opredelenie podklyuchennykh semnykh tomov (Windows/Linux/macOS) bez vneshnikh zavisimostey.
 
 API:
-  list_removable() -> List[dict]  # [{'mount':'X:\\','device':'...','fs':'...','label':'...','size':int,'free':int,'platform':'win'|'linux'|'darwin'}]
+  list_removable() -> List[dict] # [{'mount':'X:\\','device':'...','fs':'...','label':'...','size':int,'free':int,'platform':'win'|'linux'|'darwin'}]
 
 Mosty:
 - Yavnyy (Inzheneriya ↔ UX): daem operatoru bezopasnyy spisok tochek zapisi.
 - Skrytyy 1 (Infoteoriya ↔ Minimalizm): tolko stdlib, minimum dopuscheniy.
-- Skrytyy 2 (Praktika ↔ Bezopasnost): nikakogo formatirovaniya; tolko chtenie metadannykh.
+- Skrytyy 2 (Praktika ↔ Bezopasnost): nikakogo formatirovaniya; just read metadannykh.
 
 Zemnoy abzats:
-Eto «sensor osyazaniya»: gde smontirovany semnye nositeli i skolko na nikh mesta — chtoby korrektno razlozhit /ESTER.
+This is “sensor osyazaniya”: where smontirovany semnye nositeli i skolko na nikh mesta - chtoby korrektno razlozhit /ESTER.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -111,7 +109,7 @@ def _linux_list() -> List[Dict]:
 
 def _darwin_list() -> List[Dict]:
     res: List[Dict] = []
-    # Prostaya evristika: vse iz /Volumes schitaem vneshnim.
+    # A simple heuristic: everything from /Volumes is considered external.
     vols = Path("/Volumes")
     if vols.exists():
         for p in vols.iterdir():

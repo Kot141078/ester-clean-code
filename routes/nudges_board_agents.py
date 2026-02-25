@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/nudges_board_agents.py - agregaty nudges po agentam (dlya «shakhmatki roley»).
+"""routes/nudges_board_agents.py - agregaty nudges po agentam (dlya “shakhmatki roley”).
 
 MOSTY:
 - (Yavnyy) GET /board/nudges/agents → [{agent_id, key, pending, overdue}].
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) JSON kompaktnyy i samostoyatelnyy - mozhno zabirat iz fronta bordy bez pravok ostalnykh ruchek.
 
 ZEMNOY ABZATs:
-Ryadom s kazhdym operatorom mozhno pokazat prostuyu «plashku»: skolko napominaniy visit i skolko uzhe prosrocheno.
+Ryadom s kazhdym operatorom mozhno pokazat prostuyu “plashku”: skolko napominaniy visit i skolko uzhe prosrocheno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import time

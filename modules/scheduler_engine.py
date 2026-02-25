@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/scheduler_engine.py — unifitsirovannyy fasad planirovschika (v1+v2) + API dlya /autonomy.
+"""modules/scheduler_engine.py - unifitsirovannyy fasad planirovschika (v1+v2) + API dlya/autonomy.
 
 MOSTY:
 - (Yavnyy) Staroe API (create_task(kind,payload,due_ts), run_due→list) ↔ Novoe API (create_task(kind,action,rrule,payload), run_due→count).
 - (Skrytyy #1) Planirovschik ↔ Shina sobytiy: deystvie publish_event pishet v modules.events_bus.
-- (Skrytyy #2) /autonomy/* ↔ «yadro» planirovschika: dobavleny start/stop/status/schedule/cancel bez lomki kontraktov.
+- (Skrytyy #2) /autonomy/* ↔ “yadro” planirovschika: add start/stop/status/schedule/cancel bez lomki kontraktov.
 
 ZEMNOY ABZATs:
-Eto privychnyy «kvartsevyy budilnik» s zapisnoy knizhkoy. Zadal pravilo (kazhdye N sekund/minut) — i on budet vovremya «pikat»,
+This is privychnyy “kvartsevyy budilnik” s zapisnoy knizhkoy. Zadal pravilo (kazhdye N sekund/minut) - i on budet vovremya “pikat”,
 skladyvaya otmetki v istoriyu i podnimaya sobytiya, poka ty ne otklyuchish.
 
-Drop-in: signatury suschestvuyuschikh funktsiy sokhraneny; dobavleny tolko novye, kotorye uzhe zhdut marshruty.
-"""
+Drop-in: signatury suschestvuyuschikh funktsiy sokhraneny; add tolko novye, kotorye uzhe zhdut route."""
 from __future__ import annotations
 import json, os, time, uuid
 from typing import Any, Dict, List, Tuple
@@ -104,11 +102,9 @@ def _append_history(rec: Dict[str, Any]) -> None:
     except Exception:
         pass
 
-# -------- rrule helpers (minimum, dostatochnyy dlya testa v2) --------
+# -------- Rule Helpers (minimum sufficient for test B2) --------
 def _parse_rrule(rrule: str) -> Tuple[str, int]:
-    """
-    Vozvraschaet (freq, interval_sec). Podderzhivaem SECONDLY/MINUTELY/HOURLY.
-    """
+    """Returns (freya, interval_sec). We support SECONDLES/MINITELES/NURLS."""
     if not rrule:
         return ("", 0)
     s = rrule.upper().strip()
@@ -217,7 +213,7 @@ def run_due(now_ts: float | None = None) -> Dict[str, Any]:
 
         try:
             if action == "publish_event":
-                # ozhidaemyy deshevyy ekshen dlya testov
+                # expected cheap action for testing
                 from modules.events_bus import publish  # type: ignore
                 ev_kind = str((payload or {}).get("kind") or kind or "tick")
                 ev_payload = (payload or {}).get("payload")
@@ -243,7 +239,7 @@ def run_due(now_ts: float | None = None) -> Dict[str, Any]:
             else:
                 t["active"] = False
         except Exception as e:
-            # fiksiruem oshibku i ostavlyaem zadachu aktivnoy (na sleduyuschuyu popytku)
+            # fixes the error and leaves the task active (for the next attempt)
             _append_history({"ts": now, "id": t.get("id"), "kind": kind, "action": action,
                              "error": f"{type(e).__name__}: {e}"})
             try:
@@ -265,10 +261,10 @@ def run_due(now_ts: float | None = None) -> Dict[str, Any]:
         )
     except Exception:
         pass
-    # dlya sovmestimosti: vozvraschaem i schetchik, i podrobnosti
+    # for compatibility: we return both the counter and the details
     return {"ok": True, "ran": len(ran_items), "ran_items": ran_items, "left": left}
 
-# -------- autonomy facade (ozhidayut marshruty /autonomy/*) --------
+# -------- autonomy facade (waiting for routes /autonomy/*) --------
 def start() -> Dict[str, Any]:
     st = _load_state(); st["enabled"] = True; _save_state(st)
     try:

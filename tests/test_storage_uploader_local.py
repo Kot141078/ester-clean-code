@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/test_storage_uploader_local.py — proverka lokalnoy zagruzki uploader.
-"""
+"""tesc/test_store_uploader_local.po — checks local uploader loading."""
 
 from __future__ import annotations
 

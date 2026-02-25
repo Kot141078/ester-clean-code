@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules.selfmanage.lmstudio_probe — proverka i «bench» LM Studio.
+"""modules.selfmanage.lmstudio_probe - proverka i “bench” LM Studio.
 
 MOSTY:
 - Yavnyy: (routes.admin_llm / CLI ↔ LM Studio) probe_summary(), bench_model(), probe_and_bench().
-- Skrytyy #1: (ENV ↔ Konfig) PORT/BASE chitayutsya iz ENV, no offlayn-put ne padaet.
+- Skrytyy #1: (ENV ↔ Config) PORT/BASE chitayutsya iz ENV, no offlayn-put ne padaet.
 - Skrytyy #2: (UX ↔ Bezopasnost) bez setevykh vyzovov po umolchaniyu — chistyy offlayn otchet.
 
 ZEMNOY ABZATs:
-Daet paneli bystryy status «vidim li LM Studio», i «kak model otvechaet», dazhe esli fakticheski offlayn — API ne valitsya.
+Daet paneli bystryy status “vidim li LM Studio”, i “kak model otvechaet”, dazhe esli fakticheski offlayn - API ne valitsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from typing import Any, Dict
@@ -29,7 +27,7 @@ def probe_summary() -> Dict[str, Any]:
     return {"ok": True, "lmstudio": p, "models": listed, "note": "offline summary"}
 
 def bench_model(base: str, model: str, timeout: float = 2.0) -> Dict[str, Any]:
-    # Offlayn-bench: nikakikh zaprosov — lish validiruem vkhod
+    # Offline benchmark: no requests - just validating the input
     return {"ok": False, "model": model, "base": base, "latency_ms": None, "reason": "offline"}
 
 def probe_and_bench() -> Dict[str, Any]:

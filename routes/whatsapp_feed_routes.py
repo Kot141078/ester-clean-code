@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/whatsapp_feed_routes.py - HTML-lenta dialogov WhatsApp.
+"""routes/whatsapp_feed_routes.py - HTML-lenta dialogov WhatsApp.
 
 MOSTY:
 - (Yavnyy) GET /feeds/whatsapp - chitaet data/messaging/whatsapp.jsonl i pokazyvaet lentu.
-- (Skrytyy #1) Bezopasno rabotaet, dazhe esli fayla poka net.
+- (Skrytyy #1) Safe work, dazhe esli fayla poka net.
 - (Skrytyy #2) Format zapisey - best-effort: {ts, from, to, text, direction}.
 
 ZEMNOY ABZATs:
-Panel nablyudeniya: skvoznaya lenta obscheniya «kto ↔ chto», kak v chate.
+Panel nablyudeniya: skvoznaya lenta obscheniya “who ↔ chto”, kak v chate.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from flask import Blueprint, render_template

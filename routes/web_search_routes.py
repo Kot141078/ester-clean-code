@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/web_search_routes.py - REST-obertka nad modules.web_search.search_web + metriki.
+"""routes/web_search_routes.py - REST-obertka nad modules.web_search.search_web + metrics.
 
-Endpointy:
+Endpoint:
   • POST /search/web {"q":"...","k"?:5} → {"ok":true,"items":[{title,url,snippet,source}]}
-  • GET  /metrics/web_search
+  • GET /metrics/web_search
 
 Mosty:
 - Yavnyy: (Poisk ↔ Ingest) REST-servis otdaet URL, kotorye srazu mozhno peredat v suschestvuyuschiy konveyer zagruzki.
 - Skrytyy #1: (Infoteoriya ↔ RAG) naydennye dokumenty usilivayut posleduyuschie otvety.
-- Skrytyy #2: (UX ↔ Volya) etot zhe endpoint vyzyvaetsya agentom «po svoey vole» iz thinking-patterna.
+- Skrytyy #2: (UX ↔ Volya) etot zhe endpoint vyzyvaetsya agentom “po svoey vole” iz thinking-pattern.
 
 Zemnoy abzats (anatomiya/inzheneriya):
-Eto «knopka nayti»: poluchaet zapros, vozvraschaet ssylki i kratkie snippety. Vykhod determinirovannyy i
+This is “knopka nayti”: poluchaet zapros, vozvraschaet ssylki i kratkie snippety. Vykhod determinirovannyy i
 podkhodit dlya payplaynov - mozhno tut zhe otpravit rezultaty v ingest i pamyat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -32,7 +30,7 @@ try:  # pragma: no cover
 except Exception:  # pragma: no cover
     search_web = None  # type: ignore
 
-# Prosteyshie schetchiki
+# The simplest counters
 _CNT = {"calls_total": 0, "hits_total": 0}
 
 
@@ -46,7 +44,7 @@ def init_app(app):  # pragma: no cover
 
 @bp_web_search.post("/search/web")
 def api_search_web():
-    """Poisk po vebu. Vozvraschaet normalizovannye rezultaty dlya RAG/ingest."""
+    """Web search. Returns normalized results for RAG/Ingest."""
     if search_web is None:
         return jsonify({"ok": False, "error": "web_search module unavailable"}), 500
     data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}

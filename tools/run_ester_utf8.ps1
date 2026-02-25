@@ -68,7 +68,7 @@ if (-not (Test-Path $entry)) {
   exit 2
 }
 
-# VAZhNO: v PowerShell konstruktsiya $var:$x parsitsya kak "namespace", poetomu ispolzuem $() dlya skleyki.
+# Important: in PowerShell the $var:$c construction is parsed as “namespace”, so we use $() for gluing.
 Write-Ok ("Starting Ester on {0}:{1} ..." -f $HostIP, $Port)
 
 # -X utf8: force UTF-8 mode inside Python (belt + suspenders)

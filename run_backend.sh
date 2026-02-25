@@ -9,7 +9,7 @@ cd /mnt/d/ester-project
 
 PORT="${PORT:-8010}"             # defolt teper 8010
 export PORT
-export ESTER_PORT="$PORT"        # otdelnaya peremennaya, na kotoruyu Flask teper smotrit
+export ESTER_PORT="$PORT"        # a separate variable that Flask now looks at
 export FLASK_DEBUG="${FLASK_DEBUG:-0}"
 export DEBUG="${DEBUG:-0}"
 export ESTER_DEBUG="${ESTER_DEBUG:-$DEBUG}"

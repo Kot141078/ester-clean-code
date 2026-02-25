@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/docs_env_routes.py - /docs/env (JSON/HTML) - mini-doki po ENV.
+"""routes/docs_env_routes.py - /docs/env (JSON/HTML) - mini-doki po ENV.
 
 Mosty:
 - Yavnyy: (UI/Dokumentatsiya ↔ Rantaym) odin adres dlya prosmotra okruzheniya.
-- Skrytyy #1: (Survival/Hub ↔ Podskazka) pomogaet pri perenose/nastroyke.
+- Skrytyy #1: (Survival/Hub ↔ Podskazka) help pri perenose/nastroyke.
 - Skrytyy #2: (Cron/Smoke ↔ Diagnostika) polezno vklyuchat v otchety.
 
 Zemnoy abzats:
-Nuzhno ponyat «na kakikh nastroykakh zhivem seychas» - otkryvaem /docs/env.
+Nuzhno ponyat “na kakikh nastroykakh zhivem seychas” - otkryvaem /docs/env.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, Response, request
 import html

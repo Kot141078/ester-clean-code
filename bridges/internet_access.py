@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-bridges/internet_access.py — controlled web search/fetch bridge (CSE/SerpApi/DDG).
+"""bridges/internet_access.py - controlled web search/fetch bridge (CSE/SerpApi/DDG).
 
 EXPLICIT BRIDGE (c=a+b):
-  a) zapros cheloveka +
-  b) kontroliruemyy web-dostup s ogranichitelyami =>
-  c) proveryaemaya opora (sources) ili chestnyy [SEARCH_EMPTY].
+  a) request cheloveka +
+  b) control web-dostup s ogranichitelyami =>
+  c) proveryaemaya opora (sources) or chestnyy [SEARCH_EMPTY].
 
 HIDDEN BRIDGES:
   - Cover & Thomas: timeout/max_bytes/max_chars.
-  - Ashby: variety cherez WEB_PROVIDER.
+  - Ashby: variety through WEB_PROVIDER.
 EARTH:
-  esli datchik ne dal signal — pishem FAULT, a ne risuem tsifry.
-"""
+  esli datchik ne dal signal - pishem FAULT, a ne risuem tsifry."""
 
 from __future__ import annotations
 
@@ -354,7 +352,7 @@ class InternetAccess:
                 return "[SEARCH_DENIED] " + json.dumps(payload, ensure_ascii=False)
             return f"[SEARCH_EMPTY] no results for: {query}"
 
-        digest = f"### Web Search Results: '{query}'\n"
+        digest = f"### Web Search Results: '{query}'"
         for i, r in enumerate(results, 1):
             digest += f"{i}. **{r.title}**\n   {r.snippet}\n   [Source: {r.url}]\n\n"
         return digest

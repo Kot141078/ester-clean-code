@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_rules_watch.py — eksheny «voli» dlya Thinking Rules i Folder Watch.
+"""modules/thinking/actions_rules_watch.py ​​- eksheny “voli” dlya Thinking Rules i Folder Watch.
 
 Mosty:
-- Yavnyy: (Mysli ↔ Pravila/FS) upravlyaem pravilami i skanerom iz payplayna.
+- Yavnyy: (Mysli ↔ Pravila/FS) upravlyaem pravilami i scanerom iz payplayna.
 - Skrytyy #1: (Profile ↔ Prozrachnost) lyubye izmeneniya fiksiruyutsya.
 - Skrytyy #2: (Cron ↔ Avtonomiya) udobno zvat iz nightly.
 
 Zemnoy abzats:
-Knopki «pokazat pravila», «ustanovit», «prognat», «proskanirovat papki» — vse pod rukoy.
+Knopki “pokazat pravila”, “ustanovit”, “prognat”, “proskanirovat papki” - vse pod rukoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

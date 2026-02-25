@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/messaging_register_all_plus.py - «vklyuchit vse» (+ health, metrics, will-hook).
+"""routes/messaging_register_all_plus.py - “vklyuchit vse” (+ health, metrics, will-hook).
 
 MOSTY:
 - (Yavnyy) /messaging/register_all_plus registriruet TG/WA/Proactive/Presets/Mail/Health/Metrics/Adminki.
@@ -10,8 +9,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Odna knopka dlya polnogo vklyucheniya kanalnoy podsistemy Ester - bez pravok app.py.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, current_app
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

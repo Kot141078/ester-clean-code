@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/usb_autoimport.py — listener avto-importa nastroek s doverennoy fleshki.
+"""listeners/usb_autoimport.py - listener avto-importa nastroek s trusted fleshki.
 
 Rezhimy:
-  • once (po umolchaniyu) — odin prokhod skanirovaniya.
-  • --loop               — tsikl: skanirovat kazhdye --interval sek.
+  • once (po umolchaniyu) - odin prokhod scanirovaniya.
+  • --loop — tsikl: skanirovat kazhdye --interval sek.
 
 Otklyuchaemo cherez ENV:
-  • USB_AUTOIMPORT_ENABLE=0|1 (po umolchaniyu 0)
+  • USB_AUTOIMPORT_ENABLE=0|1 (by default 0)
   • USB_AUTOIMPORT_INTERVAL=10
 
 Mosty:
-- Yavnyy (Orkestratsiya ↔ Ekspluatatsiya): avtonomnyy vorker, kotoryy «podbiraet» nastroyki s doverennykh fleshek.
-- Skrytyy 1 (Infoteoriya ↔ Diagnostika): kompaktnye logi i detalnye JSON-otchety po kazhdomu tomu.
+- Yavnyy (Orkestratsiya ↔ Ekspluatatsiya): avtonomnyy vorker, kotoryy “podbiraet” nastroyki s doverennykh fleshek.
+- Skrytyy 1 (Infoteoriya ↔ Diagnostika): kompaktnye logi i detailed JSON-otchety po kazhdomu tomu.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): ispolzuet list_targets() i compute_fingerprint() — uzhe prinyatyy kontrakt.
 
 Zemnoy abzats:
-Eto medsestra priemnogo otdeleniya: uvidela «svoyu» fleshku — akkuratno nanesla nastroyki, ne trogaya ostalnoe.
+Eto medsestra priemnogo otdeleniya: uvidela “svoyu” fleshku - akkuratno nanesla nastroyki, ne trogaya ostalnoe.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse

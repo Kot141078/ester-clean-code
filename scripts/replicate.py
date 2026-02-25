@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Utilita replikatsii (dry-run):
-- Beret spisok pirov iz REPLICATION_PEERS ili --peer
+"""Utilita replikatsii (dry-run):
+- Beret spisok pirov iz REPLICATION_PEERS or --peer
 - Podtyagivaet /replication/snapshot, proveryaet X-Signature (HMAC)
-- V dry-run nichego ne primenyaet; vozvraschaet 0 pri uspeshnoy validatsii khotya by odnogo pira
-"""
+- V dry-run nichego ne primenyaet; vozvraschaet 0 pri uspeshnoy validatsii khotya by odnogo pira"""
 from __future__ import annotations
 
 import argparse

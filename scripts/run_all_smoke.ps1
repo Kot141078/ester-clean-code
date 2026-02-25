@@ -1,6 +1,6 @@
-# S0/scripts/run_all_smoke.ps1 — obertka edinogo progona smoukov dlya Windows PowerShell
-# Mosty: (Yavnyy) Ashbi — prostoy regulyator; (Skrytye) Enderton — predikaty; Cover&Thomas — minimizatsiya neopredelennosti.
-# Zemnoy abzats: udobnaya knopka zapuska; sozdaet routes.md i matrix.md, ne valit stend.
+# C0/scripts/run_all_stoke.ps1 - wrapper for a single knock run for Windows PowerShell
+# Bridges: (Explicit) Ashby - simple regulator; (Hidden) Enderton - predicates; Carpet&Thomas - minimizing uncertainty.
+# Earth paragraph: convenient start button; creates rutes.md and matrix.md, does not knock down the stand.
 # c=a+b
 
 python tools/run_all_smoke.py

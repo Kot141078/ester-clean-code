@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-metrics/messaging_metrics.py — Prometheus metriki dlya messaging.
+"""metrics/messaging_metrics.py - Prometheus metrics dlya messaging.
 
 MOSTY:
 - (Yavnyy) /metrics/messaging s otdelnym registry (bez vmeshatelstva v obschiy /metrics).
-- (Skrytyy #1) Middleware-instrumentatsiya /wa/*, /tg/*, /proactive/* — latency + kod otveta.
-- (Skrytyy #2) Leybly kanal/status dlya otpravok — agregiruyutsya po puti i kodu (ne chitaem telo otveta).
+- (Skrytyy #1) Middleware-instrumentatsiya /wa/*, /tg/*, /proactive/* - latency + code otveta.
+- (Skrytyy #2) Leybly kanal/status dlya otpravok - agregiruyutsya po puti i kodu (ne chitaem telo otveta).
 
 ZEMNOY ABZATs:
-Pozvolyaet monitorit «zdorove rechi» Ester: skolko soobscheniy ushlo, skolko upalo, medlennye li otvety.
+Pozvolyaet monitorit “zdorove rechi” Ester: skolko soobscheniy ushlo, skolko upalo, medlennye li otvety.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import time
 from typing import Optional

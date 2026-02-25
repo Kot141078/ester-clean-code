@@ -9,7 +9,7 @@
 <section class="card" style="margin-bottom:12px">
   <div class="row" style="gap:10px;align-items:flex-start">
     <input id="hTitle" class="input" style="min-width:320px" placeholder="Zagolovok gipotezy…" />
-    <input id="hTags" class="input" placeholder="tegi cherez zapyatuyu (opts.)" />
+    <input id="hTags" class="input" placeholder="tags separated by commas (optional)" />
     <select id="hPriority" class="input">
       <option value="normal">normal</option>
       <option value="low">low</option>
@@ -26,7 +26,7 @@
 <section class="card">
   <div class="row" style="margin-bottom:6px">
     <h3 style="margin:0">Spisok</h3>
-    <span class="muted right">Klik po polyu — redaktirovanie; Enter — sokhranit</span>
+    <span class="muted right">Click on the field - edit; Enter - save</span>
   </div>
   <div class="box" style="overflow:auto">
     <table style="width:100%;border-collapse:collapse">
@@ -79,7 +79,7 @@
   }
 
   async function loadHyp(){
-    // staraemsya podderzhat raznye bekend-ruchki
+    // We try to support different backend handles
     const data = await fetchFirstJson(
       ['/hypotheses/json?limit=200','/hypotheses/list?limit=200','/hypotheses?format=json&limit=200','/api/hypotheses?limit=200'],
       { method:'GET' }
@@ -136,7 +136,7 @@
 
   async function createHyp(){
     const title=(document.getElementById('hTitle').value||'').trim();
-    if(!title){ alert('Nuzhen zagolovok'); return; }
+    if(!title){ alert('Need a title'); return; }
     const tags=asArrayTags(document.getElementById('hTags').value||'');
     const priority=(document.getElementById('hPriority').value||'normal');
 
@@ -154,7 +154,7 @@
       document.getElementById('hTitle').value=''; document.getElementById('hTags').value='';
       await loadHyp();
     }else{
-      alert('Ne udalos sozdat (prover roli JWT)');
+      alert('Failed to create (check the ZhVT roles)');
     }
   }
 
@@ -168,12 +168,12 @@
         if(r.ok){ return; }
       }catch(e){ /* next */ }
     }
-    alert('Ne udalos obnovit');
+    alert('Failed to update');
   }
 
   async function delHyp(id){
     if(!id) return;
-    if(!confirm('Udalit gipotezu '+id+'?')) return;
+    if(!confirm('Delete hypothesis'+id+'?')) return;
     const targets=[`/hypotheses/${encodeURIComponent(id)}`, '/hypotheses/delete', '/api/hypotheses/delete'];
     for(const u of targets){
       try{
@@ -181,7 +181,7 @@
         if(r.ok){ loadHyp(); return; }
       }catch(e){ /* next */ }
     }
-    alert('Ne udalos udalit');
+    alert('Failed to delete');
   }
 
   document.addEventListener('DOMContentLoaded', loadHyp);

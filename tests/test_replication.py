@@ -15,7 +15,7 @@ REPL_TOKEN = "test-repl-token"
 
 @pytest.fixture
 def app(tmp_path, monkeypatch):
-    # Podgotovim strukturu «uzla A» (istochnik snapshota)
+    # Prepare the structure of “node A” (snapshot source)
     src_root = tmp_path / "nodeA"
     (src_root / "data" / "vstore").mkdir(parents=True)
     (src_root / "data" / "vstore" / "vec.bin").write_bytes(b"\x00\x01\x02")
@@ -26,7 +26,7 @@ def app(tmp_path, monkeypatch):
     app.config["JWT_SECRET_KEY"] = "test-secret"
     jwt = JWTManager(app)
 
-    # ENV dlya snapshota
+    # ENV for snapshot
     monkeypatch.setenv("REPLICATION_TOKEN", REPL_TOKEN)
     monkeypatch.setenv("REPLICATION_INCLUDE_DIRS", "data")
 
@@ -34,7 +34,7 @@ def app(tmp_path, monkeypatch):
     replicator = PeerReplicator(peers=[], token=REPL_TOKEN, interval_sec=1)
     register_replication_routes(app, replicator)
 
-    # Perekhodim v src_root, chtoby snapshot sobiralsya iz nego
+    # Go to srts_root so that the snapshot can be collected from it
     monkeypatch.chdir(src_root)
 
     yield app
@@ -53,14 +53,14 @@ def auth_header(app):
 
 
 def test_snapshot_and_apply_flow(client, tmp_path, monkeypatch):
-    # 1) Pir A: zapros snapshota
+    # 1) Peer A: snapshot request
     r = client.get("/replication/snapshot", headers={"X-REPL-TOKEN": REPL_TOKEN})
     assert r.status_code == 200
     assert r.headers.get("X-Signature")
     blob = r.data
     sig = r.headers["X-Signature"]
 
-    # 2) Pereklyuchaem rabochuyu direktoriyu na «uzel B» i primenyaem snapshot
+    # 2) Switch the working directory to “node B” and use a snapshot
     dst_root = tmp_path / "nodeB"
     dst_root.mkdir()
     monkeypatch.chdir(dst_root)
@@ -86,5 +86,5 @@ def test_status_and_pull_now(client, auth_header, monkeypatch):
     r2 = client.post("/replication/pull_now", headers=auth_header)
     assert r2.status_code == 200
     rep = r2.get_json()["report"]
-    # Na pustom spiske pirov prosto pustoy otchet
+    # On an empty list of peers, just an empty report
     assert "pulled" in rep

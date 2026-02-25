@@ -25,9 +25,9 @@
 <body>
 <div class="card">
   <h1>JWT po imeni polzovatelya</h1>
-  <p><small>Knopka generiruet vnutrenniy JWT (HS256) dlya RBAC. Esli vvedete «Owner», roli budut <code>admin,user</code>. Takzhe token generiruetsya avtomaticheski pri vvode imeni.</small></p>
+  <p><small>The button generates an internal ZhVT (HC256) for RVACH. If you enter "Owner", the roles will be <code>admin,user</code>. Also, a token is generated automatically when you enter a name.</small></p>
 
-  <label for="name">Imya polzovatelya (ili tg_id):</label>
+  <label for="name">Username (or tg_id):</label>
   <div class="row">
     <input id="name" type="text" placeholder="naprimer: Owner" />
     <button id="gen">Sgenerirovat JWT</button>
@@ -88,7 +88,7 @@ $('#clear').addEventListener('click', ()=>{
 });
 $('#copy').addEventListener('click', async ()=>{
   const t = $('#tok').textContent;
-  try{ await navigator.clipboard.writeText(t); status('skopirovano', true); }catch(e){ status('ne udalos skopirovat', false); }
+  try{ await navigator.clipboard.writeText(t); status('skopirovano', true); }catch(e){ status('failed to copy', false); }
 });
 // Avtogeneratsiya po vvodu imeni (debounce 500 ms)
 let _deb = null;

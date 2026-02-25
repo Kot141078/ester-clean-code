@@ -7,11 +7,11 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 # --- KONFIGURATsIYa ---
 
-# 1. KUDA slivaem (Tekuschaya aktivnaya pamyat Ester)
+# 1. WHERE it drains (Current active memory of Esther)
 TARGET_PATH = r"D:\ester-project\vstore\chroma"
 
 # 2. OTKUDA zabiraem (Spisok starykh baz)
-# Ya ispolzuyu raw-stroki, chtoby Python sel simvoly % i sleshi korrektno
+# I use equal-strings so that Pothon can print the % and slashes correctly
 SOURCES = [
     r"D:\ester-project\%ESTER_VSTORE_ROOT%\chroma",  # Tvoi 3 GB
     r"D:\ester-project\%ESTER_HOME%\vstore\chroma"   # Tvoi 600 MB
@@ -20,12 +20,12 @@ SOURCES = [
 def migrate():
     print("--- ESTER MEMORY MIGRATION TOOL ---")
     
-    # Proveryaem tselevuyu papku
+    # Checking the target folder
     if not os.path.exists(TARGET_PATH):
         print(f"⚠️ Target path does not exist, creating: {TARGET_PATH}")
         os.makedirs(TARGET_PATH, exist_ok=True)
 
-    # Podklyuchaemsya k TsELEVOY baze
+    # Connecting to the Target Database
     print(f"\n🔌 Connecting to TARGET (Active Brain): {TARGET_PATH}")
     try:
         target_client = chromadb.PersistentClient(path=TARGET_PATH)
@@ -40,8 +40,8 @@ def migrate():
     for src_path in SOURCES:
         print(f"\n🔍 Inspecting SOURCE: {src_path}")
         
-        # Proverka na suschestvovanie (inogda put k faylu, inogda k papke)
-        # ChromaDB trebuet put k PAPKE, gde lezhit chroma.sqlite3
+        # Check for existence (sometimes a file path, sometimes a folder)
+        # ChromaDB requires the path to the FOLDER where chroma.sklit3 is located
         real_src_path = src_path
         if src_path.endswith(".sqlite3"):
             real_src_path = os.path.dirname(src_path)
@@ -51,7 +51,7 @@ def migrate():
             continue
 
         try:
-            # Podklyuchaemsya k ISTOChNIKU
+            # Connects to Source
             source_client = chromadb.PersistentClient(path=real_src_path)
             collections = source_client.list_collections()
             print(f"   Found {len(collections)} collections in source.")
@@ -59,9 +59,9 @@ def migrate():
             for col in collections:
                 print(f"   >> Migrating collection: '{col.name}'...")
                 
-                # Poluchaem dannye iz istochnika
+                # Gets data from a source
                 src_col = source_client.get_collection(col.name)
-                # Berem vse (limit=None v starykh versiyakh mozhet ne rabotat, berem get())
+                # Take everything (limit=None may not work in older versions, take get())
                 data = src_col.get(include=['documents', 'metadatas', 'embeddings'])
                 
                 ids = data['ids']
@@ -74,18 +74,18 @@ def migrate():
                     print("      (Empty collection, skipping)")
                     continue
 
-                # Sozdaem ili berem kollektsiyu v TsELI
+                # Create or take a collection in Target
                 # Ispolzuem get_or_create_collection
                 tgt_col = target_client.get_or_create_collection(
                     name=col.name,
-                    metadata=col.metadata # Kopiruem nastroyki kollektsii
+                    metadata=col.metadata # Copies collection settings
                 )
 
-                # Vstavlyaem pachkami po 1000, chtoby ne podavitsya pamyatyu
+                # We insert in packs of 1000 so as not to choke on memory
                 batch_size = 1000
                 for i in range(0, count, batch_size):
                     end = i + batch_size
-                    print(f"      Pushing batch {i}..{min(end, count)} / {count}")
+                    print(f"Pushing batch {i}..{min(end, count)} / {count}")
                     tgt_col.upsert(
                         ids=ids[i:end],
                         embeddings=embeddings[i:end] if embeddings else None,
@@ -104,7 +104,7 @@ def migrate():
     print("You can now start Ester.")
 
 if __name__ == "__main__":
-    # Proverka zavisimostey
+    # Checking dependencies
     try:
         import chromadb
         migrate()

@@ -1,6 +1,6 @@
 # U2/scripts/u2_smoke.ps1 — offlayn-smoke Cortex
-# Mosty: (Yavnyy) Enderton; (Skrytye) Ashbi; Cover&Thomas.
-# Zemnoy abzats: odin vyzov — dumaem i zapuskaem.
+# Bridges: (Explicit) Enderton; (Hidden) Ashby; Carpet&Thomas.
+# Earthly paragraph: one challenge - we think and launch.
 # c=a+b
 
 python tests/u2_smoke.py

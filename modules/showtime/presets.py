@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-modules/showtime/presets.py — nabor gotovykh demonstratsionnykh stsenariev ("showtime presets").
+"""modules/showtime/presets.py - nabor gotovykh demonstratsionnykh stsenariev ("showtime presets").
 
 Funktsii:
 - list_presets() -> spisok dostupnykh nazvaniy
 - get_plan(name:str) -> plan deystviy (tot zhe format, chto u planner.forge.plan)
-- run_preset(name:str) -> generiruet plan, kladet v ochered, zapuskaet /agent/run
+- run_preset(name:str) -> generate plan, kladet v ochered, zapuskaet /agent/run
 
 MOSTY:
 - Yavnyy: (Plan ↔ Demonstratsiya) fiksirovannye shablony pozvolyayut mgnovenno pokazat povedenie agenta.
@@ -13,10 +12,9 @@ MOSTY:
 - Skrytyy #2: (Inzheneriya ↔ Ekspluatatsiya) nikakikh vneshnikh zavisimostey, offlayn.
 
 ZEMNOY ABZATs:
-Presety — eto prosto zaranee sostavlennye plany, ispolzuemye kak «primery» dlya trenirovki i pokaza Ester.
+Presety - eto prosto zaranee sostavlennye plany, ispolzuemye kak “primery” dlya trenirovki i pokaza Ester.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import http.client, json
@@ -30,7 +28,7 @@ _PRESETS: Dict[str, List[Dict[str, Any]]] = {
         {"op":"type","args":{"text":"notepad"}},
         {"op":"hotkey","args":{"keys":"ENTER"}},
         {"op":"ensure_focus","args":{"app_like":"Notepad"}},
-        {"op":"type","args":{"text":"Ester pokazyvaet shagi. Privet, Owner!"}},
+        {"op":"type","args":{"text":"Esther shows the steps. Hello Ovner!"}},
         {"op":"hotkey","args":{"keys":"CTRL+S"}},
         {"op":"save_as","args":{"path":"%USERPROFILE%\\Desktop\\demo_ester.txt"}},
         {"op":"hotkey","args":{"keys":"ENTER"}}

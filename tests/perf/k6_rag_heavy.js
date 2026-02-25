@@ -27,7 +27,7 @@ export const options = {
 const headers = Object.assign({ 'Content-Type': 'application/json' }, JWT ? { Authorization: `Bearer ${JWT}` } : {});
 
 function longQuery() {
-  const base = "Sformiruy razvernutyy otvet s perechisleniem klyuchevykh faktov, tsitat i istochnikov; verni itogovyy spisok ssylok i kratkuyu vyzhimku v 3-5 punktakh. ";
+  const base = "Form a detailed answer listing key facts, quotes and sources; return the final list of links and a short summary in 3-5 paragraphs.";
   let s = base;
   while (s.length < 2048) s += base;
   return s.slice(0, 2048);

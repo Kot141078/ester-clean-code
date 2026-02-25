@@ -1,20 +1,20 @@
-# config/messaging.yaml — podskazki po nastroyke «stels»-kanalov
+# config/messaging.yaml - tips for setting up stealth channels
 
 # Telegram:
-# 1) Sozdayte bota u @BotFather, zadayte druzhelyubnoe imya bez slova «bot» (naprimer, «E.»).
-#    Username vse ravno dolzhen okanchivatsya na 'bot' — eto trebovanie Telegram i ego nelzya skryt.
+# 1) Create a bot at @BotFatner, set a friendly name without the word “here” (for example, “E.”).
+#    The username must still end in bot - this is a Telegram requirement and cannot be hidden.
 # 2) Ustanovite vebkhuk s secret:
 #    https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook?url=<https-url>/webhooks/telegram&secret_token=<TELEGRAM_WEBHOOK_SECRET>
-# 3) Optsionalno ogranichte chaty: TELEGRAM_ALLOWED_CHATS="123456789,987654321".
+# 3) Optionally limit chats: TELEGRAM_ALLOWED_CHATS="123456789,987654321".
 
 # WhatsApp Cloud:
-# 1) V Meta Developers sozdayte prilozhenie WhatsApp, podklyuchite nomer. Nastroyte display name (cheloveko-druzhelyubnyy).
-# 2) Ukazhite Verify Token (WHATSAPP_VERIFY_TOKEN) i URL vebkhuka (<https-url>/webhooks/whatsapp).
-# 3) Dlya proaktivnykh soobscheniy vne okna 24 chasov ispolzuyte odobrennye shablony (etu logiku mozhno dobavit otdelno).
+# 1) In Meta Developer, create a WhatsApp application, connect the number. Set your displays to name (human-friendly).
+# 2) Specify Verify Token (WHATSAPP_VERIFY_TOKEN) and webhook URL (<https-url>/webhooks/whatsapp).
+# 3) For proactive messages outside the 24 hour window, use approved templates (this logic can be added separately).
 
-# Obschie zamechaniya «stels»:
-# - My NE maskiruem Ester pod cheloveka. V soobscheniyakh ona vedet sebya vezhlivo i «po-chelovecheski», no ostaetsya assistentom.
-# - «Ne pugat» dostigaetsya neytralnym imenem i stilem pisma (sm. messaging/styler.py i optsiyu NUDGES_USE_STYLED=1).
+# General notes on stealth:
+# - We are NOT disguising Esther as a human. In messages, she behaves politely and “humanly”, but remains an assistant.
+# - “Don’t be intimidating” is achieved by a neutral name and writing style (see messaging/styler.po and option NEWGES_USE_STYLED=1).
 
 # ENV primer:
 # TELEGRAM_BOT_TOKEN=...

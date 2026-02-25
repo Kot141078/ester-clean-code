@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-routes/providers_select_patch.py
+"""routes/providers_select_patch.py
 
-Naznachenie:
-- Dobavit nedostayuschiy marshrut vybora provaydera:
-    POST /providers/select  {"provider":"openai"} | {"name":"lmstudio"}
+Name:
+- Add nedostayuschiy route vybora provaydera:
+    POST /providers/select {"provider":"openai"} | {"name":"lmstudio"}
 - Zapis idet v data/app/providers/active.json (bez JWT, chtoby uprostit CLI).
 
 Mosty (skrytye):
@@ -12,11 +11,10 @@ Mosty (skrytye):
 (2) Sovmestimost s uzhe suschestvuyuschim /providers/status.
 
 Zemnoy abzats:
-Eto kak pereklyuchit «vkhod» na pulte audiousilitelya — zapis odnoy ruchkoy,
-a vidyat ee vse komponenty trakta.
+Eto kak pereklyuchit “vkhod” na pulte audiousilitelya - zapis odnoy ruchkoy,
+a vidyat ee vse componenty trakta.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 import os, json
 from pathlib import Path

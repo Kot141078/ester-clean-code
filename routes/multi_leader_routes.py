@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/multi_leader_routes.py - REST/UI dlya multi-lidera.
+"""routes/multi_leader_routes.py - REST/UI dlya multi-lidera.
 
 Ruchki:
   POST /multi_leader/create {"room":"r","leader":"alice"}
-  POST /multi_leader/add    {"room":"r","user":"bob"}
-  POST /multi_leader/baton  {"room":"r","to":"bob"}
+  POST /multi_leader/add {"room":"r","user":"bob"}
+  POST /multi_leader/baton {"room":"r","to":"bob"}
   POST /multi_leader/rotate {"room":"r"}
-  GET  /multi_leader/status?room=r
-  GET  /admin/multi_leader
+  GET /multi_leader/status?room=r
+  GET /admin/multi_leader
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.coop.multi_leader import create, add, baton, rotate, status

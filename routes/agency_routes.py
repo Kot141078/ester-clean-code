@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/agency_routes.py - edinyy REST dlya «lovit rybu»: ledzher, kaskad planov, naym, semya, «tabletka» i metriki.
+"""routes/agency_routes.py - edinyy REST dlya “lovit rybu”: ledzher, kaskad planov, naym, semya, “tabletka” i metriki.
 
 Mosty:
 - Yavnyy: (Volya ↔ Deystviya) Ester mozhet planirovat i ispolnyat bezopasnye shagi, a dengi - tolko s flagami.
 - Skrytyy #1: (Audit ↔ Nadezhnost) vse fiksiruetsya v jsonl/profilenykh faylakh.
-- Skrytyy #2: (UX ↔ Kontrol) prostaya panel /admin/agency dlya ruchnogo uchastiya operatora.
+- Skrytyy #2: (UX ↔ Control) prostaya panel /admin/agency dlya ruchnogo uchastiya operatora.
 
 Zemnoy abzats:
-Eto «rabochiy stol»: planiruem, schitaem, gotovim chernoviki, a kritichnoe - tolko s tvoego soglasiya.
+This is “rabochiy stol”: planiruem, schitaem, gotovim chernoviki, and kritichnoe - tolko s tvoego soglasiya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json, os, time

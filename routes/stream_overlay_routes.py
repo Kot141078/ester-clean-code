@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/stream_overlay_routes.py - overley poverkh PNG-kadrov (VNC/noVNC sovmestimo).
+"""routes/stream_overlay_routes.py - overley poverkh PNG-kadrov (VNC/noVNC sovmestimo).
 
 Ruchki:
   POST /stream/overlay/arrow {"png_b64": "...", "from":[x,y], "to":[x,y], "label":"..."} -> {ok, png_b64}
-  POST /stream/overlay/box   {"png_b64": "...", "box":{"left":..,"top":..,"width":..,"height":..}, "label":"..."} -> {ok, png_b64}
+  POST /stream/overlay/box {"png_b64": "...", "box":{"left":..,"top":..,"width":..,"height":..}, "label":..."} -> {ok, png_b64}
 
 Primechanie:
   Zdes net klienta k VNC: kadr peredaetsya v tele zaprosa i vozvraschaetsya s razmetkoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from typing import Any, Dict, List

@@ -23,7 +23,7 @@ def register(app):
 
     @app.after_request
     def _ensure_response(resp):
-        # Esli kakoy-to obrabotchik vernul None - normalizuem v 204
+        # If some handler returned None, it normalizes to 204
         if resp is None:
             _log("after_response_sanity2: resp=None -> 204")
             return Response(status=204)

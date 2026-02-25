@@ -1,35 +1,33 @@
 # -*- coding: utf-8 -*-
-"""
-make_dump.py
-Sobiraet proekt v nabor udobnykh "tomov" (chastey) po zadannomu razmeru.
+"""make_dump.py
+Sobiraet project v nabor udobnykh "tomov" (chastey) po zadannomu razmeru.
 
 Rezhimy:
-  source — vklyuchaet tolko iskhodniki/teksty/konfigi/shablony
-  full   — vklyuchaet vse (vklyuchaya binarnye, v base64)
+  source - vklyuchaet tolko iskhodniki/teksty/konfigi/shablony
+  full - vklyuchaet vse (vklyuchaya binarnye, v base64)
 
-Generiruet:
-  ester_manifest.json — manifest so spiskom faylov, razmerami, SHA256 i nomerom chasti
+Generate:
+  ester_manifest.json - manifest so spiskom faylov, razmerami, SHA256 i nomerom chasti
   Ester_dump_part_0001.txt, Ester_dump_part_0002.txt, ...
 
-Kazhdaya chast ≤ --part-size megabayt (po umolchaniyu 5 MB).
+Kazhdaya chast ≤ --part-size megabayt (by default 5 MB).
 
-A/B-sloty (rekomendatsiya po bezopasnoy zamene):
-  A = tekuschiy fayl; B = rezervnaya kopiya do izmeneniya (naprimer, make_dump.py.bak).
-  V sluchae sboev — otkatitsya na B.
+A/B-sloty (recommendations for bezopasnoy zamene):
+  A = tekuschiy fayl; B = rezervnaya kopiya do izmeneniya (for example, make_dump.py.bak).
+  V sluchae sboev - otkatitsya na B.
 
 Mosty:
-  - Yavnyy: (Kibernetika ↔ Arkhitektura) — limit razmera kak regulyator stabilnosti.
+  - Yavnyy: (Kibernetika ↔ Arkhitektura) - limit razmera kak regulyator stabilnosti.
   - Skrytye: (Infoteoriya ↔ Kanaly) — part_size kak kontrol propusknoy sposobnosti.
-  - Skrytye: (Anatomiya ↔ Inzheneriya) — «kapillyarizatsiya» bolshikh dampov na melkie toma.
+  - Skrytye: (Anatomiya ↔ Inzheneriya) - “kapillyarizatsiya” bolshikh dampov na melkie toma.
 
 Zemnoy abzats:
-  Kladi skript v koren proekta. Zapusk:
+  Kladi script v koren proekta. Zapusk:
       python make_dump.py --mode source --output-dir D:\ester-dump
       python make_dump.py --mode full --part-size 5 --output-dir D:\ester-dump
   Vykhod: chasti po ≤5 MB, manifest s kontrolnymi summami.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -77,7 +75,7 @@ SOURCE_TEXT_EXTS = {
     ".jinja2",
 }
 
-# V rezhime source po umolchaniyu isklyuchaem tyazhelye katalogi
+# In Source mode, excludes heavy directories by default
 DEFAULT_EXCLUDE_DIRS_SOURCE = {
     ".git",
     ".hg",
@@ -122,7 +120,7 @@ def iter_files(root: str, mode: str, exclude_dirs: set | None) -> List[Tuple[str
             dirs[:] = [d for d in dirs if d not in exclude_dirs]
         for name in flist:
             full = os.path.join(base, name)
-            # ne vklyuchaem nashi zhe vykhodnye artefakty
+            # we do not include our own output artifacts
             if (
                 os.path.basename(full).startswith("Ester_dump_part_")
                 or os.path.basename(full) == MANIFEST
@@ -171,7 +169,7 @@ class PartWriter:
 
     def write_text(self, s: str):
         data = s.encode("utf-8")
-        # Esli net fayla ili ne pomeschaetsya — otkryvaem novyy (esli sam fragment menshe limita)
+        # If there is no file or does not fit, open a new one (if the fragment itself is less than the limit)
         if not self.out or (self.cur_size + len(data) > self.limit and len(data) < self.limit):
             self._open_new()
         if not self.out:
@@ -188,7 +186,7 @@ class PartWriter:
 def dump_text_file(pw: PartWriter, path: str, size: int):
     r = rel(path)
     pw.write_text(f"----- BEGIN FILE: {r}  (size={size} B, type=text) -----\n")
-    # Ispravlenie baga: korrektno dobavlyaem zavershayuschuyu \n, esli ee net
+    # Bug fix: correctly add the final en if it is not there
     try:
         last_chunk = ""
         with io.open(path, "r", encoding="utf-8") as f:
@@ -240,23 +238,23 @@ def main():
         "--mode",
         choices=["source", "full"],
         default="source",
-        help="source: tolko iskhodniki/teksty; full: vse, vklyuchaya binarniki (base64)",
+        help="source: sources/texts only; full: everything, including binaries (basier64)",
     )
     ap.add_argument(
         "--part-size",
         type=int,
         default=DEFAULT_PART_MB,
-        help="razmer odnoy chasti, MB (po umolchaniyu 5)",
+        help="size of one part, MB (default 5)",
     )
     ap.add_argument(
         "--no-exclude",
         action="store_true",
-        help="v rezhime source ne isklyuchat nichego (ostorozhno: budet ochen mnogo)",
+        help="in source mode, do not exclude anything (caution: there will be a lot)",
     )
     ap.add_argument(
         "--output-dir",
         default=".",
-        help="direktoriya dlya vyvoda dampa (po umolchaniyu tekuschaya)",
+        help="directory for dump output (current by default)",
     )
     args = ap.parse_args()
 
@@ -280,7 +278,7 @@ def main():
     pw = PartWriter(args.part_size, args.output_dir)
     start = time.time()
 
-    # Derevo (zapishem v pervuyu chast avtomaticheski)
+    # Tree (we will write it in the first part automatically)
     pw.write_text("=" * 90 + "\nDEREVO FAYLOV (s razmerami)\n" + "=" * 90 + "\n")
     for p, sz in files:
         pw.write_text(f"{rel(p):<100} {sz:>12} B\n")
@@ -310,7 +308,7 @@ def main():
         if args.mode == "source" and is_text_ext(p):
             dump_text_file(pw, p, sz)
         else:
-            # Popytaemsya kak tekst; esli ne vyydet — kak binar
+            # Let's try as text; if it doesn’t work out, it’s like a binary
             try:
                 with io.open(p, "r", encoding="utf-8") as f:
                     _ = f.read(4096)  # probnyy kusok
@@ -320,7 +318,7 @@ def main():
                 dump_binary_file(pw, p, sz)
                 entry["type"] = "binary-base64"
 
-        # Posle zapisi fayl mog uyti v novuyu chast — utochnim nomer fakticheskoy chasti
+        # After recording, the file could go to a new part - check the actual part number
         entry["part"] = pw.part_idx
         manifest["entries"].append(entry)
 
@@ -333,7 +331,7 @@ def main():
     with io.open(manifest_path, "w", encoding="utf-8") as mf:
         json.dump(manifest, mf, ensure_ascii=False, indent=2)
 
-    # Rasshirenie: Log v vstore dlya pamyati Ester
+    # Extension: Log in store for Esther's memory
     state_dir = Path(os.getenv("ESTER_STATE_DIR", str(Path.home() / ".ester")))
     vstore_dir = state_dir / "vstore"
     vstore_dir.mkdir(parents=True, exist_ok=True)
@@ -347,9 +345,9 @@ def main():
     dump_log.write_text(json.dumps(logs, indent=2, ensure_ascii=False))
 
     dur = time.time() - start
-    print(f"[OK] Gotovo: {len(pw.parts)} chastey, {manifest['files_total']} faylov, {manifest['bytes_total']} bayt")
+    print(f"yuOKshch Ready: ZZF0Z parts, ZZF1ZZ files, ZZF2ZZ bytes")
     print(f"Manifest: {manifest_path}")
-    print(f"Vremya: {dur:.1f}s")
+    print(f"Time: ZZF0ZZs")
 
 
 if __name__ == "__main__":

@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/judge_overlay_watch.py — storozh overlay-fayla Judge (polling, bez zavisimostey).
+"""scripts/judge_overlay_watch.py ​​- storozh overlay-fayla Judge (polling, bez zavisimostey).
 
-Povedenie:
-  • Sledit za ESTER_JUDGE_SLOTS_PATH (ili --path).
+Behavior:
+  • Sledit za ESTER_JUDGE_SLOTS_PATH (or --path).
   • Pri izmenenii soderzhimogo (mtime/hash) — validiruet JSON i vyzyvaet komandu perezagruzki Judge:
-      - iz ENV ESTER_JUDGE_RELOAD_CMD ili argumenta --cmd.
-      - esli ne zadano — delaet no-op i pishet preduprezhdenie v stdout.
-  • Period oprosa — ESTER_JUDGE_WATCH_INTERVAL (ili --interval), po umolchaniyu 2 sek.
+      - iz ENV ESTER_JUDGE_RELOAD_CMD or argumenta --cmd.
+      - esli ne zadano - delaet no-op i pishet preduprezhdenie v stdout.
+  • Period survey — ESTER_JUDGE_WATCH_INTERVAL (ili --interval), by default 2 sec.
 
 CLI:
   python -m scripts.judge_overlay_watch [--path FILE] [--cmd "..."] [--interval 2] [--once]
 
 Mosty:
   • Yavnyy (Orkestratsiya ↔ Ekspluatatsiya): fayl → yavnaya komanda perezapuska, bez vmeshatelstva v Judge.
-  • Skrytyy 1 (Infoteoriya ↔ Nadezhnost): sravnenie po kheshu/mtime — minimum lozhnykh srabatyvaniy.
+  • Skrytyy 1 (Infoteoriya ↔ Nadezhnost): sravnenie po kheshu/mtime - minimum lozhnykh srabatyvaniy.
   • Skrytyy 2 (Praktika ↔ Bezopasnost): no-op po umolchaniyu — nulevaya veroyatnost neozhidannoy perezagruzki.
 
 Zemnoy abzats:
 Eto "storozh u dveri": esli konfig podskazok izmenilsya, on vezhlivo postuchit v Judge tak,
-kak ty skazhesh (systemctl, HTTP, skript) — sam Judge my ne trogaem.
+kak ty skazhesh (systemctl, HTTP, skript) - sam Judge my ne trogaem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -69,7 +67,7 @@ def run_once(path: Path, cmd: Optional[str]) -> Dict[str, Any]:
     rep["valid"] = "slotA" in data and "slotB" in data
     if not rep["valid"]:
         return {"ok": False, "error": "invalid-schema", **rep}
-    # Dlya --once prosto vozvraschaem slepok
+    # For --once we simply return the cast
     rep["ok"] = True
     return rep
 

@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
-"""
-modules/learn/quest_generator.py — avtogeneratsiya «uchebnykh kvestov» iz zhurnala polzovatelya.
+"""modules/learn/quest_generator.py - avtogeneratsiya "uchebnykh kvestov" iz zhurnala polzovatelya.
 
-Ideya:
+Ideaya:
 - Parsim /attention/journal (N poslednikh zapisey), gruppiruem po patternam deystviy:
-  * zapusk prilozheniya / pereklyuchenie okna
-  * rabota s menyu / sokhranenie / eksport
+  * launch application/switch window
+  * working with menus / saving / exporting
 - Formiruem kvesty: nazvanie, tseli (check), shagi (safe-stsenarii s undo), kriterii zaversheniya.
 
 API:
 - mine(N=300) -> chernovik kvestov
-- preview()   -> svodka po naydennym kvestam
-- export()    -> JSON paketa kvestov (dlya trenirovki/delezha)
+- preview() -> svodka po naydennym kvestam
+- export() -> JSON paketa kvestov (dlya trenirovki/delezha)
 
 MOSTY:
 - Yavnyy: (Memory ↔ Obuchenie) lichnaya istoriya → personalnye missii.
-- Skrytyy #1: (Infoteoriya ↔ Repraktika) tseli — te, chto uzhe vstrechalis i vosproizvodimy.
+- Skrytyy #1: (Infoteoriya ↔ Repraktika) tseli - te, chto uzhe vstrechalis i vosproizvodimy.
 - Skrytyy #2: (Inzheneriya ↔ UX) vydaem srazu v formate safe-stsenariev.
 
 ZEMNOY ABZATs:
 Chistaya rabota s JSON-zhurnalom, nikakikh setevykh i vneshnikh zavyazok.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import http.client, json
@@ -48,7 +46,7 @@ def _safe_step(title: str, do: Dict[str, Any], check_text: str) -> Dict[str, Any
 def _group(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     quests = []
     # Primitivnye evristiki:
-    # 1) esli vstrechaetsya ALT+F (menyu Fayl) → kvest "Otkryt i sokhranit"
+    # 1) esli vstrechaetsya ALT+F (menyu Fayl) → quest "Otkryt i sokhranit"
     saw_file = any((it.get("detail") or {}).get("title","").lower().find("menyu")>=0 or 
                    (it.get("detail") or {}).get("seq","").upper()=="ALT+F" 
                    for it in items if it.get("event") in ("iplay_step","safe_step_ok"))

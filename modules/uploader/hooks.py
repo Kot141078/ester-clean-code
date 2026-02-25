@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/uploader/hooks.py — podgotovka metadannykh dlya TikTok/YouTube/Patreon.
+"""modules/uploader/hooks.py — podgotovka metadannykh dlya TikTok/YouTube/Patreon.
 
 Mosty:
 - Yavnyy: (Creator ↔ Ploschadki) vydaem zagolovok, opisanie, tegi, prevyu.
 - Skrytyy #1: (Passport ↔ Prozrachnost) fiksiruem shablony/vybor platformy.
-- Skrytyy #2: (Portfolio ↔ Navigatsiya) mozhno dobavit ssylku na portfolio.
+- Skrytyy #2: (Portfolio ↔ Navigatsiya) mozhno add ssylku na portfolio.
 
 Zemnoy abzats:
-Eto kak brif: ploschadka zhdet konkretnye polya — my ikh gotovim iz stsenariya i shablonov.
+Eto kak brief: ploschadka zhdet konkretnye polya - my ikh gotovim iz stsenariya i shablonov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, re, time, hashlib
 from typing import Dict, Any
@@ -23,7 +21,7 @@ if not os.path.isfile(TPL):
     json.dump({
         "youtube":{"title":"{hook} | {topic}","tags":["ai","ester","tutorial"],"desc":"{body}\n\n#ai #ester"},
         "tiktok":{"title":"{hook}","tags":["ai","ester"],"desc":"{body}"},
-        "patreon":{"title":"{topic} — rasshirennaya versiya","tags":["behind-the-scenes"],"desc":"{body}"}
+        "patreon":{"title":"ZZF0Z - extended version","tags":["behind-the-scenes"],"desc":"{body}"}
     }, open(TPL,"w",encoding="utf-8"), ensure_ascii=False, indent=2)
 
 def _passport(note: str, meta: dict):
@@ -47,7 +45,7 @@ def prepare(script: str, platform: str="youtube")->Dict[str,Any]:
     tags=tpl.get("tags",[])
     desc=tpl.get("desc","{body}").format(**parts)
     thumb="data/creator/thumb_"+hashlib.sha256(script.encode("utf-8")).hexdigest()[:8]+".png"
-    # prostaya zaglushka prevyu
+    # simple preview plug
     try:
         from PIL import Image, ImageDraw, ImageFont  # type: ignore
         os.makedirs(os.path.dirname(thumb), exist_ok=True)

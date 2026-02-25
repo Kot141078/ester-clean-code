@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-TRS (toxicity/robustness/sanity) — minimalnaya realizatsiya:
+"""TRS (toxicity/robustness/sanity) — minimalnaya realizatsiya:
 - measure_text(text) -> (score, issues)
 - apply_rules(text, score, issues) -> filtered_text
-Ispolzuetsya v output_filters.py
-"""
+Ispolzuetsya v output_filters.py"""
 from __future__ import annotations
 
 import re

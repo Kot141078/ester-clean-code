@@ -2,7 +2,7 @@
     $ErrorActionPreference = "Stop"
     if (Test-Path ".\.env") { powershell -NoLogo -ExecutionPolicy Bypass -File ".\scripts\env_load.ps1" -EnvFile ".\.env" | Write-Host }
     $env:ESTER_ALIAS_MODE = "core"
-    # Preferens FLASK_HOST/FLASK_PORT, inache HOST/PORT, inache defolty
+    # Preference FLASK_NOST/FLASK_PORT, otherwise FLASK_PORT, otherwise defaults
     $hostv = if ($env:FLASK_HOST) { $env:FLASK_HOST } elseif ($env:HOST) { $env:HOST } else { "127.0.0.1" }
     $portv = if ($env:FLASK_PORT) { $env:FLASK_PORT } elseif ($env:PORT) { $env:PORT } else { "8137" }
     Write-Host (">>> app.py   HOST={0} PORT={1}  (ESTER_ALIAS_MODE={2})" -f $hostv, $portv, $env:ESTER_ALIAS_MODE)
@@ -11,5 +11,5 @@
     $env:FLASK_PORT = $portv
     python .\app.py
     # Mosty: PowerShell -> Python, ENV -> Flask
-    # Zemnoy abzats: edinaya komanda dlya zapuska yadra.
+    # Earth paragraph: a single command to launch the kernel.
     # c=a+b

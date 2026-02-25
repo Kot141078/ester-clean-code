@@ -1,29 +1,27 @@
 # -*- coding: utf-8 -*-
-"""
-routes/rag_file_readers_routes_alias.py
+"""routes/rag_file_readers_routes_alias.py
 
-Naznachenie:
+Name:
 - Dat upravlyaemyy HTTP-dostup k lokalnym dokumentam dlya RAG
   bez izmeneniya suschestvuyuschikh RAG-endpointov.
 - Vsya logika optsionalna i vklyuchaetsya tolko pri RAG_ENABLE=1.
 
-Endpointy:
-- GET  /ester/rag/docs/ping      -> {ok, enabled, docs_path}
-- GET  /ester/rag/docs/list      -> {ok, items:[{path,size}]}
-- POST /ester/rag/docs/ingest    -> {ok, total, ingested}
+Endpoint:
+- GET /ester/rag/docs/ping -> {ok, enabled, docs_path}
+- GET /ester/rag/docs/list -> {ok, items:[{path,size}]}
+- POST /ester/rag/docs/ingest -> {ok, total, ingested}
 
 Kontrakty ne lomayut suschestvuyuschiy /compat/chat/rag_*, tolko dobavlyayut
 vspomogatelnye tochki.
 
 Mosty:
 - Yavnyy: HTTP -> modules.rag.file_readers.ingest_all
-- Skrytyy #1: ENV (RAG_ENABLE, RAG_DOCS_PATH) -> povedenie marshrutov
-- Skrytyy #2: RAG-khab (modules.rag.hub) obschiy dlya ostalnoy sistemy
+- Skrytyy #1: ENV (RAG_ENABLE, RAG_DOCS_PATH) -> behavior routes
+- Skrytyy #2: RAG-khab (modules.rag.hub) obschiy dlya ostalnoy systemy
 
 Zemnoy abzats:
 Eto servisnyy lift dlya knig: taskaet dokumenty v indeks po zaprosu,
-ne trogaya glavnyy vkhod posetiteley.
-"""
+ne trogaya glavnyy vkhod posetiteley."""
 
 from __future__ import annotations
 
@@ -89,7 +87,7 @@ def create_blueprint() -> Blueprint:
 
 
 def register(app) -> None:
-    """Registriruet blueprint, esli esche ne zaregistrirovan."""
+    """Registers a blueprint if not already registered."""
     bp = create_blueprint()
     name = bp.name
 

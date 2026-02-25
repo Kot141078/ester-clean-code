@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-roles/store.py — khranilische profiley, nablyudeniy i obratnoy svyazi + EMA-obnovleniya i indeksy.
+"""roles/store.py - khranilische profiley, nablyudeniy i obratnoy svyazi + EMA-obnovleniya i index.
 
 MOSTY:
-- (Yavnyy) upsert_observation(agent_id,text,channel,meta) → obnovlyaet istoriyu i profil (vektor/yarlyki).
-- (Skrytyy #1) Obratnyy indeks: get_agent_by_key(contact_key) ispolzuet suschestvuyuschiy nudges_recipients.
-- (Skrytyy #2) Vektora/yarlyki JSON khranyatsya v roles_people; istoriya — v roles_interactions; fidbek — v roles_feedback.
+- (Yavnyy) upsert_observation(agent_id,text,channel,meta) → obnovlyaet istoriyu i profile (vektor/yarlyki).
+- (Skrytyy #1) Obratnyy indexes: get_agent_by_key(contact_key) ispolzuet suschestvuyuschiy nudges_recipients.
+- (Skrytyy #2) Vektora/yarlyki JSON khranyatsya v roles_people; istoriya - v roles_interactions; feedback - v roles_feedback.
 
 ZEMNOY ABZATs:
 Kazhdaya replika/sobytie — malenkiy signal. My akkuratno nakaplivaem ikh i obnovlyaem predstavlenie o cheloveke,
 ne trebuya anket i ne menyaya tekuschie potoki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, time, json, sqlite3
@@ -124,9 +122,7 @@ def _write_profile(agent_id: str, vector: Dict[str,float], labels: List[str], at
                    json.dumps(attrs, ensure_ascii=False), time.time(), int(samples_cnt)))
 
 def upsert_observation(agent_id: str, text: str, channel: str, meta: Dict[str,Any] | None = None) -> Dict[str,Any]:
-    """
-    Sokhranyaet nablyudenie i obnovlyaet profil; vozvraschaet obnovlennyy profil.
-    """
+    """Saves surveillance and updates profile; returns the updated profile."""
     ts = time.time()
     with _conn() as c:
         c.execute("INSERT INTO roles_interactions(ts,agent_id,channel,text,meta_json) VALUES(?,?,?,?,?)",
@@ -174,11 +170,9 @@ def get_profile(agent_id: str) -> Dict[str,Any] | None:
     return _read_profile(agent_id)
 
 def learn_batch(window_sec: int = 7*24*3600) -> int:
-    """
-    Pereobuchenie: prokhodit po poslednim nablyudeniyam, agregiruet EMA v profilyakh.
+    """Pereobuchenie: prokhodit po poslednim nablyudeniyam, agregiruet EMA v profilyakh.
     Funktsiya idempotentna za schet EMA-formulirovki: khranenie profiley uzhe nakopleno.
-    Vozvraschaet chislo prosmotrennykh nablyudeniy v okne.
-    """
+    Vozvraschaet chislo prosmotrennykh nablyudeniy v okne."""
     since = time.time() - window_sec
     with _conn() as c:
         rows = c.execute("SELECT agent_id,text FROM roles_interactions WHERE ts>=? ORDER BY ts ASC", (since,)).fetchall()
@@ -189,10 +183,8 @@ def learn_batch(window_sec: int = 7*24*3600) -> int:
     return n
 
 def rank_for_task(task_text: str | None, dims: Dict[str,float] | None, top_n: int = 5) -> List[Dict[str,Any]]:
-    """
-    Ranzhirovanie agentov pod zadachu: task_text -> potrebnosti po vektoram + yavnye dims.
-    """
-    # grubaya proektsiya teksta zadachi na vektor potrebnostey cherez te zhe evristiki
+    """Ranking of agents for a task: task_text -> needs by vectors + explicit dims."""
+    # rough projection of the task text onto the needs vector using the same heuristics
     need = {}
     if task_text:
         from roles.infer import infer_features as _if

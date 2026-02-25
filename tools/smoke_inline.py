@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-Universalnyy smoke-test (Windows/PowerShell sovmestimyy).
+"""Universalnyy smoke-test (Windows/PowerShell sovmestimyy).
 Mosty:
 - Yavnyy: (Testy ↔ Koren) — dobavlyaem koren proekta v sys.path, esli zapuscheno kak fayl iz tools/.
 - Skrytyy #1: (DX ↔ Nadezhnost) — odinakovo rabotaet kak `python -m tools.smoke_inline`, tak i `python tools\smoke_inline.py`.
 - Skrytyy #2: (Orkestratsiya ↔ Podsistemy) — proveryaet podsoznanie, DAG i judge odnim rankom.
 
 Zemnoy abzats:
-Kogda skript ispolnyayut kak fayl, Python stavit sys.path[0] = <...>\tools. Iz‑za etogo `modules/` ne viden.
+Kogda skript ispolnyayut kak fayl, Python stavit sys.path[0] = <...>\tools. Iz‑za etogo `modules/` ne visible.
 My nakhodim koren (roditel tools) i garantiruem ego v sys.path pered importami.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import sys, pathlib
 

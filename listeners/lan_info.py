@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/lan_info.py — legkaya sluzhba LAN-info: otvechaet na info.req, keshiruet info.
+"""listeners/lan_info.py — legkaya sluzhba LAN-info: otvechaet na info.req, keshiruet info.
 
-Protokol (JSON, UTF-8, 1 paket):
+Protocol (JSON, UTF-8, 1 package):
   { "t": "info.req" | "info", "ts": <unix>, "node": {"id","name"}, "sig": "<hex>", "payload": {...} }
 
-Povedenie:
+Behavior:
   • Prinimaem pakety na multikast-gruppe LAN_GROUP i portu LAN_INFO_PORT (po umolchaniyu 54547).
-  • Na "info.req" — otvechaem unicast "info" s lokalnym srezom sostoyaniya:
+  • Na "info.req" - otvechaem unicast "info" s lokalnym srezom sostoyaniya:
       - AB_MODE, versii, kratkaya svodka ocheredey zadach (counts) i nastroek vorkera.
-  • Na vkhodyaschee "info" — kladem v kesh {STATE}/lan_info_cache.json c taymshtampom.
-  • HMAC-podpis cherez LAN_SHARED_KEY (esli ne zadan — prinimaem nepodpisannye kak verified=false).
+  • Na vkhodyaschee "info" - kladem v kesh {STATE}/lan_info_cache.json c taymshtampom.
+  • HMAC-podpis cherez LAN_SHARED_KEY (esli ne zadan - prinimaem nepodpisannye kak verified=false).
 
 Mosty:
-- Yavnyy (Nablyudaemost ↔ Orkestratsiya): edinyy «puls» uzla (info) dlya svodnoy paneli.
-- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): prostoy JSON + HMAC, kesh na diske, vosproizvodimye polya.
-- Skrytyy 2 (Praktika ↔ Sovmestimost): ne trogaem suschestvuyuschie slushateli; otdelnyy port, drop-in.
+- Yavnyy (Nablyudaemost ↔ Orkestratsiya): edinyy “puls” uzla (info) dlya svodnoy paneli.
+- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): prostoy JSON + HMAC, kesh on disk, vosproizvodimye polya.
+- Skrytyy 2 (Praktika ↔ Sovmestimost): ne trogaem suschestvuyuschie slushateli; separate port, drop-in.
 
 Zemnoy abzats:
-Eto «dezhurnyy svyazist»: sprosili — rasskazal o sebe; uslyshal chuzhoy otchet — zapisal v kesh dlya paneli.
+This is “dezhurnyy svyazist”: sprosili - rasskazal o sebe; uslyshal chuzhoy otchet - zapisal v kesh dlya paneli.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse, json, os, socket, struct, time

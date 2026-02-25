@@ -1,5 +1,5 @@
 # -*- powershell -*-
-# Robust Telegram webhook setter: beret tokeny iz Env ili iz .env, nakhodit https ngrok i registriruet vebkhuk.
+# Timidity Telegram webhook setter: takes tokens from Env or from .env, finds HTTPS ngrok and registers the webhook.
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 

@@ -1,29 +1,28 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""file_chunker.py — chankovanie vkhodnykh faylov dlya ingest (samodostatochno, best-effort).
+"""file_chunker.py - chankovanie vkhodnykh faylov dlya ingest (samodostatochno, best-effort).
 
 Problemy iskhodnika:
 - Krakozyabry v dokstringe (slomannaya perekodirovka).
-- chunk_file() inogda vozvraschal None (fallback return byl zakommentirovan i dazhe vylez iz bloka).
+- chunk_file() sometimes vozvraschal None (fallback return byl zakommentirovan i dazhe vylez iz bloka).
 - _split() mog uyti v beskonechnyy tsikl, esli razdelitel nayden rovno v pozitsii i.
-- Chtenie teksta delalos errors='ignore' → tikho teryalis simvoly.
+- Read teksta delalos errors='ignore' → tikho teryalis simvoly.
 
-Chto sdelano:
-- Chtenie teksta: probuem utf-8/utf-16/cp1251/latin-1 (errors='replace'), bez “tishiny”.
+What was done:
+- Read teksta: try utf-8/utf-16/cp1251/latin-1 (errors='replace'), bez “tishiny”.
 - PDF: pypdf → PyPDF2 → binarnyy fallback.
-- Dobavlen overlap (perekrytie), chtoby kontekst ne “rubilsya” na granitsakh.
-- Razrez po granitsam: \n\n / \n / '. ' / ' ' — s garantiey progressa.
+- Add overlap (perekrytie), chtoby kontekst ne “rubilsya” na granitsakh.
+- Razrez po granitsam: \n\n / \n / '. ' / ' ' - s garantiey progressa.
 - API sovmestim: chunk_file(path) -> List[str]. Plyus chunk_text(text) i ChunkerConfig.
 
-Mosty (trebovanie):
+Mosty (demand):
 - Yavnyy most: ingest-payplayn (fayl→chanki) ↔ pamyat/vektorizatsiya (chanki kak atomy khraneniya).
 - Skrytye mosty:
   1) Infoteoriya ↔ ekspluatatsiya: limit+overlap = kontrol propusknoy sposobnosti kanala + zaschita ot poteri “smysla na styke”.
   2) Inzheneriya ↔ nadezhnost: best-effort chtenie formatov (pdf/docx/html) → degradatsiya vmesto padeniya.
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 import os
 import re
@@ -39,10 +38,10 @@ _TAG_RE = re.compile(r"<[^>]+>")
 
 @dataclass
 class ChunkerConfig:
-    limit: int = 1500          # tselevoy razmer chanka v simvolakh
-    overlap: int = 150         # perekrytie mezhdu chankami (simvoly)
-    max_chars: int = 400_000   # zaschitnyy limit na vkhodnoy tekst
-    keep_empty: bool = False   # sokhranyat li pustye chanki
+    limit: int = 1500          # target chunk size in characters
+    overlap: int = 150         # overlap between chunks (characters)
+    max_chars: int = 400_000   # protective limit on input text
+    keep_empty: bool = False   # will empty chunks be saved?
 
 
 def _clean_text(text: str) -> str:
@@ -81,7 +80,7 @@ def _read_pdf_best_effort(path: str) -> str:
     except Exception:
         pass
 
-    # 2) PyPDF2 (esli staroe)
+    # 2) PoPDF2 (if old)
     try:
         import PyPDF2  # type: ignore
         parts2: List[str] = []
@@ -120,7 +119,7 @@ def _read_html_best_effort(path: str) -> str:
 
 
 def _find_cut(text: str, start: int, end: int) -> int:
-    """Ischem luchshuyu tochku razreza v [start, end], garantiruya progress."""
+    """Looks for the best cut point at the start and end, ensuring progress."""
     if end <= start:
         return start
 
@@ -129,12 +128,12 @@ def _find_cut(text: str, start: int, end: int) -> int:
     for pat in ("\n\n", "\n", ". ", " "):
         idx = text.rfind(pat, start, end)
         if idx != -1:
-            # razrezaem POSLE razdelitelya
+            # cut AFTER the divider
             cut = idx + len(pat)
             candidates.append(cut)
 
     cut = candidates[0] if candidates else end
-    # garantiya progressa: esli cut ne dvigaet — rezhem po end
+    # guarantee of progress: if it barely moves, we cut it along the end
     if cut <= start:
         cut = end
     return cut
@@ -167,16 +166,16 @@ def chunk_text(text: str, cfg: Optional[ChunkerConfig] = None) -> List[str]:
         if cut >= n:
             break
 
-        # overlap: shag nazad, no ne bolshe tekuschego chanka
+        # overlap: step back, but no more than the current chunk
         if overlap > 0:
             i = max(0, cut - overlap)
-            # zaschita ot zalipaniya: esli overlap slishkom bolshoy
+            # anti-stick protection: if the overlap is too large
             if i >= cut:
                 i = cut
         else:
             i = cut
 
-        # esche odna zaschita: esli po kakoy-to prichine ne prodvinulis
+        # one more protection: if for some reason you haven’t progressed
         if out and (len(out) > 1) and (i <= 0 and cut <= 0):
             break
 
@@ -193,7 +192,7 @@ def _read_by_ext(path: str) -> str:
         return _read_docx_best_effort(path)
     if ext in (".html", ".htm"):
         return _read_html_best_effort(path)
-    # unknown — popytatsya kak tekst
+    # unknovn - try as text
     try:
         return _read_text_best_effort(path)
     except Exception:
@@ -201,7 +200,7 @@ def _read_by_ext(path: str) -> str:
 
 
 def chunk_file(path: str, limit: int = 1500) -> List[str]:
-    """Sovmestimyy API: kak ranshe, no nadezhnee."""
+    """API compatible: same as before, but more reliable."""
     cfg = ChunkerConfig(limit=int(limit))
     raw = _read_by_ext(path)
     return chunk_text(raw, cfg=cfg)
@@ -210,9 +209,7 @@ def chunk_file(path: str, limit: int = 1500) -> List[str]:
 __all__ = ["ChunkerConfig", "chunk_text", "chunk_file"]
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Chankovanie — eto “perezhevyvanie”: esli otkusit slishkom bolshoy kusok — podavishsya (model/pamyat),
-esli slishkom malenkiy — teryaesh vkus i kontekst. Overlap — kak slyuna i poslevkusie: chut-chut perenosim
-smysl cherez granitsu, chtoby ne rvat mysl na rovnom meste.
-"""
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Chankovanie - eto “perezhevyvanie”: esli otkusit slishkom bolshoy kusok - podavishsya (model/pamyat),
+esli slishkom malenkiy - teryaesh vkus i kontekst. Overlap - how slyuna i poslevkusie: chut-chut perenosim
+smysl cherez granitsu, chtoby ne rvat mysl na rovnom place."""

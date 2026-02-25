@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-modules/listeners/p2p_spooler.py — ochered P2P (Hive Mind) cherez Telegram-konverty.
+"""modules/listeners/p2p_spooler.py - ochered P2P (Hive Mind) cherez Telegram-konverty.
 
 Role:
 - outbox → otpravka konvertov cherez Telegram
 - vkhodyaschie Telegram updates → verify/HMAC → inbox (validnye) / failed (nevalidnye)
-- inbox → apply_envelope_with_profile → arkhiv v sent ili failed
+- inbox → apply_envelope_with_profile → arkhiv v sent or failed
 
 Rezhimy:
 - once (po umolchaniyu): odin tsikl send→poll→apply
 - --loop: beskonechnyy tsikl s sleep(--interval)
 
 AB_MODE:
-- AB_MODE=A (po umolchaniyu) — dry-run pri apply (nichego ne menyaem, tolko logiruem)
+- AB_MODE=A (po umolchaniyu) — dry-run pri apply (nothing ne menyaem, tolko logiruem)
 - AB_MODE=B — realnoe primenenie konvertov
 
 Printsipy:
 - ne padat iz‑za odnogo plokhogo fayla ili odnogo plokhogo apdeyta;
-- minimalnaya utechka detaley naruzhu: oshibki logiruem, no tsikl prodolzhaem;
-- bezopasnye imena faylov (bez path traversal/musora).
-"""
+- minimalnaya utechka detail naruzhu: oshibki logiruem, no tsikl prodolzhaem;
+- bezopasnye imena faylov (bez path traversal/musora)."""
 
 import argparse
 import json
@@ -63,10 +61,8 @@ def _write_json(path: Path, obj: Any) -> None:
 
 
 def _send_all(settings: Dict[str, Any]) -> None:
-    """
-    Berem vse fayly iz outbox i pytaemsya otpravit.
-    Uspekh → sent, inache → failed.
-    """
+    """Berem vse fayly iz outbox i pytaemsya otpravit.
+    Uspekh → sent, inache → failed."""
     for p in list_queue("outbox"):
         try:
             env = read_json(p)
@@ -88,9 +84,7 @@ def _send_all(settings: Dict[str, Any]) -> None:
 
 
 def _poll_incoming(settings: Dict[str, Any]) -> None:
-    """
-    Pollim Telegram, proveryaem podpis, skladyvaem v inbox/failed.
-    """
+    """Pollim Telegram, checks the signature, put it in inbox/file."""
     try:
         rep = poll_updates(settings, ab_mode=AB)  # type: ignore[arg-type]
     except Exception:
@@ -124,7 +118,7 @@ def _poll_incoming(settings: Dict[str, Any]) -> None:
                 fp = failed_dir / ("bad_" + name)
                 _write_json(fp, {"bad": True, "ts": ts, "id": uid, "raw": raw_text})
         except Exception:
-            # Odin bityy update ne dolzhen valit vse
+            # One broken update shouldn’t bring down everything
             try:
                 ts = int(u.get("ts") or time.time())
                 uid = _safe_id(u.get("id"), fallback="noid")
@@ -135,10 +129,8 @@ def _poll_incoming(settings: Dict[str, Any]) -> None:
 
 
 def _apply_inbox(settings: Dict[str, Any]) -> None:
-    """
-    Primenyaem vkhodyaschie konverty.
-    Uspekh → sent (arkhiv), inache → failed.
-    """
+    """Primenyaem vkhodyaschie konverty.
+    Uspekh → sent (arkhiv), inache → failed."""
     dry = (AB != "B")
     for p in list_queue("inbox"):
         try:
@@ -173,7 +165,7 @@ def _apply_inbox(settings: Dict[str, Any]) -> None:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Ester P2P spooler (Telegram)")
     ap.add_argument("--loop", action="store_true", help="run forever")
-    ap.add_argument("--interval", type=int, default=0, help="interval mezhdu tsiklami (sek)")
+    ap.add_argument("--interval", type=int, default=0, help="interval between cycles (sec)")
     args = ap.parse_args(argv)
 
     s = load_settings() or {}

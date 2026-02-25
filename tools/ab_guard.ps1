@@ -1,4 +1,4 @@
-# ab_guard.ps1 — zapusk s A/B-slotom i avto-otkatom po 3 bystrym health-proverkam
+# ab_guard.ps1 - launch with A/V slot and auto-rollback for 3 quick health checks
 param(
   [ValidateSet("A","B")][string]$Slot = "A",
   [string]$Host = "127.0.0.1",

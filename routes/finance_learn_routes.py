@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/finance_learn_routes.py - REST/UI dlya M33 FinScoreLearn.
+"""routes/finance_learn_routes.py - REST/UI dlya M33 FinScoreLearn.
 
 Ruchki:
-  GET  /finlearn/probe
-  GET  /finlearn/model
+  GET /finlearn/probe
+  GET /finlearn/model
   POST /finlearn/reset
-  POST /finlearn/submit   {"channel":"digital_product","sales":15,"price":9,"visitors":500,"ttfb_days":2}
-  POST /finlearn/predict  {"channel":"digital_product","feas":38,"market":26,"speed":18,"risk_penalty":2}
-  GET  /admin/finlearn
+  POST /finlearn/submit {"channel":"digital_product","sales":15,"price":9,"visitors":500,"ttfb_days":2}
+  POST /finlearn/predict {"channel":"digital_product","feas":38,"market":26,"speed":18,"risk_penalty":2}
+  GET /admin/finlearn
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.finance import score_learn as FL

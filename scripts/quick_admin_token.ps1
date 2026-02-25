@@ -1,6 +1,6 @@
-# S0/scripts/quick_admin_token.ps1 — sgenerirovat admin-JWT i proverit /admin (Invoke-WebRequest)
-# Mosty: (Yavnyy) Enderton — predikaty proverki; (Skrytye) Ashbi — prostoy regulyator; Dzheynes — pravdopodobie validnoy sessii.
-# Zemnoy abzats: bystryy smouk na Windows bez UI. Zavisimosti: python, PowerShell.
+# С0/skripts/kisk_admin_token.ps1 - generate admin-ZhVT and check /admin (Invoke-WebRequest)
+# Bridges: (Explicit) Enderton - check predicates; (Hidden) Ashby is a simple regulator; Janes - the likelihood of a valid session.
+# Earthly paragraph: a quick knock on Windows without UI. Dependencies: Pothon, PowerShell.
 # c=a+b
 
 param(

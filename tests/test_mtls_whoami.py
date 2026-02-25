@@ -10,8 +10,8 @@ def test_mtls_whoami_smoke():
             "X-Client-DN": "CN=node-1,OU=core,O=Ester",
         },
     )
-    # Koe-gde blyuprint mozhet byt ne podklyuchen — dopustim 404.
-    # Esli podklyuchen — dolzhen byt 200 i JSON.
+    # In some places the blueprint may not be connected - let's say 404.
+    # If connected, it should be 200 and JSON.
     if r.status_code == 200:
         j = r.get_json()
         assert isinstance(j, dict)

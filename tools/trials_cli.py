@@ -7,12 +7,10 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-"""
-CLI dlya raboty s trials (bez veba).
+"""CLI dlya work s trials (bez veba).
 Primery:
   python tools/trials_cli.py create --id nightly --spec configs/evojudge_tasks.json
-  python tools/trials_cli.py run --id nightly --adapter dummy --tasks configs/evojudge_tasks.json
-"""
+  python tools/trials_cli.py run --id nightly --adapter dummy --tasks configs/evojudge_tasks.json"""
 import argparse, json, shlex
 from pathlib import Path
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

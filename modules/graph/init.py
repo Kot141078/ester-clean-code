@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/graph — legkiy graf znaniy poverkh pamyati/suschnostey.
+"""modules/graph - legkiy graf znaniy poverkh pamyati/suschnostey.
 
 MOSTY:
-- (Yavnyy) build_graph() -> {"nodes":[...], "edges":[...]}; summary(graph) -> kompaktnye metriki.
+- (Yavnyy) build_graph() -> {"nodes":[...], "edges":[...]}; summary(graph) -> kompaktnye metrics.
 - (Skrytyy #1) Chitaet entities iz data/mem/entities i edge-dokumenty iz pamyati (semantic).
 - (Skrytyy #2) Ne trebuet vneshnikh BD/bibliotek (closed_box), sokhranyaet format JSON.
 
 ZEMNOY ABZATs:
-«Naskalnaya karta» svyazey: kto s chem svyazan i skolko uzlov/reber — chtoby dalshe uzhe stroit analitiku.
+“Naskalnaya karta” svyazey: kto s chem svyazan i skolko uzlov/reber - chtoby dalshe uzhe stroit analitiku.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, glob
 from typing import Dict, Any, List, Set
@@ -36,7 +34,7 @@ def _iter_entities():
                 continue
 
 def _iter_edges_from_memory():
-    # «edge:entity:<id>::rel::doc:<id>» — my tak pishem ikh v memory_linker_routes
+    # “edge:entity:<id>::rel::daughter:<id>” - this is how we write them in memory_linker_rutes
     for fp in glob.glob(os.path.join(_layer_dir("semantic"), "*.json")):
         try:
             with open(fp, "r", encoding="utf-8") as f:

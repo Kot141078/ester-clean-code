@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-modules.ingest.code_ingest — analiz iskhodnikov i strukturirovannaya zagruzka v pamyat/KG.
+"""modules.ingest.code_ingest - analiz iskhodnikov i strukturirovannaya zagruzka v pamyat/KG.
 
 MOSTY:
 - (Yavnyy) routes.ingest_* ↔ analyze_code/ingest_code.
 - (Skrytyy #1) KG ↔ tekst: sozdaem zapisi i rebra, esli KGStore dostupen.
-- (Skrytyy #2) Dedup ↔ indeks: podderzhka should_ingest/record_ingest, esli est.
+- (Skrytyy #2) Dedup ↔ indexes: podderzhka should_ingest/record_ingest, esli est.
 
 ZEMNOY ABZATs:
-Bystryy parser po direktorii: vytaskivaet docstring/shapku/imena funktsiy — dostatochno dlya «zhivoy» priemki v Ester.
-# c=a+b
-"""
+Bystryy parser po direktorii: vytaskivaet docstring/shapku/imena funktsiy — dostatochno dlya “zhivoy” priemki v Ester.
+# c=a+b"""
 from __future__ import annotations
 
 import os, re, json, hashlib
@@ -26,7 +24,7 @@ except Exception:  # pragma: no cover
 from .common import persist_dir, add_structured_record, kg_attach_artifact
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Nadezhnye patterny (raw-stroki, yavnye probely):
+# Reliable patterns (equal strings, explicit spaces):
 RE_DEF   = re.compile(r"^\s*def\s+([A-Za-z_]\w*)\s*\(", re.MULTILINE)
 RE_CLASS = re.compile(r"^\s*class\s+([A-Za-z_]\w*)\s*\(", re.MULTILINE)
 RE_PY_IMPORT = re.compile(r"^\s*import\s+(.+)$", re.MULTILINE)
@@ -164,7 +162,7 @@ def analyze_code(root: str, glob: str = "**/*.py") -> Dict[str, Any]:
     return {"ok": True, "count": len(items), "items": items}
 
 def ingest_code(root: str, glob: str = "**/*.py", tags: Iterable[str] = ()) -> Dict[str, Any]:
-    """Vysokourovnevyy ingest iskhodnikov v pamyat/KG."""
+    """High-level ingest of sources into memory/KG."""
     if not os.path.isabs(root):
         root = os.path.join(persist_dir(), root)
     if not os.path.isdir(root):

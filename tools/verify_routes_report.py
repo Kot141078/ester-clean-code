@@ -5,7 +5,7 @@ def main():
         from fastapi import FastAPI
         from modules.reports.routes_http import register_fastapi
         app = FastAPI()
-        # para marshrutov, vklyuchaya dubl
+        # a couple of routes, including a double
         @app.get("/ping")
         def _p(): return {"ok": True}
         @app.get("/ping")

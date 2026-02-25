@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/studio/drama.py — audiodrama «po rolyam»: stsenariy → TTS-segmenty → svedenie + SRT.
+"""modules/studio/drama.py - audiodrama “po rolyam”: stsenariy → TTS-segmenty → svedenie + SRT.
 
 Mosty:
 - Yavnyy: (Stsenariy ↔ Audio) daet gotovuyu dorozhku i subtitry s razmetkoy roley.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Profile ↔ Memory) sokhranyaet profile sborki (taymingi, roli, puti).
 
 Zemnoy abzats:
-Inzhenerno eto «malenkaya studiya»: kazhduyu repliku ozvuchili podkhodyaschim golosom, dobavili pauzy, skleili i vygruzili subtitry.
+Inzhenerno eto “malenkaya studiya”: kazhduyu repliku ozvuchili podkhodyaschim golosom, add pauzy, skleili i vygruzili subtitry.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, wave, struct
 from typing import Any, Dict, List
@@ -74,7 +72,7 @@ def make(title: str, script: List[Dict[str,Any]], voices: Dict[str,Dict[str,Any]
     ok=concat_wavs(parts, wav)
     mp3=None
     if ok and os.path.isfile(wav):
-        # probuem sdelat MP3
+        # trying to make an MP3
         import subprocess, shutil
         if shutil.which(FFMPEG):
             mp3=wav.replace(".wav",".mp3")

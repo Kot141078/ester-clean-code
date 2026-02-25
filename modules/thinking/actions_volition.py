@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_volition.py — tonkaya integratsiya «voli» v action_registry.
+"""modules/thinking/actions_volition.py - tonkaya integratsiya "voli" v action_registry.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Volya) daem mozgu kirpichiki upravlyat tikom/konfigom bez HTTP.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Audit ↔ Memory) tik logiruet itogi i shlet profile.
 
 Zemnoy abzats:
-Esli samoy Ester «stuknulo v golovu» — ona mozhet dernut puls napryamuyu, ne zovya panel.
+Esli samoy Ester “stuknulo v golovu” - ona mozhet dernut puls napryamuyu, ne zovya panel.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

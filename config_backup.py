@@ -1,30 +1,29 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""config_backup.py — bekap konfiguratsii/pamyati (zip) + podpis tselostnosti (HMAC-SHA256).
+"""config_backup.py - bekap konfiguratsii/pamyati (zip) + podpis tselostnosti (HMAC-SHA256).
 
-Oshibka iz loga:
+Error from loga:
   expected an indented block after 'except' statement
-V iskhodnike v kontse byl `except Exception:` bez tela — modul dazhe ne importirovalsya.
+V iskhodnike v kontse byl `except Exception:` bez tela - modul dazhe ne importirovalsya.
 
-Chto uluchsheno:
+What improved:
 - Ispravlena sintaksicheskaya oshibka.
 - Normalnaya russkaya dokumentatsiya (bez krakozyabr).
 - Zip teper stroitsya s ponyatnymi otnositelnymi putyami (rel otnositelno PERSIST_DIR).
 - Isklyuchaem papku BACKUP_DIR (chtoby bekap ne bekapil bekapy i ne razrastalsya).
-- Dobavlen manifest.json vnutr arkhiva (spisok faylov, razmery, vremya).
+- Add manifest.json vnutr arkhiva (spisok faylov, razmery, vremya).
 - Atomarnaya zapis: snachala *.tmp, zatem rename; pri sboe otkat (A/B-slot po faktu).
 - verify_backup teper vsegda vozvraschaet bool (False pri lyuboy oshibke).
 
-Mosty (trebovanie):
+Mosty (demand):
 - Yavnyy most: etot zip+sig — gotovaya “fizicheskaya” zagotovka dlya L4 Witness zapisi
   (hash/podpis → tamper-evident audit trail).
 - Skrytye mosty:
-  (1) Infoteoriya ↔ praktika: HMAC na baytakh arkhiva — kompaktnyy “kanal proverki” tselostnosti.
-  (2) Inzheneriya ↔ gigiena: isklyuchenie BACKUP_DIR iz nabora — kak ne khranit musor v otseke s instrumentami.
+  (1) Infoteoriya ↔ praktika: HMAC na baytakh arkhiva - kompaktnyy “kanal proverki” tselostnosti.
+  (2) Inzheneriya ↔ gigiena: isklyuchenie BACKUP_DIR iz nabora - kak ne khranit musor v otseke s instrumentsami.
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 
 import io
@@ -35,24 +34,23 @@ import zipfile
 from pathlib import Path
 from typing import Iterable, List, Tuple, Optional, Sequence
 
-# Vazhno: derzhim import iz security.signing, no delaem adapter:
-# - modul security.signing mozhet suschestvovat, no imet drugie imena funktsiy
-# - poetomu ischem podkhodyaschie callables i pri otsutstvii ispolzuem stdlib HMAC
+# Important: we keep the import from security.signing, but make an adapter:
+# - the security.signing module can exist, but have different function names
+# - therefore, we are looking for suitable callables and, if not available, use the HMAS stdlib
 import base64
 import hmac
 import hashlib
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def _env_hmac_key() -> bytes:
-    """Klyuch dlya HMAC (dolzhen byt stabilen mezhdu zapuskom create/verify).
+    """Klyuch dlya HMAC (dolzhen byt stable mezhdu zapuskom create/verify).
 
     Predpochtitelnye peremennye:
       - ESTER_HMAC_KEY
       - HMAC_KEY
       - BACKUP_HMAC_KEY
 
-    Format: stroka UTF-8 (lyuboy), libo base64url/base64 (optsionalno).
-    """
+    Format: stroka UTF-8 (lyuboy), libo base64url/base64 (optional)."""
     for k in ("ESTER_HMAC_KEY", "HMAC_KEY", "BACKUP_HMAC_KEY"):
         v = (os.getenv(k) or "").strip()
         if not v:
@@ -66,7 +64,7 @@ def _env_hmac_key() -> bytes:
         except Exception:
             pass
         return v.encode("utf-8", errors="replace")
-    # klyuch ne zadan — luchshe chestno upast, chem delat nepodpisyvaemye “odnorazovye” bekapy
+    # the key is not specified - it’s better to honestly fail than to make unsigned “one-time” backups
     raise RuntimeError("HMAC key not set. Set ESTER_HMAC_KEY (or HMAC_KEY/BACKUP_HMAC_KEY).")
 
 def _stdlib_hmac_sign(blob: bytes) -> str:
@@ -90,8 +88,7 @@ def _pick_signing_functions():
       - hmac_sign(blob: bytes) -> str
       - verify(blob: bytes, sig: str) -> bool
       - hmac_verify(blob: bytes, sig: str) -> bool
-    Esli signatury otlichayutsya (naprimer, trebuyut key), ispolzuem stdlib.
-    """
+    Esli signatury otlichayutsya (for example, trebuyut key), ispolzuem stdlib."""
     try:
         import security.signing as signing  # type: ignore
     except Exception:
@@ -119,7 +116,7 @@ def _pick_signing_functions():
 _SIGN_FN, _VER_FN, _SIGN_NOTE = _pick_signing_functions()
 
 def hmac_sign(blob: bytes) -> str:
-    """Edinyy sign() dlya bekapov. Vozvraschaet base64url(sig) bez '='."""
+    """Single signal() for backups. Returns basier64irl(sig) without b=b."""
     if callable(_SIGN_FN):
         try:
             return str(_SIGN_FN(blob))  # type: ignore[misc]
@@ -131,7 +128,7 @@ def hmac_sign(blob: bytes) -> str:
     return _stdlib_hmac_sign(blob)
 
 def hmac_verify(blob: bytes, sig: str) -> bool:
-    """Edinyy verify() dlya bekapov."""
+    """Single verifi() for backups."""
     if callable(_VER_FN):
         try:
             return bool(_VER_FN(blob, sig))  # type: ignore[misc]
@@ -166,7 +163,7 @@ def _walk_include(base_dir: str, *, exclude_dirs: Iterable[str]) -> List[str]:
     for root, dirnames, fnames in os.walk(base_dir):
         root_abs = os.path.abspath(root)
 
-        # prune: ne zakhodit v isklyuchennye direktorii
+        # prune: does not enter excluded directories
         pruned: List[str] = []
         for d in list(dirnames):
             cand = os.path.abspath(os.path.join(root_abs, d))
@@ -188,7 +185,7 @@ def _walk_include(base_dir: str, *, exclude_dirs: Iterable[str]) -> List[str]:
 def _relpath(abs_path: str, base_dir: str) -> str:
     # otnositelnyy put vnutri payload (ot persist_dir)
     rp = os.path.relpath(abs_path, start=base_dir)
-    rp = rp.replace("\\", "/")  # normalizuem dlya zip
+    rp = rp.replace("\\", "/")  # normalizes for zip
     return rp
 
 
@@ -309,14 +306,13 @@ def create_backup(
 ) -> Tuple[str, str]:
     """Sozdaet zip-bekap i vozvraschaet (zip_path, sig_path).
 
-    Podpis:
-      HMAC-SHA256 po baytam arkhiva, kodirovannaya base64url (bez '='),
+    Subscription:
+      HMAC-SHA256 po baytam arkhiva, encoded base64url (bez '='),
       sokhranyaetsya ryadom v fayle .sig.
 
     Sovmestimost:
-      - create_backup() — staroe povedenie (PERSIST_DIR -> BACKUP_DIR)
-      - create_backup(output_dir=..., include_dirs=[...]) — legacy API dlya testov/CLI
-    """
+      - create_backup() — staroe behavior (PERSIST_DIR -> BACKUP_DIR)
+      - create_backup(output_dir=..., include_dirs=[...]) - legacy API dlya testov/CLI"""
     persist_dir = _persist_dir()
     roots: List[str] = []
     if include_dirs is not None:
@@ -333,7 +329,7 @@ def create_backup(
     backup_dir = os.path.abspath(str(output_dir or "").strip()) if str(output_dir or "").strip() else _backup_dir(persist_dir)
     _ensure_dir(backup_dir)
 
-    # Isklyuchaem sam backup_dir, chtoby bekap ne ros beskonechno
+    # We exclude the backlog_dir itself so that the backup does not grow endlessly
     exclude = [backup_dir]
 
     ts = time.strftime("%Y%m%d%H%M%S", time.gmtime())
@@ -342,7 +338,7 @@ def create_backup(
     sig_path = zip_path + ".sig"
     sig_tmp = sig_path + ".tmp"
 
-    # A/B-slot: atomarnaya zapis s otkatom na isklyucheniyakh
+    # A/B slot: atomic recording with rollback on exceptions
     try:
         if os.path.exists(zip_tmp):
             os.remove(zip_tmp)
@@ -363,7 +359,7 @@ def create_backup(
 
         return zip_path, sig_path
     except Exception:
-        # otkat vremennykh faylov
+        # rollback temporary files
         for p in (zip_tmp, sig_tmp):
             try:
                 if os.path.exists(p):
@@ -374,7 +370,7 @@ def create_backup(
 
 
 def verify_backup(path: str) -> bool:
-    """Proveryaet tselostnost arkhiva i, esli est .sig, korrektnost podpisi."""
+    """Checks the integrity of the archive and, if there is a .sig, the correctness of the signature."""
     if not os.path.isfile(path):
         return False
     try:
@@ -385,7 +381,7 @@ def verify_backup(path: str) -> bool:
         with zipfile.ZipFile(io.BytesIO(blob), "r") as zf:
             _ = zf.infolist()
 
-        # podpis (esli est)
+        # signature (if any)
         sig_path = path + ".sig"
         if os.path.isfile(sig_path):
             with open(sig_path, "r", encoding="ascii") as f:
@@ -398,7 +394,7 @@ def verify_backup(path: str) -> bool:
 
 
 def latest_backup_path() -> Optional[str]:
-    """Vozvraschaet put k poslednemu backup_*.zip ili None."""
+    """Returns the path to the last Backup_*.zip or None."""
     persist_dir = _persist_dir()
     backup_dir = _backup_dir(persist_dir)
     if not os.path.isdir(backup_dir):
@@ -432,10 +428,8 @@ if __name__ == "__main__":  # pragma: no cover
     raise SystemExit(_main(sys.argv))
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Bekap — eto kak aptechka v mashine: ona ne nuzhna rovno do momenta, kogda nuzhna srochno.
-Inzhenernyy smysl podpisi (HMAC) — plomba na konteynere: vy ne “verite”, vy proveryaete.
-I esche: ne skladyvayte bekapy vnutr togo, chto bekapite — eto kak khranit musor v motornom otseke:
-snachala “nichego”, potom peregrev i pozhar.
-"""
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Bekap - eto kak aptechka v mashine: ona ne nuzhna rovno do momenta, kogda nuzhna srochno.
+Inzhenernyy smysl podpisi (HMAC) - plomba na konteynere: vy ne “verite”, vy proveryaete.
+I esche: ne skladyvayte bekapy vnutr togo, chto bekapite - eto kak khranit musor v motornom otseke:
+snachala “nichego”, potom peregrev i pozhar."""

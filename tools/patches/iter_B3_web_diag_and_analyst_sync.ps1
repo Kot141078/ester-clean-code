@@ -6,13 +6,13 @@ $ErrorActionPreference = "Stop"
 
 # ==============================
 # Ester patch: web bridge diagnostics + analyst sync (PS5-safe)
-# Explicit bridge: c=a+b -> trebovanie tochnosti (a) + chestnyy status sensora/istochniki (b) => otvet bez gallyutsinatsiy (c)
+# Explicit bridge: c=a+b -> accuracy requirement (a) + honest status of sensor/sources (c) => answer without hallucinations (c)
 # Hidden bridges:
-#   - Ashby: raznoobrazie kanalov (google/serpapi/ddgs/ddg_api) + diagnostika = nuzhnaya "variety"
-#   - Cover&Thomas: propusknaya sposobnost kanala = 0, esli biblioteka ne ustanovlena; nelzya putat s "net dannykh"
-#   - Gray’s Anatomy: patch kak shov — dobavlyaem aliasy/metody, ne lomaya suschestvuyuschuyu tkan sistemy
-# Earth (inzheneriya/anatomiya):
-#   Eto kak razlichat "net pulsa" i "puls ne meryaetsya" — inache vrach (LLM) stavit diagnoz po tishine i nachinaet fantazirovat.
+#   - Ashby: variety of channels (Google/serpapa/ddgs/ddg_api) + diagnostics = necessary “cook”
+#   - Carpet&Thomas: channel bandwidth = 0 if the library is not installed; not to be confused with "no data"
+#   - Gry's Anatomy: a patch is like a seam - adding aliases/methods without breaking the existing fabric of the system
+# Erth (engineering/anatomy):
+#   It’s like distinguishing between “no pulse” and “pulse not measured” - otherwise the doctor (LLM) makes a diagnosis based on silence and begins to fantasize.
 # ==============================
 
 function WriteUtf8NoBom([string]$Path, [string]$Content) {
@@ -131,7 +131,7 @@ if ($iaText -match "PATCH:\s*web diagnostics") {
   # D) ddgs missing lib => set last_error (do NOT look like 'no results')
   $patternDdgs = "logger\.error\(f?\"\\[DDGS\\]\s*Missing library: \{e\}\"\)\s*\r?\n\s*return \[\]"
   if ($iaText -notmatch $patternDdgs) {
-    # ne fatalno: prosto preduprezhdenie
+    # not fatal: just a warning
     Write-Host "[WARN] Ne nashel tochnyy blok DDGS Missing library — vozmozhno fayl otlichaetsya. Perekhodim dalshe." -ForegroundColor Yellow
   } else {
     $iaText = [regex]::Replace($iaText, $patternDdgs,

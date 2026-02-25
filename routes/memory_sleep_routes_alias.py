@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-routes/memory_sleep_routes_alias.py - REST-aliasy dlya sutochnogo tsikla pamyati.
+"""routes/memory_sleep_routes_alias.py - REST-aliasy dlya sutochnogo tsikla pamyati.
 
-Marshruty:
-  GET  /memory/sleep/status        -> modules.memory.sleep_alias.status()
-  POST /memory/sleep/run_now       -> modules.memory.sleep_alias.run_cycle()
-  POST /memory/sleep/slot          -> modules.memory.sleep_alias.switch_slot(slot)
+Route:
+  GET /memory/sleep/status -> modules.memory.sleep_alias.status()
+  POST /memory/sleep/run_now -> modules.memory.sleep_alias.run_cycle()
+  POST /memory/sleep/slot -> modules.memory.sleep_alias.switch_slot(slot)
 
 Kontrakty podobrany tak, chtoby ne lomat suschestvuyuschiy API: eto novye ruchki,
 oni ne podmenyayut /memory/* i ne trogayut kaskad myshleniya.
@@ -17,8 +16,7 @@ MOSTY:
 
 ZEMNOY ABZATs:
 S tochki zreniya ekspluatatsii — esche odin "service endpoint": mozhno schelknut
-curl'om i proverit, chto u Ester rabotaet noch: chistka, bekap, daydzhest.
-"""
+curl'om i proveit, chto u Ester rabotaet noch: chistka, bekap, daydzhest."""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request
@@ -46,7 +44,7 @@ def sleep_switch_slot():
 
 
 def register(app):
-    # Bezopasnaya registratsiya: esli blueprint uzhe est — ne dubliruem.
+    # Secure registration: if you already have a blueprint, we won’t duplicate it.
     name = bp.name
     if name not in app.blueprints:
         app.register_blueprint(bp)

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/video_sources_capmap.py — karta sposobnostey istochnikov/binarey/lokalnykh formatov.
+"""routes/video_sources_capmap.py - karta sposobnostey istochnikov/binarey/lokalnykh formatov.
 
 Endpoint:
   • GET /ingest/video/sources/capmap
@@ -11,10 +10,9 @@ Mosty:
 - Skrytyy #2: (Kibernetika v†" Volya) pravila myshleniya korrektiruyut povedenie po capmap.
 
 Zemnoy abzats:
-Eto kak nakleyki na pulte: «est ffmpeg/yt-dlp, MKV ok, ISO chastichno».
+Eto kak nakleyki na pulte: “est ffmpeg/yt-dlp, MKV ok, ISO chastichno.”
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

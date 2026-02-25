@@ -1,5 +1,5 @@
 # scripts\desktop\windows\ester_agent.ps1
-# Naznachenie: lokalnyy RPA-agent dlya seansa "ester".
+# Purpose: local RPA agent for the "esther" session.
 # HTTP API: 127.0.0.1:8732
 #   GET  /health
 #   GET  /screen                        -> { ok, png_b64 }
@@ -7,11 +7,11 @@
 #   POST /click {"x":int,"y":int}
 #   POST /type {"text":"..."}
 #   POST /ocr_click {"needle":"...", "lang":"eng+rus"}  -> klikaet po naydennomu tekstu (Tesseract tsv)
-#   POST /slot {"slot":"A"|"B"}        -> pereklyuchit A/B-slot (avto-perezapusk snaruzhi)
+#   POST /slot ZZF0Z -> switch A/V slot (auto-restart from outside)
 #
 # Zavisimosti (OCR):
 #   - (optsionalno) C:\Program Files\Tesseract-OCR\tesseract.exe
-#     Esli ne ustanovlen — /ocr_click vernet error: "tesseract_not_found"
+#     If not installed, /okr_klichk will return an error: "tesseract_not_fund"
 #
 # MOSTY:
 #   Yavnyy: (Zrenie ↔ Deystvie) ekran→OCR→klik.
@@ -19,8 +19,8 @@
 #   Skrytyy #2: (Kibernetika ↔ Arkhitektura) heartbeat/sloty zamykayut ustoychivuyu petlyu kontrolya.
 #
 # ZEMNOY ABZATs:
-#   Skrinshot cherez .NET CopyFromScreen, OCR cherez Tesseract TSV daet koordinaty; klik — v tsentr boksa.
-#   Nikakogo oblaka: vse lokalno. Sloty A/B menyayutsya zapisyu fayla active.slot.
+#   Screenshot via .NET CopyFromscreen, OCR via Tesseract CV gives coordinates; click - in the center of the box.
+#   No cloud: everything is local. Slots A/B are changed by writing the active.slot file.
 #
 # c=a+b
 
@@ -91,7 +91,7 @@ function OCR-FindAndClick([string]$needle, [string]$lang) {
 
   $tmpDir = "$env:TEMP\ester_rpa"; New-Item -ItemType Directory -Force -Path $tmpDir | Out-Null
   $png = Join-Path $tmpDir "shot.png"
-  # Sokhranyaem tekuschiy skrin
+  # Saves the current screen
   $b64 = Take-ScreenshotPngBase64
   [IO.File]::WriteAllBytes($png, [Convert]::FromBase64String($b64))
 

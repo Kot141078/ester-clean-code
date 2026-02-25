@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_build_agent_helper.py — eksheny «voli» dlya vnutrennego Agent Builder.
+"""modules/thinking/actions_build_agent_helper.py - eksheny "voli" dlya vnutrennego Agent Builder.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Kaskad/Memory) planiruem shagi cherez kaskad i pishem zametku v Profile.
@@ -8,9 +7,8 @@ Mosty:
 - Skrytyy #2: (UX ↔ Adminka) plan kompakten i sovmestim s /thinking/cascade/* (knopki v admin_cascade.js).
 
 Zemnoy abzats:
-Nabor «knopok» dlya Ester: opisat agenta, pokazat shablon plana, sobrat kaskad pod tsel i, pri razreshenii, primenit fayly.
-# c=a+b.
-"""
+Nabor “knopok” dlya Ester: opisat agenta, pokazat shablon plana, sobrat kaskad pod tsel i, pri razreshenii, primenit fayly.
+# c=a+b."""
 from __future__ import annotations
 import os, glob, json, time, re
 from typing import Any, Dict, List
@@ -40,10 +38,10 @@ def _templates_list() -> List[str]:
     return found
 
 def _plan_skeleton(goal: str, note: str | None = None) -> Dict[str, Any]:
-    goal = (goal or "").strip() or "sobrat agenta po umolchaniyu"
+    goal = (goal or "").strip() or "collect default agent"
     steps: List[Dict[str, Any]] = []
 
-    # 1) Legkaya refleksiya — kak v standartnom kaskade
+    # 1) Light reflection - as in the standard cascade
     steps.append({
         "kind":"reflect.enqueue",
         "endpoint":"/thinking/reflection/enqueue",
@@ -60,7 +58,7 @@ def _plan_skeleton(goal: str, note: str | None = None) -> Dict[str, Any]:
                         "source":"thinking://agent.builder", "version":"1"}}
     })
 
-    # 3) (Optsionalno) Korotkiy snimok «self.map» dlya orientira
+    # 3) (Optional) A short “self-map” shot for reference
     steps.append({
         "kind":"self.map",
         "endpoint":"/thinking/act",
@@ -79,12 +77,12 @@ def _make_files_for(spec: Dict[str, Any]) -> List[Dict[str, Any]]:
     caps  = list(spec.get("capabilities") or [])
 
     files: List[Dict[str, Any]] = []
-    # 1) Dok s instruktsiyami agenta
+    # 1) Doc with agent instructions
     files.append({
         "path": f"docs/agents/{slug}.md",
-        "content": f"# {name}\n\n{desc}\n\n## Instruktsii\n\n{instr}\n\n## Vozmozhnosti\n\n- " + "\n- ".join(map(str, caps)) + "\n"
+        "content": f"# ZZF0Z\n\nZZF1ZZ\n\n## Instructions\n\nZZF2ZZ\n\n## Features\n\n-" + "\n- ".join(map(str, caps)) + "\n"
     })
-    # 2) Primer plana kaskada dlya ego zapuska
+    # 2) An example of a cascade plan for launching it
     plan = {
         "run_id": f"agent_{slug}_{now}",
         "branch_id": "main",
@@ -95,7 +93,7 @@ def _make_files_for(spec: Dict[str, Any]) -> List[Dict[str, Any]]:
         "nodes": [
             {"id":"outline","type":"script","update":{"note":"agent:"+slug},"depends":[]},
             {"id":"fork","type":"fanout","items":"{{ctx.items}}","depends":["outline"]},
-            {"id":"final","type":"llm.generate","prompt":"Sformiruy plan integratsii {{ctx.item.file}}: korotko i chetko.","out":"final_branch","depends":["fork"]},
+            {"id":"final","type":"llm.generate","prompt":"Create an integration plan {ЗЗФ0З}: short and clear.","out":"final_branch","depends":["fork"]},
             {"id":"gather","type":"join","from":"fork","out":"joined","select":{"file":"{{item.file}}","text":"{{ctx.final_branch}}"},"mode":"list","await_nodes":["final"],"depends":["final"]}
         ]
     }
@@ -130,8 +128,8 @@ def _reg():
         name = args.get("name") or ( "EkoRazum" if "sustain" in domain or "eko" in goal.lower() else "Generalist-Agent" )
         spec = {
             "name": name,
-            "description": f"Agent pod tsel: {goal or '—'}; auditoriya: {audience or '—'}; domen: {domain}.",
-            "instructions": "Bud poleznym, strogim k faktam, obyasnyay korotko, predlagay sleduyuschie shagi.",
+            "description": f"Agent for target: ZZF0Z; audience: ZZF1ZZ; domain: ZZF2ZZ.",
+            "instructions": "Be helpful, strictly factual, explain briefly, suggest next steps.",
             "capabilities": ["web.browse","files.analyze","plans.cascade","rules.policy.hints"],
             "hints": {
                 "cascade_endpoints": { "plan": "/thinking/cascade/plan", "execute": "/thinking/cascade/execute" }
@@ -148,19 +146,19 @@ def _reg():
         return {"ok": True, "plan": plan, "ab": AB_SLOT}
     register("agent.builder.plan.generate", {"goal":"str","note":"str"}, {"ok":"bool"}, 3, a_plan)
 
-    # 4) agent.builder.scaffold.files — sformirovat fayly (bez primeneniya)
+    # 4) agent.builder.scaffold.files - generate files (without application)
     def a_files(args: Dict[str,Any]):
         spec = dict(args.get("spec") or {})
         files = _make_files_for(spec)
         return {"ok": True, "files": files, "apply_hint":"use agent.builder.apply with ESTER_AGENT_BUILDER_WRITE=1 and AB=A", "ab": AB_SLOT}
     register("agent.builder.scaffold.files", {"spec":"object"}, {"ok":"bool"}, 5, a_files)
 
-    # 5) agent.builder.apply — primenit fayly cherez Codesmith (A/B+flagi)
+    # 5) agent.builder.apply - apply files via Sodesmyth (A/B+flags)
     def a_apply(args: Dict[str,Any]):
         spec = dict(args.get("spec") or {})
         preview_only = bool(args.get("preview_only", True))
         files = _make_files_for(spec)
-        # Vsegda proverim testom, dazhe v prevyu
+        # Always check with a test, even in preview
         test_rep = {}
         try:
             from modules.self.codegen import test_files, guarded_apply  # type: ignore
@@ -168,7 +166,7 @@ def _reg():
             ok_test = bool(test_rep.get("ok", True))
             if preview_only or (AB_SLOT!="A") or (not ALLOW_WRITE):
                 return {"ok": ok_test, "preview": True, "files": files, "test": test_rep, "why":"preview_or_AB_or_flag", "ab": AB_SLOT}
-            # Zapis tolko pri A-slote i vklyuchennom ALLOW_WRITE
+            # Recording only with A-slot and ALLOW_WRITE enabled
             apply_rep = guarded_apply(files)
             return {"ok": bool(apply_rep.get("ok", False)), "preview": False, "apply": apply_rep, "ab": AB_SLOT}
         except Exception as e:

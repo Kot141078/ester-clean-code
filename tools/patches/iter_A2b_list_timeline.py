@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-ITER A2b:
+"""ITER A2b:
 - modules/memory/chroma_adapter.py: robust list (peek/get fallback) + telemetry log silence
-- routes/memory_routes.py: /memory/list vklyuchaet chroma, /memory/timeline dobavlen
+- routes/memory_routes.py: /memory/list vklyuchaet chroma, /memory/timeline addavlen
 - tools/patches/chroma_locator.py: nakhodit realnye chroma.sqlite3 i pokazyvaet kollektsii/schetchiki
 Smoke: compile + chroma status + locator run.
 
-YaVNYY MOST: c=a+b — ne teryaem pamyat, a delaem ee vidimoy i prokhodimoy.
+YaVNYY MOST: c=a+b - ne teryaem pamyat, a delaem ee vidimoy i prokhodimoy.
 SKRYTYE MOSTY:
   - Ashby: dva khranilischa = variety, no s markirovkoy _src i rezhimami.
   - Cover&Thomas: limity vydachi i bakety taymlayna = kontrol kanala.
 ZEMNOY ABZATs:
-  Eto kak sklad + arkhiv: sklad (Chroma) bystryy, arkhiv (JSON) nadezhnyy. UI dolzhen videt oba,
-  i pri etom ne putat korobki (istochnik pomechaem).
-"""
+  Eto kak sklad + arkhiv: sklad (Chroma) bystryy, arkhiv (JSON) nadezhnyy. UI dolzhen videt both,
+  i pri etom ne putat korobki (istochnik pomechaem)."""
 from __future__ import annotations
 
 import sys, time, shutil, py_compile
@@ -446,7 +444,7 @@ def timeline_():
         src = "auto"
 
     mode = _backend_mode()
-    # esli polzovatel poprosil src yavno — uvazhaem
+    # if the user asked for src explicitly, we respect it
     if src != "auto":
         mode = src
 

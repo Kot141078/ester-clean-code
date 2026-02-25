@@ -1,32 +1,30 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/director.py — «zhivoy rezhisser» nad missiyami/ekranami.
+"""modules/thinking/director.py - "zhivoy rezhisser" nad missiyami/ekranami.
 
-Ideya:
-- Derzhim «sessiyu rezhissera»: chat-istoriyu, tekuschiy plan shagov, indeks.
+Ideaya:
+- Derzhim “sessiyu rezhissera”: chat-istoriyu, tekuschiy plan shagov, indexes.
 - Generatsiya shagov: uproschennyy planer (reyuz mentor_planner), plyus on-the-fly vstavki po replike.
 - Overlei/vypolnenie: poverkh mentor_routes (+ vision overlay i rpa/act).
 
-API (cherez routes/director_routes.py):
+API (via routes/director_routes.py):
 - POST /director/start {"topic":"pokazhi kak polzovatsya notepad"} -> session_id, steps
-- POST /director/chat  {"session":"id","text":"..."} -> reply, suggestions
+- POST /director/chat {"session":"id","text":"..."} -> reply, suggestions
 - POST /director/suggest {"session":"id"} -> candidate step (click/type/info/focus)
-- POST /director/apply   {"session":"id","step":{...}} -> steps++
+- POST /director/apply {"session":"id","step":{...}} -> steps++
 - POST /director/overlay {"session":"id","index":0,"template_b64"?:...}
-- POST /director/run     {"session":"id","index":0}
+- POST /director/run {"session":"id","index":0}
 
 Khranilische: v pamyati protsessa (legkovesno); serializatsiya ne trebuetsya.
 
 MOSTY:
 - Yavnyy: (Rech ↔ Plan ↔ Zrenie/Deystvie) operator govorit — rezhisser podstraivaet shagi i tut zhe pokazyvaet/vypolnyaet.
-- Skrytyy #1: (Infoteoriya ↔ Kibernetika) live-tsikl: «vopros → shag → podsvetka → deystvie → reviziya».
+- Skrytyy #1: (Infoteoriya ↔ Kibernetika) live-tsikl: “questions → shag → podsvetka → deystvie → reviziya.”
 - Skrytyy #2: (Logika ↔ Memory) chat-istoriya vliyaet na generiruemye shagi (prostye pravila).
 
 ZEMNOY ABZATs:
-Oflayn-realizatsiya: bez LLM-zavisimosti, pravilami. V lyuboy moment mozhno «Suggest→Apply» novyy shag i tut zhe ego podsvetit/vypolnit.
+Oflayn-realizatsiya: bez LLM-zavisimosti, pravilami. V lyuboy moment mozhno “Suggest→Apply” novyy shag i tut zhe ego podsvetit/vypolnit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Optional
 import uuid, re, time
@@ -56,30 +54,30 @@ def _ensure(sid: str) -> Dict[str, Any]:
 def chat(sid: str, text: str) -> Dict[str, Any]:
     s = _ensure(sid)
     s["chat"].append({"role":"user","text":text})
-    # Prostaya reaktsiya: ischem klyuchi i gotovim predlozheniya
+    # Simple reaction: looking for clues and preparing suggestions
     sug = []
     t = text.lower()
     if re.search(r"(sokhran|save)", t):
         sug.append({"type":"click","title":"Save (CTRL+S)","action":{"type":"hotkey","seq":"CTRL+S"}})
     if re.search(r"(esche|dobav|add|more)", t):
-        sug.append({"type":"info","title":"Poyasnenie","hint":"Mozhno dobavit podskazku dlya polzovatelya"})
+        sug.append({"type":"info","title":"Poyasnenie","hint":"You can add a hint for the user"})
     if re.search(r"(pechat|vvedi|type)", t):
         sug.append({"type":"type","title":"Vvod teksta","action":{"type":"rpa.type","text":"Esche odna stroka."}})
     return {"ok": True, "suggestions": sug, "turn": len(s["chat"])}
 
 def suggest(sid: str) -> Dict[str, Any]:
     s = _ensure(sid)
-    # evristika: esli notepad v teme — predlozhit «CTRL+S»
+    # heuristic: if the notepad is in the topic, suggest “Strl+C”
     if "notepad" in s.get("topic","").lower() or "bloknot" in s.get("topic","").lower():
         return {"ok": True, "step": {"type":"click","title":"Save","action":{"type":"hotkey","seq":"CTRL+S"}}}
-    return {"ok": True, "step": {"type":"info","title":"Podskazka","hint":"Sdelayte skrinshot i proverte verkhnee menyu."}}
+    return {"ok": True, "step": {"type":"info","title":"Podskazka","hint":"Take a screenshot and check the top menu."}}
 
 def apply(sid: str, step: Dict[str, Any]) -> Dict[str, Any]:
     s = _ensure(sid)
     s["steps"].append(step)
     return {"ok": True, "count": len(s["steps"])}
 
-# --- Overlay/Run: ispolzuem uzhe suschestvuyuschie ruchki /mentor/overlay i /desktop/* ---
+# --- Overlay/Run: uses existing handles /mentor/overlay and /desktop/* ---
 import http.client, json
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 

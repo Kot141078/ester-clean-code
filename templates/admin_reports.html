@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ester — Otchety</title>
+  <title>Esther - Reports</title>
   <style>
     body {
       font-family: system-ui, Arial, sans-serif;
@@ -103,38 +103,38 @@
 
     <section class="grid">
       <div>
-        <h3>Sobrat otchet</h3>
-        <label><input type="checkbox" id="raw-checkbox"/> Vklyuchit syrye dannye (tolsche)</label><br/>
+        <h3>Collect report</h3>
+        <label><input type="checkbox" id="raw-checkbox"/> Include raw data (thicker)</label><br/>
         <label>Limit zapisey <input id="limit" type="number" min="10" max="2000" value="200"/></label><br/>
-        <label><input type="checkbox" id="usb" checked/> Eksport na USB (esli nayden)</label><br/>
-        <button onclick="build()">Postroit otchet</button>
+        <label><input type="checkbox" id="usb" checked/> Export to USB (if found)</label><br/>
+        <button onclick="build()">Build report</button>
         <pre id="build_out">—</pre>
       </div>
       <div>
-        <h3>Poslednie otchety</h3>
+        <h3>Latest reports</h3>
         <button onclick="status()">Obnovit</button>
         <div id="list">—</div>
       </div>
     </section>
 
-    <h2 style="margin: 24px 0 12px 0;">Otchety «Sny / GC / Rebuild»</h2>
-    <p class="muted">Stranitsa chitaet agregirovannyy JSON po <code>/admin/reports/json</code> (trebuetsya JWT).</p>
+    <h2 style="margin: 24px 0 12px 0;">“Dreams / GK / Rebuild” reports</h2>
+    <p class="muted">The page reads the aggregated JSION by <code>/admin/reports/json</code> (trebuetsya JWT).</p>
 
     <div class="grid" id="cards">
       <div class="card" id="card-dreams">
-        <h3 class="title">Sny — posledniy otchet</h3>
+        <h3 class="title">Dreams - last report</h3>
         <div class="muted" id="dreams-status">Zagruzka…</div>
         <pre id="dreams-json"></pre>
       </div>
 
       <div class="card" id="card-gc">
-        <h3 class="title">GC — posledniy otchet</h3>
+        <h3 class="title">GC - latest report</h3>
         <div class="muted" id="gc-status">Zagruzka…</div>
         <pre id="gc-json"></pre>
       </div>
 
       <div class="card" id="card-rebuild">
-        <h3 class="title">Rebuild/Repair — posledniy otchet</h3>
+        <h3 class="title">Rebuild/Repair - latest report</h3>
         <div class="muted" id="rebuild-status">Zagruzka…</div>
         <pre id="rebuild-json"></pre>
       </div>
@@ -152,7 +152,7 @@
     }
 
     function table(items) {
-      if (!items || !items.length) return "<p class='muted'>Poka net faylov</p>";
+      if (!items || !items.length) return "<p class='muted'>No files yet</p>";
       let h = "<table><tr><th>Imya</th><th>Skachat</th></tr>";
       for (const it of items) {
         h += `<tr><td><code>${esc(it.name)}</code></td>
@@ -170,7 +170,7 @@
         document.getElementById('list').innerHTML = table(items);
         document.getElementById('raw-status-json').textContent = JSON.stringify(j, null, 2);
       } catch (e) {
-        document.getElementById('list').innerHTML = "<p class='fail'>Oshibka zagruzki statusa</p>";
+        document.getElementById('list').innerHTML = "<p class='fail'>Error loading status</p>";
       }
     }
 
@@ -195,7 +195,7 @@
         document.getElementById('build_out').textContent = JSON.stringify(j, null, 2);
         await status();
       } catch (e) {
-        document.getElementById('build_out').textContent = 'Oshibka postroeniya otcheta';
+        document.getElementById('build_out').textContent = 'Error building report';
       }
     }
 
@@ -223,9 +223,9 @@
         setCard('gc', js.gc);
         setCard('rebuild', js.rebuild);
       } catch (e) {
-        document.getElementById('dreams-status').textContent = 'Oshibka zagruzki';
-        document.getElementById('gc-status').textContent = 'Oshibka zagruzki';
-        document.getElementById('rebuild-status').textContent = 'Oshibka zagruzki';
+        document.getElementById('dreams-status').textContent = 'Loading error';
+        document.getElementById('gc-status').textContent = 'Loading error';
+        document.getElementById('rebuild-status').textContent = 'Loading error';
       }
     }
 

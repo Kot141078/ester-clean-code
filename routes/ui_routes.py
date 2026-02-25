@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ui_routes.py - prostoy UI dlya «samolechki» (panel na /ui/autofix).
+"""routes/ui_routes.py - prostoy UI dlya “samolechki” (panel na /ui/autofix).
 
-Novoe:
+New:
   • Spisok modeley (pull iz /autofix/llm/models).
   • Pole vybora modeli (sokhranenie v ENV vnutri protsessa).
   • Mini-chat k LM Studio (cherez /autofix/llm/chat).
@@ -13,10 +12,9 @@ Mosty:
   • Skrytye: (Infoteoriya ↔ Nablyudaemost), (Anatomiya ↔ Motorika).
 
 Zemnoy abzats:
-  Eto «schitok» s tumblerami: vybrat model, progret, otpravit testovyy zapros i videt, shevelitsya li GPU.
+  Eto "schitok" s tumblerami: vybrat model, progret, otpravit testovyy zapros i videt, shevelitsya li GPU.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, Response
@@ -84,7 +82,7 @@ _HTML = """<!doctype html>
 <div class="card" style="max-width:900px">
   <b>Mini-chat</b><br/>
   <div class="row">
-    <textarea id="prompt">Skazhi «gotovo» i ostanovis.</textarea>
+    <textarea id="prompt">Skazhi “gotovo” i ostanovis.</textarea>
   </div>
   <div class="row">
     <button onclick="sendChat()">Otpravit</button>
@@ -165,8 +163,7 @@ async function sendChat(){
 setInterval(refresh, 5000);
 refresh();
 </script>
-</body></html>
-"""
+</body></html>"""
 
 @ui_bp.route("/autofix", methods=["GET"])
 def ui_autofix():

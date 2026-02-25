@@ -1,5 +1,5 @@
-# Karta sobytiy «voli» Ester → auditoriya/namerenie/(optsionalno kanal/poluchatel/preset).
-# Esli channel/to ne zadany — oni berutsya iz config/messaging_rules.yaml cherez /proactive/dispatch.
+# Karta sobytiy “voli” Ester → auditoriya/namerenie/(optsionalno kanal/poluchatel/preset).
+# If channel/then are not specified, they are taken from config/messaging_rules.yaml via /proactive/dispatch.
 
 map:
   bank.statement_check_due:

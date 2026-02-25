@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-modules/vision/stream_overlay.py — nalozhenie podskazok na kadry VNC/noVNC.
+"""modules/vision/stream_overlay.py - nalozhenie podskazok na kadry VNC/noVNC.
 
-Ideya:
-- Berem vneshniy PNG-kadr (naprimer, poluchennyy iz VNC-snimka) i risuem strelki/ramki/tekst.
+Ideaya:
+- Berem vneshniy PNG-kadr (for example, poluchennyy iz VNC-snimka) i risuem strelki/ramki/tekst.
 - Khranim sessiyu (id -> poslednie parametry) v pamyati dlya udobstva.
 
-API urovnya modulya:
+API level module:
 - overlay_arrow(png_b64, p_from, p_to, label) -> png_b64
 - overlay_box(png_b64, box, label) -> png_b64
 
@@ -15,15 +14,14 @@ Primechanie:
   ili cherez vspomogatelnuyu ruchku, esli ty delaesh skrin VNC otdelno.
 
 MOSTY:
-- Yavnyy: (Video ↔ Obyasnenie) pokazyvaem poverkh potoka «kuda smotret/zhat».
-- Skrytyy #1: (Infoteoriya ↔ UX) minimum grafiki — maksimum smysla.
-- Skrytyy #2: (Kibernetika ↔ Volya) ta zhe «ruka-na-ruke», no v videostrime.
+- Yavnyy: (Video ↔ Obyasnenie) pokazyvaem poverkh potoka “kuda smotret/zhat.”
+- Skrytyy #1: (Infoteoriya ↔ UX) minimum grafiki — maximum smysla.
+- Skrytyy #2: (Kibernetika ↔ Volya) ta zhe “ruka-na-ruke”, no v videostreame.
 
 ZEMNOY ABZATs:
-Prostoy PIL-risunok poverkh lyubogo PNG-kadra. Sovmestimo s noVNC: otdavay kadr cherez REST, poluchay obratno s overlay.
+Simple PIL-risunok poverkh lyubogo PNG-kadra. Sovmestimo s noVNC: otdavay kadr cherez REST, poluchay obratno s overlay.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, Tuple
 import base64, io

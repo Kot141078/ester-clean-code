@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/usb_zc_deploy.py — fonovyy avtoprimenitel Zero-Click deploya pri vstavke doverennoy fleshki.
+"""listeners/usb_zc_deploy.py - fonovyy avtoprimenitel Zero-Click deploya pri vstavke doverennoy fleshki.
 
-Povedenie:
-  • Kazhdye interval sek skaniruet list_targets().
-  • Dlya kazhdogo toma: plan → esli ok i ne skipped — primenyaet (AB=A → tolko plan, AB=B → realnyy deploy).
+Behavior:
+  • Kazhdye interval sek scaniruet list_targets().
+  • Dlya kazhdogo toma: plan → esli ok i ne skipped - primenyaet (AB=A → tolko plan, AB=B → realnyy deploy).
   • Uchityvaet apply_once, okno, shtampy.
 
-ENV/konfig: sm. modules.usb.zc_deploy_settings.
+ENV/config: sm. modules.usb.zc_deploy_settings.
 
 Mosty:
-- Yavnyy (Kibernetika ↔ Ekspluatatsiya): avtonomnyy tsikl «obnaruzhil → proveril → primenil/propustil».
-- Skrytyy 1 (Infoteoriya ↔ Prozrachnost): detalnye otchety v stdout (JSON).
+- Yavnyy (Kibernetika ↔ Ekspluatatsiya): avtonomnyy tsikl “obnaruzhil → proveril → primenil/propustil.”
+- Skrytyy 1 (Infoteoriya ↔ Prozrachnost): detail otchety v stdout (JSON).
 - Skrytyy 2 (Praktika ↔ Sovmestimost): drop-in; uvazhaet A/B-rezhim i doverie nositeley.
 
 Zemnoy abzats:
-Eto «sanitar na vkhode»: uvidel doverennuyu fleshku s relizom — akkuratno perelozhil v sloty i proveril puls.
+This is “sanitar na vkhode”: uvidel doverennuyu fleshku s relizom - akkuratno perelozhil v sloty i proveril puls.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse, json, os, time

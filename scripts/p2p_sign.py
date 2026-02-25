@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-scripts/p2p_sign.py — generator zagolovkov P2P-podpisi.
+"""scripts/p2p_sign.py — generator zagolovkov P2P-podpisi.
 
 Mosty:
 - Yavnyy: (CLI ↔ Server) khedery 100% sootvetstvuyut proverke v security/p2p_signature.verify/verify_any.
-- Skrytyy #1: (Dev UX ↔ CI) vyvod srazu v formate -H "K: V" dlya udobnoy skleyki s curl/smoke.
+- Skrytyy #1: (Dev UX ↔ CI) vyvod srazu v format -H "K: V" dlya udobnoy skleyki s curl/smoke.
 - Skrytyy #2: (Legacy ↔ New) --legacy vklyuchaet X-P2P-Auth po uproschennoy formule bez lomki servernoy sovmestimosti.
 
 Zemnoy abzats:
-Odin skript pokryvaet i novyy, i staryy formaty — menshe sluchaynykh 401 i raznoboya mezhdu klientami.
-# c=a+b
-"""
+Odin skript pokryvaet i novyy, i staryy formaty - menshe sluchaynykh 401 i raznoboya mezhdu klientami.
+# c=a+b"""
 from __future__ import annotations
 
 import base64
@@ -37,7 +35,7 @@ def _sha256_hex(b: bytes) -> str:
 
 def _read_body(body_path: str | None) -> bytes:
     if not body_path or body_path == "-":
-        # Esli stdin ne podklyuchen — chitaem pustoe telo
+        # If stdin is not connected, read empty body
         if sys.stdin and not sys.stdin.isatty():
             return sys.stdin.buffer.read()
         return b""
@@ -45,9 +43,7 @@ def _read_body(body_path: str | None) -> bytes:
         return f.read()
 
 def _path_only(target: str) -> str:
-    """
-    Prinimaet libo absolyutnyy URL, libo put vrode /self/archives — vozvraschaet path.
-    """
+    """Accepts either an absolute URL or a path like /self/archive - returns path."""
     if not target:
         return "/"
     if "://" in target:
@@ -75,7 +71,7 @@ def _print_headers(headers: dict[str, str], mode: str) -> None:
         for k, v in headers.items():
             print(f"{k}: {v}")
         return
-    # Po umolchaniyu — odna stroka s neskolkimi -H, udobna dlya xargs
+    # By default - one line with several -X, convenient for sargs
     parts = [f"-H '{k}: {v}'" for k, v in headers.items()]
     print(" ".join(parts))
 
@@ -90,17 +86,15 @@ def main(
     node: str = typer.Option(None, "--node", help="Optional node id for X-P2P-Node"),
     print_mode: str = typer.Option("curl", "--print", help="Output: curl|raw", show_default=True),
 ) -> None:
-    """
-    Primery:
+    """Primery:
       $ export ESTER_P2P_SECRET=dev-secret
       $ scripts/p2p_sign.py GET /self/archives
       $ scripts/p2p_sign.py POST http://127.0.0.1:8000/p2p/push -b payload.json
       $ scripts/p2p_sign.py --legacy GET /self/archives
-      $ scripts/p2p_sign.py GET /self/archives --print raw
-    """
+      $ scripts/p2p_sign.py GET /self/archives --print raw"""
     secret_env = secret or os.getenv("ESTER_P2P_SECRET", "")
     if not secret_env:
-        # Ne blokiruem: vozvraschaem tolko X-P2P-Ts/X-P2P-Node, chtoby udobno bylo debazhit v nezashitykh sredakh
+        # Does not block: returns only S-P2P-Ts/S-P2P-Nodier, so that it is convenient to debug in non-wired environments
         typer.secho("WARNING: ESTER_P2P_SECRET is empty; printing minimal headers.", fg="yellow")
 
     method = (method or "GET").upper()

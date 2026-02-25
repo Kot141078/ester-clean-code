@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/synergy_trace_overlay.py - REST: postroenie overleya (extras + overlay) dlya proizvolnogo plana.
+"""routes/synergy_trace_overlay.py - REST: postroenie overleya (extras + overlay) dlya proizvolnogo plana.
 
 MOSTY:
 - (Yavnyy) POST /synergy/trace/overlay → {"extras":{advice,team_bonus,pairwise}, "overlay":{...}}.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Ne izmenyaet resheniya orkestratora; potrebiteli sami reshat, kak otobrazhat overlay v UI.
 
 ZEMNOY ABZATs:
-Lyuboy plan mozhno «podsvetit»: gde profil sovpadaet s zadachey, gde lyudi priterty. Eto uskoryaet osoznannyy vybor.
+Lyuboy plan mozhno “podsvetit”: where profil sovpadaet s zadachey, where lyudi priterty. This is uskoryaet osoznannyy vybor.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List

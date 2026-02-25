@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-tests/stress_search.py — nagruzochnyy test poiska (RAG L1→L2) s latentnostyami p50/p90/p99.
+"""tests/stress_search.py ​​- nagruzochnyy test poiska (RAG L1→L2) s latentnostyami p50/p90/p99.
 
-Naznachenie:
+Name:
   • Generiruet potok zaprosov k /rag/query (POST), izmeryaet vremya total/coarse/fine.
   • Prostaya mnogopotochnost bez vneshnikh zavisimostey (threading + urllib).
-  • Pechataet raspredeleniya i srednie znacheniya; pomogaet podtverdit SLA ≤200 ms.
+  • Pechataet raspredeleniya i srednie znacheniya; help podtverdit SLA ≤200 ms.
 
 CLI:
   python tests/stress_search.py --qps 30 --sec 20 --url http://127.0.0.1:8080/rag/query --chap 5 --chunks 5
 
 Zemnoy abzats (inzheneriya):
-Eto «dinamometr» poiska: podaem nagruzku i izmeryaem otdachu. Vidno, khvataet li «reduktora» coarse→fine
-i ne buksuet li IVF/kesh.
+Eto "dinamometr" poiska: podaem nagruzku i izmeryaem otdachu. Vidno, khvataet li “reduktora” coarse→fine
+i ne buksuet li IVF/cash.
 
 Mosty:
 - Yavnyy (Kibernetika ↔ Arkhitektura): kontroliruemoe vozbuzhdenie sistemy — otsenka ustoychivosti kontura poiska.
-- Skrytyy 1 (Infoteoriya ↔ Ekonomika): deshevye zaprosy (kesh) dolzhny gasit stoimost chastogo znaniya.
-- Skrytyy 2 (Anatomiya ↔ PO): kak spiroergometriya — izmeryaem «dykhanie» (latency) pod nagruzkoy.
+- Skrytyy 1 (Infoteoriya ↔ Ekonomika): deshevye zaprosy (cash) dolzhny gasit stoimost chastogo znaniya.
+- Skrytyy 2 (Anatomiya ↔ PO): kak spiroergometriya - izmeryaem “dykhanie” (latency) pod nagruzkoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse, json, random, string, threading, time, urllib.request

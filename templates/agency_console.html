@@ -19,7 +19,7 @@
   </style>
 </head>
 <body>
-  <h2>Praktika: resursy → plan → deystviya</h2>
+  <h2>Praktika: resource → plan → activity</h2>
 
   <div class="card">
     <div class="row">
@@ -32,7 +32,7 @@
 
   <div class="grid">
     <div class="card">
-      <h3>Plan pod nuzhdu</h3>
+      <h3>Plan to suit your needs</h3>
       <input id="need" placeholder="napr.: videoparser SSA/ASS">
       <input id="budget" placeholder="byudzhet, EUR" value="0">
       <div class="row">
@@ -52,7 +52,7 @@
       <div class="row" style="margin-top:6px">
         <input id="expAmt" placeholder="raskhod EUR" value="5">
         <input id="expPurp" placeholder="tsel" value="test">
-        <button id="btnExpense">Potratit (nuzhny flagi)</button>
+        <button id="btnExpense">Spend (need flags)</button>
       </div>
       <pre id="outLedger">Gotovo.</pre>
     </div>
@@ -60,7 +60,7 @@
     <div class="card">
       <h3>Naym (chernovik)</h3>
       <input id="hTitle" placeholder="zagolovok">
-      <input id="hSkills" placeholder="navyki cherez zapyatuyu">
+      <input id="hSkills" placeholder="skills separated by commas">
       <input id="hBudget" placeholder="byudzhet EUR" value="50">
       <input id="hDur" placeholder="dlitelnost">
       <textarea id="hDesc" placeholder="opisanie"></textarea>
@@ -72,13 +72,13 @@
     </div>
 
     <div class="card">
-      <h3>Semya: perevod (chernovik)</h3>
+      <h3>Family: translation (draft)</h3>
       <input id="fAmt" placeholder="summa EUR" value="20">
       <input id="fName" placeholder="poluchatel" value="Owner">
       <input id="fPurpose" placeholder="naznachenie" value="pokupka knig">
       <input id="fIBAN" placeholder="IBAN (zapolnit vruchnuyu)" value="<FILL_MANUALLY>">
       <div class="row">
-        <button id="btnFPrep">Sdelat chernovik</button>
+        <button id="btnFPrep">Make a draft</button>
         <button id="btnFList">Spisok chernovikov</button>
       </div>
       <pre id="outFamily">Gotovo.</pre>

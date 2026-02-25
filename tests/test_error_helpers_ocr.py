@@ -4,7 +4,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def test_error_helper_ocr_hint(monkeypatch):
     from app import app as flask_app
-    # Symitiruem vyzov obrabotchika vnutri request-sessii
+    # Let's simulate calling a handler inside the registry session
     with flask_app.test_request_context("/", headers={"Accept": "application/json"}):
         from routes.error_helpers import handle_runtime_error  # type: ignore
         resp, status = handle_runtime_error(RuntimeError("tesseract not found"))

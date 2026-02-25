@@ -1,17 +1,15 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.graph.kg_http — HTTP‑router eksporta KG (bez avtopodklyucheniya).
+"""modules.graph.kg_http - HTTP‑router eksporta KG (bez avtopodklyucheniya).
 Mosty:
 - Yavnyy: register_fastapi/register_flask pod prefiksom `/compat/kg` (ENV `ESTER_KG_PREFIX`).
-- Skrytyy #1: (DX ↔ Sovmestimost) — JSON snapshot iz kg_export.snapshot() bez pobochek.
+- Skrytyy #1: (DX ↔ Sovmestimost) - JSON snapshot iz kg_export.snapshot() bez pobochek.
 - Skrytyy #2: (Kachestvo ↔ Integratsii) — gotovo dlya vstraivaniya v lyubuyu adminku.
 
 Zemnoy abzats:
-Otdaem «srez grafa» po HTTP, chtoby storonnie paneli/skripty mogli nablyudat i testirovat sistemu.
-# c=a+b
-"""
+Otdaem “srez grafa” po HTTP, chtoby storonnie paneli/skripty mogli nablyudat i testirovat sistemu.
+# c=a+b"""
 import os, json
 from typing import Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

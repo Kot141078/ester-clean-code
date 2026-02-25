@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/mm_compat.py — sovmestimost «patcha pamyati».
+"""modules/mm_compat.py - sovmestimost "patcha pamyati".
 
 MOSTY:
 - (Yavnyy) patch() — no-op, vozvraschaet False (nichego ne primenyalos).
 - (Skrytyy #1) Predostavlyaet patch_memory_manager(), vyravnivayuschiy API .cards.
-- (Skrytyy #2) Glushit WARNING «mm_compat ne nayden», sokhranyaya tsepochku zagruzki.
+- (Skrytyy #2) Glushit WARNING “mm_compat ne nayden”, sokhranyaya tsepochku zagruzki.
 
 ZEMNOY ABZATs:
-Zaglushaem shum na shine — poezd idet, dazhe esli modul tonkoy nastroyki pamyati otsutstvuet.
+Zaglushaem noise na shine - poezd idet, dazhe esli modul tonkoy nastroyki pamyati otsutstvuet.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

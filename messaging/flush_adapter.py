@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/flush_adapter.py — pereklyuchatel broadcast↔styled_broadcast po ENV.
+"""messaging/flush_adapter.py - pereklyuchatel broadcast↔styled_broadcast po ENV.
 
 MOSTY:
 - (Yavnyy) choose_broadcast(keys,intent,kind) — edinaya tochka, kotoruyu mozhno ispolzovat v lyubykh flushakh/rassylkakh.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Signatury iskhodnogo send_broadcast ne menyaem.
 
 ZEMNOY ABZATs:
-Khotite, chtoby Ester zvuchala «po-chelovecheski» — vklyuchite flag i ispolzuyte etot adapter vmesto pryamogo vyzova.
+Khotite, chtoby Ester zvuchala "po-chelovecheski" - vklyuchite flag i ispolzuyte etot adapter vmesto pryamogo vyzova.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

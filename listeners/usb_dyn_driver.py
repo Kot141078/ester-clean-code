@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-modules/listeners/usb_dyn_driver.py — «umnaya» obertka dlya USB-agenta s adaptivnym intervalom.
+"""modules/listeners/usb_dyn_driver.py - “umnaya” obertka dlya USB-agenta s adaptivnym intervalom.
 
 Role:
 - Zapuskat docherniy protsess: `python -m listeners.usb_zt_agent_v2 --loop --interval N`
 - Periodicheski izmeryat pitanie/zaryad i pri izmeneniyakh perezapuskat agenta s novym N.
-- (Optsionalno) Esli vklyuchen Zero-Click (ENV ESTER_USB_ZEROCLICK=1 ili settings.zeroclick==true i !locked),
+- (Optional) Esli vklyuchen Zero-Click (ENV ESTER_USB_ZEROCLICK=1 or settings.zeroclick==true i !locked),
   zapuskat watcher: `python -m listeners.usb_zero_click --interval <poll>` i sledit, chtoby on zhil.
 - Bez vneshnikh zavisimostey, krossplatformenno, s akkuratnoy ostanovkoy.
 
@@ -18,17 +17,16 @@ CLI:
 Istochniki parametrov (prioritet):
   1) CLI flagi (esli zadany)
   2) ENV: ESTER_USB_MODE / ESTER_USB_MIN / ESTER_USB_MAX / ESTER_USB_AC_BOOST / ESTER_USB_ZEROCLICK
-  3) Konfig: modules.selfmanage.usb_tuning_state (ESTER_STATE_DIR/usb_tuning.json)
+  3) Config: modules.selfmanage.usb_tuning_state (ESTER_STATE_DIR/usb_tuning.json)
   4) Defolty: mode=balanced, min=3, max=45, ac_boost=0.5, poll=10
 
 Mosty:
 - Yavnyy: kibernetika ↔ orkestratsiya protsessov (nablyudenie→reshenie→deystvie→nablyudenie).
-- Skrytyy 1: infoteoriya ↔ nadezhnost (resheniya po ogranichennym nablyudeniyam, bez «dogadok»).
+- Skrytyy 1: infoteoriya ↔ nadezhnost (resheniya po ogranichennym nablyudeniyam, bez “dogadok”).
 - Skrytyy 2: praktika ↔ sovmestimost (ne trogaem iskhodnyy agent, tolko upravlyaem chastotoy).
 Zemnoy abzats:
-  Kak medsestra na obkhode: na seti chasche, na bataree ekonomnee. I prismatrivaet za «vtorym dezhurnym» (Zero-Click),
-  esli tot naznachen na smenu.
-"""
+  Kak medsestra na obkhode: na seti chasche, na bataree ekonomnee. I prismatrivaet za “vtorym dezhurnym” (Zero-Click),
+  esli tot naznachen na smenu."""
 
 import argparse
 import os
@@ -55,10 +53,8 @@ class Tuning:
 
 
 def _coalesce_cli_env_cfg(cli_val: Optional[Any], env_key: str, cfg: dict, cfg_key: str, default: Any) -> Any:
-    """
-    Pravilo: esli CLI znachenie «zadano» (ne None) — ispolzuem ego, inache ENV, inache cfg, inache default.
-    Dlya int/float CLI my ispolzuem None-defolty, chtoby «0» ne schitalsya zadannym.
-    """
+    """Rule: esli CLI znachenie "zadano" (ne None) - ispolzuem ego, inache ENV, inache cfg, inache default.
+    Dlya int/float CLI my ispolzuem None-defolty, chtoby "0" ne schitalsya zadannym."""
     if cli_val is not None:
         return cli_val
     env_v = os.getenv(env_key)
@@ -124,7 +120,7 @@ def _target_interval(t: Tuning, on_ac: Optional[bool], batt: Optional[int]) -> i
     if t.mode == "off":
         return mid
 
-    # esli ne znaem istochnik pitaniya — schitaem, chto ot seti (bezopasnee dlya reaktsii)
+    # if we don’t know the power source, we assume that it’s from the mains (safer for the reaction)
     if on_ac is None:
         on_ac = True
 
@@ -144,7 +140,7 @@ def _target_interval(t: Tuning, on_ac: Optional[bool], batt: Optional[int]) -> i
     if on_ac:
         return max(1, int(t.min_s * t.ac_boost))
 
-    # na bataree: mezhdu mid i max v zavisimosti ot zaryada
+    # on battery: between mid and max depending on charge
     span = t.max_s - mid
     add = int(span * (1.0 - batt / 100.0))
     return mid + add
@@ -189,10 +185,10 @@ def _restart_proc(proc: Optional[subprocess.Popen], spawn_func, arg: int, child_
 
 
 def _get_power_safe() -> Tuple[Optional[bool], Optional[int]]:
-    """power_status() mozhet vybrasyvat; prevraschaem eto v (None, None)."""
+    """believe_status() can throw; turns it into (None, None)."""
     try:
         on_ac, batt = power_status()
-        # batt mozhet byt float/str — normalizuem pozzhe
+        # butt can be float/str - normalizes later
         return on_ac, batt  # type: ignore[return-value]
     except Exception:
         return None, None
@@ -228,7 +224,7 @@ def main(argv=None) -> int:
     ap.add_argument("--child-io", dest="child_io", default=None, help="inherit|devnull (default devnull)")
     args = ap.parse_args(argv)
 
-    # startovaya nastroyka
+    # starting setup
     t = _resolve_tuning(args)
 
     # startovoe pitanie
@@ -240,7 +236,7 @@ def main(argv=None) -> int:
     if _zeroclick_should_run():
         watcher = _spawn_watcher(t.poll, t.child_io)
 
-    # vazhno: chtoby ne bylo «lishnego restarta» na pervom tsikle
+    # important: so that there is no “extra restart” on the first cycle
     last_on_ac: Optional[bool] = on_ac
     last_interval: int = interval
 
@@ -254,13 +250,13 @@ def main(argv=None) -> int:
         while True:
             time.sleep(t.poll)
 
-            # obnovlyaem tuning na letu (esli kto-to menyaet state/env) — no CLI, esli zadan, ostaetsya prioritetom
+            # we update tuning on the fly (if someone changes the article/env) - but SLI, if set, remains a priority
             t = _resolve_tuning(args)
 
             on_ac, batt = _get_power_safe()
             new_interval = _target_interval(t, on_ac, batt)
 
-            # 1) sledim za agentom: esli umer — podnyat; esli interval silno pomenyalsya ili smenilsya istochnik — restart
+            # 1) monitor the agent: if he died, raise him; if the interval has changed significantly or the source has changed, restart
             agent_dead = (agent.poll() is not None)
             need_restart = agent_dead or _changed_rel(last_interval, new_interval, rel=0.2) or (on_ac != last_on_ac)
 
@@ -271,7 +267,7 @@ def main(argv=None) -> int:
                 last_on_ac = on_ac
                 print(f"[usb_dyn_driver] restart-agent: ac={on_ac} batt={batt} interval={interval}", flush=True)
 
-            # 2) sledim za watcher (Zero-Click)
+            # 2) follow the watcher (Zero-Klitschk)
             zc_should_run = _zeroclick_should_run()
             if zc_should_run:
                 if watcher is None or watcher.poll() is not None:

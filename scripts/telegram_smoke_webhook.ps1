@@ -3,7 +3,7 @@ Param(
 )
 
 # scripts/telegram_smoke_webhook.ps1
-# PS5-sovmestimyy helper dlya proverki Telegram webhook.
+# PS5-compatible helper for checking Telegram webhook.
 
 $BaseUrl = $BaseUrl.TrimEnd('/')
 

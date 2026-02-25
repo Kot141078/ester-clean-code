@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/guardian_routes.py - REST: doverennye kontakty i podgotovka eskalatsii.
+"""routes/guardian_routes.py - REST: doverennye kontakty i podgotovka eskalatsii.
 
 Mosty:
 - Yavnyy: (Veb ↔ Zabota) UI/volya upravlyayut kontaktami i poluchayut instruktsii pri ChS.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Profile ↔ Audit) operatsii fiksiruyutsya khukom.
 
 Zemnoy abzats:
-Nuzhna pomosch - i vse pod rukoy: komu, kak i chto govorit; pri etom nikakikh «skrytykh zvonkov» - tolko podskazki.
+Nuzhna pomosch - i vse pod rukoy: komu, kak i chto say; pri etom nikakikh “skrytykh zvonkov” - just podskazki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-tools/run_memory_daily_cycle.py — ruchnoy zapusk nochnogo tsikla pamyati.
+"""tools/run_memory_daily_cycle.py — ruchnoy zapusk nochnogo tsikla pamyati.
 
 Mosty:
 - Yavnyy: (CLI ↔ Memory) — prostoy vyzov ezhednevnoy gigieny cherez terminal/cron.
 - Skrytyy #1: (Operatsii ↔ Rezervirovanie) — daet udobnuyu tochku dlya planirovschikov i bekapov.
-- Skrytyy #2: (Inzheneriya ↔ Avtonomiya) — operatory zapuskayut odin skript, a vnutri rabotaet tselyy kaskad.
+- Skrytyy #2: (Inzheneriya ↔ Avtonomiya) - operatory zapuskayut odin skript, a vnutri rabotaet tselyy kaskad.
 
 Zemnoy abzats:
-Inzhenerno eto «knopka obsluzhivanie mozga»: mozhno povesit na nightly-zadachu ili zapuskat rukami,
-chtoby Ester akkuratno podvela itogi i ubrala musor.
-"""
+Inzhenerno eto “knopka obsluzhivanie mozga”: mozhno povesit na nightly-zadachu or zapuskat rukami,
+chtoby Ester akkuratno podvela itogi i ubrala musor."""
 from __future__ import annotations
 
 import json

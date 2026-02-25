@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-routes/usb_packages.py - UI/REST dlya USB-paketov (sborka, skan, proverka, import).
+"""routes/usb_packages.py - UI/REST dlya USB-packetov (sborka, skan, proverka, import).
 
-Marshruty:
-  • GET  /admin/packages                 - HTML
-  • GET  /admin/packages/status          - spisok proektov/sessiy/tomov + naydennye pakety
-  • POST /admin/packages/plan            - plan vklyucheniya
-  • POST /admin/packages/build           - sobrat ZIP (i opts. skopirovat na USB)
-  • POST /admin/packages/scan            - nayti pakety na USB
-  • POST /admin/packages/verify          - proverit ZIP
-  • POST /admin/packages/import          - importirovat ZIP (mode=merge|skip)
+Route:
+  • GET /admin/packages - HTML
+  • GET /admin/packages/status - spisok proektov/sessiy/tomov + naydennye pakety
+  • POST /admin/packages/plan - plan vklyucheniya
+  • POST /admin/packages/build - sobrat ZIP (i opts. skopirovat na USB)
+  • POST /admin/packages/scan - nayti pakety na USB
+  • POST /admin/packages/verify - proverit ZIP
+  • POST /admin/packages/import - importirovat ZIP (mode=merge|skip)
 
 Mosty:
-- Yavnyy (UX ↔ Audit): prozrachnyy tsikl «soberi→prover→importiruy».
+- Yavnyy (UX ↔ Audit): prozrachnyy tsikl “soberi→prover→importiruy”.
 - Skrytyy 1 (Infoteoriya ↔ Nadezhnost): SHA-256 i zhurnal priemki v odnom meste.
-- Skrytyy 2 (Praktika ↔ Sovmestimost): offlayn, ploskie ZIP/JSON, drop-in.
+- Skrytyy 2 (Praktika ↔ Sovmestimost): offlayn, flat ZIP/JSON, drop-in.
 
 Zemnoy abzats:
-Eto «upakovochnyy stol»: sobrali paket, proverili plomby, otpravili ili prinyali - bez boli.
+This is “upakovochnyy stol”: sobrali paket, proverili plomby, otpravili or prinyali - bez boli.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

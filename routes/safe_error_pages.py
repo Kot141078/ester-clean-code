@@ -15,12 +15,12 @@ def register(app):
     @app.errorhandler(404)
     def _404(e):
         return Response(_html("404 - ne naydeno",
-                              "<p>Marshrut otsutstvuet. Otkroyte bezopasnyy portal po ssylke nizhe.</p>"),
+                              "<p>Marshrut otsutstvuet. Open bezopasnyy portal po ssylke nizhe.</p>"),
                         404, mimetype="text/html")
 
     @app.errorhandler(500)
     def _500(e):
-        return Response(_html("500 - vnutrennyaya oshibka",
+        return Response(_html("500 - internal error",
                               "<p>Proizoshla oshibka obrabotchika. Ispolzuyte bezopasnye ssylki.</p>"),
                         500, mimetype="text/html")
 

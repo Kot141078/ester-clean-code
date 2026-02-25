@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""HTTP-plagin trassirovki myshleniya Ester.
+"""HTTP plugin tracer myshleniya Ester.
 
-Invarianty:
+Invariance:
 - Ne menyaet tela otvetov.
-- Ne lomaet suschestvuyuschie marshruty.
-- Rabotaet tolko pri vklyuchenii ESTER_THINK_TRACE_AB.
-"""
+- Ne lomaet suschestvuyuschie route.
+- Rabotaet tolko pri vklyuchenii ESTER_THINK_TRACE_AB."""
 from __future__ import annotations
 
 from typing import Any, Dict

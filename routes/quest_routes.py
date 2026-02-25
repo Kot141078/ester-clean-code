@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/quest_routes.py - REST/UI dlya «uchebnykh kvestov».
+"""routes/quest_routes.py - REST/UI dlya "uchebnykh kvestov".
 
 Ruchki:
-  POST /quests/mine    {"N":300}
-  GET  /quests/preview
-  GET  /quests/export
-  GET  /admin/quests
+  POST /quests/mine {"N":300}
+  GET /quests/preview
+  GET /quests/export
+  GET /admin/quests
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.learn.quest_generator import mine, preview, export

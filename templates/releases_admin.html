@@ -24,7 +24,7 @@
 <body>
   <div style="max-width:1200px; margin:24px auto; padding:0 16px;">
     <h1 style="margin:0 0 8px 0;">Relizy / Samosborka</h1>
-    <p class="muted">Eta stranitsa chitaet JSON iz <code>/admin/releases/json</code> i daet deystviya aktivatsii / USB-sinkhronizatsii.</p>
+    <p class="muted">This page reads ZhSON from <code>/admin/releases/json</code> and gives activation / USB synchronization actions.</p>
 
     <div class="grid">
       <div class="card">
@@ -71,7 +71,7 @@
   </div>
 
   <script>
-    window.approvals = []; // syuda mozhno polozhit tokeny approvals (JSON-obekty)
+    window.approvals = []; // here you can put approval tokens (ZhSON-objects)
 
     async function reload() {
       const r = await fetch('/admin/releases/json', {headers:{'Accept':'application/json'}});

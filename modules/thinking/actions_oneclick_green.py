@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_oneclick_green.py — One-Click Green Agent (sborka speka, plana, faylov i otcheta).
+"""modules/thinking/actions_oneclick_green.py - One-Click Green Agent (sborka speka, plana, faylov i otcheta).
 
 Mosty:
 - Yavnyy: (Mysli/Deystviya ↔ Kaskad/Memory) — otdaem plan k ispolneniyu i pishem zametku v profile (cherez suschestvuyuschie ruchki).
@@ -8,9 +7,8 @@ Mosty:
 - Skrytyy #2: (Mysli ↔ Sustainability Kit/Report) — berem cheklisty/metriki i sobiraem MD/HTML otchet, ne menyaya API.
 
 Zemnoy abzats:
-Odna komanda dlya Ester: iz tseli — srazu rabochiy komplekt (opisanie agenta, plan, fayly, cheklist/metriki i otchet). Po umolchaniyu — prevyu; zapis vklyuchaetsya yavnym flagom.
-# c=a+b.
-"""
+Odna komanda dlya Ester: iz tseli - srazu rabochiy komplekt (opisanie agenta, plan, fayly, checklist/metriki i otchet). Po umolchaniyu - prevyu; zapis vklyuchaetsya yavnym flagom.
+# c=a+b."""
 from __future__ import annotations
 import os, re, time, json, io
 from typing import Any, Dict, List
@@ -43,8 +41,8 @@ def _mk_spec(goal: str, audience: str, domain: str, name: str | None = None) -> 
     nm = name or ("EkoRazum" if ("sustain" in (domain or "").lower() or "eko" in ng.lower()) else "Generalist-Agent")
     return {
         "name": nm,
-        "description": f"Agent pod tsel: {ng or '—'}; auditoriya: {audience or '—'}; domen: {domain or 'any'}.",
-        "instructions": "Bud poleznym, strogim k faktam, obyasnyay korotko, predlagay sleduyuschie shagi.",
+        "description": f"Agent for target: ZZF0Z; audience: ZZF1ZZ; domain: ZZF2ZZ.",
+        "instructions": "Be helpful, strictly factual, explain briefly, suggest next steps.",
         "capabilities": ["web.browse","files.analyze","plans.cascade","rules.policy.hints"]
     }
 
@@ -61,16 +59,14 @@ def _mk_plan(goal: str) -> Dict[str, Any]:
     }
 
 def _mk_files(spec: Dict[str, Any]) -> List[Dict[str, str]]:
-    """
-    Pytaemsya pereispolzovat generator faylov iz actions_build_agent_helper;
-    esli importa net — delaem bezopasnyy fallback.
-    """
+    """We are trying to reuse the file generator from actions_build_agent_helper;
+    if there is no import, we make a safe falsification."""
     files: List[Dict[str, str]] = []
     try:
         from modules.thinking.actions_build_agent_helper import _make_files_for  # type: ignore
         return _make_files_for(spec)
     except Exception:
-        # fallback: dokumentatsiya agenta + avto-plan (JSON-v-*.yaml dlya sovmestimosti)
+        # false: agent documentation + auto-plan (ZHSION-v-*.yaml for compatibility)
         name = spec.get("name") or "Agent"
         slug = _slug(name)
         desc = spec.get("description") or ""
@@ -78,7 +74,7 @@ def _mk_files(spec: Dict[str, Any]) -> List[Dict[str, str]]:
         caps  = spec.get("capabilities") or []
         files.append({
             "path": f"docs/agents/{slug}.md",
-            "content": f"# {name}\n\n{desc}\n\n## Instruktsii\n\n{instr}\n\n## Vozmozhnosti\n\n- " + "\n- ".join(map(str, caps)) + "\n"
+            "content": f"# ZZF0Z\n\nZZF1ZZ\n\n## Instructions\n\nZZF2ZZ\n\n## Features\n\n-" + "\n- ".join(map(str, caps)) + "\n"
         })
         plan = _mk_plan(f"Sobrat agenta «{name}»")
         files.append({
@@ -148,11 +144,11 @@ def _reg():
                 f"Tsel: {goal or '—'}",
                 f"Auditoriya: {audience or '—'}",
                 f"Domen: {domain}",
-                "Metriki: CO₂e, kWh, otkhody; shagi: audit → bystraya ekonomiya → struktura → monitoring."
+                "Metriki: CO₂e, kWh, otkhody; step: audit → bystraya ekonomiya → struktura → monitoring."
             ],
             "hints":{"checklist": kit["checklist_id"], "metrics_file":"docs/sustainability_kit/metrics.json"}
         }
-        title = f"Eko-otchet: {spec['name']}"
+        title = f"Eco-report: ZZF0Z"
         md = _md(title, goal or title, brief, kit.get("checklist_md",""), kit.get("metrics",{}))
         html = _html(title, md)
         bundle = {"spec":spec, "plan":plan, "files":files, "report":{"title":title, "markdown":md, "html":html}, "ab": AB_SLOT}

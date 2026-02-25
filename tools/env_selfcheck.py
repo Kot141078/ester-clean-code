@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-S0/tools/env_selfcheck.py — bezopasnaya samoproverka peremennykh okruzheniya (bez pravok koda prilozheniya).
+"""S0/tools/env_selfcheck.py - bezopasnaya samoproverka peremennykh okruzheniya (bez pravok koda prilozheniya).
 
 Mosty:
 - Yavnyy: Enderton (logika) → proverka ENV kak nabor predikatov nad (klyuch, znachenie), komponuemykh bez izmeneniya sistemy.
@@ -9,13 +8,12 @@ Mosty:
 - Skrytyy #2: Cover & Thomas (infoteoriya) → svodim "entropiyu" konfiguratsii, vyyavlyaya neopredelennosti (pustye/defoltnye sekrety).
 
 Zemnoy abzats (inzheneriya):
-Skript nichego ne menyaet — tolko chitaet ENV i pechataet JSON-svodku.
-Rezhim A/B: CHECK_MODE=permissive (A, po umolchaniyu) ili strict (B). Esli strict provalivaetsya,
+Skript nichego ne menyaet - tolko chitaet ENV i pechataet JSON-svodku.
+Rezhim A/B: CHECK_MODE=permissive (A, po umolchaniyu) or strict (B). Esli strict failsya,
 skript avtomaticheski otkatyvaetsya k permissive (avtokatbek) i zavershaetcya kodom 0, ostavlyaya preduprezhdeniya.
-Eto pomogaet zapuskat proverku na lyubykh stendakh bez "krasnogo" CI.
+Eto help zapuskat proverku na lyubykh stendakh bez "krasnogo" CI.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import os
@@ -26,14 +24,14 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 RECOMMENDED: Dict[str, str] = {
     "APP_IMPORT": "app:app (ili wsgi_secure:app) — otkuda importirovat Flask app",
-    "BASE_URL": "http://127.0.0.1:8080 — dlya HTTP-smouka",
+    "BASE_URL": "http://127.0.0.1:8080 - for HTTP smoke",
     "JWT_SECRET": "<64-simvolnyy sekret HS256>",
     "JWT_TTL": "3600",
     "JWT_REFRESH_TTL": "1209600",
-    "TELEGRAM_BOT_TOKEN": "<esli vklyuchen webhook-bot>",
+    "TELEGRAM_BOT_TOKEN": "<if webhook is enabled>",
     "TELEGRAM_WEBHOOK_SECRET": "<sekret zagolovka X-Telegram-Bot-Api-Secret-Token>",
     "PUBLIC_URL": "https://host — vneshniy bazovyy URL",
-    "ADMIN_TELEGRAM_ID": "<chislovoy id, optsionalno>",
+    "ADMIN_TELEGRAM_ID": "<numeric id, optional>",
     "CHECK_MODE": "permissive | strict",
 }
 
@@ -65,7 +63,7 @@ def run_check() -> Dict[str, Any]:
     for k in RECOMMENDED.keys():
         result["env_sample"][k] = os.environ.get(k)
 
-    # Bazovye proverki
+    # Basic checks
     for k in REQUIRED_MINIMAL:
         if not os.environ.get(k):
             result["problems"].append(f"ENV {k} ne zadan")
@@ -86,7 +84,7 @@ def run_check() -> Dict[str, Any]:
 
     for name in ("JWT_TTL", "JWT_REFRESH_TTL"):
         if not _is_int_pos(name):
-            result["problems"].append(f"{name} dolzhno byt polozhitelnym tselym")
+            result["problems"].append(f"ZZF0Z must be a positive integer")
 
     # APP_IMPORT udoben
     if not os.environ.get("APP_IMPORT"):
@@ -96,7 +94,7 @@ def run_check() -> Dict[str, Any]:
     tok = os.environ.get("TELEGRAM_BOT_TOKEN")
     sec = os.environ.get("TELEGRAM_WEBHOOK_SECRET")
     if bool(tok) ^ bool(sec):
-        result["warnings"].append("Dlya Telegram zhelatelno zadat ODNOVREMENNO TELEGRAM_BOT_TOKEN i TELEGRAM_WEBHOOK_SECRET (ili ni odnogo)")
+        result["warnings"].append("For Telegrams, it is advisable to set AT THE SAME TIME TELEGRAM_HERE_TOKEN and TELEGRAM_WEBHOOK_SECRET (or neither)")
 
     # Avtokatbek iz strict v permissive
     if mode == "strict" and (result["problems"]):

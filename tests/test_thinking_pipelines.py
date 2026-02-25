@@ -17,7 +17,7 @@ def test_thinking_ruleset_writes_memory(tmp_path, monkeypatch):
     os.makedirs(data, exist_ok=True)
     monkeypatch.setenv("PERSIST_DIR", str(data))
 
-    # Initsializiruem pamyat i dobavim neskolko zapisey
+    # Initializes memory and adds some entries
     vstore = VectorStore(
         collection_name="ester_store",
         persist_dir=str(data),
@@ -31,7 +31,7 @@ def test_thinking_ruleset_writes_memory(tmp_path, monkeypatch):
     cards = CardsMemory(str(data / "ester_cards.json"))
     mm = MemoryManager(vstore, structured, cards)
     for t in [
-        "Zadachi po replikatsii: snapshoty, HMAC, LWW.",
+        "Replication tasks: snapshots, HMAS, LVV.",
         "Ingest faylov: PDF/TXT, limity 413/415.",
         "Memory: flashback/alias/compact, property-testy.",
         "Bezopasnost: JWT RS256/HS256, RBAC matrix/regex.",
@@ -40,31 +40,29 @@ def test_thinking_ruleset_writes_memory(tmp_path, monkeypatch):
 
     # Podgotovim rules.yaml v tmp
     rules = textwrap.dedent(
-        """
-    flashback:
+        """flashback:
       query: "*"
       k: 20
     actions:
       - kind: summarize
         hint: "status i riski"
       - kind: suggest
-        hint: "sleduyuschie shagi"
+        hint: "follow steps"
         n: 5
       - kind: classify
-        labels: ["pamyat","replikatsiya","ingest","bezopasnost"]
-    """
+        labels: ["pamyat","replikatsiya","ingest","bezopasnost"]"""
     ).strip()
     cfg = tmp_path / "rules.yaml"
     cfg.write_text(rules, encoding="utf-8")
 
-    # Zapusk
+    # Launch
     rep = run_from_file(str(cfg))
     assert rep.get("ok") is True
     acts = rep.get("actions") or []
     assert any(a.get("kind") == "suggest" for a in acts)
 
-    # Proverim, chto zapisi s tegom proactive poyavilis
-    fb = structured.flashback("sleduyuschie shagi", k=20) + structured.flashback(
+    # Let's check that posts with the proactive tag have appeared
+    fb = structured.flashback("next steps", k=20) + structured.flashback(
         "status", k=20
     )
     has_proactive = any("proactive" in (it.get("tags") or []) for it in fb)

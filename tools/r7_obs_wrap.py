@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R7/tools/r7_obs_wrap.py — obertka komandy: zamer wall-time/RC i zapis metrik.
+"""R7/tools/r7_obs_wrap.py - obertka komandy: zamer wall-time/RC i zapis metrik.
 
 Mosty:
 - Yavnyy: Enderton — predikaty uspekha: rc==0 ∧ wall_ms>=0; serializuem nablyudenie v jsonl.
 - Skrytyy #1: Ashbi — regulyator prosche sistemy: lineynyy zapusk + taymer, bez lishney logiki.
-- Skrytyy #2: Cover & Thomas — minimalnyy «signal»: tolko to, chto nuzhno dlya SLO (rc, ms, cmd).
+- Skrytyy #2: Cover & Thomas — minimalnyy “signal”: tolko to, chto nuzhno dlya SLO (rc, ms, cmd).
 
 Zemnoy abzats (inzheneriya):
 Zapusk: `python tools/r7_obs_wrap.py -- <cmd...>`; metrika tipa "cmd" v `obs/metrics.jsonl`.
 Bez vneshnikh zavisimostey, podkhodit dlya cron.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, os, shlex, subprocess, time
 from services.obs.metrics import record, timer  # type: ignore

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/proactive_dispatch_routes.py - edinyy shlyuz proaktivnosti Ester → messendzhery.
+"""routes/proactive_dispatch_routes.py - edinyy shlyuz proaktivnosti Ester → messendzhery.
 
 MOSTY:
 - (Yavnyy) /proactive/dispatch prinimaet semantiku (audience/intent/content) i kanal (whatsapp|telegram) i vyzyvaet /wa/send ili /tg/send.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Idempotency po source_id, chtoby ne zadvoit rassylku pri povtorakh triggerov.
 
 ZEMNOY ABZATs:
-Pozvolyaet «usilit do maksimuma» proaktivnost, ne vmeshivayas v starye mekhanizmy - Ester generiruet sobytie, etot most beret na sebya marshrutizatsiyu.
+Pozvolyaet “usilit do maksimuma” proaktivnost, ne vmeshivayas v starye mekhanizmy - Ester generiruet sobytie, etot most beret na sebya marshrutizatsiyu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, json, threading
 from typing import Any, Dict, Optional, Tuple
@@ -21,13 +19,13 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 try:
     import yaml
 except Exception:
-    yaml = None  # na dev perezhivem, budet tolko direct-mode
+    yaml = None  # We’ll survive on the virgins, there will only be direct fashion
 
 bp = Blueprint("proactive_dispatch_routes", __name__)
 
 PROACTIVE_RULES_PATH = os.environ.get("PROACTIVE_RULES_PATH", "config/messaging_rules.yaml")
 
-# Primitivnaya anti-dubl pamyat (in-memory)
+# Primitive anti-double memory (in-memories)
 _idem_lock = threading.Lock()
 _idem_cache: dict[str, float] = {}
 
@@ -55,8 +53,7 @@ def _load_rules() -> Dict[str, Any]:
 
 @bp.route("/proactive/dispatch", methods=["POST"])
 def proactive_dispatch():
-    """
-    body:
+    """body:
     {
       "channel": "whatsapp"|"telegram"|null,
       "to": "1555..."|777|null,
@@ -65,8 +62,7 @@ def proactive_dispatch():
       "content": "tekst",
       "source": "ester:will:ruleX",   # chelovekochitaemyy istochnik
       "source_id": "uuid"             # dlya idempotentnosti
-    }
-    """
+    }"""
     j = request.get_json(force=True, silent=True) or {}
 
     source_id = (j.get("source_id") or "").strip()
@@ -80,7 +76,7 @@ def proactive_dispatch():
     content = (j.get("content") or "").strip()
 
     rules = _load_rules()
-    # 1) Esli net channel/to - podbiraem po pravilam
+    # 1) If there is no channel, then it selects according to the rules
     if not (channel and to):
         key = f"{audience}:{intent}"
         rmap = rules.get("routes", {}).get(key) or rules.get("routes", {}).get(audience) or {}
@@ -93,7 +89,7 @@ def proactive_dispatch():
     # 2) Delegiruem v konkretnyy kanal (lokalnyy HTTP-vyzov - bez vneshki)
     import urllib.request, json as _json
     if channel == "whatsapp":
-        url = f"http://127.0.0.1:8080/wa/send?dry_run=1"  # dry po umolchaniyu bezopasen; s klyuchami uydet naruzhu
+        url = f"http://127.0.0.1:8080/wa/send?dry_run=1"  # The driver is safe by default; will go outside with the keys
         body = {"to": to, "audience": audience, "intent": intent, "content": content}
     elif channel == "telegram":
         url = f"http://127.0.0.1:8080/tg/send?dry_run=1"

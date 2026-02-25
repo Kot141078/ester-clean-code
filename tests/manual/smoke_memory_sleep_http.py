@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-tests/manual/smoke_memory_sleep_http.py
+"""tests/manual/smoke_memory_sleep_http.py
 
 Ruchnoy HTTP-smoke dlya sutochnogo tsikla pamyati.
 
-Ispolzuet:
-  - ESTER_BASE_URL ili BASE_URL (po umolchaniyu http://127.0.0.1:8080)
+Use:
+  - ESTER_BASE_URL or BASE_URL (po umolchaniyu http://127.0.0.1:8080)
 
-Marshruty:
-  - GET  /memory/sleep/status
+Route:
+  - GET /memory/sleep/status
   - POST /memory/sleep/run_now
 
 ZEMNOY ABZATs:
 Eto kak podoyti k shkafu s avtomatami i nazhat knopku "Nochnoy tsikl":
-esli otvet 200 i ok/ili ponyatnaya oshibka — provodka est.
-"""
+esli otvet 200 i ok/ili ponyatnaya oshibka — provodka est."""
 from __future__ import annotations
 
 import json
@@ -60,7 +58,7 @@ def main() -> int:
 
     code, out = _req("GET", "/memory/sleep/status")
     if code == 0:
-        print("[sleep-http] WARN: servis ne otvechaet, vozmozhno ne zapuschen — vykhozhu bez oshibki.")
+        print("yusleep-httpsch VARN: the service is not responding, perhaps it is not running - I exit without an error.")
         return 0
 
     print(json.dumps(out, ensure_ascii=False, indent=2))

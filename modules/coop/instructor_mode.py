@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/instructor_mode.py — «rezhim instruktora»: veduschiy vidit podtverzhdeniya vedomykh.
+"""modules/coop/instructor_mode.py - “rezhim instruktora”: veduschiy vidit podtverzhdeniya vedomykh.
 
-Ideya:
-- Veduschiy zapuskaet «klass»: spisok peers, ozhidanie "gotov" ot kazhdogo, zatem translyatsiya shagov.
+Ideaya:
+- Veduschiy zapuskaet “klass”: spisok peers, ozhidanie “gotov” ot kazhdogo, zatem translyatsiya shagov.
 - Vedomye otpravlyayut podtverzhdeniya shagov: {"peer":"ip:port","index":N,"ok":true|false,"latency_ms":...}
 - Zhurnal: data/coop/instructor/log.jsonl
 
@@ -19,10 +18,9 @@ MOSTY:
 - Skrytyy #2: (Memory ↔ Analitika) JSONL-zhurnal dlya retrospektivy.
 
 ZEMNOY ABZATs:
-Bez brokerov; tolko REST. Logi — obychnyy JSONL. Ne vmeshivaetsya v uzhe rabotayuschiy pleybek/netpley.
+Bez brokerov; only REST. Logi - obychnyy JSONL. Ne vmeshivaetsya v uzhe rabotayuschiy pleybek/netpley.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Dict, Any, List

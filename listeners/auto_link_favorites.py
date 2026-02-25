@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/auto_link_favorites.py — avto-popolnenie «izbrannykh tseley» po katalogu uzlov.
+"""listeners/auto_link_favorites.py - avto-popolnenie "izbrannykh tseley" po katalogu uzlov.
 
 Logika:
   • Periodicheski chitaem katalog uzlov (registry.node_catalog) i svoi nastroyki Telegram.
   • Esli u uzla sovpadaet PORTABLE_PROFILE (cap.env.portable_profile) i (po flagu) sovpadaet tg last_chat,
-    dobavlyaem (lan: node_id, tg: last_chat) v favorites.json.
+    addavlyaem (lan: node_id, tg: last_chat) v favorites.json.
 
 ENV:
   AUTOLINK_POLL_SEC=20
@@ -13,15 +12,14 @@ ENV:
   AUTOLINK_REQUIRE_PROFILE_MATCH=1
 
 Mosty:
-- Yavnyy (Svyaznost ↔ Planirovanie): sozdaem ustoychivyy nabor predpochtitelnykh tseley.
+- Yavnyy (Svyaznost ↔ Planning): sozdaem ustoychivyy nabor predpochtitelnykh tseley.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): zanosim prichinu v meta.notes, fayl chitaem chelovekom.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): tolko stdlib; bez izmeneniy kontraktov ocheredi/registry.
 
 Zemnoy abzats:
-Kak na sklade: esli dva posta polzuyutsya odnim kanalom svyazi i odnim rezhimom — kladem ikh na polku «ryadom».
+Kak na sklade: esli dva posta polzuyutsya odnim kanalom svyazi i odnim rezhimom - kladem ikh na polku “ryadom”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, os, time
 from typing import Any, Dict

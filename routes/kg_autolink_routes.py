@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/kg_autolink_routes.py - REST: avtolink suschnostey i statistika KG.
+"""routes/kg_autolink_routes.py - REST: avtolink suschnostey i statistika KG.
 
 Mosty:
 - Yavnyy: (Veb ↔ KG) daet prostoy API dlya svyazi pamyati i grafa.
 - Skrytyy #1: (Gipotezy ↔ Uzly) downstream-moduli berut node_id iz otveta.
-- Skrytyy #2: (RAG ↔ Navigatsiya) uzly stanovyatsya «yakoryami» dlya poiska.
+- Skrytyy #2: (RAG ↔ Navigatsiya) uzly stanovyatsya “yakoryami” dlya poiska.
 
 Zemnoy abzats:
-«Nashel imena - zavel kartochki - svyazal s pamyatyu». Prostoy shag, kotoryy usilivaet posleduyuschiy poisk i sintez.
+“Nashel imena - zavel kartochki - svyazal s pamyatyu.” Just step, kotoryy usilivaet posleduyuschiy poisk i sintez.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

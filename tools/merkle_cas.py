@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-tools/merkle_cas.py — merkle-derevo poverkh CAS (sha256).
-Koren schitaetsya ot otsortirovannykh listev vida "sha256:<hex>".
-"""
+"""tools/merkle_chas.po - merkle-tree on top of HOUR (sha256).
+The root is calculated from sorted leaves of the form "sha256:<heh>"."""
 from __future__ import annotations
 
 import hashlib

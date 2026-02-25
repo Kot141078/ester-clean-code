@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-routes/thinking_cascade_routes.py - REST dlya kaskadnogo planirovaniya i bezopasnogo vypolneniya.
+"""routes/thinking_cascade_routes.py - REST dlya kaskadnogo planirovaniya i bezopasnogo vypolneniya.
 
-Endpointy:
+Endpoint:
   • POST /thinking/cascade/plan {"goal","budget"?:number}
   • POST /thinking/cascade/execute {"plan":{...}}
-  • GET  /metrics/thinking_cascade
+  • GET /metrics/thinking_cascade
 
 Mosty:
 - Yavnyy: (Myshlenie ↔ Operatsii) formiruem plan i zapuskaem bezopasnye shagi.
@@ -13,10 +12,9 @@ Mosty:
 - Skrytyy #2: (Samoizmenenie ↔ Kontrol) self.codegen rabotaet cherez suschestvuyuschuyu pesochnitsu s predokhranitelyami.
 
 Zemnoy abzats:
-Eto «mozgovoy kaskad»: ponyat, vybrat put, raspisat zadachi i sdelat to, chto mozhno sdelat pryamo seychas.
+Eto “mozgovoy kaskad”: ponyat, vybrat put, raspisat zadachi i sdelat to, chto mozhno sdelat pryamo seychas.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from flask import Blueprint, jsonify, request

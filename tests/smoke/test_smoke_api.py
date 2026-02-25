@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-Smoke-nabor API. Proveryaem, chto bazovye ruchki zhivy.
-Zapusk: pytest -m smoke  (ili obschiy e2e skript)
+"""Smoke-set API. Proveryaem, chto bazovye ruchki zhivy.
+Zapusk: pytest -m smoke (or obschiy e2e script)
 
 ENV:
-- ESTER_BASE_URL (http://localhost:5000 po umolchaniyu)
-"""
+- ESTER_BASE_URL (http://localhost:5000 po umolchaniyu)"""
 from __future__ import annotations
 
 import os
@@ -47,6 +45,6 @@ def test_any_basic_health_endpoint_is_ok():
     ok = [r for r in results if r[1] == 200]
     assert ok, f"No 200 among candidates: {results}"
 
-    # Dopolnitelno proverim /metrics prisutstvuet khotya by s 200
+    # Additionally, check /matrix is ​​present at least with 200
     m = _try("/metrics")
 # assert m[1] == 200, f"/metrics status {m[1]} (content-type={m[2]})"

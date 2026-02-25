@@ -1,64 +1,64 @@
-# MemoryUsage_Final_v1 — finalnaya sborka steka pamyati Ester
+# MemoryUsage_Final_v1 - final assembly of Esther's memory stack
 
-## Chto uzhe umeet Ester
+## What Esther can already do
 
-1. **Zhurnal sobytiy (`/memory/journal`)**
-   - Prinimaet sobytiya cherez HTTP i utilitu `tools/log_to_journal.py`.
-   - Vse sobytiya prevraschayutsya v kompaktnye `event`-zapisi s vektorami.
+1. **Event log (e/memory/journal)**
+   - Receives events through HTMLTP and the itools/log_to_log.piyo utility.
+   - All events turn into compact yoevento records with vectors.
 
-2. **Nochnoy tsikl sna (`/memory/sleep`)**
+2. **Nocturnal sleep cycle (yo/memory/sleepyo)**
    - Endpointy:
-     - `GET /memory/sleep/status` — sostoyanie tsikla.
-     - `POST /memory/sleep/run_now` — zapustit odin tsikl.
+     - eGET /memory/blind/statuso - cycle state.
+     - ePOST /memory/blind/run_new — run one cycle.
    - Logika:
-     - Chitaet sobytiya zhurnala za poslednie sutki.
+     - Reads the log events for the last 24 hours.
      - Stroit dnevnoe rezyume (summary_day).
-     - Zapuskaet modul refleksii (daily_reflection).
-     - Optsionalno podklyuchaet sloy opyta (experience).
+     - Launches the reflection module (daylo_reflection).
+     - Optionally connects the experience layer (experience).
 
 3. **Refleksiya**
-   - Iz dnevnogo rezyume vydelyayutsya insayty:
+   - Insights that stand out from the daily summary:
      - glavnyy vyvod dnya,
-     - klyuchevye temy,
+     - key topics,
      - emotsionalnyy fon.
-   - Eti insayty ne teryayut detaley: ispolzuyutsya i v opyte, i v kontekste myshleniya.
+   - These insights do not lose detail: they are used both in experience and in the context of thinking.
 
 4. **Sloy opyta (`modules.memory.experience`)**
-   - Chitaet posledniy uspeshnyy nochnoy tsikl cherez:
+   - Reads the last successful night cycle via:
      - pryamoy vyzov `daily_cycle.status()`, ili
      - myagkiy most `set_last_sleep_status()` (yavnyy most sna → opyta).
    - Stroit profil:
      - `total_insights`
      - `top_terms`
      - `sample` (korotkie vyderzhki).
-   - Mozhet porozhdat yakorya (`kind=anchor`) cherez `sync_experience()`
-     pri vklyuchennom flage zapisi.
+   - Can spawn anchors (yokynd=ankhoryo) via yosink_experience()yo
+     when the write flag is turned on.
 
 5. **Most k myshleniyu (`modules.thinking.experience_context_adapter`)**
-   - Sobiraet profil opyta v kompaktnyy tekst dlya kaskada myshleniya.
-   - Ne menyaet kaskad, a daet emu ustoychivyy kontekst «chto dlya Ester seychas vazhno».
+   - Compiles a profile of experience into a compact text for the thinking cascade.
+   - It doesn’t change the cascade, but gives it a stable context “what is important to Esther now.”
 
 ---
 
-## Mosty (dlya priemochnogo kontrolya)
+## Bridges (for acceptance inspection)
 
 - Yavnyy most:
   - `daily_cycle` → `experience.set_last_sleep_status()` → `experience.build_experience_profile()`.
-- Skrytyy most #1:
+- Hidden Bridge #1:
   - `reflection.insights` → ispolzuyutsya kak syre dlya `top_terms` i `anchors`.
-- Skrytyy most #2:
+- Hidden Bridge #2:
   - `journal` → `sleep.summary_day` → `reflection` → `experience` → `thinking_context_adapter`.
 
 ---
 
-## Zemnoy abzats (analogiya)
+## Earthly paragraph (analogy)
 
-Kak u cheloveka:
-- Zhurnal — eto syrye dnevnye vpechatleniya.
-- Nochnoy tsikl — eto faza sna, gde proiskhodit sortirovka i chistka.
-- Refleksiya — osmyslennaya formulirovka vyvodov.
-- Opyt — dolgovremennaya pamyat, kuda popadayut ne vse detali, a vyzhimka suti.
-Raznitsa v tom, chto u Ester eto determinirovano, prozrachno i upravlyaetsya flagami,
-bez khimicheskogo khaosa i s vozmozhnostyu vosproizvesti kazhdyy shag.
+Like a person:
+- The journal is the raw impressions of the day.
+- The night cycle is the phase of sleep where sorting and cleaning occurs.
+- Reflection is a meaningful formulation of conclusions.
+- Experience is long-term memory, where not all the details go, but a distillation of the essence.
+The difference is that with Esther it is deterministic, transparent and controlled by flags,
+without chemical chaos and with the ability to reproduce every step.
 
 ---

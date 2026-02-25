@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-ITER A2f:
-- Auto-heal env: esli CHROMA_PERSIST_DIR soderzhit %VAR% ili pust — vybrat luchshiy persist_dir i
+"""ITER A2f:
+- Auto-heal env: esli CHROMA_PERSIST_DIR soderzhit %VAR% or pust — vybrat luchshiy persist_dir i
   vystavit os.environ["CHROMA_PERSIST_DIR"] (i pri vozmozhnosti ESTER_VSTORE_ROOT) v ramkakh protsessa.
 - Eager init (optsionalno): pri register() memory routes mozhno odin raz dernut get_chroma_ui(),
   chtoby avtopochinka proizoshla v nachale zhizni prilozheniya.
-- NIKAKIKh avtoperenosov/udaleniy. Eto soznatelno.
+- NIKAKIKh avtoperenosov/udaleniy. This is true.
 
-YaVNYY MOST: c=a+b — “pamyat” dolzhna vosstanavlivatsya za schet protsedur (b), no bez samounichtozheniya.
+YaVNYY MOST: c=a+b - “pamyat” dolzhna vosstanavlivatsya za schet protsedur (b), no bez samounichtozheniya.
 SKRYTYE MOSTY:
   - Ashby: raznoobrazie khranilisch ok, no nuzhen regulyator (auto-heal vybora primary).
   - Cover&Thomas: kontrol kanala/oshibok: lechim ukazatel (path), a ne gonyaem megabayty dannykh.
 ZEMNOY ABZATs:
   Eto kak perevesti patsienta iz “nepravilnoy palaty” v pravilnuyu po karte,
-  a ne taskat operatsionnuyu so vsemi trubkami cherez koridor.
-"""
+  a ne taskat operatsionnuyu so vsemi trubkami cherez koridor."""
 from __future__ import annotations
 
 import sys, time, shutil, py_compile
@@ -84,7 +82,7 @@ def _expand_path(p: str) -> str:
     if not p:
         return ""
     p2 = os.path.expandvars(os.path.expanduser(p))
-    # esli ostalis %VAR% — schitaem “pusto”, chtoby ne plodit musor
+    # if there are ZZF0ZZAR% left, we consider “empty” so as not to create garbage
     if _looks_unexpanded(p2):
         return ""
     return p2
@@ -776,7 +774,7 @@ def _backend_mode() -> str:
     if ch is None or not getattr(ch, "available", lambda: False)():
         return "json"
 
-    # esli auto/hybrid i chroma pustaya — smysla net, ne putaem UI
+    # if auto/hybrid and chromium are empty - there is no point, it doesn’t confuse OH
     try:
         total = int(getattr(ch, "total_count", lambda: 0)() or 0)
     except Exception:

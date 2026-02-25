@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # scripts/installers/install_judge_overlay_watcher_systemd.sh
-# Ustanavlivaet systemd-yunit storozha overlay-fayla Judge.
+# Installs the Yuje overlay file guard system unit.
 
 set -euo pipefail
 
@@ -10,7 +10,7 @@ set -euo pipefail
 # - Skrytyy 2 (Infoteoriya ↔ Praktika): polling-interval nastraivaetsya, po umolchaniyu legkiy (2s).
 
 # Zemnoy abzats:
-# Odin skript — i u vas postoyanno rabotaet nablyudatel za judge_slots.json. Judge ne trogaem samovolno.
+# One script - and you always have a watcher for yuje_slots.zhsion running. We don’t touch Yudzhe without permission.
 
 UNIT="/etc/systemd/system/ester-judge-overlay-watcher.service"
 ENVF="/etc/default/ester-judge-overlay-watcher"

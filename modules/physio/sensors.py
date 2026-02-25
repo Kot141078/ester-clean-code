@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-Sensors — bezopasnye datchiki konteksta (offlayn, bez obyazatelnykh vneshnikh deps).
+"""Sensors - bezopasnye datchiki konteksta (offlayn, bez obyazatelnykh vneshnikh deps).
 
 Mosty:
-- Yavnyy: (OS ↔ Memory) — sobiraem snapshot okruzheniya: TsP, pamyat, disk, platforma.
-- Skrytyy 1: (Doverie ↔ Politika) — pokazaniya mozhno vlivat v pamyat i uchityvat v planakh (upstream).
-- Skrytyy 2: (UX ↔ Bezopasnost) — A/B: v B probuem psutil, v A — tolko stdlib.
+- Yavnyy: (OS ↔ Memory) - sobiraem snapshot okruzheniya: TsP, pamyat, disk, platforma.
+- Skrytyy 1: (Doverie ↔ Politika) - pokazaniya mozhno vlivat v pamyat i uchityvat v planakh (upstream).
+- Skrytyy 2: (UX ↔ Bezopasnost) - A/B: v B probuem psutil, v A - tolko stdlib.
 
 Zemnoy abzats:
-«Poschupat vozdukh»: chut zagruzka, chut pamyati, chut diska, imya khosta — dostatochno, chtoby ponyat kontekst
-bez tyazhelykh bibliotek. Esli est psutil — ispolzuem, esli net — ne lomaemsya.
-"""
+“Poschupat vozdukh”: chut zagruzka, chut pamyati, chut disca, imya khosta - dostatochno, chtoby ponyat kontekst
+bez tyazhelykh bibliotek. Esli est psutil - ispolzuem, esli net - ne lomaemsya."""
 from __future__ import annotations
 
 import os, platform, shutil, time

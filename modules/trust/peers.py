@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/trust/peers.py — reestr doverennykh uzlov (pirov) s ikh publichnymi klyuchami.
+"""modules/trust/peers.py - reestr doverennykh uzlov (pirov) s ikh publichnymi klyuchami.
 
 Mosty:
 - Yavnyy: (Set ↔ Doverie) kto imeet pravo priglashat/podpisyvat deystvie.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Kibernetika ↔ Kontrol) ispolzuetsya proverkoy priglasheniy i SpreadGuard.
 
 Zemnoy abzats:
-Spisok «svoikh»: id, imya, algoritm i publichnyy klyuch — bez etogo nelzya bezopasno «prosit» i «razreshat».
+Spisok “svoikh”: id, imya, algoritm i publichnyy klyuch - bez etogo nelzya bezopasno “prosit” i “razreshat”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, hashlib, time
 from typing import Any, Dict, List

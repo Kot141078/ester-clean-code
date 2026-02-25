@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-modules/llm/selector.py
+"""modules/llm/selector.po
 
-Legkiy selektor dlya web-fallback chata.
-Glavnaya tsel: ne provalivatsya v lokalnuyu zaglushku, esli oblachnyy provayder dostupen.
-"""
+Lightweight web chat selector.
+The main goal: do not fall into a local stub if the cloud provider is available."""
 
 from __future__ import annotations
 

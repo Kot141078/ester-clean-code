@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/playbook_routes.py - REST: validatsiya/zapusk/spisok pleybukov.
+"""routes/playbook_routes.py - REST: validatsiya/zapusk/spisok playbukov.
 
 Mosty:
 - Yavnyy: (Veb ↔ Kaskady) interfeys dlya stsenariev.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Stsenarii stanovyatsya knopkami.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os, json

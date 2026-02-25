@@ -31,7 +31,7 @@ c=a+b
       rulehub.textContent = pjson(rs || {});
       println('✔ Okruzhenie provereno');
     }catch(e){
-      println('✖ Oshibka envCheck: '+e);
+      println('✖ Error envCheck:'+e);
     }
   }
 
@@ -49,7 +49,7 @@ c=a+b
 
   async function kitGet(){
     const id = E('checklistId').value.trim();
-    if(!id){ out.textContent='Ukazhite cheklist'; return; }
+    if(!id){ out.textContent='Specify checklist'; return; }
     const r = await fetchJSON('/thinking/act', {method:'POST', body: JSON.stringify({name:'sustainability.kit.get_checklist', args:{id}})});
     out.textContent = pjson(r);
   }

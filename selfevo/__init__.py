@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-selfevo — proksi-paket k realnomu kodu v modules.selfevo.
-Nuzhen dlya sovmestimosti s importami `import selfevo.*`.
-"""
+"""selfevo - proxy packet to the real move in modules.selfevo.
+Needed for compatibility with imports ёimport selfevo.*е."""
 from __future__ import annotations
 import importlib, sys
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

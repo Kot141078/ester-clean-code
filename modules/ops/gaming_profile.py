@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ops/gaming_profile.py — «igrovye profili» tempa deystviy i dzhittera.
+"""modules/ops/gaming_profile.py - “igrovye profili” tempa deystviy i dzhittera.
 
-Profile opredelyaet:
+Profile defined:
 - CPS/TPS: ogranichenie klikov/simvolov v sekundu
 - delay_ms: bazovaya zaderzhka mezhdu shagami
-- jitter: sluchaynyy shum po vremeni/koordinatam
+- jitter: sluchaynyy noise po vremeni/koordinatam
 - cursor_curve: 'linear'|'ease_in'|'ease_out'|'ease_in_out'
 
 MOSTY:
-- Yavnyy: (Volya ↔ Motorika) perevodit plan shagov v «chelovechnyy» ritm.
-- Skrytyy #1: (Infoteoriya ↔ Bezopasnost) determinirovannye ramki skorosti → menshe «banopodobnogo» povedeniya.
+- Yavnyy: (Volya ↔ Motorika) perevodit plan shagov v “chelovechnyy” rhythm.
+- Skrytyy #1: (Infoteoriya ↔ Bezopasnost) determinirovannye ramki skorosti → menshe “banopodobnogo” povedeniya.
 - Skrytyy #2: (Anatomiya ↔ Inzheneriya) mikrodrozh i krivye dvizheniya imitiruyut realnuyu ruku i glaz-ruku.
 
 ZEMNOY ABZATs:
-Pomogaet «igrat vmeste»: Ester ne spamit klikami, vyderzhivaet temp, slegka shumit koordinaty i dvigaet kursor plavno.
-Vse parametry oflayn i nastraivaemye.
+Pomogaet “igrat vmeste”: Ester ne spamit klikami, vyderzhivaet temp, slegka shumit koordinaty i dvigaet kursor plavno.
+All parameters of layn i adjust.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import time, math, random
 from typing import Dict, Any, Iterable, Iterator

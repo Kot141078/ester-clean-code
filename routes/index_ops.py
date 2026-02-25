@@ -1,33 +1,31 @@
 # -*- coding: utf-8 -*-
-"""
-routes/index_ops.py - JSON-operatsii indeksov: build/rebuild/stats/snapshot.
+"""routes/index_ops.py - JSON-operatsii index: build/rebuild/stats/snapshot.
 
 Marshruty (Blueprint "index_ops_bp"):
-  POST /index/build     { shard?:str, level?: "L1"|"L2", strategy?: "ivfpq"|"flat", params?: {...} }
-  GET  /index/stats
-  POST /index/snapshot  { shard?:str }
+  POST /index/build { shard?:str, level?: "L1"|"L2", strategy?: "ivfpq"|"flat", params?: {...} }
+  GET /index/stats
+  POST /index/snapshot { shard?:str }
 
-Povedenie:
-  • build: sobiraet ili peresobiraet indeks po shardam, chitaya L2-chanki iz
+Behavior:
+  • build: sobiraet ili peresobiraet indexes po shardam, chitaya L2-chanki iz
     ./data/index/hier/L2_chunks__<doc_id>.jsonl i L0-metu iz ./data/L0_meta.jsonl.
-    Vektorizatsiya: modules.embedder.embed_texts(texts)->np.ndarray[float32] (esli net - fallback khesh-embedder).
+    Vektorizatsiya: modules.embedder.embed_texts(texts)->np.ndarray[float32] (if net - fallback khesh-embedder).
   • stats: vozvraschaet razmery/schetchiki po shartam i konfiguratsiyu indeksov.
   • snapshot: delaet tar.{zst|gz} v SNAPSHOT_DIR (po umolchaniyu ./data/snapshots).
 
-Bezopasnost:
+Safety:
   • Dlya prostoty seychas otkryto; v prode obernut JWT/rol admin|ops.
 
 Zemnoy abzats (inzheneriya)
-Eti ruchki - «pult operatora stanka»: sobrat indeks, posmotret razmery, snyat snapshot.
-Vse lokalno, prozrachno i bez vneshnikh zavisimostey.
+Eti ruchki - “pult operatora stanka”: sobrat indeks, posmotret razmery, snyat snapshot.
+All lokalno, prozrachno i bez vneshnikh zavisimostey.
 
 Mosty
 - Yavnyy (Arkhitektura ↔ Operatsii): build/stats/snapshot - minimalnyy DevOps-kontur bez vneshnego orkestratora.
 - Skrytyy 1 (Infoteoriya ↔ Ekonomika): stroim tolko to, chto nuzhno (po shardam) - ekonomim vremya i NVMe.
-- Skrytyy 2 (Anatomiya ↔ PO): kak inventarizatsiya organov - znaem massu/obem indeksa i mozhem bystro «zamorozit» snimok.
+- Skrytyy 2 (Anatomiya ↔ PO): kak inventarizatsiya organov - znaem massu/obem indeksa i mozhem bystro “zamorozit” snimok.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import io
@@ -64,7 +62,7 @@ def _backend(strategy: str | None) -> str:
         return "flat"
     return (os.getenv("INDEX_BACKEND") or "faiss").strip().lower()
 
-# --- prostoy fallback-embedder (determinirovannyy) ---
+# --- simple false embedder (deterministic) ---
 def _hash_embed(texts: List[str], dim: int) -> "np.ndarray":  # type: ignore
     import hashlib, math
     if np is None:
@@ -72,7 +70,7 @@ def _hash_embed(texts: List[str], dim: int) -> "np.ndarray":  # type: ignore
     out = np.zeros((len(texts), dim), dtype="float32")
     for i, t in enumerate(texts):
         h = hashlib.sha1((t or "").encode("utf-8", errors="ignore")).digest()
-        # razmazhem bayty po izmereniyam (povtorno)
+        # spread the bytes across dimensions (again)
         for j in range(dim):
             b = h[j % len(h)]
             out[i, j] = (float(b) - 127.5) / 127.5
@@ -82,7 +80,7 @@ def _hash_embed(texts: List[str], dim: int) -> "np.ndarray":  # type: ignore
     return out
 
 def _embed_texts(texts: List[str], dim: int) -> "np.ndarray":  # type: ignore
-    # Popytka vyzvat polzovatelskiy embedder
+    # Trying to call a custom embedder
     try:
         from modules import embedder  # type: ignore
         vecs = embedder.embed_texts(texts, dim=dim)  # type: ignore
@@ -90,7 +88,7 @@ def _embed_texts(texts: List[str], dim: int) -> "np.ndarray":  # type: ignore
     except Exception:
         return _hash_embed(texts, dim)
 
-# --- i/o utility dlya L0/L2 ---
+# --- i/o utilities for L0/L2 ---
 def _iter_l0() -> Iterable[Dict]:
     p = os.path.join(_data_dir(), "L0_meta.jsonl")
     try:
@@ -134,14 +132,12 @@ index_ops_bp = Blueprint("index_ops_bp", __name__)
 
 @index_ops_bp.route("/build", methods=["POST"])
 def index_build() -> Response:
-    """
-    Sobiraet indeksy po shardam iz L2-chankov.
-    Parametry JSON:
+    """Sobiraet indeksy po shardam iz L2-chankov.
+    Parameter JSON:
       - shard?: string (esli ukazan - tolko etot shard)
       - level?: "L1"|"L2" (seychas ispolzuetsya L2)
       - strategy?: "ivfpq"|"flat" (inache iz ENV INDEX_BACKEND)
-      - params?: { dim?: int, nlist?: int, m?: int, bits?: int, nprobe?: int }
-    """
+      - params?: { dim?: int, nlist?: int, m?: int, bits?: int, nprobe?: int }"""
     if np is None:
         return jsonify({"ok": False, "error": "numpy_required"}), 500
 
@@ -174,7 +170,7 @@ def index_build() -> Response:
         l2 = _load_l2(doc_id)
         if not l2:
             continue
-        # meta dlya shardirovaniya
+        # meta for sharding
         mdoc = {
             "title": meta.get("title"),
             "authors": meta.get("authors") or [],
@@ -182,13 +178,13 @@ def index_build() -> Response:
         }
         shard = router.shard_for_doc(mdoc)
         if shard not in bucket_texts:
-            continue  # ne etot shard
+            continue  # not this shard
         for ch in l2:
             bucket_texts[shard].append(ch.get("text") or "")
             bucket_ids[shard].append(f"{doc_id}:{int(ch.get('i') or 0)}")
             total_chunks += 1
 
-    # Obuchenie/sborka po shardam
+    # Training/assembly by shards
     t0 = time.time()
     built = []
     for shard in shards_req:
@@ -231,7 +227,7 @@ def index_stats() -> Response:
 @index_ops_bp.route("/snapshot", methods=["POST"])
 def index_snapshot() -> Response:
     payload = request.get_json(force=True, silent=True) or {}
-    shard = payload.get("shard")  # esli None - vse
+    shard = payload.get("shard")  # if None is everything
     index_root = _index_root()
     snapdir = _snapshot_dir()
     os.makedirs(snapdir, exist_ok=True)

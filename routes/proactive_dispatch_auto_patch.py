@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/proactive_dispatch_auto_patch.py - A/B-patch avtopodbora auditorii dlya /proactive/dispatch.
+"""routes/proactive_dispatch_auto_patch.py ​​- A/B-patch avtopodbora auditorii dlya /proactive/dispatch.
 
 MOSTY:
 - (Yavnyy) Pered samim endpointom perekhvatyvaet POST /proactive/dispatch, esli audience ne zadana/neytralna,
   i podstavlyaet auditoriyu cherez modules.audience_infer.infer_audience, zatem delegiruet v tot zhe endpoint.
-- (Skrytyy #1) A/B vklyuchenie cherez ENV DISPATCH_AUTO_AUDIENCE=1 (po umolchaniyu vklyucheno).
+- (Skrytyy #1) A/B vklyuchenie cherez ENV DISPATCH_AUTO_AUDIENCE=1 (by umolchaniyu vklyucheno).
 - (Skrytyy #2) Predokhranitel ot rekursii cherez sluzhebnyy zagolovok DISPATCH_AUTO_HEADER.
 
 ZEMNOY ABZATs:
-Delaet «kak prosili» - avto-opredelenie lyudey/organizatsiy po tekstu/meta bez tupykh oprosov,
+Delaet “kak prosili” - avto-opredelenie lyudey/organizatsiy po tekstu/meta bez tupykh oprosov,
 ne menyaya kontraktov i ne perepisyvaya uzhe gotovyy endpoint.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from typing import Any, Dict
@@ -36,7 +34,7 @@ def _auto_patch_before():
     if request.path != "/proactive/dispatch":
         return None
     if request.headers.get(AUTO_HDR):
-        return None  # uzhe obrabotano
+        return None  # already processed
 
     try:
         payload: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
@@ -47,16 +45,16 @@ def _auto_patch_before():
     content = (payload.get("content") or "").strip()
     meta = payload.get("meta") or {}
 
-    # Esli auditoriya uzhe zadana yavno i ne "neutral" - ne vmeshivaemsya
+    # If the audience has already been set explicitly and is not “neutral” - does not interfere
     if audience and audience not in ("", "neutral"):
         return None
 
-    # Pytaemsya vyvesti auditoriyu iz teksta/meta
+    # Trying to take the audience out of the text/meta
     detected, conf = infer_audience(meta=meta, text=content)
     if not detected or conf < 0.2:
-        return None  # slabyy signal - puskaem kak est
+        return None  # weak signal - let it go as is
 
-    # Peresobiraem JSON i delegiruem vnutr togo zhe endpointa cherez loopback
+    # We rebuild the JSION and delegate it inside the same endpoint via loopbask
     payload["audience"] = detected
     try:
         body = json.dumps(payload).encode("utf-8")
@@ -72,7 +70,7 @@ def _auto_patch_before():
             return Response(data, status=resp.getcode(), mimetype=resp.headers.get_content_type())
     except Exception as e:
         current_app.logger.warning("[DISPATCH-AUTO] delegate failed: %s", e, exc_info=True)
-        return None  # ne meshaem shtatnoy obrabotke
+        return None  # does not interfere with normal processing
 
 def register(app):
     app.register_blueprint(bp)

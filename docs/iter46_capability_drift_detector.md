@@ -40,7 +40,7 @@ Data is under `data/capability_drift/`:
 - `ok`, `slot`, `degraded`, `error`
 - `summary`:
   - `scanned_agents`, `scan_limited`
-  - `mismatches`, `changed`, `caps_changed`, `escalations`
+  - `mismatched`, `change`, `caps changed`, `escalations`
   - `last_event_ts`
 - `last_event`
 - `recent_events` (max 10 in Slot B)
@@ -89,7 +89,7 @@ Homeostasis requires sensors. Without drift sensing, the system adapts to corrup
 
 ## Earth Paragraph
 
-Eto kak kontrol plomb i zhurnal dopuskov: malo odin raz vydat klyuchi — nuzhno proveryat,
-ne pomenyalas li “narezka klyuchey” sama po sebe. Drift detector — eto regulyarnaya sverka:
-esli u sotrudnika vdrug poyavilsya klyuch ot elektroschitovoy bez oformleniya — eto lovitsya srazu, a ne posle avarii.
+It’s like control of seals and a log of access: it’s not enough to issue the keys once - you need to check
+Has the “cutting of keys” itself changed? Drift detector is a regular verification:
+if an employee suddenly has a key to the electrical panel without registration, this is caught immediately, and not after the accident.
 

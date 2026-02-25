@@ -1,17 +1,15 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.rag.http — HTTP‑ruchki RAG (bez avtopodklyucheniya).
+"""modules.rag.http - HTTP‑ruchki RAG (bez avtopodklyucheniya).
 Mosty:
 - Yavnyy: /compat/rag/{status,search,upsert} dlya FastAPI/Flask.
-- Skrytyy #1: (DX ↔ Sovmestimost) — JSON‑kontrakty bez vneshnikh paketov.
-- Skrytyy #2: (Memory ↔ Poisk) — pryamoy most k modules.rag.hub.
+- Skrytyy #1: (DX ↔ Sovmestimost) - JSON‑kontrakty bez vneshnikh paketov.
+- Skrytyy #2: (Memory ↔ Poisk) - pryamoy most k modules.rag.hub.
 
 Zemnoy abzats:
-Legkiy «port» v RAG: polozhit tekst, nayti pokhozhee, posmotret status — bez tyazhelykh servisov.
-# c=a+b
-"""
+Legkiy “port” v RAG: polozhit tekst, nayti pokhozhee, posmotret status - bez tyazhelykh servisov.
+# c=a+b"""
 import os, json
 from typing import Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

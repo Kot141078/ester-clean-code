@@ -79,6 +79,6 @@ Safe control loops need proprioception. Clamp/deny telemetry is operational feed
 
 ## Earth Paragraph
 
-Eto kak panel OTK na proizvodstve: malo postavit ogranichiteli na stanki — nuzhno videt, skolko raz okhrana razvorachivala lyudey,
-gde chasche vsego pytayutsya zayti “ne v tu zonu” i kakie propuska prikhoditsya urezat. Inache bezopasnost est “na bumage”, a ne v tsekhu.
+It’s like an inspection panel in production: it’s not enough to put restrictions on the machines - you need to see how many times the security turned people away,
+where they most often try to enter the “wrong zone” and what passes have to be cut. Otherwise, safety is “on paper”, and not in the workshop.
 

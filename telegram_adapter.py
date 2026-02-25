@@ -45,16 +45,16 @@ def listen():
                     payload = {
                         "message": text,
                         "sid": str(chat_id),
-                        "mode": "judge", # Ispolzuem nashego novogo umnogo sudyu
+                        "mode": "judge", # Let's use our new smart judge
                         "author": "TelegramUser"
                     }
                     
                     ester_resp = requests.post(API_URL, json=payload, timeout=21600)
                     if ester_resp.status_code != 200:
-                        reply_text = f"Oshibka servera: {ester_resp.status_code}"
+                        reply_text = f"Server error: ZZF0Z"
                     else:
                         rj = ester_resp.json()
-                        # --- VAZhNYY MOMENT: Ischem otvet vezde ---
+                        # --- Important POINT: We are looking for the answer everywhere ---
                         reply_text = rj.get("reply") or rj.get("answer") or rj.get("text") or "..."
                         
                         # Dobavlyaem otladku provaydera
@@ -63,7 +63,7 @@ def listen():
                             reply_text += f"\n\n(🧠 {prov})"
 
                 except Exception as e:
-                    reply_text = f"Oshibka svyazi s Ester: {e}"
+                    reply_text = f"Communication error with Esther: ZZF0Z"
                     print(f"[TG] Error: {e}")
 
                 # Otpravlyaem v Telegram
@@ -74,11 +74,11 @@ def listen():
             print(f"[TG] Loop error: {e}")
             time.sleep(5)
 
-# Zapusk v potoke, esli importirovano kak modul
+# Run in a thread if imported as a module
 if __name__ == "__main__":
     listen()
 else:
-    # Esli zagruzhaet runner.py
+    # If it loads runner.by
     t = threading.Thread(target=listen, daemon=True)
     t.start()
 

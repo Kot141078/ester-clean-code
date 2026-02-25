@@ -1,5 +1,5 @@
-# R7/scripts/r7_smoke.ps1 — offlayn-smoke nablyudaemosti
-# Mosty: (Yavnyy) Enderton; (Skrytye) Ashbi; Cover&Thomas.
+# Р7/skripts/р7_stoke.ps1 - offline stock observability
+# Bridges: (Explicit) Enderton; (Hidden) Ashby; Carpet&Thomas.
 # Zemnoy abzats: stroit obs_report.md.
 # c=a+b
 

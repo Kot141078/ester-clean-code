@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/ui/test_initiatives_ui.py — smoke UI initsiativ: stranitsa i knopki.
-"""
+"""tests/oh/test_initiativesall_oy.by - stock of UI initiatives: page and buttons."""
 from __future__ import annotations
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
@@ -19,7 +17,7 @@ class FakeMM:
                 "title": "Proverit bekap",
                 "status": "pending",
                 "rule": "auto_backup",
-                "reason": "ezhednevnaya proverka",
+                "reason": "daily check",
             },
             {"id": "a2", "title": "Sinkhronizatsiya P2P", "status": "pending"},
         ]
@@ -33,7 +31,7 @@ class FakeMM:
 
 def test_initiatives_page_renders(monkeypatch):
     assert flask_app is not None, "Flask app import failed"
-    # Podmenim menedzher pamyati u prilozheniya
+    # Change the application's memory manager
     flask_app.memory_manager = FakeMM()  # type: ignore[attr-defined]
 
     c = flask_app.test_client()
@@ -44,7 +42,7 @@ def test_initiatives_page_renders(monkeypatch):
     assert "Prinyat" in html
     assert "Otlozhit" in html
 
-    # Proverim deystviya
+    # Check actions
     r2 = c.get("/initiatives/accept?id=a1&user=Owner")
     assert r2.status_code in (200, 302)
 

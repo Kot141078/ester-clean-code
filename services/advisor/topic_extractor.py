@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-U1/services/advisor/topic_extractor.py — izvlechenie tem/zabot iz teksta i/ili kartochek pamyati.
+"""U1/services/advisor/topic_extractor.py - izvlechenie tem/zabot iz teksta i/ili kartochek pamyati.
 
 Mosty:
 - Yavnyy: Enderton — temy kak predikaty nad tokenami/chastotami; determinirovannaya vyborka top-k.
-- Skrytyy #1: Cover & Thomas — berem «signal» (klyuchevye slova/bigrammy), otbrasyvaem «shum» (stop-slova).
+- Skrytyy #1: Cover & Thomas — berem “signal” (klyuchevye slova/bigrammy), otbrasyvaem “shum” (stop-slova).
 - Skrytyy #2: Ashbi — A/B-slot cherez R3_MODE (unigrammy/bigrammy), ustoychivost pri pustykh istochnikakh.
 
 Zemnoy abzats (inzheneriya):
 Rabotaet tolko na stdlib i uzhe suschestvuyuschem tokenayzere R3. Umeet brat poslednie kartochki
 (tegi: chat, dialog, concern) i obedinyat s peredannym kontekstom. Vozvraschaet spisok poiskovykh zaprosov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 import itertools
@@ -23,7 +21,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 TRY_CARD_TAGS = {"chat", "dialog", "concern", "note", "inbox"}
 
 def _load_cards_text(limit: int = 2000) -> str:
-    # Pytaemsya vytaschit nedavnie kartochki iz pamyati
+    # We are trying to pull out recent cards from memory
     try:
         from services.mm_access import get_mm  # type: ignore
         mm = get_mm()
@@ -52,11 +50,11 @@ def _freq(tokens: List[str]) -> Dict[str, int]:
     return cnt
 
 def _keyphrases(tokens: List[str], top: int = 8) -> List[str]:
-    # Prostaya skhlopka: berem samye chastye tokeny (i bigrammy esli est v potoke)
+    # Simple collapse: we take the most frequent tokens (and bigrams if they are in the stream)
     cnt = _freq(tokens)
     items = sorted(cnt.items(), key=lambda kv: (-kv[1], kv[0]))
     keys = [w for w, _ in items[: max(3, top)]]
-    # sobiraem legkie frazy iz sosednikh tokenov, esli prisutstvuyut bigrammy s "_"
+    # we collect light phrases from neighboring tokens if bigrams with “_” are present
     bigs = [w for w in keys if "_" in w]
     return bigs + [w for w in keys if "_" not in w]
 
@@ -68,7 +66,7 @@ def extract_topics(context: str | None = None, top: int = 8) -> List[str]:
         return []
     toks = tokenize(joined)
     keys = _keyphrases(toks, top=top)
-    # prevraschaem v poiskovye stroki: bigrammy ostavlyaem slitno, unichki — kak est
+    # we turn them into search strings: we leave the bigrams together, the unichs - as they are
     queries: List[str] = []
     for w in keys:
         q = " ".join(w.split("_"))

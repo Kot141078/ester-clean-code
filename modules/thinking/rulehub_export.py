@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/rulehub_export.py — chtenie zhurnala RuleHub i eksport v NDJSON/CSV.
+"""modules/thinking/rulehub_export.py - chtenie zhurnala RuleHub i eksport v NDJSON/CSV.
 
 Funktsii:
   - read_last(limit=100, status=None) -> List[dict]
@@ -10,13 +9,12 @@ Funktsii:
 Mosty:
 - Yavnyy: (Nablyudaemost ↔ Ekspluatatsiya) edinyy modul eksporta dlya UI/REST i CI.
 - Skrytyy #1: (Infoteoriya ↔ Kachestvo) unifitsirovannye polya zhurnala uproschayut posleduyuschiy analiz.
-- Skrytyy #2: (Kibernetika ↔ Regulyatsiya) filtr po statusu pozvolyaet bystro otsenivat «uzkie mesta».
+- Skrytyy #2: (Kibernetika ↔ Regulyatsiya) filtr po statusu pozvolyaet bystro otsenivat “uzkie mesta”.
 
 Zemnoy abzats:
-Eto «semschik pokazaniy» s takhografa: beret poslednie zapisi, upakovyvaet v potok (NDJSON) ili tablitsu (CSV) — bez lishnikh zavisimostey.
+Eto “semschik pokazaniy” s takhografa: beret poslednie zapisi, upakovyvaet v potok (NDJSON) or tablitsu (CSV) - bez lishnikh zavisimostey.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import csv
@@ -36,9 +34,7 @@ def _ensure():
         _LOG.write_text("", encoding="utf-8")
 
 def read_last(limit: int = 100, status: Optional[str] = None) -> List[Dict[str, Any]]:
-    """
-    Vozvraschaet poslednie limit sobytiy zhurnala s optsionalnym filtrom status ('ok'|'err'|'blocked').
-    """
+    """Returns the latest limit of log events with an optional status filter."""
     _ensure()
     rows: List[Dict[str, Any]] = []
     try:
@@ -56,18 +52,14 @@ def read_last(limit: int = 100, status: Optional[str] = None) -> List[Dict[str, 
     return rows
 
 def to_ndjson(rows: List[Dict[str, Any]]) -> str:
-    """
-    Preobrazuet spisok sobytiy v NDJSON-stroki.
-    """
+    """Converts a list of events to NJSON strings."""
     buf = io.StringIO()
     for r in rows:
         buf.write(json.dumps(r, ensure_ascii=False) + "\n")
     return buf.getvalue()
 
 def to_csv(rows: List[Dict[str, Any]]) -> str:
-    """
-    Preobrazuet spisok sobytiy v CSV (utf-8). Kolonki: ts, status, actions, duration_ms, input_len, blocked, error, result_hint.
-    """
+    """Converts the list of events to CSV (utf-8). Columns: ts, status, actions, duration_ms, input_laziness, blocked, error, reset_hint."""
     buf = io.StringIO()
     w = csv.writer(buf)
     w.writerow(["ts", "status", "actions", "duration_ms", "input_len", "blocked", "error", "result_hint"])

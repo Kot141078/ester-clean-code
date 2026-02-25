@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# scripts/no_push_uninstall.sh — bystryy deinstallyator pre-push.
+# skripts/no_push_uninstall.sh - quick pre-push uninstaller.
 # Mosty:
-# - Yavnyy: (Inzheneriya ↔ Bezopasnost) bezopasnoe snyatie «stop-krana».
-# - Skrytyy #1: (UX ↔ Podderzhka) otdelnyy skript dlya adminov/CI.
-# - Skrytyy #2: (Infoteoriya ↔ Kontrol) ne trogaet istoriyu i konfigi — tolko .git/hooks.
+# - Yavnyy: (Inzheneriya ↔ Bezopasnost) bezopasnoe snyatie “stop-krana”.
+# - Hidden #1: (UX support) separate script for admins/CI.
+# - Skrytyy #2: (Infoteoriya ↔ Kontrol) ne trogaet istoriyu i configi - tolko .git/hooks.
 # Zemnoy abzats:
-# Eto «klyuch» dlya snyatiya mekhanicheskogo zamka — udalyaet tolko kryuchok, ne kasayas ostalnogo.
+# This is a “key” for removing a mechanical lock - it removes only the hook, without touching the rest.
 # c=a+b
 
 set -euo pipefail

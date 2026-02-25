@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/studio/pipelines.py — orkestratsiya payplaynov: idei→audio→video→pakety.
+"""modules/studio/pipelines.py - orkestratsiya payplaynov: idei→audio→video→pakety.
 
 Mosty:
-- Yavnyy: (Payplayn ↔ Modulnost) edinaya tochka «sdelat short/long» iz teksta/roley.
+- Yavnyy: (Payplayn ↔ Modulnost) edinaya tochka “sdelat short/long” iz teksta/roley.
 - Skrytyy #1: (Garazh/Flot ↔ Volya) planiruet zadachi i mozhet otdavat vo flot.
 - Skrytyy #2: (Memory ↔ Profile) skladyvaet meta-otchet s profileom.
 
 Zemnoy abzats:
-Konveyer: na vkhod tekst i roli — na vykhod mp4+wav i metadannye dlya publikatsii.
+Konveyer: na vkhod tekst i roli - na vykhod mp4+wav i metadannye dlya publikatsii.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict, List
@@ -28,7 +26,7 @@ def long_from_drama(title: str, roles: List[Dict[str,Any]], script: List[Dict[st
     _ens()
     # shag 1: audio
     a=drama(title, roles, script)
-    # shag 2: subtitry iz skripta (prostoe raspredelenie po 3s)
+    # step 2: subtitles from the script (simple distribution by 3s)
     subs=[]; t=0.0
     for line in script:
         txt=str(line.get("text",""))

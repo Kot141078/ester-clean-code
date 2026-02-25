@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/usb_agent.py — UI/REST upravleniya Zero-Touch USB agentom.
+"""routes/usb_agent.py - UI/REST upravleniya Zero-Touch USB agentom.
 
-Marshruty:
-  • GET  /admin/usb/agent            — HTML-stranitsa
-  • GET  /admin/usb/agent/status     — JSON-status
-  • POST /admin/usb/agent/start      — zapustit (opts. interval)
-  • POST /admin/usb/agent/stop       — ostanovit
-  • GET  /admin/usb/agent/logs       — khvost JSONL-logov (?tail=200)
+Route:
+  • GET /admin/usb/agent - HTML-stranitsa
+  • GET /admin/usb/agent/status - JSON-status
+  • POST /admin/usb/agent/start - zapustit (opts. interval)
+  • POST /admin/usb/agent/stop - ostanovit
+  • GET /admin/usb/agent/logs - khvost JSONL-logov (?tail=200)
 
 Mosty:
 - Yavnyy (Kibernetika v†" UX): operator upravlyaet agentom odnoy knopkoy.
@@ -15,10 +14,9 @@ Mosty:
 - Skrytyy 2 (Praktika v†" Vezopasnost): po umolchaniyu agent vyklyuchen; start — yavnym deystviem.
 
 Zemnoy abzats:
-Eto «pult dezhurnoy»: vklyuchil obkhod — smotrish telemetriyu. Vyklyuchil — tishina.
+This is “pult dezhurnoy”: vklyuchil obkhod - smotrish telemetriyu. Vyklyuchil - tishina.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, render_template, request

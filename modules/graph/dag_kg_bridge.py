@@ -1,23 +1,21 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.graph.dag_kg_bridge — most mezhdu DAG‑dvizhkom i KG‑uzlami.
+"""modules.graph.dag_kg_bridge - most mezhdu DAG‑dvizhkom i KG‑uzlami.
 Mosty:
 - Yavnyy: build_graph_for_entity()/run_graph() — prostaya sborka DAG vokrug kg_nodes.*.
 - Skrytyy #1: (DX ↔ Sovmestimost) — ne trogaem dag_engine; ispolzuem ego publichnyy build_graph().
 - Skrytyy #2: (Memory ↔ Orkestratsiya) — deklarativnaya sborka plana (entity + relations).
 
 Zemnoy abzats:
-Eto «soedinitelnaya tkan» mezhdu planirovaniem (DAG) i znaniyami (KG): dobavili suschnost i svyazi — zapustili graf.
-# c=a+b
-"""
+Eto "soedinitelnaya tkan" mezhdu planirovaniem (DAG) i znaniyami (KG): add suschnost i svyazi - zapustili graf.
+# c=a+b"""
 from typing import Dict, Any, List, Tuple, Optional
 from importlib import import_module
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def _kg():
-    from modules.graph import kg_nodes as kg  # lokalnyy import dlya ustoychivosti
+    from modules.graph import kg_nodes as kg  # local import for sustainability
     return kg
 
 def make_add_entity_node(eid: str, labels: Optional[List[str]]=None, props: Optional[Dict[str,Any]]=None) -> Dict[str, Any]:

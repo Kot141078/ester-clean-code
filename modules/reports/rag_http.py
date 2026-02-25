@@ -1,11 +1,9 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.reports.rag_http — markdown‑svodka po RAG indeksu.
-Rout: `/compat/reports/rag.md` (FastAPI/Flask, ruchnoe podklyuchenie).
-# c=a+b
-"""
+"""modules.reports.rag_http - markdown summary of the RAG index.
+Route: e/comp/reports/rag.mdyo (FastAPI/Flask, manual connection).
+# c=a+b"""
 import os
 from typing import Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

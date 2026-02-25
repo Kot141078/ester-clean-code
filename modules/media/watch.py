@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/media/watch.py — konfiguriruemyy votcher direktoriy/spiskov URL.
+"""modules/media/watch.py ​​- configure votcher direktoriy/spiskov URL.
 
 Mosty:
-- Yavnyy: (Planirovschik ↔ Media) odin «tik» obrabatyvaet nemnogo zadach.
+- Yavnyy: (Planirovschik ↔ Media) odin “tik” obrabatyvaet nemnogo zadach.
 - Skrytyy #1: (Volya ↔ Eksheny) dostupen kak deystvie media.watch.tick.
 - Skrytyy #2: (Kvoty ↔ Backpressure) kazhdyy tik uvazhaet limity ingest.
 
 Zemnoy abzats:
-Periodicheski zaglyadyvaem v papki i spiski ssylok — i berezhno proglatyvaem novye roliki.
+Periodicheski zaglyadyvaem v papki i spiski ssylok - i berezhno proglatyvaem novye roliki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, re
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

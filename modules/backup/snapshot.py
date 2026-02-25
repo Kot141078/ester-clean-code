@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/backup/snapshot.py — prostye bekapy: ZIP + manifest + retention.
+"""modules/backup/snapshot.py - prostye backup: ZIP + manifest + retention.
 
 Mosty:
 - Yavnyy: (FS ↔ Survival) sobiraem snapshot vazhnykh katalogov s kheshem i opisaniem.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (ABSlots/P2P ↔ Rasprostranenie) ZIP prigoden dlya perenosa/samosborki.
 
 Zemnoy abzats:
-Kak «arkhiv nochi»: zapakovali nuzhnye papki, podpisali, ostavili tolko svezhie — ostalnoe vybrosili.
+Kak “arkhiv nochi”: zapakovali nuzhnye papki, podpisali, ostavili tolko svezhie - ostalnoe vybrosili.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, json, hashlib, zipfile, glob, shutil
 from typing import List, Dict, Any

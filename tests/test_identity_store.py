@@ -17,7 +17,7 @@ class TestIdentityStore(unittest.TestCase):
                 saved = save_profile({"human_name": "Owner", "language": "ru", "timezone": "UTC"})
                 self.assertEqual(saved["human_name"], "Owner")
 
-                anchor_text = "Anchor: nablyudaem, pereosmyslyaem, deystvuem."
+                anchor_text = "Ankhor: observing, rethinking, acting."
                 save_anchor(anchor_text)
 
                 loaded_profile = load_profile()

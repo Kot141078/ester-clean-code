@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/studio_avatar_routes.py - REST: reestr modeley i «virtualnyy veduschiy».
+"""routes/studio_avatar_routes.py - REST: reestr modeley i "virtualnyy veduschiy".
 
 Mosty:
 - Yavnyy: (Veb ↔ Orkestrator) pokazyvaet dostupnye provaydery i renderit veduschego.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Memory ↔ Profile) logiruet fakt vypuska.
 
 Zemnoy abzats:
-Knopki «proverit dvizhki» i «sobrat veduschego» - i vsya magiya pod kapotom.
+Knopki “check it dvizhki” i “sobrat veduschego” - i vsya magiya pod kapotom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import json

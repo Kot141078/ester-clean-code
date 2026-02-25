@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-ingest_all.py — «proglotit vse» iz papki proekta i polozhit v vstore.
+"""ingest_all.py - “proglotit vse” iz papki proekta i polozhit v vstore.
 
-Chto uluchsheno:
-- net zhestkogo D:\... — root beretsya iz argumenta/tekuschey papki;
+What improved:
+- net zhestkogo D:\... - root beretsya iz argumenta/tekuschey papki;
 - net zavisimosti ot chromadb (po umolchaniyu ispolzuem vector_store.VectorStore);
 - idempotentnost: determinirovannye chunk_id (povtornyy progon ne plodit dubley);
 - normalnaya rabota s kodirovkami (utf-8/utf-16/cp1251 i t.p.);
 - akkuratnyy chanking + metadannye (source, file_sha256, chunk_index, size, mtime).
 
 Zapusk (PowerShell):
-  python .\ingest_all.py --root D:\ester-project
-"""
+  python .\ingest_all.py --root D:\ester-project"""
 
 import argparse
 import hashlib
@@ -168,12 +166,12 @@ def iter_files(root: str, exts: set[str], ignore_dirs: set[str], ignore_files: s
 
 def main(argv: Optional[List[str]] = None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--root", default=os.getcwd(), help="Koren dlya skanirovaniya (po umolchaniyu tekuschaya papka)")
-    ap.add_argument("--exts", default=",".join(sorted(DEFAULT_EXTS)), help="Spisok rasshireniy cherez zapyatuyu")
+    ap.add_argument("--root", default=os.getcwd(), help="Root to scan (default current folder)")
+    ap.add_argument("--exts", default=",".join(sorted(DEFAULT_EXTS)), help="List of extensions separated by commas")
     ap.add_argument("--max-chars", type=int, default=DEFAULT_MAX_CHARS)
     ap.add_argument("--overlap", type=int, default=DEFAULT_OVERLAP)
     ap.add_argument("--no-jsonl", action="store_true", help="Ne parsit jsonl spetsialnym obrazom")
-    ap.add_argument("--dry-run", action="store_true", help="Nichego ne pisat, tolko pokazat statistiku")
+    ap.add_argument("--dry-run", action="store_true", help="Don't write anything, just show statistics")
     args = ap.parse_args(argv)
 
     root = os.path.abspath(args.root)
@@ -182,7 +180,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     ignore_files = set(DEFAULT_IGNORE_FILES)
 
     if VectorStore is None:
-        print("[ERR] vector_store.py ne nayden/ne importiruetsya. Prover, chto on ryadom s ingest_all.py", file=sys.stderr)
+        print("yRRsch vector_store.po not found/not imported. Make sure he's near ingest_all.po", file=sys.stderr)
         return 2
 
     vstore = VectorStore()

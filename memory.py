@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-HumanMemory (v4)
+"""HumanMemory (v4)
 Epizodicheskaya / Semanticheskaya / Kartochki.
 - episodic: JSONL append-only v vstore/ester_memory.jsonl
-- semantic: FAISS (cosine) + meta v JSONL; folbek — TF-IDF (scikit-learn)
+- semantic: FAISS (cosine) + meta v JSONL; folbek - TF-IDF (scikit-learn)
 - cards: JSONL (pin/listing)
 - Avto-rotatsiya JSONL pri > rotate_threshold zapisey.
-- recall(query, k, scopes=...) => obedinennaya vydacha so skoupom i score.
-"""
+- recall(query, k, scopes=...) => obedinennaya vydacha so skoupom i score."""
 from __future__ import annotations
 
 import json
@@ -17,7 +15,7 @@ import uuid
 from typing import Any, Dict, List, Optional, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# sentence-transformers (lokalno) — po vozmozhnosti; inache folbek na TF-IDF
+# sententse-transformers (locally) - if possible; otherwise fullback to TF-IDF
 try:
     from sentence_transformers import SentenceTransformer
 except Exception:
@@ -52,9 +50,7 @@ def _norm(vec):
 
 
 class _SemanticIndex:
-    """
-    FAISS + JSONL meta; esli FAISS/encoder nedostupny — TF-IDF fallback.
-    """
+    """FAIS + JSONL meta; if FAIS/encoder are not available, TF-IDF is false."""
 
     def __init__(self, faiss_path: str, meta_jsonl: str, use_local_model: bool = True):
         self.faiss_path = faiss_path
@@ -252,7 +248,7 @@ class HumanMemory:
         }
         self._append_jsonl(self.episodic_path, rec)
         self._rotate_if_needed(self.episodic_path)
-        # indeksiruem v semantike, chtoby recall rabotal dazhe dlya epizodiki
+        # We index it semantically so that advertising works even for episodic content
         self.semantic.add(
             rec_id, text, {"created_at": rec["created_at"], "scope": "semantic-shadow"}
         )
@@ -305,7 +301,7 @@ class HumanMemory:
                 ]
             )
 
-        # cards (filtratsiya po podstroke + prostaya relevantnost)
+        # cards (filtering by substring + simple relevance)
         if "cards" in scopes:
             cards = self._search_cards(query, top=k)
             out.extend(
@@ -347,7 +343,7 @@ class HumanMemory:
         }
         self._append_jsonl(self.cards_path, rec)
         self._rotate_if_needed(self.cards_path)
-        # indeksatsiya v semantike dlya recall
+        # indexing in semantics for advertising
         self.semantic.add(card_id, text, {"created_at": rec["created_at"], "scope": "cards"})
         return card_id
 
@@ -386,7 +382,7 @@ class HumanMemory:
 
     # ---------- internals ----------
     def _search_episodic_tfidf(self, query: str, top: int = 8) -> List[Dict[str, Any]]:
-        # chitaem ves JSONL (prostaya strategiya; dlya bolshikh obemov — derzhat kesh/indeks)
+        # read the entire JSONL (simple strategy; for large volumes - keep cache/index)
         rows: List[Dict[str, Any]] = []
         if os.path.exists(self.episodic_path):
             with open(self.episodic_path, "r", encoding="utf-8") as f:

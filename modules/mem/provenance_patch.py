@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/mem/provenance_patch.py — myagkiy hook k menedzheru pamyati: meta.provenance (src, sha256, t_start/t_end, ver).
+"""modules/mem/provenance_patch.py ​​- myagkiy hook k menedzheru pamyati: meta.provenance (src, sha256, t_start/t_end, ver).
 
 Mosty:
 - Yavnyy: (MemoryManager ↔ Profile) kazhdyy apdeyt pamyati poluchaet profile.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Ingest/EntityLink ↔ Skleyka) provenans tyanetsya v KG/gipotezy.
 
 Zemnoy abzats:
-Kak shtamp na bumage: kto prines, chto vnutri i kogda. Potom legche suditsya s khaosom.
+Kak stamp on paper: who prines, what vnutri i kogda. Then legche suditsya s khaosom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hashlib
 from typing import Any, Dict

@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-tools/show_memory_stack_status.py - offline memory stack status.
+"""tools/show_memory_stack_status.py - offline memory stack status.
 
 MOSTY:
 - Yavnyy: profile/anchor/scroll -> edinaya diagnostika sostoyaniya pamyati.
 - Skrytyy #1: infoteoriya -> meryaem, est li poleznyy signal (ne pustye fayly), a ne tolko fakt nalichiya putey.
-- Skrytyy #2: kibernetika -> odin status-sloy dlya bootstrap i timeline umenshaet rassoglasovanie konturov.
+- Skrytyy #2: kibernetika -> odin status-layer dlya bootstrap i timeline umenshaet rassoglasovanie konturov.
 
 ZEMNOY ABZATs:
-Eto kak pribornaya panel u kesha: vidno, est li bazovye opory i skolko nedavnikh strok mozhno podnyat v pamyat.
-"""
+Eto kak pribornaya panel u kesha: vidno, est li bazovye opory i skolko nedavnikh strok mozhno podnyat v pamyat."""
 from __future__ import annotations
 
 import argparse

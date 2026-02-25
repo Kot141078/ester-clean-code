@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/front_routes.py - vspomogatelnyy alias-redirekt bez zakhvata kornya.
+"""routes/front_routes.py - vspomogatelnyy alias-redirekt bez zakhvata kornya.
 
-Ideya: koren (/) dolzhen ostavatsya kanonicheskim v root_routes.py.
-Zdes ostavlyaem tolko vspomogatelnyy marshrut /_alias/root_redirect.
+Idea: koren (/) dolzhen ostavatsya kanonicheskim v root_routes.py.
+Zdes ostavlyaem tolko vspomogatelnyy route /_alias/root_redirect.
 
 Mosty:
   • Yavnyy: (Arkhitektura PO ↔ UX) - korotkiy put do paneli.
   • Skrytye: (Infoteoriya ↔ Nablyudaemost), (Anatomiya ↔ Navigatsiya).
 
 Zemnoy abzats:
-  Kak tablichka «Resepshn → napravo» u vkhoda - chtoby ne bluzhdat po pustomu khollu.
+  Kak tablichka “Resepshn → napravo” u vkhoda - chtoby ne bluzhdat po pustomu khollu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, current_app, redirect, url_for

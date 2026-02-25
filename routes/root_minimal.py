@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes.root_minimal - prostoy HTML-ekran s otchetom zagruzki.
+"""routes.root_minimal - simple HTML-ekran s otchetom zagruzki.
 
 MOSTY:
 - Yavnyy: Predstavlenie ↔ Diagnostika - HTML-obertka nad tem zhe otchetom dlya bystrogo vizualnogo osmotra.
-- Skrytyy 1: Infoteoriya - vizualizatsiya kak «deshifrator» sostoyaniya (umenshaem kognitivnuyu entropiyu).
-- Skrytyy 2: Bayes - operator otsenivaet dostovernost «zdorovya» po artefaktam (zaregistrirovano/propuscheno).
+- Skrytyy 1: Infoteoriya - vizualizatsiya kak “deshifrator” sostoyaniya (umenshaem kognitivnuyu entropiyu).
+- Skrytyy 2: Bayes - operator otsenivaet dostovernost “zdorovya” po artefaktam (zaregistrirovano/propuscheno).
 
 ZEMNOY ABZATs:
-Kak panel priborov v mashine: lampochki i tsifry - srazu vidno, edet li avtomobil i chto chinit.
-"""
+Kak panel priborov v machine: lampochki i tsifry - srazu vidno, edet li avtomobil i chto chinit."""
 import html
 from flask import Blueprint, current_app, Response
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

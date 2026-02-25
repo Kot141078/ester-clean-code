@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/bind/stt_media.py — binder «media → transkript»: idem po MEDIA_INDEX, gde net teksta — zovem STT.
+"""modules/bind/stt_media.py - binder "media → transkript": idem po MEDIA_INDEX, where net teksta - zovem STT.
 
 Mosty:
 - Yavnyy: (Media ↔ STT) avtomatiziruet sozdanie subtitrov dlya novykh video/audio.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (RAG/KG ↔ Bogache kontekst) gotovye teksty srazu popadayut v poisk.
 
 Zemnoy abzats:
-Kak konveyer podrezki: novye roliki poluchili — srazu sdelali im tekst i taymkody.
+Kak konveyer podrezki: novye roliki poluchili - srazu sdelali im tekst i taymkody.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -61,7 +59,7 @@ def run()->dict:
             continue
         if proc.get(mid):
             continue
-        # esli uzhe est notes v kartochke — propustim
+        # if there is already a note in the card, we’ll skip it
         if paths.get("notes") and os.path.isfile(paths["notes"]):
             proc[mid]={"t": int(time.time()), "skip":"has_notes"}; continue
         # vyzov STT

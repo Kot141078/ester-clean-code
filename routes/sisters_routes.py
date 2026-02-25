@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/sisters_routes.py - REST: spisok/registratsiya sester i vydacha zadach.
+"""routes/sisters_routes.py - REST: spisok/registratsiya sister i vydacha zadach.
 
 Mosty:
 - Yavnyy: (Veb ↔ Sestry) tsentralizovannoe upravlenie raspredeleniem.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Rules/Cron ↔ Avtonomiya) legko vyazhetsya s pravilami/kronom.
 
 Zemnoy abzats:
-Odin POST - i nuzhnaya sestra poluchila poruchenie; itog viden srazu.
+Odin POST - i nuzhnaya sestra poluchila poruchenie; the result is visible immediately.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/messaging_health_routes.py - health/readiness/liveness dlya messaging-steka.
+"""routes/messaging_health_routes.py - health/readiness/liveness dlya messaging-steka.
 
 MOSTY:
-- (Yavnyy) Signaly dlya orkestratora i cheloveka: chto skonfigurirovano, chto zagruzheno, chto sukho (dry).
+- (Yavnyy) Signaly dlya orkestratora i cheloveka: what skonfigurirovano, what zagruzheno, what sukho (dry).
 - (Skrytyy #1) Test zagruzki pravil PROACTIVE_RULES_PATH i WILL_MAP_PATH bez pobochnykh effektov.
 - (Skrytyy #2) Diagnostika okruzheniya: tokeny/ID prisutstvuyut, no v otvete ne utekut (boolean only).
 
 ZEMNOY ABZATs:
-Daet bystryy «svetofor» - mozhno li bezopasno vklyuchat Ester-messendzhery v prod i zhdat soobscheniy.
+Daet bystryy “svetofor” - mozhno li bezopasno vklyuchat Ester-messendzhery v prod i zhdat soobscheniy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/pay/prefs.py — platezhnye predpochteniya Papy (instruktsii dlya schetov/pisem).
+"""modules/pay/prefs.py - platezhnye predpochteniya Papy (instruktsii dlya schetov/pisem).
 
 Mosty:
 - Yavnyy: (Finance/Outreach ↔ Papa) tsentralizovannye rekvizity v odnom meste.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Passport ↔ Prozrachnost) izmeneniya fiksiruyutsya.
 
 Zemnoy abzats:
-Odin spravochnik rekvizitov: chtoby kazhdyy raz ne vspominat IBAN/PayPal — podstavilos avtomaticheski i bez oshibok.
+Odin reference rekvizitov: chtoby kazhdyy raz ne vspominat IBAN/PayPal - podstavilos avtomaticheski i bez oshibok.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from typing import Dict, Any

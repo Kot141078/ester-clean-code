@@ -36,7 +36,7 @@ def test_guardian_status_event_and_summary(client, auth_hdr_user):
         headers=auth_hdr_user,
         json={
             "role": "user",
-            "content": "Dlinnyy-dlinnyy tekst obsuzhdeniya dlya testa.",
+            "content": "Long, long discussion text for the test.",
         },
     )
     assert e.status_code == 200

@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/safe_windows_routes.py - REST dlya safe-okon.
+"""rutes/safe_windows_rutes.po - REST for safe windows.
 
-Ruchki:
-  POST /safe/set   {"deny":["BankApp","Steam"],"allow":["Notepad"]}
-  GET  /safe/status
+Handles:
+  POST /safe/network ZZF0Z
+  GET /safe/status
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.security.safe_windows import set_policy, _load as _status

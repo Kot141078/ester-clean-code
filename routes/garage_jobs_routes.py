@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/garage_jobs_routes.py - REST: import/listing/skoring vakansiy.
+"""routes/garage_jobs_routes.py - REST: import/listing/skoring vakansiy.
 
 Mosty:
 - Yavnyy: (Veb ↔ Garazh) bystraya priemka i otsenka zadach.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Volya ↔ Plan) eksheny obraschayutsya k tem zhe funktsiyam.
 
 Zemnoy abzats:
-Eto «priemnaya» v garazhe: berem zayavku, kladem v spisok, otsenili - gotovo k rabote.
+Eto "priemnaya" v garazhe: berem zayavku, kladem v spisok, otsenili - gotovo k rabote.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

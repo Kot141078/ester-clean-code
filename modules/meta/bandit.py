@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-modules/meta/bandit.py — mnogorukie bandity (UCB1, Thompson) dlya vybora «ruk» (kandidatov).
+"""modules/meta/bandit.py - mnogorukie bandity (UCB1, Thompson) dlya vybora “ruk” (kandidatov).
 Khranenie (ESTER_DATA_ROOT):
-  - data/meta/bandit/<name>/arms.json    [{id, stats}]
+  - data/meta/bandit/<name>/arms.json [{id, stats}]
   - data/meta/bandit/<name>/events.jsonl log
-  - data/app/meta/policy_{A,B}.json      (A/B-sloty dlya meta-politik)
-  - data/app/meta/meta_policy_active.json {"active":"A"|"B"}
-"""
+  - data/app/meta/policy_{A,B}.json (A/B-sloty dlya meta-politik)
+  - data/app/meta/meta_policy_active.json {"active":"A"|"B"}"""
 from __future__ import annotations
 from typing import Dict, Any, List, Optional
 import os, json, math, random, pathlib, time
@@ -90,7 +88,7 @@ def update(name: str, arm_id: str, reward: float, threshold: float = 0.5) -> Dic
             return {"ok": True}
     return {"ok": False, "error": "arm not found"}
 
-# --- AB-sloty dlya meta-politiki (bezopasnaya samo-redaktura) ---
+# --- AB slots for meta-policy (safe self-editor) ---
 
 def _meta_active_file() -> pathlib.Path:
     return APP_META_DIR / "meta_policy_active.json"
@@ -113,7 +111,7 @@ def set_active_meta_slot(slot: str) -> None:
     _json_atomic(_meta_active_file(), {"active": slot})
 
 def stage_meta_policy(policy: Dict[str, Any]) -> Dict[str, Any]:
-    """Pishem politiku v **neaktivnyy** slot, vozvrata net (promout otdelno i vruchnuyu)."""
+    """We write the policy in the **inactive** slot, there is no return (we will wash it separately and manually)."""
     active = get_active_meta_slot()
     inactive = "B" if active == "A" else "A"
     _json_atomic(_meta_slot_path(inactive), policy)

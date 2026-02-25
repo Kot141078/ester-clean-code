@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_creed_routes.py - REST API dlya poslaniya «Ottsa» + metriki.
+"""routes/self_creed_routes.py - REST API dlya poslaniya "Ottsa" + metriki.
 
-Endpointy:
-  • GET  /self/creed          → {"text","meta":{"provenance":...},"tags"}
-  • POST /self/creed/affirm   → idempotentno polozhit v pamyat (ili lokalno)
-  • GET  /metrics/self_creed  → schetchiki profilea/zapisey/propuskov
+Endpoint:
+  • GET /self/creed → {"text","meta":{"provenance":...},"tags"}
+  • POST /self/creed/affirm → idempotentno polozhit v pamyat (ili lokalno)
+  • GET /metrics/self_creed → schetchiki profilea/zapisey/propuskov
 
 Mosty:
 - Yavnyy: (Samopoznanie ↔ Memory) izvne i iz voli dostup k tekstu i k ego zapisi v pamyat.
-- Skrytyy #1: (Infoteoriya ↔ Audit) profile pomogaet sverit, chto lezhit v pamyati - eto «tot samyy» tekst.
+- Skrytyy #1: (Infoteoriya ↔ Audit) profile help sverit, chto lezhit v pamyati - eto “tot samyy” tekst.
 - Skrytyy #2: (UX ↔ Sovmestimost) nikakikh pravok suschestvuyuschikh kontraktov, tolko novye ruchki.
 
 Zemnoy abzats:
-Eto dvertsa k «tablichke u serdtsa»: posmotret, podtverdit, chto sokhraneno, i podsmotret metriki.
+Eto dvertsa k “tablichke u serdtsa”: posmotret, podtverdit, chto sokhraneno, i podsmotret metriki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

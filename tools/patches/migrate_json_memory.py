@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-migrate_json_memory.py
-Slivaet starye memory.json iz tipichnykh mest v tekuschiy store._FILE (ESTER_STATE_DIR/ESTER_HOME).
+"""migrate_json_memory.py
+Slivaet starye memory.json iz tipichnykh place v tekuschiy store._FILE (ESTER_STATE_DIR/ESTER_HOME).
 
 Politika sliyaniya:
 - klyuch = id
 - esli id uzhe est -> berem zapis s bolee novym ts
-- vec pereschitaem stabilnym embed (A1), staryy vec sokhranim kak vec_legacy (esli byl)
-"""
+- vec pereschitaem stabilnym embed (A1), staryy vec sokhranim kak vec_legacy (esli byl)"""
 from __future__ import annotations
 
 import json
@@ -38,12 +36,12 @@ def main() -> None:
 
     dim = int(os.getenv("MEM_VEC_DIM", "384").strip() or 384)
 
-    # kandidaty na “staruyu” pamyat
+    # candidates for “old” memory
     candidates = [
         ROOT / "data" / "memory" / "memory.json",
     ]
 
-    # plyus: vse memory.json pod proektom (ogranichim glubinu)
+    # plus: all memories.zhsion under project (limit depth)
     for p in ROOT.rglob("memory.json"):
         if "site-packages" in str(p).lower():
             continue
@@ -82,7 +80,7 @@ def main() -> None:
                 skipped += 1
                 continue
 
-            # pereschet vec (staroe sokhranyaem)
+            # entire recalculation (we save the old one)
             v = rec.get("vec")
             if isinstance(v, list) and v:
                 rec.setdefault("vec_legacy", v)

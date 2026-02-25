@@ -25,12 +25,12 @@ def test_chat_message_local(client, auth_header):
     assert data["mode"] == "local"
     assert "response" in data and isinstance(data["response"], str)
     assert data["providers_local"]  # spisok est
-    # istochniki RAG dolzhny prisutstvovat (moki vozvraschayut 2 chanka)
+    # RAG sources must be present (mocks return 2 chunks)
     assert isinstance(data.get("sources"), list) and len(data["sources"]) >= 1
 
 
 def test_chat_message_cloud_judge_merge(client, auth_header):
-    # rezhim cloud — obedinenie cherez sudyu po umolchaniyu
+    # cloud mode - association through a judge by default
     r = _post(
         client,
         "/chat/message",
@@ -53,7 +53,7 @@ def test_chat_message_explicit_judge(client, auth_header):
         client,
         "/chat/message",
         {
-            "query": "Sravni Python i Go dlya mikroservisov",
+            "query": "Compare Pothon and Go for microservices",
             "mode": "judge",
             "judge": "openai",
             "user": "Owner",

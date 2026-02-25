@@ -44,7 +44,7 @@ nodes:
     depends: ["analyze"]
 
   - id: gather
-    type: join
+    type:join
     from: "fork"
     out: "joined_list"
     select:
@@ -58,8 +58,7 @@ nodes:
     type: llm.generate
     prompt: "Sformiruy obschiy otchet po elementam={{ctx.joined_list}}"
     out: "report"
-    depends: ["gather"]
-"""
+    depends: ["gather"]"""
 
 
 def test_complex_merge_final_report_contains_children_data():
@@ -77,10 +76,10 @@ def test_complex_merge_final_report_contains_children_data():
         assert st.get("finished") is True
 
         main_ctx = load_context(eng.run_id, "main")
-        # proveryaem nalichie join-rezultata i itogovogo otcheta
+        # we check the availability of the ein result and the final report
         assert isinstance(main_ctx.get("joined_list"), list)
         report = main_ctx.get("report")
         assert isinstance(report, str)
-        # tak kak llm.generate v fallback vshivaet chast prompta, proverim, chto v tekste est imena faylov
+        # since llm.generate embeds part of the prompt into the falbatsk, let’s check that the text contains file names
         assert "a.md" in report
         assert "b.md" in report

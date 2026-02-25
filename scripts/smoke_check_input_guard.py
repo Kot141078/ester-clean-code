@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/smoke_check_input_guard.py
+"""scripts/smoke_check_input_guard.py
 
 Smoke-test dlya modules.core.input_guard.
 
-Naznachenie:
-- Garantirovat, chto input_guard viden kak paket iz lyuboy rabochey direktorii.
-- Proverit:
+Name:
+- Garantirovat, what input_guard viden kak paket iz lyuboy rabochey direktorii.
+- Check:
   * korrektnoe chtenie ESTER_CHAT_MAX_INPUT_CHARS,
   * otsutstvie iskazheniy korotkogo vvoda,
   * obrezku slishkom dlinnogo vvoda do limita,
   * bezopasnuyu obrabotku pustykh znacheniy.
 
 Zapusk (iz kornya proekta):
-    python scripts/smoke_check_input_guard.py
-"""
+    python scripts/smoke_check_input_guard.py"""
 
 from __future__ import annotations
 
@@ -24,7 +22,7 @@ import random
 import string
 from pathlib import Path
 
-# --- Podklyuchaem koren proekta, chtoby import modules.* rabotal pri zapuske iz scripts/ ---
+# --- We connect the root of the project so that import modules.* works when launched from script/ ---
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -41,28 +39,28 @@ def _make_text(n: int) -> str:
 
 
 def main() -> None:
-    # Dlya testa zhestko zadaem limit (kak v boevom .env).
+    # For the test, it strictly sets the limit (as in combat .env).
     os.environ["ESTER_CHAT_MAX_INPUT_CHARS"] = "16000"
 
     limit = input_guard.get_effective_limit()
     assert limit == 16000, f"Expected limit 16000, got {limit}"
     print(f"[OK] Effective limit = {limit}")
 
-    # 1) Korotkiy vvod — ne dolzhen rezatsya
+    # 1) Short input - should not be cut
     short = _make_text(100)
     out_short, info_short = input_guard.normalize_input(short)
     assert out_short == short, "Short input must stay untouched."
     assert not info_short.trimmed, "Short input must not be marked as trimmed."
     print("[OK] Short input preserved.")
 
-    # 2) Dlinnyy vvod — dolzhen byt obrezan do limita
+    # 2) Long input - must be trimmed to the limit
     long = _make_text(limit + 500)
     out_long, info_long = input_guard.normalize_input(long)
     assert len(out_long) == limit, f"Long input must be trimmed to {limit} chars."
     assert info_long.trimmed, "Long input must be marked as trimmed."
     print("[OK] Long input trimmed correctly.")
 
-    # 3) Pustye znacheniya — bezopasnaya obrabotka
+    # 3) Empty values ​​- safe processing
     empty, info_empty = input_guard.normalize_input(None)
     assert empty == "", "None must become empty string."
     assert not info_empty.trimmed, "Empty is not 'trimmed'."

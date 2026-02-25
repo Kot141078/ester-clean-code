@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_discover.py — eksheny «voli» dlya avto-diskovera.
+"""modules/thinking/actions_discover.py - eksheny "voli" dlya avto-diskovera.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Diskaver) pozvolyaet Ester samoy iskat i podklyuchat novye moduli.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Cron ↔ Avtonomiya) mozhno dergat iz nochnykh protsedur.
 
 Zemnoy abzats:
-«Nashla — podklyuchila»: teper Ester sama rasshiryaet svoy instrumentariy iz gotovykh drop-in moduley.
+“Nashla - podklyuchila”: teper Ester sama rasshiryaet svoy instrumentariy iz gotovykh drop-in modulary.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

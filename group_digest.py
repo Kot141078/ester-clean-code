@@ -1,38 +1,36 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-GroupDigestDaemon — periodicheski shlet v whitelisted-gruppy daydzhest i myagkuyu “obschuyu initsiativu”.
+"""GroupDigestDaemon - periodicheski shlet v whitelisted-groupy daydzhest i myagkuyu “obschuyu initsiativu”.
 
 Tekuschaya oshibka iz loga:
   cannot import name 'suggest_assignments' from 'group_intelligence'
 Prichina: v group_intelligence funktsiya nazvana inache (ili ee pereimenovali), a v group_digest
 stoit zhestkiy import `from group_intelligence import suggest_assignments`, kotoryy valit import modulya.
 
-Ispravlenie:
-  - Ubrali zhestkiy import i sdelali “lazy resolver”:
+Correction:
+  - Removed zhestkiy import i sdelali “lazy resolver”:
       1) pytaemsya importirovat group_intelligence
       2) ischem funktsiyu sredi kandidatov (suggest_assignments / suggest_group_assignments / ...)
-      3) esli nichego ne nashli — rabotaem v rezhime “digest-only” (bez plana)
+      3) esli nichego ne nashli - rabotaem v rezhime “digest-only” (bez plana)
 
-Rabotaet tolko esli:
+Rabotaet only esli:
   - ESTER_GROUP_MODE=all
   - chat_id gruppy est v ESTER_GROUP_WHITELIST (cherez zapyatuyu)
 
-Optsionalnye nastroyki:
+Optional settings:
   - ESTER_GROUP_WHITELIST="-100123,-100456"
-  - ESTER_GROUP_QUIET_HOURS="23,7"          # ne pisat s 23:00 do 07:00
-  - ESTER_GROUP_PERIOD_MIN="120,240"        # interval mezhdu daydzhestami (minuty)
-  - ESTER_GROUP_MAX_LEN="3500"              # limit dliny soobscheniya
+  - ESTER_GROUP_QUIET_HOURS="23.7" # ne pisat s 23:00 to 07:00
+  - ESTER_GROUP_PERIOD_MIN="120,240" # interval mezhdu daydzhestami (minuty)
+  - ESTER_GROUP_MAX_LEN="3500" # limit length soobscheniya
 
-Mosty (trebovanie):
+Mosty (demand):
   - Yavnyy most: group_intelligence → group_digest → Telegram (plan/rezyume prevraschayutsya v deystvie/soobschenie).
   - Skrytye mosty:
-      (1) Kibernetika ↔ kod: “fail-open” rezhim — esli plan sloman, sistema ne padaet, a degradiruet myagko.
+      (1) Kibernetika ↔ kod: “fail-open” rezhim - esli plan broken, sistema ne padaet, a degradiruet myagko.
       (2) Inzheneriya ↔ gigiena: lazy import ubiraet khrupkost avtoloada (minimizatsiya tochek otkaza).
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 import datetime as _dt
 import html
@@ -45,8 +43,8 @@ import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 # --- Telegram sender (best-effort) ---
-# Pytaemsya pereispolzovat suschestvuyuschuyu realizatsiyu, esli ona est.
-# Esli importa net/lomaetsya — ukhodim na pryamoy HTTP-vyzov Telegram Bot API.
+# We are trying to reuse an existing implementation, if there is one.
+# If there is no import/breaks, we go to a direct HTTP call to Telegram Here is the API.
 def _tg_send_http(token: str, chat_id: int, text: str, *, parse_mode: str = "HTML", disable_web_page_preview: bool = True, timeout: int = 20) -> bool:
     token = (token or "").strip()
     if not token:
@@ -105,10 +103,10 @@ def _resolve_tg_send():
 
 
 tg_send = _resolve_tg_send()
-# Defolty (mozhno pereopredelyat cherez env)
+# Defaults (can be overridden via ENV)
 QUIET_HOURS: Tuple[int, int] = (23, 7)     # ne pishem s 23 do 7 (lokalno)
-PERIOD_MIN: Tuple[int, int] = (120, 240)   # randomnyy interval mezhdu daydzhestami (minuty)
-MAX_LEN_DEFAULT = 3500                     # bezopasnyy potolok dlya teksta
+PERIOD_MIN: Tuple[int, int] = (120, 240)   # random interval between digests (minutes)
+MAX_LEN_DEFAULT = 3500                     # safe ceiling for text
 
 log = logging.getLogger("EsterGroupDigest")
 
@@ -176,7 +174,7 @@ def _clamp_message(text: str, max_len: int) -> str:
 
 
 def _resolve_suggest_fn() -> Optional[Callable[..., Any]]:
-    """Ischet funktsiyu “suggest assignments” v group_intelligence bez padeniya importa."""
+    """Looks for the “suggest assignments” function in group_intelligentsia without dropping imports."""
     try:
         import group_intelligence as gi  # type: ignore
     except Exception as e:
@@ -196,7 +194,7 @@ def _resolve_suggest_fn() -> Optional[Callable[..., Any]]:
         if callable(fn):
             return fn
 
-    # esli pereimenovali sovsem — ne padaem
+    # if you rename it completely, it doesn’t crash
     log.warning("group_intelligence has no known suggest_* function (available: %s)", ",".join(sorted(set(
         [n for n in dir(gi) if ("suggest" in n.lower() or "assign" in n.lower())][:40]
     ))))
@@ -204,7 +202,7 @@ def _resolve_suggest_fn() -> Optional[Callable[..., Any]]:
 
 
 def _call_suggest(fn: Callable[..., Any], *, token: str, gid: int) -> Any:
-    """Probuet vyzvat fn v raznykh signaturakh. Token peredaem tolko esli yavno trebuetsya parametrom."""
+    """Tries to call fn in different signatures. We pass the token only if it is explicitly required by the parameter."""
     # 1) prostye varianty bez tokena
     for args, kwargs in [
         ((gid,), {}),
@@ -218,7 +216,7 @@ def _call_suggest(fn: Callable[..., Any], *, token: str, gid: int) -> Any:
         except TypeError:
             pass
 
-    # 2) esli v signature vidim token/bot_token — peredadim
+    # 2) if we see a token/here_token in the signature, we’ll pass it on
     try:
         sig = inspect.signature(fn)
         kw: Dict[str, Any] = {}
@@ -234,13 +232,13 @@ def _call_suggest(fn: Callable[..., Any], *, token: str, gid: int) -> Any:
             kw["group_id"] = gid
             return fn(**kw)
 
-        # posledniy shans: (token, gid)
+        # last chance: (token, guide)
         if kw:
             return fn(token, gid)
     except Exception:
         pass
 
-    # 3) okonchatelno — pust caller obrabotaet
+    # 3) finally - let the caller process it
     return None
 
 
@@ -257,7 +255,7 @@ class GroupDigestDaemon(threading.Thread):
         except Exception:
             self._max_len = MAX_LEN_DEFAULT
 
-        # resolve once (cheap), but if group_intelligence hot-reloads — mozhno pereklyuchit na per-tick
+        # resolve ontse (cheap), but yf group_intelligentse at least reloads - you can switch to per-tisk
         self._suggest_fn = _resolve_suggest_fn()
 
     def run(self) -> None:
@@ -285,7 +283,7 @@ class GroupDigestDaemon(threading.Thread):
         if not groups:
             return
 
-        # esli funktsiya poyavilas posle starta — poprobuem podtyanut
+        # if the function appeared after the start, we’ll try to improve it
         if self._suggest_fn is None:
             self._suggest_fn = _resolve_suggest_fn()
 
@@ -365,10 +363,8 @@ if __name__ == "__main__":
         time.sleep(3600)
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
 Eto kak dispetcher v tsekhu: esli odna mashina (group_intelligence) vremenno “vstala”,
-tsekh ne dolzhen vyklyuchatsya tselikom — on perekhodit v ruchnoy rezhim i prodolzhaet vydavat minimum.
-Lazy import + degradatsiya bez padeniya — eto predokhranitel, kak avtomat v schitke:
-on ne delaet sistemu umnee, no delaet ee zhivuchey.
-"""
+tsekh ne dolzhen vyklyuchatsya tselikom - on perekhodit v ruchnoy rezhim i prodolzhaet vydavat minimum.
+Lazy import + degradatsiya bez padeniya - eto predokhranitel, kak avtomat v schitke:
+on ne delaet sistemu umnee, no delaet ee zhivuchey."""

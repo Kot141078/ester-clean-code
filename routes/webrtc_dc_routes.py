@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/webrtc_dc_routes.py - REST/SSE dlya psevdo-DataChannel.
+"""routes/webrtc_dc_routes.py - REST/SSE dlya psevdo-DataChannel.
 
 Ruchki:
   POST /webrtc/dc/open {"room":"id","client":"alice"}
-  GET  /webrtc/dc/recv?room=id&client=alice   (SSE)
+  GET /webrtc/dc/recv?room=id&client=alice (SSE)
   POST /webrtc/dc/send {"room":"id","client":"alice","data":{...},"broadcast":true,"target":null}
-  POST /webrtc/dc/hb   {"room":"id","client":"alice"}
-  GET  /admin/webrtc
+  POST /webrtc/dc/hb {"room":"id","client":"alice"}
+  GET /admin/webrtc
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, Response, render_template
 from modules.webrtc.datachannel_stub import open_room, send, drain, heartbeat, gc
@@ -38,7 +36,7 @@ def send_():
 def recv():
     room = request.args.get("room",""); client = request.args.get("client","")
     def gen():
-        # Prostoy SSE-tsikl
+        # Simple CCE loop
         while True:
             msgs = drain(room, client)
             for m in msgs:

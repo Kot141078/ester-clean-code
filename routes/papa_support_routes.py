@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/papa_support_routes.py - Bystrye stsenarii «podderzhat Papu» (cherez agentstvo/semyu), bez realnykh platezhey.
+"""routes/papa_support_routes.py - Bystrye stsenarii “podderzhat Papu” (cherez agentstvo/semyu), bez realnykh platezhey.
 
 Mosty:
 - Yavnyy: (Ekonomika ↔ Semya) gotovim chernoviki perevodov i rezervy pod limitami.
-- Skrytyy #1: (Kibernetika ↔ Kontrol) ALLOW_APPLY + «tabletka» → tolko osoznannye deystviya.
+- Skrytyy #1: (Kibernetika ↔ Kontrol) ALLOW_APPLY + “tabletka” → tolko osoznannye deystviya.
 - Skrytyy #2: (Myshlenie ↔ Memory) operatsii logiruyutsya i mogut uchityvatsya v refleksii.
 
 Zemnoy abzats:
-Eto kak «bystrye knopki»: prigotovit perevod Pape, zafiksirovat namerenie i dozhdatsya tvoego OK.
+Eto kak “bystrye knopki”: prigotovit perevod Pape, zafiksirovat namerenie i dozhdatsya tvoego OK.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from typing import Any, Dict
@@ -40,7 +38,7 @@ def plan():
     d: Dict[str, Any] = request.get_json(True, True) or {}
     amt = float(d.get("amount_eur", 0)); purpose = str(d.get("purpose","pomosch Pape"))
     j = f_prepare(amount_eur=amt, purpose=purpose, beneficiary_name="Owner")
-    # fiksiruem «raskhod-rezerv» (bez realnogo spisaniya - prosto kak namerenie)
+    # we record the “expense-reserve” (without actual write-off - just as an intention)
     caps = spend_allowed(amt, float(os.getenv("AGCY_DAILY_CAP_EUR","50")), float(os.getenv("AGCY_MONTHLY_CAP_EUR","200")), pol_status().get("pill",{}).get("armed", False)) if spend_allowed and pol_status else {"ok": False}
     return jsonify({"ok": True, "draft": j, "caps": caps})
 

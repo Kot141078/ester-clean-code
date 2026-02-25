@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-routes/thinking_actions_routes.py — REST API dlya upravleniya Re vyzova deystviy myshleniya.
+"""routes/thinking_actions_routes.py - REST API dlya upravleniya Re vyzova deystviy myshleniya.
 
-Endpointy:
-  • GET  /thinking/actions/registry    - Spisok zaregistrirovannykh deystviy.
-  • GET  /thinking/actions/stats       - Statistika po ispolzovaniyu slotov.
-  • POST /thinking/actions/register    - R egistratsiya novogo tipa deystviya.
+Endpoint:
+  • GET /thinking/actions/registry - Spisok zaregistrirovannykh deystviy.
+  • GET /thinking/actions/stats - Statistika po ispolzovaniyu slotov.
+  • POST /thinking/actions/register - Registratsiya novogo tipa deystviya.
     {"kind","endpoint","timeout_ms"?, "concurrency"?}
-  • POST /thinking/actions/begin       - Zakhvat slota dlya vypolneniya deystviya.
+  • POST /thinking/actions/begin - Zakhvat slota dlya vypolneniya deystviya.
     {"kind"}
-  • POST /thinking/actions/finish      - Osvobozhdenie slota posle vypolneniya.
+  • POST /thinking/actions/finish - Osvobozhdenie slota posle vypolneniya.
     {"kind"}
-  • POST /thinking/act                 - Bezopasnyy vyzov deystviya.
+  • POST /thinking/act - Bezopasnyy vyzov deystviya.
     {"name", "args"}
 
 Mosty:
@@ -20,10 +19,9 @@ Mosty:
 - Skrytyy #2: (Politiki/UX v†" Prozrachnost) edinaya tochka dlya kvot, roley Re statusov.
 
 Zemnoy abzats:
-Eto edinyy pult dlya vsekh «knopok»: registriruet, pokazyvaet, kto rabotaet i skolko slotov ostalos, i pozvolyaet bezopasno nazhat na lyubuyu iz nikh.
+Eto edinyy remote dlya vsekh “knopok”: registriruet, pokazyvaet, kto rabotaet i skolko slotov ostalos, i pozvolyaet bezopasno nazhat na lyubuyu iz nikh.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -34,9 +32,9 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 bp = Blueprint("thinking_actions_routes", __name__)
 
 try:
-    # Funktsii iz modulya reestra deystviy
+    # Functions from the Action Registry Module
     from modules.thinking.action_registry import register as _reg, list_actions, begin as _begin, finish as _finish  # type: ignore
-    # Funktsii iz modulya ispolnitelya deystviy
+    # Functions from the action runner module
     from modules.thinking.action_invoker import stats as _stats, invoke as _invoke  # type: ignore
 except Exception:
     _reg = list_actions = _begin = _finish = None  # type: ignore
@@ -48,21 +46,21 @@ def register(app):
 
 @bp.route("/thinking/actions/registry", methods=["GET"])
 def api_list_registry():
-    """Vozvraschaet spisok vsekh zaregistrirovannykh deystviy."""
+    """Returns a list of all registered actions."""
     if list_actions is None:
         return jsonify({"ok": False, "error": "actions registry unavailable"}), 500
     return jsonify({"ok": True, "actions": list_actions()})
 
 @bp.route("/thinking/actions/stats", methods=["GET"])
 def api_stats():
-    """Vozvraschaet statistiku po vypolnyaemym deystviyam."""
+    """Returns statistics on performed actions."""
     if _stats is None:
         return jsonify({"ok": False, "error": "invoker unavailable"}), 500
     return jsonify(_stats())
 
 @bp.route("/thinking/actions/register", methods=["POST"])
 def api_register():
-    """R egistriruet novyy tip deystviya v sisteme."""
+    """Registers a new action type in the system."""
     if _reg is None:
         return jsonify({"ok": False, "error": "actions registry unavailable"}), 500
     data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
@@ -75,7 +73,7 @@ def api_register():
 
 @bp.route("/thinking/actions/begin", methods=["POST"])
 def api_begin():
-    """Signaliziruet o nachale vypolneniya deystviya i zakhvatyvaet slot."""
+    """Signals the start of an action and seizes a slot."""
     if _begin is None:
         return jsonify({"ok": False, "error": "actions registry unavailable"}), 500
     data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
@@ -83,7 +81,7 @@ def api_begin():
 
 @bp.route("/thinking/actions/finish", methods=["POST"])
 def api_finish():
-    """Signaliziruet o zavershenii deystviya i osvobozhdaet slot."""
+    """Signals the completion of the action and frees the slot."""
     if _finish is None:
         return jsonify({"ok": False, "error": "actions registry unavailable"}), 500
     data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
@@ -91,7 +89,7 @@ def api_finish():
 
 @bp.route("/thinking/act", methods=["POST"])
 def api_act():
-    """Vyzyvaet (ispolnyaet) konkretnoe deystvie s peredannymi argumentami."""
+    """Calls (performs) a specific action with the passed arguments."""
     if _invoke is None:
         return jsonify({"ok": False, "error": "invoker unavailable"}), 500
     d = request.get_json(force=True, silent=True) or {}

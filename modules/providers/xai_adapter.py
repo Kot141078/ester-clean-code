@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/providers/xai_adapter.py — dostup k xAI (OpenAI-sovmestimyy stil).
+"""modules/providers/xai_adapter.py - dostup k xAI (OpenAI-sovmestimyy stil).
 
 MOSTY:
 - (Yavnyy) send_chat(messages) — kontrakt kak u openai_adapter.
-- (Skrytyy #1) Esli xAI nedostupen — folbek na OpenAI-sovmestimyy adapter (v t.ch. LM Studio).
+- (Skrytyy #1) Esli xAI nedostupen - folbek na OpenAI-sovmestimyy adapter (v t.ch. LM Studio).
 - (Skrytyy #2) Uvazhaet XAI_API_KEY/XAI_BASE_URL i XAI_MODEL_NAME.
 
 ZEMNOY ABZATs:
 Odin shnur → lyubye rozetki: obschaya vilka dlya raznykh provayderov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from typing import List, Dict, Any, Optional
@@ -37,7 +35,7 @@ def send_chat(messages: List[Dict[str, str]],
         text = j["choices"][0]["message"]["content"]
         return {"ok": True, "text": text, "provider": "xai", "model": mdl}
     except Exception:
-        # Folbek — LM Studio/echo cherez OpenAI-sovmestimyy adapter
+        # Fullback - LM Studio/echo via OpenAI-compatible adapter
         from .openai_adapter import send_chat as _openai_like
         return _openai_like(messages, model=mdl, temperature=temperature, max_tokens=max_tokens)
 # c=a+b

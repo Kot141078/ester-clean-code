@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-/portal_min — ultra-prostoy portal bez zavisimostey.
-Nuzhen tolko dlya bystroy proverki, chto routing zhiv.
+"""/portal_min — ultra-simple portal bez zavisimostey.
+Nuzhen tolko dlya bystroy proverki, what routing zhiv.
 
 Mosty:
 - Yavnyy: Flask ↔ HTML.
 - Skrytye: Diagnostika↔Ekspluatatsiya (bystrye ssylki /health, /portal), UI↔API (fetch /health).
 
 Zemnoy abzats:
-Eto kontrolnaya lampa «SET EST». Esli ona gorit — rozetka rabochaya.
+This is kontrolnaya lampa “SET EST”. Esli ona gorit - rozetka rabochaya.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, Response
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -37,7 +35,7 @@ pre{white-space:pre-wrap;background:#0f172a;border:1px solid var(--border);borde
       <a class="btn" href="/portal" target="_blank" rel="noopener">/portal</a>
       <a class="btn" href="/_where" target="_blank" rel="noopener">/_where</a>
     </p>
-    <pre id="out">loading …</pre>
+    <pre id="out">loading ...</pre>
   </div>
 </div>
 <script>
@@ -48,8 +46,7 @@ pre{white-space:pre-wrap;background:#0f172a;border:1px solid var(--border);borde
                                                       : ('HTTP '+r.status+' '+await r.text());
   }catch(e){ document.getElementById('out').textContent='Set nedostupna: '+e; }
 })();
-</script>
-"""
+</script>"""
 
 @bp.get("/portal_min")
 def portal_min():

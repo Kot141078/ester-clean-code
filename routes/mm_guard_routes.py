@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mm_guard_routes.py - REST: audit get_mm i flag podozreniy.
+"""routes/mm_guard_routes.py - REST: audit get_mm i flag podozreniy.
 
 Mosty:
 - Yavnyy: (Veb ↔ Memory) vydaet metriki i prinimaet signaly ot lintera.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Ostorozhnost ↔ Intsidenty) flagi pomogayut rassledovat problemy.
 
 Zemnoy abzats:
-Eto kak zhurnal na prokhodnoy: skolko lyudey proshlo v khranilische i kto pytalsya «cherez okno».
+Eto kak zhurnal na prokhodnoy: skolko lyudey proshlo v khranilische i kto pytalsya “cherez okno”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

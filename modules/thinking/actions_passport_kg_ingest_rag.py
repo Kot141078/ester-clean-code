@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_passport_kg_ingest_rag.py — eksheny «voli» dlya Passport/KG/IngestGuard/RAG.
+"""modules/thinking/actions_passport_kg_ingest_rag.py - eksheny "voli" dlya Passport/KG/IngestGuard/RAG.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Memory/Graf/Kvoty/Poisk) korotkie komandy dlya vnutrennikh payplaynov.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Cron/Avtonomiya ↔ Plan) mozhno triggerit eti shagi po raspisaniyu/sobytiyam.
 
 Zemnoy abzats:
-Nabor «mgnovennykh knopok»: proshtampovat, svyazat suschnosti, sprosit kvotu, nayti po gibridu.
+Nabor “mgnovennykh knopok”: proshtampovat, svyazat suschnosti, ask kvotu, nayti po gibridu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.rag.feedback — zhurnal RAG‑otvetov s myagkoy zapisyu v KG.
+"""modules.rag.feedback - zhurnal RAG‑otvetov s myagkoy zapisyu v KG.
 
 API:
 - log(q: str, text: str, sources: list[dict]|None=None) -> dict
@@ -16,9 +15,8 @@ Mosty:
 - Skrytyy #2: otchety cherez modules.reports.rag_feedback_http.
 
 Zemnoy abzats:
-Prakticheski — eto «nakleyka‑birka» na kazhdyy otvet: chto sprosili, chto otvetili, kakie byli istochniki.
-# c=a+b
-"""
+Prakticheski - eto “nakleyka‑birka” na kazhdyy otvet: what asked, what otvetili, kakie byli istochniki.
+# c=a+b"""
 import os, time, json, hashlib
 from typing import Any, Dict, List, Optional, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -35,10 +33,8 @@ def _hash(s: str) -> str:
     return hashlib.sha1(s.encode("utf-8")).hexdigest()[:12]
 
 def _kg_iface():
-    """
-    Vozvraschaet (module, add_entity, add_relation) libo (None, None, None) esli KG nedostupen.
-    Pytaemsya nayti v neskolkikh mestakh bez isklyucheniy naruzhu.
-    """
+    """Returns (module, add_entity, add_relation) or (None, None, None) if CG is not available.
+    We are trying to find in several places without exception outside."""
     cand = ["modules.graph.kg", "modules.graph", "modules.kg"]
     for name in cand:
         try:
@@ -69,10 +65,10 @@ def log(q: str, text: str, sources: Optional[List[Dict[str, Any]]] = None) -> Di
     kg_res = {"ok": False, "used": False}
     if kg and add_e and add_r:
         try:
-            # Suschnost otveta
+            # Essence of the answer
             props = {"len": len(text), "q": q, "ts": ts}
             r1 = add_e(eid, labels=["Answer"], props=props)  # type: ignore
-            # Privyazyvaem istochniki, sozdavaya Doc‑uzly pri neobkhodimosti
+            # We bind sources, creating Daughter nodes if necessary
             count = 0
             for s in sources[:8]:
                 sid = s.get("id") or f"doc_{_hash((s.get('text') or '')[:64])}"
@@ -86,7 +82,7 @@ def log(q: str, text: str, sources: Optional[List[Dict[str, Any]]] = None) -> Di
     return {"ok": True, "event": ev, "kg": kg_res}
 
 def tail(n: int = 20) -> Dict[str, Any]:
-    """Poslednie n sobytiy (bez isklyucheniy pri otsutstvii fayla)."""
+    """Latest n events (without exceptions if the file is missing)."""
     _ensure_dir()
     items: List[Dict[str, Any]] = []
     try:

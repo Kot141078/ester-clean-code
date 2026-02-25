@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# Matrichnaya politika RBAC po umolchaniyu.
-# Esli prilozhenie podderzhivaet chtenie iz config/rbac_matrix.yaml — eta matritsa dast strogie pravila dlya kritichnykh ruchek.
+# Default RVA matrix policy.
+# If the application supports reading from config/rach_matrix.yaml, this matrix will give strict rules for critical handles.
 # Roli:
 #   admin — polnyy dostup
 #   ops — operatsii /ops/*

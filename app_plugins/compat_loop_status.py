@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-app_plugins.compat_loop_status — dobavlyaet v modules.thinking.loop_full simvol status,
+"""app_plugins.compat_loop_status - addvlyaet v modules.thinking.loop_full simvol status,
 esli on otsutstvuet, mapya ego na modules.act.runner.status.
 MOSTY: (yavnyy) thinking.loop_full ↔ act.runner; (skrytye) Flask-routy ↔ unifikatsiya API.
-ZEMNOY ABZATs: ne trogaem iskhodnik loop_full.py — tolko dobavlyaem atribut pri importe.
-# c=a+b
-"""
+ZEMNOY ABZATs: ne trogaem iskhodnik loop_full.py - tolko addavlyaem atribut pri importe.
+# c=a+b"""
 from __future__ import annotations
 import os
 import importlib
@@ -32,7 +30,7 @@ def _mk_status_alias():
 
 def apply() -> bool:
     if os.environ.get(AB_ENV, "A") != "A":
-        return False  # vyklyucheno cherez AB
+        return False  # switched off via AB
     try:
         lf: ModuleType = importlib.import_module("modules.thinking.loop_full")
         if not hasattr(lf, "status"):

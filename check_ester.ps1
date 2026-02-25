@@ -1,7 +1,7 @@
-# check_ester.ps1 - Smok-test dlya Owner
+# chesk_ester.ps1 - Smoke test for Ovner
 Write-Host "--- Zapusk diagnostiki Ester (Hardware: 2x 5060 Ti) ---" -ForegroundColor Cyan
 
-# 1. Proverka kodirovki faylov (ischem povrezhdennye UTF-8)
+# 1. Checking file encoding (we are looking for damaged UTF-8)
 $files = Get-ChildItem -Filter *.py -Recurse
 foreach ($file in $files) {
     $content = Get-Content $file.FullName -Raw
@@ -10,7 +10,7 @@ foreach ($file in $files) {
     }
 }
 
-# 2. Proverka kriticheskikh putey
+# 2. Checking critical paths
 $paths = "memory", "state", "logs"
 foreach ($p in $paths) {
     if (!(Test-Path $p)) {
@@ -19,7 +19,7 @@ foreach ($p in $paths) {
     }
 }
 
-# 3. Proverka VRAM (zaglushka dlya nvidia-smi)
+# 3. Check to LIE (stub for nvidia media)
 Write-Host "[*] Proverka GPU..." -ForegroundColor Gray
 nvidia-smi --query-gpu=name,memory.total,memory.free --format=csv,noheader
 

@@ -1,29 +1,27 @@
 # -*- coding: utf-8 -*-
-"""
-modules/money/orchestrator.py — Orkestrator «Ester, mne nuzhny dengi».
+"""modules/money/orchestrator.py — Orkestrator “Ester, mne nuzhny dengi.”
 
-Chto delaet:
-- Raspoznaet triggery ("mne nuzhny dengi", "nuzhen dokhod", "kak zarabotat").
-- Zapuskaet opros (kapital, vremya, navyki, dopustimye «ruchnye» deystviya: pozvonit, podpisat, perevesti).
+What does it do:
+- Raspoznaet triggery (“mne nuzhny dengi”, “nuzhen dokhod”, “kak zarabotat”).
+- Zapuskaet opros (kapital, vremya, navyki, dopustimye “ruchnye” deystviya: pozvonit, podpisat, perevesti).
 - Sobiraet profil resursov i ogranicheniy (Policy+Safety).
 - Generiruet nabor strategiy (M32) i kalibruet ikh (M33).
-- Pri nalichii «Judge» (glavnyy LLM/drugoy agent) — zaprashivaet sovety (tekst, bez avtodeystviy).
-- Proveryaet nedostayuschie instrumenty (OCR, drayvery, integratsii) i predlagaet sozdat cherez «Garazh».
-- Materializuet vybrannuyu strategiyu v TaskTutor (M28) → rezhim A (demo) ili B (ispolnenie).
-- Vse logiruet v M30 i dostupno v navigatore pamyati.
+- Pri nalichii "Judge" (glavnyy LLM/drugoy agent) - zaprashivaet sovety (tekst, bez avtodeystviy).
+- Proveryaet nedostayuschie instrumenty (OCR, drayvery, integratsii) i predlagaet sozdat cherez “Garazh”.
+- Materializuet vybrannuyu strategiyu v TaskTutor (M28) → rezhim A (demo) or B (execution).
+- All logiruet v M30 i dostupno v navigatore pamyati.
 
 MOSTY:
-- Yavnyy: (Vospriyatie chata ↔ Plan/deystviya) — edinaya dorozhka «zapros → opros → strategiya → stsenariy».
-- Skrytyy #1: (Infoteoriya ↔ Obyasnimost) — skoring s faktorami, «profile» resheniy, zhurnal sobytiy.
-- Skrytyy #2: (Kibernetika ↔ Upravlenie) — Policy/Safety na kazhdom shage, rezhimy A/B, ruchnye deystviya polzovatelya.
+- Yavnyy: (Vospriyatie chata ↔ Plan/deystviya) - edinaya dorozhka “zapros → opros → strategiya → stsenariy.”
+- Skrytyy #1: (Infoteoriya ↔ Obyasnimost) - skoring s faktorami, “profile” resheniy, zhurnal sobytiy.
+- Skrytyy #2: (Kibernetika ↔ Upravlenie) - Policy/Safety na kazhdom shage, rezhimy A/B, ruchnye deystviya polzovatelya.
 
 ZEMNOY ABZATs:
-Inzhenerno — eto master zadach s profaylerom i planirovschikom, kotoryy umeet sam dopolnit instrumenty cherez «Garazh».
-Prakticheski — skazhesh «Ester, mne nuzhny dengi», ona utochnit resursy, predlozhit realistichnye puti, pokazhet ikh na ekrane,
-i s tvoego soglasiya vypolnit dopustimye shagi, a vse, chto nuzhno rukami — vovremya poprosit u tebya.
+Inzhenerno - eto master zadach s profaylerom i planirovschikom, kotoryy umeet sam dopolnit instrumenty cherez “Garazh”.
+Prakticheski - skazhesh “Ester, mne nuzhny dengi”, ona utochnit resursy, predlozhit realistichnye puti, pokazhet ikh na ekrane,
+i s tvoego soglasiya vypolnit dopustimye shagi, a vse, chto nuzhno rukami - vovremya poprosit u tebya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Optional
 import os, json, time
@@ -48,9 +46,9 @@ def _read_questions()->List[Dict[str,Any]]:
     except Exception:
         return [
           {"id":"capital_eur","q":"Skolko € dostupno startom? (0..N)","type":"number","min":0,"max":100000,"def":0},
-          {"id":"time_week_h","q":"Skolko chasov v nedelyu gotovy vydelyat?","type":"number","min":0,"max":80,"def":10},
-          {"id":"skills","q":"Vashi klyuchevye navyki (cherez zapyatuyu)","type":"text","def":"Python, Docs"},
-          {"id":"hands","q":"Chto gotovy sdelat rukami? (pozvonit/podpisat/perevesti/otkryt_akkaunt)","type":"text","def":"podpisat, otkryt_akkaunt"}
+          {"id":"time_week_h","q":"How many hours per week are you willing to devote?","type":"number","min":0,"max":80,"def":10},
+          {"id":"skills","q":"Your key skills (separated by commas)","type":"text","def":"Python, Docs"},
+          {"id":"hands","q":"What are you ready to do with your hands? (call/sign/transfer/open_account)","type":"text","def":"podpisat, otkryt_akkaunt"}
         ]
 
 def probe()->Dict[str,Any]:
@@ -58,7 +56,7 @@ def probe()->Dict[str,Any]:
 
 # ----------------------------- Triggery --------------------------------------
 TRIGGERS = [
-  "mne nuzhny dengi","nuzhen dokhod","kak zarabotat","zarabotay dlya menya","mogu li ya zarabotat"
+  "I need money","need income","how to make money","earn money for me","mogu li ya zarabotat"
 ]
 
 def match_trigger(text:str)->bool:
@@ -86,13 +84,13 @@ def build_profile(answers:Dict[str,Any], user:str="owner", session_id:str|None=N
 # --------------------------- Strategii i otsenka -------------------------------
 
 def _adjust_text_for_profile(profile:Dict[str,Any])->List[str]:
-    # naivnye shablony na osnove profilya
+    # profile based naive templates
     rec=[]
     c=profile.get("capital_eur",0.0); t=profile.get("time_week_h",0.0)
     if c<=50 and t>=8:
-        rec.append("Prodat tsifrovoy shablon (rezyume) za 9€ na Etsy")
+        rec.append("Sell ​​tsifrovoy template (rezyume) for 9€ on Etsy")
     if "Python" in " ".join(profile.get("skills",[])):
-        rec.append("Mikro-avtomatizatsii na frilanse (99€ za zadachu)")
+        rec.append("Mikro-avtomatizatsii na frilanse (99€ for zadachu)")
     if c>=100 and t>=5:
         rec.append("Lending uslugi s oplatoy cherez Stripe (mikro-pakety 49–99€)")
     if not rec:
@@ -112,19 +110,17 @@ def gather_strategies(profile:Dict[str,Any], target_amount:float=1000.0, timefra
 # --------------------------- Konsultatsiya u Judge -----------------------------
 
 def consult_judge(strategies:List[Dict[str,Any]])->Dict[str,Any]:
-    """
-    Bezopasnaya konsultatsiya: tolko tekstovoe obogaschenie. Nikakikh avtodeystviy.
-    """
+    """Secure consultation: text enrichment only. No auto actions."""
     if not ALLOW_JUDGE:
         return {"ok":True,"notes":"judge_disabled","items":strategies}
     enriched=[]
     try:
-        # Psevdovyzov «Judge»: v realnoy integratsii tut budet marshrutizatsiya v vybrannuyu LLM/agenta.
+        # Pseudo-call “Yuje”: in real integration there will be routing to the selected LLM/agent.
         for s in strategies:
             advice = {
               "risks": ["konkurentsiya", "platezhnye komissii"],
-              "quick_wins": ["reuse UI-shablonov", "mikro-apseyl"],
-              "deps": ["uchetnaya zapis platformy", "shablony vizualizatsii"]
+              "quick_wins": ["reuse of UI templates", "mikro-apseyl"],
+              "deps": ["platform account", "visualization templates"]
             }
             enriched.append({**s, "judge": advice})
         MH.log_result("money","judge_advice","Polucheny sovety Judge", artifacts={"count":len(enriched)})
@@ -135,17 +131,15 @@ def consult_judge(strategies:List[Dict[str,Any]])->Dict[str,Any]:
 # --------------------------- Garazh moduley -----------------------------------
 
 def propose_garage_build(profile:Dict[str,Any], strategies:List[Dict[str,Any]])->Dict[str,Any]:
-    """
-    Proveryaem nedostayuschie sposobnosti (OCR, driver, integratsii).
-    Vozvraschaem «chek-list» dlya Garazha (sozdanie/vklyuchenie moduley).
-    """
+    """We check the missing abilities (OCD, driver, integration).
+    We are returning the “checklist” for the Garage (creating/enabling modules)."""
     needs=[]
     # OCR
-    needs.append({"id":"ocr","title":"OCR (Tesseract/Pillow) dlya klika po tekstu","present":_has_ocr()})
+    needs.append({"id":"ocr","title":"OKR (Tesseract/Pilov) to click on the text","present":_has_ocr()})
     # DesktopDriver real-mode
     needs.append({"id":"desktop_real","title":"Realnyy drayver klika/vvoda (whitelist)","present":_has_real_driver()})
-    # Stripe/Etsy/Upwork integratsii (pleyskholdery)
-    needs.append({"id":"etsy","title":"Integratsiya Etsy (webhooks/CSV)","present":False})
+    # Stripe/Etsy/Opwork integration (placeholders)
+    needs.append({"id":"etsy","title":"Etsy integration (webhooks/KSV)","present":False})
     needs.append({"id":"gumroad","title":"Integratsiya Gumroad (webhooks/CSV)","present":False})
     return {"ok":True,"needs":needs,"can_autobuild":ALLOW_GARAGE}
 
@@ -157,7 +151,7 @@ def _has_ocr()->bool:
         return False
 
 def _has_real_driver()->bool:
-    # proverka env-flaga ot M25
+    # checking the ENV flag from M25
     return os.environ.get("ESTER_DD_ENABLED","0") == "1"
 
 # --------------------------- Materializatsiya plana -----------------------------
@@ -180,14 +174,12 @@ def materialize_and_play(roadmap:Dict[str,Any], mode:str|None=None)->Dict[str,An
 # --------------------------- Stsenariy mastera --------------------------------
 
 def master_run(answers:Dict[str,Any], target_amount:float=1000.0, timeframe_days:int=14, mode:str|None=None)->Dict[str,Any]:
-    """
-    Polnyy tsikl mastera «mne nuzhny dengi».
-    """
+    """Full cycle of the “I need money” master."""
     pr=build_profile(answers)
     st=gather_strategies(pr["profile"], target_amount, timeframe_days)
     cj=consult_judge(st["items"])
     pg=propose_garage_build(pr["profile"], st["items"])
-    # Vyberem pervuyu strategiyu kak demo
+    # Let's choose the first strategy as a demo
     best=(cj.get("items") or st["items"])[0]
     run=materialize_and_play(best.get("roadmap") or {}, mode)
     MH.log_result("money","master_run","Master zavershen", artifacts={

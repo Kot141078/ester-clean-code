@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/providers_status.py - status provayderov/SDK.
+"""routes/providers_status.py - status provayderov/SDK.
 
 MOSTY:
 - (Yavnyy) GET /providers/status - perechislyaet nalichie moduley i endpoints LM Studio.
-- (Skrytyy #1) Ne padaet, esli paketov net - prosto false.
+- (Skrytyy #1) Ne padaet, esli paketov net - just false.
 - (Skrytyy #2) Udobno dlya portala i self-check.
 
 ZEMNOY ABZATs:
-Kak «indikator lampochek»: vidno, kakie dvizhki gotovy k rabote.
+Kak “indikator lampochek”: vidno, kakie dvizhki gotovy k rabote.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify
@@ -37,7 +35,7 @@ def status():
         "installed": {
             "openai": _has("openai"),
             "google-generativeai": _has("google.generativeai"),
-            "xai": _has("xai"),  # esli budet ustanovlen paket
+            "xai": _has("xai"),  # if the package is installed
             "googleapiclient": _has("googleapiclient"),
             "requests": _has("requests"),
         },

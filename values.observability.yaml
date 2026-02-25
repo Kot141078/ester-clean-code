@@ -1,5 +1,5 @@
-# values.observability.yaml — lokalnyy overrayd dlya vklyucheniya ServiceMonitor/Rules/VirtualService
-# Ispolzuetsya komandoy:
+# values.observabilities.yaml - local override to enable ServiceMonitor/Rules/VirtualService
+# Used by the command:
 #   helm upgrade --install ester ./charts/ester -n ester --create-namespace -f values.observability.yaml
 
 service:
@@ -25,8 +25,8 @@ prometheusRule:
       slowShort: "2h"
       slowLong:  "24h"
     errorRate:
-      fast: 0.02   # 2% dlya bystrykh okon
-      slow: 0.01   # 1% dlya medlennykh okon
+      fast: 0.02   # 2% for fast windows
+      slow: 0.01   # 1% for slow windows
     backupMaxAgeHours: 26
   latency:
     p99Threshold: 1.5  # sekundy
@@ -34,7 +34,7 @@ prometheusRule:
 istio:
   enabled: true
   host: "ester.local"
-  # Peredayte yavnyy gateway pri neobkhodimosti, inache vozmetsya default:
+  # Pass an explicit gateway if necessary, otherwise it will default:
   # gateway: "istio-system/ingressgateway"
   mirror:
     enabled: false

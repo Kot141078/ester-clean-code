@@ -45,7 +45,7 @@
 <section class="card" style="margin-top:12px">
   <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
     <h3 style="margin:0">Logi Router (pamyat)</h3>
-    <button class="btn right" onclick="loadLogs()">Obnovit logi</button>
+    <button class="btn right" onclick="loadLogs()">Update logs</button>
   </div>
   <pre id="logs" class="log box" style="height:240px"></pre>
 </section>
@@ -155,9 +155,9 @@
       const r = await $fetch('/metrics/retrieval_router_snapshot_now', {method:'POST'});
       const j = await r.json().catch(()=> ({}));
       if(j && j.ok){
-        alert('Snapshot sokhranen');
+        alert('Snapshot saved');
       }else{
-        alert('Snapshot oshibka: ' + (j.error || 'unknown'));
+        alert('Snapshot error:' + (j.error || 'unknown'));
       }
       await loadLogs();
       await refresh();

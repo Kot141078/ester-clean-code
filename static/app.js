@@ -1,4 +1,4 @@
-// Prostaya panel: obnovlenie health/metrics i lenta sobytiy /trace/events
+// Simple panel: update healthtn/metrics and event feed/trace/events
 (async function () {
   async function fetchJSON(url, opts) {
     try {

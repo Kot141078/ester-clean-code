@@ -10,19 +10,19 @@ User=ester
 Group=ester
 WorkingDirectory=/opt/ester
 Environment=PYTHONUNBUFFERED=1
-# Peremennye okruzheniya mozhno vynesti v /etc/ester/ester.env
+# Environment variables can be placed in /ets/ester/ester.env
 EnvironmentFile=-/etc/ester/ester.env
-# Modul zapuskaetsya kak paket: python -m modules.approvals.quorum_engine
+# The module is launched as a package: pothon -m modules.approvals.corum_engine
 ExecStart=/usr/bin/python3 -m modules.approvals.quorum_engine
 Restart=on-failure
 RestartSec=2s
-# Ogranicheniya bezopasnosti (po vozmozhnosti vklyuchat)
+# Security restrictions (enable if possible)
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full
 ProtectHome=true
 ReadWritePaths=/opt/ester /var/log/ester /var/ester /var/quorum
-# Zhurnaly v syslog/journald
+# Logs to syslog/log
 StandardOutput=journal
 StandardError=journal
 

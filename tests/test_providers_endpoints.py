@@ -12,7 +12,7 @@ def test_providers_status_and_select_bad(client, auth_hdr_user):
 
 
 def test_providers_select_good_if_exists(client, auth_hdr_admin):
-    # esli khotya by odin provayder est — vybiraem pervyy
+    # if there is at least one provider, choose the first one
     r = client.get("/providers/status", headers=auth_hdr_admin)
     assert r.status_code == 200
     j = r.get_json()

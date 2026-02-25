@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ops_probe_usb.py - health-proba USB-agenta.
+"""routes/ops_probe_usb.py - health-proba USB-agenta.
 
-Marshruty:
+Route:
   • GET /ops/probe/usb - {"ok": bool, "reason": str, "p95": float, "age": int, ...}
 
-ENV porogi (optsionalno):
-  • ESTER_USB_HEALTH_MAX_P95=5     - porog p95 (sek)
-  • ESTER_USB_HEALTH_MAX_AGE=86400 - maks. vozrast poslednego sobytiya (sek)
+ENV threshold (optional):
+  • ESTER_USB_HEALTH_MAX_P95=5 - threshold p95 (sek)
+  • ESTER_USB_HEALTH_MAX_AGE=86400 - max. vozrast poslednego sobytiya (sek)
 
 Mosty:
-- Yavnyy (Ashbi ↔ Ekspluatatsiya): binarnyy «zdorov/ne zdorov» po nablyudaemym velichinam.
+- Yavnyy (Ashbi ↔ Ekspluatatsiya): binarnyy “zdorov/ne zdorov” po nablyudaemym velichinam.
 - Skrytyy 1 (Infoteoriya ↔ Diagnostika): lakonichnyy JSON dlya chelovek/mashina.
-- Skrytyy 2 (Logika ↔ Bezopasnost): porogi - yavnye, bez skrytykh sayd-effektov.
+- Skrytyy 2 (Logika ↔ Bezopasnost): porogi - yavnye, bez skrytykh said-effektov.
 
 Zemnoy abzats:
-Health-endpoint goditsya dlya Kubernetes/LB-prob: esli puls redkiy ili p95 velik - soobschaem «degraded/false».
+Health-endpoint goditsya dlya Kubernetes/LB-prob: esli pulse redkiy or p95 velik - soobschaem “degraded/false”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

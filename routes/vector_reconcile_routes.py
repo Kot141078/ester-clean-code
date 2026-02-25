@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-routes/vector_reconcile_routes.py — HTTP dlya obmena vektornymi elementami.
+"""routes/vector_reconcile_routes.py - HTTP dlya obmena vektornymi elementsami.
 
-Endpointy:
-  • GET  /mem/vector/export?limit=50  — vydat poslednie elementy (summary+truncated transcript)
-  • POST /mem/vector/reconcile        — prinyat batch {items:[{id,text,tags,meta},...]}
+Endpoint:
+  • GET /mem/vector/export?limit=50 — vydat poslednie elementy (summary+truncated transcript)
+  • POST /mem/vector/reconcile — prinyat batch {items:[{id,text,tags,meta},...]}
 
 Mosty:
 - Yavnyy: (Memory v†" Set) prosteyshiy obmen mezhdu uzlami bez vneshnikh zavisimostey.
-- Skrytyy #1: (Infoteoriya v†" Nadezhnost) esli stor nedostupen — ne teryaem, pishem v fallback-ochered.
+- Skrytyy #1: (Infoteoriya v†" Nadezhnost) esli stor nedostupen - ne teryaem, pishem v fallback-ochered.
 - Skrytyy #2: (Kibernetika v†" Masshtab) limit/batchi pozvolyayut dozirovat trafik.
 
 Zemnoy abzats:
-Eto «vorota sklada»: otdat spisok korobok sosedu, prinyat ego korobki i razlozhit.
+Eto “vorota sklada”: otdat spisok korobok sosedu, prinyat ego korobki i razlozhit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List

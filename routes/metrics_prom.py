@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-routes/metrics_prom.py — Prometheus text exposition endpoint (v0.0.4 format).
+"""routes/metrics_prom.py - Prometheus text exposure endpoint (v0.0.4 format).
 
-Naznachenie:
+Name:
   - Gavat scrape-sovmestimye metriki bez avtorizatsii.
   - Ne konfliktovat s istoricheskim JSON /metrics (s JWT).
 
-Marshrut:
-  GET /metrics/prom  -> text/plain; version=0.0.4
+Route:
+  GET /metrics/prom -> text/plain; version=0.0.4
 
 Sostav metrik (minimalnyy nabor dlya SLO-pravil i nablyudaemosti):
-  - ester_uptime_seconds                 (gauge)
-  - ester_process_rss_bytes              (gauge)
-  - ester_cpu_percent                    (gauge)
-  - ester_build_info{version,commit} 1   (gauge s leyblami)
+  - ester_uptime_seconds (gauge)
+  - ester_process_rss_bytes (gauge)
+  - ester_cpu_percent (gauge)
+  - ester_build_info{version,commit} 1 (gauge s leyblami)
   - ester_backup_last_success_timestamp_seconds (gauge; iz ENV, inache = start_time)
 
 ENV:
-  ESTER_BUILD_VERSION, ESTER_BUILD_COMMIT, ESTER_BACKUP_LAST_SUCCESS_TS
-"""
+  ESTER_BUILD_VERSION, ESTER_BUILD_COMMIT, ESTER_BACKUP_LAST_SUCCESS_TS"""
 from __future__ import annotations
 
 import os

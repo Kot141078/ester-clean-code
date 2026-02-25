@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/actions_registry_routes.py - REST dlya raboty s ActionRegistry++.
+"""routes/actions_registry_routes.py - REST dlya work s ActionRegistry++.
 
 Mosty:
 - Yavnyy: (Veb ↔ Reestr) spisok/status/universalnyy zapusk po imeni.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Profile ↔ Log) vyzovy uzhe logiruyutsya JSONL v module.
 
 Zemnoy abzats:
-Edinaya «knopochnaya panel»: «chto est?», «kak zhivet?», «zapusti vot eto po imeni».
+Edinaya “knopochnaya panel”: “what est?”, “how zhivet?”, “zapusti vot eto po imeni”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

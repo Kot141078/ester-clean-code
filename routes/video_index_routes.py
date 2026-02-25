@@ -1,45 +1,43 @@
 # -*- coding: utf-8 -*-
-"""
-routes/video_index_routes.py - REST API dlya polnogo tsikla raboty s video:
+"""routes/video_index_routes.py - REST API dlya polnogo tsikla work s video:
 ot indeksatsii do eksporta v RAG.
 
-Endpointy:
+Endpoint:
 
-Taymlayn-indeks i QA (vopros-otvet):
-  • POST /video/index/build            {"dump":"data/video_ingest/rep_*.json"}
-  • POST /video/index/from_source      {"url"|"path"[, "dump"]}
-  • GET  /video/index/dumps
-  • POST /video/qa/search              {"q":"...", "k":8, "scope":{"dump":"..."}}
-  • GET  /video/index/chapters         ?dump=...&force=0
+Taymlayn-indexes and QA (questions-answer):
+  • POST /video/index/build {"dump":"data/video_ingest/rep_*.json"}
+  • POST /video/index/from_source {"url"|"path"[, "dump"]}
+  • GET /video/index/dumps
+  • POST /video/qa/search {"q":"...", "k":8, "scope":{"dump":"..."}}
+  • GET /video/index/chapters ?dump=...&force=0
   • POST /video/index/summarize_window {"dump":..., "start":..., "end":..., "max_chars"?:700}
 
-Eksport v vektornyy indeks (RAG):
-  • POST /ingest/video/index/recent    {limit?:int, prefer_summary?:bool}
-  • GET  /ingest/video/index/state
+Eksport v vektornyy indexes (RAG):
+  • POST /ingest/video/index/recent {limit?:int, prefer_summary?:bool}
+  • GET /ingest/video/index/state
 
-Metriki i UI:
-  • GET  /metrics/video_index
-  • GET  /ui/video/qa                  - UI dlya QA po video
-  • GET  /admin/video/index            - UI-panel dlya upravleniya indeksatsiey
+Metrici i UI:
+  • GET /metrics/video_index
+  • GET /ui/video/qa - UI dlya QA po video
+  • GET /admin/video/index - UI-panel dlya upravleniya indeksatsiey
 
 Mosty:
 - Yavnyy: (Video ↔ Poisk ↔ Memory) udobnye ruchki dlya segmentatsii, QA, polucheniya glav
   i posleduyuschego perenosa konspektov v RAG-sloy.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) ustoychivye kontrakty API i fallback JSONL-ochered
-  garantiruyut, chto dannye ne poteryayutsya.
+  garantiruyut, what dannye ne poteryayutsya.
 - Skrytyy #2: (UX ↔ Obyasnimost) rezultaty poiska i glavy soderzhat taymkody i ssylki,
   chtoby proverit kontekst odnim klikom.
 - Skrytyy #3: (Kibernetika ↔ Operatsii) legkovesnyy REST pozvolyaet zapuskat indeksatsiyu
-  i eksport iz planirovschika ili pravil myshleniya.
+  i eksport iz planirovschika or pravil myshleniya.
 
 Zemnoy abzats:
-Eto polnyy konveyer «ot rolika do otveta». Snachala rabotaet «panel rezki i zakladok»: video
-indeksiruetsya, narezaetsya na glavy, a lyuboy fragment mozhno bystro summarizirovat. Zatem «lift» perenosit
-gotovye teksty i konspekty so sklada (dampy) na polku kataloga (vektornyy indeks), delaya ikh dostupnymi
-dlya RAG-poiska.
+Eto polnyy konveyer “ot rolika do otveta.” Snachala rabotaet “panel rezki i zakladok”: video
+indeksiruetsya, narezaetsya na glavy, a lyuboy fragment mozhno bystro summarizirovat. Then "lift" transfer
+gotovye teksty i konspekty so sklada (dampy) na polku kataloga (vektornyy indexes), delaya ikh dostupnymi
+dlya RAG-search.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -111,7 +109,7 @@ def api_from_source():
     if not dump:
         if uni_fetch is None:
             return jsonify({"ok": False, "error": "universal extractor unavailable"}), 500
-        # Esli ukazan put - prosim subtitry/summary/meta
+        # If the path is specified, please provide subtitles/summary/meta
         want = {"subs": True, "summary": True, "meta": True}
         try:
             rep = uni_fetch({"url": url} if url else {"path": path, "want": want})  # type: ignore[misc]
@@ -204,7 +202,7 @@ def api_summarize_window():
 
 @bp_vid_index.get("/metrics/video_index")
 def metrics():
-    # Vozvraschaem metriki s nulyami, esli fayl sostoyaniya otsutstvuet
+    # Return metrics with zeros if there is no state file
     if not os.path.isfile(_STATE):
         body = (
             "video_index_segments_total 0\n"
@@ -278,7 +276,7 @@ def api_index_state():
         return _err(f"exception: {e}", 500)
 
 
-# --- Registratsiya vsekh endpointov ---
+# --- Registration of all endpoints ---
 
 def register(app):
     """Registriruet oba Blueprint'a v prilozhenii Flask."""

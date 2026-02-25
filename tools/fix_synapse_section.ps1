@@ -74,7 +74,7 @@ except Exception as e:
 # Enable by setting: ESTER_SISTER_BYPASS_GUARDS=1
 #
 # EXPLICIT BRIDGE: c=a+b -> inbound(a) + token/limits(b) => safe exchange(c)
-# HIDDEN BRIDGES:  Ashby(variety via sister), Cover&Thomas(channel limit)
+# HIDDEN BRIDGES: Ashby(variety via sister), Cover&Thomas(channel limit)
 # GROUND: like a fuse in a power line — we let /sister/inbound pass, but token still protects payload.
 # ------------------------------------------------------------------------------
 def _bypass_before_request_for_paths(_app, _paths):

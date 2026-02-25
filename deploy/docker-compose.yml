@@ -1,8 +1,8 @@
-# deploy/docker-compose.yml — bystryy zapusk Ester lokalno
+# deploy/docker-compose.iml - quick launch of Esther locally
 # MOSTY:
-# - (Yavnyy) Odin servis ester + imenovannyy tom dlya data/.
-# - (Skrytyy #1) Probros .env; menyayte porty/WORKERS cherez env.
-# - (Skrytyy #2) Healthcheck pinguet endpoint bordy.
+# - (Explicit) One ester service + named volume for date/.
+# - (Hidden #1) Forward .env; change ports/WORKERS via env.
+# - (Hidden #2) Heltnchesk pings endpoint boards.
 
 version: "3.9"
 

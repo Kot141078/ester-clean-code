@@ -7,14 +7,12 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-"""
-CLI dlya raboty s banditom.
+"""CLI dlya work s banditom.
 Primery:
   python tools/bandit_cli.py init --name judge --arms configs/arms.json
   python tools/bandit_cli.py pull --name judge --algo ucb1 --step 10
   python tools/bandit_cli.py update --name judge --arm-id cfgA --reward 0.8
-  python tools/bandit_cli.py stage --name judge --policy configs/policy.json
-"""
+  python tools/bandit_cli.py stage --name judge --policy configs/policy.json"""
 import argparse, json
 from pathlib import Path
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

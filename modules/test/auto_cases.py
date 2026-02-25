@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-modules/test/auto_cases.py — avtogeneratsiya UI-testov iz zhurnalov i triggerov.
+"""modules/test/auto_cases.py - avtogeneratsiya UI-testov iz zhurnalov i triggerov.
 
-Istochniki:
-- /attention/journal/list — sobytiya `trigger_fire`, `iplay_step`, `playlist_step` (berem ikh parametry).
+Sources:
+- /attention/journal/list - sobytiya `trigger_fire`, `iplay_step`, `playlist_step` (berem ikh parameter).
 - /triggers/list — aktivnye pravila (OCR/shablony).
 
 Funktsii:
@@ -16,10 +15,9 @@ MOSTY:
 - Skrytyy #2: (Kibernetika ↔ Evolyutsiya) s kazhdoy sessiey baza avtotestov bogateet.
 
 ZEMNOY ABZATs:
-Prostoy analiz JSON; nikakikh vneshnikh bibliotek. Taymaut po umolchaniyu 2 c.
+Simple analyze JSON; nikakikh vneshnikh bibliotek. Taymaut po umolchaniyu 2 c.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import http.client, json
@@ -49,13 +47,13 @@ def mine(timeout_ms: int = 2000) -> Dict[str, Any]:
             out.append({"name": f"OCR: {spec.get('cond',{}).get('text','')}", "kind": "ocr_contains", "params": {"text": spec.get("cond",{}).get("text",""), "lang": spec.get("cond",{}).get("lang","eng+rus")}, "timeout_ms": timeout_ms})
         elif k == "template_match":
             out.append({"name": "TEMPLATE", "kind": "template_match", "params": {"template_b64": spec.get("cond",{}).get("template_b64",""), "threshold": float(spec.get("cond",{}).get("threshold",0.78))}, "timeout_ms": timeout_ms})
-    # iz zhurnala vnimaniya
+    # from attention magazine
     j = _get("/attention/journal/list?n=200")
     for itm in j.get("items", []):
         ev = itm.get("event")
         det = itm.get("detail") or {}
         if ev == "iplay_step" and det.get("ok"):
-            # esli shag proshel — poprobuem OCR po titulu shaga
+            # if the step has passed, let’s try OCD according to the title of the step
             ttl = str(det.get("title",""))
             if ttl:
                 out.append({"name": f"Step OK: {ttl}", "kind":"ocr_contains", "params":{"text": ttl.split()[0], "lang":"eng+rus"}, "timeout_ms": timeout_ms})

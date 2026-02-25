@@ -1,27 +1,25 @@
 
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/auto_reg_thinking.py — myagkaya AUTO-REG tochka dlya myshleniya Ester.
+"""modules/thinking/auto_reg_thinking.py - myagkaya AUTO-REG tochka dlya myshleniya Ester.
 
 Mosty:
-- Yavnyy: (app.py ↔ novye adaptery) — edinaya tochka, cherez kotoruyu mozhno podklyuchit debug-marshruty.
-- Skrytyy #1: (Flask-prilozhenie ↔ thinking_routes_alias) — bezopasnaya registratsiya blueprint'a.
-- Skrytyy #2: (Politika A/B ↔ Diagnostika) — vklyuchenie cherez ENV-flag.
+- Yavnyy: (app.py ↔ novye adaptery) - edinaya tochka, cherez kotoruyu mozhno podklyuchit debug-marshruty.
+- Skrytyy #1: (Flask-prilozhenie ↔ thinking_routes_alias) — bezopasnaya registratsiya blueprint.
+- Skrytyy #2: (Politika A/B ↔ Diagnostika) - vklyuchenie cherez ENV-flag.
 
-Ispolzovanie (ruchnoe, v app.py, v bloke AUTO-REG):
+Use (ruchnoe, v app.py, v block AUTO-REG):
     from modules.thinking.auto_reg_thinking import auto_register as ester_thinking_auto_register
     ester_thinking_auto_register(app)
 
 ENV:
     ESTER_THINK_DEBUG_AB = "A" | "B"
-    A — po umolchaniyu: nichego ne registriruem.
-    B — registriruem /ester/thinking-debug, esli Flask dostupen.
+    A - po umolchaniyu: nichego ne registriruem.
+    B - register /ester/thinking-debug, esli Flask is available.
 
 Zemnoy abzats:
 Inzhener dobavlyaet odnu stroku v avto-registratsiyu, poluchaet prozrachnuyu diagnostiku
 myshleniya bez vmeshatelstva v osnovnoy kod.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -40,14 +38,12 @@ def _debug_enabled() -> bool:
 
 
 def auto_register(app: Any) -> None:
-    """
-    Bezopasnaya registratsiya thinking-debug blueprint.
+    """Bezopasnaya registratsiya thinking-debug blueprint.
 
-    Pravila:
-    - Ne padaet, esli Flask ili aliasy nedostupny.
-    - Registratsiya tolko pri ESTER_THINK_DEBUG_AB=B.
-    - Ne dubliruet blueprint, esli uzhe zaregistrirovan.
-    """
+    Rules:
+    - Ne padaet, esli Flask or aliasy nedostupny.
+    - Registration only pri ESTER_THINK_DEBUG_AB=B.
+    - Ne dubliruet blueprint, esli uzhe zaregistrirovan."""
     if not _debug_enabled():
         return
 
@@ -66,5 +62,5 @@ def auto_register(app: Any) -> None:
             return
         app.register_blueprint(bp)
     except Exception:
-        # Nikakikh padeniy prilozheniya iz-za diagnostiki.
+        # No application crashes due to diagnostics.
         return

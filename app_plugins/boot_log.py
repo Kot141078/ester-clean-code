@@ -3,7 +3,7 @@ from __future__ import annotations
 import os, json, datetime
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-_AB = os.getenv("ESTER_BOOTLOG_AB", "B").upper()  # vklyucheno po umolchaniyu
+_AB = os.getenv("ESTER_BOOTLOG_AB", "B").upper()  # enabled by default
 
 def register(app):
     if _AB != "B":
@@ -14,7 +14,7 @@ def register(app):
         with open(path, "a", encoding="utf-8") as f:
             f.write(f"[{datetime.datetime.utcnow().isoformat()}Z] boot_log: app starting\n")
             for r in app.url_map.iter_rules():
-                pass  # karta aktualiziruetsya posle registratsii routov
+                pass  # the map is updated after registering routes
     except Exception:
         pass
 # c=a+b

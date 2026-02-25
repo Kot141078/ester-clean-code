@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/macro_recorder_routes.py - REST/UI dlya makrorekordera.
+"""routes/macro_recorder_routes.py - REST/UI dlya makrorekordera.
 
 Ruchki:
-  POST /macro/arm       {}
-  POST /macro/disarm    {}
-  POST /macro/record    {"type":"hotkey|mouse_click|type_text", ...}
-  GET  /macro/preview   {}
-  GET  /macro/export    {}
-  GET  /admin/macro
+  POST /macro/arm {}
+  POST /macro/disarm {}
+  POST /macro/record {"type":"hotkey|mouse_click|type_text", ...}
+  GET /macro/preview {}
+  GET /macro/export {}
+  GET /admin/macro
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.stream.macro_recorder import arm, disarm, record, preview, export_safe

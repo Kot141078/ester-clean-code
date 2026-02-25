@@ -31,18 +31,18 @@
         <option value="direct">direct</option>
         <option value="ytsearch">ytsearch</option>
       </select>
-      <input id="url" placeholder="url (dlya rss/direct)" style="min-width:280px">
-      <input id="query" placeholder="query (dlya ytsearch)" style="min-width:260px">
+      <input id="url" placeholder="URL (for rss/direct)" style="min-width:280px">
+      <input id="query" placeholder="cuers (for otsearch)" style="min-width:260px">
       <input id="limit" type="number" value="3" min="1" max="25" style="width:90px">
-      <input id="tags" placeholder="tags (cherez zapyatuyu)" style="min-width:220px">
+      <input id="tags" placeholder="tags (separated by commas)" style="min-width:220px">
       <label><input id="enabled" type="checkbox"> enabled</label>
       <button id="save">Save</button>
     </div>
   </div>
 
   <div class="row" style="margin-top:16px">
-    <button id="reload" class="btn-alt">Obnovit spisok</button>
-    <button id="run" class="btn-run">Zapustit obkhod</button>
+    <button id="reload" class="btn-alt">Update list</button>
+    <button id="run" class="btn-run">Start crawl</button>
     <span class="muted">REST: /proactive/video/subs*, /proactive/video/run</span>
   </div>
 

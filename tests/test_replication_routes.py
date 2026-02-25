@@ -6,7 +6,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def test_replication_snapshot_and_apply(client, auth_hdr_admin, monkeypatch, tmp_path):
-    # Nastroyka okruzheniya
+    # Setting up the environment
     monkeypatch.setenv("PERSIST_DIR", str(tmp_path))
     monkeypatch.setenv("REPL_TOKEN", "tok")
     monkeypatch.setenv("REPL_HMAC_KEY", "supersecret")
@@ -23,13 +23,13 @@ def test_replication_snapshot_and_apply(client, auth_hdr_admin, monkeypatch, tmp
         return
     assert r.headers.get("X-Signature", "").startswith("hmac-")
     data = r.data
-    # chut izmenim lokalnyy fayl, chtoby potom LWW srabotal po mtime
+    # let's change the local file a little so that later the LVV will work as expected
     import time as _t
 
     _t.sleep(0.01)
     f.write_text('[{"id":"a"}]', encoding="utf-8")
 
-    # APPLY (primenyaem staryy snapshot — dolzhen byt skipped iz-za LWW)
+    # APPLY (uses the old snapshot - must be skipped due to LVV)
     r2 = client.post(
         "/replication/apply",
         headers={
@@ -42,12 +42,12 @@ def test_replication_snapshot_and_apply(client, auth_hdr_admin, monkeypatch, tmp
     assert r2.status_code == 200
     j2 = r2.get_json()
     assert j2.get("ok") is True
-    # Proverim, chto fayl ne perezapisan
+    # Let's check that the file is not overwritten
     assert f.read_text(encoding="utf-8") == '[{"id":"a"}]'
 
 
 def test_replication_guard_and_errors(client, auth_hdr_admin, monkeypatch, tmp_path):
     monkeypatch.setenv("PERSIST_DIR", str(tmp_path))
-    # net klyuchey
+    # no keys
     r = client.get("/replication/snapshot", headers=auth_hdr_admin)
     assert r.status_code in (503, 404)

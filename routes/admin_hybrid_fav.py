@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_hybrid_fav.py - upravlenie «izbrannymi tselyami» v adminke.
+"""routes/admin_hybrid_fav.py - upravlenie “izbrannymi tselyami” v adminke.
 
-Marshruty:
-  • GET  /admin/hybrid/favorites            - HTML
-  • GET  /admin/hybrid/favorites/status     - tekuschee favorites.json
-  • POST /admin/hybrid/favorites/add        - {targets:{lan?:{node}, tg?:{chat_id}}, reason?}
-  • POST /admin/hybrid/favorites/remove     - {lan_node?|tg_chat?}
-  • POST /admin/hybrid/favorites/enqueue    - {type,args,target:"lan"|"tg", id:<node|chat>}
+Route:
+  • GET /admin/hybrid/favorites - HTML
+  • GET /admin/hybrid/favorites/status - tekuschee favorites.json
+  • POST /admin/hybrid/favorites/add - {targets:{lan?:{node}, tg?:{chat_id}}, reason?}
+  • POST /admin/hybrid/favorites/remove - {lan_node?|tg_chat?}
+  • POST /admin/hybrid/favorites/enqueue - {type,args,target:"lan"|"tg", id:<node|chat>}
 
 Mosty:
-- Yavnyy (UX ↔ Planirovanie): bystryy dostup k «lyubimym» mestam dostavki.
+- Yavnyy (UX ↔ Planning): bystryy dostup k “lyubimym” mestam dostavki.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): vse cherez JSON-otvety, legko avtomatizirovat.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): ne menyaet kontrakty ocheredi, tolko obertka nad enqueue().
 
 Zemnoy abzats:
-Pult s knopkami «na lyubimyy stanok» i «v nash obschiy chat» - menshe klikov i oshibok.
+Pult s knopkami “na lyubimyy stanok” i “v nash obschiy chat” - menshe klikov i oshibok.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, render_template, request
 

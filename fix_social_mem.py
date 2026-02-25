@@ -3,7 +3,7 @@ import os
 
 TARGET = "run_ester_fixed.py"
 
-# Vosstanavlivaem nastroyki pamyati i sotsializatsii
+# Restores memory and socialization settings
 FINAL_BLOCK = """
 # --- MEMORY & SOCIAL CONFIG ---
 SOCIAL_PROB = 0.01        # Low chance to broadcast to P2P

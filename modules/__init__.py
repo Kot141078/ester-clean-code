@@ -6,17 +6,15 @@ import logging
 import os
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-"""
-modules/__init__.py — shlyuz Ester s aliasami i optsionalnymi patchami.
-Dopolneniya:
+"""modules/__init__.py - shlyuz Ester s aliasami i optsionalnymi patchami.
+Additional information:
 - Aliasy: listeners/listners, messaging, quality, memory (kak ranshe).
-- Optsionalnyy RouteGuard (FastAPI/Flask) pri `ESTER_ROUTE_GUARD=1`.
+- Optionalnyy RouteGuard (FastAPI/Flask) pri `ESTER_ROUTE_GUARD=1`.
 
 Zemnoy abzats:
-Inogda nuzhno «podklyuchit remen bezopasnosti» dlya routov — bez pravok chuzhogo koda.
+Inogda nuzhno “podklyuchit remen bezopasnosti” dlya routov - bez pravok chuzhogo koda.
 ENV‑flag vklyuchaet berezhnyy patching v rantayme.
-# c=a+b
-"""
+# c=a+b"""
 
 # --- Optional guarded routes ---
 log = logging.getLogger(__name__)
@@ -86,7 +84,7 @@ try:
 except Exception as e:
     _record_init_warning("modules.init", e)
 
-# 2) Reeksport populyarnykh agentov (esli est)
+# 2) Re-export of popular agents (if any)
 task_tutor = None
 desktop_agent = None
 try:

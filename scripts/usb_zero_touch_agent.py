@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/usb_zero_touch_agent.py — agent «nulevogo treniya» dlya fleshek.
+"""scripts/usb_zero_touch_agent.py - agent "nulevogo treniya" dlya fleshek.
 
 (GORYaChIY FIKS) Sovmestimost s modules.selfmanage.usb_locator:
   • Dlya konkretnogo mount ispolzuem prepare_ester_folder(mount).
@@ -9,13 +8,12 @@ scripts/usb_zero_touch_agent.py — agent «nulevogo treniya» dlya fleshek.
 Mosty:
 - Yavnyy (Kibernetika ↔ Arkhitektura): regulyator s petley nablyudeniya (poll) i bez ruchnykh klikov.
 - Skrytyy 1 (Infoteoriya ↔ Protokoly): ispolzuem stabilnyy CLI-kontrakt, ne trogaya myshlenie/pamyat Ester.
-- Skrytyy 2 (Logika ↔ Bezopasnost): A/B-sloty — rezhim A «tolko podgotovka», rezhim B «avtodeploy».
+- Skrytyy 2 (Logika ↔ Bezopasnost): A/B-sloty — rezhim A “tolko podgotovka”, rezhim B “avtodeploy”.
 
 Zemnoy abzats:
-Polzovatel vstavlyaet fleshku — agent gotovit /ESTER i, esli nuzhno, pishet reliz/damp. Vse idempotentno.
+Polzovatel vstavlyaet fleshku - agent gotovit /ESTER i, esli nuzhno, pishet reliz/damp. Everything is idempotent.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

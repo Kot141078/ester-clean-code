@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-modules/triggers/mass_tuner_weighted.py — «vzveshennyy» tyuning triggerov s uchetom karty oshibok.
+"""modules/triggers/mass_tuner_weighted.py - “vzveshennyy” tyuning triggerov s uchetom karty oshibok.
 
-Ideya:
+Ideaya:
 - Poluchaem spisok triggerov (/triggers/list). Esli u template-triggera est cond.box, otsenivaem,
   skolko oshibok (iz error-heatmap) popalo v okrestnost ego tsentra.
-- Chem «krasnee» oblast, tem vyshe minimalnyy threshold (min_thr) i/ili metka 'deprioritize': true.
-- Dlya OCR-triggerov v «goryachey zone» — usilivaem lang (esli ukazan), dobavlyaem 'scale' iz /calibrate/status (optsionalno).
+- Chem "krasnee" oblast, tem vyshe minimalnyy threshold (min_thr) i/ili label 'deprioritize': true.
+- Dlya OCR-triggerov v “goryachey zone” - usilivaem lang (esli ukazan), addavlyaem 'scale' iz /calibrate/status (optsionalno).
 
 Vkhod opts:
 {
@@ -19,18 +18,17 @@ Vkhod opts:
 
 Vykhod:
 - preview(opts) -> plan pravok [{index,kind,new,reason:{hot_errors:int}}]
-- apply(opts)   -> popytaetsya vyzvat /triggers/update, vernet otchet
+- apply(opts) -> popytaetsya vyzvat /triggers/update, vernet otchet
 
 MOSTY:
-- Yavnyy: (Diagnostika ↔ Deystvie) «krasnye zony» → bolee strogie triggery.
+- Yavnyy: (Diagnostika ↔ Deystvie) “krasnye zony” → bolee strogie triggery.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) lokalnye, obyasnimye pravila.
 - Skrytyy #2: (Kibernetika ↔ Ekspluatatsiya) metka 'deprioritize' daet podsistemam (selektoram) prostoy signal.
 
 ZEMNOY ABZATs:
-Chisto offlayn: chitaem /error/heatmap/build (ili parsim gotovyy JSON schetchikov pozzhe), /triggers/list, /calibrate/status. Kontrakty prezhnie.
+Purely offlayn: chitaem /error/heatmap/build (ili parsim gotovyy JSON schetchikov pozzhe), /triggers/list, /calibrate/status. Contrakty prezhnie.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple
 import http.client, json, math
@@ -60,13 +58,13 @@ def _centroid(cond: Dict[str, Any]) -> Tuple[int,int] | None:
     return None
 
 def _count_hot(radius: int) -> int:
-    # poluchaem svezhie oshibki (pust sborom zaveduet suschestvuyuschaya /error/heatmap/build)
+    # we get fresh errors (let the existing /error/netmap/build manage the collection)
     r = _post("/error/heatmap/build", {"n": 600})
-    # kartinka ne nuzhna; nam tolko kolichestvo — no dlya vesa ispolzuem obschee chislo oshibok
+    # no picture needed; we only need the quantity - but for weight we use the total number of errors
     return int(r.get("count", 0))
 
 def _list_errors_points(n: int = 600) -> List[Dict[str,int]]:
-    # zaberem iz zhurnala napryamuyu, chtoby imet tochki
+    # let's take it from the magazine directly to have points
     j = _get(f"/attention/journal/list?n={int(max(100,n))}")
     pts = []
     for it in j.get("items", []):

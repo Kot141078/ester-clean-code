@@ -1,6 +1,6 @@
-# R5/scripts/r5_smoke.ps1 — offlayn-smoke dlya Windows PowerShell
-# Mosty: (Yavnyy) Enderton — predikaty; (Skrytye) Ashbi — myagkiy rezhim; Cover&Thomas — informativnyy minimum.
-# Zemnoy abzats: formiruet portal/index.html iz poslednego daydzhesta.
+# Р5/skripts/р5_stoke.ps1 - offline stock for Windows PowerShell
+# Bridges: (Explicit) Enderton - predicates; (Hidden) Ashby - soft mode; Carpet&Thomas - minimal information.
+# Earth paragraph: generates portal/index.html from the latest digest.
 # c=a+b
 
 python tests/r5_smoke.py

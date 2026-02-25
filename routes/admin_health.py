@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_health.py - Self-Check panel: svodka health, uglublennye proverki, avtopochinka, eksport otcheta.
+"""routes/admin_health.py - Self-Check panel: svodka health, uglublennye proverki, avtopochinka, eksport otcheta.
 
-Marshruty:
-  • GET  /admin/health                - HTML
-  • GET  /admin/health/status         - sobrat obschiy otchet (deep=false)
-  • POST /admin/health/selfcheck      - deep=true (LM Studio ping pri AB=B)
-  • POST /admin/health/auto_fix       - vypolnit deystviya (AB-aware)
-  • POST /admin/health/export         - eksport otcheta na fleshku
+Route:
+  • GET /admin/health - HTML
+  • GET /admin/health/status - sobrat obschiy otchet (deep=false)
+  • POST /admin/health/selfcheck - deep=true (LM Studio ping pri AB=B)
+  • POST /admin/health/auto_fix - vypolnit deystviya (AB-aware)
+  • POST /admin/health/export - eksport otcheta na fleshku
 
 Mosty:
-- Yavnyy (Nablyudenie ↔ Deystvie): «vizhu problemu → chinyu» - v odnom okne, s A/B predokhranitelem.
-- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): deep-check i pochinka atomarny, otchet - chitaemyy JSON.
-- Skrytyy 2 (Praktika ↔ Sovmestimost): vse vyzovy myagko degradiruyut («skipped») bez oshibok.
+- Yavnyy (Nablyudenie ↔ Deystvie): “vizhu problemu → chinyu” - v odnom okne, s A/B predokhranitelem.
+- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): deep-check i pochinka atomically, otchet - chitaemyy JSON.
+- Skrytyy 2 (Praktika ↔ Sovmestimost): vse vyzovy myagko degradiruyut (“skipped”) bez oshibok.
 
 Zemnoy abzats:
-Eto «tekhpanel»: daet tselostnuyu kartinku uzla i pozvolyaet v paru klikov popravit chastye sboi - bez tantsev s bubnom.
+Eto “tekhpanel”: daet tselostnuyu kartinku uzla i pozvolyaet v paru klikov popravit chastye sboi - bez tantsev s bubnom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

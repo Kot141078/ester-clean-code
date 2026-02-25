@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/agency/hiring.py — bezopasnye chernoviki nayma (brify), bez vneshney publikatsii.
+"""modules/agency/hiring.py - bezopasnye chernoviki nayma (brify), bez vneshney publikatsii.
 
 Mosty:
 - Yavnyy: (Lyudi ↔ Proekt) formiruem ponyatnye TZ dlya zadach.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Ekonomika ↔ Kontrol) byudzhety brifov sopostavimy s ledzherom/limitami.
 
 Zemnoy abzats:
-Eto kak napisat obyavlenie na doske — poka na bumage, bez rassylki; potom operator reshit, gde i kak publikovat.
+Eto kak napisat obyavlenie na doske - poka na paper, bez rassylki; potom operator reshit, where i kak publikovat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import hashlib, json, os, time

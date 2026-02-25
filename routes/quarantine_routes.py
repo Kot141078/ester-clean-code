@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/quarantine_routes.py - REST: priem/skan/vypusk artefaktov v staging + prostaya panel.
+"""routes/quarantine_routes.py - REST: priem/skan/vypusk artefaktov v staging + prostaya panel.
 
 Mosty:
-- Yavnyy: (Volya ↔ Bezopasnost) chelovek/Ester kladut fayly v karantin i vypuskayut posle skana.
+- Yavnyy: (Volya ↔ Bezopasnost) chelovek/Ester kladut fayly v karantin i vypuskayut after skana.
 - Skrytyy #1: (Audit ↔ Prozrachnost) log/otchety v data/quarantine/<id>.
-- Skrytyy #2: (Samodeploy ↔ Kontrol) vypusk idet cherez deployer.stage (dalshe - tabletka/priglashenie na approve).
+- Skrytyy #2: (Samodeploy ↔ Kontrol) vypusk idet cherez deployer.stage (further - tabletka/priglashenie na approve).
 
 Zemnoy abzats:
-«Predbannik»: vse novoe prokhodit cherez nego. Inache - ne zanosim.
+"Predbannik": vse novoe prokhodit cherez nego. Inache - ne zanosim.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from flask import Blueprint, jsonify, request, render_template

@@ -43,7 +43,7 @@
           <button class="btn" onclick="clearLog()">Ochistit</button>
         </div>
 
-        <textarea id="input" class="textarea" placeholder="Sprosi Ester… (Shift+Enter — novaya stroka, Enter — otpravka)"></textarea>
+        <textarea id="input" class="textarea" placeholder="Ask Esther... (Shift+Enter - new line, Enter - send)"></textarea>
         <div class="row" style="margin-top:6px">
           <button class="btn" onclick="sendMsg()">Otpravit</button>
           <span class="muted">JWT beretsya iz <code>localStorage.jwt</code>.</span>
@@ -60,7 +60,7 @@
           <label class="btn" style="margin-left:6px;cursor:pointer">
             vybrat<input id="file" type="file" multiple style="display:none">
           </label>
-          <div class="notice" style="margin-top:6px">Fayly otpravlyayutsya v BZ cherez <code>/ingest/file</code>, a v soobschenie podstavlyayutsya ssylki-identifikatory.</div>
+          <div class="notice" style="margin-top:6px">Files are sent to BC via <code>/ingest/file</code>, and identifier links are inserted into the message.</div>
           <div id="flist" class="filelist" style="margin-top:8px"></div>
         </div>
         <div class="row" style="gap:8px;margin-top:8px">
@@ -72,14 +72,14 @@
       <div class="box" style="margin-top:12px">
         <strong>Podskazki</strong>
         <ul style="margin:8px 0 0 18px;line-height:1.6">
-          <li>Vyberi rezhim: <code>local</code> dlya oflayna, <code>cloud</code> — oblako, <code>judge</code> — finalnyy sintez.</li>
-          <li>Zagruzki popolnyayut lokalnuyu BZ; RAG podtyanet relevantnye kuski v otvet.</li>
-          <li>Khochesh «bystryy kontekst» — prilozhi fayly i napishi «ispolzuy vlozheniya».</li>
+          <li>Vyberi rezhim: <code>local</code> for offline, <code>cloud</code> — oblako, <code>judge</code> — finalnyy sintez.</li>
+          <li>Downloads replenish the local business center; RAG will pull up relevant pieces in response.</li>
+          <li>If you want a “quick context”, attach the files and write “use attachments”.</li>
         </ul>
         <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap">
-          <button class="btn" onclick="quick('Summiruy vlozhennye dokumenty v 10 punktov. Vydeli riski i deystviya.')">Summirovat vlozheniya</button>
-          <button class="btn" onclick="quick('Sdelay plan zadach po dokumentam: sroki, riski, zavisimosti.')">Plan zadach</button>
-          <button class="btn" onclick="quick('Sformiruy tezisy dlya prezentatsii (10–12 slaydov) po vlozheniyam.')">Prezentatsiya</button>
+          <button class="btn" onclick="pussy (Sum up the attached documents into 10 points. Have you seen the risks and actions.b)ons.')">Summirovat vlozheniya</button>
+          <button class="btn" onclick="kits(bMake a plan of tasks based on documents: deadlines, risks, dependencies.b)ncies.')">Task plan</button>
+          <button class="btn" onclick="kits(bGenerate abstracts for the presentation (10–12 slides) using attachments.b)ments.')">Prezentatsiya</button>
         </div>
       </div>
 
@@ -132,7 +132,7 @@
     const max_tokens_raw = document.getElementById('maxTok').value;
     const max_tokens = max_tokens_raw ? parseInt(max_tokens_raw,10) : undefined;
 
-    // prikrepim identifikatory zagruzhennykh faylov (esli est)
+    // attach the identifiers of the downloaded files (if any)
     const attachments = FILES.map(f => f.ref).filter(Boolean);
 
     const payload = { message: s, mode, use_rag, temperature };

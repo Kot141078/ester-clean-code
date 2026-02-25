@@ -4,8 +4,8 @@ from __future__ import annotations
 from flask import Blueprint, render_template
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Otdelnaya stranitsa-obzor ruchek: /routes/ui
-# Drop-in: ne lomaet suschestvuyuschie /routes (JSON ili drugaya realizatsiya); eto tolko HTML-vitrina.
+# Separate page review of pens: /rutes/oh
+# Drop-in: does not break existing /Rute (ZhSON or other implementation); This is only an HTML showcase.
 
 routes_ui_bp = Blueprint("routes_ui", __name__)
 
@@ -21,10 +21,8 @@ def routes_ui_index_slash():
 
 
 def register_routes_ui(app, url_prefix: str | None = None) -> None:
-    """
-    Sovmestimyy s dampom registrator. Po umolchaniyu registriruet /routes/ui.
-    Esli peredan url_prefix — dobavit dubl po {url_prefix}/routes/ui.
-    """
+    """Dump compatible logger. By default it registers /rutes/oi.
+    If url_prefix is ​​passed, add a duplicate for ZZF0Z/RUTE/oi."""
     if url_prefix:
         prefixed = Blueprint("routes_ui_prefixed", __name__, url_prefix=url_prefix)
 

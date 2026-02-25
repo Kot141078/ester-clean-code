@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/discovery_routes.py - REST-pult avtopodkhvata: scan/register/status/autorun.
+"""routes/discovery_routes.py - REST-pult avtopodkhvata: scan/register/status/autorun.
 
 Mosty:
-- Yavnyy: (Veb ↔ Bootstrap) ruchnoe upravlenie poiskom i podklyucheniem moduley.
+- Yavnyy: (Web ↔ Bootstrap) handy upravlenie poiskom i podklyucheniem moduley.
 - Skrytyy #1: (Passport ↔ Prozrachnost) vse sobytiya v zhurnale.
 - Skrytyy #2: (CapMap/Hub ↔ UI) udobnye JSON/HTML dlya paneley.
 
 Zemnoy abzats:
-Eto pult «Set/Pusk»: nashel - podklyuchil - proveril, bez redaktirovaniya app.py.
+Eto remote “Set/Pusk”: nashel - podklyuchil - proveril, bez redaktirovaniya app.py.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, current_app
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

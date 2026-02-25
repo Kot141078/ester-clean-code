@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/thinking_reflection_routes.py - HTTP-ruchki dlya affect-aware ocheredi refleksii.
+"""routes/thinking_reflection_routes.py - HTTP-ruchki dlya affect-aware ocheredi refleksii.
 
-Endpointy:
+Endpoint:
   • POST /thinking/reflection/enqueue {"item":{...}} → {"ok":true,"score":...,"size":...}
-  • POST /thinking/reflection/pop {"n":1}           → {"ok":true,"items":[{"id",...,"_score":...}]}
-  • GET  /metrics/reflection_affect                 → Prometheus text 0.0.4
+  • POST /thinking/reflection/pop {"n":1} → {"ok":true,"items":[{"id",...,"_score":...}]}
+  • GET /metrics/reflection_affect → Prometheus text 0.0.4
 
 Mosty:
 - Yavnyy: (Memory ↔ Myshlenie) pozvolyaet RuleHub pinat refleksiyu po prioritetu.
 - Skrytyy #1: (Infoteoriya ↔ Nablyudaemost) metriki ocheredi dostupny iz Prometheus.
-- Skrytyy #2: (UX ↔ Kontrol) prostoy REST bez izmeneniya suschestvuyuschikh payplaynov.
+- Skrytyy #2: (UX ↔ Control) prostoy REST bez izmeneniya suschestvuyuschikh payplaynov.
 
 Zemnoy abzats (inzheneriya/anatomiya):
-Eto «ruchka upravleniya ocheredyu»: mozhno podat kartochku s emotsiyami i zabrat top-N na obdumyvanie.
+This is “ruchka upravleniya ocheredyu”: mozhno podat kartochku s emotsiyami i zabrat top-N na obdumyvanie.
 Prostaya trubka: vkhod - JSON, vykhod - determinirovannyy otvet/metriki, nichego lishnego.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -27,10 +25,10 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp_reflect = Blueprint("reflect_affect", __name__)
 
-# Myagkiy import yadra ocheredi
+# Soft import of queue core
 try:  # pragma: no cover
     from modules.thinking.affect_reflection import enqueue as _enqueue, pop as _pop  # type: ignore
-    # tolko dlya proverki importa:
+    # just to check the import:
     from modules.thinking.affect_reflection import score_item as _score_item  # type: ignore  # noqa: F401
 except Exception:  # pragma: no cover
     _enqueue = _pop = None  # type: ignore
@@ -48,14 +46,14 @@ def init_app(app) -> None:  # pragma: no cover
 
 @bp_reflect.post("/thinking/reflection/enqueue")
 def api_enqueue():
-    """Polozhit element v ochered refleksii (affect-aware)."""
+    """Place an element in the reflection queue (affect-aware)."""
     if _enqueue is None:
         return jsonify({"ok": False, "error": "affect_queue_unavailable"}), 500
     data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
     item = dict(data.get("item") or {})
     try:
         rep = _enqueue(item)  # type: ignore[misc]
-        # Ozhidaem slovar; esli net - privodim
+        # We are waiting for the dictionary; if not - leads
         if not isinstance(rep, dict):
             rep = {"ok": True, "result": rep}
         rep.setdefault("ok", True)
@@ -67,7 +65,7 @@ def api_enqueue():
 
 @bp_reflect.post("/thinking/reflection/pop")
 def api_pop():
-    """Zabrat N luchshikh elementov iz ocheredi refleksii."""
+    """Take the N best elements from the reflection queue."""
     if _pop is None:
         return jsonify({"ok": False, "error": "affect_queue_unavailable"}), 500
     data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
@@ -86,7 +84,7 @@ def api_pop():
 
 @bp_reflect.get("/metrics/reflection_affect")
 def metrics():
-    """Prometheus-tekst s tekuschimi schetchikami ocheredi."""
+    """Promethneus text with current queue counters."""
     body = (
         f"reflection_affect_enqueued_total {QSTATE['enqueued_total']}\n"
         f"reflection_affect_popped_total {QSTATE['popped_total']}\n"

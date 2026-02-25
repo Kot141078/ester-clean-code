@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/awareness_routes.py - REST: samoosoznannost (inventarizatsiya/graf).
+"""routes/awareness_routes.py - REST: samoosoznannost (inventarizatsiya/graf).
 
 Mosty:
 - Yavnyy: (Veb ↔ Samosoznanie) bystro uznat sostav i sha256.
-- Skrytyy #1: (Audit ↔ Kontrol) prigodno dlya proverok pered deploem.
+- Skrytyy #1: (Audit ↔ Control) prigodno dlya proverok pered deploem.
 - Skrytyy #2: (Planirovanie ↔ Moduli) osnova dlya podbora deystviy.
 
 Zemnoy abzats:
-Knopka «chto vo mne est?».
+Knopka “what vo mne est?”
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

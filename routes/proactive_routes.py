@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-routes/proactive_routes.py - marshruty dlya proaktivnykh stsenariev (morning digest e2e).
+"""run/proactive_run.by - route for proactive scenarios (morning digest e2e).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import glob, os
 from typing import Any, Dict, List

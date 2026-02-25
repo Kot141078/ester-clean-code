@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tests/selfmanage/test_watchdog.py — proverki perekhodov watchdog.
+"""tests/selfmanage/test_watchdog.py — proverki perekhodov watchdog.
 
 MOSTY:
 - (Yavnyy) Feykovyy servis: pervyy raz padaet, zatem prokhodit; watchdog delaet restart i sbrasyvaet backoff.
-- (Skrytyy #1) Proveryaem, chto next_at sdvigaetsya pri fail.
+- (Skrytyy #1) Proveryaem, what next_at sdvigaetsya pri fail.
 - (Skrytyy #2) Net fonovogo potoka v teste — upravlyaem tick() vruchnuyu.
 
 ZEMNOY ABZATs:
-Dokazatelstvo, chto avto-remont rabotaet i ne «zalipaet».
+Dokazatelstvo, what auto-remont rabotaet i ne “zalipaet”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import time

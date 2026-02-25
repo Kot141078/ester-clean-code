@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/volition_priority_adapter.py — prioritizatsiya i forma voli Ester.
+"""modules/thinking/volition_priority_adapter.py - prioritizatsiya i forma voli Ester.
 
 Mosty:
 - Yavnyy: (volition_registry ↔ always_thinker) — daet obertku nad impulsami dlya bolee osmyslennogo otbora.
@@ -15,11 +14,10 @@ A/B-slot:
 Zemnoy abzats:
 Inzhener mozhet sozdavat impulsy uzhe s prioritetami:
  from modules.thinking import volition_priority_adapter as vpa
- vpa.enqueue("peresobrat nedelnyy otchet", {"priority": "high", "ttl_sec": 3600})
-A always_thinker (ili drugoy potrebitel) mozhet vytaschit luchshiy impuls:
+ vpa.enqueue("peresobrat week otchet", {"priority": "high", "ttl_sec": 3600})
+A always_thinker (or drugoy potrebitel) mozhet vytaschit luchshiy impuls:
  impulse = vpa.get_next_weighted()
-# c=a+b
-"""
+# c=a+b"""
 
 from __future__ import annotations
 
@@ -34,7 +32,7 @@ except Exception:  # pragma: no cover
  volition_registry = None  # type: ignore
 
 _WILL_MODE = (os.environ.get("ESTER_WILL_PRIORITY_AB", "A") or "A").strip().upper()
-# Karta prioritetov; chem bolshe chislo, tem vazhnee impuls.
+# Priority map; the higher the number, the more important the momentum.
 _PRIORITY_MAP = {
  "low": 3,
  "normal": 5,
@@ -74,14 +72,12 @@ def _norm_ttl(meta: Dict[str, Any] | None) -> Optional[float]:
 
 
 def enqueue(goal: str, meta: Dict[str, Any] | None = None) -> Dict[str, Any]:
- """
- Dobavit impuls s prioritetom.
+ """Add impulses priority.
 
- Bezopasnost:
+ Safety:
  - Esli volition_registry nedostupen — myagkiy otkaz.
  - V rezhime A — delegiruet v volition_registry.add_impulse(goal/meta) bez modifikatsiy.
- - V rezhime B — dobavlyaet sluzhebnye polya (created_ts, ttl_sec, priority_norm).
- """
+ - V rezhime B — addavlyaet sluzhebnye polya (created_ts, ttl_sec, priority_norm)."""
  if not volition_registry or not hasattr(volition_registry, "add_impulse"):
      return {"ok": False, "error": "volition_registry not available"}
 
@@ -93,7 +89,7 @@ def enqueue(goal: str, meta: Dict[str, Any] | None = None) -> Dict[str, Any]:
      if ttl is not None:
          meta["ttl_sec"] = float(ttl)
      meta["priority_norm"] = _norm_priority(meta)
- # V rezhime A ne trogaem meta — chistyy pass-through.
+ # In mode A, we don’t touch the meta - pure pass-throug.
  return volition_registry.add_impulse({"goal": goal, "meta": meta})
 
 
@@ -112,7 +108,7 @@ def _expired(impulse: Dict[str, Any]) -> bool:
 def _weight(impulse: Dict[str, Any]) -> float:
  meta = impulse.get("meta") or {}
  base = meta.get("priority_norm") or _norm_priority(meta)
- # Legkaya popravka na vozrast: starye zadachi slegka podtyagivayutsya.
+ # Easy adjustment for age: old tasks are slightly improved.
  created = meta.get("created_ts")
  try:
      if created:
@@ -124,21 +120,19 @@ def _weight(impulse: Dict[str, Any]) -> float:
 
 
 def get_next_weighted(max_scan: int = 10) -> Optional[Dict[str, Any]]:
- """
- Vybrat «luchshuyu» tsel iz ocheredi impulsov.
+ """Vybrat “luchshuyu” tsel iz ocheredi impulsov.
 
  Logika:
  - V rezhime A: odnokratnyy vyzov volition_registry.get_next_impulse().
  - V rezhime B:
-     - skaniruet do max_scan impulsov;
+     - scaniruet do max_scan impulsov;
      - vykidyvaet protukhshie;
      - vybiraet po vesu;
-     - ostalnye vozvraschaet obratno v ochered.
- """
+     - ostalnye vozvraschaet obratno v ochered."""
  if not volition_registry or not hasattr(volition_registry, "get_next_impulse"):
      return None
 
- # Rezhim A — pryamoy dostup bez slozhnoy logiki.
+ # Mode A - direct access without complex logic.
  if _WILL_MODE != "B":
      return volition_registry.get_next_impulse()
 

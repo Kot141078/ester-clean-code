@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/context_routes.py - ruchki dlya proverki adapterov.
+"""routes/context_routes.py - ruchki dlya proverki adapterov.
 
 Primery:
   POST /context/test/web {"text":"Privet!"}
   POST /context/test/file {"filename":"demo.txt","summary":"Kratkiy otchet"}
   POST /context/test/thought {"goal":"nayti reshenie","conclusion":"gotovo"}
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.context import web_adapter, files_adapter, thoughts_adapter

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_sustainability_kit.py — deystviya kita ustoychivogo razvitiya.
+"""modules/thinking/actions_sustainability_kit.py - deystviya kita ustoychivogo razvitiya.
 
 Mosty:
 - Yavnyy: (Mysli/Deystviya ↔ Dokumentatsiya/Dannye) chitaem cheklisty iz docs/ i faktory iz JSON, otdaem cherez /thinking/act.
@@ -8,9 +7,8 @@ Mosty:
 - Skrytyy #2: (Pravila ↔ Memory) rezultaty mozhno logirovat v profile/zhurnal temi zhe mekhanizmami, bez novykh kontraktov.
 
 Zemnoy abzats:
-Eto «yaschik s instrumentami» dlya zelenykh agentov: cheklisty, faktory i kompaktnye brify. Ester poluchaet gotovye kuski znaniy dlya planov i otchetov — nichego ne menyaya v API.
-# c=a+b.
-"""
+This is “yaschik s instrumentami” dlya zelenykh agentov: checklisty, faktory i kompaktnye brify. Ester poluchaet gotovye kuski znaniy dlya planov i otchetov — nichego ne menyaya v API.
+# c=a+b."""
 from __future__ import annotations
 import os, json, io, glob
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -53,15 +51,15 @@ def _metrics():
     return {"ok": True, "data": data, "ab": AB_SLOT}
 
 def _compose_brief(goal: str, sector: str):
-    # Mini-logika komponovki (bez LLM): svyazyvaem tsel/sektor s tipovymi shagami
+    # Mini-layout logic (without LLM): linking the goal/sector with typical steps
     outline = [
         f"Tsel: {goal or '—'}",
         f"Sektor/kontekst: {sector or '—'}",
         "Metriki: CO₂e (t/god, t/ed.), kWh, otkhody (kg), voda (m³).",
         "Shagi: audit → bystraya ekonomiya → strukturnye mery → monitoring.",
-        "Instrumenty: plany kaskada, cheklisty, RuleHub-politiki, otchetnost."
+        "Tools: cascade plans, checklists, RuleNew policies, reporting."
     ]
-    # Podskazki po istochnikam dannykh
+    # Data Source Tips
     hints = {
         "checklists": [x["id"] for x in _list_checklists()],
         "metrics_source": "docs/sustainability_kit/metrics.json",

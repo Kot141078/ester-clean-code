@@ -140,14 +140,14 @@ PS D:\ester-project> $data=(Resolve-Path .\data).Path
 PS D:\ester-project> $env:PERSIST_DIR=$data
 PS D:\ester-project> $env:ESTER_DATA_ROOT=$data
 PS D:\ester-project>
-PS D:\ester-project> # strukturnaya pamyat
+PS D:\ester-project> # structural memory
 PS D:\ester-project> New-Item -ItemType Directory -Force -Path "$data\structured_mem" | Out-Null
 PS D:\ester-project> if (!(Test-Path "$data\structured_mem\store.json")) { '{}'  | Set-Content "$data\structured_mem\store.json" -Encoding UTF8 }
 PS D:\ester-project>
-PS D:\ester-project> # cards (esli ispolzuetsya)
+PS D:\ester-project> # cards (if used)
 PS D:\ester-project> if (!(Test-Path "$data\ester_cards.json")) { '[]'  | Set-Content "$data\ester_cards.json" -Encoding UTF8 }
 PS D:\ester-project>
-PS D:\ester-project> # yakornyy fayl dlya StructuredMemory (kak ozhidaet kod)
+PS D:\ester-project> # anchor file for StructuredMeters (as the code expects)
 PS D:\ester-project> if (!(Test-Path "$data\ester_memory.json")) { '{}' | Set-Content "$data\ester_memory.json" -Encoding UTF8 }
 PS D:\ester-project> # zdorove mosta
 PS D:\ester-project> irm -Method GET  "$BASE/ester/chat/health"

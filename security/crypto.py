@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-security/crypto.py — utility dlya bezopasnykh sravneniy i proverki kheshey.
+"""security/crypto.py - utility dlya bezopasnykh sravneniy i proverki kheshey.
 
 MOSTY:
 - (Yavnyy) verify_basic_hash(user, passwd, hex_hash) — sverka sha256("user:pass") s hex.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) safe_eq — konstantno-vremennoe sravnenie strok/bayt.
 
 ZEMNOY ABZATs:
-Khranit parol «kak est» — plokho. Dazhe bez vneshnikh zavisimostey mozhno sveryat po kheshu i ne svetit sekret v konfige.
+Khranit parol "kak est" - plokho. Dazhe bez vneshnikh zavisimostey mozhno sveryat po kheshu i ne svetit sekret v konfige.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import hashlib, hmac

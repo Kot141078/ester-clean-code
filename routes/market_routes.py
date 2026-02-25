@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/market_routes.py - REST: /market/gigs/* (scan/apply/list)
+"""routes/market_routes.py - REST: /market/gigs/* (scan/apply/list)
 
 Mosty:
 - Yavnyy: (Veb ↔ Market) sobrat vakansii i sformirovat otklik.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (KG/Profile ↔ Navigatsiya/Audit) vse prozrachno i svyazno.
 
 Zemnoy abzats:
-Mini-voronka frilansa: «uvidela - zapisala - podgotovila pismo». Otpravka - uzhe po vybrannomu kanalu.
+Mini-voronka frilansa: “uvidela - zapisala - podgotovila pismo.” Otpravka - uzhe po vybrannomu kanalu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_ingest_guard.py — eksheny «voli» dlya bektresha i RBAC-statusa.
+"""modules/thinking/actions_ingest_guard.py - eksheny "voli" dlya bektresha i RBAC-statusa.
 
 Mosty:
-- Yavnyy: (Mysli ↔ Ingest/RBAC) stsenarii voli mogut proveryat kvoty, soobschat ob oshibkakh i menyat konfig (admin).
-- Skrytyy #1: (Planirovschik ↔ Nadezhnost) legko vstavlyaetsya kak «prefiltr» pered vneshnimi vyzovami.
+- Yavnyy: (Mysli ↔ Ingest/RBAC) stsenarii voli mogut proveryat kvoty, soobschat ob oshibkakh i menyat config (admin).
+- Skrytyy #1: (Planirovschik ↔ Nadezhnost) legko vstavlyaetsya kak “prefiltr” pered vneshnimi vyzovami.
 - Skrytyy #2: (Memory ↔ Profile) sobytiya gotovy k zhurnalirovaniyu (vnutrennie khuki).
 
 Zemnoy abzats:
-Pered tem kak «idti v set», mozg sprashivaet storozha; esli server rugaetsya — soobschaet ob etom, i potok sam pritikhaet.
+Pered tem kak “idti v set”, mozg sprashivaet storozha; esli server rugaetsya - soobschaet ob etom, i potok sam pritikhaet.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-routes/lan_diagnostics.py - publikatsiya diagnostiki po lokalke: indeks/skachivanie/zabor i sliyanie.
+"""routes/lan_diagnostics.py - publikatsiya diagnostiki po lokalke: indexes/skachivanie/zabor i sliyanie.
 
-Marshruty:
-  • GET  /lan/diagnostics/index
-  • GET  /lan/diagnostics/download?kind=history|ticket&name=
-  • POST /lan/diagnostics/fetch  {base_url, kind, name, op:merge|copy}
+Route:
+  • GET /lan/diagnostics/index
+  • GET /lan/diagnostics/download?kind=history|ticket&name=
+  • POST /lan/diagnostics/fetch {base_url, kind, name, op:merge|copy}
 
 AB:
   • A - sukhoy plan bez setevykh zagruzok/zapisey.
@@ -13,14 +12,13 @@ AB:
 
 Mosty:
 - Yavnyy (Obmen ↔ Audit): otchety i istorii Self-Care dostupny sosedyam.
-- Skrytyy 1 (Bezopasnost ↔ Nadezhnost): ACL+throttle; limit razmera zagruzki.
+- Skrytyy 1 (Bezopasnost ↔ Nadezhnost): ACL+throttle; limit size download.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): stdlib urllib; te zhe guard'y, chto u LAN paketov.
 
 Zemnoy abzats:
-Eto «polka diagnostiki»: sosed uvidit tvoi istorii/tikety i smozhet zabrat ikh dlya analiza/sliyaniya.
+This is “polka diagnostiki”: sosed uvidit tvoi istorii/tikety i smozhet zabrat ikh dlya analiza/sliyaniya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, urllib.parse, urllib.request
 from pathlib import Path

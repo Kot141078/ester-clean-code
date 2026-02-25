@@ -36,7 +36,7 @@ METHOD="${METHOD:-GET}"
 PATH_PART="${PATH_PART:-/p2p/self/manifest/__smoke__}"
 MODE="${MODE:-simple}"
 
-# Proverka zavisimostey
+# Checking dependencies
 command -v curl >/dev/null 2>&1 || { echo "[p2p-smoke] ERR: curl not found"; exit 2; }
 command -v python3 >/dev/null 2>&1 || { echo "[p2p-smoke] ERR: python3 not found"; exit 2; }
 [ -f "scripts/p2p_sign.py" ] || { echo "[p2p-smoke] ERR: scripts/p2p_sign.py not found"; exit 2; }
@@ -47,7 +47,7 @@ if [ -z "$SECRET" ]; then
   exit 2
 fi
 
-# Funktsiya dlya generatsii zagolovkov podpisi
+# Function to generate signature headers
 gen_hdrs() {
   local method="$1" path="$2" body="${3:-}"
   if [ "$P2P_SIG_LEGACY" = "1" ]; then
@@ -57,7 +57,7 @@ gen_hdrs() {
   fi
 }
 
-# Funktsiya dlya vypolneniya curl-zaprosa
+# Function for executing a curl request
 curl_h() {
   local method="$1" path="$2" body="${3:-}"
   local hdrs
@@ -66,7 +66,7 @@ curl_h() {
   eval "curl -s -w '\n%{http_code}' -H $hdrs ${body:+-H 'Content-Type: application/json' -d '${body}'} -X $method \"$BASE_URL$path\""
 }
 
-# JSON-otchet
+# ZhSON-report
 REPORT=$(cat <<EOF
 {
   "ok": true,
@@ -76,7 +76,7 @@ REPORT=$(cat <<EOF
 EOF
 )
 
-# Funktsiya dlya dobavleniya rezultata testa v otchet
+# Function for adding test result to report
 add_test_result() {
   local name="$1" code="$2" body="$3" error="${4:-}"
   local test_json
@@ -160,7 +160,7 @@ if [ "$MODE" = "full" ]; then
   echo "[p2p-smoke] PASS: merge code=$code"
 fi
 
-# Vyvod JSON-otcheta
+# Output of the JSION report
 echo "$REPORT" | jq .
 final_ok=$(echo "$REPORT" | jq '.tests | all(.ok)')
 if [ "$final_ok" = "true" ]; then

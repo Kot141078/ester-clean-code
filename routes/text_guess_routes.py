@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/text_guess_routes.py - REST/UI «ugadyvatelya» teksta dlya OCR.
+"""rutes/text_guess_rutes.po - REST/OH “guesser” text for OCD.
 
-Ruchki:
-  POST /text_guess/guess {"events":[...], "window_ms":1200}
-  GET  /admin/text_guess
+Handles:
+  POST /text_guess/guess ZZF0Z
+  GET /admin/text_guess
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.replay.text_guess import guess

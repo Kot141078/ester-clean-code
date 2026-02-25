@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_catalog_routes.py - REST: /self/catalog i /self/capabilities.
+"""routes/self_catalog_routes.py - REST: /self/catalog i /self/capabilities.
 
 Mosty:
 - Yavnyy: (Veb ↔ Samoopis) front/CLI poluchayut polnuyu kartinu vozmozhnostey.
 - Skrytyy #1: (Memory ↔ Profile) mozhno dobavit zapis pri zaprosakh.
-- Skrytyy #2: (Diagnostika ↔ UX) udobno pri priemke i integratsii moduley.
+- Skrytyy #2: (Diagnostika ↔ UX) udobno pri priemke i integratsii modulary.
 
 Zemnoy abzats:
-Knopka «kto ya seychas?» - i na ekrane polnaya karta servisov, ekshenov i nastroek.
+Knopka “who ya seychas?” - i na ekrane polnaya karta servisov, ekshenov i nastroek.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, current_app
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/desktop_vision_routes.py - REST/UI dlya zreniya rabochego stola.
+"""routes/desktop_vision_routes.py - REST/UI dlya zreniya rabochego stola.
 
 Ruchki:
-  GET  /desktop/vision/probe
-  GET  /desktop/vision/anchors
-  POST /desktop/vision/anchors/add     {"name":"...", "roi":[x,y,w,h], "template":"path?"}
-  POST /desktop/vision/anchors/remove  {"name":"..."}
-  POST /desktop/vision/detect          {"image_path":"/tmp/ester_screenshot.png","anchor":"ok_button"}
-  POST /desktop/vision/add_sample      {}
+  GET /desktop/vision/probe
+  GET /desktop/vision/anchors
+  POST /desktop/vision/anchors/add {"name":"...", "roi":[x,y,w,h], "template":"path?"}
+  POST /desktop/vision/anchors/remove {"name":"..."}
+  POST /desktop/vision/detect {"image_path":"/tmp/ester_screenshot.png","anchor":"ok_button"}
+  POST /desktop/vision/add_sample {}
 
-  GET  /admin/desktop_vision
+  GET /admin/desktop_vision
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.agents import desktop_vision as DV

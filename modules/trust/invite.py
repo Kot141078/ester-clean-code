@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/trust/invite.py — «kapsula soglasiya» (priglashenie): vypusk i proverka podpisey c TTL.
+"""modules/trust/invite.py - “kapsula soglasiya” (priglashenie): vypusk i proverka podpisey with TTL.
 
 Mosty:
-- Yavnyy: (Doverie ↔ Deystviya) tolko s validnym priglasheniem razreshaem opasnye shagi (naprimer, samodeploy).
+- Yavnyy: (Doverie ↔ Deystviya) tolko s validnym priglasheniem razreshaem opasnye shagi (for example, samodeploy).
 - Skrytyy #1: (Infoteoriya ↔ Audit) payload imeet sha256, nonce, iat/exp; proveryaem s uchetom razbega chasov.
-- Skrytyy #2: (Kibernetika ↔ Vyzhivanie) shablon obschey i bezopasnoy «voli» mezhdu sestrami.
+- Skrytyy #2: (Kibernetika ↔ Vyzhivanie) shablon obschey i bezopasnoy “voli” mezhdu sestrami.
 
 Zemnoy abzats:
-Eto «podpisannaya zapiska»: kto, komu, chto razreshaet i do kakogo vremeni. Bez nee — tumbler ne schelkaem.
+This is “podpisannaya zapiska”: kto, komu, chto razreshaet i do kakogo vremeni. Bez nee - tumbler ne schelkaem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import base64, json, os, time, hashlib
 from typing import Any, Dict
@@ -48,10 +46,10 @@ def verify(token: Dict[str, Any]) -> Dict[str, Any]:
             return {"ok": False, "error":"expired_or_in_future","iat":iat,"exp":exp,"now":now}
         iss = str(payload.get("iss",""))
         aud = str(payload.get("aud",""))
-        # lokalnye priglasheniya (iss="local"): proveryaem lokalnym klyuchom (HMAC-follbek dopustim)
+        # local invitations (iss="local"): check with a local key (XMAS-fullback is acceptable)
         pub = str(token.get("issuer_pub",""))
         if iss != "local":
-            # vneshnie priglasheniya — ischem pira
+            # external invitations - looking for a feast
             peer = find_by_id(iss)
             if not peer:
                 return {"ok": False, "error":"unknown_issuer"}

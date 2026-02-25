@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/resilience/secret_store.py — lokalnyy sekret-stor: put/get/list/rotate s auto shifrovaniem.
+"""modules/resilience/secret_store.py - lokalnyy sekret-stor: put/get/list/rotate s auto encrypted.
 
 Mosty:
 - Yavnyy: (Sekrety ↔ Kod) edinyy sposob khranit API-klyuchi/tokeny bez ENV-utechek.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Kibernetika ↔ Vyzhivanie) rotatsiya i minimum otkazov (NaCl pri nalichii, XOR-potok kak follbek).
 
 Zemnoy abzats:
-Eto «zapisnaya knizhka v seyfe»: polozhit/vzyat sekret, pri zhelanii smenit zamok.
+This is “zapisnaya knizhka v seyfe”: polozhit/vzyat sekret, pri zhelanii smenit zamok.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, base64, time, hashlib
 from typing import Any, Dict, List
@@ -84,9 +82,7 @@ def get(name: str) -> Dict[str, Any]:
         return {"ok": False, "error": f"decrypt_failed:{e}"}
 
 def rotate() -> Dict[str, Any]:
-    """
-    Generiruet novyy master-klyuch i pereshifrovyvaet vse sekrety.
-    """
+    """Generates a new master key and re-encrypts all secrets."""
     _ensure()
     old = open(MASTER,"rb").read()
     new = os.urandom(32)
@@ -97,10 +93,10 @@ def rotate() -> Dict[str, Any]:
         if not fn.endswith(".sec.json"): continue
         p = os.path.join(DIR, fn)
         obj = json.load(open(p,"r",encoding="utf-8"))
-        # vremenno podmenim MASTER na staryy, chtoby rasshifrovat
+        # temporarily replace MASTER with the old one to decrypt
         open(MASTER,"wb").write(old)
         val = _dec(obj.get("enc") or {})
-        # vernem novyy klyuch i peresokhranim
+        # return the new key and resave
         open(MASTER,"wb").write(new)
         json.dump({"v":1,"enc":_enc(val),"ts":int(time.time())}, open(p,"w",encoding="utf-8"), ensure_ascii=False, indent=2)
         rep.append(fn)

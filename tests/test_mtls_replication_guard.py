@@ -4,7 +4,7 @@ def _headers(dn: str):
     return {"X-Client-Verified": "SUCCESS", "X-Client-DN": dn}
 
 def test_replication_guard_allows_replicator(monkeypatch):
-    # karta roley chitaetsya iz rules/mtls_roles.yaml
+    # The role map is read from rules/mtls_roles.yaml
     from app import app as flask_app
     c = flask_app.test_client()
     r = c.get("/replication/test_snapshot", headers=_headers("CN=node-1,OU=core,O=Ester"))

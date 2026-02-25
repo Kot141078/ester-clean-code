@@ -14,7 +14,7 @@ PLAN_DICT = """\
 run_id: test_run_join_dict_01
 branch_id: main
 context_init:
-  spec: "Sobrat slovar po klyuchu = file."
+  spec: "Sobrat dictionary po klyuchu = file."
   items:
     - {file: "a.md"}
     - {file: "b.md"}
@@ -37,7 +37,7 @@ nodes:
     depends: ["analyze"]
 
   - id: gather
-    type: join
+    type:join
     from: "fork"
     out: "joined_dict"
     select:
@@ -46,8 +46,7 @@ nodes:
     mode: dict
     key_field: "{{item.file}}"
     await_nodes: ["finalize"]
-    depends: ["finalize"]
-"""
+    depends: ["finalize"]"""
 
 PLAN_TEXT = """\
 run_id: test_run_join_text_01
@@ -87,7 +86,7 @@ def test_join_mode_dict():
     with tempfile.TemporaryDirectory() as tmp:
         os.environ["DAG_RUN_ROOT"] = os.path.join(tmp, "runs")
         os.environ["DAG_BRANCH_ROOT"] = os.path.join(tmp, "branches")
-        # Otklyuchaem vneshnie LLM
+        # Disabling external LLMs
         os.environ["LLM_API_BASE"] = ""
         os.environ["LLM_MODEL"] = "gpt-4o-mini"
 
@@ -108,7 +107,7 @@ def test_join_mode_text():
     with tempfile.TemporaryDirectory() as tmp:
         os.environ["DAG_RUN_ROOT"] = os.path.join(tmp, "runs")
         os.environ["DAG_BRANCH_ROOT"] = os.path.join(tmp, "branches")
-        os.environ["LLM_API_BASE"] = ""  # ne nuzhen LLM
+        os.environ["LLM_API_BASE"] = ""  # no need for LLM
         os.environ["LLM_MODEL"] = "gpt-4o-mini"
 
         eng = DAGEngine(load_plan_from_text(PLAN_TEXT))
@@ -119,6 +118,6 @@ def test_join_mode_text():
         ctx = load_context(eng.run_id, "main")
         txt = ctx.get("joined_text")
         assert isinstance(txt, str)
-        # Oba fayla dolzhny vstrechatsya, a takzhe razdelitel
+        # Both files must meet, as well as the separator
         assert "x.txt" in txt and "y.txt" in txt
         assert "\n---\n" in txt

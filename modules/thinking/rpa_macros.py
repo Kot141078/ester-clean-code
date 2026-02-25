@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/rpa_macros.py — «mysli → deystviya»: reestr RPA-makrosov dlya Ester.
+"""modules/thinking/rpa_macros.py - “mysli → deystviya”: reestr RPA-makrosov dlya Ester.
 
-Ideya: vysokourovnevye stsenarii (plany) prevraschayutsya v nizkourovnevye shagi /desktop/rpa/*.
+Idea: vysokourovnevye stsenarii (plany) prevraschayutsya v nizkourovnevye shagi /desktop/rpa/*.
 Realizatsiya oflayn, lokalnyy HTTP k agentu 127.0.0.1:8732 cherez servernyy proksi /desktop/rpa/*.
 
 MOSTY:
-- Yavnyy: (Planirovanie ↔ Ispolnenie) makrosy svyazyvayut mysl i RPA-deystviya.
+- Yavnyy: (Planirovanie ↔ Implementation) makrosy svyazyvayut mysl i RPA-deystviya.
 - Skrytyy #1: (Bayes ↔ Infoteoriya) shagi makrosa — ogranichennyy alfavit deystviy → nizhe entropiya oshibok.
-- Skrytyy #2: (Kibernetika ↔ Arkhitektura) petlya «zamysel→akt→audit»: log makrosov popadaet v obschiy rpa.jsonl cherez agent.
+- Skrytyy #2: (Kibernetika ↔ Arkhitektura) petlya “zamysel→akt→audit”: log makrosov popadaet v obschiy rpa.jsonl cherez agent.
 
 ZEMNOY ABZATs:
 Daet praktichnye knopki/endpointy: otkryt prilozhenie, napechatat stroku, sdelat klik. 
-Podderzhivaet A/B sloty agenta avtomaticheski — bez izmeneniya kontraktov.
+Podderzhivaet A/B sloty agent avtomaticheski — bez izmeneniya kontraktov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Callable
 import http.client
@@ -26,7 +24,7 @@ class MacroError(RuntimeError):
     """Raised when macro execution via local /desktop/rpa endpoints fails."""
 
 def _post(path: str, payload: Dict[str, Any], timeout: float = 3.0) -> Dict[str, Any]:
-    conn = http.client.HTTPConnection("127.0.0.1", 8000, timeout=timeout)  # idem cherez servernye marshruty
+    conn = http.client.HTTPConnection("127.0.0.1", 8000, timeout=timeout)  # goes through server routes
     body = json.dumps(payload or {})
     headers = {"Content-Type": "application/json"}
     conn.request("POST", path, body=body, headers=headers)
@@ -73,16 +71,14 @@ def step_screen() -> Dict[str, Any]:
 # ----- Reestr makrosov -----
 
 def macro_open_portal_and_type(args: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Otkryt dostupnyy brauzer i vvesti stroku (kak «puls» svyazki mysl→deystvie).
+    """Otkryt dostupnyy brauzer i vvesti stroku (kak “puls” svyazki mysl→deystvie).
     args:
-      text: chto pechatat
-      app:  'chrome'|'notepad'|'xterm' (optsionalno, po umolchaniyu 'notepad' na Win, 'xterm' na Linux)
-    """
+      text: what printat
+      app: 'chrome'|'notepad'|'xterm' (optsionalno, po umolchaniyu 'notepad' on Win, 'xterm' on Linux)"""
     text = str(args.get("text") or "Hello from Ester")
     app = str(args.get("app") or "").strip().lower()
     if not app:
-        # minimalnaya evristika: esli est Windows Chrome — ispolzuem; inache xterm
+        # minimal heuristics: if you have Windows Chrome, use it; otherwise xterm
         try:
             step_open("chrome")
             app = "chrome"
@@ -96,17 +92,15 @@ def macro_open_portal_and_type(args: Dict[str, Any]) -> Dict[str, Any]:
     else:
         step_open(app)
     # dadim oknu vsplyt
-    # (agent rabotaet bez taymingov OS; nebolshaya pauza so storony klienta ne trebuetsya, polagaemsya na OS)
+    # (agent works without OS timings; a short pause on the client side is not required, relies on AXIS)
     step_type(text)
     return {"ok": True, "macro": "open_portal_and_type", "app": app, "typed": len(text)}
 
 def macro_click_text(args: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Nayti tekst na ekrane i kliknut po nemu (tesseract TSV).
+    """Find the text on the screen and click on it (CV tesseract).
     args:
-      needle: iskomaya podstroka (obyazatelno)
-      lang:   'eng+rus' i t.p. (optsionalno)
-    """
+      immediately: searched substring (required)
+      lang: eng + rus, etc. (optional)"""
     needle = (args.get("needle") or "").strip()
     if not needle:
         raise MacroError("needle_required")

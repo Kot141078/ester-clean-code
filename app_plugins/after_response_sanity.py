@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # app_plugins/after_response_sanity.py
-# Finalnyy «sanitar» tsepochki after_request: esli kakoy-to after_request-khuk
+# The final “orderly” of the after_register chain: if some after_request-hook
 # vernul None, Flask spotykaetsya v WSGI s 'NoneType' object is not callable.
-# Etot plagin garantiruet korrektnyy Response i pishet sobytie v data/bringup.log.
+# This plugin guarantees the correct Response and writes the event to the data/bringup.log.
 # c=a+b
 
 from __future__ import annotations

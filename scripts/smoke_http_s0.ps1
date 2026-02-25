@@ -1,6 +1,6 @@
 # S0/scripts/smoke_http_s0.ps1 — HTTP-smouk dlya Windows PowerShell
-# Mosty: (Yavnyy) Enderton — proverki predikatami; (Skrytye) Ashbi — prostoy regulyator; Cover&Thomas — snizhenie "entropii" konfiguratsii.
-# Zemnoy abzats: ne menyaet sistemu, myagko zavershaetsya pri nedostupnosti servisa.
+# Bridges: (Explicit) Enderton - predicate checks; (Hidden) Ashby is a simple regulator; Carpet&Thomas - reducing the "entropy" of the configuration.
+# Earth paragraph: does not change the system, terminates softly if the service is unavailable.
 # c=a+b
 
 if (-not $env:BASE_URL) { $env:BASE_URL = "http://127.0.0.1:8080" }

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/social/ledger.py — uchet publikatsiy, prosmotrov i dokhodov po platformam/kampaniyam.
+"""modules/social/ledger.py - uchet publikatsiy, prosmotrov i dokhodov po platformam/kampaniyam.
 
 Mosty:
-- Yavnyy: (Uchet ↔ Prozrachnost/Finansy) svodka postov/metrik dlya UI/otchetov, s aggregates.
+- Yavnyy: (Uchet ↔ Prozrachnost/Finansy) svodka postsov/metrik dlya UI/otchetov, s aggregates.
 - Skrytyy #1: (Memory ↔ Profile) kazhdaya zapis fiksiruetsya s profileom dlya audita.
 - Skrytyy #2: (Garazh ↔ Ekonomika/Strategiya) dannye dlya podscheta dokhodov/okhvata, dostupny dlya avtoplanirovaniya.
 
 Zemnoy abzats:
-Eto "umnaya tetrad" s tablichkami: kogda, kuda opublikovali, skolko prosmotrov/deneg — vse v odnom meste, s eksportom i aggregates, chtoby Papa ulybnulsya, a Ester ne poteryala ni kopeyki konteksta.
+Eto "umnaya tetrad" s tablichkami: kogda, kuda opublikovali, skolko prosmotrov/deneg - vse v odnom meste, s eksportom i aggregates, chtoby Papa ulybnulsya, a Ester ne poteryala ni kopeyki konteksta.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, csv
 from typing import Any, Dict, List
@@ -29,13 +27,13 @@ def _load() -> Dict[str, Any]:
     try:
         return json.load(open(LEDGER, "r", encoding="utf-8"))
     except Exception:
-        return {"rows": []}  # Fallback na pustoy, esli povrezhden
+        return {"rows": []}  # Falbatsk to empty if damaged
 
 def _save(j: Dict[str, Any]):
     try:
         json.dump(j, open(LEDGER, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     except Exception:
-        pass  # Ne lomaet flow, no loggirovat mozhno v buduschem
+        pass  # Doesn't break the flow, but can be logged in the future
 
 def _mm_pass(note: str, meta: Dict[str, Any], source: str = "social://ledger") -> None:
     try:
@@ -65,7 +63,7 @@ def record(platform: str, campaign: str, metric: str, value: float, currency: st
 def list_all() -> Dict[str, Any]:
     j = _load()
     rows = j.get("rows", [])
-    # Rasshirennye aggregates: totals i averages po platform/metric/campaign
+    # Expanded aggregates: totals i averages po platform/metric/campaign
     totals: Dict[tuple, float] = {}
     counts: Dict[tuple, int] = {}
     for r in rows:
@@ -79,13 +77,13 @@ def list_all() -> Dict[str, Any]:
     return {"ok": True, "rows": rows, "summary": aggr}
 
 def list_posts() -> Dict[str, Any]:
-    """Alias dlya prosmotra tolko postov (metric='post')."""
+    """Alias ​​for viewing only posts (metrics=capacity)."""
     all_data = list_all()
     posts = [r for r in all_data["rows"] if r.get("metric") == "post"]
     return {"ok": True, "posts": posts}
 
 def export_to_csv(csv_path: str) -> Dict[str, Any]:
-    """Eksport rows v CSV dlya UI/otchetov."""
+    """Export ROVs to DSV for UI/reports."""
     j = _load()
     rows = j.get("rows", [])
     if not rows:

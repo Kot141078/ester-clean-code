@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/proactive/video_subs_cfg.py — chtenie/zapis konfiguratsii podpisok (config/video_subscriptions.yaml).
+"""modules/proactive/video_subs_cfg.py - chtenie/zapis konfiguratsii podpisok (config/video_subscriptions.yaml).
 
 Format sovmestim s uzhe vydannym faylom config/video_subscriptions.yaml.
 Podderzhivayutsya operatsii: load_all(), upsert(sub), delete(sub_id), toggle(sub_id, enabled).
@@ -8,13 +7,12 @@ Podderzhivayutsya operatsii: load_all(), upsert(sub), delete(sub_id), toggle(sub
 Mosty:
 - Yavnyy: (Infoteoriya ↔ Inzheneriya) Edinyy format YAML dlya podpisok snizhaet entropiyu upravleniya potokami.
 - Skrytyy #1: (Kibernetika ↔ Nadezhnost) Validatsiya i normalizatsiya zapisey pered sokhraneniem — ustoychivost k oshibkam vvoda.
-- Skrytyy #2: (Memory ↔ Operatsii) Konfig — dolgovremennaya «pamyat namereniy» operatora, upravlyayuschaya povedeniem proaktiva.
+- Skrytyy #2: (Memory ↔ Operatsii) Config - dolgovremennaya “pamyat namereniy” operatora, upravlyayuschaya povedeniem proaktiva.
 
 Zemnoy abzats:
-Eto kak «kartoteka klapanov» na trube: kazhdaya kartochka — istochnik; flazhok enabled — polozhenie klapana; fayl — obschiy schit avtomatiki.
+Eto kak “kartoteka klapanov” na trube: kazhdaya kartochka - istochnik; flazhok enabled - polozhenie klapana; fayl - obschiy schit avtomatiki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -65,7 +63,7 @@ def _dump_scalar(v: Any) -> str:
                 items.append(str(x))
         return "[" + ", ".join(items) + "]"
     s = str(v)
-    # oborachivaem v kavychki, esli est dvoetochiya/probely
+    # wrap in quotes if there are colons/spaces
     if (":" in s) or (" " in s):
         return f"\"{s}\""
     return s

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules.safety — gruppa utilit dlya odobreniy i kvoruma.
-"""
+"""modules.safety - a group of utilities for fertilizers and quorum."""
 from __future__ import annotations
 
 from .guardian import create_approval, validate_approval

@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-modules/agents/desktop_agent.py — rasshirenie M27: operatsiya click_text.
+"""modules/agents/desktop_agent.py - expansion M27: operation click_text.
 
 Novaya operatsiya (kind):
-  - click_text  meta: {"text":"OK","image_path?":"/tmp/ester_screenshot.png"}
+  - click_text meta: {"text":"OK","image_path?":"/tmp/ester_screenshot.png"}
 
 Plan: [{"do":"capture"},{"do":"ocr_find","text":"..."},{"do":"click","x":"{{OCR_X}}","y":"{{OCR_Y}}"}]
 V realnom vypolnenii koordinaty podstavlyayutsya posle dry-run cherez DesktopVision++.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple
 from modules.agents.base_agent import AgentBase, Action

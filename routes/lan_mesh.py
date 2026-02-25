@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-routes/lan_mesh.py - UI/REST dlya LAN-obnaruzheniya i obmena «profileami».
+"""routes/lan_mesh.py - UI/REST dlya LAN-obnaruzheniya i exchange “profileami”.
 
-Marshruty:
-  • GET  /admin/lan              - HTML
-  • GET  /admin/lan/status       - {settings, env, peers}
-  • POST /admin/lan/save         - sokhranit nastroyki
-  • POST /admin/lan/ping         - razoslat hello seychas
-  • POST /admin/lan/request      - zaprosit «profile» u vsekh ili u ip
-  • POST /admin/lan/peers/clear  - ochistit kesh sosedey
+Route:
+  • GET /admin/lan - HTML
+  • GET /admin/lan/status - {settings, env, peers}
+  • POST /admin/lan/save - sokhranit nastroyki
+  • POST /admin/lan/ping - razoslat hello seychas
+  • POST /admin/lan/request - request “profile” u vsekh ili u ip
+  • POST /admin/lan/peers/clear - ochistit kesh sosedey
 
 Mosty:
 - Yavnyy (Kibernetika ↔ Nablyudaemost): karta sosedey i bystrye deystviya.
 - Skrytyy 1 (Infoteoriya ↔ Bezopasnost): obschiy klyuch i flag verified v spiske sosedey.
-- Skrytyy 2 (Praktika ↔ Sovmestimost): ne trogaem mozg/pamyat/volyu - tolko infrastruktura.
+- Skrytyy 2 (Praktika ↔ Sovmestimost): ne trogaem mozg/pamyat/volyu - only infrastruktura.
 
 Zemnoy abzats:
-Odin ekran: vklyuchil LAN, uvidel sosedey, pri neobkhodimosti «pozval profilea» - bez lishney rutiny.
+Odin ekran: vklyuchil LAN, uvidel sosedey, pri neobkhodimosti “pozval profilea” - bez lishney rutiny.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json, os, socket

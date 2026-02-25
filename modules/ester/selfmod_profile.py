@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-Ester selfmod profile:
+"""Ester selfmod profile:
 Svodnyy vzglyad na kontur samoizmeneniya i voli.
 
 Endpoint:
     GET /ester/selfmod/profile
 
-Ne menyaet povedenie selfmod, tolko pokazyvaet:
+Ne menyaet povedenie selfmod, just pokazyvaet:
 - tekuschiy rezhim (A/B),
 - allow_ester,
-- "syrye" otvety /ester/selfmod/status i /ester/will/plan.
-"""
+- "syrye" otvety /ester/selfmod/status i /ester/will/plan."""
 
 import os
 import json

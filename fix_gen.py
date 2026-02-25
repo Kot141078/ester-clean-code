@@ -22,7 +22,7 @@ def fix_gen_constants():
         print("✅ MAX_OUT_TOKENS already present.")
         return
 
-    # Vstavlyaem srazu posle import os (tuda zhe, gde ostalnye)
+    # We insert it immediately after importing the OS (in the same place as the others)
     if "import os" in content:
         new_content = content.replace("import os", "import os\n" + RESTORE_GEN_BLOCK, 1)
         

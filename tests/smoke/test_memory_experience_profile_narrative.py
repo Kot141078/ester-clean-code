@@ -8,10 +8,10 @@ def test_experience_profile_accepts_summary_text():
     info = {
         "insights": [
             {"title":"Glavnyy vyvod dnya", "text": "Glavnyy vyvod dnya"},
-            {"title":"Klyuchevye temy dnya", "text": "Klyuchevye temy dnya"},
-            {"title":"Emotsionalnyy fon dnya", "text": "Emotsionalnyy fon dnya"},
+            {"title":"Key topics of the day", "text": "Key topics of the day"},
+            {"title":"Emotional background of the day", "text": "Emotional background of the day"},
         ],
-        "summary_text": "Segodnya bylo zapisey: 5; nastroenie v tselom polozhitelnoe. Glavnye temy: deploy, tests, sleep.",
+        "summary_text": "There were 5 entries today; the mood is generally positive. Main topics: deployment, test, blind.",
     }
     profile = exp.make_profile_from_insights(info)
     assert profile["ok"] is True

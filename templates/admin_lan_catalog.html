@@ -36,7 +36,7 @@
         </select>
       </label>
       <label>Filtr tags
-        <input id="tags" placeholder="cherez zapyatuyu (naprimer: usb,alias)"/>
+        <input id="tags" placeholder="separated by commas (for example: usb, alias)"/>
       </label>
       <button onclick="buildPlan()">Sobrat plan</button>
     </div>
@@ -50,8 +50,8 @@
     <h3>Plan importa (read-only)</h3>
     <div class="row">
       <label><input type="checkbox" id="p2u_stage" checked/> Stadirovat payload na USB</label>
-      <label><input type="checkbox" id="p2u_clean"/> Ochistit ESTER/jobs pered zapisyu</label>
-      <label><input type="checkbox" id="p2u_noop" checked/> Delat noop dlya chuzhikh uzlov</label>
+      <label><input type="checkbox" id="p2u_clean"/> Clear ESTER/ebs before writing</label>
+      <label><input type="checkbox" id="p2u_noop" checked/> Make noop for other people's nodes</label>
       <button onclick="planToUsb()">Sgenerirovat USB-ochered</button>
       <span id="p2u_res" class="chip">—</span>
     </div>

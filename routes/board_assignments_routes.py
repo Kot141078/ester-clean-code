@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/board_assignments_routes.py - legkaya "what-if" borda: kandidaty, komanda, reyting i poparnaya sygrannost.
+"""routes/board_assignments_routes.py - legkaya "what-if" borda: kandidaty, komanda, reyting i poparnaya sygrannost.
 
 MOSTY:
 - (Yavnyy) /board/assignments.html - UI, ispolzuyuschiy /synergy/trace/extras dlya raschetov.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Ne trebuet izmeneniy bordy roley - eto otdelnaya stranitsa dlya interaktivnoy prikidki sostava.
 
 ZEMNOY ABZATs:
-Za minutu mozhno «poschupat» komandu: kto luchshe podkhodit po profilyu i naskolko lyudi priterty drug k drugu.
+Za minutu mozhno “poschupat” komandu: kto luchshe podkhodit po profilyu i naskolko lyudi priterty drug k drugu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from fastapi import APIRouter, FastAPI
@@ -20,8 +18,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 router = APIRouter()
 
-_HTML = """
-<!doctype html><html><head><meta charset="utf-8"><title>Assignments What-If</title>
+_HTML = """<!doctype html><html><head><meta charset="utf-8"><title>Assignments What-If</title>
 <style>
 body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:16px;color:#222}
 .card{border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
@@ -31,13 +28,13 @@ th,td{border-bottom:1px solid #eee;padding:6px 8px;text-align:left} .badge{displ
 </style></head><body>
 <h2>Podbor sostava (what-if)</h2>
 <div class="card">
-  <label>Opisanie zadachi:<br><textarea id="task" rows="2" style="width:100%" placeholder="nuzhen bystryy nochnoy pilot FPV..."></textarea></label>
+  <label>Description zadachi:<br><textarea id="task" rows="2" style="width:100%" placeholder="nuzhen bystryy nochnoy pilot FPV..."></textarea></label>
   <label>Kandidaty (cherez zapyatuyu):<br><input id="cands" style="width:100%" placeholder="pilot-1,pilot-2,pilot-3"></label>
   <label>V komande uzhe (cherez zapyatuyu):<br><input id="team" style="width:100%" placeholder="coordinator-7,observer-2"></label>
   <button onclick="run()">Rasschitat</button> <span id="meta"></span>
 </div>
 <div class="card" id="rank">Zdes poyavitsya reyting kandidatov…</div>
-<div class="card" id="grid">Zdes poyavitsya sygrannost…</div>
+<div class="card" id="grid">Zdes poyavitsya sygrannost...</div>
 <script>
 function csv(id){return document.getElementById(id).value.split(',').map(s=>s.trim()).filter(Boolean)}
 function heat(x){ // x in [0..1]
@@ -51,7 +48,7 @@ async function run(){
   const r = await fetch('/synergy/trace/extras', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
   const d = await r.json(); if(!d.ok){alert('Oshibka');return}
   document.getElementById('meta').innerHTML = 'team_bonus: <b>'+ (d.team_bonus??0).toFixed(3) + '</b>';
-  // reyting
+  // rating
   const rows = (d.advice||[]).map(x=>`<tr><td>${x.agent_id}</td><td>${x.score}</td><td>${x.normalized}</td><td>${(x.labels||[]).map(l=>'<span class="badge">'+l+'</span>').join(' ')}</td><td>${(x.why||[]).join('; ')}</td></tr>`).join('');
   document.getElementById('rank').innerHTML = `<h3>Reyting</h3><table><thead><tr><th>agent_id</th><th>score</th><th>norm</th><th>yarlyki</th><th>obyasnenie</th></tr></thead><tbody>${rows}</tbody></table>`;
   // sygrannost
@@ -71,8 +68,7 @@ async function run(){
   document.getElementById('grid').innerHTML = html;
 }
 </script>
-</body></html>
-"""
+</body></html>"""
 
 @router.get("/board/assignments.html", response_class=HTMLResponse)
 async def board_assignments_html():

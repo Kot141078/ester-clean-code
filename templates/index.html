@@ -62,7 +62,7 @@
               <input id="jwt" placeholder="Bearer JWT..." style="width:100%">
               <button class="ghost" onclick="saveCfg()">Save</button>
             </div>
-            <div class="muted" style="margin-top:6px">Token khranitsya v <span class="kbd">localStorage</span> i ispolzuetsya vsemi vyzovami nizhe.</div>
+            <div class="muted" style="margin-top:6px">Token khranitsya v <span class="kbd">localStorage</span> and is used by all calls below.</div>
           </div>
         </div>
       </div>
@@ -84,7 +84,7 @@
       <h3>Memory • Flashback<span class="small muted">/mem/flashback</span></h3>
       <div class="body">
         <div class="grid2">
-          <input id="flashQuery" placeholder="zapros (naprimer, replikatsiya)">
+          <input id="flashQuery" placeholder="query (eg replication)">
           <input id="flashK" type="number" value="10">
         </div>
         <div class="right" style="margin-top:8px">
@@ -97,7 +97,7 @@
     <div class="card">
       <h3>Telegram-lenta<span class="small muted">read-only</span></h3>
       <div class="body">
-        <div class="muted">Otobrazhenie poslednikh 10 kartochek/vospominaniy (tegi <span class="kbd">tg</span>, <span class="kbd">dream</span>, <span class="kbd">proactive</span>).</div>
+        <div class="muted">Display the last 10 cards/memories (tags <span class="kbd">tg</span>, <span class="kbd">dream</span>, <span class="kbd">proactive</span>).</div>
         <div id="tgFeed" class="list" style="margin-top:8px"></div>
         <div class="right"><button class="ghost" onclick="loadTgFeed()">Obnovit</button></div>
       </div>
@@ -116,13 +116,13 @@
             <input id="capTags" placeholder="tags: comma,separated">
             <input id="capNote" placeholder="Zametka (note)">
           </div>
-          <textarea id="capText" placeholder="Tekst (esli net HTML)"></textarea>
+          <textarea id="capText" placeholder="Text (if there is no HTML)"></textarea>
           <div class="row">
             <input id="capHtmlFile" type="file" accept=".html,text/html">
             <button onclick="shareSingle()">Otpravit</button>
           </div>
           <div class="sep"></div>
-          <div class="muted">Batch (JSON): massiv obektov {url,title,html|text,tags,note}. HTML mozhno zagruzit kak fayl nizhe.</div>
+          <div class="muted">Batch (ZhSiON): array of ZZF0Z objects. The HTML can be downloaded as the file below.</div>
           <textarea id="capBatchJson" placeholder='[{"title":"Zametka","text":"Privet Ester!"}]'></textarea>
           <div class="row">
             <input id="capBatchHtmlFiles" type="file" accept=".html,text/html" multiple>
@@ -151,7 +151,7 @@
             <option value="0.9">temp 0.9</option>
           </select>
         </div>
-        <textarea id="query" placeholder="Vash zapros..."></textarea>
+        <textarea id="query" placeholder="Your request..."></textarea>
         <div class="right">
           <button onclick="sendChat()">POST /chat/message</button>
         </div>
@@ -166,21 +166,21 @@
           <input id="files" type="file" multiple>
           <button onclick="upload()">POST /ingest/file</button>
         </div>
-        <div class="drop" id="dropZone">Peretaschite fayly syuda dlya paketnoy zagruzki</div>
+        <div class="drop" id="dropZone">Drag files here for batch upload</div>
         <div id="ingestLog" class="log" style="margin-top:8px"></div>
       </div>
     </div>
 
     <div class="card">
-      <h3>Sessiya (nablyudenie) <span class="small muted">klientskaya otsenka konteksta</span></h3>
+      <h3>Session (observation) <span class="small muted">client assessment of context</span></h3>
       <div class="body">
-        <div class="muted">Grubaya klientskaya otsenka «tokenov» po dline teksta. Dlya polnoty rekomenduetsya servernyy SessionGuardian.</div>
+        <div class="muted">Rough client estimate of “tokens” based on text length. For completeness, the server-side SessionGuardian is recommended.</div>
         <div class="grid3">
           <input id="ctxMax" type="number" value="8192" title="maks. tokenov">
           <input id="ctxWarn" type="number" value="7000" title="porog WARN">
           <input id="ctxHard" type="number" value="7900" title="porog HARD">
         </div>
-        <textarea id="ctxBuf" placeholder="Vstavte istoriyu/fragment dlya otsenki…"></textarea>
+        <textarea id="ctxBuf" placeholder="Insert story/excerpt for rating..."></textarea>
         <div class="right">
           <button onclick="estimateCtx()">Otsenit</button>
         </div>
@@ -356,7 +356,7 @@
   }
 
   async function shareBatch(){
-    // Podderzhka JSON massiva + podstanovka soderzhimogo HTML-faylov (po imeni title -> file match)
+    // Support for JSION array + substitution of the contents of HTML files (by title name -> fillet match)
     let batch = [];
     try{
       const raw = $('#capBatchJson').value.trim();
@@ -400,7 +400,7 @@
 
   // ---- Ops ----
   async function snapshot(){
-    const tok = localStorage.getItem('replToken') || prompt('X-REPL-TOKEN (dlya snapshot)');
+    const tok = localStorage.getItem('replToken') || prompt('S-REPL-TOKEN (for snapshot)');
     if(!tok) return;
     const r = await fetch(api()+"/replication/snapshot",{headers:Object.assign({'X-REPL-TOKEN':tok},hdr())});
     const b = await r.blob();

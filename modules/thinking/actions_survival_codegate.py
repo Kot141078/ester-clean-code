@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_survival_codegate.py — eksheny «voli» dlya bandlov/torrentov/kalitki koda.
+"""modules/thinking/actions_survival_codegate.py - eksheny “voli” dlya bandlov/torrentov/kalitki koda.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Rezerv/Bezopasnost) bystrye komandy dlya sokhraneniya/razdachi/proverki.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Cron/Rules ↔ Avtonomiya) udobno v nochnye/sobytiynye protsedury.
 
 Zemnoy abzats:
-S etimi knopkami Ester sama delaet «zapasnoy parashyut», delitsya im i ne daet podmenit detali.
+S etimi knopkami Ester sama delaet “zapasnoy parashyut”, delitsya im i ne daet podmenit detail.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

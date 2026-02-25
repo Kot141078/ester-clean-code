@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/cost_fence_routes.py - REST dlya byudzhetov, raskhodov i otsenki stoimosti.
+"""routes/cost_fence_routes.py - REST dlya byudzhetov, raskhodov i otsenki stoimosti.
 
 Mosty:
 - Yavnyy: (Veb ↔ Ekonomika) bystryy kontrol: chtenie limitov, status i otsenka pered dorogoy operatsiey.
 - Skrytyy #1: (Integratsiya ↔ Planirovschik) edinyy JSON-kontrakt dlya AutonomyForge/planirovschika.
-- Skrytyy #2: (Audit ↔ Prozrachnost) tochki vkhoda dlya zhurnalirovaniya trat na storone bekenda.
+- Skrytyy #2: (Audit ↔ Prozrachnost) tochki vkhoda dlya zhurnalirovaniya trat na side bekenda.
 
 Zemnoy abzats:
-Chtoby ne «szhech» kartu na oblakakh i tokenakh - derzhim limity i proveryaem stoimost do zapuska.
+Chtoby ne “szhech” kartu na oblakakh i tokenakh - derzhim limity i proveryaem stoimost do zapuska.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -20,7 +18,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp_cost = Blueprint("cost_fence_routes", __name__)
 
-# Myagkiy import yadra: pri otsutstvii - otdaem kontroliruemuyu oshibku
+# Soft kernel import: if absent, we give a controlled error
 try:
     from modules.ops.cost_fence import (  # type: ignore
         limits as _limits,
@@ -34,18 +32,18 @@ except Exception:  # pragma: no cover
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta (kontrakt proekta)."""
+    """Drop-in registration of blueprint (project contract)."""
     app.register_blueprint(bp_cost)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 
 @bp_cost.route("/cost/limits", methods=["GET"])
 def api_limits():
-    """Vozvraschaet tekuschie porogi stoimosti."""
+    """Returns the current cost thresholds."""
     if _limits is None:
         return jsonify({"ok": False, "error": "cost_fence unavailable"}), 500
     try:
@@ -56,7 +54,7 @@ def api_limits():
 
 @bp_cost.route("/ops/cost/status", methods=["GET"])
 def api_status():
-    """Vozvraschaet tekuschiy status byudzhetov i raskhodov."""
+    """Returns the current status of budgets and expenses."""
     if _status is None:
         return jsonify({"ok": False, "error": "cost_fence unavailable"}), 500
     try:
@@ -67,7 +65,7 @@ def api_status():
 
 @bp_cost.route("/cost/evaluate", methods=["POST"])
 def api_eval():
-    """Otsenivaet stoimost operatsii (kategoriya/summa)."""
+    """Estimates the cost of the operation (category/amount)."""
     if _eval is None:
         return jsonify({"ok": False, "error": "cost_fence unavailable"}), 500
     d: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
@@ -84,7 +82,7 @@ def api_eval():
 
 @bp_cost.route("/ops/cost/set", methods=["POST"])
 def api_set():
-    """Ustanavlivaet novye znacheniya byudzhetov (probrasyvaem kontraktom yadra)."""
+    """Sets new budget values ​​(we forward the kernel contract)."""
     if _set is None:
         return jsonify({"ok": False, "error": "cost_fence unavailable"}), 500
     d: Dict[str, Any] = request.get_json(force=True, silent=True) or {}

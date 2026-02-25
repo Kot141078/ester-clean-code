@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tests/synergy/test_board_sse.py — dymovye proverki SSE i agregatov.
+"""tests/synergy/test_board_sse.py - dymovye proverki SSE i agregatov.
 
 MOSTY:
 - (Yavnyy) Proveryaem, chto /board/stream otdaet text/event-stream i startovyy event:update.
 - (Skrytyy #1) /board/aggregate vozvraschaet ozhidaemye razdely (role_candidates/agent_load/risks).
-- (Skrytyy #2) Bystraya imitatsiya izmeneniya sostoyaniya — menyaem assigned i dergaem odin shag generatora.
+- (Skrytyy #2) Bystraya imitatsiya izmeneniya sostoyaniya - menyaem assigned i dergaem odin shag generatora.
 
 ZEMNOY ABZATs:
-Ubezhdaemsya, chto «shakhmatka» umeet obnovlyatsya sama, a agregaty dayut operatoru bystryy snimok sostoyaniya.
+Ubezhdaemsya, chto “shakhmatka” umeet obnovlyatsya sama, aggregaty dayut operatoru bystryy snimok sostoyaniya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import itertools
@@ -41,7 +39,7 @@ def _seed():
 
 def test_sse_starts_and_aggregate(client, monkeypatch):
     _seed()
-    # Proveryaem zagolovok
+    # Checking the title
     r = client.get("/synergy/board/stream?team_id=Recon%20A")
     assert r.status_code == 200
     assert r.content_type.startswith("text/event-stream")

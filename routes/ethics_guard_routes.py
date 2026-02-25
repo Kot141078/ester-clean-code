@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ethics_guard_routes.py - REST: otsenka namereniy i pravila.
+"""routes/ethics_guard_routes.py - REST: otsenka namereniy i pravila.
 
 Mosty:
 - Yavnyy: (Veb ↔ Etika) prostoy API dlya vsekh moduley.
 - Skrytyy #1: (Panel ↔ Operator) udobno proveryat spornye deystviya.
-- Skrytyy #2: (Kvorum ↔ Resheniya) mozhno zaprashivat kvorum dlya «warn».
+- Skrytyy #2: (Kvorum ↔ Resheniya) mozhno zaprashivat kvorum dlya “warn”.
 
 Zemnoy abzats:
-Prezhde chem delat - sprosili «mozhno?».
+Prezhde chem delat - asked “mozhno?”
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

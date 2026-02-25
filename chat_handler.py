@@ -12,7 +12,7 @@ _API_BASE = os.getenv("ESTER_API_BASE", "http://127.0.0.1:8010").rstrip("/")
 
 def _infer_intent(text: str) -> str:
     t = (text or "").strip().lower()
-    if any(k in t for k in ("pochemu", "kak", "zachem", "chto takoe", "chto eto", "?")):
+    if any(k in t for k in ("pochemu", "kak", "zachem", "what's happened", "What is this", "?")):
         return "RESEARCH"
     if any(k in t for k in ("reliz", "vyshel", "versiya", "novoe", "izmeneniya", "changelog")):
         return "RELEASES"
@@ -50,7 +50,7 @@ async def handle_query_async(text: str, name: str) -> Dict[str, Any]:
                 last_err = e
                 continue
 
-    msg = "Izvini, ne poluchilos sobrat otvet. Server seychas zanyat — poprobuy esche raz."
+    msg = "Sorry, I couldn't put together an answer. The server is currently busy - try again."
     if last_err:
         msg += f" (diag: {type(last_err).__name__})"
 # return {"answer": msg, "intent": _infer_intent(text)}

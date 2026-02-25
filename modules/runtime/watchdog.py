@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-Runtime Watchdog — heartbeat, liveness/readiness, legkiy self-healing khuk.
+"""Runtime Watchdog - heartbeat, liveness/readiness, legkiy self-healing khuk.
 
 Mosty:
 - Yavnyy: (Servis ↔ Zdorove) — pishem heartbeat i otdaem agregirovannyy status dlya /health/*.
-- Skrytyy 1: (A/B ↔ Nadezhnost) — v B-slote probuem rasshirennye proverki (sensory), v A — minimalnyy nabor.
+- Skrytyy 1: (A/B ↔ Nadezhnost) - v B-slote probe rashirnnye proverki (sensory), v A - minimalnyy set.
 - Skrytyy 2: (Memory/Logi ↔ Diagnostika) — sostoyanie i poslednie sobytiya pishutsya v state-fayly.
 
 Zemnoy abzats:
-Eto «puls» servisa: raz v N sekund kladem otmetku «zhiv», proveryaem bazovye podsistemy i soobschaem, gotov li on k rabote.
-Esli chto-to ne tak — vidno srazu i v UI, i v JSON.
-"""
+Eto “puls” servisa: raz v N sekund kladem otmetku “zhiv”, proveryaem bazovye podsistemy i soobschaem, gotov li on k rabote.
+Esli chto-to ne tak — vidno srazu i v UI, i v JSON."""
 from __future__ import annotations
 
 import os, json, time, threading
@@ -49,7 +47,7 @@ def _snap_core() -> Dict[str, Any]:
     with ab_switch("HEALTH") as slot:
         # bazovyy puls + AB-sostoyanie
         data: Dict[str, Any] = {"ts": time.time(), "slot": slot, "ab": get_ab_state().get("global")}
-        # rasshirennye sensory — tolko v B, i esli dostupny
+        # advanced sensors - only in B, and if available
         if slot == "B":
             try:
                 from modules.physio.sensors import snapshot
@@ -88,10 +86,8 @@ def _loop(interval: int):
         time.sleep(max(1, interval))
 
 def start_watchdog():
-    """
-    Yavnyy zapusk storozha (po umolchaniyu vklyuchen cherez ENV RUNTIME_WATCHDOG=1 — sm. register_all.py).
-    Bez skrytykh sayd-effektov: zapusk initsiiruetsya registratorom na glazakh polzovatelya.
-    """
+    """Yavnyy zapusk storozha (po umolchaniyu vklyuchen cherez ENV RUNTIME_WATCHDOG=1 - sm. register_all.py).
+    Bez skrytykh sayd-effektov: zapusk initsiiruetsya registratorom na glazakh polzovatelya."""
     global _watchdog_thread, _stop_flag
     if _watchdog_thread and _watchdog_thread.is_alive():
         return

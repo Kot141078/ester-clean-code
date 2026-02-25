@@ -27,14 +27,12 @@ except ImportError:
     BeautifulSoup = None
 
 def extract_text(path: str) -> str:
-    """
-    Glavnaya tochka vkhoda. Opredelyaet tip fayla i vyzyvaet nuzhnyy rider.
-    Vozvraschaet stroku s soderzhimym.
-    """
+    """Main entry point. Determines the file type and calls the desired reader.
+    Returns a string with content."""
     if not os.path.exists(path):
         return "[Error: File not found]"
 
-    # Opredelyaem rasshirenie
+    # Defines an extension
     _, ext = os.path.splitext(path)
     ext = ext.lower()
 
@@ -56,7 +54,7 @@ def extract_text(path: str) -> str:
             return _read_plain(path)
         
         else:
-            # Fallback: probuem kak tekst
+            # Falbatsk: try it as text
             return _read_plain(path)
     except Exception as e:
         return f"[Error extracting text from {os.path.basename(path)}: {str(e)}]"
@@ -70,7 +68,7 @@ def _read_plain(path: str) -> str:
         return f"[Error reading text: {e}]"
 
 def _read_pdf(path: str) -> str:
-    """Chitaet PDF cherez pypdf."""
+    """Reads PDF via popdf."""
     if not pypdf:
         return "[Error: Library 'pypdf' is missing. Run `pip install pypdf`]"
     
@@ -100,7 +98,7 @@ def _read_docx(path: str) -> str:
         return f"[DOCX Error: {e}]"
 
 def _read_fb2(path: str) -> str:
-    """Chitaet FB2 (XML) cherez BeautifulSoup."""
+    """Read FB2 (XML) via BeautifulSoup."""
     if not BeautifulSoup:
         return "[Error: Library 'beautifulsoup4' is missing. Run `pip install beautifulsoup4 lxml`]"
     
@@ -108,7 +106,7 @@ def _read_fb2(path: str) -> str:
         with open(path, 'rb') as f:
             content = f.read()
         
-        # Parsim XML (lxml bystree i nadezhnee dlya FB2)
+        # Parsim XML (LXML is faster and more reliable for FB2)
         soup = BeautifulSoup(content, 'xml')
         
         # Pytaemsya nayti metadannye
@@ -119,15 +117,15 @@ def _read_fb2(path: str) -> str:
         # Telo knigi
         body = soup.find('body')
         if not body:
-            # Esli body ne nashli, berem ves tekst
+            # If no water is found, take the entire text
             text = soup.get_text(separator='\n', strip=True)
         else:
-            # V FB2 struktura section -> p. Berem tekst s razdelitelyami.
+            # In FB2 the structure is session -> p. We take the text with delimiters.
             text = body.get_text(separator='\n\n', strip=True)
             
         return f"--- FB2 BOOK: {title} ---\n{text}"
     except Exception as e:
-        # Fallback na prostoy tekst, esli XML bityy
+        # Falsify plain text if the CML is broken
         return f"[FB2 Parse Error: {e}]. Trying plain text...\n" + _read_plain(path)
 
 def _read_image_ocr(path: str) -> str:
@@ -136,7 +134,7 @@ def _read_image_ocr(path: str) -> str:
         return "[Image received. OCR libraries missing.]"
     
     try:
-        # Ukazhite put k tesseract, esli on ne v PATH
+        # Specify the path to the tesseract if it is not in PATH
         # pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
         text = pytesseract.image_to_string(Image.open(path), lang='rus+eng')
         return f"--- IMAGE OCR: {os.path.basename(path)} ---\n{text}" if text.strip() else "[OCR: No text found]"

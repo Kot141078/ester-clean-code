@@ -1,18 +1,16 @@
 # routes/mem_affect_routes.py
 # -*- coding: utf-8 -*-
-"""
-routes/mem_affect_routes.py - REST: pereschet vesov po affektu i affect-aware refleksiya.
+"""routes/mem_affect_routes.py - REST: pereschet vesov po affectektu i affect-aware reflection.
 
 Mosty:
-- Yavnyy (Veb ↔ Memory/Refleksiya): bystryy pereschet prioriteta - «snachala vazhnoe po emotsiyam».
-- Skrytyy #1 (Refleksiya ↔ Planirovschik): mozhno zapuskat iz «pulsa»/scheduler.
+- Yavnyy (Veb ↔ Memory/Refleksiya): bystryy pereschet prioriteta - “snachala vazhnoe po emotsiyam.”
+- Skrytyy #1 (Refleksiya ↔ Planirovschik): mozhno zapuskat iz “pulsa”/scheduler.
 - Skrytyy #2 (RAG ↔ Vospominanie): downstream drayvery mogut uchityvat fayl vesov.
 - Skrytyy #3 (Memory ↔ Profile): logiruetsya vybor top-elementov.
 
 Zemnoy abzats:
-HTTP-ruchki dlya perescheta vazhnosti i otbora top-elementov s uchetom emotsionalnoy relevantnosti. Prostoy JSON-vyzov - i u Ester obnovlennye prioritety.
-# c=a+b
-"""
+HTTP-ruchki dlya perescheta vazhnosti i otbora top-elementov s uchetom emotsionalnoy relevantnosti. Simple JSON-vyzov - i u Ester obnovlennye priority.
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-routes/thinking_proxy_routes.py - nebolshie diagnosticheskie endpointy dlya
-proverki, chto «thinking» korrektno podkhvatilsya i rabotaet.
-Bezopasnost: eto tolko debug-info, ne izmenyaet sostoyanie. Razreshayte
+"""routes/thinking_proxy_routes.py - nebolshie diagnosticheskie endpointy dlya
+proverki, what “thinking” korrektno podkhvatilsya i rabotaet.
+Bezopasnost: tolko debug-info, ne izmenyaet sostoyanie. Razreshayte
 dostup cherez RBAC/ENV po vashemu tekuschemu rezhimu (v dev - svobodno).
 
-Drop-in: signatury app.register_routes(app) sokhraneny kak vo vsekh routes.
-"""
+Drop-in: signatury app.register_routes(app) sokhraneny kak vo vsekh routes."""
 from __future__ import annotations
 from flask import Blueprint, jsonify, render_template  # type: ignore
 import importlib, time, traceback
@@ -22,7 +20,7 @@ def ping():
     }
     try:
         thinking = importlib.import_module('thinking')
-        # poprobuem podtyanut chasto ispolzuemye chasti
+        # Let's try to tighten up the frequently used parts
         try:
             think_core = importlib.import_module('thinking.think_core')
             info['think_core_loaded'] = True
@@ -56,7 +54,7 @@ def ping():
         info['tb'] = traceback.format_exc(limit=3)
     return jsonify(info)
 
-# Nebolshaya stranitsa s vyvodom JSON dlya udobstva v brauzere
+# A small page with the output of JSION for convenience in the browser
 @bp.get('/ui')
 def ui_page():
     return render_template('thinking/status.html')

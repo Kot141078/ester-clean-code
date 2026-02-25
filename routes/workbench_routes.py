@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/workbench_routes.py - REST: skeffolding/zapis/listing koda.
+"""routes/workbench_routes.py - REST: skeffolding/zapis/listing koda.
 
 Mosty:
 - Yavnyy: (Veb ↔ Kod) predostavlyaet vneshnyuyu panel upravleniya masterskoy.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (AutoDiscover ↔ Zhiznennyy tsikl) srazu gotov k registratsii moduley.
 
 Zemnoy abzats:
-Kak «panel v garazhe»: sozdaem fayl, dopisyvaem stroku, smotrim, chto u nas est.
+Kak “panel v garazhe”: sozdaem fayl, dopisyvaem stroku, smotrim, what u nas est.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os

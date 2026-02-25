@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-tests/manual/smoke_memory_journal_http.py
+"""tests/manual/smoke_memory_journal_http.py
 
 Ruchnaya proverka HTTP-aliasa zhurnala pamyati.
 
-Ispolzovanie:
+Use:
   set BASE_URL=http://127.0.0.1:8080
   python tests/manual/smoke_memory_journal_http.py
 
-Esli BASE_URL ne zadan, po umolchaniyu berem http://127.0.0.1:8080.
-"""
+Esli BASE_URL ne zadan, po umolchaniyu berem http://127.0.0.1:8080."""
 from __future__ import annotations
 
 import json

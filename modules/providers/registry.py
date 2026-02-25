@@ -30,7 +30,7 @@ except ImportError:
     mem_passport = None
 
 def _ensure_identity(messages):
-    # Esli uzhe est system, ne trogaem
+    # If there are already systems, don’t touch them
     if messages and messages[0].get("role") == "system":
         return messages
     
@@ -45,10 +45,8 @@ def _ensure_identity(messages):
 
 
 def select_provider(mode: str | None = None) -> Dict[str, Any]:
-    """
-    Vozvraschaet kompaktnoe opisanie vybrannogo provaydera.
-    Minimalnyy kontrakt dlya routes/providers_probe.py.
-    """
+    """Returns a compact description of the selected provider.
+    Minimum contract for rute/providers_probe.po."""
     m = (mode or "judge").lower()
     name = "unknown"
     sender = None
@@ -84,11 +82,11 @@ def answer(messages: List[Dict[str, str]], mode: str = None, **kw) -> Dict[str, 
     
     mode = (mode or "judge").lower()
     
-    # 2. Logika vybora provaydera (UPROSchENNAYa I NADEZhNAYa)
+    # 2. Provider selection logic (Simplified and Reliable)
     sender = None
     provider_name = "unknown"
 
-    # Yavnye rezhimy
+    # Explicit Modes
     if mode in ["local", "lmstudio"]:
         sender = _send_lmstudio
         provider_name = "lmstudio"
@@ -99,7 +97,7 @@ def answer(messages: List[Dict[str, str]], mode: str = None, **kw) -> Dict[str, 
         sender = _send_gemini
         provider_name = "gemini"
     
-    # Rezhim JUDGE / AUTO (Pytaemsya vse podryad)
+    # JUJE / AUTO mode (We try everything)
     elif mode in ["judge", "auto"]:
         if _send_openai: 
             sender = _send_openai
@@ -111,9 +109,9 @@ def answer(messages: List[Dict[str, str]], mode: str = None, **kw) -> Dict[str, 
             sender = _send_lmstudio
             provider_name = "lmstudio (judge)"
     
-    # Esli drayver ne nayden
+    # If the driver is not found
     if not sender:
-        # Avariynyy folbek na khot chto-nibud
+        # Emergency fullback for at least something
         if _send_lmstudio: 
             sender = _send_lmstudio
             provider_name = "lmstudio (fallback)"
@@ -123,7 +121,7 @@ def answer(messages: List[Dict[str, str]], mode: str = None, **kw) -> Dict[str, 
     # 3. Otpravka
     try:
         res = sender(messages, **kw)
-        # Esli vernulsya slovar s oshibkoy
+        # If the dictionary is returned with an error
         if isinstance(res, dict) and not res.get("ok"):
             return res 
             

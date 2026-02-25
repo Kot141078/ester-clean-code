@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# tools/smoke_telegram_bridge.py — proverka «kak bot» stuchitsya v backend
+# tools/stoke_telegram_bridge.po - “like this” check is knocking on the backend
 # Mosty: (yavnyy) Telegram↔Backend; (skrytye) 8000↔8010, query↔message
 # Zemnoy abzats: imitiruem otpravku tekstov po dvum kontraktam i dvum portam.
 
@@ -18,9 +18,9 @@ def post(path, payload):
         return -1, {"ok": False, "error": str(e)}
 
 tests = [
-    ("/chat/message",        {"query": "privet ot bota", "use_rag": True}),               # kak v telegram_bot.py (seychas)
-    ("/chat/message",        {"message": "privet ot bota", "mode": "lmstudio"}),          # korrektnyy dlya legacy
-    ("/ester/chat/message",  {"message": "privet ot bota", "mode": "judge"}),             # korrektnyy dlya modern
+    ("/chat/message",        {"query": "privet ot bota", "use_rag": True}),               # as in telegram_here.po (now)
+    ("/chat/message",        {"message": "privet ot bota", "mode": "lmstudio"}),          # correct for legacy
+    ("/ester/chat/message",  {"message": "privet ot bota", "mode": "judge"}),             # correct for modern
 ]
 
 for path, payload in tests:

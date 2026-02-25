@@ -45,10 +45,10 @@ python -B tools/mojibake_doctor.py --scan --paths "<touched_files>"
 
 ## Bridges
 
-- Explicit bridge (Ashby): ratchet delaet `stubs_gate` realnym regulyatorom, regress v stubs ne prokhodit tikho.
-- Hidden bridge #1 (Cover&Thomas): zakryvaem poslednie 5 stubs vmesto rasshireniya funktsionalnosti, snizhaya entropiyu izmeneniy.
-- Hidden bridge #2 (Guyton/Hall): `stubs=0` fiksiruet gomeostaz koda; posle etogo mozhno bezopasno naraschivat agentnye sloi.
+- Explicit bridge (Ashby): the calculation makes estubs_gateyo a real regulator, regression to stubs does not go quietly.
+- Hidden bridge #1 (Carpet&Thomas): closing the last 5 stubs instead of expanding functionality, reducing the entropy of change.
+- Hidden bridge #2 (Guyton/Hull): estubs=0е fixes code homeostasis; After this, you can safely build up the agent layer.
 
 ## Earth Paragraph
 
-Eto kak elektrika v kvartire: poka v stene ostavalis 5 «skrutok izolentoy», sistema rabotala na udache. My ne tolko zamenili skrutki na klemmy, no i postavili avtomat (`ratchet gate`), chtoby novye «skrutki na soplyakh» bolshe ne prokhodili kommitom.
+Eto kak elektrika v kvartire: poka v stene ostavalis 5 “skrutok izolentoy”, sistema rabotala na udache. My ne tolko zamenili skrutki na klemmy, no i postavili avtomat (`ratchet gate`), chtoby novye “skrutki na soplyakh” bolshe ne prokhodili kommitom.

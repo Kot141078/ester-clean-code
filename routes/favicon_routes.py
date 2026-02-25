@@ -1,11 +1,9 @@
 
 # -*- coding: utf-8 -*-
-"""
-routes/favicon_routes.py - fiks 500 na /favicon.ico.
+"""routes/favicon_routes.py - fiks 500 na /favicon.ico.
 Mosty: yavnyy (Brauzer↔Veb); skrytye (UI↔Diagnostika; Bezopasnost↔UX).
 Zemnoy abzats: brauzer vsegda dergaet /favicon.ico - otvechaem 1×1 PNG vmesto 500.
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 from io import BytesIO
 from flask import Blueprint, send_file, Response

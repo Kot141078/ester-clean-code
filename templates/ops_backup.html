@@ -8,10 +8,10 @@
 
 <section class="card" style="margin-bottom:12px">
   <div class="row" style="gap:10px">
-    <button class="btn" onclick="listSnapshots()">Pokazat snimki</button>
+    <button class="btn" onclick="listSnapshots()">Show pictures</button>
     <button class="btn" onclick="runBackup()">Sdelat bekap</button>
     <button class="btn" onclick="verifyBackup()">Proverit bekap</button>
-    <input id="snapId" class="input" placeholder="snapshot id dlya restore…" />
+    <input id="snapId" class="input" placeholder="snapshot ID for the restaurant..." />
     <button class="btn" onclick="restoreSnapshot()">Vosstanovit</button>
   </div>
 </section>
@@ -60,7 +60,7 @@
         listRender(arr); logLine('OK: '+u); return;
       }catch(e){ /* next */ }
     }
-    logLine('Oshibka: ne udalos poluchit spisok snimkov');
+    logLine('Error: Failed to get snapshot list');
   }
 
   async function runBackup(){
@@ -73,7 +73,7 @@
         listSnapshots(); return;
       }catch(e){ /* next */ }
     }
-    logLine('Oshibka zapuska bekapa');
+    logLine('Error starting backup');
   }
 
   async function verifyBackup(){
@@ -86,12 +86,12 @@
         return;
       }catch(e){ /* next */ }
     }
-    logLine('Oshibka proverki bekapa');
+    logLine('Backup verification error');
   }
 
   async function restoreSnapshot(){
     const id=(document.getElementById('snapId').value||'').trim();
-    if(!id){ alert('Ukazhi snapshot id'); return; }
+    if(!id){ alert('Specify snapshot ID'); return; }
     logLine('→ restore '+id+' ...');
     const payload=JSON.stringify({snapshot:id});
     const urls=[['/ops/backup/restore','POST'],['/ops/backup?mode=restore','POST']];
@@ -102,10 +102,10 @@
         return;
       }catch(e){ /* next */ }
     }
-    logLine('Oshibka vosstanovleniya');
+    logLine('Restore Error');
   }
 
-  // avto-listing pri vkhode
+  // auto-listing upon entry
   document.addEventListener('DOMContentLoaded', listSnapshots);
 </script>
 

@@ -54,9 +54,9 @@ def tick():
 
     # minimal “own needs” (smoke-friendly)
     tasks: List[str] = body.get("tasks") if isinstance(body.get("tasks"), list) else [
-        "U menya oshibki i vse tormozit, prover health/metrics",
+        "I have errors and everything is slow, check healthtn/matrix",
         "Naydi po baze dokument pro RBAC i protsitiruy",
-        "Mne nuzhen novyy agent: YAML + geyty, sdelay chernovik",
+        "I need a new agent: YML + gates, make a draft",
     ]
 
     plan: List[Dict[str, Any]] = []

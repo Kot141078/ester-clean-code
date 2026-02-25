@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/portable_routes.py - HTTP-obertka poverkh self_build.
+"""routes/portable_routes.py - HTTP-obertka poverkh self_build.
 
 MOSTY:
-- (Yavnyy) GET /portable/status - konfig portable; POST /portable/build - sobrat (dry_run=true dlya progona).
+- (Yavnyy) GET /portable/status - config portable; POST /portable/build - sobrat (dry_run=true dlya progona).
 - (Skrytyy #1) Put po umolchaniyu - data/portable; vse offlayn, bez setevykh zavisimostey.
-- (Skrytyy #2) Esli ukazany «neizvestnye fayly», otdaem podskazki place_unknown() dlya avto-raskladki.
+- (Skrytyy #2) Esli ukazany “neizvestnye fayly”, otdaem podskazki place_unknown() dlya avto-raskladki.
 
 ZEMNOY ABZATs:
-Knopka «sobrat chemodan»: zapakovali proekt, polozhili manifest - mozhno perenosit na drugoy nositel.
+Knopka “sobrat chemodan”: zapakovali proekt, polozhili manifest - mozhno perenosit na drugoy nositel.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from typing import Any, Dict

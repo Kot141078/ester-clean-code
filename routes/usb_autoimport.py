@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/usb_autoimport.py - UI/REST dlya avto-importa s doverennoy fleshki.
+"""routes/usb_autoimport.py - UI/REST dlya avto-importa s trusted fleshki.
 
-Marshruty:
-  • GET  /admin/usb/autoimport            - HTML
-  • GET  /admin/usb/autoimport/status     - {env, stamps, enabled, interval}
-  • POST /admin/usb/autoimport/scan       - prinuditelnyy odnokratnyy prokhod skanirovaniya
+Route:
+  • GET /admin/usb/autoimport - HTML
+  • GET /admin/usb/autoimport/status - {env, stamps, enabled, interval}
+  • POST /admin/usb/autoimport/scan - prinuditelnyy odnokratnyy prokhod scanirovaniya
 
 Mosty:
-- Yavnyy (Kibernetika ↔ UX): odin ekran «vklyuchit, proverit, posmotret otchet».
+- Yavnyy (Kibernetika ↔ UX): odin ekran “vklyuchit, proverit, posmotret otchet.”
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): pokazyvaem stamps i rezhim AB.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): ne trogaem mozg/pamyat - tolko nastroyki.
 
 Zemnoy abzats:
-Zdes vidno, vklyuchen li avtoimport, chto on sdelal v proshlyy raz, i mozhno «pnula» ruchnym skanom.
+Zdes vidno, vklyuchen li avtoimport, what on sdelal v proshlyy raz, i mozhno “pnula” ruchnym skanom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -69,7 +67,7 @@ def api_scan():
     if mount:
         rep = autoimport_from_mount(mount, ab_mode=AB)
         return jsonify({"ok": bool(rep.get("ok")), "result": rep})
-    # esli ne ukazan mount - progon po vsem
+    # if mount is not specified - run through all
     out = []
     for t in list_targets():
         m = t.get("mount") or ""

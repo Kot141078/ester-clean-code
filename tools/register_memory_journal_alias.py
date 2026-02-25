@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-tools/register_memory_journal_alias.py — registratsiya alias-routov zhurnala pamyati.
+"""tools/register_memory_journal_alias.py - registratsiya alias-routov zhurnala pamyati.
 
-Dobavlyaet `routes.memory_journal_routes_alias` v data/app/extra_routes.json,
-ne trogaya suschestvuyuschie marshruty.
+Add `routes.memory_journal_routes_alias` v data/app/extra_routes.json,
+ne trogaya suschestvuyuschie route.
 
 ZEMNOY ABZATs:
   Eto kak prolozhit dopolnitelnyy kabel v schitok, ne perekladyvaya vsyu provodku.
   Bezopasnyy sposob vklyuchit novyy kontur pamyati Ester.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_ops.py — most deystviy v reestr dlya «voli» Ester.
+"""modules/thinking/actions_ops.py - most deystviy v reestr dlya “voli” Ester.
 
-Registriruet deystviya:
+Register action:
 - forge.dry_run / forge.apply / forge.guarded_apply
-- rollback.paths
+-rollback.paths
 - release.snapshot / release.torrent
 - backup.run / backup.targets.set / backup.targets.get
 - ethics.assess
-- sos.assess / sos.trigger
+- sos.assess/sos.trigger
 - quorum.propose / quorum.vote / quorum.status
 - scheduler.add / scheduler.tick / scheduler.list
 - llm.complete
@@ -16,15 +15,14 @@ Registriruet deystviya:
 - imprint.verify
 
 Mosty:
-- Yavnyy: (Myslitelnyy konveyer ↔ Operatsii) edinyy vyzov «kind+args».
+- Yavnyy: (Myslitelnyy konveyer ↔ Operatsii) edinyy vyzov “kind+args”.
 - Skrytyy #1: (Ekonomika ↔ CostFence) vse shagi mozhno byudzhetirovat v playbook.
 - Skrytyy #2: (Nadezhnost ↔ Guard) opasnye shagi mozhno oborachivat v guarded_apply/quorum/ethics.
 
 Zemnoy abzats:
-Kogda ruka tyanetsya k rychagu — etot fayl delaet rychagi vidimymi i odinakovymi dlya mozga Ester.
+Kogda ruka tyanetsya k rychagu - etot fayl delaet rychagi vidimymi i odinakovymi dlya mozga Ester.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

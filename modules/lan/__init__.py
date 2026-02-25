@@ -1,7 +1,6 @@
 
 # -*- coding: utf-8 -*-
-"""
-modules.lan — dinamicheskiy most k LAN-* slushatelyam.
+"""modules.lan - dinamicheskiy most k LAN-* slushatelyam.
 Mosty:
 - Yavnyy: (modules.lan.X ↔ listeners.lan_X)
 - Skrytyy #1: (P2P ↔ Transport) — pozvolyaet mappit na p2p_*.
@@ -9,8 +8,7 @@ Mosty:
 
 Zemnoy abzats:
 Setevye nablyudateli neredko zhivut v `listeners/*`. My ne dubliruem kod, a perenapravlyaem importy.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import importlib
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

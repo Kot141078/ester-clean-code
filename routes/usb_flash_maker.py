@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-routes/usb_flash_maker.py - UI/REST «Sborka fleshki Ester».
+"""routes/usb_flash_maker.py - UI/REST “Assembly fleshki Ester”.
 
-Marshruty:
-  • GET  /admin/usb/make               - HTML
-  • GET  /admin/usb/make/status        - tekuschie nastroyki + dostupnye toma
-  • POST /admin/usb/make/save          - sokhranit nastroyki
-  • GET  /admin/usb/make/probe         - spisok tomov
-  • POST /admin/usb/make/plan          - plan po mount
-  • POST /admin/usb/make/apply         - sobrat na mount
+Route:
+  • GET /admin/usb/make - HTML
+  • GET /admin/usb/make/status - tekuschie nastroyki + dostupnye toma
+  • POST /admin/usb/make/save - sokhranit nastroyki
+  • GET /admin/usb/make/probe - spisok tomov
+  • POST /admin/usb/make/plan - plan po mount
+  • POST /admin/usb/make/apply - sobrat na mount
 
 Mosty:
 - Yavnyy (UX ↔ Offlayn-dostavka): v odnom meste - vybor fleshki, plan, sborka.
-- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): raskrytye parametry i dry-run v AB=A.
+- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): raskrytye parameter i dry-run v AB=A.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): manifest 100% sovmestim s usb_zc_deploy.
 
 Zemnoy abzats:
-Eto «odna knopka bez golovnoy boli»: vybral fleshku - poluchil gotovuyu k dostavke kopiyu Ester.
+Eto “odna knopka bez golovnoy boli”: vybral fleshku - poluchil gotovuyu k dostavke kopiyu Ester.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json, os

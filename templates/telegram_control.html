@@ -33,9 +33,9 @@
   <div class="wrap">
     <div class="card">
       <h1>Upravlenie Telegram-botom</h1>
-      <div class="muted">JWT beretsya iz <code>localStorage("jwt")</code>. Esli net — otkroy <a class="badge" href="/auth/auto">/auth/auto</a> i vvedi imya (Owner → roli admin,user).</div>
+      <div class="muted">JWT beretsya iz <code>localStorage("jwt")</code>. If not, open it <a class="badge" href="/auth/auto">/auth/auto</a> i vvedi imya (Owner → roli admin,user).</div>
       <div style="margin-top:8px" class="row">
-        <button id="btnRefresh" class="btn badge">Obnovit «kto ya»</button>
+        <button id="btnRefresh" class="btn badge">Update "who am I"</button>
         <span id="who" class="badge">…</span>
       </div>
     </div>
@@ -44,9 +44,9 @@
       <h2>Profile bota</h2>
       <div class="grid">
         <div>
-          <label>Imya (publichnoe)</label>
+          <label>Name (public)</label>
           <input id="name" placeholder="Claire" value="Claire"/>
-          <div class="hint">Eto imya vidyat polzovateli. Mozhno ostavit Claire.</div>
+          <div class="hint">This is the name that users see. You can leave Tslaira.</div>
         </div>
         <div>
           <label>Korotkoe opisanie</label>
@@ -54,7 +54,7 @@
         </div>
       </div>
       <label>Polnoe opisanie</label>
-      <textarea id="desc" placeholder="Kto ona, chem pomogaet, kak nachat…"></textarea>
+      <textarea id="desc" placeholder="Who is she, how does she help, how to start..."></textarea>
       <div class="row" style="margin-top:8px">
         <button id="btnApplyProfile" class="btn badge">Primenit profil</button>
         <span id="profileStatus" class="muted"></span>

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-routes/memory_maintenance_routes.py — REST dlya nochnogo obsluzhivaniya pamyati.
+"""routes/memory_maintenance_routes.py - REST dlya nochnogo obsluzhivaniya pamyati.
 
-Endpointy:
-  • POST /mem/maintenance/run   {"heal":true,"compact":true,"snapshot":true}
-  • GET  /mem/maintenance/state
+Endpoint:
+  • POST /mem/maintenance/run {"heal":true,"compact":true,"snapshot":true}
+  • GET /mem/maintenance/state
 
 Mosty:
 - Yavnyy: (Memory v†" Ekspluatatsiya) upravlenie TO cherez HTTP, integriruetsya s RuleHub cron.
@@ -12,10 +11,9 @@ Mosty:
 - Skrytyy #2: (Kibernetika v†" Nablyudaemost) otdelnye metriki na /metrics/memory_maintenance.
 
 Zemnoy abzats:
-Knopka «nochnoy sanchas»: nazhal — proshlis po skladu.
+Knopka "nochnoy sanchas": nazhal - proshlis po skladu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict

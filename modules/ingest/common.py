@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-modules.ingest.common — obschie khelpery dlya ingest/ocr/pdf i pr.
+"""modules.ingest.common - obschie khelpery dlya ingest/ocr/pdf i pr.
 
 MOSTY:
 - (Yavnyy) persist_dir/save_bytes/pdf_text_extract/sha256_file ↔ routes.ingest_* i dreams_routes.
-- (Skrytyy #1) KG ↔ ingest: kg_attach_artifact/add_structured_record vyzyvayut KGStore, esli dostupen.
+- (Skrytyy #1) KG ↔ ingest: kg_attach_artifact/add_structured_record vyzyvayut KGStore, if available.
 - (Skrytyy #2) Memory ↔ ENV: build_mm_from_env vozvraschaet obekt pamyati, opirayas na PERSIST_DIR.
 
 ZEMNOY ABZATs:
 Praktichnye funktsii, kotorye mozhno zvat iz routov bez tyazhelykh zavisimostey (OCR/psutil/cryptography ne obyazatelny).
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import base64
@@ -61,7 +59,7 @@ def sniff_mime(path: str) -> str:
 # ---- PDF (myagko) ----
 def pdf_text_extract(pdf_bytes: bytes) -> str:
     if not fitz:
-        # Folbek: poprobuem «na glaz» — inogda PDF soderzhit tekst kak utf-8
+        # Fulbeck: let’s try it “by eye” - sometimes the PDF contains text like UTF-8
         try:
             txt = pdf_bytes.decode("utf-8")
             return txt if len(txt.strip()) > 0 else ""
@@ -106,5 +104,5 @@ class MiniMemory:
         return str(p)
 
 def build_mm_from_env() -> MiniMemory:
-    """Vozvraschaet legkiy obekt pamyati, zavyazannyy na PERSIST_DIR."""
+    """Returns a lightweight memory object bound to PERSIST_DIR."""
     return MiniMemory(base=persist_dir())

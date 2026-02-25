@@ -1,5 +1,5 @@
 
-<# scripts\apply_fix_sitecustomize_multi.ps1 — pishet sitecustomize.py v KOREN i v tools\, chtoby Python tochno podkhvatil.
+<# scriptseapply_fix_sitecostomize_multi.ps1 - writes sitecostomize.po in ROOT and in tools so that Pothon will definitely pick it up.
 Mosty: Yavnyy (DevOps↔Rantaym), Skrytye (A/V; Nadezhnost↔Diagnostika).
 Zemnoy abzats: start idet iz tools\run_app_env.py → sys.path[0]=tools → kladem kopiyu i tuda. c=a+b #>
 param([ValidateSet("A","B")] [string]$Mode="B")
@@ -27,7 +27,7 @@ c=a+b
 from __future__ import annotations
 import os, sys, importlib, types
 
-# Marker, chtoby mozhno bylo proverit zagruzku
+# A marker so you can check the download
 os.environ.setdefault("ESTER_SITE_HOOK", "1")
 
 # --- jupytext → jsonify ---
@@ -51,7 +51,7 @@ except Exception:
 if not os.getenv("LMSTUDIO_BASE_URL") and os.getenv("LMSTUDIO_URL"):
     os.environ["LMSTUDIO_BASE_URL"] = os.environ["LMSTUDIO_URL"]
 
-# --- Patch discover (neskolko vozmozhnykh putey) ---
+# --- Patch discovery (several possible paths) ---
 _TARGETS = [
     "modules.app.discover",
     "ester.modules.app.discover",
@@ -69,12 +69,12 @@ def _patch_discover_module(m: types.ModuleType) -> None:
     except Exception:
         pass
 
-# 1) Patch uzhe zagruzhennykh
+# 1) Patch already downloaded
 for name, mod in list(sys.modules.items()):
     if name in _TARGETS and isinstance(mod, types.ModuleType):
         _patch_discover_module(mod)
 
-# 2) Poprobovat importirovat i propatchit, esli dostupno
+# 2) Try to import and patch, if available
 for name in list(_TARGETS):
     try:
         m = importlib.import_module(name)
@@ -82,7 +82,7 @@ for name in list(_TARGETS):
     except Exception:
         pass
 
-# 3) Ustanovit import-khuk, chtoby patch primenyalsya pri buduschikh importakh
+# 3) Install an import hook so that the patch is applied to future imports
 try:
     import importlib.abc, importlib.util  # type: ignore
     class _DiscoverFinder(importlib.abc.MetaPathFinder):  # type: ignore

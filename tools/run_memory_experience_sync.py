@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-tools/run_memory_experience_sync.py — ruchnoy zapusk sinkhronizatsii sloya opyta.
+"""tools/run_memory_experience_sync.py — ruchnoy zapusk sinkhronizatsii sloya opyta.
 
 MOSTY:
-- Yavnyy: (CLI ↔ modules.memory.experience) — edinaya tochka zapuska sync_experience().
-- Skrytyy #1: (sys.path ↔ struktura repo) — fiksiruet problemu ModuleNotFoundError dlya modules.*.
+- Yavnyy: (CLI ↔ modules.memory.experience) - edinaya tochka zapuska sync_experience().
+- Skrytyy #1: (sys.path ↔ struktura repo) - fiksiruet problemu ModuleNotFoundError dlya modules.*.
 - Skrytyy #2: (operator ↔ anchors) — pozvolyaet uvidet, kak insayty perekhodyat v opornye tochki.
 
 ZEMNOY ABZATs:
 Inzhenerno eto upravlyaemyy servisnyy vyzov: cron/Task Scheduler mozhet spokoyno dergat
 etot skript, ne znaya vnutrenney struktury Python-paketov.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
 import sys
 import json
 
-# Dobavlyaem koren proekta (papka, gde lezhat modules/)
+# Add the project root (the folder where modules/ are located)
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)

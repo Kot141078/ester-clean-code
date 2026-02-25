@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-modules.act.runner — bazovye operatsii deystviya.
-# c=a+b
-"""
+"""modules.act.runner - basic operations of an action.
+# c=a+b"""
 from __future__ import annotations
 from . import main as start
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

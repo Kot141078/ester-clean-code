@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/metrics.py — domennye metriki orkestratsii Synergy.
+"""modules/synergy/metrics.py - domain metrics orkestratsii Synergy.
 
 MOSTY:
 - (Yavnyy) record_assign_latency_ms/record_assign_quality/record_api_status/inc_sse_clients — gotovye vyzovy iz orkestratora i API.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Bezopasnye no-op — vyzovy nichego ne lomayut dazhe bez SDK/Collector.
 
 ZEMNOY ABZATs:
-Para vyzovov — i u vas dashbord: latentnost naznacheniya, dolya oshibok, «kachestvo» planov, chislo SSE-podklyucheniy k borde.
+Para vyzovov - i u vas dashbord: latentnost naznacheniya, dolya oshibok, “kachestvo” planov, chislo SSE-podklyucheniy k borde.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Dict
@@ -19,7 +17,7 @@ from typing import Dict
 from observability.otel import init_otel, get_meter
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-_init = init_otel  # re-export dlya yavnogo vyzova vne
+_init = init_otel  # re-export for explicit call outside
 
 _METER = None
 _H_ASSIGN_LAT = None

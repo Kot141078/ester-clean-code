@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_p2p_cron.py — eksheny «voli» dlya P2P Bloom i Cron.
+"""modules/thinking/actions_p2p_cron.py - eksheny "voli" dlya P2P Bloom i Cron.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Set/Tekhprotsedury) korotkie komandy dlya obmena filtrami i zapuska reglamentov.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Planirovschik ↔ Avtonomiya) legko vklyuchaetsya v nightly.
 
 Zemnoy abzats:
-Nabor knopok: obnovit bloom, vlit chuzhoy, snyat snapshot profilea, obnovit avtodiskaver — i vpered.
+Nabor knopok: obnovit bloom, vlit chuzhoy, snyat snapshot profilea, obnovit avtodiskaver - i vpered.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules.selfmanage.backup_settings — nastroyki/bandl.
+"""modules.selfmanage.backup_settings - nastroyki/bandl.
 
 MOSTY:
 - Yavnyy: status(), get(), export_bundle(), import_bundle().
@@ -8,10 +7,9 @@ MOSTY:
 - Skrytyy #2: JSON-sovmestimye slovari.
 
 ZEMNOY ABZATs:
-UI mozhet ne tolko vygruzhat, no i zagruzhat nabor nastroek «kak est».
+UI mozhet ne tolko vygruzhat, no i zagruzhat nabor nastroek “kak est”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from typing import Dict, Any

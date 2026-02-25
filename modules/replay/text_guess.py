@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-modules/replay/text_guess.py — «ugadyvanie» teksta dlya OCR-shagov iz sobytiy repleya.
+"""modules/replay/text_guess.py - “ugadyvanie” teksta dlya OCR-shagov iz sobytiy repleya.
 
-Ideya:
+Ideaya:
 - Nakhodim vremennye okna vokrug sobytiy tipa "ocr_ok"/"ocr_fail"/"template_ok".
-- Iz zagolovkov/opisaniy sobytiy i evristik shagov formiruem kandidatov teksta (bez OCR!):
+- Iz zagolovkov/opisaniy sobytiy i evristik shagov formiruem kandidatov teksta (without OCR!):
   * razbivaem desc na slova, filtruem korotkie, normalizuem registr
-  * dobavlyaem evristicheskie slova: ["Fayl","Save","Save","Export","OK","OK","Apply"]
+  * add evristicheskie slova: ["Fayl","Save","Save","Export","OK","OK","Apply"]
 - Otsenivaem confidence po chastote/kontekstu (ochen grubaya metrika).
 
 API:
@@ -20,8 +19,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Deshevaya evristika, rabotaet offlayn, idealno dlya bystrogo prototipa chekov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import math, re

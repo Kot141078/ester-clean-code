@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Marshruty /research/search (GET/POST). Ispolzuyut ResearchAgent.
+"""Marshruty /research/search (GET/POST). Used Research Agent.
 
 Ispravleniya/uluchsheniya:
 - ubran BOM/musor (U+FEFF), vosstanovlena normalnaya UTF-8 stroka dokumentatsii;
@@ -12,16 +11,15 @@ Ispravleniya/uluchsheniya:
 
 Mosty:
 - Yavnyy (Kibernetika ↔ API): odin nablyudaemyy vkhod (query) → izmerimyy vykhod (results + meta).
-- Skrytyy 1 (Logika ↔ Nadezhnost): «myagkaya validatsiya» vmesto isklyucheniy na pustom vvode.
+- Skrytyy 1 (Logika ↔ Nadezhnost): “myagkaya validatsiya” vmesto isklyucheniy na empty vvode.
 - Skrytyy 2 (Infoteoriya ↔ Interfeys): parametr k ogranichivaet obem otveta (kanal/shum).
 
 Zemnoy abzats:
-Eto kak filtr na nasose: ty ne zastavlyaesh sistemu «zhevat» pustotu i musor. Porog k i
+Eto kak filtr na nasose: ty ne zastavlyaesh sistemu “zhevat” pustotu i musor. Porog k i
 normalnaya obrabotka oshibok ekonomyat resursy i nervy, osobenno kogda zaprosy letyat
 pachkami ot UI/agentov.
 
-# c=a+b
-"""
+# c=a+b"""
 
 from __future__ import annotations
 
@@ -62,10 +60,8 @@ def _parse_query_and_k() -> Tuple[str, Optional[int]]:
 
 
 def _safe_agent_search(agent: ResearchAgent, query: str, **kwargs: Any) -> Any:
-    """
-    Vyzov agent.search s avtopodborom kwargs po signature.
-    Esli ResearchAgent prinimaet tolko (query) — spokoyno degradiruem.
-    """
+    """Call agent.search with automatic selection of quargs by signature.
+    If ResearchAgent only accepts (queers), it quietly degrades."""
     try:
         sig = inspect.signature(agent.search)  # type: ignore[arg-type]
         accepted = set(sig.parameters.keys())
@@ -78,15 +74,13 @@ def _safe_agent_search(agent: ResearchAgent, query: str, **kwargs: Any) -> Any:
             return agent.search(query, **call_kwargs)  # type: ignore[misc]
         return agent.search(query)  # type: ignore[misc]
     except TypeError:
-        # Na vsyakiy sluchay: esli signatura ne otrazhaet realnost (obertki/dekoratory)
+        # Just in case: if the signature does not reflect reality (wrappers/decorators)
         return agent.search(query)  # type: ignore[misc]
 
 
 def register_research_routes(app, vstore, memory_manager, url_prefix: str = "/research") -> Blueprint:
-    """
-    Registriruet blueprint i vozvraschaet ego (udobno dlya testov).
-    vstore/memory_manager prokidyvaem v agent.search, esli on umeet ikh prinimat.
-    """
+    """Registers a blueprint and returns it (convenient for tests).
+    store/memory_manager is sent to agent.search if it knows how to accept them."""
     bp = Blueprint("research", __name__)
     agent = ResearchAgent()
 
@@ -114,6 +108,6 @@ def register_research_routes(app, vstore, memory_manager, url_prefix: str = "/re
         except Exception as e:  # noqa: BLE001
             return jsonify({"error": f"{e.__class__.__name__}: {e}", "meta": {"query": q, "k": k}}), 500
 
-    # Pravilnaya registratsiya blueprint (bez skleyki url_prefix vnutri dekoratorov)
+    # Correct blueprint registration (without gluing url_prefix inside decorators)
     app.register_blueprint(bp, url_prefix=url_prefix)
     return bp

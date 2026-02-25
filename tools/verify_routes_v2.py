@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tools/verify_routes_v2.py — rasshirennaya verifikatsiya Flask-routov i blyuprintov.
+"""tools/verify_routes_v2.py — expandednaya verifikatsiya Flask-routov i blyuprintov.
 
 MOSTY:
-- (Yavnyy) Stroit polnyy spisok pravil, blyuprintov, ischet dublikaty imen i kollizii marshrutov.
+- (Yavnyy) Build polnyy spisok pravil, blyuprintov, ischet dublikaty imen i kollizii marshrutov.
 - (Skrytyy #1) Pishet otchet JSON po puti data/selfcheck/routes_v2.json.
-- (Skrytyy #2) Ne padaet, esli ASGI-prilozhenie nedostupno; vse offlayn.
+- (Skrytyy #2) Ne padaet, esli ASGI-prilozhenie nedostupno; vse offline.
 
 ZEMNOY ABZATs:
-Kak «prozvonka schita»: vidno, kakie avtomaty stoyat, gde dubli i na kakikh liniyakh peregib.
+Kak “prozvonka schita”: vidno, kakie avtomaty stoyat, where dubli i na kakikh liniyakh peregib.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Dict, Any, List, Tuple
@@ -66,7 +64,7 @@ def main() -> int:
     with open(REPORT_PATH, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
 
-    print(f"[verify_v2] blueprints: {report['counts']['blueprints']}, rules: {report['counts']['rules']}, "
+    print(f"[verify_v2] blueprints: {report['counts']['blueprints']}, rules: {report['counts']['rules']},"
           f"collisions: {report['counts']['collisions']}, dups: {report['counts']['dups']}")
     if dups:
         print("[verify_v2] duplicate blueprint names:", ", ".join(dups))

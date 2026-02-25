@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-modules/indexers/video_vector_indexer.py — eksport poslednikh video-konspektov/transkriptov v vektornoe khranilische.
+"""modules/indexers/video_vector_indexer.py - eksport poslednikh video-konspektov/transkriptov v vektornoe khranilische.
 
-Kak rabotaet (myagkaya integratsiya, drop-in):
-  • Chitaet dampy ingest: data/video_ingest/rep_*.json (sm. VideoIngestCore pakety 01–05).
-  • Formiruet elementy: {id, text, tags, meta}, gde text = summary || transcript (s chankingom).
+How to work (myagkaya integratsiya, drop-in):
+  • Read dampy ingest: data/video_ingest/rep_*.json (see VideoIngestCore pakety 01–05).
+  • Formiruet elementy: {id, text, tags, meta}, where text = summary || transcript (s chankingom).
   • Pytaetsya ispolzovat lokalnyy vektornyy stor (esli on u tebya uzhe est):
-      - vstore_simple.VStore (chasto vstrechaetsya v tvoikh dampakh) — metod add/upsert (best-effort).
-      - structured_memory.VectorStore / modules.memory.vector_store — esli prisutstvuet.
-  • Esli podkhodyaschego stora net — pishet v fallback-ochered JSONL: data/video_ingest/vector_fallback.jsonl
+      - vstore_simple.VStore (often vstrechaetsya v tvoikh dampakh) - method add/upsert (best-effort).
+      - structured_memory.VectorStore / modules.memory.vector_store - esli prisutstvuet.
+  • Esli podkhodyaschego stora net - pishet v fallback-ochered JSONL: data/video_ingest/vector_fallback.jsonl
     (ee mozhno podobrat tvoim suschestvuyuschim indeksatorom; format prostoy i stabilnyy).
 
 Funktsii:
@@ -19,14 +18,13 @@ Funktsii:
 Mosty:
 - Yavnyy: (Memory ↔ Poisk) teksty popadayut v vektornyy sloy RAG → buduschie otvety Ester podkreplyayutsya faktami iz video.
 - Skrytyy #1: (Infoteoriya ↔ Kibernetika) chanking stabiliziruet dlinu kontenta, snizhaet entropiyu indeksatora.
-- Skrytyy #2: (Inzheneriya ↔ Nadezhnost) myagkie importy i fallback-ochered — indeksirovanie nikogda ne «lomaet» konveyer.
+- Skrytyy #2: (Inzheneriya ↔ Nadezhnost) myagkie importy i fallback-ochered — indeksirovanie nikogda ne “lomaet” konveyer.
 
 Zemnoy abzats:
-Eto kak «ukladchik na polku kataloga»: beret gotovye otchety, narezaet kartochki i kladet v indeks; esli shkaf nedostupen —
+Eto kak “ukladchik na polku kataloga”: beret gotovye otchety, narezaet kartochki i kladet v indeks; esli shkaf nedostupen —
 skladyvaet v akkuratnuyu korobku (fallback), otkuda ikh mozhno rasstavit pozzhe.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import glob
@@ -83,9 +81,7 @@ def _now_id() -> str:
     return f"vidx_{int(time.time()*1000)}"
 
 def _try_vstore_add(batch: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
-    """
-    Probuet neskolko rasprostranennykh storadzhey. Vozvraschaet otchet ili None, esli nichego net.
-    """
+    """Tries several common storajs. Returns a report or None if there is nothing."""
     # 1) vstore_simple
     try:
         import vstore_simple  # type: ignore
@@ -94,11 +90,11 @@ def _try_vstore_add(batch: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
             store = vs(os.path.join("data", "vstore"))
             added = 0
             for it in batch:
-                # podderzhivaem universalnye polya text/tags/meta
+                # support universal text/tags/meta fields
                 text = it.get("text") or ""
                 meta = it.get("meta") or {}
                 tags = it.get("tags") or []
-                # chasto vstrechaetsya add(text, meta)
+                # add(text, meta) is common
                 if hasattr(store, "add"):
                     store.add(text=text, meta={"tags": tags, **meta})
                 elif hasattr(store, "upsert_texts"):
@@ -144,7 +140,7 @@ def _build_items_from_dump(path: str, prefer_summary: bool = True) -> List[Dict[
         "probe": j.get("probe", {}),
         "backend": (j.get("transcript") or {}).get("backend") or ""
     }
-    # 1) summary (esli est i prefer_summary)
+    # 1) totals (if there is also a prefer_total)
     if prefer_summary and summary:
         items.append({
             "id": f"{Path(path).stem}#sum",
@@ -163,10 +159,8 @@ def _build_items_from_dump(path: str, prefer_summary: bool = True) -> List[Dict[
     return items
 
 def export_recent_to_vectors(limit: int = 20, prefer_summary: bool = True) -> Dict[str, Any]:
-    """
-    Osnovnoy metod: vybiraet poslednie reporty, formiruet elementy i pytaetsya otpravit ikh v vektornyy stor.
-    Esli stor nedostupen — pishet v fallback JSONL.
-    """
+    """Main method: selects the latest reports, generates elements and tries to send them to the vector store.
+    If the store is unavailable, writes to the false account ZhSONL."""
     batch: List[Dict[str, Any]] = []
     picked: List[str] = []
     for p in _iter_recent(limit=limit):

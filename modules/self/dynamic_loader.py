@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/dynamic_loader.py — avtozagruzka rasshireniy iz SELF_CODE_ROOT/enabled s bezopasnoy registratsiey.
+"""modules/self/dynamic_loader.py - avtozagruzka rasshireniy iz SELF_CODE_ROOT/enabled s bezopasnoy registratsiey.
 
 API:
   • load_all(app) -> dict {"loaded":[...], "errors":[...]}
@@ -11,10 +10,9 @@ Mosty:
 - Skrytyy #2: (Kibernetika ↔ Kontrol) neudachnye moduli ne lomayut server (best-effort).
 
 Zemnoy abzats:
-Eto «rozetka rasshireniy»: polozhil modul — sistema akkuratno ego vklyuchit.
+This is “rozetka rashshiniy”: polozhil modul - sistema akkuratno ego vklyuchit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import importlib.util, os, traceback

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-crawler/client.py — byudzhetirovannyy krouler s robots.txt, zapretom arkhivov i TTL-keshom.
+"""crawler/client.py - byudzhetirovannyy krouler s robots.txt, zapretom arkhivov i TTL-keshom.
 
 MOSTY:
 - (Yavnyy) BudgetedCrawler.fetch(url): soblyudaet OUTBOUND_MAX_RPS/OUTBOUND_BUDGET_PER_MIN, robots.txt, kesh i zapret arkhivov.
@@ -8,9 +7,8 @@ MOSTY:
 - (Skrytyy #2) Indeksiruet tolko metadannye (title/desc/len/links), ne tyanet tyazhelye bloby.
 
 ZEMNOY ABZATs:
-Etichnyy «nizkoprofilnyy» obkhodchik: ne shumit, uvazhaet pravila saytov i ne skachivaet lishnee.
-# V prode — pod kapotom vsekh vneshnikh razborakh (reserch/onbording/integratsii). c=a+b
-"""
+Etichnyy “nizkoprofilnyy” obkhodchik: ne shumit, uvazhaet pravila saytov i ne skachivaet lishnee.
+# V prode - pod kapotom vsekh vneshnikh razborakh (reserch/onbording/integratsii). c=a+b"""
 from __future__ import annotations
 
 import hashlib
@@ -132,10 +130,8 @@ class _MetaParser(HTMLParser):
 
 class BudgetedCrawler:
     def __init__(self, fetcher: Optional[Callable[[str, Dict[str, str]], Tuple[int, bytes]]] = None):
-        """
-        fetcher(url, headers) -> (status, content-bytes)
-        Esli ne zadan — ispolzuetsya urllib.request.urlopen
-        """
+        """fetcher(url, neaders) -> (status, content-beat)
+        If not specified, orliv.registered.orlopen is used"""
         self.bucket = _TokenBucket(MAX_RPS, burst=MAX_RPS)
         self.budget = _MinuteBudget(BUDGET_PER_MIN)
         self.cache = _TTLCache(CACHE_TTL)
@@ -152,7 +148,7 @@ class BudgetedCrawler:
         return urllib.parse.urlparse(url).netloc
 
     def _robots(self, url: str) -> bool:
-        """True esli mozhno idti na url soglasno robots; esli ne poluchilos prochest — bezopasno zapreschaem."""
+        """Three if you can go to the URL according to robots; if it fails to read, it safely prohibits it."""
         if not RESPECT_ROBOTS:
             return True
         dom = self._domain(url)
@@ -164,7 +160,7 @@ class BudgetedCrawler:
                 rp.set_url(robots_url)
                 rp.read()
             except Exception:
-                # zapretim esli ne udalos
+                # we'll ban you if it doesn't work
                 self._robots[dom] = rp
                 return False
             self._robots[dom] = rp

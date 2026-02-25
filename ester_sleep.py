@@ -12,7 +12,7 @@ BASE_DIR = r"D:\ester-project"
 MEMORY_FILE = os.path.join(BASE_DIR, "data", "passport", "clean_memory.jsonl")
 LOG_DIR = os.path.join(BASE_DIR, "data", "logs")
 
-# Zagruzhaem konfig (chtoby znat adres LLM)
+# Load the config (to know the LLM address)
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 # Nastroyki LLM
@@ -21,12 +21,12 @@ LLM_API_KEY = os.getenv("LLM_API_KEY", "lm-studio")
 MODEL_NAME = os.getenv("LLM_MODEL_NAME", "local-model")
 
 def setup_logging():
-    """Nastraivaet logirovanie i vozvraschaet obrabotchiki dlya kontrolya resursov."""
+    """Sets up logging and returns handlers to monitor resources."""
     os.makedirs(LOG_DIR, exist_ok=True)
     logger = logging.getLogger("EsterSleep")
     logger.setLevel(logging.INFO)
     
-    # Chtoby ne dublirovat logi pri povtornykh zapuskakh
+    # To avoid duplicating logs during repeated launches
     if logger.hasHandlers():
         logger.handlers.clear()
 
@@ -48,7 +48,7 @@ def setup_logging():
 logger, file_handler = setup_logging()
 
 def get_todays_memories():
-    """Chitaet profile i vozvraschaet sobytiya za poslednie 24 chasa."""
+    """Reads the profile and returns events for the last 24 hours."""
     if not os.path.exists(MEMORY_FILE):
         logger.warning("Memory file not found!")
         return []
@@ -73,7 +73,7 @@ def get_todays_memories():
                     except ValueError:
                         continue
 
-                    # Privedenie k naive dlya sravneniya
+                    # Reducing to naive for comparison
                     if ts.tzinfo and cutoff.tzinfo is None:
                          ts = ts.replace(tzinfo=None)
                     
@@ -90,29 +90,29 @@ def get_todays_memories():
     return memories
 
 def dream(context_text):
-    """Otpravlyaet zapros k podsoznaniyu (LLM)."""
+    """Sends a request to the subconscious (LLM)."""
     if not context_text:
         return None
 
     logger.info("Entering REM sleep (Dreaming)...")
     
     system_prompt = (
-        "Ty — podsoznanie Ester. Tvoya zadacha — konsolidatsiya pamyati.\n"
+        "You are Esther's subconscious. Your task is memory consolidation."
         "Proanaliziruy dialogi za proshedshiy den.\n"
         "NE pereskazyvay ikh.\n"
         "Vydeli GLAVNYE INSAYTY:\n"
-        "1. Chto my uznali novogo ob Owner (kharakter, fakty)?\n"
-        "2. Kak izmenilis nashi otnosheniya?\n"
-        "3. Kakoy urok my vynesli?\n"
-        "Otvet dolzhen byt kratkim (2-3 predlozheniya), ot pervogo litsa (Ya).\n"
-        "Nachni otvet s frazy: '[[NIGHTLY REFLECTION]]:'"
+        "1. What have we learned new about Ovner (character, facts)?"
+        "2. How has our relationship changed?"
+        "3. What lesson have we learned?"
+        "The answer should be short (2-3 sentences), in the first person (I)."
+        "Begin your answer with the phrase:"
     )
 
     payload = {
         "model": MODEL_NAME,
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Sobytiya dnya:\n{context_text}"}
+            {"role": "user", "content": f"Events of the day:\nZZF0Z"}
         ],
         "temperature": 0.6,
         "max_tokens": 500
@@ -162,14 +162,14 @@ def main():
         # 2. Son (Obrabotka)
         insight = dream(context)
 
-        # 3. Probuzhdenie (Zapis)
+        # 3. Awakening (Recording)
         if insight:
             save_reflection(insight)
             logger.info("--- Sleep Cycle Complete. Good morning, Owner. ---")
         else:
             logger.warning("Sleep produced no dreams.")
     finally:
-        # Yavnoe zakrytie obrabotchika fayla loga dlya predotvrascheniya ResourceWarning
+        # Explicitly closing the log file handler to prevent ResourceWarning
         file_handler.close()
 
 if __name__ == "__main__":

@@ -14,12 +14,12 @@ except Exception:
 
 BP = Blueprint("mvp_agents", __name__)
 
-# VAZhNO: ostav svoi realnye agenty kak seychas v /mvp/agents/list.
-# Nizhe — primer, kotoryy sovpadaet s tem, chto ty pokazyval v vyvode list.
+# Important: leave your real agents as they are now in /mvp/agents/list.
+# Below is an example that matches what you showed in the output sheet.
 AGENTS: List[Dict[str, Any]] = [
     {
         "id": "director",
-        "mission": "Marshrutizirovat zaprosy i sobirat otvet.",
+        "mission": "Route requests and collect response.",
         "capabilities": ["route", "plan", "merge_results", "rate_limit"],
         "risk": "medium",
     },
@@ -37,13 +37,13 @@ AGENTS: List[Dict[str, Any]] = [
     },
     {
         "id": "messenger",
-        "mission": "Otpravka soobscheniy po utverzhdennym kanalam/shablonam.",
+        "mission": "Sending messages via approved channels/templates.",
         "capabilities": ["compose", "queue_outbox"],
         "risk": "high",
     },
     {
         "id": "maker_dev",
-        "mission": "Chernoviki moduley + proverki (bez avtoprimeneniya).",
+        "mission": "Draft modules + checks (without auto-application).",
         "capabilities": ["draft", "test", "diff"],
         "risk": "high",
     },
@@ -122,7 +122,7 @@ def run_agent():
 
     agent_meta = next((a for a in AGENTS if a.get("id") == agent_id), {"id": agent_id})
 
-    # MVP-povedenie: ekho/simulyatsiya
+    # MVP behavior: echo/simulation
     return jsonify(
         {
             "ok": True,
@@ -134,7 +134,7 @@ def run_agent():
 
 
 # ---------------------------------------------------------------------
-# Manifest API (to samoe, chego u tebya seychas net -> poetomu 404)
+# API manifest (the very thing you don’t have now -> that’s why 404)
 # ---------------------------------------------------------------------
 
 _DEFAULT_MANIFEST_YAML_EXAMPLE = """\
@@ -142,14 +142,14 @@ manifest_version: 1
 
 defaults:
   default_mode: safe
-  write_enabled: false            # NIChEGO ne primenyaem po umolchaniyu
+  write_enabled: false # NIChEGO ne primenyaem po umolchaniyu
   allowed_risk_levels: [low, medium, high]
-  preview_only: true              # yavnyy flag “tolko proektirovanie”
+  preview_only: true # yavnyy flag “tolko proektirovanie”
 
 agents:
   - id: est.dispatcher.synergy_mvp.v1
     mission: >
-      Prinyat zadachu, utochnit tsel, vybrat luchshego ispolnitelya/svyazku i vernut:
+      Prinyat zadachu, utochnit tsel, vybrat luchshego ispolnitelya/svyazku i return:
       "kogo naznachit + pochemu + sleduyuschiy shag". Sam nichego ne menyaet.
     runtime: { kind: mvp, id: director }
     capabilities:
@@ -159,7 +159,7 @@ agents:
         - rag.hybrid.search
         - mem.passport.list
         - mem.kg.stats
-        - auth.roles.me
+        -auth.roles.me
     risk:
       level: low
       writes: []
@@ -185,7 +185,7 @@ agents:
         - ingest.guard.check
         - ingest.guard.config
         - mem.kg.stats
-        - auth.roles.me
+        -auth.roles.me
     risk:
       level: medium
       writes: ["ingest_guard_config (conditional)"]
@@ -200,7 +200,7 @@ agents:
   - id: est.librarian.knowledge_mvp.v1
     mission: >
       Vesti znanie: bezopasno iskat, proveryat limity ingest, predlagat fakty dlya profilea,
-      pomogat RAG.
+      help RAG.
     runtime: { kind: mvp, id: rag_researcher }
     capabilities:
       actions:
@@ -227,7 +227,7 @@ agents:
 
   - id: est.builder.suite_mvp.v1
     mission: >
-      Konstruktor agentov + otchety: opisat agenta, plan, sgenerit skelet. Lyubye apply — tolko cherez geyty.
+      Konstruktor agentov + otchety: opisat agenta, plan, sgenerit skeleton. Lyubye apply - only through geyty.
     runtime: { kind: mvp, id: maker_dev }
     capabilities:
       endpoints:
@@ -259,7 +259,7 @@ agents:
 
 @BP.get("/mvp/agents/manifest")
 def manifest_info():
-    # prosto chtoby ne bylo 404 + chtoby UI/testy mogli vzyat primer
+    # just to avoid 404 + so that OH/tests can take an example
     return jsonify(
         {
             "ok": True,

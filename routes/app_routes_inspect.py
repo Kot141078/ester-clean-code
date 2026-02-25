@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/app_routes_inspect.py - REST: karta marshrutov i proverka konfliktov.
+"""routes/app_routes_inspect.py - REST: karta routes i proverka konfliktov.
 
 Mosty:
 - Yavnyy: (Nablyudaemost ↔ Kachestvo) vidim vse endpoints i lovim dubli.
-- Skrytyy #1: (Inzheneriya ↔ Otladka) pomogaet pri massovom dobavlenii novykh routov.
+- Skrytyy #1: (Inzheneriya ↔ Otladka) help pri massovom addavlenii novykh routov.
 - Skrytyy #2: (Kibernetika ↔ Samosborka) bezopasnaya proverka pered registratsiey novykh moduley.
 
 Zemnoy abzats:
-Kak «radar»: podsvetit, gde dva raza povesili odin i tot zhe put/metod.
+Kak “radar”: podsvetit, where dva raza povesili odin i tot zhe put/metod.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, current_app, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

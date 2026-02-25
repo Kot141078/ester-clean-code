@@ -1,6 +1,6 @@
 # Ester — Interface Smoke Test (oflayn)
 
-**Tsel:** bystro ubeditsya, chto interfeys (ASGI FastAPI + Flask bordy/SSE) smontirovan i otvechaet v air‑gap.
+**Goal:** quickly make sure that the interface (ASGI FastAPI + Flask boards/S) is mounted and responds to air gap.
 
 ## Bystryy start
 ```bash
@@ -13,9 +13,9 @@ set ESTER_AB_INTERFACE=A
 python scripts/run_uvicorn.py
 ```
 
-## Chto proverit v brauzere
-- `http://127.0.0.1:8010/healthz` — OK JSON (iz Flask nablyudaemosti ili FastAPI, v zavisimosti ot montirovaniya).
-- `http://127.0.0.1:8010/board/channels.html` — kanaly soobscheniy.
+## What to check in the browser
+- yonttp://127.0.0.1:8010/helpnzyo - OK ZHSION (from Flask observability or FastAPI, depending on the mount).
+- http://127.0.0.1:8010/board/hannels.html - message channels.
 - `http://127.0.0.1:8010/board/roles.html` — roli.
 - `http://127.0.0.1:8010/admin/env` — panel runtime/env.
 
@@ -28,7 +28,7 @@ python tools/verify_routes.py > routes_report.json
 
 ## Primechaniya
 - Kontrakty HTTP/JSON **ne menyalis**.
-- Pri zhelanii mozhno zapuskat staryy `app.py` parallelno; otchet pokazhet konflikty portov/marshrutov.
-- Vse deystviya oflayn.
+- If desired, you can run the old yoap.pyyo in parallel; the report will show port/route conflicts.
+- All actions are offline.
 
 c=a+b

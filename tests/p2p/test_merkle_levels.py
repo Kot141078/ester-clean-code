@@ -14,7 +14,7 @@ def _build_hash_levels(ids, set_obj: LwwSet):
 
 def test_merkle_levels_shrink_to_single_root():
     s = LwwSet("X")
-    # Chetnoe/nechetnoe chislo listev chtoby proverit dublirovanie poslednego
+    # Even/odd number of leaves to check for duplication of the last one
     for i in range(7):  # 7 -> urovni: 7 -> 4 -> 2 -> 1
         s.add(Item(f"k{i}", {"v": i}))
     ids = sorted(s.entries.keys())

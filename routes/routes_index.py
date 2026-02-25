@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
 # routes/routes_index.py
-"""
-routes/routes_index.py — udobnaya HTML-stranitsa so spiskom marshrutov (v dopolnenie k /routes JSON).
+"""routes/routes_index.py - udobnaya HTML-stranitsa so spiskom routes (v dopolnenie k /routes JSON).
 
 Put:
-  • GET /routes_index.html — tablitsa vsekh pravil Flask (bez HEAD/OPTIONS), s metodami Re endpoint.
+  • GET /routes_index.html - tablitsa vsekh pravil Flask (without HEAD/OPTIONS), s methods Re endpoint.
 
 Sovmestimost:
   • Ne konfliktuet s /routes (JSON v app.py). R egistriruetsya cherez register_all.py, esli esche ne podklyuchen.
 
 Zemnoy abzats (inzheneriya):
-Eto «lineyka klemm» na raspredelitelnom schite: odnim vzglyadom vidno, chto podklyucheno i gde mozhet byt konflikt.
+This is “lineyka klemm” na raspredelitelnom schite: odnim vzglyadom vidno, chto podklyucheno i gde mozhet byt konflikt.
 
 Mosty:
-- Yavnyy (Kibernetika v†" Arkhitektura): povyshaet nablyudaemost — prosche upravlyat sistemoy.
+- Yavnyy (Kibernetika v†" Arkhitektura): povyshaet nablyudaemost - prosche upravlyat sistemoy.
 - Skrytyy 1 (Infoteoriya v†" Interfeysy): strukturirovannyy vyvod snizhaet kognitivnuyu nagruzku pri revyu.
 - Skrytyy 2 (Anatomiya v†" PO): kak karta sosudov — vidno magistrali Re otvetvleniya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, current_app, render_template_string

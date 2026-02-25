@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/outbox_csv.py — eksport zhurnala iskhodyaschikh v CSV.
+"""messaging/outbox_csv.py - eksport zhurnala iskhodyaschikh v CSV.
 
 MOSTY:
 - (Yavnyy) export_outbox_csv(limit=5000) → bytes; kolonoki: id,ts,channel,chat_id,text,status,http_status,request_id.
-- (Skrytyy #1) Ispolzuet list_outgoing_paged() dlya predskazuemogo poryadka i obema.
+- (Skrytyy #1) Use list_outgoing_paged() dlya predskazuemogo poryadka i obema.
 - (Skrytyy #2) Razdelitel beretsya iz CSV_DELIM (sovmestimost s eksportom kontaktov).
 
 ZEMNOY ABZATs:
-Vygruzhaem iskhodyaschie — dlya otchetnosti, audita ili analiza v tablichnykh instrumentakh.
+Vygruzhaem iskhodyaschie - dlya otchetnosti, audita or analiza v tablichnykh instrumentakh.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import csv

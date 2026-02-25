@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ester_thinking_routes_alias.py
+"""routes/ester_thinking_routes_alias.py
 
 HTTP-vkhod dlya kaskadnogo myshleniya Ester.
 
 Mosty:
-- Yavnyy: (HTTP ↔ always_thinker / kaskad) — odin endpoint dlya zapuska osmyslennogo kaskada.
+- Yavnyy: (HTTP ↔ always_thinker / kaskad) - odin endpoint dlya zapuska osmyslennogo kaskada.
 - Skrytyy #1: (Volya/prioritety ↔ tsel) — umeet prokinut goal cherez ochered prioritetov.
 - Skrytyy #2: (Treys ↔ chelovek) — po flagu vozvraschaet tekstovoe obyasnenie khoda mysley.
 
 Zemnoy abzats:
-Inzhener shlet POST /ester/thinking/once s goal — Ester zapuskaet kaskad,
+Inzhener shlet POST /ester/thinking/once s goal – Ester zapuskaet kaskad,
 ispolzuya tekuschie rezhimy (volya, mnogokontekst, guard) i vozvraschaet summary + (opts.) treys.
 Tak proveryaetsya, chto ona dumaet kak chelovek, no ustoychivee, chem biologiya.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -29,7 +27,7 @@ except Exception:  # pragma: no cover
 
 
 def _safe_import(modname: str, attr: str = None):
-    """Luchshiy-effort import bez padeniya prilozheniya."""
+    """Best - Efficient import without crashing the application."""
     try:
         module = __import__(modname, fromlist=[attr] if attr else [])
     except Exception:
@@ -50,7 +48,7 @@ def _extract_summary(res: Any) -> str:
 
 
 def _with_trace(base_res: Any) -> Dict[str, Any]:
-    """Vernut chelovekochitaemyy treys, esli dostupen thought_trace_adapter."""
+    """Return a human-readable trace if thught_trace_adapter is available."""
     tta = _safe_import("modules.thinking.thought_trace_adapter")
     if tta is None:
         return {}
@@ -144,7 +142,7 @@ def create_blueprint():
 
 
 def register(app) -> None:
-    """Vyzyvaetsya autoload_routes_fs() iz app.py (AUTO-REG cherez FS)."""
+    """Autoload_rutes_fs() is called from the application (AUTO-REG via FSS)."""
     bp = create_blueprint()
     if not bp:
         return

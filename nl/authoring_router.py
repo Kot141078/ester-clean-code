@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-nl/authoring_router.py — vybor stilya i finalnyy render teksta.
+"""nl/authoring_router.py - vybor stilya i finalnyy render teksta.
 
 MOSTY:
-- (Yavnyy) author_text(intent, recipient_kind|meta) + safe-LLM rasshirenie (off po umolchaniyu).
-- (Skrytyy #1) Evristiki: email- ili tegi «lawyer/student/friend» → stil; inache — neutral.
-- (Skrytyy #2) A/B-profil: AUTHORING_STYLE_AB=A|B; mgnovennyy otkat bez perezapuska.
+- (Yavnyy) author_text(intent, recipient_kind|meta) + safe-LLM expansion (off po umolchaniyu).
+- (Skrytyy #1) Evristiki: email- ili tag “lawyer/student/friend” → stil; inache - neutral.
+- (Skrytyy #2) A/B-profile: AUTHORING_STYLE_AB=A|B; mgnovennyy otkat bez perezapuska.
 
 ZEMNOY ABZATs:
-Odin vyzov — i poluchaem chelovecheskiy tekst, kotoryy «lozhitsya» na adresata. Esli dostupna LLM — utochnyaem i poliruem.
+Odin vyzov - i poluchaem chelovecheskiy tekst, kotoryy “lozhitsya” na adresata. Esli dostupna LLM - utochnyaem i poliruem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import re
@@ -39,6 +37,6 @@ def _infer_kind(meta: Dict[str, str] | None) -> str:
 def author_text(intent: str, recipient_kind: Optional[str] = None, meta: Optional[Dict[str, str]] = None, ctx: Optional[Dict] = None) -> str:
     kind = (recipient_kind or _infer_kind(meta) or "neutral").lower()
     draft = render_style(kind, intent, ctx or {})
-    # LLM-polirovka (bezopasnaya: off po umolchaniyu)
+    # LLM polishing (safe: off by default)
     refined = suggest_refinement(draft, kind=kind, intent=intent)
     return refined or draft

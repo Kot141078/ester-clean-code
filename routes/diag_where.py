@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-/_where — pokazat, kakoy app.py zapuschen, puti shablonov i vse pravila.
+"""/_where - pokazat, kakoy app.py zapuschen, puti shablonov i vse pravila.
 
 Mosty:
-- Yavnyy: HTTP ↔ runtime (vidim realnyy fayl i konfiguratsiyu).
+- Yavnyy: HTTP ↔ runtime (vidim realnyy fayl i configuratsiyu).
 - Skrytye: (Marshruty ↔ Otladka), (Jinja ↔ FS).
 
 Zemnoy abzats:
-Eto «tablichka v elektroschite»: k kakoy linii podklyuchena panel pryamo seychas.
+This is “tablichka v elektroschite”: k kakoy linii podklyuchena panel pryamo seychas.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 import os, sys
 from flask import Blueprint, jsonify, current_app

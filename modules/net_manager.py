@@ -7,12 +7,10 @@ from modules import net_bridge, net_cache, html_extract
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def search_internet(query, force=False):
-    """
-    Orchestrates search:
-    1. Check Cache
+    """Orchestrate search:
+    1.Check Cache
     2. If miss, call Bridge
-    3. Save to Cache
-    """
+    3. Save to Cache"""
     if not force:
         cached = net_cache.get_cached("search", query)
         if cached:

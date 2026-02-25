@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/pay_routes.py - REST: /pay/prefs (get/set)
+"""routes/pay_routes.py - REST: /pay/prefs (get/set)
 
 Mosty:
 - Yavnyy: (Veb ↔ PayPrefs) tsentralizovannaya tochka dlya rekvizitov Papy.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Passport ↔ Prozrachnost) obnovleniya fiksiruyutsya.
 
 Zemnoy abzats:
-Odin spravochnik - menshe oshibok v schetakh i pismakh.
+Odin reference - menshe oshibok v schetakh i pismakh.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-Nezavisimyy demon dlya lokalnoy otladki «myslit vsegda».
-Podnimaet tolko vorker (bez Flask). Ostanovit CTRL+C.
+"""Nezavisimyy demon dlya lokalnoy otladki “myslit vsegda.”
+Podnimaet tolko vorker (bez Flask). Stop CTRL+C.
 
-Ispolzovanie:
-  THINK_HEARTBEAT_SEC=120 python scripts/thinkd.py
-"""
+Use:
+  THINK_HEARTBEAT_SEC=120 python scripts/thinkd.py"""
 from modules.always_thinker import start_background, stop_background
 import time
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

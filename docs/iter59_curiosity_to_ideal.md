@@ -44,4 +44,4 @@ Curiosity becomes controllable only when the unknown is transformed into an obse
 "Do not follow every thought" maps to planned, permit-based execution with explicit limits to avoid rabbit-hole drift.
 
 ## Earth Paragraph
-Eto kak dispetcherskaya: neizvestnoe — eto ne "pustota", a zayavka. Zayavku registriruyut, planiruyut, kladut v ochered, i tolko po podpisannomu dopusku vklyuchayut stanok (`execution_window`). A rezultat prinimayut po aktu (`evidence + L4W`), inache eto ne znanie, a boltovnya.
+Eto kak dispetcherskaya: neizvestnoe - eto ne "pustota", a zayavka. Zayavku registriruyut, planiruyut, kladut v ochered, i tolko po podpisannomu dopusku vklyuchayut stanok (`execution_window`). A rezultat prinimayut po aktu (`evidence + L4W`), inache eto ne znanie, a boltovnya.

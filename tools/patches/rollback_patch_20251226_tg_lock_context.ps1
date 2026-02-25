@@ -1,4 +1,4 @@
-# PowerShell 5.x — Rollback patch
+# PowerShell 5.x - Rollback patch
 param(
   [Parameter(Mandatory=$true)]
   [string]$BackupDir

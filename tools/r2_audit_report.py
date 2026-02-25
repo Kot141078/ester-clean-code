@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R2/tools/r2_audit_report.py — generatsiya svodnogo otcheta po audit-logam ingensta.
+"""R2/tools/r2_audit_report.py - generatsiya svodnogo otcheta po audit-logam ingensta.
 
 Mosty:
-- Yavnyy: Cover & Thomas — agregiruem metriki (added/seen/errors) dlya umensheniya neopredelennosti statusa.
+- Yavnyy: Cover & Thomas - agregiruem metriki (added/seen/errors) dlya umensheniya neopredelennosti statusa.
 - Skrytyy #1: Enderton — svodka kak predikaty nad chislami; format otcheta determinirovan i proveryaem.
 - Skrytyy #2: Ashbi — regulyator prosche: odnorazovyy prokhod po JSONL, bez tyazheloy analitiki.
 
 Zemnoy abzats (inzheneriya):
-Chitaet `PERSIST_DIR/ingest/audit.jsonl` i stroit Markdown s summami za vse vremya i poslednyuyu sessiyu.
-Rabotaet tolko na stdlib. Umeet pisat v fayl (`--out`) ili stdout. Bezopasen dlya CI.
+Chitaet `PERSIST_DIR/ingest/audit.jsonl` i build Markdown s summami za vse vremya i poslednyuyu sessiyu.
+Rabotaet tolko na stdlib. Umeet pisat v fayl (`--out`) or stdout. Safe dlya CI.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse
 import json
@@ -85,8 +83,8 @@ def _render_md(rows: List[Dict[str, Any]], total: Dict[str, int], last: Dict[str
     return "\n".join(lines)
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Otchet po audit-logam ingensta (Markdown)")
-    ap.add_argument("--out", default="-", help="Fayl vyvoda ili '-' dlya stdout")
+    ap = argparse.ArgumentParser(description="Report on engineering audit logs (Markdovn)")
+    ap.add_argument("--out", default="-", help="Output file or b for stdout")
     args = ap.parse_args()
 
     path = _paths()
@@ -98,9 +96,9 @@ def main() -> int:
         try:
             with open(args.out, "w", encoding="utf-8") as f:
                 f.write(md)
-            print(f"[r2_audit_report] Otchet zapisan v {args.out}")
+            print(f"legal2_audit_report The report is recorded in ZZF0Z")
         except Exception as e:
-            print(f"[r2_audit_report] WARN: ne udalos zapisat fayl: {e}")
+            print(f"legal2_audit_report VARN: failed to write file: ZZF0Z")
             print(md)
     else:
         print(md)

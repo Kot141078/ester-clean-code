@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/game_binding_routes.py - REST/UI dlya privyazki multi-lidera k game_sync.
+"""routes/game_binding_routes.py - REST/UI dlya privyazki multi-lidera k game_sync.
 
 Ruchki:
-  POST /binding/bind     {"room":"test","leader":"alice","tick_rate":20,"quota":5}
-  POST /binding/follow   {"flag":true}
-  POST /binding/refresh  {"room":"test"}
-  GET  /binding/status
-  GET  /admin/binding
+  POST /binding/bind {"room":"test","leader":"alice","tick_rate":20,"quota":5}
+  POST /binding/follow {"flag":true}
+  POST /binding/refresh {"room":"test"}
+  GET /binding/status
+  GET /admin/binding
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.coop.game_binding import bind, follow_ml, refresh, status

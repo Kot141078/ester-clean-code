@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/missions_routes.py - zapusk i prokhozhdenie «uchebnykh missiy».
+"""routes/missions_routes.py - zapusk i prokhozhdenie “uchebnykh missiy”.
 
 Ruchki:
-  GET  /missions/list                  -> {ok, items:[{id,title,steps}]}
-  GET  /missions/progress              -> {ok, done:{...}}
-  POST /missions/start    {"id":"notepad_intro"} -> {ok, id, step:0}
-  POST /missions/step     {"id":"notepad_intro","index":0} -> {ok, kind, payload}
+  GET /missions/list -> {ok, items:[{id,title,steps}]}
+  GET /missions/progress -> {ok, done:{...}}
+  POST /missions/start {"id":"notepad_intro"} -> {ok, id, step:0}
+  POST /missions/step {"id":"notepad_intro","index":0} -> {ok, kind, payload}
   POST /missions/complete {"id":"notepad_intro"} -> {ok, done:true}
 
 Otrisovka overleya:
@@ -17,8 +16,7 @@ Vypolnenie:
 
 UI: /admin/missions - knopki i predprosmotr.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from typing import Any, Dict, List, Tuple

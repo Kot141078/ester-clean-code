@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_pill.py — eksheny «voli» dlya raboty s «pilyulyami» i ikh politikoy.
+"""modules/thinking/actions_pill.py - eksheny “voli” dlya raboty s “pilyulyami” i ikh politikoy.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Pillbox/Policy) spisok zayavok, approve/deny, ustanovka patternov.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Planner ↔ Avtonomiya) legko vnedrit v stsenarii publikatsiy/platezhey/rassylok.
 
 Zemnoy abzats:
-Knopki «posmotri ochered», «podtverdi» i «izmeni spisok krasnykh knopok».
+Knopki “posmotri ochered”, “podtverdi” i “izmeni spisok krasnykh knopok”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

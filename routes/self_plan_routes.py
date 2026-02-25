@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_plan_routes.py - REST: plan pod tsel i ego vypolnenie (po umolchaniyu bezopasnyy dry-run).
+"""routes/self_plan_routes.py - REST: plan pod tsel i ego vypolnenie (po umolchaniyu bezopasnyy dry-run).
 
-Endpointy:
+Endpoint:
   • POST /self/plan {"goal","constraints"?}
   • POST /self/act/execute {"plan","safe"?:true}
 
 Mosty:
-- Yavnyy: (Volya ↔ Deystviya) edinoe mesto, gde i tsel formuliruetsya, i plan gotovitsya/vypolnyaetsya.
+- Yavnyy: (Volya ↔ Deystviya) edinoe mesto, where i tsel formuliruetsya, i plan gotovitsya/vypolnyaetsya.
 - Skrytyy #1: (Inzheneriya ↔ Prozrachnost) rezultat plana prigoden dlya logirovaniya/audita.
-- Skrytyy #2: (UX ↔ Kontrol) bezopasnyy rezhim po umolchaniyu.
+- Skrytyy #2: (UX ↔ Control) bezopasnyy rezhim po umolchaniyu.
 
 Zemnoy abzats:
-Eto knopki «splaniruy» i «vypolni»: po umolchaniyu tolko primeryaetsya, no mozhet i sdelat.
+Eto knopki “planiruy” i “vypolni”: po umolchaniyu tolko primeryaetsya, no mozhet i sdelat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict

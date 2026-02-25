@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_portable_firststart.py - «Pervyy start»: profil uzla, rekomendatsii ENV i Telegram-paket (offlayn).
+"""routes/admin_portable_firststart.py - “Pervyy start”: profile uzla, rekomendatsii ENV i Telegram-packet (offlayn).
 
-Marshruty:
-  • GET  /admin/portable/firststart            - stranitsa
-  • GET  /admin/portable/firststart/status     - sys-profil + rekomendatsii + usb/ab
-  • POST /admin/portable/firststart/apply      - zapisat profile.json + recommend.env (AB=A → dry)
-  • POST /admin/portable/firststart/telegram   - sgenerirovat rukopozhatie (tekst + payload-fayl v outbox)
+Route:
+  • GET /admin/portable/firststart - stranitsa
+  • GET /admin/portable/firststart/status - sys-profil + rekomendatsii + usb/ab
+  • POST /admin/portable/firststart/apply - zapisat profile.json + recommend.env (AB=A → dry)
+  • POST /admin/portable/firststart/telegram - sgenerirovat rukopozhatie (tekst + payload-fayl v outbox)
 
 Mosty:
-- Yavnyy (profil → konfig → svyaz): vse na odnom ekrane.
+- Yavnyy (profil → config → svyaz): vse na odnom ekrane.
 - Skrytyy 1 (Infoteoriya): yavnye, determinirovannye pravila rekomendatsiy → vosproizvodimost.
 - Skrytyy 2 (Praktika): zapis tolko v ESTER/portable/* i payloads/outbox/*, offlayn, stdlib.
 
 Zemnoy abzats:
-Eto «master vklyucheniya»: srazu podskazyvaet «kakie ruchki krutit» i kak «pomakhat rukoy» drugim kopiyam cherez Telegram.
+Eto “master vklyucheniya”: srazu podskazyvaet “kakie ruchki krutit” i kak “pomakhat rukoy” drugim kopiyam cherez Telegram.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

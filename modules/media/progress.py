@@ -1,8 +1,7 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.media.progress — faylovyy agregator sobytiy (atomarno).
+"""modules.media.progress - faylovyy agregator sobytiy (atomarno).
 Mosty:
 - Yavnyy: record_event()/summary() — tsentralizovannyy uchet obrabotki.
 - Skrytyy #1: (DX ↔ Nadezhnost) — atomarnaya zapis JSON; zhurnal ogranichen N sobytiyami.
@@ -10,8 +9,7 @@ Mosty:
 
 Zemnoy abzats:
 Eto kak zhurnal nablyudeniy: kto, chto i kogda obrabotal. Deshevo i serdito, no dostatochno dlya kontrolya potoka.
-# c=a+b
-"""
+# c=a+b"""
 import os, json, time, tempfile
 from pathlib import Path
 from typing import Dict, Any, List

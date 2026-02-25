@@ -6,13 +6,13 @@ def test_share_capture_single_and_batch(client):
         "/share/capture",
         json={
             "url": "https://example.com/test",
-            "title": "Testovaya stranitsa",
-            "text": "Privet, eto vazhnyy fragment.",
+            "title": "Test page",
+            "text": "Hello, this is an important piece.",
             "tags": ["notes", "web"],
             "note": "unit",
         },
     )
-    assert r.status_code in (200, 404)  # dopuskaem, chto routy ne podklyucheny
+    assert r.status_code in (200, 404)  # we assume that the routes are not connected
     if r.status_code != 200:
         return
     j = r.get_json()

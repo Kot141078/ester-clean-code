@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/portfolio/builder.py — statichnoe portfolio: sobiraem kartochki iz Garage/Media/Invoices i renderim HTML.
+"""modules/portfolio/builder.py - statichnoe portfolio: sobiraem kartochki iz Garage/Media/Invoices i renderim HTML.
 
 Mosty:
-- Yavnyy: (Garage/Media/Invoices ↔ Vitrina) vse, chto Ester delaet, prevraschaetsya v stranitsu «chto ya umeyu».
+- Yavnyy: (Garage/Media/Invoices ↔ Vitrina) vse, chto Ester delaet, prevraschaetsya v stranitsu “chto ya umeyu.”
 - Skrytyy #1: (Profile ↔ Prozrachnost) sborka fiksiruetsya i legko vosproizvoditsya.
 - Skrytyy #2: (RAG ↔ Poisk) tot zhe HTML mozhno zataschit v RAG kak referens.
 
 Zemnoy abzats:
-Kak vitrina v masterskoy: proekty, roliki i scheta — v akkuratnykh kartochkakh, chtoby otpravit ssylku ili raspechatat.
+Kak vitrina v masterskoy: proekty, roliki i scheta - v akkuratnykh kartochkakh, chtoby otpravit ssylku or raspechatat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, glob, html
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

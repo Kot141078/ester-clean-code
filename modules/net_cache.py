@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-modules/net_cache.py - Short-term memory for network requests.
-Reduces noise and saves credits.
-"""
+"""modules/net_cache.py - Short-term memory for network requests.
+Reduces noise and saves credits."""
 import json
 import os
 import hashlib

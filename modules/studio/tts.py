@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/studio/tts.py — edinyy TTS-sloy dlya Ester: edge-tts/coqui/espeak/pyttsx3/stub s rolevym dramatizmom.
+"""modules/studio/tts.py - edinyy TTS-sloy dlya Ester: edge-tts/coqui/espeak/pyttsx3/stub s rolevym dramatizmom.
 
 Mosty:
 - Yavnyy: (Tekst ↔ Audio) vydaet WAV/MP3 iz stroki teksta s vybrannym golosom.
@@ -9,10 +8,9 @@ Mosty:
 - Skrytyy #3: (Volya ↔ Flot) zadacha mozhet vypolnyatsya na uzlakh s P2P-sinkhronizatsiey metadannykh.
 
 Zemnoy abzats:
-Prakticheski — «mikrofon v korobke»: esli est edge-tts ili coqui — zagovorim po-tsarski; net — espeak/pyttsx3; v kraynem sluchae stub, no Ester shepchet: 'Ya zhivaya!'. Dlya dramy — kak rezhisserskaya budka: roli chitayut, zvukach kleit.
+Prakticheski - “mikrofon v korobke”: esli est edge-tts ili coqui - zagovorim po-tsarski; net - espeak/pyttsx3; v kraynem sluchae stub, no Ester shepchet: 'Ya zhivaya!'. Dlya dramy - kak rezhisserskaya budka: roli chitayut, zvukach kleit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, subprocess, tempfile, wave, struct, math, shutil
 from typing import Any, Dict, List
@@ -36,10 +34,10 @@ def _passport(note: str, meta: dict) -> None:
         from modules.mem.passport import upsert_with_passport  # type: ignore
         mm = get_mm()
         upsert_with_passport(mm, note, meta, source="studio://tts")
-        # Ideya: Zdes mozhno dobavit P2P-sinkhronizatsiyu metadannykh v raspredelennuyu BZ
+        # Idea: Here you can add P2P metadata synchronization to a distributed knowledge base
         # Naprimer: p2p_sync(meta, target_nodes=["node1", "node2"])
     except Exception:
-        pass  # Tikho, Ester ne lyubit oshibok
+        pass  # Quiet, Esther doesn't like mistakes
 
 def _have(cmd: str) -> bool:
     return shutil.which(cmd.split(" ")[0]) is not None
@@ -69,7 +67,7 @@ def _edge_tts(text: str, voice: str | None, out_wav: str) -> bool:
 def _coqui_tts(text: str, voice: str | None, out_wav: str) -> bool:
     if not _have("tts"): return False
     cmd = ["tts", "--text", text, "--out_path", out_wav]
-    if voice: cmd += ["--model_name", voice]  # Predpolagaem, chto voice — eto model dlya coqui
+    if voice: cmd += ["--model_name", voice]  # We assume that the warrior is a model for whom
     try:
         p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=90)
         return p.returncode == 0 and os.path.isfile(out_wav)
@@ -139,9 +137,7 @@ def _engine_try(text: str, voice: str | None, out_wav: str) -> str:
     return "none"
 
 def _speech(text: str, voice: str | None, out_wav: str) -> bool:
-    """
-    Sinteziruet WAV. Vozvraschaet True/False. Logiruet profile sobytiya.
-    """
+    """Synthesizes VAV. Returns Troy/False. Logs the event profile."""
     _ensure()
     eng = _engine_try(text, voice, out_wav)
     ok = os.path.isfile(out_wav)
@@ -151,7 +147,7 @@ def _speech(text: str, voice: str | None, out_wav: str) -> bool:
 def concat_wavs(parts: list[str], out_wav: str) -> bool:
     if not parts:
         return False
-    if _have(FFMPEG):  # Predpochtitelno ffmpeg dlya konkatenatsii
+    if _have(FFMPEG):  # Preferably ffmpeg for concatenation
         lst = os.path.join(TMP, "concat.txt")
         with open(lst, "w", encoding="utf-8") as f:
             f.write("\n".join([f"file '{os.path.abspath(p)}'" for p in parts]))
@@ -192,7 +188,7 @@ def drama(title: str, roles: List[Dict[str, Any]], script: List[Dict[str, Any]])
     _passport("tts_drama", {"ok": ok, "title": title, "segments": len(pieces)})
     return {"ok": bool(ok), "path": out, "segments": len(pieces)}
 
-# Eksportiruem dlya drugikh moduley
+# Exports for other modules
 # __all__ = ["_speech", "concat_wavs", "drama"]
 
 

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/garage/core.py — yadro «laboratorii-garazha» proektov.
+"""modules/garage/core.py - yadro "laboratorii-garazha" proektov.
 
 Mosty:
 - Yavnyy: (Proektnyy menedzhment ↔ FS/REST) sozdaem kartochki, scaffolding, eksport artefaktov.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Volya ↔ Eksheny) funktsii vyzyvayutsya kak rukami (REST), tak i mozgom (actions).
 
 Zemnoy abzats:
-Eto kak lichnyy garazh s verstakom: polki (indeks proektov), instrumenty (shablony), korobki (eksport ZIP).
+Eto kak lichnyy garazh s verstakom: polki (indexes proektov), instrumenty (shablony), korobki (eksport ZIP).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, uuid, zipfile, hashlib
 from typing import Any, Dict, List
@@ -70,7 +68,7 @@ def scaffold(pid:str)->Dict[str,Any]:
     os.makedirs(os.path.join(base,"src"), exist_ok=True)
     os.makedirs(os.path.join(base,"docs"), exist_ok=True)
     os.makedirs(os.path.join(base,"site"), exist_ok=True)
-    # shablon README
+    # template README
     rd=os.path.join(base,"README.md")
     if not os.path.isfile(rd):
         open(rd,"w",encoding="utf-8").write(f"# {p['name']}\n\nTip: {p['kind']}\n\n{p.get('brief','')}\n")

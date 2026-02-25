@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-routes/usb_deploy.py - UI/REST dlya Zero-Click USB Deploy.
+"""routes/usb_deploy.py - UI/REST dlya Zero-Click USB Deploy.
 
-Marshruty:
-  • GET  /admin/usb/deploy            - HTML
-  • GET  /admin/usb/deploy/status     - {env, settings, stamps, targets, last_log_head}
-  • POST /admin/usb/deploy/scan       - scan_and_apply_all() (AB soblyudaetsya)
-  • POST /admin/usb/deploy/plan       - plan_deploy(mount)
-  • POST /admin/usb/deploy/apply      - apply_deploy(mount)
+Route:
+  • GET /admin/usb/deploy - HTML
+  • GET /admin/usb/deploy/status - {env, settings, stamps, targets, last_log_head}
+  • POST /admin/usb/deploy/scan - scan_and_apply_all() (AB soblyudaetsya)
+  • POST /admin/usb/deploy/plan - plan_deploy(mount)
+  • POST /admin/usb/deploy/apply - apply_deploy(mount)
 
 Mosty:
 - Yavnyy (Nablyudaemost ↔ Ekspluatatsiya): odin ekran dlya kontrolya zero-click deploya.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): shtampy/logi vidny; AB-rezhim otrazhen.
-- Skrytyy 2 (Praktika ↔ Sovmestimost): bez vmeshatelstva v yadro; tolko instrumenty deploya.
+- Skrytyy 2 (Praktika ↔ Sovmestimost): bez vmeshatelstva v yadro; only instrument deployment.
 
 Zemnoy abzats:
-Zdes vidno, chto budet sdelano pri vstavke fleshki, i mozhno vruchnuyu «pnula» skan ili primenit deploy s vybrannogo toma.
+Zdes vidno, chto budet sdelano pri vstavke fleshki, i mozhno vruchnuyu “pnula” skan or primenit deploy s vybrannogo toma.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json, os

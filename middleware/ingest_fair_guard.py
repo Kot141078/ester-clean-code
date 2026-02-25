@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-middleware/ingest_fair_guard.py — before_request-okhrannik dlya ogranicheniy ingest.
+"""middleware/ingest_fair_guard.py - before_request-okhrannik dlya ogranicheniy ingest.
 
 Mosty:
 - Yavnyy: (Marshruty ↔ Ogranichenie) perekhvatyvaet /ingest/submit, primenyaet token-bucket.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Gibkost ↔ Istochnik) istochnik berem iz X-Source ili IP.
 
 Zemnoy abzats:
-Zdes «shveytsar»: puskaet ne vsekh i ne srazu, chtoby zal ne zakhlebnulsya.
+Zdes “shveytsar”: puskaet ne vsekh i ne srazu, chtoby zal ne zakhlebnulsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, request, jsonify
 import os

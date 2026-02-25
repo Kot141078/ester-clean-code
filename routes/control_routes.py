@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/control_routes.py - «pauza/SOS» i status.
+"""routes/control_routes.py - “pauza/SOS” i status.
 
 Ruchki:
-  GET  /control/status           -> {ok, paused}
-  POST /control/pause            -> {ok, paused:true}
-  POST /control/resume           -> {ok, paused:false}
+  GET /control/status -> {ok, paused}
+  POST /control/pause -> {ok, paused:true}
+  POST /control/resume -> {ok, paused:false}
 
-Integratsiya: v kode marshrutov deystviy pered vypolneniem proveryayte control_state.get_paused()
+Integratsiya: v code marshrutov deystviy pered vypolneniem proveryayte control_state.get_paused()
 i pri True vozvraschayte 423 Locked + {error:"paused"}.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.ops.control_state import get_paused, set_paused

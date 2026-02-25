@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/healthz_routes.py - prostoy health-zond uzla.
+"""routes/healthz_routes.py - prostoy health-zond uzla.
 
 Mosty:
 - Yavnyy: (Monitoring ↔ Uzel) daet bazovuyu proverku zhizni HTTP-steka.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Planirovschik ↔ Nablyudenie) mozhet dergatsya kronom.
 
 Zemnoy abzats:
-Kak «puls» u patsienta - bystryy otvet OK govorit, chto servis dyshit i gotov prinimat komandy.
+Kak “puls” u patsienta - bystryy otvet OK govorit, chto servis dyshit i gotov prinimat komandy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -23,6 +21,6 @@ def register(app):
 
 @bp.route("/healthz", methods=["GET"])
 def api_healthz():
-    # Mozhno rasshiryat (proverki zavisimostey, diska, pamyati)
+    # Extensible (dependency, disk, memory checks)
     return jsonify({"ok": True, "uptime_probe": "healthy"})
 # c=a+b

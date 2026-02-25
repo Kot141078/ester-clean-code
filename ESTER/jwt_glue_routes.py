@@ -39,5 +39,5 @@ def glue_mint():
 def glue_verify():
     return jsonify(ok=True, claims=get_jwt())
 
-def init_app(app):  # na sluchay, esli avtozagruzchik trebuet fabriku
+def init_app(app):  # in case the autoloader requires a factory
     app.register_blueprint(bp)

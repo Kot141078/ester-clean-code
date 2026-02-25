@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_sign_routes.py - REST: podpis i proverka snapshotov.
+"""routes/self_sign_routes.py - REST: podpis i proverka snapshotov.
 
 Mosty:
 - Yavnyy: (Veb ↔ Podpisi) prostye ruchki podpisat/proverit arkhiv.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Vyzhivanie ↔ Samodeploy) v svyazke s invite - bezopasnyy approve.
 
 Zemnoy abzats:
-Knopki «podpisat» i «proverit» arkhiv - dlya bystroy uverennosti pered razvertyvaniem.
+Knopki “podpisat” i “proverit” arkhiv - dlya bystroy uverennosti pered razvertyvaniem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,5 +1,5 @@
-# R4/scripts/r4_smoke.ps1 — obertka smouka R4 dlya Windows PowerShell
-# Mosty: (Yavnyy) Enderton — predikaty; (Skrytyy #1) Ashbi — ustoychivost; (Skrytyy #2) Cover&Thomas — informativnyy minimum.
+# RF/scripts/RF_stoke.ps1 - RF smoke wrapper for Windows PowerShell
+# Bridges: (Explicit) Enderton - predicates; (Hidden #1) Ashby - resilience; (Hidden #2) Carpet & Thomas - minimal information.
 # Zemnoy abzats: bezopasnyy progon B-slota s avtokatbekom.
 # c=a+b
 

@@ -1,6 +1,6 @@
-# Skhema: peredat outline/kontekst v LLM i poluchit chernovik otcheta.
+# Scheme: transfer utlina/context to LLM and receive a draft report.
 # Mosty:
-# - Yavnyy: (LLM/Plan ↔ UX) — zapuskaetsya temi zhe ruchkami /thinking/cascade/execute (sovmestimo s admin_cascade.js).
+# - Yavnyy: (LLM/Plan ↔ UX) - zapuskaetsya temi zhe ruchkami /thinking/cascade/execute (sovmestimo sadmin_cascade.js).
 # - Skrytyy #1: (Memory ↔ Plan) — fiksiruem start v profilee.
 # - Skrytyy #2: (Plan ↔ Eksport) — rezultat prigoden dlya skleyki v Markdown/HTML bez izmeneniya API.
 

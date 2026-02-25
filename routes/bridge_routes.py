@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-routes/bridge_routes.py - REST/UI dlya Personal↔Global Bridge.
+"""routes/bridge_routes.py - REST/UI dlya Personal↔Global Bridge.
 
 MOSTY:
 - Yavnyy: (UI ↔ Bridge) /bridge/query - edinaya tochka poiska po pamyati i globali.
-- Skrytyy #1: (Memory ↔ KG) esli est modules.memory.layers.search - dobavlyaem semantiku.
-- Skrytyy #2: (Nadezhnost ↔ Follbek) pri otsutstvii pamyati vozvraschaem pustoy, no validnyy otvet.
+- Skrytyy #1: (Memory ↔ KG) esli est modules.memory.layers.search - addvlyaem semantiku.
+- Skrytyy #2: (Nadezhnost ↔ Follbek) pri otsutstvii pamyati vozvraschaem empty, no validnyy otvet.
 
 ZEMNOY ABZATs:
-Odno pole - tri korziny istochnikov. Nikakikh padeniy na importe, nikakikh slozheniy None.
-Zapros bezopasen dazhe bez BD/indeksa.
+One pole - three korziny istochnikov. Nikakikh padeniy na importe, nikakikh slozheniy None.
+Request bezopasen dazhe bez BD/index.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -32,7 +30,7 @@ def _search_memory(q: str, topk: int) -> List[Dict[str, Any]]:
     try:
         from modules.memory.layers import search  # type: ignore
         items = search(q, top_k=topk) or []
-        # Normalizatsiya k obschemu vidu
+        # Normalization to General View
         out = []
         for it in items:
             out.append({
@@ -46,7 +44,7 @@ def _search_memory(q: str, topk: int) -> List[Dict[str, Any]]:
         return []
 
 def _search_global(q: str, topk: int) -> List[Dict[str, Any]]:
-    # Mesto dlya rasshireniy (vneshniy poisk/internet otklyuchen - follbek pustoy).
+    # Place for extensions (external search/Internet disabled - fullback empty).
     return []
 
 @bp.post("/query")
@@ -66,8 +64,7 @@ def admin():
     try:
         return render_template("admin_bridge.html")
     except Exception:
-        return render_template_string("""
-<!doctype html><html lang="ru"><meta charset="utf-8">
+        return render_template_string("""<!doctype html><html lang="en"><meta charset="utf-8">
 <title>Bridge - Ester</title>
 <style>
 body{font:14px/1.4 system-ui,Segoe UI,Roboto,Arial,sans-serif;margin:24px}
@@ -82,7 +79,7 @@ pre{background:#fafafa;border:1px solid #eee;border-radius:8px;padding:12px;whit
     <input id="q" placeholder="vvedite zapros" style="flex:1">
     <button onclick="go()">Nayti</button>
   </div>
-  <pre id="out">(poka pusto)</pre>
+  <pre id="out">(poka empty)</pre>
 </div>
 <script>
 async function go(){

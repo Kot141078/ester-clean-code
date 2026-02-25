@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-admin_compat.py — UI/API proverok sovmestimosti s dampom (ENV/routy) v odnom fayle.
+"""admin_compat.py - UI/API proverok sovmestimosti s dampom (ENV/routy) v odnom fayle.
 
-Marshruty:
-  • GET  /admin/compat                 — stranitsa (prostaya zaglushka, chtoby ne padat bez shablona)
-  • GET  /admin/compat/status          — bystryy otchet po USB-manifestu (esli est)
-  • POST /admin/compat/scan            — {manifest_text?} v†' polnyy otchet (env + routes)
+Route:
+  • GET /admin/compat - stranitsa (prostaya zaglushka, chtoby ne padat bez shablona)
+  • GET /admin/compat/status - bystryy otchet po USB-manifestu (esli est)
+  • POST /admin/compat/scan — {manifest_text?} v†' polnyy otchet (env + routes)
 
 Mosty:
-- Yavnyy (Gamp v†" Ekspluatatsiya): sveryaem ENV Re tablitsu routov s ozhidaemym manifestom — pokazyvaem, chego ne khvataet.
-- Skrytyy 1 (Infoteoriya v†" Praktika): schitaem dublikaty/konflikty routov, ubiraem «ugadayku».
+- Yavnyy (Gamp v†" Ekspluatatsiya): sveryaem ENV Re tablitsu routov s ozhidaemym manifestom - pokazyvaem, chego ne khvataet.
+- Skrytyy 1 (Infoteoriya v†" Praktika): schitaem dublikaty/konflikty routov, ubiraem "ugadayku".
 - Skrytyy 2 (Kibernetika v†" Arkhitektura): A/B-slot AB_MODE (A|B) dlya bezopasnykh pereklyucheniy, bez izmeneniya koda.
 
 Zemnoy abzats (anatomiya/inzheneriya):
-Eto «priemka na konveyere»: bystroe PSM-obsledovanie pered vydachey «ustroystva» polzovatelyu —
-proveryaem, chto «nervy i sosudy» (ENV i tablitsa marshrutov) podsoedineny i ne perezhaty.
+Eto “priemka na konveyere”: bystroe PSM-obsledovanie pered vydachey “ustroystva” polzovatelyu —
+proveryaem, chto “nervy i sosudy” (ENV i tablitsa marshrutov) podsoedineny i ne perezhaty.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -37,18 +35,16 @@ if AB not in {"A", "B"}:
 bp = Blueprint("admin_compat", __name__)
 
 # =============================================================================
-# Fallback-realizatsiya manifest_check (na sluchay otsutstviya modules.compat.*)
-# Sokhranyaem drop-in sovmestimost: esli modul est — ispolzuem ego.
+# Falbatsk-implementation of manifest_chesk (in case of absence of modules.comp.*)
+# We maintain drop-in compatibility: if there is a module, we use it.
 # =============================================================================
 def _fallback_load_manifest_from_usb() -> Optional[Dict[str, Any]]:
-    """
-    Ischem JSON-manifest na semnom nositele/ryadom s proektom.
+    """Ischem JSON-manifest na semnom nositele/ryadom s proektom.
     Puti po prioritetu:
       1) ENV USB_MANIFEST_PATH
       2) ./usb-manifest.json
       3) /mnt/usb/ester-manifest.json
-      4) /media/usb/ester-manifest.json
-    """
+      4) /media/usb/ester-manifest.json"""
     candidates = [
         os.getenv("USB_MANIFEST_PATH"),
         os.path.abspath("./usb-manifest.json"),
@@ -63,7 +59,7 @@ def _fallback_load_manifest_from_usb() -> Optional[Dict[str, Any]]:
                 with open(p, "r", encoding="utf-8") as f:
                     return json.load(f)
         except Exception:
-            # Tikho padaem: eto «bystryy status», ne dolzhen lomat adminku
+            # Crashes quietly: this is a “quick status”, should not break the admin panel
             continue
     return None
 
@@ -77,12 +73,10 @@ def _fallback_load_manifest_from_text(text: str) -> Optional[Dict[str, Any]]:
         return None
 
 def _collect_routes() -> Dict[str, Any]:
-    """
-    Sobiraem svedeniya o marshrutakh iz current_app.url_map.
-    Bozvraschaem strukturu s dublikatami Re konfliktami.
-    """
+    """We collect information about routes from current_app.url_map.
+    Returns a structure with duplicate Re conflicts."""
     try:
-        # Importiruem lenivo, chtoby modul ostavalsya importiruemym vne konteksta Flask
+        # We import lazily so that the module remains importable outside the Flask context
         from flask import current_app  # type: ignore
 
         url_map = getattr(current_app, "url_map", None)
@@ -118,9 +112,7 @@ def _collect_routes() -> Dict[str, Any]:
         return {"available": False, "reason": f"{type(e).__name__}: {e}"}
 
 def _required_env_keys() -> List[str]:
-    """
-    Bazovyy chek-list ENV: mozhno rasshiryat bez lomki API.
-    """
+    """Basic ENV checklist: can be expanded without breaking the API."""
     return [
         "HOST",
         "PORT",
@@ -150,11 +142,9 @@ def _env_report(require: Optional[Iterable[str]] = None) -> Dict[str, Any]:
     }
 
 def _build_report_fallback(manifest: Optional[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Universalnyy otchet (rabotaet bez vneshnikh zavisimostey).
+    """Universalnyy otchet (rabotaet bez vneshnikh zavisimostey).
     Esli manifest est Re v nem ukazan ozhidaemyy ENV/routy — ispolzuem,
-    inache vypolnyaem bazovye proverki.
-    """
+    inache vypolnyaem bazovye proverki."""
     env_expected = None
     manifest_routes_expected = None
 
@@ -175,7 +165,7 @@ def _build_report_fallback(manifest: Optional[Dict[str, Any]]) -> Dict[str, Any]
         routes_part["extra"] = routes_extra
         routes_part["ok"] = len(routes_missing) == 0
     else:
-        # Esli ozhidaniy net — ok schitaem po bazovoy evristike (net konfliktov/dublikatov)
+        # If there is no expectation, we consider it ok using basic heuristics (no conflicts/duplicates)
         if routes_part.get("available"):
             dups = routes_part.get("duplicate_rules") or []
             confs = routes_part.get("endpoint_conflicts") or {}
@@ -191,7 +181,7 @@ def _build_report_fallback(manifest: Optional[Dict[str, Any]]) -> Dict[str, Any]
         "manifest_hint": bool(manifest),
     }
 
-# Pytaemsya podklyuchit «rodnoy» modul, esli on est
+# We are trying to connect the “native” module, if there is one
 try:
     from modules.compat.manifest_check import (  # type: ignore
         load_manifest_from_usb as _ext_load_manifest_from_usb,
@@ -206,10 +196,10 @@ try:
         return _ext_load_manifest_from_text(text)
 
     def build_report(manifest: Optional[Dict[str, Any]]) -> Dict[str, Any]:
-        # Oborachivaem na sluchay isklyucheniy: sistema dolzhna zhit
+        # Wrapping it up in case of exceptions: the system must live
         try:
             rep = _ext_build_report(manifest)
-            # Darantiruem nalichie poley ab/ts
+            # We guarantee the availability of ab/ts fields
             rep = dict(rep or {})
             rep.setdefault("ab", AB)
             rep.setdefault("ts", time.strftime("%Y-%m-%d %H:%M:%S"))
@@ -218,7 +208,7 @@ try:
             return _build_report_fallback(manifest)
 
 except Exception:
-    # Net vneshnego modulya — rabotaem lokalno
+    # No external module - works locally
     load_manifest_from_usb = _fallback_load_manifest_from_usb
     load_manifest_from_text = _fallback_load_manifest_from_text
     build_report = _build_report_fallback
@@ -228,11 +218,10 @@ except Exception:
 # =============================================================================
 @bp.get("/admin/compat")
 def page():
-    # Gelaem prostuyu vstroennuyu stranitsu, chtoby ne trebovat shablon
-    html = """
-    <!doctype html>
+    # We want a simple built-in page so as not to require a template
+    html = """<!doctype html>
     <meta charset="utf-8" />
-    <title>Ester — Admin Compat</title>
+    <title>Ester – Admin Compat</title>
     <style>
       body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;margin:24px}
       code,pre{background:#f6f8fa;border-radius:8px;padding:2px 6px}
@@ -241,8 +230,7 @@ def page():
       .bad{color:#7f1d1d;border-color:#fecaca;background:#fef2f2}
     </style>
     <h1>Admin Compat <span class="pill">{ab}</span></h1>
-    <p>Proverka sovmestimosti ENV/routov. Ispolzuyte <code>GET /admin/compat/status</code> ili <code>POST /admin/compat/scan</code>.</p>
-    """.format(
+    <p>Proverka sovmestimosti ENV/routov. Ispolzuyte <code>GET /admin/compat/status</code> or <code>POST /admin/compat/scan</code>.</p>""".format(
         ab=AB
     )
     return render_template_string(html)
@@ -269,7 +257,7 @@ def scan():
     return jsonify({"ok": True, "ab": AB, "report": rep, "source": "text" if text else "usb_or_none"})
 
 # =============================================================================
-# R egistratsiya v prilozhenii
+# Registration in the application
 # =============================================================================
 def register_admin_compat(app, url_prefix: Optional[str] = None) -> None:
     """

@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-judge_combiner.py — modul finalnogo sinteza otvetov.
+"""judge_combiner.py - modul finalnogo sinteza otvetov.
 Podderzhivaet tri rezhima:
 - local: tolko lokalnye otvety (vybor luchshego po evristike soglasovannosti)
-- cloud: lokalnye otvety slivayutsya «sudey» (oblachnaya LLM)
-- judge: yavnyy vybor sudi (oblachnyy ili setevoy agent)
+- cloud: lokalnye otvety slivayutsya “sudey” (oblachnaya LLM)
+- judge: yavnyy vybor sudi (oblachnyy or setevoy agent)
 
 Sovmestimo s imeyuschimsya reestrom provayderov (providers.ProviderRegistry).
-Bez zaglushek: logika realno rabotaet pri nalichii provayderov.
-"""
+Bez zaglushek: logika realno rabotaet pri nalichii provayderov."""
 from __future__ import annotations
 
 import statistics
@@ -17,16 +15,15 @@ from typing import Any, Dict, List, Optional, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 MERGE_SYSTEM_PROMPT = (
-    "Ty — strogiy moderator-redaktor. Tebe peredan iskhodnyy zapros polzovatelya i neskolko otvetov ot raznykh modeley. "
-    "Tvoya zadacha: 1) vyyavit obschee, 2) podcherknut raskhozhdeniya, 3) sintezirovat itogovyy, maksimalno tochnyy i kratkiy otvet. "
-    "Ne povtoryay vse doslovno — vyday edinyy otvet. Esli fakty raskhodyatsya, ukazhi neopredelennosti i predlozhi shagi proverki."
+    "You are a strict moderator-editor. You received the user's initial request and several responses from different models."
+    "Your task: 1) identify commonalities, 2) highlight differences, 3) synthesize a final, most accurate and concise answer."
+    "Don't repeat everything verbatim - give a single answer. If the facts differ, identify uncertainties and suggest verification steps."
 )
 
 
 def _score_answer(ans: str) -> float:
-    """Prostaya evristika kachestva otveta dlya vybora luchshego lokalnogo varianta.
-    Kombiniruem dlinu (v razumnykh predelakh) i strukturirovannost (kol-vo punktov, zagolovkov).
-    """
+    """Simple evristika kachestva otveta dlya vybora luchshego lokalnogo varianta.
+    Kombiniruem dlinu (v razumnykh predelakh) i strukturirovannost (kol-vo punktov, zagolovkov)."""
     if not ans:
         return 0.0
     length = min(len(ans), 4000) / 4000.0
@@ -57,7 +54,7 @@ def _format_merge_messages(prompt: str, answers: List[str]) -> List[Dict[str, st
     messages.append(
         {
             "role": "user",
-            "content": f"Iskhodnyy zapros polzovatelya:\n{prompt.strip()}".strip(),
+            "content": f"Original user request:\nZZF0Z".strip(),
         }
     )
     for i, a in enumerate(answers, 1):
@@ -65,7 +62,7 @@ def _format_merge_messages(prompt: str, answers: List[str]) -> List[Dict[str, st
     messages.append(
         {
             "role": "user",
-            "content": "Sinteziruy odin itogovyy otvet kak opytnyy redaktor.",
+            "content": "Synthesize one final answer like an experienced editor.",
         }
     )
     return messages
@@ -81,9 +78,8 @@ def combine_answers(
     temperature: float = 0.3,
     max_tokens: int = 1200,
 ) -> Dict[str, Any]:
-    """Glavnaya funktsiya sinteza.
-    Vozvraschaet dict: { 'final', 'mode', 'merge_meta', 'used_judge', 'used_candidates' }
-    """
+    """The main function of synthesis.
+    Returns dist: ZZF0Z"""
     t0 = time.time()
     if mode == "local" or not registry:
         final, meta = pick_best_local(local_answers)
@@ -104,7 +100,7 @@ def combine_answers(
 
     messages = _format_merge_messages(prompt, local_answers)
     
-    # Vyzov cherez registry (predpolagaetsya nalichie metoda chat)
+    # Call via registers (assumes chat method)
     merged = registry.chat(
         messages=messages,
         provider_name=judge_name,

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/quarantine/scanners.py — prostye staticheskie skanery: signatury riskovannykh vyzovov, tipizatsiya, skoring.
+"""modules/quarantine/scanners.py - prostye staticheskie scanery: signatury riskovannykh vyzovov, tipizatsiya, skoring.
 
 Mosty:
 - Yavnyy: (Inzheneriya ↔ Bezopasnost) tekstovye Heuristics dlya Python/JS/HTML/shablonov.
 - Skrytyy #1: (Infoteoriya ↔ Audit) vydaem obyasnimyy otchet s popadaniyami.
-- Skrytyy #2: (Kibernetika ↔ Kontrol) nizkiy risk mozhno vypuskat v staging, vysokiy — tolko posle revyu.
+- Skrytyy #2: (Kibernetika ↔ Kontrol) nizkiy risk mozhno vypuskat v staging, vysokiy — only after revyu.
 
 Zemnoy abzats:
 Kak antivirus na minimalkakh: ischem opasnye instruktsii, schitaem risk, daem cheloveku ponyat, chto vnutri.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict, List, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

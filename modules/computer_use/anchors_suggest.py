@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules.computer_use.anchors_suggest — eksport «teplovoy karty» i podskazok yakorey.
+"""modules.computer_use.anchors_suggest - eksport "teplovoy karty" i podskazok yakorey.
 
 MOSTY:
 - Yavnyy: (Anchors Export API) export(domain, window, top, prefix) ← routes/computer_use_heatmap_export.py.
-- Skrytyy #1: (Faylovaya sistema ↔ Veb-statik) — eksport sozdaet fayl pod data/ i daet URL /data/…
+- Skrytyy #1: (Faylovaya sistema ↔ Web-statik) — eksport sozdaet fayl pod data/ i daet URL /data/…
 - Skrytyy #2: (Diagnostika ↔ UI) — vmeste s yakoryami vsegda vozvraschaem heatmap.url dlya predprosmotra.
 
 ZEMNOY ABZATs:
-Funktsiya export(...) — eto «printer yarlykov»: ona garantirovanno sozdaet PNG s teplovoy kartoy
+Funktsiya export(...) - eto “printer yarlykov”: ona garantirovanno sozdaet PNG s teplovoy kartoy
 (minimalnyy 1x1), i formiruet spisok kandidatov-yakorey po zadannomu domenu. Nikakikh setevykh
-zavisimostey — vse lokalno i krossplatformenno.
-# c=a+b
-"""
+zavisimostey - vse lokalno i krossplatformenno.
+# c=a+b"""
 from __future__ import annotations
 import os
 from typing import List, Dict
@@ -32,7 +30,7 @@ def _to_url(path: str) -> str:
     return "/data/" + rel
 
 def export_heatmap(points: List[Dict] | None = None) -> Dict[str, str]:
-    """Sozdaet minimalnyy PNG, chtoby frontend mog ego otdat."""
+    """Creates a minimal PNG so that the frontend can serve it."""
     _ensure_dirs()
     # Minimalnyy validnyy PNG 1x1 (chernyy piksel)
     PNG_1x1 = (b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01"
@@ -43,7 +41,7 @@ def export_heatmap(points: List[Dict] | None = None) -> Dict[str, str]:
     return {"ok": True, "path": OUT_PATH, "url": _to_url(OUT_PATH)}
 
 def suggest_anchors(text: str, limit: int = 16) -> Dict[str, list]:
-    """Prosteyshie «yakorya» — pervye unikalnye slova, prigodnye dlya UI."""
+    """The simplest “anchors” are the first unique words suitable for UI."""
     import re
     words = [w for w in re.findall(r"[A-Za-zA-Yaa-ya0-9_]{3,}", text or "")]
     seen, anchors = set(), []
@@ -57,7 +55,7 @@ def suggest_anchors(text: str, limit: int = 16) -> Dict[str, list]:
     return {"ok": True, "anchors": anchors}
 
 def _default_candidates(domain: str) -> List[str]:
-    # Chastye navigatsionnye tochki dlya lyubogo veb-prilozheniya
+    # Frequent navigation points for any web application
     base = ["home","login","dashboard","settings","profile","search","help","about","contact"]
     # Takzhe dobavim tokeny iz domena
     tokens = [p for p in domain.replace("-", " ").replace(".", " ").split() if p]
@@ -69,18 +67,17 @@ def export(domain: str, *, window: str = "30d", top: int = 20, prefix: str = "au
     Nikakikh vneshnikh zavisimostey; garantiruet suschestvovanie PNG i vozvraschaet URL.
 
     Vozvraschaemaya struktura:
-      { ok, domain, window, top, prefix, heatmap:{path,url}, suggestions:[{id,label,score}] }
-    """
+      { ok, domain, window, top, prefix, heatmap:{path,url}, suggestions:[{id,label,score}] }"""
     domain = (domain or "").strip().lower()
     if not domain:
         return {"ok": False, "error": "domain required"}
 
-    # 1) Eksportiruem (ili obnovlyaem) fayl teplovoy karty
+    # 1) Exports (or updates) a heat map file
     hm = export_heatmap(points=None)
 
-    # 2) Sostavlyaem kandidatov (prostaya evristika bez dostupa k realnym logam)
+    # 2) Compiling candidates (simple heuristics without access to real logs)
     raw = _default_candidates(domain)
-    # Podgotovim elementy s id i «kvazi-otsenkoy» po pozitsii
+    # Let’s prepare elements with ID and “quasi-evaluation” by position
     items = []
     for i, name in enumerate(raw[: max(1, int(top))]):
         aid = f"{prefix}:{domain}:{name}" if prefix else f"{domain}:{name}"

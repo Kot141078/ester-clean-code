@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Sverka RBAC-matritsy s realnymi marshrutami Flask.
-Feylim (exit 2), esli zaschischennye marshruty ne pomecheny @jwt_required ili ne sovpadayut roli.
-"""
+"""Verification of the RVACH matrix with real Flask routes.
+Faile (exit 2) if the protected routes are not marked @zhvt_reguired or the roles do not match."""
 from __future__ import annotations
 
 import inspect

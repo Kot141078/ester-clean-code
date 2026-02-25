@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Self-check dlya Iteratsii H (CRDT + Merkle + CAS + P2P).
-Zapusk:
-  python -m tools.do_h_iteration_check
-Vyvodit JSON s rezultatami i summarnym statusom.
-"""
+"""Self-chesk for Iteration X (MDG + Merkle + HOUR + P2P).
+Launch:
+  pothon -m tools.do_x_iteration_chesk
+Displays ZhSON with results and summary status."""
 from __future__ import annotations
 
 import json

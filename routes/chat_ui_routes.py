@@ -4,7 +4,7 @@ from __future__ import annotations
 from flask import Blueprint, render_template
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Otdelnaya stranitsa dlya chata s Ester: /chat/ui
+# Separate page for chat with Esther: /chat/oh
 chat_ui_bp = Blueprint("chat_ui", __name__)
 
 
@@ -19,10 +19,8 @@ def chat_ui_index_slash():
 
 
 def register_chat_ui(app, url_prefix: str | None = None) -> None:
-    """
-    Sovmestimyy s dampom registrator. Po umolchaniyu registriruet /chat/ui.
-    Esli peredan url_prefix — dobavit dubl po {url_prefix}/chat/ui.
-    """
+    """Dump compatible logger. By default it registers /chat/oi.
+    If url_prefix is ​​passed, add a duplicate for ZZF0Z/chat/oi."""
     if url_prefix:
         prefixed = Blueprint("chat_ui_prefixed", __name__, url_prefix=url_prefix)
 

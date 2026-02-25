@@ -44,4 +44,4 @@ def google_search(query):
                 results.append(f"[{typ}] {title}\n{snippet}\n{link}")
         return "\n\n".join(results)
     except Exception as e:
-        return f"Oshibka poiska: {e}"
+        return f"Search error: ZZF0Z"

@@ -60,7 +60,7 @@
 
 <section class="card">
   <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
-    <h3 style="margin:0">Try — otpravit zapros</h3>
+    <h3 style="margin:0">Three - send a request</h3>
     <span class="muted right">JWT beretsya iz <code>localStorage.jwt</code></span>
   </div>
   <div class="box">
@@ -74,7 +74,7 @@
       <div class="spacer"></div>
       <button class="btn" onclick="sendTry()">Otpravit</button>
     </div>
-    <textarea id="tBody" class="textarea" placeholder="Telo JSON (dlya ne-GET)…"></textarea>
+    <textarea id="tBody" class="textarea" placeholder="Body ZhSION (for non-GET)…"></textarea>
     <pre id="tOut" class="log box" style="height:240px;margin-top:8px"></pre>
   </div>
 </section>
@@ -112,7 +112,7 @@
       document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
       renderList();
     }catch(e){
-      document.getElementById('raw').textContent = 'Oshibka zagruzki spetsifikatsii: '+e;
+      document.getElementById('raw').textContent = 'Error loading specification:'+e;
       ROWS=[]; renderList();
     }
   }
@@ -186,7 +186,7 @@
       const ms=Math.round(performance.now()-t0);
       document.getElementById('tOut').textContent = `HTTP ${r.status} (${ms} ms)\n\n` + txt;
     }catch(e){
-      document.getElementById('tOut').textContent = 'Oshibka zaprosa: '+e;
+      document.getElementById('tOut').textContent = 'Request Error:'+e;
     }
   }
 

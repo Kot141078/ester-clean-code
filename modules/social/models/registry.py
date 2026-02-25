@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/studio/models/registry.py — reestr i selektor modeley media.
+"""modules/studio/models/registry.py - reestr i selector modeley media.
 
 Mosty:
 - Yavnyy: (Provaydery ↔ Orkestrator) edinyy spisok vozmozhnostey i vybor luchshego pod zadachu.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Flot ↔ Lokalnost) predpochitaet lokalnye provaydery pri ravnoy otsenke.
 
 Zemnoy abzats:
-Kak «rasporyaditel stseny»: znaet, kto iz artistov ryadom i skolko stoit, i stavit na rol podkhodyaschego.
+Kak “rasporyaditel stseny”: znaet, kto iz artistov ryadom i skolko stoit, i stavit na rol podkhodyaschego.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, shutil
 from typing import Any, Dict, List
@@ -25,7 +23,7 @@ def _load_cfg()->Dict[str,Any]:
     return json.load(open(CFG,"r",encoding="utf-8"))
 
 def _have_cmd(cmd: str)->bool:
-    # grubaya proverka nalichiya komandy
+    # rough check for command availability
     parts=cmd.split(" ",1)
     return bool(shutil.which(parts[0]))
 
@@ -46,9 +44,7 @@ def list_providers()->List[Dict[str,Any]]:
     return out
 
 def select(task: str, prefer_local: bool=True)->Dict[str,Any]:
-    """
-    Vozvraschaet luchshego dostupnogo provaydera po score.
-    """
+    """Returns the best available provider as quickly as possible."""
     cfg=_load_cfg()
     ws=cfg.get("weights",{"quality":0.6,"latency":0.2,"cost":0.2})
     best=None; best_score=-1e9

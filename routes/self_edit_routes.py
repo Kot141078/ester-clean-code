@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_edit_routes.py - REST/UI dlya bezopasnoy samoredaktury koda.
+"""routes/self_edit_routes.py - REST/UI dlya bezopasnoy samoredaktury koda.
 
 Mosty:
 - Yavnyy: (UI ↔ Self-Edit) - dry-run diffy i primenenie s avtokatbekom.
@@ -8,8 +7,7 @@ Mosty:
 - Skrytyy 2: (QA ↔ Dokumentatsiya) - log deystviy dostupen iz state i prigoden dlya audita.
 
 Zemnoy abzats:
-Okno «chto pomenyat» i knopka «primenit». Esli vse zelenoe - izmeneniya zapisyvayutsya; esli net - otkatyvaem.
-"""
+Okno “what pomenyat” i knopka “apply”. Esli vse zelenoe - izmeneniya zapisyvayutsya; esli net - otkatyvaem."""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request, render_template

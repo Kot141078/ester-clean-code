@@ -32,7 +32,7 @@ If an optional action does not exist in runtime, template becomes partially avai
 
 ## Earth paragraph
 
-Templates Pack — eto kak nabor proverennykh nasadok k dreli: ty ne vytachivaesh kazhdyy raz patron vruchnuyu.  
-No elektrichestvo (oracle/comm) po umolchaniyu otklyucheno: chtoby vklyuchit «set», nuzhno otkryt okno i zapisat prichinu — kak klyuch ot schitka.  
-Tak agentnyy «garazh» rastet, a Ester ne teryaet litso: Companion ostaetsya golosom, a agenty — rukami.
+Templates Pask is like a set of proven attachments for a drill: you don’t have to sharpen the chuck by hand every time.
+But electricity (oracle/comm) is turned off by default: to turn on the “network”, you need to open the window and write down the reason - like a key to a dashboard.
+This is how the agent “garage” grows, but Esther does not lose face: the Companion remains the voice, and the agents remain the hands.
 

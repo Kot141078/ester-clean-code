@@ -11,9 +11,7 @@ MAX_SESSION_TOKENS = 16000  # Limit konteksta
 SESSION_FILE = os.path.join("state", "active_session.json")
 
 class SessionGuardian:
-    """
-    Strazh sessiy Ester: monitoring byudzheta tokenov i umnaya summarizatsiya.
-    """
+    """Esther session guard: token budget monitoring and smart summarization."""
     def __init__(self, core=None):
         self.core = core
         self.session_id = f"sess_{int(time.time())}"
@@ -32,20 +30,20 @@ class SessionGuardian:
         if len(context) < 10:
             return ""
         to_summarize = context[1:-5]
-        summary = f"[Summatsiya: Ester obrabotala {len(to_summarize)} soobscheniy v fone]"
+        summary = f"yuSummation: Esther processed ZZF0Z messages in the background"
         return summary
 
     def protect(self, context_list: List[Dict]) -> List[Dict]:
         total_tokens = sum(self.estimate_tokens(m.get("content", "")) for m in context_list)
         
-        # Esli vlezaem v pamyat videokart — ne trogaem
+        # If it fits into the memory of video cards, don’t touch it
         if total_tokens < MAX_SESSION_TOKENS:
             return context_list
 
         logging.info(f"[Guardian] Perepolnenie ({total_tokens} > {MAX_SESSION_TOKENS}). Szhimayu...")
         
         system_msg = context_list[0] if context_list[0]["role"] == "system" else None
-        # Ostavlyaem tolko poslednie 10 replik
+        # We leave only the last 10 replicas
         fresh_context = context_list[-10:]
         
         if system_msg and system_msg not in fresh_context:
@@ -53,15 +51,15 @@ class SessionGuardian:
         return fresh_context
 
     def smoketest(self):
-        """Test: generiruem 'tyazhelyy' musor, chtoby probit limit v 16000 tokenov."""
-        # Generiruem ochen dlinnoe soobschenie (okolo 1000 tokenov kazhdoe)
+        """Test: generating heavy garbage to break the limit of 16,000 tokens."""
+        # Generates a very long message (about 1000 tokens each)
         heavy_msg = "test " * 1000 
-        # Sozdaem 50 takikh soobscheniy (50 * 1000 = 50 000 tokenov > 16 000)
+        # We create 50 such messages (50 * 1000 = 50,000 tokens > 16,000)
         test_data = [{"role": "user", "content": heavy_msg}] * 50
         
         result = self.protect(test_data)
         
-        # Esli szhatie srabotalo, ostanetsya okolo 10-11 soobscheniy
+        # If the compression worked, there will be about 10-11 messages left
         if len(result) <= 20:
-             return "OK: Szhatie rabotaet (Heavy Load Test Passed)."
-        return f"FAILED: Szhatie ne srabotalo, ostalos {len(result)} soobscheniy."
+             return "OK: Compression works (Heavy Load Test Passed)."
+        return f"FILED: Compression did not work, there are ZZF03 messages left."

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/social/kit.py — formirovanie upload-kit dlya platform (TikTok/YouTube/Patreon/Instagram).
+"""modules/social/kit.py - formirovanie upload-kit dlya platform (TikTok/YouTube/Patreon/Instagram).
 
 Mosty:
 - Yavnyy: (Kontent ↔ Publikatsiya) sobiraem papku s video/audio/thumbnail + metadata.json + chek-list + instruktsii.
@@ -9,10 +8,9 @@ Mosty:
 - Skrytyy #3: (Ekonomika ↔ Monetizatsiya) gotovye kity s kheshami uproschayut prodazhi/posting.
 
 Zemnoy abzats:
-Kak «sumka montazhera pered ploschadkoy»: vse slozheno i podpisano — video, subtitry, oblozhka, JSON metadannykh, kheshi dlya verifikatsii i gotovye podskazki, kuda zhat na sayte. Teper s list_kits dlya obzora — beri i zagruzhay, dazhe esli API nedostupny.
+How “sumka montazhera pered ploschadkoy”: vse slozheno i podpisano - video, subtitry, oblozhka, JSON metadannykh, kheshi dlya verifikatsii i gotovye podskazki, kuda zhat na sayte. Teper s list_kits dlya obzora - beri i zagruzhay, dazhe esli API nedostupny.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, glob, shutil, hashlib
 from typing import Any, Dict, List
@@ -65,7 +63,7 @@ def _mk_thumbnail(title: str, dst_dir: str) -> str:
         th = make_thumbnail(title, dst_dir)
         return th
     except Exception:
-        # Zapasnoy put: prostoy SVG
+        # Alternate route: simple SVG
         svg = os.path.join(dst_dir, "thumb.svg")
         tt = title.replace("&", "&amp;").replace("<", "&lt;")
         open(svg, "w", encoding="utf-8").write(
@@ -111,7 +109,7 @@ def build(platform: str, title: str, description: str, tags: List[str], assets: 
         if _srt_from_ass(copied["subs"], srt_path):
             copied["subs"] = srt_path
 
-    # Prevyu, esli ne predostavleno
+    # Preview if not provided
     if not copied.get("thumb"):
         thumb = _mk_thumbnail(title, kit_dir)
         copied["thumb"] = thumb
@@ -132,9 +130,9 @@ def build(platform: str, title: str, description: str, tags: List[str], assets: 
     checklist = [
         "Proverit prava na muzyku/kartinki",
         "Sverit khronometrazh i subtitry",
-        "Zapolnit konechnye zastavki/kartochki (YouTube)",
+        "Fill out end screens/cards (YouTube)",
         "Ukazat ssylku na Patreon/sayt",
-        "Vklyuchit monetizatsiyu (esli dostupna)"
+        "Enable monetization (if available)"
     ]
     open(os.path.join(kit_dir, "upload_checklist.md"), "w", encoding="utf-8").write("# Upload Checklist\n\n" + "\n".join([f"- [ ] {x}" for x in checklist]) + "\n")
 
@@ -143,10 +141,10 @@ def build(platform: str, title: str, description: str, tags: List[str], assets: 
     if "youtube" in platform:
         instr = [
             "Zaydite na https://studio.youtube.com → Sozdat → Zagruzit video.",
-            "Vyberite fayl video iz etogo kataloga.",
-            "Nazvanie/Opisanie — iz metadata.json. Tegi — cherez zapyatuyu.",
+            "Select a video file from this directory.",
+            "Title/Description - from metadata.zsion. Tags are separated by commas.",
             "Subtitry → Zagruzit fayl → SRT, esli prisutstvuet.",
-            "Miniatyura — vybrat thumb (esli est)."
+            "Thumbnail - select a thumbnail (if available)."
         ]
     elif platform == "tiktok":
         instr = [
@@ -158,13 +156,13 @@ def build(platform: str, title: str, description: str, tags: List[str], assets: 
         instr = [
             "Zaydite na https://www.patreon.com/creator-home → Create → Post.",
             "Tip posta — Video/File (po situatsii).",
-            "Zagolovok/tekst — iz metadata.json. Prilozhite video/audio, pri neobkhodimosti — SRT."
+            "Zagolovok/tekst - iz metadata.json. Prilozhite video/audio, pri neobkhodimosti - SRT."
         ]
     elif platform == "instagram_reels":
         instr = [
             "Otkroyte Instagram app → + → Reel.",
-            "Zagruzite video. Caption — iz metadata.json, dobavte tags kak #kheshtegi.",
-            "Dobavte subtitry vruchnuyu ili cherez app, esli SRT dostupen."
+            "Upload video. Caption - from metadata.zsion, add tags as #hashtags.",
+            "Add subtitles manually or via app if CPT is available."
         ]
     open(os.path.join(kit_dir, "upload_instructions.md"), "w", encoding="utf-8").write("# Upload Instructions\n\n- " + "\n- ".join(instr) + "\n")
 

@@ -3,7 +3,7 @@
 param(
   [string]$Model = "text-embedding-nomic-embed-text-v1.5",
   [int]$Dim = 768,
-  [switch]$WriteLocalEnv  # pri ukazanii sozdast/obnovit .env.local
+  [switch]$WriteLocalEnv  # when specified, create/update .env.local
 )
 
 function Die($msg){ Write-Error $msg; exit 1 }
@@ -12,13 +12,13 @@ function Die($msg){ Write-Error $msg; exit 1 }
 if (-not $env:OPENAI_API_BASE) { $env:OPENAI_API_BASE = "http://127.0.0.1:1234/v1" }
 if (-not $env:OPENAI_API_KEY)  { $env:OPENAI_API_KEY  = "lm-studio" }
 
-# 2) Kanonicheskoe imya i alias
+# 2) Canonical name and alias
 $env:EMBED_MODEL        = $Model
 $env:EMBEDDINGS_MODEL   = $Model
 $env:EMBEDDINGS_API_BASE = $env:OPENAI_API_BASE
 $env:EMBEDDINGS_API_KEY  = $env:OPENAI_API_KEY
 
-# 3) Put dannykh (esli kto-to sbrosil v D:\)
+# 3) Data path (if someone reset it to D:e)
 if (-not $env:ESTER_DATA_ROOT -or $env:ESTER_DATA_ROOT -eq "D:\") {
   $env:ESTER_DATA_ROOT = (Resolve-Path ".\data").Path
 }
@@ -29,13 +29,13 @@ $env:LMSTUDIO_URL      = $env:OPENAI_API_BASE
 $env:PRIMARY_PROVIDER  = "lmstudio"
 $env:DEFAULT_CHAT_PROVIDER = "lmstudio"
 
-# 5) Bystraya validatsiya embeddingov
+# 5) Quick validation of embeddings
 $ping = powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\embed_ping.ps1 2>&1
 if ($LASTEXITCODE -ne 0 -or ($ping -join "`n") -notmatch "ok|dim") {
   Die "[fatal] embeddings endpoint ne otvechaet. Prover, chto model `"$Model`" zagruzhena v LM Studio i otkryt /v1/embeddings"
 }
 
-# 6) Proverka razmernosti (iz stroki pinga)
+# 6) Dimension check (from ping string)
 if (($ping -join "`n") -match "dim=(\d+)") {
   $got = [int]$Matches[1]
   if ($got -ne $Dim) {

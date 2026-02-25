@@ -10,7 +10,7 @@ try {
   exit 2
 }
 
-# Vyvedem tablitsu id; podsvetim yavnykh kandidatov dlya embeddings po evristike
+# Let's display the ID table; highlight obvious candidates for embeddings using heuristics
 $rows = @()
 foreach ($m in $resp.data) {
   $id = $m.id

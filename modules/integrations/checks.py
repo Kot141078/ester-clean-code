@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/integrations/checks.py — bystryy self-check vneshnikh integratsiy.
+"""modules/integrations/checks.py - bystryy self-check vneshnikh integratsiy.
 
 MOSTY:
 - (Yavnyy) Proveryaet nalichie klyuchevykh ENV (Telegram/WhatsApp/OpenAI/Gemini) i faylov.
-- (Skrytyy #1) Ne vypolnyaet setevykh zaprosov — offlayn validator formata/nalichiya.
+- (Skrytyy #1) Ne vypolnyaet setevykh zaprosov - offlayn validator formata/nalichiya.
 - (Skrytyy #2) Vozvraschaet kompaktnyy otchet dlya UI/adminki.
 
 ZEMNOY ABZATs:
-Eto spisok «podklyucheny li provoda»: est li tokeny, ukazan li put k BD i t.p.
+Eto spisok “podklyucheny li provoda”: est li tokeny, ukazan li put k BD i t.p.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from typing import Dict, Any
@@ -49,7 +47,7 @@ def quick_check() -> Dict[str, Any]:
     }
     report["ok"] = all([
         (not report["telegram"]["enabled"]) or report["telegram"]["bot_token"],
-        True,  # ostalnye ne obyazatelny dlya starta
+        True,  # the rest are not required to start
     ])
     return report
 # c=a+b

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-modules/vision/error_capture.py — edinaya tochka zapisi oshibok OCR/Template s koordinatami (bbox/point).
+"""modules/vision/error_capture.py - edinaya tochka zapisi oshibok OCR/Template s koordinatami (bbox/point).
 
-Naznachenie:
+Name:
 - Prosteyshiy offlayn API, kotoryy privodit sobytiya k edinomu vidu dlya posleduyuschey error-heatmap.
 - Pishem v zhurnal vnimaniya /attention/journal/append sobytiya:
   - {"event":"ocr_fail", "detail":{"box":{...}|"point":{...}, "why": "..."}}
@@ -14,13 +13,12 @@ API:
 MOSTY:
 - Yavnyy: (Memory ↔ Diagnostika) standartiziruem zapis promakhov → karty oshibok stanovyatsya tochnee.
 - Skrytyy #1: (Infoteoriya ↔ Reproduktsiya) yavnyy kontekst (bbox/point) oblegchaet povtor.
-- Skrytyy #2: (Inzheneriya ↔ Prostota) minimalnyy interfeys, ne lomaet detektory.
+- Skrytyy #2: (Inzheneriya ↔ Prostota) minimalnyy interfeys, ne lomaet detectory.
 
 ZEMNOY ABZATs:
-Lokalnyy POST kladet JSON v obschiy zhurnal — chitaetsya tekuschimi instrumentami bez migratsiy.
+Lokalnyy POST kladet JSON v obschiy zhurnal - chitaetsya tekuschimi instruments bez migratsiy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any
 import http.client, json

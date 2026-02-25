@@ -1,13 +1,12 @@
 
 # -*- coding: utf-8 -*-
-"""
-modules/webrtc/datachannel_stub.py — psevdo-WebRTC DataChannel na baze lokalnykh ocheredey
+"""modules/webrtc/datachannel_stub.py - psevdo-WebRTC DataChannel na baze lokalnykh ocheredey
 (HTTP POST + SSE). Bez STUN/TURN i vneshnikh zavisimostey. Podkhodit dlya LAN/odnoy mashiny.
 
 Model:
 - room_id -> { clients: {client_id: queue[list[str]]}, last_heartbeat }
-- Klient podpisyvaetsya na SSE /webrtc/dc/recv?room&client i otpravlyaet POST /webrtc/dc/send
-- Format dannykh — svobodnyy JSON-obekt (stroka), peredaem kak text/event-stream.
+- Client podpisyvaetsya na SSE /webrtc/dc/recv?room&client i otpravlyaet POST /webrtc/dc/send
+- Format dannykh - svobodnyy JSON-obekt (stroka), peredaem kak text/event-stream.
 
 Integratsii:
 - sync_keyboard, coop/game_sync, macro_recorder mogut ispolzovat etot kanal dlya bystroy rassylki sobytiy.
@@ -15,13 +14,12 @@ Integratsii:
 MOSTY:
 - Yavnyy: (Svyaznost ↔ Nizkaya zaderzhka) obschiy shinoy-kanal sobytiy bez vneshnikh brokerov.
 - Skrytyy #1: (Infoteoriya ↔ Prozrachnost) prostye ocheredi v pamyati, determinirovannyy SSE.
-- Skrytyy #2: (Kibernetika ↔ Kontrol) vsya «sila» vse esche prokhodit cherez consent_gate v potreblyayuschikh modulyakh.
+- Skrytyy #2: (Kibernetika ↔ Kontrol) vsya “sila” vse esche prokhodit cherez consent_gate v potreblyayuschikh modulyakh.
 
 ZEMNOY ABZATs:
-SSE long-poll bez tredov/demonov; ochistka visyachikh klientov po taym-autu heartbeat. Vse offlayn.
+SSE long-poll bez tredov/demonov; ochistka visachikh klientov po taym-autu heartbeat. All offline.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import time, json, threading
 from typing import Dict, Any, List

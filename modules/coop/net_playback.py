@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/net_playback.py — setevoy pleybek: veduschiy sinkhronno shagaet stsenariy, vedomye povtoryayut.
+"""modules/coop/net_playback.py - setevoy pleybek: veduschiy sinkhronno shagaet stsenariy, vedomye povtoryayut.
 
-Ideya:
+Ideaya:
 - Veduschiy: lokalno vyzyvaet interaktivnyy pleybek (modules/coop/interactive_playback.py) i parallelno
   rassylaet komandam peers tekuschiy shag (action/check), a takzhe komandy upravleniya (start/pause/resume/stop/seek).
 - Vedomye: prinimayut komandy cherez /netplay/ingest i vypolnyayut ikh lokalno (bez sobstvennoy logiki stsenariya).
 
-Format setevoy komandy:
+Format setevoy command:
   {"cmd":"step","step":{"action":{...},"check":{...},"timeout_ms":3000},"index":N}
   {"cmd":"control","op":"start|pause|resume|stop|next|prev","index":N?}
 
@@ -19,8 +18,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Obychnye HTTP POST na lokalnyy /peer/proxy s probrosom na peers. Nikakikh brokerov/soketov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import http.client, json
@@ -52,7 +50,7 @@ def _broadcast(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
     return out
 
 def leader_step(step: Dict[str, Any], index: int) -> Dict[str, Any]:
-    # lokalno proigryvaem odin shag cherez interaktiv
+    # locally we play one step through the interactive
     _post_local("/iplay/load", {"steps": [step]})
     _post_local("/iplay/start", {})
     # shirokoveschatelno
@@ -67,7 +65,7 @@ def follower_ingest(pkt: Dict[str, Any]) -> Dict[str, Any]:
     cmd = (pkt.get("cmd") or "").lower()
     if cmd == "step":
         st = pkt.get("step") or {}
-        # vypolnit deystvie i proverku kak v interaktivnom pleybeke (minimalno)
+        # perform the action and check as in the interactive playback (minimum)
         act = st.get("action") or {}
         chk = st.get("check") or {}
         to  = int(st.get("timeout_ms", 3000))
@@ -79,7 +77,7 @@ def follower_ingest(pkt: Dict[str, Any]) -> Dict[str, Any]:
             _post_local("/profiles/mix/apply", {"title": act.get("title","")})
         elif act.get("type") == "workflow":
             _post_local("/rpa/workflows/run", {"name": act.get("name","")})
-        # prostaya proverka (OCR/shablon), bez lupov dlya kratkosti
+        # simple check (OCR/pattern), no loops for brevity
         if chk:
             scr = _post_local("/desktop/rpa/screen", {})
             png = (scr.get("png_b64") or "") if scr.get("ok") else ""
@@ -90,7 +88,7 @@ def follower_ingest(pkt: Dict[str, Any]) -> Dict[str, Any]:
         return {"ok": True}
     if cmd == "control":
         op = (pkt.get("op") or "").lower()
-        # dlya sovmestimosti prosto logiruem (detalnaya sinkhronizatsiya statusa ne trebuetsya)
+        # for compatibility we simply log (detailed status synchronization is not required)
         _post_local("/attention/journal/append", {"event": "netplay_ctrl", "detail": {"op": op, "index": pkt.get("index")}})
         return {"ok": True}
     return {"ok": False, "error": "bad_cmd"}

@@ -1,8 +1,8 @@
 # config/messaging_policies.yaml — politiki perepiski i proaktivnosti
 # MOSTY:
-# - (Yavnyy) Porog chastoty i opt-in po umolchaniyu.
-# - (Skrytyy #1) Startovye privetstviya v lyubom kanale.
-# - (Skrytyy #2) Profili tona (stels), pereklyuchaemye ENV.
+# - (Explicit) Frequency threshold and default opt-in.
+# - (Hidden #1) Start greetings in any channel.
+# - (Hidden #2) Tone profiles (stealth), switchable ENV.
 
 optin_required: true
 proactive_rate_per_h: 6

@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-security/auth_rbac.py — edinyy RBAC/CSRF-khuk.
+"""security/auth_rbac.py - edinyy RBAC/CSRF-khuk.
 
 Mosty:
-- Yavnyy: (Inzheneriya bezopasnosti ↔ Ekspluatatsiya) — tsentralizovannyy kontrol dostupa.
+- Yavnyy: (Inzheneriya bezopasnosti ↔ Ekspluatatsiya) - tsentralizovannyy kontrol dostupa.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) — allowlist na regex, minimum entropii nastroek.
 - Skrytyy #2: (Kibernetika ↔ Samoobsluzhivanie) — A/B-slot i myagkiy defolt.
 
@@ -11,10 +10,9 @@ Zemnoy abzats:
 Ranshe UI/Autofix/Debug/Discover lovili 403. Zdes:
 1) chitaem roli esche i iz flask.g (g.is_admin / g.user_roles), chtoby lokalnyy baypas rabotal;
 2) po umolchaniyu razreshaem /ui/*, /autofix/*, /debug/*, /app/discover/*;
-3) dobavlyaem RBAC_EXTRA_ALLOW dlya rasshireniya bez pravok koda.
+3) add RBAC_EXTRA_ALLOW dlya rasshirniya bez pravok koda.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -66,7 +64,7 @@ def _roles_from_context() -> List[str]:
                 roles.append(str(r).lower())
     except Exception:
         pass
-    # 2) spets-zagolovki (na buduschee)
+    # 2) special headings (for the future)
     try:
         if request.headers.get("X-Admin", "").strip().lower() in ("1", "true", "yes", "on"):
             roles.append("admin")
@@ -80,15 +78,15 @@ def _rbac_check_regex(path: str, method: str, roles: Iterable[str], allowlist: L
     for patt, allowed in allowlist:
         if re.match(patt, path):
             return any(r in allowed for r in roles)
-    # myagkiy rezhim: put ne opisan — razreshaem
+    # soft mode: path not described - allow
     return True
 
 def _rbac_check_matrix(path: str, method: str, roles: Iterable[str]) -> bool:
-    # zadel pod stroguyu matritsu — seychas propuskaem
+    # groundwork for a strict matrix - now we’re skipping
     return True
 
 def _verify_csrf_if_needed(req: Request) -> bool:
-    # poka propuskaem — UI ne shlet tokeny
+    # We’re skipping it for now - OH doesn’t send tokens
     return True
 
 def install_hooks(app: Flask) -> None:

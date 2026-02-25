@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/social_ledger_routes.py - REST: zhurnal publikatsiy.
+"""routes/social_ledger_routes.py - REST: zhurnal publikatsiy.
 
 Mosty:
 - Yavnyy: (Veb ↔ Uchet) otdaet lentu publikatsiy dlya interfeysa/otchetov.
-- Skrytyy #1: (RBAC ↔ Ostorozhnost) chtenie otkrytoe; modifikatsiya idet tolko cherez uploaders.
+- Skrytyy #1: (RBAC ↔ Ostorozhnost) chtenie otkrytoe; modifikatsiya idet only through uploaders.
 - Skrytyy #2: (Memory ↔ Profile) istochniki uzhe otrazheny.
 
 Zemnoy abzats:
 Kak otkryt bukhgalterskuyu knigu na nuzhnoy stranitse i uvidet vse zapisi.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

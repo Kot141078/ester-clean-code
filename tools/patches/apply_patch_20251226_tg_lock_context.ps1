@@ -1,4 +1,4 @@
-# PowerShell 5.x — Apply patch: TG lock + no-autostart + chat_api fallback
+# PowerShell 5.x - Apply patch: TG lock + no-autostart + chat_api fallback
 # Run from D:\ester-project (project root)
 # Usage:
 #   powershell -ExecutionPolicy Bypass -File .\apply_patch_20251226_tg_lock_context.ps1
@@ -237,7 +237,7 @@ def _read_env_cfg() -> TgAdapterCfg:
 
 CFG = _read_env_cfg()
 
-# Esli u tebya osnovnoy Telegram-polling v run_ester_fixed.py — derzhi avtozapusk adaptera vyklyuchennym (po umolchaniyu on OFF).
+# If your main Telegram polling is in run_ester_fixed.po, keep the adapter autostart turned off (by default it is OFF).
 ADAPTER_AUTOSTART = (
     _env_flag("ESTER_TG_ADAPTER_AUTOSTART", "0")
     or _env_flag("ESTER_TELEGRAM_ADAPTER_AUTOSTART", "0")
@@ -519,7 +519,7 @@ def listen():
                 append_inbox(item)
 
         except requests.exceptions.ReadTimeout:
-            continue  # Taymaut seti — normalno dlya long-poll
+            continue  # Network timeout - normal for long-field
         except Exception as e:
             print("[TG] Loop error:", e)
             time.sleep(2)
@@ -531,9 +531,9 @@ if __name__ == "__main__":
 $Global:PATCH_RUN_LOCK_BLOCK = @'
 
 # --- Telegram getUpdates EXCLUSIVE LOCK (zaschita ot dvoynogo pollinga) ---
-# YaVNYY MOST: odin «kanal» Telegram -> odin poller; ostalnoe obschenie (HTTP/moduli) ne konfliktuet.
-# SKRYTYE MOSTY: Ashby (raznoobrazie interfeysov bez pomekh), Cover&Thomas (lock kak ogranichenie kanala).
-# ZEMNOY ABZATs: 409 Conflict — eto dva getUpdates odnovremenno; lock-fayl delaet odin shlang — odin nasos.
+# Explicit BRIDGE: one Telegram “channel” -> one poller; the rest of the communication (HTTP/modules) does not conflict.
+# HIDDEN BRIDGES: Ashby (variety of interfaces without interference), Carpet & Thomas (lock as a channel limitation).
+# EARTHLY Paragraph: 409 Conflict is two getUpdates at the same time; The lock file makes one hose - one pump.
 
 def _env_flag(name: str, default: str = "0") -> bool:
     v = os.getenv(name, default)
@@ -633,7 +633,7 @@ def _smart_truncate(text: str, limit_chars: int = 40000) -> str:
 '@
 $Global:PATCH_CHATAPI_REPLACEMENT = @'
 if not answer:
-        # A/B fallback: esli pokhozhe na perepolnenie konteksta/resursov — probuem odin povtor s ukorochennym system_prompt.
+        # A/B falsification: if it looks like context/resource overflow, we try one repetition with a shortened system_prompt.
         err_l = (str(err) if err else "").lower()
         if ("context" in err_l) or ("token" in err_l) or ("prompt" in err_l) or ("too long" in err_l) or ("maximum" in err_l) or ("oom" in err_l) or ("out of memory" in err_l) or ("cuda" in err_l):
             try:

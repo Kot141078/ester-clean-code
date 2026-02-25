@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/media/summarize.py — legkiy chastotnyy konspekt (chernovik) po subtitram/transkriptu.
+"""modules/media/summarize.py - legkiy chastotnyy konspekt (chernovik) po subtitram/transkriptu.
 
 Mosty:
-- Yavnyy: (Subtitry ↔ Konspekt) daet «skelet» idey bez LLM.
+- Yavnyy: (Subtitry ↔ Konspekt) daet “skelet” idey bez LLM.
 - Skrytyy #1: (KG ↔ Podskazki) itog mozhno progonyat cherez avtolink.
 - Skrytyy #2: (RAG ↔ Navigatsiya) konspekt otpravlyaetsya v RAG fallback.
 
 Zemnoy abzats:
-Avtomaticheskaya «ryba» konspekta: razbili na frazy, vybrali zametnye — uzhe est chem dumat dalshe.
+Avtomaticheskaya "ryba" konspekta: razbili na frazy, vybrali zametnye - uzhe est chem dumat dalshe.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import re
 from typing import List

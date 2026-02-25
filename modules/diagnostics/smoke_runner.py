@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/diagnostics/smoke_runner.py — HTTP smoke-progon klyuchevykh ruchek, otchet, status, reestr testov.
+"""modules/diagnostics/smoke_runner.py - HTTP smoke-progon klyuchevykh ruchek, otchet, status, reestr testov.
 
 Mosty:
-- Yavnyy: (Diagnostika ↔ Rantaym) bystryy «ping» podsistem i svodka.
+- Yavnyy: (Diagnostika ↔ Rantaym) bystryy “ping” podsistem i svodka.
 - Skrytyy #1: (Cron/Hub ↔ Ekspluatatsiya) mozhno zapuskat po nocham i smotret otchet.
 - Skrytyy #2: (Passport ↔ Prozrachnost) logi pingov i rezultatov.
 
 Zemnoy abzats:
-Kak kontrolnyy list pilota: «toplivo est, pribory goryat, shassi podnyato» — mozhno vzletat.
+Kak kontrolnyy list pilota: “toplivo est, pribory goryat, shassi podnyato” - mozhno vzletat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, urllib.request
 from typing import Dict, Any, List

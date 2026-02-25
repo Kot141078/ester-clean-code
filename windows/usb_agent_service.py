@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-windows/usb_agent_service.py — Windows Service dlya agenta «odin vopros».
+"""windows/usb_agent_service.py - Windows Service dlya agenta "odin vopros".
 Trebuet pywin32 (ustanavlivaetsya ustanovschikom; optsionalno).
 
-Ispolzovanie (ot administratora):
+Use (from administrator):
   python windows\\usb_agent_service.py install
   python windows\\usb_agent_service.py start
   python windows\\usb_agent_service.py stop
@@ -12,14 +11,13 @@ Ispolzovanie (ot administratora):
 Mosty:
 - Yavnyy (Ekspluatatsiya ↔ Arkhitektura): sistemnyy servis daet avtozapusk i perezapusk.
 - Skrytyy 1 (Nadezhnost ↔ Diagnostika): servisnyy log v Event Log Windows.
-- Skrytyy 2 (Praktika ↔ Bezopasnost): net pravki myshleniya; tolko obolochka zapuska.
+- Skrytyy 2 (Praktika ↔ Bezopasnost): net pravki myshleniya; only obolochka zapuska.
 
 Zemnoy abzats:
 Esli nuzhen imenno Service (a ne Planirovschik): etot modul krutit tsikl agenta v otdelnom potoke
 i korrektno obrabatyvaet signaly Start/Stop ot Service Control Manager.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import sys
@@ -36,7 +34,7 @@ except Exception as e:  # noqa: BLE001
     print("pywin32 is required for Windows Service. Install via 'pip install pywin32'.", file=sys.stderr)
     raise
 
-# Importiruem nash agent
+# We import our agent
 from listeners.usb_one_question_agent import run_once  # type: ignore
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
@@ -71,8 +69,8 @@ class EsterUsbAgentService(win32serviceutil.ServiceFramework):  # type: ignore
         while self.running:
             try:
                 rep = run_once(archive=archive, dump=dump, ab_mode=ab_mode)
-                # Mozhno pisat JSON v fayl/zhurnal — po neobkhodimosti
-                _ = json.dumps(rep)  # proverka serializatsii
+                # You can write JSION to a file/log - as needed
+                _ = json.dumps(rep)  # serialization check
             except Exception:
                 pass
             for _ in range(interval):

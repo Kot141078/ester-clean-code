@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/telegram_webhook_routes.py - Telegram Webhook (drop-in bezopasnyy).
+"""routes/telegram_webhook_routes.py - Telegram Webhook (drop-in bezopasnyy).
 
 MOSTY:
 - (Yavnyy) Pryamoy priem apdeytov TG → normalizatsiya → chelovekopodobnaya stilizatsiya otveta.
-- (Skrytyy #1) Ne dubliruet marshrut: esli /api/telegram/webhook uzhe zaregistrirovan - akkuratno ne registriruem.
+- (Skrytyy #1) Ne dubliruet route: esli /api/telegram/webhook uzhe zaregistrirovan - akkuratno ne registriruem.
 - (Skrytyy #2) Obschaya stilistika cherez modules.persona_style (edinyy ton dlya pisem/chatov).
 
 ZEMNOY ABZATs:
-Pozvolyaet «tverdo» podklyuchit TG dazhe esli starye fayly poteryany. Bez tokena - dry-rezhim, nichego naruzhu ne shlet.
-# c=a+b
-"""
+Pozvolyaet “tverdo” podklyuchit TG dazhe esli starye fayly poteryany. Bez tokena - dry-rezhim, nichego naruzhu ne shlet.
+# c=a+b"""
 from __future__ import annotations
 import os
 import time
@@ -38,12 +36,12 @@ def _route_exists(app, rule: str, methods=("POST","GET")) -> bool:
 
 @bp.route("/api/telegram/webhook", methods=["GET"])
 def tg_webhook_ping():
-    # Pustoy ping dlya prostykh proverok
+    # Empty ping for simple checks
     return "ok", 200
 
 @bp.route("/api/telegram/webhook", methods=["POST"])
 def tg_webhook():
-    # Optsionalnaya proverka sekret-zagolovka (esli ispolzovali setWebhook secret_token)
+    # Optional secret header check (if you used the Webhook secret_token set)
     if TELEGRAM_SECRET_TOKEN:
         if request.headers.get("X-Telegram-Bot-Api-Secret-Token", "") != TELEGRAM_SECRET_TOKEN:
             return "forbidden", 403
@@ -54,18 +52,18 @@ def tg_webhook():
     chat_id = chat.get("id")
     text = (msg.get("text") or msg.get("caption") or "").strip()
 
-    # Legkaya stilizatsiya cherez obschiy dvizhok (neytralnyy ton).
+    # Easy stylization through a common engine (neutral tone).
     if text:
         rendered = render_message(audience="neutral", intent="update", content=text)
     else:
-        rendered = "Zdravstvuyte, ya na svyazi."
+        rendered = "Hello, I'm online."
 
-    # Bez tokena - prosto logiruem, nichego ne otpravlyaem.
+    # Without a token, we just log and don’t send anything.
     if not TELEGRAM_BOT_TOKEN:
         current_app.logger.info("[TG] dry inbound chat_id=%s text=%s", chat_id, bool(text))
         return jsonify({"ok": True, "dry": True})
 
-    # S realnym tokenom - otpravlyaem echo-otvet.
+    # With a real token, we send an echo response.
     try:
         import urllib.request, urllib.parse, json as _json
         base = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
@@ -79,7 +77,7 @@ def tg_webhook():
     return jsonify({"ok": True})
 
 def register(app):
-    # Esli v proekte uzhe est takoy marshrut - ne registriruem dubl.
+    # If the project already has such a route, we do not register a duplicate.
     if _route_exists(app, "/api/telegram/webhook", methods=("POST","GET")):
         return None
     app.register_blueprint(bp)

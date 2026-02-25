@@ -25,7 +25,7 @@
 - Hidden bridge #2 (physiology): skin/immune barrier analogy; tamper is detected at ingress before execution.
 
 ## Earth Paragraph
-Eto kak tri sloya na realnom obekte: (1) akt proverki s podpisyu (Ed25519), (2) plomby na shkafakh s instrumentami (manifest na templates/capabilities), (3) zapret «lezt v schitok» bez zapisi v zhurnal (spec-guard). Vmeste eto ubiraet klass tikhikh pravok, iz kotorykh potom rozhdayutsya strashilki pro II.
+Eto kak tri sloya na realnom obekte: (1) akt proverki s podpisyu (Ed25519), (2) plomby na shkafakh s instruments (manifest na templates/capabilities), (3) zapret “lezt v schitok” bez zapisi v zhurnal (spec-guard). Vmeste eto ubiraet class tikhikh pravok, iz kotorykh potom rozhdayutsya strashilki pro II.
 
 ## Tools
 - `python -B tools/generate_ed25519_keypair.py`

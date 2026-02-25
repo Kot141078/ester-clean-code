@@ -1,15 +1,13 @@
 # scripts/install_scheduler_presets.py
 # -*- coding: utf-8 -*-
-"""
-scripts/install_scheduler_presets.py — ustanovka presetov planirovschika.
+"""scripts/install_scheduler_presets.py - ustanovka presetov planirovschika.
 
 Zapusk:
   python scripts/install_scheduler_presets.py
 
-Rezultat:
-  - sozdaet zadachi dlya «dream ticks», «ezhednevnogo obzora» i «re-ingest ocheredey»
-  - publikuet sobytie scheduler:presets_installed
-"""
+Result:
+  - sozdaet zadachi dlya “dream ticks”, “ezhednevnogo obzora” i “re-ingest ocheredey”
+  - publikuet sobytie scheduler:presets_installed"""
 from __future__ import annotations
 
 import json

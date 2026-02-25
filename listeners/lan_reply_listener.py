@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/lan_reply_listener.py — UDP-priemnik LAN-kvitantsiy (optsionalno).
+"""listeners/lan_reply_listener.py - UDP-priemnik LAN-kvitantsiy (optsionalno).
 
-Povedenie:
+Behavior:
   • Esli LAN_REPLY_UDP_ENABLE=1 — slushaem UDP port LAN_REPLY_UDP_PORT.
   • Pri poluchenii JSON: normalizuem, proveryaem podpis (esli sekret), kladem v inboks i pytaemsya primenit k ocheredi.
 
@@ -12,10 +11,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): UDP best-effort; oshibki ne fatalny, yadro ne trogaem.
 
 Zemnoy abzats:
-Eto «radiostantsiya tsekha»: dostatochno skazat «Gotovo, naryad takoy-to» — dispetcher uslyshit.
+Eto “radiostantsiya tsekha”: dostatochno skazat “Gotovo, naryad takoy-to” - dispetcher uslyshit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, os, socket, time
 from modules.lan_reply.protocol import normalize, verify  # type: ignore

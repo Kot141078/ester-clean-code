@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/first_run_wizard.py — master pervogo zapuska (UI + JSON).
+"""routes/first_run_wizard.py - master pervogo zapuska (UI + JSON).
 
-Marshruty:
-  • GET  /first-run          — HTML-stranitsa mastera
-  • GET  /first-run/status   — JSON: khost, LM Studio, USB health
-  • POST /first-run/apply    — avtokonfiguratsiya: zapusk agenta + (opts.) bench
+Route:
+  • GET /first-run — HTML pages mastera
+  • GET /first-run/status - JSON: khost, LM Studio, USB health
+  • POST /first-run/apply - avtokonfiguratsiya: zapusk agenta + (opts.) bench
 
 Mosty:
-- Yavnyy (Kibernetika v†" UX): odin ekran Re odin refleks «Avtonastroyka».
-- Skrytyy 1 (Infoteoriya v†" Protokol): ispolzuem uzhe suschestvuyuschie moduli (host_probe, lmstudio_probe, USB metriki).
+- Yavnyy (Kibernetika v†" UX): odin ekran Re odin refleks "Avtonastroyka".
+- Skrytyy 1 (Infoteoriya v†" Protokol): ispolzuem uzhe suschestvuyuschie moduli (host_probe, lmstudio_probe, USB metrics).
 - Skrytyy 2 (Logika v†" Vezopasnost): yavnyy POST dlya deystviy; bez skrytykh demonov.
 
 Zemnoy abzats:
-Polzovatel otkryvaet odnu stranitsu, nazhimaet odnu knopku — Ester sama «ponimaet» khost, startuet USB-agenta
+Polzovatel otkryvaet odnu stranitsu, nazhimaet odnu knopku – Ester sama “ponimaet” khost, startuet USB-agenta
 v tekuschey sessii i (po zhelaniyu) delaet korotkiy bench lokalnogo LLM. Nikakoy golovnoy boli.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -45,12 +43,10 @@ def first_run_status():
 
 @bp_first_run.post("/first-run/apply")
 def first_run_apply():
-    """
-    Telo zaprosa (form-data ili JSON, optsionalno):
-      - bench=1            — vypolnit korotkiy bench pervoy naydennoy modeli
-      - start_agent=1      — zapustit agenta «odin vopros» v fone (tekuschaya sessiya)
-      - headless=1         — ne pokazyvat notifikatsii (ENV ESTER_ZT_HEADLESS=1)
-    """
+    """Telo request (form-data or JSON, optional):
+      - bench=1 — vypolnit korotkiy bench pervoy naydennoy modeli
+      - start_agent=1 — zapustit agenta “odin vopros” v fone (tekuschaya session)
+      - headless=1 — ne pokazyvat notifikatsii (ENV ESTER_ZT_HEADLESS=1)"""
     try:
         is_json = request.is_json
         bench = (request.form.get("bench") if not is_json else request.json.get("bench", 0)) in ("1", 1, True, "true")

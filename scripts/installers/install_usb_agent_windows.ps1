@@ -1,5 +1,5 @@
 # scripts/installers/install_usb_agent_windows.ps1
-# Registriruet avtozapusk agenta cherez Planirovschik zadaniy Windows (bez vneshnikh zavisimostey).
+# Registers agent autostart via Windows Task Scheduler (without external dependencies).
 
 <#
 Mosty:

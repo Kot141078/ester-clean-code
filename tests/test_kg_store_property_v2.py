@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Property-testy dlya memory/kg_store.py (v2):
+"""Property-testy dlya memory/kg_store.py (v2):
  - LWW po mtime dlya uzlov, merge props, zaschita ot "starykh" apdeytov
- - Unikalnost rebra po (src, rel, dst), weight=max, props LWW
- - neighbors/query/export/import — konsistentnost i idempotentnost
-"""
+ - Unikalnost rib po (src, rel, dst), weight=max, props LWW
+ - neighbors/query/export/import — konsistentnost i idempotentnost"""
 
 import copy
 import os
@@ -41,7 +39,7 @@ def test_nodes_lww_and_props_merge(clean_env):
     )
     assert out == [node_id]
 
-    # 2) Obnovlyaem uzel bolee novym mtime: collision po 'b', novyy klyuch 'c'
+    # 2) Update the node with a newer one: note: collision, new key
     t1 = 2_000.0
     out = kg.upsert_nodes(
         [
@@ -58,11 +56,11 @@ def test_nodes_lww_and_props_merge(clean_env):
 
     nd = kg.query_nodes(q="replication", type="topic", limit=10)[0]
     assert nd["label"] == "Replication CRDT"
-    # props: 'b' vzyat iz novoy versii, 'a' sokhranen, 'c' dobavlen
+    # props: b taken from the new version, b saved, b added
     assert nd["props"] == {"a": 1, "b": 3, "c": 9}
     assert nd["mtime"] == pytest.approx(t1)
 
-    # 3) Pytaemsya "starym" apdeytom dobavit novyy klyuch — ne dolzhno proyti
+    # 3) We are trying to add a new key using the “old” update - it should not work
     t_old = 500.0
     kg.upsert_nodes(
         [
@@ -115,7 +113,7 @@ def test_edges_uniqueness_weight_max_props_lww(clean_env):
     assert ed["props"] == {"p": 1}
     assert ed["mtime"] == pytest.approx(1000.0)
 
-    # 2) Obnovlyaem tem zhe klyuchom rebra, no s bOlshim vesom i BOLEE STARYM mtime
+    # 2) Update the edges with the same key, but with more weight and an OLDER name
     e2 = kg.upsert_edges(
         [
             {
@@ -134,7 +132,7 @@ def test_edges_uniqueness_weight_max_props_lww(clean_env):
     assert ed2["weight"] == pytest.approx(0.7)
     # props pri starom mtime ne perezapisalis
     assert ed2["props"] == {"p": 1}
-    # mtime ostalsya prezhnim
+    # mtite remained the same
     assert ed2["mtime"] == pytest.approx(1000.0)
 
     # 3) Teper svezhiy apdeyt s props i mtime novee
@@ -154,7 +152,7 @@ def test_edges_uniqueness_weight_max_props_lww(clean_env):
     ed3 = kg.query_edges(rel="supports", src="a", dst="b", limit=10)[0]
     # weight ostalsya maksimalnym (0.7)
     assert ed3["weight"] == pytest.approx(0.7)
-    # props obnovleny po LWW i merged
+    # props updated by LVV and merged
     assert ed3["props"] == {"p": 5, "r": 1}
     assert ed3["mtime"] == pytest.approx(2000.0)
 
@@ -248,7 +246,7 @@ def test_export_import_idempotency(clean_env):
     n0, e0 = len(payload["nodes"]), len(payload["edges"])
     assert n0 >= 2 and e0 >= 1
 
-    # Novyy stor, import togo zhe — idempotentnyy merdzh
+    # New store, import of the same - idempotent merge
     kg2 = KGStore()
     res = kg2.import_all(payload)
     assert res["nodes"] >= 2

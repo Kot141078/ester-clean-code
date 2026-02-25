@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-modules.voice.webrtc_store — in-memory WebRTC store (rasshireno).
-# c=a+b
-"""
+"""modules.voice.webrtc_store - in-memory WebRTC store (expanded).
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

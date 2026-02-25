@@ -34,11 +34,9 @@ def register_ingest_view_routes(app, vstore, url_prefix: str = "/ingest_view"):
 
 
 def register_ingest_routes(app, ingest, url_prefix: str = "/ingest"):
-    """
-    Dopolnitelnye «servisnye» marshruty dlya inzhesta:
-      - POST /ingest/submit {path}
-      - GET  /ingest/jobs
-    """
+    """Additional “service” routes for ingest:
+      - POST / ingest / subtit ZZF0Z
+      - GET /ingest/ebs"""
     bp = Blueprint("ingest_more", __name__)
 
     @bp.post(url_prefix + "/submit")

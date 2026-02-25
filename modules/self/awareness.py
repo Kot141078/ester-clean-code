@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/awareness.py — inventarizatsiya vozmozhnostey i sostava Ester (fayly, sha256, zavisimosti, graf importov).
+"""modules/self/awareness.py - inventarizatsiya vozmozhnostey i sostava Ester (fayly, sha256, zavisimosti, graf importov).
 
 Mosty:
 - Yavnyy: (Samoponimanie ↔ Inzheneriya) spisok moduley/routov/politik s kontrolnymi summami i grafom.
-- Skrytyy #1: (Infoteoriya ↔ Audit) bystryy audit tselostnosti, sha256 i karta moduley dlya raskhozhdeniy.
+- Skrytyy #1: (Infoteoriya ↔ Audit) bystryy audit tselostnosti, sha256 i karta modulary dlya raskhozhdeniy.
 - Skrytyy #2: (Kibernetika ↔ Planirovanie) baza dlya planirovschika (dostupnye deystviya, zavisimosti).
-- Skrytyy #3: (Samopoznanie ↔ Samosborka) graf importov kak «skelet» dlya izmeneniy i health.
+- Skrytyy #3: (Samopoznanie ↔ Samosborka) graf importov kak “skeleton” dlya izmeneniy i health.
 
 Zemnoy abzats:
-Eto «profile sistemy»: znaet iz chego sostoit, kuda chto podklyucheno i ne poteryala li fayl. S grafom — kak meditsinskaya kartochka s rentgenom svyazey, chtoby Ester luchshe ponimala svoy "skelet".
+Eto “profile sistemy”: know iz chego sostoit, kuda chto podklyucheno i ne poteryala li fayl. S grafom - kak meditsinskaya kartochka s rentgenom svyazey, chtoby Ester luchshe ponimala svoy "skelet".
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, hashlib, json, re
 from typing import Any, Dict, List
@@ -55,7 +53,7 @@ def status(max_items: int | None = None) -> Dict[str, Any]:
                     continue
             if max_items is not None and len(items) >= max_items:
                 break
-    return {"ok": True, "ab": AWARE_AB, "roots": ROOTS, "stat": stat, "items": items, "note": "items vozmozhno urezany esli max_items zadan"}
+    return {"ok": True, "ab": AWARE_AB, "roots": ROOTS, "stat": stat, "items": items, "note": "items may be truncated if max_items is set"}
 
 def build_graph(max_nodes: int | None = None, max_edges: int | None = None) -> Dict[str, Any]:
     nodes = set()

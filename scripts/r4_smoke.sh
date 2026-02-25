@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# R4/scripts/r4_smoke.sh — obertka smouka R4 dlya *nix
-# Mosty: (Yavnyy) Enderton — proveryaemye predikaty; (Skrytyy #1) Ashbi — ustoychivost; (Skrytyy #2) Cover&Thomas — informativnyy minimum.
+# RF/skripts/rch_stoke.sh - RF smoke wrapper for *them
+# Bridges: (Explicit) Enderton - verifiable predicates; (Hidden #1) Ashby - resilience; (Hidden #2) Carpet & Thomas - minimal information.
 # Zemnoy abzats: probuet rerank+summary s LM Studio, pri nedostupnosti — ne padaet (fallback).
 # c=a+b
 

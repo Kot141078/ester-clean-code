@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/abslot_routes.py - REST: status/pereklyuchenie A/B-slotov.
+"""routes/abslot_routes.py - REST: status/pereklyuchenie A/B-slotov.
 
 Mosty:
 - Yavnyy: (Veb ↔ AB) operatorskoe upravlenie pereklyuchatelem A|B.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Garage ↔ Eksperimenty) bezopasnye vykaty v B s avtokatbekom.
 
 Zemnoy abzats:
-Tot samyy tumbler na paneli: «A» - stabilno; «B» - eksperiment; upal - vernulsya.
+Tot samyy tumbler na paneli: “A” - stabilno; "B" - experiment; upal - vernulsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os

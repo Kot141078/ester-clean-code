@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-tools/backup_state.py — bezopasnyy bekap kataloga sostoyaniya v tar.gz.
+"""tools/backup_state.py - bezopasnyy bekap kataloga sostoyaniya v tar.gz.
 
 Mosty:
-- Yavnyy: (QA ↔ Bezopasnost) — ruchnoy, yavnyy bekap bez skrytogo zapuska.
-- Skrytyy 1: (Diagnostika ↔ Vosstanovlenie) — arkhiv prigoden dlya vosstanovleniya sostoyaniya posle sboev.
-- Skrytyy 2: (Infrastruktura ↔ Portativnost) — tar.gz legko perenosit mezhdu uzlami P2P.
+- Yavnyy: (QA ↔ Bezopasnost) - ruchnoy, yavnyy bekap bez skrytogo zapuska.
+- Skrytyy 1: (Diagnostika ↔ Vosstanovlenie) - arkhiv prigoden dlya vosstanovleniya sostoyaniya posle sboev.
+- Skrytyy 2: (Infrastruktura ↔ Portativnost) - tar.gz legko perenosit mezhdu uzlami P2P.
 
 Zemnoy abzats:
-Po komande upakovyvaem `ESTER_STATE_DIR` v arkhiv. Nikakikh demonov i kronov — tolko ruchnoy zapusk.
-"""
+Po komande upakovyvaem `ESTER_STATE_DIR` v arkhiv. Nikakikh demonov i kronov - tolko ruchnoy zapusk."""
 from __future__ import annotations
 import os, tarfile, time
 from pathlib import Path

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/market/gigs.py — «vakansii i otkliki»: parsing HTML/stranits, shablon pisma-otklika.
+"""modules/market/gigs.py - "vakansii i otkliki": parsing HTML/stranits, template pisma-otklika.
 
 Mosty:
 - Yavnyy: (Market ↔ Garazh/Ledzher) sobiraem zadachi, gotovim otkliki, vedem uchet.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Profile/KG ↔ Prozrachnost/Navigatsiya) shtampy i avtolink po opisaniyu vakansiy.
 
 Zemnoy abzats:
-Eto «priemnaya»: nashli vakansiyu — zapisali — podgotovili vezhlivyy otklik — dalshe ostanetsya nazhat «otpravit».
+Eto "priemnaya": nashli vakansiyu - zapisali - podgotovili vezhlivyy otklik - dalshe ostanetsya nazhat "otpravit".
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, re, urllib.request
 from typing import Any, Dict, List
@@ -35,9 +33,7 @@ def _extract(html: str)->Dict[str,Any]:
             "location": (loc.group(0).strip() if loc else "")}
 
 def scan(items: List[Dict[str,Any]])->Dict[str,Any]:
-    """
-    items: [{"url": "...", "html": "..."}] — esli html ne zadan, popytaemsya skachat (best-effort).
-    """
+    """items: yuZF0ZZsch - if ntml is not specified, we will try to download (best-effort)."""
     out=[]
     for it in items or []:
         url=str(it.get("url","")); html=str(it.get("html","") or "")

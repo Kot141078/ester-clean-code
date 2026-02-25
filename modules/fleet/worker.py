@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/fleet/worker.py — obedinennyy lokalnyy vorker: bazovye + studio zadachi, s RBAC/ledger/P2P/scheduler integratsiey, multi-thread.
+"""modules/fleet/worker.py - obedinennyy lokalnyy vorker: bazovye + studio zadachi, s RBAC/ledger/P2P/scheduler integratsiey, multi-thread.
 
 Mosty:
-- Yavnyy: (Ispolnenie ↔ Belyy spisok/Volya) exec kinds (python/site/zip + tts/video/music + novye ingest/p2p), s kontrolem.
+- Yavnyy: (Ispolnenie ↔ Belyy spisok/Volya) exec kinds (python/site/zip + tts/video/music + new ingest/p2p), s control.
 - Skrytyy #1: (Stoimost/Byudzhet ↔ Ekonomika) cost_fence + ledger reserve/spend za kazhduyu.
-- Skrytyy #2: (Zhizn uzla/Heartbeat ↔ Avtonomiya) hb pered/posle, P2P-fallback esli master down.
+- Skrytyy #2: (Zhizn uzla/Heartbeat ↔ Avtonomiya) hb pered/postle, P2P-fallback esli master down.
 - Skrytyy #3: (Profile/Audit ↔ Prozrachnost) log/profile kazhdoy op s teploy notoy.
 
 Zemnoy abzats:
-Eto ne prosto dezhurnyy, a multitul Ester: potyanet zadachu, spishet kopeyku, sinkhroniziruet po P2P i shepnet v profile "Ester, rabota sdelana — shag k tvoey raspredelennoy sile!".
+Eto ne prosto dezhurnyy, a multitul Ester: potyanet zadachu, spishet kopeyku, sinkhroniziruet po P2P i shepnet v profile "Ester, rabota sdelana - shag k tvoey raspredelennoy sile!".
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import concurrent.futures
 import json, os, time, urllib.request, urllib.error
@@ -71,7 +69,7 @@ def _p2p_fallback(path: str, obj: Dict[str, Any]) -> Dict[str, Any]:
         return {"ok": False, "error": "p2p_failed"}
 
 def _hb(load: Dict[str, Any]):
-    load["happy"] = load.get("cpu", 0.0) < 0.5  # Emo-load dlya missii
+    load["happy"] = load.get("cpu", 0.0) < 0.5  # This is the load for the mission
     return _post("/fleet/node/heartbeat", {"node_id": NODE_ID, "load": load})
 
 def _kind_cost(spec: Dict[str, Any]) -> float:
@@ -135,7 +133,7 @@ def _exec(spec: Dict[str, Any]) -> Dict[str, Any]:
         from modules.studio.music import generate  # type: ignore
         a = (spec.get("args") or {})
         return generate(int(a.get("seconds", 10)), int(a.get("bpm", 100)), str(a.get("scale", "Amin")))
-    # Novye dlya Ester
+    # New for Esther
     if kind == "ingest_file":
         from modules.ingest.process import ingest_process_file  # type: ignore
         a = (spec.get("args") or {})
@@ -168,7 +166,7 @@ def tick() -> Dict[str, Any]:
                     item = {"id": rec.get("id"), "ok": ok, "report_ok": bool(report.get("ok", False))}
                     (done if ok else errors).append(item)
                     _append_log({"ts": int(time.time()), "task": rec, "rep": rep})
-                    _passport(f"Task {rec.get('id')} done: {rec.get('kind')} — Ester, rabota gotova, ty stanovishsya silnee v seti agentov!", {"rep": rep})
+                    _passport(f"Task ZZF0Z don: ZZF1ZZ - Esther, the work is ready, you are becoming stronger in the network of agents!", {"rep": rep})
                 except Exception as e:
                     errors.append({"id": rec.get("id"), "error": str(e)})
     _hb({"cpu": 0.05})

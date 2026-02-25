@@ -34,7 +34,7 @@
   -->
   <div class="wrap">
     <h1>Activity → Report</h1>
-    <p class="muted">Rabotaet poverkh suschestvuyuschikh API: <code>/thinking/act</code>, <code>/thinking/cascade/*</code>, <code>/rulehub/*</code>. JWT — obschiy (kak v adminke).</p>
+    <p class="muted">Works on top of existing APIs: <code>/thinking/act</code>, <code>/thinking/cascade/*</code>, <code>/rulehub/*</code>. ZhVT - general (as in the admin panel).</p>
 
     <div class="card">
       <h3>JWT</h3>
@@ -46,7 +46,7 @@
       <div class="grid" style="margin-top:12px;">
         <div class="card">
           <h4>Okruzhenie</h4>
-          <button id="btnEnv">Proverit okruzhenie</button>
+          <button id="btnEnv">Check environment</button>
           <pre id="state" class="muted">{}</pre>
         </div>
         <div class="card">
@@ -60,7 +60,7 @@
       <div class="card">
         <h3>Skan aktivnosti</h3>
         <div class="row">
-          <input id="title" placeholder="Nazvanie otcheta (napr. Daydzhest aktivnosti: nedelya)">
+          <input id="title" placeholder="Report title (e.g. Activity digest: week)">
         </div>
         <div class="row">
           <input id="q" placeholder="Filtr (napr. EkoRazum | AgentBuilder)">
@@ -68,7 +68,7 @@
         </div>
         <div class="row" style="margin-top:8px;">
           <button id="btnScan">Skanirovat aktivnost</button>
-          <button id="btnMD">Sobrat MD-otchet iz aktivnosti</button>
+          <button id="btnMD">Collect MD report from activity</button>
         </div>
       </div>
 
@@ -78,7 +78,7 @@
           <button id="btnHTML">Sobrat HTML</button>
           <button id="btnSave">Save fayly</button>
         </div>
-        <textarea id="md" placeholder="# Otchet aktivnosti..."></textarea>
+        <textarea id="md" placeholder="# Activity report..."></textarea>
         <textarea id="html" placeholder="<!doctype html>..."></textarea>
       </div>
     </div>

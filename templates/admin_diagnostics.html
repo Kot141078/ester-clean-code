@@ -37,14 +37,14 @@
     <div id="jobs">—</div>
     <h4>USB Catalog</h4>
     <div id="catalog">—</div>
-    <h4>LAN katalogi (rekomendatsii naznacheniya)</h4>
+    <h4>LAN catalogs (destination recommendations)</h4>
     <div id="lan">—</div>
     <h4>LM Studio aliases</h4>
     <div id="aliases">—</div>
     <div style="margin-top:8px">
       <textarea id="fixmap" placeholder='{"chat_quality":"/home/user/.ester/imports/models/llm-7b-q4.gguf"}' style="width:100%;min-height:100px"></textarea>
       <button onclick="applyFix()">Primenit fiksy alias’ov</button>
-      <span class="muted">Zapis proizoydet tolko v <code>AB_MODE=B</code>.</span>
+      <span class="muted">Registration will only take place in <code>AB_MODE=B</code>.</span>
       <span id="fixres" class="chip">—</span>
     </div>
   </section>
@@ -79,7 +79,7 @@ function wlView(wl){
   return `<table><tr><th>path</th><th>exists</th></tr>${rows||""}</table>`;
 }
 function jobsView(j){
-  if(!j.count) return "<p class='muted'>net copy-zadach</p>";
+  if(!j.count) return "<p class='muted'>no cop tasks</p>";
   let h="<table><tr><th>job</th><th>src</th><th>src_ok</th><th>dest</th><th>dest_ok</th><th>notes</th></tr>";
   for(const it of (j.items||[])){
     h+=`<tr><td><code>${esc(it.job_file)}</code></td><td><code>${esc(it.src_rel||"-")}</code></td><td>${bool(it.src_ok)}</td><td><code>${esc(it.dest||"-")}</code></td><td>${bool(it.dest_ok)}</td><td>${esc((it.notes||[]).join(","))}</td></tr>`;

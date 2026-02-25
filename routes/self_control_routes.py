@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_control_routes.py - REST dlya samosborki, USB-operatsiy i odobreniy.
+"""routes/self_control_routes.py - REST dlya samosborki, USB-operatsiy i odobreniy.
 
-Endpointy (JWT obyazatelen):
-  POST /self/approvals/create         - sozdat approval-token
-  POST /self/assemble_from_dump       - sobrat i aktivirovat reliz iz arkhiva (zip/tar.gz)
-  GET  /self/usb/list                 - perechislit dostupnye nositeli
-  POST /self/usb/prepare              - podgotovit strukturu /ESTER na nositele
+Endpointy (JWT required):
+  POST /self/approvals/create - sozdat approval-token
+  POST /self/assemble_from_dump - sobrat i aktivirovat reliz iz arkhiva (zip/tar.gz)
+  GET /self/usb/list - perechislit dostupnye nositeli
+  POST /self/usb/prepare - podgotovit strukturu /ESTER na nositele
 
-Bezopasnost:
+Safety:
   • Pered sborkoy - proverka guardian.require_approval(kind="assemble").
 
 Mosty:
@@ -17,11 +16,10 @@ Mosty:
 - Skrytyy #2: (Memory ↔ Logistika) put naznacheniya beretsya iz ESTER_RUN_ROOT, sokhranyaya kontrakt.
 
 Zemnoy abzats:
-Dumay ob etom kak o «dopuske v masterskuyu»: snachala zheton (approval), zatem akkuratnaya sborka
+Dumay ob etom kak o “dopuske v masterskuyu”: snachala zheton (approval), zatem akkuratnaya sborka
 iz arkhiva i podgotovka nositelya. Nikakikh rezkikh dvizheniy - vse cherez yavnye shagi.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -31,7 +29,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required  # type: ignore
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Myagkiy import zavisimostey, chtoby ne padat pri otsutstvii moduley
+# Soft import of dependencies to avoid crashes when modules are missing
 try:  # pragma: no cover
     from modules.safety.guardian import create_approval, require_approval  # type: ignore
 except Exception:  # pragma: no cover
@@ -132,11 +130,11 @@ def usb_prepare():
 
 
 def register_self_control_routes(app) -> None:  # pragma: no cover
-    """Istoricheskaya registratsionnaya obertka (sovmestimost)."""
+    """Historical registration wrapper (compatibility)."""
     app.register_blueprint(self_ctrl_bp)
 
 
-# Unifitsirovannye khuki proekta
+# Unified project hooks
 def register(app) -> None:  # pragma: no cover
     app.register_blueprint(self_ctrl_bp)
 

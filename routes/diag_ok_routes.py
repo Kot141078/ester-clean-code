@@ -13,7 +13,7 @@ def ping() -> Response:
 
 @bp.route("/json", methods=["GET"])
 def json_ok() -> Response:
-    # Ruchnoy JSON bez jsonify, chtoby isklyuchit vliyanie provaydera.
+    # Manual JSION without JSONIFY to eliminate the influence of the provider.
     payload = {"ok": True, "note": "Privet, kirillitsa vidna? Ester testiruet UTF-8."}
     body = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
     return Response(body, status=200, headers={"Content-Type": "application/json; charset=utf-8"})
@@ -22,7 +22,7 @@ def json_ok() -> Response:
 def echo() -> Response:
     try:
         data = request.get_data(cache=False)  # syrye bayty
-        # Vozvraschaem kak est, no pomechaem UTF-8 - klient pokazhet pravilno.
+        # We return it as is, but mark it as UTF-8 - the client will show it correctly.
         return Response(data, status=200, headers={"Content-Type": "application/json; charset=utf-8"})
     except Exception as e:
         body = json.dumps({"ok": False, "err": str(e)}, ensure_ascii=False)

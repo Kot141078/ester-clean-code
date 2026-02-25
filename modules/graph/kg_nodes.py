@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.graph.kg_nodes — legkaya prosloyka k knowledge graph.
+"""modules.graph.kg_nodes - legkaya prosloyka k knowledge graph.
 Mosty:
-- Yavnyy: funktsii add_entity()/add_relation()/query() — unifitsirovannyy API nad memory.kg_store.
-- Skrytyy #1: (DX ↔ Sovmestimost) — esli memory.kg_store nedostupen, ispolzuem in‑proc folbek (slovar).
-- Skrytyy #2: (Memory ↔ Graf) — pin'im minimalnye semantiki uzlov/reber dlya DAG ili REST.
+- Yavnyy: funktsii add_entity()/add_relation()/query() - unifitsirovannyy API nad memory.kg_store.
+- Skrytyy #1: (DX ↔ Sovmestimost) - esli memory.kg_store nedostupen, ispolzuem in‑proc folbek (slovar).
+- Skrytyy #2: (Memory ↔ Graf) — pin'im minimalnye semantiki uzlov/reber dlya DAG or REST.
 
 Zemnoy abzats:
-Graf znaniy — eto «svyazki i sustavy» mezhdu faktami. Dazhe bez tyazhelogo dvizhka my mozhem khranit suschnosti i svyazi
+Count znaniy - eto “svyazki i sustavy” mezhdu faktami. Dazhe bez tyazhelogo dvizhka my mozhem khranit suschnosti i svyazi
 v prostoy strukture, chtoby ostalnoy kod ne spotykalsya.
-# c=a+b
-"""
+# c=a+b"""
 import os
 from typing import Dict, Any, List, Optional, Iterable
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 AB = os.getenv("ESTER_GRAPH_AB", "A").upper().strip() or "A"
 
-# --- popytka privyazki k realnomu memory.kg_store ---
+# --- attempt to link to a real memory.kg_store ---
 _store = None
 try:
     from memory import kg_store as _kg
-    _store = _kg  # ozhidaemyy vneshniy modul
+    _store = _kg  # expected external module
 except Exception:
     _store = None
 

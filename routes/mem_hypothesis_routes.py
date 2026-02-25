@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mem_hypothesis_routes.py - aliasy HypothesisStore pod /mem/hypothesis (sovmestimo s openapi.yaml).
+"""routes/mem_hypothesis_routes.py - aliasy HypothesisStore pod /mem/hypothesis (sovmestimo s openapi.yaml).
 
-Marshruty:
+Route:
   POST /mem/hypothesis/add
-  GET  /mem/hypothesis/list
+  GET /mem/hypothesis/list
   POST /mem/hypothesis/feedback
 
 Mosty:
-- Yavnyy: (Memory ↔ Veb) edinye REST-ruchki dlya zapisi/poiska «gipotez».
-- Skrytyy #1: (Infoteoriya ↔ Ekonomiya) score kak aprior snizhaet shum vyborki.
+- Yavnyy: (Memory ↔ Web) edinye REST-ruchki dlya zapisi/poiska “gipotez”.
+- Skrytyy #1: (Infoteoriya ↔ Ekonomiya) score kak aprior snizhaet noise vyborki.
 - Skrytyy #2: (Logika ↔ Kontrakty) strogaya validatsiya vkhoda i kody oshibok.
 
 Zemnoy abzats:
-Eto «chernovik idey»: dobavil mysl → ona sokhranilas v HypothesisStore; pozzhe mozhno vybrat po teme,
+Eto “chernovik idea”: dobavil mysl → ona sokhranilas v HypothesisStore; pozzhe mozhno vybrat po teme,
 podnyat/opustit ves cherez feedback i otfiltrovat vazhnoe.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 
 import os
@@ -103,11 +101,11 @@ def mem_hypothesis_feedback():
 
 
 def register_mem_hypothesis_routes(app) -> None:  # pragma: no cover
-    """Sovmestimaya registratsiya blyuprinta (kontrakt proekta)."""
+    """Compatible blueprint registration (project contract)."""
     app.register_blueprint(mem_hypo_bp)
 
 
-# Unifitsirovannye khuki po konventsii proekta
+# Unified knooks according to the project convention
 def register(app):  # pragma: no cover
     app.register_blueprint(mem_hypo_bp)
 

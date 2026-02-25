@@ -1,33 +1,32 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""people.py — kontaktnaya kniga Ester + utility.
+"""people.py - kontaktnaya book Ester + utility.
 
 Funktsii:
 - upsert_person: sozdat/obnovit kontakt (chat_id, tz, interests, consent, mute, trust_level)
 - log_message: pisat dialogi v state/dialog_<Imya>.jsonl (in|out, tekst, emotsii)
 - read_transcript: chitat istoriyu
-- mark_interaction: schetchiki chastoty soobscheniy (uslovnaya «nadoedlivost»)
-- get_by_chat_id: obratnyy poisk
+- mark_interaction: schetchiki chastoty soobscheniy (uslovnaya “nadoedlivost”)
+- get_by_chat_id: return poisk
 
-Fiks oshibki:
+Fixes:
 - expected an indented block after 'with' statement
   Prichina: v _write_link_file() posle `with open(...) as f:` ne bylo tela (json.dump byl zakommentirovan).
 
 Usileniya:
 - Ubrany krakozyabry v dokstringe (UTF‑8).
-- Tipy sdelany sovmestimymi s Python 3.8+ (List[str], Optional[Dict[...]]) — menshe syurprizov na uzlakh.
+- Tipy sdelany sovmestimymi s Python 3.8+ (List[str], Optional[Dict[...]]) - menshe syurprizov na uzlakh.
 - Zapis people.json teper atomic (cherez .tmp → replace), chtoby ne portit fayl pri vnezapnom stope.
 - Nebolshaya validatsiya topics.
 
-Mosty (trebovanie):
+Mosty (demand):
 - Yavnyy most: people.json + tg_link_<user>.json → demony/integratsii (Telegram) poluchayut identichnost/kanal.
 - Skrytye mosty:
   1) Infoteoriya ↔ ekspluatatsiya: nuisance_score = kompaktnyy signal nagruzki kanala (chastota vkhoda).
   2) Inzheneriya ↔ nadezhnost: atomarnaya zapis = predokhranitel ot chastichno zapisannykh JSON.
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 
 import json
@@ -96,7 +95,7 @@ def upsert_person(user: str, **patch: Any) -> Dict[str, Any]:
     entry["last_seen_ts"] = time.time()
     data[user] = entry
     _save(data)
-    # sinkhronno — fayl tg_link_<Imya>.json dlya demonov
+    # synchronously - file tg_link_<Name>.zsion for daemons
     if "chat_id" in entry and entry["chat_id"] is not None:
         _write_link_file(user, int(entry["chat_id"]))
     return entry
@@ -120,7 +119,7 @@ def mark_interaction(user: str, inbound: bool = True) -> Dict[str, Any]:
     entry = data.get(user, {"user": user, **_DEFAULTS})
     entry["last_seen_ts"] = time.time()
 
-    # obnovim dnevnoy schetchik i «nadoedlivost»
+    # update the daily counter and “annoyance”
     entry["msg_count_today"] = int(entry.get("msg_count_today", 0)) + (1 if inbound else 0)
     # eksponentsialnyy raspad
     entry["nuisance_score"] = max(0.0, float(entry.get("nuisance_score", 0.0)) * 0.98)
@@ -181,9 +180,7 @@ __all__ = [
 ]
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Kontakty — kak kartochki patsientov v registrature: vazhno ne tolko imya, no i otmetki (soglasie, chasovoy poyas),
-i istoriya vizitov (dialogi). Atomarnaya zapis — kak zakryt kartu na zaschelku: libo polnostyu obnovili zapis,
-libo ostavili staruyu tseloy — bez poluotorvannykh stranits.
-"""
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Kontakty - kak kartochki patsientov v registrature: vazhno ne tolko imya, no i otmetki (soglasie, chasovoy poyas),
+i istoriya vizitov (dialogue). Atomarnaya zapis - kak zakryt kartu na zaschelku: libo polnostyu obnovili zapis,
+libo ostavili staruyu tseloy - bez poluotorvannykh stranits."""

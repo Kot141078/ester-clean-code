@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/stream_mjpeg_routes.py - REST+UI dlya MJPEG.
+"""routes/stream_mjpeg_routes.py - REST+UI dlya MJPEG.
 
 Ruchki:
-  GET  /stream/screen?fps=8      - potok
-  GET  /admin/stream             - panel
+  GET /stream/screen?fps=8 - potok
+  GET /admin/stream - panel
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, Response, request, render_template
 from modules.stream.screen_mjpeg import stream_generator, BOUNDARY

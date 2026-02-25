@@ -35,7 +35,7 @@
 </div>
 
 <div class="card">
-  <h3>Nochnye protsedury</h3>
+  <h3>Night procedures</h3>
   <button onclick="getJSON('/cron/jobs')">Spisok</button>
   <button onclick="postJSON('/cron/run',{jobs:['passport','kg_link','heal','compact']})">Zapusk</button>
 </div>
@@ -46,7 +46,7 @@
   <input id="mod" type="text" placeholder="routes.media_routes">
   <button onclick="postJSON('/app/discover/register',{modules:[val('mod')]})">Registratsiya</button>
   <button onclick="getJSON('/app/routes/map')">Karta marshrutov</button>
-  <button onclick="postJSON('/app/routes/verify',{})">Proverka konfliktov</button>
+  <button onclick="postJSON('/app/routes/verify',{})">Checking for conflicts</button>
 </div>
 
 <div class="card">

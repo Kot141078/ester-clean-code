@@ -1,29 +1,27 @@
 # -*- coding: utf-8 -*-
-"""
-modules/vision/adapt_triggers.py — adaptivnye triggery (samonastroyka porogov/yakorey).
+"""modules/vision/adapt_triggers.py - adaptivnye triggery (samonastroyka porogov/yakorey).
 
 Funktsii:
 - keep_observation(kind, payload) — kladem nablyudenie v JSONL (hit/miss, threshold, kontekst okna).
-- current_threshold() — daet robastnyy porog (mediana po uspeshnym ± IQR zaschita).
+- current_threshold() — daet robastnyy threshold (mediana po uspeshnym ± IQR zaschita).
 - wrap_threshold(value) — esli value == "auto" -> podstavlyaet current_threshold().
 
 Khranilische:
-- data/vision/adapt/template_obs.jsonl  — odna zapis na nablyudenie.
+- data/vision/adapt/template_obs.jsonl — odna zapis na nablyudenie.
 
-Integratsiya:
+Integratsia:
 - modules/vision/triggers.py pri kind="template_match" i threshold == "auto"
   vyzyvaet adapt.wrap_threshold("auto"), poluchaya chislo.
 
 MOSTY:
-- Yavnyy: (Nablyudenie ↔ Porog) sreda sama podskazyvaet, gde granitsa srabatyvaniya.
-- Skrytyy #1: (Infoteoriya ↔ Nadezhnost) mediana/IQR vmesto «magicheskogo» chisla.
+- Yavnyy: (Nablyudenie ↔ Porog) sreda sama podskazyvaet, where granitsa srabatyvaniya.
+- Skrytyy #1: (Infoteoriya ↔ Nadezhnost) mediana/IQR vmesto “magicheskogo” chisla.
 - Skrytyy #2: (Kibernetika ↔ Obuchenie) kazhdoe srabatyvanie uluchshaet posleduyuschie.
 
 ZEMNOY ABZATs:
 Obychnyy JSONL; ustoychivye statistiki, nikakikh vneshnikh BD i demonov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, statistics
 from typing import Dict, Any, List, Optional
@@ -57,7 +55,7 @@ def current_threshold(default: float = 0.78) -> float:
         return float(default)
     vals = sorted(float(x.get("thr", default)) for x in data if isinstance(x.get("thr"), (int,float)))
     if not vals: return float(default)
-    # robastno: mediana, zatem "podnyat" na 10% shiriny mezhkvartilnogo razmakha
+    # robust: median, then "raised" by 10% of the interquartile range
     med = statistics.median(vals)
     q1  = statistics.median(vals[:len(vals)//2])
     q3  = statistics.median(vals[(len(vals)+1)//2:])

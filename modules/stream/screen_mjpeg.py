@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-modules/stream/screen_mjpeg.py — prostoy MJPEG-potok ekrana (LAN, offlayn).
+"""modules/stream/screen_mjpeg.py - prostoy MJPEG-potok ekrana (LAN, offlayn).
 
-Ideya:
+Ideaya:
 - Periodicheski zaprashivaem /desktop/rpa/screen (png_b64), trogaem chastotu (fps), otdaem kak multipart/x-mixed-replace.
 - Nikakikh vneshnikh kodekov, tolko JPEG iz PNG (vstroennyy enkoder na chistom Python otsutstvuet → ispolzuem PNG kak JPEG-psevdo-kadr).
-  Dlya sovmestimosti s brauzerom — zagolovok stavim 'image/jpeg', no fakticheski peredaem PNG-bayty (sovremennye brauzery sedayut).
-  Esli v vashey sborke est sistemnyy jpeg-enkoder — mozhno podmenit _as_jpeg().
+  Dlya sovmestimosti s brauzerom - zagolovok stavim 'image/jpeg', no fakticheski peredaem PNG-bayty (sovremennye brauzery sedayut).
+  Esli v vashey sborke est sistemnyy jpeg-enkoder - mozhno podmenit _as_jpeg().
 
 MOSTY:
 - Yavnyy: (Vnimanie ↔ Sovmestnost) vedomye vidyat realnyy ekran veduschego.
@@ -14,10 +13,9 @@ MOSTY:
 - Skrytyy #2: (Kibernetika ↔ Kontrol) potok sam po sebe read-only, bezopasen.
 
 ZEMNOY ABZATs:
-Strim — obychnyy HTTP-otvet s boundary. Chastota — parametr. Ostanovka — zakrytiem soedineniya.
+Strim — obychnyy HTTP-otvet s boundary. Frequency - parameter. Ostanovka - zakrytiem soedineniya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Generator
 import time, base64, json, http.client
@@ -38,7 +36,7 @@ def _get_screen() -> bytes:
     return b""
 
 def _as_jpeg(png_bytes: bytes) -> bytes:
-    # Zaglushka: otdaem PNG kak est. Brauzery prinimayut v MJPEG-potoke.
+    # Stub: we give the PNG as is. Browsers accept in the MZHPEG stream.
     return png_bytes
 
 def stream_generator(fps: int = 8) -> Generator[bytes, None, None]:

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-LocalProvider — bystrye lokalnye otvety (evristicheskaya generatsiya).
-Metod: generate(prompt, temperature) -> str
-"""
+"""LocalProvider - fast local responses (heuristic generation).
+Method: generate(prompt, temperature) -> page"""
 from __future__ import annotations
 
 import random
@@ -13,7 +11,7 @@ _PREFIXES: List[str] = [
     "Ponyal. ",
     "Okey. ",
     "Korotko: ",
-    "Esli po delu: ",
+    "If it's on point:",
     "Summiruyu: ",
 ]
 
@@ -27,7 +25,7 @@ class LocalProvider:
         return ["local/synth-v1"]
 
     def generate(self, prompt: str, temperature: float = 0.2) -> str:
-        # Nebolshaya variativnost i akkuratnaya «summarizatsiya»
+        # Little variability and neat “summary”
         prompt = (prompt or "").strip()
         if not prompt:
             return "…"

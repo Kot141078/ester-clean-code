@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/telegram_smoke_send_test.py
+"""scripts/telegram_smoke_send_test.py
 
 Otpravlyaet testovoe soobschenie adminu cherez Telegram Bot API.
 
@@ -12,9 +11,8 @@ Zapusk (iz kornya proekta):
     python scripts/telegram_smoke_send_test.py
 
 Zemnoy abzats:
-Eto kak nazhat knopku "Test" na pulte signalizatsii:
-esli soobschenie doshlo do tebya v Telegram, provodka tselaya.
-"""
+Eto kak nazhat knopku "Test" na remote signalizatsii:
+esli soobschenie doshlo do tebya v Telegram, provodka tselaya."""
 
 from __future__ import annotations
 
@@ -42,7 +40,7 @@ def main() -> int:
         print("[ERROR] ADMIN_TG_ID ne zadan.")
         return 1
 
-    text = "Ester · Telegram smoke-test: svyaz rabotaet."
+    text = "Esther · Telegram stock test: connection works."
 
     api_url = f"https://api.telegram.org/bot{token}/sendMessage"
     data = urllib.parse.urlencode(
@@ -58,19 +56,19 @@ def main() -> int:
         with urllib.request.urlopen(req, timeout=10.0) as resp:
             body = resp.read().decode("utf-8", "ignore")
     except Exception as e:  # noqa: BLE001
-        print(f"[ERROR] Ne udalos vypolnit zapros k Telegram: {e}")
+        print(f"yuRRORshch Failed to complete the request to Telegram: ZZF0Z")
         return 1
 
-    print("[INFO] Otvet Telegram:")
+    print("uINFOsch Telegram Reply:")
     print(body)
 
-    # Normalizuem otvet i proveryaem flag ok=true
+    # Normalizes the response and checks the flag ok=three
     normalized = body.replace(" ", "").replace("\n", "").lower()
     if '"ok":true' in normalized:
-        print("[OK] Telegram podtverzhdaet otpravku. Smoke-send proshel.")
+        print("YuOKshch Telegram confirms sending. Stoke send has passed.")
         return 0
 
-    print('[WARN] V otvete net "ok":true. Proverte token i ADMIN_TG_ID vruchnuyu.')
+    print('YuVARNsch There is no “ok” in the answer: three. Check the token and ADMIN_TG_ID manually.')
     return 0
 
 

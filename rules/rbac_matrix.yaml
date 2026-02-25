@@ -1,4 +1,4 @@
-# RBAC Matrix — rezhim 'matrix' po umolchaniyu.
+# RVACH Matrix - default mode.
 # Sovmestim s attach_app() iz security.rbac: roli i regex-marshrutov.
 mode: matrix
 

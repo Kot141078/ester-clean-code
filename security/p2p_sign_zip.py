@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/p2p_sign_zip.py — utilita podpisi ZIP dlya replikatsii.
+"""scripts/p2p_sign_zip.py - utilita podpisi ZIP dlya replikatsii.
 Ispolzuet klyuch iz ENV REPLICATION_HMAC_KEY ili iz fayla (ENV REPLICATION_HMAC_KEY_FILE).
 Primer:
   REPLICATION_HMAC_KEY=secret python scripts/p2p_sign_zip.py snapshot.zip
-Vyvodit JSON: {"X-Signature": "...", "b64": "...", "hex": "..."}
-"""
+Vyvodit JSON: {"X-Signature": "...", "b64": "...", "hex": "..."}"""
 from __future__ import annotations
 
 import json

@@ -9,17 +9,15 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 INITIATIVES_STORE = os.path.join("memory", "initiatives.jsonl")
 
 _EMOTION_CATALOG = [
-    {"tag": "stability", "title": "Razgruzit trevozhnye zadachi", "min_anxiety": 0.6, "min_interest": 0.0},
-    {"tag": "focus", "title": "Zakryt odin vazhnyy khvost", "min_anxiety": 0.3, "min_interest": 0.3},
-    {"tag": "growth", "title": "Zaplanirovat initsiativu na nedelyu", "min_anxiety": 0.0, "min_interest": 0.6},
-    {"tag": "maintenance", "title": "Podderzhka i chistka bekloga", "min_anxiety": 0.0, "min_interest": 0.0},
+    {"tag": "stability", "title": "Relieve worrying tasks", "min_anxiety": 0.6, "min_interest": 0.0},
+    {"tag": "focus", "title": "One important tail is closed", "min_anxiety": 0.3, "min_interest": 0.3},
+    {"tag": "growth", "title": "Plan an initiative for a week", "min_anxiety": 0.0, "min_interest": 0.6},
+    {"tag": "maintenance", "title": "Backlog maintenance and cleaning", "min_anxiety": 0.0, "min_interest": 0.0},
 ]
 
 class InitiativeEngine:
-    """
-    Modul upravleniya dolgosrochnymi initsiativami.
-    Pozvolyaet Ester otslezhivat progress po krupnym proektam Owner.
-    """
+    """Module for managing long-term initiatives.
+    Allows Esther to track progress on major Ovner projects."""
     def __init__(self, core=None):
         self.core = core
         self._ensure_storage()
@@ -28,7 +26,7 @@ class InitiativeEngine:
         os.makedirs(os.path.dirname(INITIATIVES_STORE), exist_ok=True)
 
     def add_initiative(self, title: str, description: str, priority: int = 2) -> str:
-        """Registratsiya novoy krupnoy zadachi."""
+        """Registering a new major task."""
         init_id = f"init_{int(time.time())}"
         payload = {
             "id": init_id,
@@ -47,7 +45,7 @@ class InitiativeEngine:
         return init_id
 
     def update_progress(self, init_id: str, progress: int, comment: str = ""):
-        """Obnovlenie progressa po initsiative."""
+        """Initiative progress update."""
         if not os.path.exists(INITIATIVES_STORE): return
         
         temp_file = INITIATIVES_STORE + ".tmp"
@@ -63,8 +61,8 @@ class InitiativeEngine:
         os.replace(temp_file, INITIATIVES_STORE)
 
     def get_active_summary(self) -> str:
-        """Svodka dlya Ester: chem my seychas zanyaty?"""
-        if not os.path.exists(INITIATIVES_STORE): return "Aktivnykh initsiativ net."
+        """Summary for Esther: What are we doing now?"""
+        if not os.path.exists(INITIATIVES_STORE): return "There are no active initiatives."
         
         active = []
         with open(INITIATIVES_STORE, "r", encoding="utf-8") as f:
@@ -73,7 +71,7 @@ class InitiativeEngine:
                 if d["status"] == "active":
                     active.append(f"«{d['title']}» ({d['progress']}%)")
         
-        return "Rabotaem nad: " + ", ".join(active) if active else "Vse zadachi zaversheny."
+        return "Rabotaem nad: " + ", ".join(active) if active else "All tasks are completed."
 
 
 def choose_by_emotions(emotions: Dict[str, float] | None) -> List[Dict[str, str]]:
@@ -102,7 +100,7 @@ def choose_by_emotions(emotions: Dict[str, float] | None) -> List[Dict[str, str]
     return [entry for _, entry in scored[:3]]
 
 def smoketest():
-    """Smok-test dlya health_check.py"""
+    """Smoke test for healthtn_chesk.po"""
     try:
         engine = InitiativeEngine()
         return "OK (Engine Ready)"

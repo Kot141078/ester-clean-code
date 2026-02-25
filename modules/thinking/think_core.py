@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/think_core.py — minimalnoe yadro «dumaniya» s sovmestimymi
+"""modules/thinking/think_core.py - minimalnoe yadro "dumaniya" s sovmestimymi
 interfeysami dlya chat_routes: start/stop/status + THINKER.
 
 Mosty:
@@ -9,10 +8,9 @@ Mosty:
 - Skrytyy #2: (Planirovschik ↔ Ispolnenie) — myagkie zaglushki plan/execute dlya drop-in.
 
 Zemnoy abzats:
-Eto bezopasnye «knopki» upravleniya bez fonovykh potokov: zapusk, ostanovka i status
-tsikla. Nikakikh vneshnikh zavisimostey; vse integratsii — myagkie, cherez try/except.
-# c=a+b
-"""
+Eto bezopasnye “knopki” upravleniya bez fonovykh potokov: zapusk, ostanovka i status
+tsikla. Nikakikh vneshnikh zavisimostey; vse integratsii - myagkie, through try/except.
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Optional
 import os, json, time
@@ -22,7 +20,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 __all__ = ["think", "THINKER", "start", "stop", "status"]
 
 # ---------------------------------------------------------------------------
-# Myagkie integratsii
+# Soft integrations
 # ---------------------------------------------------------------------------
 
 # record_thought (myagko)
@@ -56,7 +54,7 @@ except Exception:
         return {"ok": True, "results": res, "safe": bool(safe)}
 
 # ---------------------------------------------------------------------------
-# Lokalnoe sostoyanie dlya sovmestimosti s UI
+# Local state for UI compatibility
 # ---------------------------------------------------------------------------
 
 def _lm_info() -> Dict[str, Any]:
@@ -79,7 +77,7 @@ _STATE: Dict[str, Any] = {
 }
 
 # ---------------------------------------------------------------------------
-# Publichnye funktsii
+# Public functions
 # ---------------------------------------------------------------------------
 
 def think(goal: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
@@ -92,7 +90,7 @@ def think(goal: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
         record_thought(goal=goal, conclusion=summary, success=True)
     except Exception:
         pass
-    # sokhranyaem «posledniy otvet» v sostoyanii — eto chitaet UI
+    # we save the “last answer” in the state - this reads OH
     _STATE["last_reply"] = summary
     return {"ok": True, "goal": goal, "summary": summary, "plan": p, "exec": exe}
 
@@ -118,17 +116,15 @@ def _make_thinker():
 THINKER = _make_thinker()
 
 def start(goal: str = "heartbeat", interval_sec: int = 25, **params: Any) -> Dict[str, Any]:
-    """
-    Sovmestimaya s chat_routes signatura: start(interval_sec=?).
-    Mozhno takzhe peredavat goal i proizvolnye dop.parametry.
-    """
+    """Chat_Rute compatible signature: start(interval_sec=?).
+    You can also transmit goals and arbitrary additional parameters."""
     _STATE["running"] = True
     _STATE["cycles"] = 0
     _STATE["last_error"] = None
     _STATE["interval_sec"] = int(interval_sec or 25)
     _STATE["started_ts"] = int(time.time())
     _STATE["stopped_ts"] = None
-    # V «zakrytom» rezhime delaem tolko zapis v pamyat i bystryy dry-run
+    # In the “closed” mode we only write to memory and do a quick dry-run
     res = think(goal, {"interval_sec": _STATE["interval_sec"], **params})
     return {
         "ok": True,

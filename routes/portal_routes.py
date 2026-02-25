@@ -5,7 +5,7 @@ from flask import Blueprint, redirect
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 # Vlyuprint svodnogo interfeysa: /portal
-# Drop-in sovmestimost: ne menyaet suschestvuyuschie importy/puti, tolko dobavlyaet HTML-vitrinu.
+# Drop-in compatibility: does not change existing imports/paths, only adds an HTML showcase.
 
 portal_bp = Blueprint("portal", __name__)
 
@@ -21,10 +21,8 @@ def portal_index_slash():
 
 
 def register_portal_routes(app, url_prefix: str | None = None) -> None:
-    """
-    Sovmestimyy registrator. Po umolchaniyu registriruet /portal.
-    Esli peredan url_prefix — dobavit dubl po {url_prefix}/portal.
-    """
+    """Compatible recorder. By default registers /portal.
+    If url_prefix is ​​passed, add a duplicate for ZZF0Z/portal."""
     if url_prefix:
         prefixed = Blueprint("portal_prefixed", __name__, url_prefix=url_prefix)
 

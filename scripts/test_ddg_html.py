@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/test_ddg_html.py
+"""scripts/test_ddg_html.py
 
-Prostoy ruchnoy test HTML-fallback DuckDuckGo.
+Simple hand test HTML-fallback DuckDuckGo.
 
 Zemnoy abzats:
 Zapuskaetsya otdelno ot app.py, sam dobavlyaet koren proekta v sys.path i podkhvatyvaet .env,
-chtoby rabotat tak zhe, kak osnovnoe prilozhenie.
-"""
+chtoby rabotat tak zhe, kak osnovnoe prilozhenie."""
 
 from __future__ import annotations
 

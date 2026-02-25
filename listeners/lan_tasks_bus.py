@@ -1,32 +1,30 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/lan_tasks_bus.py — UDP-shina zadach: submit/accept/result + lokalnyy dispetcher.
+"""listeners/lan_tasks_bus.py - UDP-shina zadach: submit/accept/result + lokalnyy dispatcher.
 
-Protokol paketa (JSON, UTF-8):
+Protocol package (JSON, UTF-8):
   { "t":"task.submit|task.accept|task.result", "ts":<unix>, "node":{"id","name"},
     "sig":"<hex>", "payload":{...} }
 
 payload dlya submit:
   { "task": <sm. modules.lan.lan_tasks.new_task()> }
 
-Politika priema:
-  • HMAC cherez LAN_SHARED_KEY (esli zadan) — inache dopuskayutsya nepodpisannye (verified=false).
+Politika reception:
+  • HMAC cherez LAN_SHARED_KEY (esli zadan) - inache dopuskayutsya nepodpisannye (verified=false).
   • Prinimaem tolko esli tip zadachi vkhodit v accept i est slot aktivnykh rabot (< max_active).
 
 Tsikl:
-  • Kazhdye interval sek: berem zadachu iz inbox po prioritetu, ispolnyaem (AB=A — plan), shlem result otpravitelyu.
-  • Periodicheski perebrasyvaem outbox → task.submit (broadcast ili target ip).
+  • Kazhdye interval sek: berem zadachu iz inbox po prioritetu, ispolnyaem (AB=A - plan), shlem result otpravitelyu.
+  • Periodicheski perebrasyvaem outbox → task.submit (broadcast or target ip).
 
 Mosty:
 - Yavnyy (Orkestratsiya ↔ Vychisleniya): obschaya shina zadach mezhdu uzlami.
-- Skrytyy 1 (Infoteoriya ↔ Bezopasnost): HMAC-podpis; «sukhoy» rezhim cherez AB.
+- Skrytyy 1 (Infoteoriya ↔ Bezopasnost): HMAC-podpis; "sukhoy" rezhim cherez AB.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): odin i tot zhe JSON-format v UI/REST/UDP.
 
 Zemnoy abzats:
-Eto «prorab uchastka»: prinimaet zayavki, razdaet po vozmozhnostyam, vozvraschaet rezultat — bez interneta.
+This is “prorab uchastka”: prinimaet zayavki, razdaet po vozmozhnostyam, vozvraschaet rezultat - bez interneta.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse, json, os, socket, struct, time
@@ -83,12 +81,12 @@ def _handle(pkt: bytes, src: Tuple[str,int], cfg_net: Dict[str,Any], cfg_tasks: 
         jtype = (task.get("job") or {}).get("type")
         if jtype not in (cfg_tasks.get("accept") or []):
             return
-        # proverim sloty
+        # let's check the slots
         db = _load_db()
         if len((db.get("active") or {})) >= int(cfg_tasks.get("max_active",1)):
             return
         accept_to_inbox(task)
-        # Otvetim accept otpravitelyu (unicast)
+        # We will respond with acceptance to the sender (unicast)
         ack = {"t":"task.accept","ts":int(time.time()),"node":{"id":_node_id(),"name":_node_id()},"payload":{"id": task.get("id")}}
         _send(_SOCK, ack, (ip, int(cfg_tasks["port"])), cfg_net.get("shared_key",""))
 
@@ -97,12 +95,12 @@ def _handle(pkt: bytes, src: Tuple[str,int], cfg_net: Dict[str,Any], cfg_tasks: 
         pass
 
     elif t == "task.result":
-        # Rezultat prishel adresatu — polozhim v done (kak vkhodyaschiy rezultat)
-        # task/result vsegda zapolnyaet poluchatel zaprosa — zdes my prosto otobrazhaem.
+        # The result has arrived to the recipient - put it in the bottom (as an incoming result)
+        # task/result is always filled in by the recipient of the request - here we just display.
         # UI vozmet iz state.json (done)
         res = pl.get("result") or {}
         task = pl.get("task") or {}
-        # Sokhranim kak zavershennuyu «udalennuyu» zadachu (status v result)
+        # Save as completed “remote” task (status in resilt)
         from modules.lan.lan_tasks import _load_db as _db, _save_db as _sv
         d = _db()
         tid = (task.get("id") or "") + "@remote"
@@ -132,9 +130,9 @@ def main(argv=None) -> int:
     try:
         while True:
             now = time.time()
-            # tik — ispolnyaem odnu zadachu i otpravlyaem rezultaty
+            # tick - executes one task and sends the results
             if now - last_tick >= max(1, interval):
-                # probuem vzyat zadachu
+                # let's try to take on the task
                 picked = start_one(max_active=int(cfg.get("max_active",1)))
                 if picked:
                     tid, task = picked
@@ -154,7 +152,7 @@ def main(argv=None) -> int:
                 from modules.lan.lan_tasks import _load_db as _db
                 d = _db()
                 for task in list((d.get("outbox") or {}).values()):
-                    # vklyuchim nash iskhodyaschiy ip v pole from.ip
+                    # Let's include our outgoing IP in the from.ip field
                     try:
                         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.connect(("8.8.8.8", 80))
                         myip = s.getsockname()[0]; s.close()
@@ -167,7 +165,7 @@ def main(argv=None) -> int:
                     _send(_SOCK, submit, addr, net.get("shared_key",""))
                 last_tick = now
 
-            # obrabotka vkhodyaschikh paketov
+            # processing of incoming packets
             try:
                 pkt, src = _SOCK.recvfrom(65535)
             except socket.timeout:

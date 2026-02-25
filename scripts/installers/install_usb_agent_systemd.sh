@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # scripts/installers/install_usb_agent_systemd.sh
-# Ustanavlivaet systemd-yunit dlya listeners.usb_one_question_agent.
+# Installs the system unit for listeners.usb_one_question_agent.
 
 set -euo pipefail
 
@@ -10,7 +10,7 @@ set -euo pipefail
 # - Skrytyy 2 (Praktika ↔ Avtonomiya): avtozapusk pri starte OS i restart po sboyu.
 
 # Zemnoy abzats:
-# Zapusk agenta kak demona systemd — samyy nadezhnyy sposob v Linux: perezapusk, logirovanie, targety.
+# Running an agent as a systemd daemon is the most reliable way in Linux: restarting, logging, targets.
 
 UNIT_PATH="/etc/systemd/system/ester-usb-agent.service"
 ENV_PATH="/etc/default/ester-usb-agent"
@@ -20,13 +20,13 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
-# Pishem ENV (mozhno pravit rukami pozzhe)
+# We write ENV (you can edit it manually later)
 cat > "$ENV_PATH" <<'EOF'
-# ENV dlya Ester USB Agent
+# ENV for Esther USB Agent
 ESTER_ZT_AUTO_ACCEPT_SECONDS=10
 ESTER_ZT_POLL_INTERVAL=5
 AB_MODE=A
-# Mozhno ukazat arkhiv/damp po umolchaniyu:
+# You can specify a default archive/dump:
 # ESTER_USB_DEPLOY_ARCHIVE=/opt/ester/releases/CID.zip
 # ESTER_USB_DEPLOY_DUMP=/opt/ester/dumps/ester_dump.tar.gz
 EOF

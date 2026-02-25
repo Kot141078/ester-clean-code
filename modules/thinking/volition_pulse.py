@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/volition_pulse.py — «puls voli»: konfiguriruemyy nabor avtodeystviy.
+"""modules/thinking/volition_pulse.py - “puls voli”: configuriruemyy nabor avtodeystviy.
 
-Konfig (VOLITION_CFG, JSON):
+Config(VOLITION_CFG, JSON):
 {
   "budget": 0.25,
   "tasks": [
@@ -15,11 +14,11 @@ Konfig (VOLITION_CFG, JSON):
 }
 
 Podderzhivaemye kind:
-- health.check            → /resilience/health/check
-- media.watch.tick        → action "media.watch.tick"
-- scheduler.tick          → action "scheduler.tick"
-- snapshot.daily          → actions "release.snapshot" (zavodit manifest/arkhiv)
-- backup.rot              → actions "backup.run" (esli nastroeny targets)
+- health.check → /resilience/health/check
+- media.watch.tick → action "media.watch.tick"
+- scheduler.tick → action "scheduler.tick"
+- snapshot.daily → actions "release.snapshot" (zavodit manifest/arkhiv)
+- backup.rot → actions "backup.run" (esli nastroeny targets)
 
 Mosty:
 - Yavnyy: (Volya ↔ Planirovschik) prostye, bezopasnye regulyarnye deystviya.
@@ -27,10 +26,9 @@ Mosty:
 - Skrytyy #2: (Nadezhnost ↔ Avtokatbek) zaprosy chteniya/legkie write bez izmeneniya kontraktov.
 
 Zemnoy abzats:
-Budilnik, kotoryy sama Ester sebe stavit: inogda proverit zdorove, inogda «podpylesosit» media, raz v den — sobrat chemodan.
+Budilnik, kotoryy sama Ester sebe stavit: sometimes proverit zdorove, sometimes “podpylesosit” media, raz v den - sobrat chemodan.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict, List
@@ -108,7 +106,7 @@ def tick(now: float | None = None) -> Dict[str,Any]:
         last_ts=float(last.get(kind,0))
         if now - last_ts < every*60:
             skipped.append({"kind": kind, "why":"not_due"}); continue
-        # byudzhetnaya otsenka (grubaya): kazhdyy shag schitaem ~0.05
+        # budget estimate (rough): each step is considered ~0.05
         need=0.05
         if AB=="A" and not _cost_ok(need):
             skipped.append({"kind": kind, "why":"budget"}); continue

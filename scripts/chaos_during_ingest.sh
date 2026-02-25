@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# Provodit dlitelnyy ingest/upload i v seredine ubivaet protsess API, zatem zhdet avtopodema i logiruet.
+# Carry out a long ingest/upload and kill the API process in the middle, then wait for auto-recovery and log.
 BASE="${ESTER_BASE_URL:-http://127.0.0.1:5000}"
 JWT="${ESTER_JWT:-}"
 PORT="${PORT:-5000}"

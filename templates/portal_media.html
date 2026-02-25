@@ -24,17 +24,17 @@
 
   <section id="auth">
     <div class="row">
-      <span class="hint">JWT dlya REST /self/usb/*</span>
+      <span class="hint">ZhVT for REST /self/usb/*</span>
       <input id="jwt" placeholder="vstavte JWT (ili otkroyte /auth/ui)" class="mono" style="min-width:380px">
       <button onclick="saveJWT()">Save</button>
       <a href="/auth/ui" target="_blank" class="chip">Otkryt /auth/ui</a>
     </div>
-    <div class="hint">Token khranitsya tolko v pamyati stranitsy (localStorage: ester_jwt).</div>
+    <div class="hint">The token is stored only in the page memory (localStorage: ester_zhvt).</div>
   </section>
 
   <section>
     <div class="row">
-      <button onclick="loadUsb()">Obnovit spisok USB</button>
+      <button onclick="loadUsb()">Update the list of USB</button>
       <span id="usb_count" class="chip muted">–</span>
     </div>
     <table id="usb_tbl"><thead><tr><th>Mount</th><th>Deystviya</th></tr></thead><tbody></tbody></table>
@@ -44,18 +44,18 @@
     <div class="row">
       <label>Fayl arkhiva (CID.zip): <input type="file" id="archive_file" accept=".zip"></label>
       <label>ili Damp (zip/tar.gz): <input type="file" id="dump_file" accept=".zip,.tar.gz,.tgz"></label>
-      <span class="hint">Esli ne ukazat — vozmem puti iz ENV na servere.</span>
+      <span class="hint">If you don’t specify it, we’ll take the paths from the ENV on the server.</span>
     </div>
     <div class="row">
       <select id="mount_sel"></select>
-      <button onclick="deploy()">Zapisat na fleshku</button>
+      <button onclick="deploy()">Write to flash drive</button>
       <span id="deploy_status" class="chip muted">gotov</span>
     </div>
   </section>
 
   <section>
     <div class="row">
-      <button onclick="loadState()">Pokazat sostoyanie agenta</button>
+      <button onclick="loadState()">Show agent status</button>
     </div>
     <pre id="state" class="mono" style="white-space:pre-wrap"></pre>
   </section>
@@ -93,7 +93,7 @@ async function prepare(mount){
 
 async function deploy(){
   const sel = document.getElementById('mount_sel'); const mount = sel.value;
-  if(!mount){ alert('Snachala obnovite spisok USB i vyberite nositel'); return; }
+  if(!mount){ alert('First refresh the USB list and select the media'); return; }
   const fd = new FormData();
   fd.append('mount', mount);
   const af = document.getElementById('archive_file'); if(af.files.length) fd.append('archive_file', af.files[0]);

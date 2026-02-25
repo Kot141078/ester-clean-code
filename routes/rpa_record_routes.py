@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/rpa_record_routes.py - proksi-ruchki dlya zapisi RPA-deystviy (REC→PLAY).
+"""routes/rpa_record_routes.py - proksi-ruchki dlya zapisi RPA-deystviy (REC→PLAY).
 
 Ruchki:
   POST /rpa/record/start {"session":"s1"}
-  POST /rpa/record/stop  {"session":"s1"}
+  POST /rpa/record/stop {"session":"s1"}
   POST /rpa/record/export {"session":"s1","name":"wf_s1"}
   --- Proksi deystviya (pisat i ispolnyat srazu):
-  POST /rpa/record/open   {"session":"s1","app":"notepad"}
-  POST /rpa/record/click  {"session":"s1","x":100,"y":200}
-  POST /rpa/record/type   {"session":"s1","text":"Hello"}
+  POST /rpa/record/open {"session":"s1","app":"notepad"}
+  POST /rpa/record/click {"session":"s1","x":100,"y":200}
+  POST /rpa/record/type {"session":"s1","text":"Hello"}
   POST /rpa/record/hotkey {"session":"s1","seq":"CTRL+S"}
   POST /rpa/record/ocr_click {"session":"s1","needle":"OK","lang":"eng+rus"}
 
 Vnutri: vyzyvaet sootvetstvuyuschie /desktop/rpa/*, parallelno dobavlyaya sobytie v sessiyu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from typing import Any, Dict
@@ -53,7 +51,7 @@ def export():
     name = (data.get("name") or "").strip()
     return jsonify(export_to_workflow(sess, name)), 200
 
-# --- Proksi deystviy ---
+# --- Action Proxy ---
 @bp.route("/open", methods=["POST"])
 def p_open():
     data = request.get_json(force=True, silent=True) or {}

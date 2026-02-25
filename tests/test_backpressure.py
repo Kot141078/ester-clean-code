@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-tests/test_backpressure.py — yunit-test token-baketa backpressure (bez HTTP).
+"""tests/test_backpressure.py - yunit-test token-baketa backpressure (without HTTP).
 
-Proveryaem:
+Check it out:
   • allow() v rezhime burst → zatem blokirovki i raschet retry_after.
   • set_config() menyaet limity na letu.
   • counters() nakaplivaet allowed/blocked.
@@ -15,8 +14,7 @@ Mosty:
 Zemnoy abzats:
 Eto proverka, chto regulirovschik mashet zhezlom po pravilam: snachala propuskaet neskolko, potom pritormazhivaet.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import time
@@ -34,7 +32,7 @@ class TestBackpressure(unittest.TestCase):
         ok1, _ = bp.allow(key)
         ok2, _ = bp.allow(key)
         self.assertTrue(ok1 and ok2)
-        # tretiy podryad dolzhen zablokirovatsya
+        # the third one in a row should be blocked
         ok3, retry = bp.allow(key)
         self.assertFalse(ok3)
         self.assertGreaterEqual(retry, 1)

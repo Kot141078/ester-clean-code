@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules.quality.guard — ingest, enable/disable i periodicheskaya proverka SLA.
+"""modules.quality.guard - ingest, enable/disable i periodicheskaya proverka SLA.
 
 Mosty:
 - Yavnyy: REST-routy (/quality/*) ↔ etot modul (enable/disable/status/ingest/periodic_check).
@@ -8,12 +7,11 @@ Mosty:
 - Skrytyy #2: (Okno nablyudeniya ↔ Svodka) — skolzyaschee okno po vremeni daet p90 i error_rate dlya dashborda/logov.
 
 Zemnoy abzats:
-Eto «semafor u stanka»: my skladyvaem sobytiya v korotkuyu operativnuyu ochered (pamyat protsessa),
+Eto “semafor u stanka”: my skladyvaem sobytiya v korotkuyu operativnuyu ochered (pamyat protsessa),
 a periodic_check() sravnivaet p90 i dolyu oshibok s porogami, chtoby ne dopustit degradatsii.
-Nikakikh setevykh I/O — bezopasno dlya «zakrytoy korobki».
+Nikakikh setevykh I/O - bezopasno dlya “zakrytoy korobki”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -30,19 +28,19 @@ __all__ = [
 _ENABLED: bool = False
 
 _CFG: Dict[str, Any] = {
-    "window_sec": 300,      # shirina okna skolzyaschey statistiki (sek)
-    "p90_ms": 800.0,        # tselevoy p90 po vremeni operatsii (ms)
-    "error_rate": 0.20,     # dolya oshibok v okne (0..1)
-    "hud_alerts": False,    # vklyuchat li korotkie HUD-opovescheniya v otvete
+    "window_sec": 300,      # sliding statistics window width (sec)
+    "p90_ms": 800.0,        # target p90 by operation time (ms)
+    "error_rate": 0.20,     # proportion of errors in the window (0..1)
+    "hud_alerts": False,    # whether to include short HUD notifications in the response
 }
 
-# ochered sobytiy (in-memory), kazhdyy element: {"ts": float, "ok": bool, "t_ms": float, "op": str}
+# queue of events (in-memories), each element: ЗЗФ0З
 _EVTS: List[Dict[str, Any]] = []
 
-# poslednyaya svodka (dlya status)
+# latest summary (for status)
 _LAST: Dict[str, Any] = {}
 
-# A/B-slot, bez vliyaniya na kontrakty: v rezhime "B" tolko raschet, bez HUD
+# A/B slot, without influence on contracts: in mode “B” only calculation, without HUD
 _AB = (os.getenv("ESTER_QUALITY_GUARD_AB") or "A").strip().upper()
 
 
@@ -51,22 +49,20 @@ def _now() -> float:
 
 
 def _prune(now: Optional[float] = None) -> None:
-    """Udalit sobytiya vne okna nablyudeniya."""
+    """Delete events outside the monitoring window."""
     now = now or _now()
     cutoff = now - float(_CFG.get("window_sec", 300))
     if not _EVTS:
         return
-    # bystraya filtratsiya spiskom
+    # quick filtering by list
     keep = [e for e in _EVTS if float(e.get("ts", 0)) >= cutoff]
     if len(keep) != len(_EVTS):
         _EVTS[:] = keep
 
 
 def _calc_stats() -> Tuple[int, float, float]:
-    """
-    Vozvraschaet (count, p90_ms, error_rate) po sobytiyam v tekuschem okne.
-    Pustoe okno => (0, 0.0, 0.0)
-    """
+    """Returns (count, p90_ms, error_rate) from events in the current window.
+    Empty window => (0, 0.0, 0.0)"""
     n = len(_EVTS)
     if n == 0:
         return 0, 0.0, 0.0
@@ -85,10 +81,8 @@ def _calc_stats() -> Tuple[int, float, float]:
 # ----------------------- publichnyy API -----------------------
 
 def ingest(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Prinyat odno sobytie telemetrii.
-    Ozhidaemye polya (myagko): ok:bool, t_ms:float, op:str
-    """
+    """Receive one telemetry event.
+    Expected fields (soft): ok:pain, t_ms:float, op:str"""
     ts = _now()
     evt = {
         "ts": ts,
@@ -102,18 +96,16 @@ def ingest(payload: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def enable(config_or_flag: Any = True) -> Dict[str, Any]:
-    """
-    Vklyuchit kontrol kachestva.
-    Sovmestimo s routom: prinimaet libo bool, libo JSON-konfig:
-      {"window_sec":60,"p90_ms":900,"error_rate":0.25,"hud_alerts":true}
-    """
+    """Enable quality control.
+    Compatible with root: accepts either pain or JSION-config:
+      ZZF0Z"""
     global _ENABLED
     # podderzhka bool
     if isinstance(config_or_flag, bool):
         _ENABLED = bool(config_or_flag)
         return status()
 
-    # podderzhka slovarya-konfiga
+    # dictionary-config support
     cfg = dict(config_or_flag or {})
     _ENABLED = bool(cfg.get("enabled", True))
     for k in ("window_sec", "p90_ms", "error_rate", "hud_alerts"):
@@ -134,7 +126,7 @@ def disable() -> Dict[str, Any]:
 
 
 def status() -> Dict[str, Any]:
-    # otdaem legkuyu svodku bez pererascheta (chtoby ne trogat okno)
+    # we give an easy summary without recalculation (so as not to touch the window)
     return {
         "ok": True,
         "enabled": _ENABLED,
@@ -146,14 +138,12 @@ def status() -> Dict[str, Any]:
 
 
 def periodic_check() -> Dict[str, Any]:
-    """
-    Periodicheskaya proverka SLA po skolzyaschemu oknu.
+    """Periodicheskaya proverka SLA po skolzyaschemu oknu.
     Vozvraschaet: {
       ok, enabled, window_sec, count, p90_ms, error_rate,
       breached: {p90_ms:bool, error_rate:bool},
-      alerts?: [stroki]    # esli hud_alerts vklyuchen i est narusheniya
-    }
-    """
+      alerts?: [stroki] # esli hud_alerts vklyuchen i est narusheniya
+    }"""
     _prune()
     cnt, p90, erate = _calc_stats()
     thr_p90 = float(_CFG["p90_ms"])
@@ -171,7 +161,7 @@ def periodic_check() -> Dict[str, Any]:
         "breached": {"p90_ms": breach_p, "error_rate": breach_e},
     }
 
-    # legkiy HUD tolko esli vklyucheno i est narusheniya (i slot ne zapreschaet)
+    # easy MOVE only if enabled and there are violations (and the slot does not prohibit)
     if _CFG.get("hud_alerts") and _AB != "B" and (breach_p or breach_e):
         alerts: List[str] = []
         if breach_p:
@@ -180,7 +170,7 @@ def periodic_check() -> Dict[str, Any]:
             alerts.append(f"Errors {erate:.1%} > {thr_er:.1%}")
         rep["alerts"] = alerts
 
-    # sokhranyaem dlya status()
+    # save for status()
     _LAST.clear()
     _LAST.update(rep)
     return rep

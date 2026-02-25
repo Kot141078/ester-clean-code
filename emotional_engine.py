@@ -1,32 +1,30 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-emotional_engine.py
+"""emotional_engine.py
 Universalnyy emotsionalnyy dvizhok, obedinyayuschiy dve logiki.
 
 Analiziruet korotkie soobscheniya po naboru emotsionalnykh kanalov:
-- anxiety (trevoga/strakh)
-- interest (interes)
+- anxiety (anxiety/strakh)
+- interest (interests)
 - joy (radost)
 - sadness (grust)
 - anger (zlost)
-- surprise (udivlenie)
-- disgust (otvraschenie)
-- energy (energichnost)
-- valence (pozitivnost/negativnost)
+- surprise (surprise)
+- disgust
+- energy
+- valence (positive/negative)
 
-Primer ispolzovaniya:
+Primer use:
   ee = EmotionalEngine()
-  emos = ee.analyze("Ogo, kakaya gadost! 🤢 Mne strashno, no uzhasno interesno.")
-"""
+  emos = ee.analyze("Ogo, kakaya gadost! 🤢 I'm afraid, no uzhasno interesno.")"""
 
 import math
 import re
 from typing import Dict, Iterable, List, Optional, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# --- Leksikony (obedinennye i rasshirennye) ---
+# ---Lexicons (merged and extended) ---
 
 NEGATIONS = {
     # === Russian / Russkiy ===
@@ -64,7 +62,7 @@ NEGATIONS = {
     "without", "hardly", "barely", "scarcely",
     
     # Explicit
-    "cannot", "can't", "won't", "dont", "doesn't" # Na sluchay esli tokenizator ne razbil
+    "cannot", "can't", "won't", "dont", "doesn't" # In case the tokenizer is not broken
 }
 
 INTENSIFIERS_POS = {
@@ -123,7 +121,7 @@ INTENSIFIERS_POS = {
     "fenomenalno": 1.45,
     "zapredelno": 1.5,
 
-    # === Confirmation / Podtverzhdeniya (myagkie usiliteli) ===
+    # === Confirmation / Confirmations (soft amplifiers) ===
     "pravda": 1.15,
     "istinno": 1.1,
     "deystvitelno": 1.15,
@@ -150,7 +148,7 @@ INTENSIFIERS_NEG = {
     "kroshku": 0.6,
     "malost": 0.8,
     "pomalenku": 0.75,
-    "tikhonko": 0.7,   # kontekst: "tikhonko rabotaet"
+    "tikhonko": 0.7,   # context: "works quietly"
     "slegontsa": 0.75,
 
     # === Slang & Expressive / Sleng i Obraznye ===
@@ -165,10 +163,10 @@ INTENSIFIERS_NEG = {
     "edva": 0.6,
 
     # === Uncertainty & Softeners / Khedzhirovanie (somnenie) ===
-    # Snizhayut ves utverzhdeniya, delaya ego menee kategorichnym
+    # Reduce the weight of a statement, making it less categorical
     "vrode": 0.9,
     "kak-to": 0.9,
-    "kak by": 0.9,
+    "as if": 0.9,
     "tipa": 0.9,
     "vrode by": 0.85,
     "primerno": 0.9,
@@ -177,7 +175,7 @@ INTENSIFIERS_NEG = {
     "otnositelno": 0.85,
     "pozhaluy": 0.9,
 
-    # === Time-based as Quantity / Vremennye (kak mera) ===
+    # === Time-wased as Quantity / Temporary (as a measure) ===
     "minutku": 0.8,    # "podozhdi minutku" (nedolgo)
     "sekundu": 0.7,
     "moment": 0.8,
@@ -209,7 +207,7 @@ LEX_ANXIETY = {
     "dergayus", "sryvayus", "nakruchivayu", "psikhuyu",
     "shugayus", "drozhu",
 
-    # Narechiya i Opisaniya / Adverbs & Descriptors
+    # Adverbs & Descriptors / Adverbs & Descriptors
     "strashno", "trevozhno", "uzhasno", "zhutko", 
     "opasno", "nespokoyno", "napryazhenno", 
     "stressovo", "diskomfortno", "neuyutno",
@@ -224,7 +222,7 @@ LEX_ANXIETY = {
     "shukher", "palevo", # Context of danger
 
     # Idiomy i Frazy / Idioms
-    "ne po sebe", "dusha v pyatki", "volosy dybom",
+    "ne po sebe", "soul in heels", "volosy dybom",
     "krov stynet", "na igolkakh", "mesta ne nakhozhu",
     "kom v gorle", "ruki opuskayutsya", "zemlya iz-pod nog",
     "serdtse zamiraet", "kholodnyy pot",
@@ -247,14 +245,14 @@ LEX_INTEREST = {
     "zaintrigovan", "intriguet", "nravitsya", "khochu",
     "vazhno", "aktualno", "polezno", "tsenno",
 
-    # Prizyv k deystviyu / Call to Action
+    # Call to action / Call to Action
     "davay", "pognali", "nachinay", "prodolzhay", "zhgi",
     "deystvuy", "vpered", "poekhali", "startuem",
     "poprobuem", "testiruem", "zapuskay", "pokazhi",
     "rasskazhi", "obyasni", "raskroy", "delay",
     "davay poprobuem", "ya za", "ya v dele",
 
-    # Otsenka kachestva / Appreciation & Awe
+    # Quality Assessment / Appreciation & Ave
     "kruto", "klassno", "zdorovo", "otlichno",
     "super", "shikarno", "prekrasno", "volshebno",
     "genialno", "krasivo", "elegantno", "moschno",
@@ -282,7 +280,7 @@ LEX_INTEREST = {
     "agree", "confirm", "approve", "lgtm", # looks good to me
     "sounds good", "make sense", "do it"
 }
-# Rasshiren leksemami iz bazovogo dvizhka
+# Extended with lexemes from the base engine
 LEX_JOY = {
     # === Russian / Russkiy ===
     # Bazovye / Basic
@@ -305,7 +303,7 @@ LEX_JOY = {
     "milo", "nyashno", "teplo", "dushevno",
     "rodnoy", "blizkiy", "lyubimyy",
 
-    # Uspekh i Pobeda / Success & Victory
+    # Success and Victory / Success & Victoria
     "ura", "es", "est", "pobeda", "poluchilos",
     "sdelali", "smogli", "zataschili", "vin",
     "chempion", "krasava", "molodets", "umnitsa",
@@ -314,7 +312,7 @@ LEX_JOY = {
     "kayf", "baldezh", "taschus", "kek", "lol",
     "khakha", "akhakha", "khikhi", "rzhu", "oru",
     "ugar", "prikol", "imba", "zashlo",
-    "godnyy kontent", "zhiza", # chasto pozitivnyy otklik uznavaniya
+    "godnyy kontent", "zhiza", # often a positive response of recognition
 
     # === English / Angliyskiy ===
     # Basic
@@ -331,7 +329,7 @@ LEX_JOY = {
     "lol", "lmao", "rofl", "xd", ":)", ":d", 
     "<3", "gg", "ez", "win", "pog", "pogchamp"
 }
-# Rasshiren leksemami iz bazovogo dvizhka
+# Extended with lexemes from the base engine
 LEX_SAD = {
     # === Russian / Russkiy ===
     # Bazovye / Basic
@@ -351,11 +349,11 @@ LEX_SAD = {
     # Apatiya i Vygoranie / Apathy & Burnout
     "depressiya", "depressivno", "depr", "khandra",
     "splin", "melankholiya", "apatiya", "vse ravno",
-    "ruki opuskayutsya", "nichego ne khochu", "sil net",
+    "ruki opuskayutsya", "I don't want anything", "sil net",
     "sdayus", "vygorel", "ustal", "ustala",
     "nadoelo", "dosmerti",
 
-    # Fizicheskie proyavleniya / Physical
+    # Physical manifestations / Fusisal
     "slezy", "slezy", "plachu", "revu", "rydayu",
     "kom v gorle", "glaza na mokrom meste",
     "khnyk", "vskhlip",
@@ -364,8 +362,8 @@ LEX_SAD = {
     "pechalka", "pichal", "otstoy", "oblom",
     "feyl", "proval", "sliv", "dnische",
     "tilt", "v tilte", "minus moral",
-    "dizmoral", "grustnenko", "zhiza", # chasto v kontekste grustnogo uznavaniya
-    "ya vse", "ya konchilsya", "potracheno",
+    "dizmoral", "grustnenko", "zhiza", # often in the context of sad recognition
+    "ya vse", "I'm done", "potracheno",
 
     # === English / Angliyskiy ===
     # Basic
@@ -376,10 +374,10 @@ LEX_SAD = {
     # Internet/Gaming
     "cry", "crying", "rip", "f", "press f", # Respect/Sorrow
     "depressed", "depression", "tired", "burned out",
-    "fail", "gg", # inogda kak priznanie porazheniya
+    "fail", "gg", # sometimes as an admission of defeat
     "heartbroken", "broken"
 }
-# Rasshiren leksemami iz bazovogo dvizhka
+# Extended with lexemes from the base engine
 LEX_ANGER = {
     # === Russian / Russkiy ===
     # Bazovye / Basic
@@ -409,7 +407,7 @@ LEX_ANGER = {
     "pukan", "battkhert", "tilt", "reydzh",
     "vzryv", "bag", "lag", "tupit", "tormozit", # v kontekste gneva na tekhniku
 
-    # Rugatelstva i Oskorbleniya (dlya ponimaniya konteksta) / Expletives & Insults
+    # Curses and Insults (to understand the context) / Expletives & Stroke
     "chert", "chert", "blin", "figa", "nafig",
     "tvar", "svoloch", "gad", "urod", "kozel",
     "tupoy", "idiot", "debil", "kretin", "durak",
@@ -436,28 +434,28 @@ LEX_SURPRISE = {
     # === Russian / Russkiy ===
     # Bazovye reaktsii / Basic Reactions
     "ogo", "vau", "ukh ty", "ukh", "akh",
-    "nichego sebe", "vot eto da", "nu i nu",
+    "nichego sebe", "Wow", "nu i nu",
     "udivlen", "udivlena", "udivitelno",
     "izumlen", "porazhen", "porazitelno",
     "vpechatlyaet", "vpechatlyayusche",
 
     # Neverie i Somnenie / Disbelief
-    "da ladno", "serezno", "ne mozhet byt",
+    "da ladno", "serezno", "can't be",
     "neuzheli", "shutish", "gonish", "pravda?",
-    "razve", "kak tak", "pochemu", "otkuda",
+    "razve", "how so", "pochemu", "otkuda",
     "ne veritsya", "glazam ne veryu",
 
     # Vnezapnost / Suddenness
     "neozhidanno", "vnezapno", "vdrug", "syurpriz",
     "otkrytie", "insayt", "ozarenie", "novost",
-    "kak sneg na golovu", "grom sredi yasnogo neba",
+    "out of the blue", "grom sredi yasnogo neba",
 
-    # Silnyy shok i Sleng / Strong Shock & Slang
+    # Strong Shock & Slang / Strong Shock & Slang
     "shok", "v shoke", "shokirovan", "obaldet",
     "ofiget", "figa", "nifiga", "nifiga sebe",
     "zhest", "dich", "kosmos", "otval bashki",
     "chelyust otpala", "chelyust na polu",
-    "net slov", "poteryal dar rechi",
+    "net slov", "speechless",
     "vzryv mozga", "mayndfak", "kryshesnos",
 
     # Strannost / Weirdness
@@ -477,7 +475,7 @@ LEX_SURPRISE = {
     # Slang/Acronyms
     "omg", "omfg", "wtf", "wth",
     "mind blowing", "mindblown", "holy cow",
-    "damn" # mozhet byt i udivleniem, i zlostyu
+    "damn" # can be both surprise and anger
 }
 # Novyy leksikon iz bazovogo dvizhka
 LEX_DISGUST = {
@@ -508,9 +506,9 @@ LEX_DISGUST = {
     "dich", "tresh", "otstoy", "klek",
     "klek", "sram", "pozor", "k.l.m.n.",
 
-    # Otsenka koda/raboty / Work-related
+    # Code/work evaluation / Work-related
     "govnokod", "kostyl", "velosiped", # v negativnom kontekste
-    "spagetti", "krivo", "koso", "cherez zhopu",
+    "spagetti", "krivo", "koso", "through the ass",
     
     # === English / Angliyskiy ===
     # Basic
@@ -530,7 +528,7 @@ LEX_ENERGY_UP = {
     "pognali", "poekhali", "startuem", "nachinaem",
     "v put", "v boy", "zaryazhen", "zaryazhena",
     "bodro", "bodryachkom", "est sily", "polna sil",
-    "led tronulsya", "protsess poshel", "rabotaem",
+    "led tronulsya", "the process has begun", "rabotaem",
 
     # Energiya i Resurs / Energy & Resource
     "energiya", "mosch", "sila", "tonus", "resurs",
@@ -544,11 +542,11 @@ LEX_ENERGY_UP = {
     "perezagruzka", "rebut", "vosstanovilsya",
     "vernulsya", "onlayn", "na svyazi", "tut",
 
-    # Deystvie i Fokus / Action & Focus
+    # Action & Focus / Action & Focus
     "deystvuem", "delaem", "reshaem", "taschim",
     "topim", "zhmem", "gazuem", "vpered",
     "sosredotochen", "fokus", "v potoke",
-    "raznosim", "unichtozhaem", # v kontekste zadach
+    "raznosim", "unichtozhaem", # in the context of tasks
 
     # Sleng / Slang
     "vork", "vorkaem", "shturmim", "rashim",
@@ -576,7 +574,7 @@ LEX_ENERGY_DOWN = {
     # Bazovye / Basic
     "ustal", "ustala", "ustalost", "utomlen",
     "bez sil", "sil net", "sily na iskhode",
-    "vyzhat", "vyzhata", "kak limon",
+    "vyzhat", "vyzhata", "like a lemon",
     "razbit", "razbita", "razbitost",
     "ele zhivoy", "ele khozhu", "valit s nog",
     "opustoshen", "opustoshena", "obessilel",
@@ -592,7 +590,7 @@ LEX_ENERGY_DOWN = {
     "golova ne varit", "mozg kipit", "tuplyu",
     "tormozhu", "plyvu", "rasfokus", "kasha v golove",
     "peregrev", "peregruz", "zakipayu", "otupel",
-    "ne soobrazhayu", "zatormozhen",
+    "I can't think straight", "zatormozhen",
 
     # Proschanie pered snom / Going to Sleep
     "spokoynoy nochi", "dobroy nochi", "sladkikh snov",
@@ -600,10 +598,10 @@ LEX_ENERGY_DOWN = {
     "do zavtra", "zavtra", "na bokovuyu", "v lyulyu",
     "poshel spat", "ushla spat",
 
-    # Sleng i Tekhno-metafory / Slang & Tech
+    # Slang and Techno-metaphors / Slang & Tech
     "off", "ya off", "off", "afk", "afk",
     "batareyka sela", "zaryad na nule", "lou bat",
-    "shatdaun", "spyaschiy rezhim", "gibernatsiya",
+    "shatdaun", "sleep mode", "gibernatsiya",
     "trottling", "lagayu", "friz", "zavis",
     "zombi", "ovosch", "trup", "mertvyy",
     "vse", "sdokh", "sdulsya", "rip",
@@ -624,13 +622,13 @@ LEX_ENERGY_DOWN = {
     "turning off", "logging off", "zzz"
 }
 
-# Rasshirennaya karta Emoji (Dekodirovano + Maksimalnyy okhvat)
+# Extended Etozhi map (Decoded + Maximum coverage)
 EMOJI_MAP = {
     # --- TREVOGA I STRAKh (Anxiety) ---
     "😅": {"anxiety": +0.15, "joy": +0.10, "energy": +0.05}, # Nelovkost
     "😟": {"anxiety": +0.35},                                # Bespokoystvo
     "😰": {"anxiety": +0.45},                                # Stress
-    "😱": {"anxiety": +0.60, "surprise": +0.30},             # Shok/Uzhas
+    "😱": {"anxiety": +0.60, "surprise": +0.30},             # Shock/Horror
     "😨": {"anxiety": +0.50},                                # Strakh
     "😬": {"anxiety": +0.40},                                # Napryazhenie
     "🆘": {"anxiety": +0.70, "energy": +0.20},             # Signal bedstviya
@@ -640,10 +638,10 @@ EMOJI_MAP = {
     "😊": {"joy": +0.25, "valence": +0.20},                 # Teplo
     "😍": {"joy": +0.35, "valence": +0.30, "interest": 0.3}, # Vostorg
     "😂": {"joy": +0.45, "valence": +0.35, "energy": +0.10}, # Smekh
-    "🤣": {"joy": +0.50, "valence": +0.40, "energy": +0.15}, # Istericheskiy smekh
+    "🤣": {"joy": +0.50, "valence": +0.40, "energy": +0.15}, # Hysterical laughter
     "🥳": {"joy": +0.40, "energy": +0.30},                  # Prazdnik
     "✨": {"joy": +0.20, "interest": +0.15},                # Magiya/Ideal
-    "✅": {"joy": +0.15, "energy": +0.10},                  # Uspekh/Done
+    "✅": {"joy": +0.15, "energy": +0.10},                  # Success/Don
 
     # --- GRUST (Sadness) ---
     "😭": {"sadness": +0.60, "valence": -0.30},             # Plach
@@ -668,13 +666,13 @@ EMOJI_MAP = {
     # --- OTVRASchENIE (Disgust) ---
     "🤢": {"disgust": +0.55, "valence": -0.25},             # Toshnota
     "🤮": {"disgust": +0.70, "valence": -0.35},             # Rvota
-    "💩": {"disgust": +0.50, "valence": -0.20},             # Plokhoe kachestvo
+    "💩": {"disgust": +0.50, "valence": -0.20},             # Poor quality
     "🤡": {"disgust": +0.40, "anger": +0.20},               # Krinzh/Shut
 
     # --- ENERGIYa I DRAYV (Energy) ---
     "🔥": {"energy": +0.30, "interest": +0.20, "joy": +0.10}, # Ogon/Drayv
     "🚀": {"energy": +0.40, "interest": +0.25},               # Start/Skorost
-    "⚡️": {"energy": +0.35},                                 # Molniya/Zaryad
+    "⚡️": {"energy": +0.35},                                 # Lightning/Charge
     "💪": {"energy": +0.30, "joy": +0.15},                  # Sila/Gotovnost
     "💤": {"energy": -0.50},                                 # Son
     "😴": {"energy": -0.60},                                 # Glubokiy son
@@ -742,10 +740,10 @@ YES_CUES = {
 NO_CUES = {
     # === Russian / Russkiy ===
     # Bazovye / Basic
-    "net", "nea", "netu", "nikogda", "ni za chto",
+    "net", "nea", "netu", "nikogda", "no way",
     "ni v koem sluchae", "otnyud", "vovse net",
 
-    # Otkaz ot deystviya / Refusal
+    # Disclaimer / Refusal
     "ne khochu", "ne budu", "ne nado", "bros",
     "otkazhus", "otkaz", "otmenyay", "otmena",
     "stop", "khvatit", "prekrati", "ostanovis",
@@ -758,7 +756,7 @@ NO_CUES = {
     "plokho", "otstoy", "fignya", "erunda",
 
     # Otkladyvanie (Myagkoe "Net") / Delay (Soft No)
-    "potom", "pozzhe", "pozzhe kak-nibud",
+    "potom", "pozzhe", "later someday",
     "ne seychas", "ne segodnya", "nekogda",
     "zanyat", "zanyata", "zavtra", "drugoy raz",
     "pogodi", "podozhdi", "tormozi", "ne speshi",
@@ -784,7 +782,7 @@ NO_CUES = {
 }
 LEX_CONFUSION = {
     # === Russian / Russkiy ===
-    "ne ponyal", "ne ponyala", "chto?", "v smysle?", "kak eto?", "neyasno", "nechetko", "nechetko",
+    "ne ponyal", "ne ponyala", "chto?", "v smysle?", "how is this?", "neyasno", "nechetko", "nechetko",
     "zaputanno", "slozhno", "obyasni", "razyasni", "poyasni", "povtori", "ne dognal",
     "kasha", "bred", "erunda", "chepukha", "dich", "stranno", "ne skhoditsya", "oshibka", 
     "glyuk", "bag", "nelogichno", "pochemu?", "zachem?", "kto?", "gde?", "kogda?",
@@ -798,10 +796,10 @@ LEX_CONFUSION = {
 
 LEX_URGENCY = {
     # === Russian / Russkiy ===
-    "srochno", "bystro", "fast", "gorim", "asap", "asap", "seychas zhe", "nemedlenno", 
+    "srochno", "bystro", "fast", "gorim", "asap", "asap", "now", "nemedlenno", 
     "mgnovenno", "vchera", "kritichno", "vazhno", "prioritet", "dedlayn", "finish",
     "skoree", "pospeshi", "ne tyani", "srazu", "teper", "gorit", "pozhar", "avral",
-    "ekstrenno", "v sey zhe chas", "siyu minutu", "p0", "p0", "p1", "p1",
+    "ekstrenno", "at this very hour", "siyu minutu", "p0", "p0", "p1", "p1",
 
     # === English / English ===
     "urgent", "fast", "quickly", "now", "immediately", "critical", "priority", 
@@ -915,14 +913,12 @@ def _normalize_channel(x: float, scale: float = 1.0) -> float:
 
 
 def _analyze_core(text: str, baseline: Optional[Dict[str, float]] = None) -> Dict[str, float]:
-    """
-    Osnovnoy analiz: leksikony + emoji + punktuatsiya + yes/no.
+    """Basic analysis: leksikony + emoji + punktuatsiya + yes/no.
     Vozvraschaet kanaly v diapazone [0..1].
 
     Vazhno:
     - Ne dolzhen padat iz-za otsutstvuyuschikh peremennykh.
-    - Dolzhen ispolzovat uzhe poschitannye `sadness/anger/surprise/...`, a ne syroy lex-score.
-    """
+    - Dolzhen ispolzovat uzhe poschitannye `sadness/anger/surprise/...`, a ne syroy lex-score."""
     raw = text or ""
     tokens = _tokenize(raw)
 
@@ -960,7 +956,7 @@ def _analyze_core(text: str, baseline: Optional[Dict[str, float]] = None) -> Dic
     energy = (e_up - 0.8 * e_down) + emo.get("energy", 0.0) + punc.get("energy", 0.0)
 
     # Valentnost: pozitiv ↔ negativ.
-    # Ispolzuem sostavnye kanaly (sadness/anger/disgust/anxiety), plyus gratitude kak myagkiy pozitiv.
+    # We use compound channels (sadness/anger/disgost/ankhetes), plus grace as a soft positive.
     valence = (
         (joy - sadness - 0.5 * anxiety - 0.4 * anger - 0.6 * disgust + 0.15 * surprise + 0.25 * grat)
         + emo.get("valence", 0.0)
@@ -985,7 +981,7 @@ def _analyze_core(text: str, baseline: Optional[Dict[str, float]] = None) -> Dic
 
     if baseline:
         b = baseline
-        # myagkoe smeshivanie s baseline
+        # soft mixing with basseline
         for k in out:
             base = float(b.get(k, 0.0))
             out[k] = max(0.0, min(1.0, 0.85 * out[k] + 0.15 * base))
@@ -1050,10 +1046,10 @@ class EmotionalEngine:
 
 
 
-# --- Backward-compatible helpers (nuzhny dlya routes_emotions i starykh moduley) ---
+# --- Father-Compatible Helpers (needed for Russian_Emotions and old modules) ---
 
 def detect_emotions(text: str, user_ctx: Optional[Dict] = None) -> Dict[str, float]:
-    """Sovmestimost: prezhnie routy ozhidayut detect_emotions()."""
+    """Compatibility: legacy routes expect detect_emotions()."""
     return analyze_emotions(text, user_ctx=user_ctx)
 
 
@@ -1063,23 +1059,21 @@ def top_emotions(text: str, k: int = 3, user_ctx: Optional[Dict] = None,
     scores = analyze_emotions(text, user_ctx=user_ctx)
     if channels:
         scores = {c: scores.get(c, 0.0) for c in channels}
-    # obychno valence — os, no inogda polezna; ostavlyaem kak est
+    # Usually felt boots are ok, but sometimes useful; leave it as is
     items = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
     k = max(1, min(int(k or 3), 20))
     return [(str(a), float(b)) for a, b in items[:k]]
 
 
 def primary_emotion(text: str, user_ctx: Optional[Dict] = None) -> str:
-    """Glavnaya emotsiya (iz bazovogo nabora)."""
+    """Main emotion (from the basic set)."""
     base = ["anxiety", "interest", "joy", "sadness", "anger", "surprise", "disgust"]
     top = top_emotions(text, k=1, user_ctx=user_ctx, channels=base)
     return top[0][0] if top else "neutral"
 
 
 class EmotionalAnalyzer:
-    """
-    Alias dlya moduley, kotorye ozhidayut klass-obekt s metodom analyze_emotion().
-    """
+    """Alias ​​for modules that expect a class object with the analyze_emotion() method."""
     def __init__(self, baseline: Optional[Dict[str, float]] = None):
         self._eng = EmotionalEngine(baseline=baseline)
 

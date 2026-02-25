@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mem_provenance_routes.py — HTTP-ruchki dlya obogascheniya pamyati edinym «profileom znaniya».
+"""routes/mem_provenance_routes.py - HTTP-ruchki dlya obogascheniya pamyati edinym "profileom znaniya".
 
-Endpointy:
-  • POST /mem/provenance/ensure  {"items":[{...}], "source":{...}} v†' {"items":[...]} s meta.provenance
+Endpoint:
+  • POST /mem/provenance/ensure {"items":[{...}], "source":{...}} v†' {"items":[...]} s meta.provenance
 
 Mosty:
 - Yavnyy: (Memory v†" Audit) edinyy profile oblegchaet dedup/sravnenie/obmen mezhdu uzlami.
-- Skrytyy #1: (Infoteoriya v†" Set) sha256 sovmestim s setevymi «profileami znaniy».
+- Skrytyy #1: (Infoteoriya v†" Set) sha256 sovmestim s setevymi "profileami znaniy".
 - Skrytyy #2: (Kibernetika v†" Kontrol) yavnaya ruchka dlya massovogo obogascheniya bez izmeneniya starykh kontraktov.
 
 Zemnoy abzats:
-Eto «shtempelevka»: podash pachku kartochek — vernutsya so shtampom «kto/kogda/chto».
+Eto "shtempelevka": podash pachku kartochek - vernutsya so shtampom "kto/kogda/chto".
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List

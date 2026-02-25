@@ -31,7 +31,7 @@
   <section>
     <div class="row">
       <label>Interval (sek): <input id="interval" type="number" value="5" min="1" class="mono"/></label>
-      <label>Tolko tom (opts.): <input id="mount" class="mono" placeholder="/media/USB ili E:\\"/></label>
+      <label>Only one (opt.): <input id="mount" class="mono" placeholder="/media/USB ili E:\\"/></label>
       <button onclick="start()">Zapustit</button>
       <button onclick="stop()">Ostanovit</button>
       <button onclick="stat()">Status</button>
@@ -44,7 +44,7 @@
   <section>
     <div class="row">
       <label>Khvost logov (strok): <input id="tail" type="number" value="200" min="10" class="mono"/></label>
-      <button onclick="logs()">Obnovit logi</button>
+      <button onclick="logs()">Update logs</button>
     </div>
     <pre id="logtext">—</pre>
   </section>

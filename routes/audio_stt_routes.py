@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/audio_stt_routes.py - REST: /audio/stt/transcribe, /audio/stt/get
+"""routes/audio_stt_routes.py - REST: /audio/stt/transcribe, /audio/stt/get
 
 Mosty:
 - Yavnyy: (Veb ↔ STT) tochka vkhoda dlya ruchnogo i programmnogo vyzova.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Odin POST - i u vas transkriptsiya s subtitrami, prigodnaya dlya indeksatsii i montazha.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, send_file
 import os, json

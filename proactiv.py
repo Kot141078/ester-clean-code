@@ -1,26 +1,25 @@
 # -*- coding: utf-8 -*-
-"""proactiv.py — klient dlya /proactive (Proactive Suggestions) v Ester.
+"""proactiv.py - klient dlya /proactive (Proactive Suggestions) v Ester.
 
 Pochemu bylo slomano:
 - V fayle lezhal JavaScript-snippet `fetch("/proactive", {...})`, a ne Python.
 - Poetomu Python videl `{` na pervoy stroke i padal: "'{' was never closed".
 
-Chto delaet eta versiya:
+What does this version mean:
 - Otpravlyaet POST JSON na endpoynt /proactive tvoego servera Ester (obychno 8090).
-- Beret JWT iz ENV (ESTER_JWT) ili iz fayla state/ester_jwt.txt (best-effort).
+- Beret JWT iz ENV (ESTER_JWT) or iz fayla state/ester_jwt.txt (best-effort).
 - Umeet rabotat v A/B:
     AB_MODE=A → realnyy zapros
     AB_MODE=B → tolko “plan” (pechataem payload, ne zovem set)
 - CLI: mozhno vyzvat vruchnuyu i poluchit JSON-otvet.
 
-Mosty (trebovanie):
-- Yavnyy most: lokalnyy CLI → HTTP /proactive → otvet Ester (operatsionnyy kontur «vopros → deystvie»).
+Mosty (demand):
+- Yavnyy most: lokalnyy CLI → HTTP /proactive → otvet Ester (operatsionnyy kontur “vopros → deystvie”).
 - Skrytye mosty:
   1) Infoteoriya ↔ praktika: minimalnyy payload (user/query/persona) = dostatochnaya statistika, bez lishney entropii.
   2) Inzheneriya ↔ ekspluatatsiya: JWT berem best-effort (ENV → fayl) + taymaut/retrai → menshe “nemykh” otkazov.
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 from __future__ import annotations
 
@@ -122,7 +121,7 @@ def call_proactive(
     timeout_sec: int = HTTP_TIMEOUT,
     retries: int = HTTP_RETRIES,
 ) -> Dict[str, Any]:
-    """Vyzyvaet /proactive i vozvraschaet otchet + otvet."""
+    """Calls /proactive and returns report + response."""
     jwt_val = (jwt or get_jwt() or "").strip()
     url = _join(base_url, path)
 
@@ -170,8 +169,8 @@ def main(argv: Optional[list] = None) -> int:
 
     if not args.query:
         args.query = (
-            "Sgeneriruy na blizhayshie 24 chasa 3 predlozheniya: "
-            "odno tekhnicheskoe po kodu, odno po pamyati/lichnosti Estery, odno po issledovaniyu. "
+            "Generate 3 offers for the next 24 hours:"
+            "one technical on code, one on Estera's memory/personality, one on research."
             "Korotko i s prioritetom."
         )
 
@@ -193,8 +192,6 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Eto kak korotkiy vyzov dispetchera: ty ne taschish v trubku ves tsekh, ty nazyvaesh “kto”, “chto nado” i “v kakom stile”,
-a dispetcher vozvraschaet tri porucheniya. Vazhno, chtoby svyaz ne padala ot odnoy pomekhi — poetomu taymaut, retrai i AB_MODE.
-"""
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Eto kak korotkiy vyzov dispetchera: ty ne taschish v trubku ves tsekh, ty nazyvaesh “kto”, “what should be” i “v kakom stile”,
+a dispetcher vozvraschaet tri porucheniya. Vazhno, chtoby svyaz ne padala ot odnoy pomekhi - poetomu taymaut, retrai i AB_MODE."""

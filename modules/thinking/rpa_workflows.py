@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/rpa_workflows.py — JSON-workflow nad makrosami RPA (mysli → tsepochki deystviy).
+"""modules/thinking/rpa_workflows.py - JSON-workflow nad makrosami RPA (mysli → tsepochki deystviy).
 
-Skhema workflow (primer):
+Schema workflow (primer):
 {
   "name": "hello",
   "steps": [
@@ -12,22 +11,21 @@ Skhema workflow (primer):
 }
 
 Podderzhka:
-- retries (int, >=0), wait_ms (int, >=0), on_fail: "stop"|"continue" (po umolchaniyu "stop").
+- retries (int, >=0), wait_ms (int, >=0), on_fail: "stop"|"continue" (by default "stop").
 - Khranilische: data/workflows/<name>.json
-- Planirovanie: data/workflows/schedules.json:
+- Planning: data/workflows/schedules.json:
   { "items": [ {"name":"hello","interval_sec":600,"enabled":true,"last_ts":0} ] }
 
 MOSTY:
-- Yavnyy: (Planirovanie ↔ Ispolnenie) JSON-plany vyzyvayut makrosy RPA.
+- Yavnyy: (Planirovanie ↔ Implementation) JSON-plany vyzyvayut makrosy RPA.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) fiksirovannyy alfavit shagov snizhaet entropiyu oshibok.
 - Skrytyy #2: (Kibernetika ↔ Audit) edinyy treys (trace) kazhdoy tsepochki — zamknutaya petlya kontrolya.
 
 ZEMNOY ABZATs:
-Fayly na diske, bez BD i oblakov; tick-skript chitaet raspisanie i triggerit tsepochki. Oshibka shaga —
-libo ostanov (po umolchaniyu), libo «prodolzhit». Lokalno i prozrachno.
+Fayly na diske, bez BD i oblakov; tick-skript chitaet raspisanie i triggerit tsepochki. Oshibka shaga -
+libo ostanov (po umolchaniyu), libo “prodolzhit”. Local and transparent.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, threading
 from typing import Any, Dict, List, Tuple
@@ -89,7 +87,7 @@ def run_workflow(name: str, args_overrides: Dict[str, Any] | None = None) -> Dic
         macro = st.get("macro")
         m_args = dict(st.get("args") or {})
         if args_overrides:
-            # poverkh – obschie pereopredeleniya
+            # on top - general overrides
             m_args.update(args_overrides)
         retries = int(st.get("retries", 0))
         wait_ms = int(st.get("wait_ms", 0))
@@ -112,7 +110,7 @@ def run_workflow(name: str, args_overrides: Dict[str, Any] | None = None) -> Dic
                         # continue
                         break
                 else:
-                    # podozhdem mezhdu povtorami (esli zadano)
+                    # wait between repeats (if specified)
                     if wait_ms > 0:
                         time.sleep(wait_ms / 1000.0)
                     continue
@@ -136,7 +134,7 @@ def sched_list() -> List[Dict[str, Any]]:
     return _read_sched().get("items", [])
 
 def sched_save(items: List[Dict[str, Any]]) -> None:
-    # prostaya validatsiya
+    # simple validation
     for it in items:
         if not it.get("name"): raise ValueError("name_required")
         if "interval_sec" in it and int(it["interval_sec"]) <= 0: raise ValueError("bad_interval")
@@ -156,7 +154,7 @@ def sched_tick(now_ts: int | None = None) -> Dict[str, Any]:
         last_ts = int(it.get("last_ts", 0))
         if interval <= 0: continue
         if now - last_ts >= interval:
-            # vremya prishlo
+            # the time has come
             res = run_workflow(name, {})
             runs.append({"name": name, "ok": bool(res.get("ok")), "result": res})
             it["last_ts"] = now

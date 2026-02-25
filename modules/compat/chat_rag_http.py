@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.compat.chat_rag_http — kompaktnyy HTTP‑khuk dlya RAG‑otveta.
-Registriruet (FastAPI/Flask):
-- GET  `/compat/chat/rag/ping`
-- POST `/compat/chat/rag_answer`  { "q": "..." } -> {ok,text,mode,meta}
+"""modules.compat.chat_rag_http - kompaktnyy HTTP‑khuk dlya RAG‑otveta.
+Register (FastAPI/Flask):
+- GET `/compat/chat/rag/ping`
+- POST `/compat/chat/rag_answer` { "q": "..." } -> {ok,text,mode,meta}
 
 Mosty:
 - Yavnyy: vyzyvaet modules.thinking.compat_actions.rag_answer
@@ -12,16 +11,15 @@ Mosty:
 - Skrytyy #2: put sovmestim s suschestvuyuschey arkhitekturoy /compat/*
 
 Zemnoy abzats:
-Eto «knopka otvetit po lokalnym znaniyam»: mozhno bez zapuska osnovnogo chata proverit svyazku ingest→RAG→otvet.
-# c=a+b
-"""
+Eto “knopka otvetit po lokalnym znaniyam”: mozhno bez zapuska osnovnogo chata proverit svyazku ingest→RAG→otvet.
+# c=a+b"""
 import os, json
 from typing import Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 _PREFIX = os.getenv("ESTER_CHAT_PREFIX", "/compat/chat")
 
-def _json(o):  # nebolshoy pomoschnik bez lishnikh zavisimostey
+def _json(o):  # a small helper without unnecessary dependencies
     import json as _j
     return _j.dumps(o, ensure_ascii=False)
 

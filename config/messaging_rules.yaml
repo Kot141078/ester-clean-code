@@ -1,5 +1,5 @@
-# config/messaging_rules.yaml — rasshirennyy routing dlya proaktivnosti Ester
-# Klyuchi mogut byt kak audience, tak i audience:intent (bolee prioritetnye).
+# config/messaging_rules.yaml - advanced routing for Esther’s proactivity
+# The keys can be either audience or audience:intent (higher priority).
 
 routes:
   # Bank i finansy
@@ -24,7 +24,7 @@ routes:
   engineer:          { channel: telegram, to: 777001 }
   engineer:update:   { channel: telegram, to: 777001 }
 
-  # Uchitel / shkola
+  # Teacher/school
   teacher:           { channel: whatsapp, to: "15557771234" }
   student:           { channel: telegram, to: 777002 }
 

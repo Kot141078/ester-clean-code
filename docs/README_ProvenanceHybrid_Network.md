@@ -1,11 +1,11 @@
 # Ester — P2P Bloom i setevoy obmen profileami znaniy (drop-in)
 
-> Vse marshruty registriruyutsya cherez `routes/register_all.py`, t.e. `app.py` ne pravim.
+> All routes are registered via eruts/register_all.piyo, i.e. yoap.piyo is not right.
 
 ## Zachem
 
-- **Bloom**: bystro ponyat, «videli li my uzhe takie id», prezhde chem prosit/slat soderzhimoe. Ekonomit trafik i vremya.
-- **Provenance v seti**: soobschaem lish kheshi i korotkie metadannye — sveryaemsya, nuzhno li zaprashivat kontent.
+- **Bloom**: quickly understand “have we seen such ids before” before asking/sending content. Save traffic and time.
+- **Provenance on the network**: reports only hashes and short metadata - we check whether the content needs to be requested.
 
 ## ENV
 

@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.reports.rag_eval_http — otchet offlayn‑otsenki RAG.
-Put: `/compat/reports/rag_eval.md`.
-# c=a+b
-"""
+"""modules.reports.rag_eval_http — offline RAG assessment report.
+Path: e/comp/reports/rag_eval.mdjo.
+# c=a+b"""
 import os, json, time
 from typing import Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -15,7 +13,7 @@ DATASET = os.path.join("data","rag_eval","demo.jsonl")
 
 def _md() -> str:
     if not os.path.exists(REPORT_JSON):
-        return "# RAG Eval\npoka net otcheta — zapustite tools.verify_rag_eval\n\n_c=a+b_"
+        return "# RAG Eval\nthere is no report yet - run tools.verifiers_rag_eval\n\n_с=а+в_"
     with open(REPORT_JSON, "r", encoding="utf-8") as f:
         R = json.load(f)
     lines = ["# Ester — RAG Eval", ""]

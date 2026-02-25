@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-Dop. routy dlya RAG-dokov:
-  GET  /ester/rag/docs/status      — svodka putey/flagov
-  POST /ester/rag/docs/grep        — tochnyy poisk podstroki po faylam (utf-8)
-  POST /ester/rag/docs/quote_once  — vernut pervuyu tochnuyu stroku (dlya chat-mosta)
+"""Dop. routy dlya RAG-dokov:
+  GET /ester/rag/docs/status - svodka putey/flagov
+  POST /ester/rag/docs/grep — tochnyy poisk podstroki po faylam (utf-8)
+  POST /ester/rag/docs/quote_once — vernut pervuyu tochnuyu stroku (dlya chat-mosta)
 
-VNIMANIE: bez Flask-vnutrennikh test_request_context. Vsya logika vynesena v chistye khelpery.
-"""
+VNIMANIE: bez Flask-vnutrennikh test_request_context. Vsya logika vynesena v clean khelpery."""
 import os
 from typing import List, Dict, Optional
 from flask import Blueprint, request, jsonify
@@ -14,10 +12,10 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp = Blueprint("rag_docs_extra", __name__)
 
-# ------------------------- obschie khelpery (bez Flask) -------------------------
+# ------------------------- general helpers (without Flask) -------------------------
 
 def _expand(p: str) -> str:
-    """expandvars + abspath; ustoychivo k pustym znacheniyam."""
+    """expandvars + abspath; tolerant to null values."""
     return os.path.abspath(os.path.expandvars(p)) if p else ""
 
 def _docs_base() -> str:
@@ -33,10 +31,8 @@ def _docs_base() -> str:
 _ALLOW_EXT = {".txt", ".md", ".rst", ".log", ".json", ".cfg", ".ini", ".yaml", ".yml"}
 
 def grep_in_docs(pattern: str, limit: int = 50) -> Dict:
-    """
-    Det. poisk podstroki po dopustimym tekstovym faylam v docs base.
-    Vozvraschaet dict-peyload kak u starogo grep-routa.
-    """
+    """Det. search for substrings in valid text files in doxbass.
+    Returns a dist payload like the old grep root."""
     pattern = (pattern or "").strip()
     base = _docs_base()
     if not pattern:
@@ -73,9 +69,7 @@ def grep_in_docs(pattern: str, limit: int = 50) -> Dict:
     }
 
 def find_first_line(pattern: str) -> Optional[str]:
-    """
-    Vernut pervuyu tochnuyu stroku (symbol-to-symbol) ili None.
-    """
+    """Return the first exact string (char-then-char) or None."""
     payload = grep_in_docs(pattern, limit=1)
     if not payload.get("ok"):
         return None
@@ -110,10 +104,8 @@ def rag_docs_grep():
 
 @bp.route("/ester/rag/docs/quote_once", methods=["POST"])
 def rag_docs_quote_once():
-    """
-    Vkhod: { "pattern": "...", "wrap": 1|0 }.
-    Vozvraschaet pervuyu naydennuyu tochnuyu stroku.
-    """
+    """Entrance: ZZF0Z.
+    Returns the first exact string found."""
     data = request.get_json(silent=True) or {}
     pattern = (data.get("pattern") or "").strip()
     wrap = bool(int(data.get("wrap") or 1))

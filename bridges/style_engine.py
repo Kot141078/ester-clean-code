@@ -1,5 +1,4 @@
-"""
-StyleEngine — gibkiy modul dlya podbora «chelovechnogo» tona.
+"""StyleEngine - gibkiy modul dlya podbora “chelovechnogo” tona.
 Roli: 'lawyer' (advokat), 'student' (shkolnik/student), 'friend' (drug), 'default'.
 
 MOSTY (yavnyy):
@@ -7,11 +6,10 @@ MOSTY (yavnyy):
 
 MOSTY (skrytye):
 - Sposoben nakladyvat ogranicheniya iz policy-korpusa (ethics/caution rules), esli takie uzhe est v proekte.
-- Mozhet proksirovat ton ot vneshney LLM, no finalnoe reshenie — lokalnaya logika, kak vy prosili.
+- Mozhet proksirovat ton ot vneshney LLM, no final decision - lokalnaya logika, how vy prosili.
 
 ZEMNOY ABZATs:
-- V prode pomogaet ne «pugat» lyudey — soobscheniya vyglyadyat kak ot vnimatelnogo znakomogo.
-"""
+- V prode pomogaet ne "pugat" lyudey - soobscheniya vyglyadyat kak ot vnimatelnogo znakomogo."""
 
 from dataclasses import dataclass
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -39,7 +37,7 @@ class StyleEngine:
         return self.presets.get(role, self.presets["default"])
 
     def render(self, text: str, style: PersonaStyle) -> str:
-        # Ochen berezhnaya stilizatsiya bez «robotnosti»
+        # Very careful stylization without “robotism”
         t = text.strip()
         if style.salutation and not t.lower().startswith(style.salutation.lower()):
             t = f"{style.salutation}, {t}"

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/fleet_routes.py - REST: flot sester (uzly, zadachi, naznachenie, vorker).
+"""routes/fleet_routes.py - REST: fleet sister (uzly, zadachi, naznachenie, vorker).
 
 Mosty:
 - Yavnyy: (Veb ↔ Raspredelenie) edinye tochki dlya registratsii, ocheredi i otchetov.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Avtonomiya ↔ Volya) est eksheny dlya planirovschika i garazha.
 
 Zemnoy abzats:
-Dispetcherskaya: syuda «zvonyat» mashiny, otsyuda im dayut rabotu, syuda zhe prikhodyat otchety.
+Dispetcherskaya: syuda “zvonyat” mashiny, otsyuda im dayut rabotu, syuda zhe prikhodyat otchety.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import json, hmac, hashlib, os

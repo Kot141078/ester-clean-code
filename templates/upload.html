@@ -24,11 +24,11 @@
 </head>
 <body>
   <div class="upl-wrap">
-    <h1 style="margin:0 0 8px 0;">Zagruzka faylov dlya inzhesta</h1>
-    <p class="muted">Peretaschi fayly v oblast nizhe ili vyberi vruchnuyu. Podderzhka: .txt, .md, .csv, .log, .pdf</p>
+    <h1 style="margin:0 0 8px 0;">Uploading files for ingest</h1>
+    <p class="muted">Drag and drop files into the area below or select manually. Support: .tkht, .md, .ksv, .log, .pdf</p>
 
     <div id="drop" class="drop">
-      <p><strong>Peretaschi fayly syuda</strong></p>
+      <p><strong>Drag files here</strong></p>
       <p class="muted">ili</p>
       <input id="file" type="file" multiple accept=".txt,.md,.csv,.log,.pdf"/>
       <div style="margin-top:14px;">
@@ -82,7 +82,7 @@
       function csrf() {
         // Imitiruem logiku tokena: ispolzuem tekuschiy UA i localhost IP
         const secret = ''; // server sam sverit po zagolovkam (X-CSRF-Token vychislyaetsya na servere)
-        return ''; // ne vychislyaem na kliente; luchshe poluchit ot servera, no dlya primera ostavim pustym
+        return ''; // we do not calculate on the client; It’s better to get it from the server, but leave it empty for example
       }
 
       async function uploadOne(f) {
@@ -91,7 +91,7 @@
         const r = await fetch('/ingest/file', {
           method: 'POST',
           headers: {
-            // CSRF: dlya realnoy integratsii mozhno zaprosit token u bekenda, zdes opuscheno (testy pokryvayut servernuyu storonu)
+            // SSRF: for real integration you can request a backend token, omitted here (tests cover the server side)
           },
           body: fd
         });
@@ -106,7 +106,7 @@
           const res = await uploadOne(f);
           const row = document.createElement('div');
           row.className = 'item';
-          row.innerHTML = `<span>Otvet: ${res.status}</span><span>${JSON.stringify(res.body)}</span>`;
+          row.innerHTML = `<span>Answer: ZZF0Z</span><span>${JSON.stringify(res.body)}</span>`;
           list.appendChild(row);
         }
         btn.disabled = false;

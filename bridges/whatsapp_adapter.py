@@ -1,17 +1,15 @@
-"""
-WhatsAppAdapter — podderzhka Cloud API (Meta). Maskirovka pod «obychnyy kontakt».
-Kontrakt s yadrom Ester — cherez ESTER_CHAT_GATEWAY (drop-in).
+"""WhatsAppAdapter - podderzhka Cloud API (Meta). Maskirovka pod “obychnyy kontakt”.
+Kontrakt s yadrom Ester - cherez ESTER_CHAT_GATEWAY (drop-in).
 
 MOSTY (yavnyy):
 - StyleEngine dlya korrektnoy stilistiki (advokat/shkolnik/drug).
 
 MOSTY (skrytye):
-- PersonaDetector dlya neizbytochnogo vyyavleniya tipa sobesednika bez «tupykh oprosov».
+- PersonaDetector dlya neizbytochnogo vyyavleniya tipa sobesednika bez “tupykh oprosov”.
 - Vstroennye khinty dlya proaktivnosti (reply-windows, tikhie napominaniya), sovmestimye s ambient_proactive.
 
 ZEMNOY ABZATs:
-- Gotov k podklyucheniyu v prod s minimalnymi sekretami. Verifikatsiya vebkhuka cherez ESTER_WHATSAPP_VERIFY_TOKEN.
-"""
+- Gotov k podklyucheniyu v prod s minimalnymi sekretami. Verifikatsiya webkhuka cherez ESTER_WHATSAPP_VERIFY_TOKEN."""
 
 import os
 from typing import Any, Dict, List
@@ -68,7 +66,7 @@ class WhatsAppAdapter:
                 j = r.json()
                 return j.get("reply") or j.get("text") or ""
         except Exception:
-            # Bystryy otkat (B->A odinakov dlya nas)
+            # Quick rollback (B->A is the same for us)
             async with httpx.AsyncClient(timeout=timeout) as cli:
                 r = await cli.post(self.chat_gateway, json=data)
                 r.raise_for_status()

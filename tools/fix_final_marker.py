@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-tools/fix_final_marker.py — bezopasnyy odnorazovyy fiks «finalnoy metki» v kodovoy baze.
+"""tools/fix_final_marker.py - bezopasnyy odnorazovyy fiks “finalnoy metki” v kodovoy baze.
 
-Chto delaet:
-# - Nakhodit v .py faylakh verkhneurovnevye ODNOSTROChNYE vyrazheniya vida `c=a+b` ili `c = a + b`
+What does it do:
+# - Nakhodit v .py faylakh verkhneurovnevye ODNOSTROChNYE vyrazheniya vida `c=a+b` or `c = a + b`
   (tolko kak otdelnoe prostoe prisvaivanie, ne v strokakh/kommentariyakh), i prevraschaet ikh
-# v kommentariy `# c=a+b`. Eto ustranyaet NameError pri importe moduley.
+# v comment `# c=a+b`. This eliminates NameError when importing moduley.
 
-Ispolzovanie:
+Use:
     python -m tools.fix_final_marker --apply
-Ili sukhoy progon:
+Or sukhoy progon:
     python -m tools.fix_final_marker
 
 Mosty:
@@ -19,10 +18,8 @@ Mosty:
 - Skrytyy #2: (A/B-sloty ↔ Otkat) — ENV FIX_FINAL_AB=B delaet sukhoy progon, bez zapisi.
 
 Zemnoy abzats (inzheneriya):
-Eto kak nakleyka «NE VKLYuChAT — RABOTAYuT LYuDI»: my prevraschaem vyzyvayuschiy zamykanie provod
-v pometku, ne trogaya ostalnuyu provodku. Servis pri etom ne perestraivaem.
-
-"""
+Eto kak nakleyka “NE VKLYuChAT - RABOTAYuT LYuDI”: my prevraschaem vyzyvayuschiy zamykanie provod
+v pometku, ne trogaya ostalnuyu provodku. Servis pri etom ne perestraivaem."""
 from __future__ import annotations
 
 import os
@@ -52,11 +49,9 @@ def _iter_py_files() -> List[pathlib.Path]:
     return files
 
 def _is_simple_c_eq_a_plus_b(tokens: List[tokenize.TokenInfo]) -> bool:
-    """
-    Proveryaem, chto posledovatelnost tokenov na ODNOY stroke sovpadaet s:
+    """Proveryaem, chto posledovatelnost tokenov na ODNOY stroke sovpadaet s:
         NAME('c') OP('=') NAME('a') OP('+') NAME('b')
-    dopuskaem probely. Nikakikh drugikh tokenov (krome NL/NEWLINE/ENDMARKER/INDENT/DEDENT) byt ne dolzhno.
-    """
+    dopuskaem probely. Nikakikh drugikh tokenov (krome NL/NEWLINE/ENDMARKER/INDENT/DEDENT) byt ne dolzhno."""
     seq = [t for t in tokens if t.type not in (tokenize.NL, tokenize.NEWLINE, tokenize.INDENT, tokenize.DEDENT)]
     if len(seq) != 5:
         return False
@@ -68,10 +63,8 @@ def _is_simple_c_eq_a_plus_b(tokens: List[tokenize.TokenInfo]) -> bool:
             n3.type == tokenize.NAME and n3.string == "b")
 
 def _find_bad_lines(text: str) -> List[int]:
-    """
-# Vozvraschaet nomera strok (1-based), gde na verkhnem urovne vstretilos prostoe prisvaivanie c=a+b.
-    Ignoriruem stroki, kotorye uzhe nachinayutsya s '#', a takzhe sluchai vnutri strok/dokstringov.
-    """
+    """# Vozvraschaet nomera strok (1-based), where na verkhnem urovne vstretilos prostoe prisvaivanie c=a+b.
+    Ignoriruem stroki, kotorye uzhe nachinayutsya s '#', a takzhe sluchai vnutri strok/dokstringov."""
     bad: List[int] = []
     depth = 0  # skobochnaya glubina
     reader = io.StringIO(text).readline
@@ -91,9 +84,9 @@ def _find_bad_lines(text: str) -> List[int]:
             if current_line_no is None:
                 current_line_no = tok.start[0]
             if tok.type in (tokenize.NL, tokenize.NEWLINE, tokenize.SEMI, tokenize.ENDMARKER):
-                # Zavershilas potentsialnaya stroka
+                # Potential string has ended
                 if depth == 0 and stmt_tokens:
-                    # Proverim, chto stroka ne zakommentirovana uzhe
+                    # Let's check that the line is not already commented out
                     line = text.splitlines()[current_line_no - 1]
                     if not line.lstrip().startswith("#"):
                         if _is_simple_c_eq_a_plus_b(stmt_tokens):

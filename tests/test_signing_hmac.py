@@ -27,13 +27,13 @@ def test_hmac_sign_verify():
     key = b"super-secret"
     data = b"payload"
     sig = sign(data, key)  # dopuskaem signatury (data,key) ili (key,data)
-    # Esli biblioteka ispolzuet (key,data), poprobuem inversiyu
+    # If the library uses (key, date), let's try the inversion
     ok = verify(data, key, sig) if sig is not None else False
     if not ok:
         # Poprobuem druguyu rasstanovku argumentov
         sig2 = sign(key, data)
         ok = verify(key, data, sig2)
     assert ok is True
-    # Negativnaya proverka
+    # Negative check
     bad = verify(b"other", key, sig) or verify(data, b"other", sig)
     assert bad is False

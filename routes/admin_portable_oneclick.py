@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_portable_oneclick.py - One-Click USB: predprosmotr i zapis perenosimoy struktury na fleshku.
+"""routes/admin_portable_oneclick.py - One-Click USB: predprosmotr i zapis perenosimoy struktury na fleshku.
 
-Marshruty:
-  • GET  /admin/portable/oneclick           - stranitsa
-  • GET  /admin/portable/oneclick/status    - sys_detect + nalichie USB
-  • POST /admin/portable/oneclick/preview   - poluchit plan faylov
-  • POST /admin/portable/oneclick/apply     - primenit plan (AB=A → dry)
+Route:
+  • GET /admin/portable/oneclick - stranitsa
+  • GET /admin/portable/oneclick/status - sys_detect + nalichie USB
+  • POST /admin/portable/oneclick/preview - poluchit plan faylov
+  • POST /admin/portable/oneclick/apply - primenit plan (AB=A → dry)
 
 Mosty:
 - Yavnyy (UX → Fayly): odnoy knopkoy zapolnyaem ESTER/ neobkhodimymi artefaktami.
 - Skrytyy 1 (Infoteoriya): baseline vstraivaetsya srazu, snizhaya entropiyu perenosov.
-- Skrytyy 2 (Praktika): zapis tolko pod AB=B; bez formatirovaniya/MBR.
+- Skrytyy 2 (Praktika): zapis tolko pod AB=B; without formatirovaniya/MBR.
 
 Zemnoy abzats:
-Eto «sborochnyy press»: gotovit chemodan na fleshke tak, chtoby na drugoy mashine byl tikhiy start.
+This is “sborochnyy press”: gotovit chemodan na fleshke tak, chtoby na drugoy machine byl tikhiy start.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_guardian_policy.py — eksheny «voli» dlya SelfCatalog/Guardian/LegalGuard.
+"""modules/thinking/actions_guardian_policy.py - eksheny "voli" dlya SelfCatalog/Guardian/LegalGuard.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Servisy Zaboty/Politik) pozvolyaet Ester deystvovat osoznanno i ostorozhno.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Profile ↔ Audit) pochti vse operatsii logiruyutsya v drugikh modulyakh.
 
 Zemnoy abzats:
-Nabor korotkikh komand: «kto ya seychas», «gde moi kontakty», «mozhno li eto?», «kak eskalirovat, esli nuzhno».
+Nabor korotkikh komand: “who ya seychas”, “where is my kontakty”, “mozhno li eto?”, “kak eskalirovat, esli nuzhno”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from typing import Any, Dict

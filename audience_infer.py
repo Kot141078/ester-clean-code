@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/audience_infer.py — Passivnye evristiki tipa poluchatelya (bez oprosov).
+"""modules/audience_infer.py - Passivnye evristiki tipa poluchatelya (bez oprosov).
 
 MOSTY:
 - (Yavnyy) infer_audience(meta, text) → 'bank'|'lawyer'|'gov'|'business'|... + confidence.
@@ -10,8 +9,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Pomogaet Ester avtomaticheski vybirat stil pisma/soobscheniya i kanal, esli polzovatel ne ukazal yavno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

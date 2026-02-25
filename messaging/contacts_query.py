@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/contacts_query.py — servernye filtry i paginatsiya spiska kontaktov.
+"""messaging/contacts_query.py - servernye filtry i paginatsiya spiska kontaktov.
 
 MOSTY:
 - (Yavnyy) list_contacts_paged_filtered(limit, offset, channel, contains) → (key, agree, rate, persona, last_ts, silence_until).
-- (Skrytyy #1) Kanal filtruetsya po prefiksu klyucha 'telegram:'/'whatsapp:' — sovmestimo s tekuschim formatom klyuchey.
-- (Skrytyy #2) Nikakikh izmeneniy skhemy — ispolzuem tot zhe UNION i JOIN, chto i bazovaya vydacha.
+- (Skrytyy #1) Kanal filtruetsya po prefiksu klyucha 'telegram:'/'whatsapp:' - sovmestimo s tekuschim formatom klyuchey.
+- (Skrytyy #2) Nikakikh izmeneniy skhemia — ispolzuem tot zhe UNION i JOIN, chto i bazovaya vydacha.
 
 ZEMNOY ABZATs:
-Sotni i tysyachi kontaktov teper listayutsya i filtruyutsya na servere — bystree, chem pytatsya iskat glazami v ogromnoy tablitse.
+Sotni i tysyachi kontaktov teper listayutsya i filtruyutsya na servere - bystree, chem pytatsya iskat glazami v ogromnoy tablitse.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import List, Tuple, Optional
 
-from messaging.optin_store import _conn  # ispolzuem suschestvuyuschee podklyuchenie/DDL
+from messaging.optin_store import _conn  # use existing connection/DDL
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def list_contacts_paged_filtered(

@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-security/csrf.py — prostaya CSRF-zaschita dlya HTML-form (multipart/x-www-form-urlencoded).
-Mekhanizm: server generiruet token i kladet cookie 'csrf_token'; klient peredaet
+"""security/csrf.py - prostaya CSRF-zaschita dlya HTML-form (multipart/x-www-form-urlencoded).
+Mekhanizm: server generate token i kladet cookie 'csrf_token'; client peredaet
 zagolovok 'X-CSRF-Token' s tem zhe znacheniem. Dlya JSON-zaprosov zaschita otklyuchena.
 
-Ispolzovanie:
+Use:
   from security.csrf import csrf_protect, issue_csrf
   @app.get("/forms/token"): return issue_csrf()
-  @app.post("/forms/echo"): @csrf_protect
-"""
+  @app.post("/forms/echo"): @csrf_protect"""
 from __future__ import annotations
 
 import base64

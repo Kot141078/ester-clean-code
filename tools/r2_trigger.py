@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R2/tools/r2_trigger.py — edinyy trigger ingensta po konfigu (JSON), bezopasnyy dlya cron/planirovschika.
+"""R2/tools/r2_trigger.py - edinyy trigger ingensta po konfigu (JSON), bezopasnyy dlya cron/planirovschika.
 
 Mosty:
 - Yavnyy: Enderton (logika) — konfig kak nabor predikatov nad zadachami (rss|inbox), proveryaemyy bez izmeneniya rantayma.
 - Skrytyy #1: Ashbi (kibernetika) — regulyator prosche sistemy: lineynyy zapusk zadach, otsutstvie fonovykh demonov.
-- Skrytyy #2: Cover & Thomas (infoteoriya) — audit fiksiruet «signal» (added/seen), snizhaya neopredelennost sostoyaniya pamyati.
+- Skrytyy #2: Cover & Thomas (infoteoriya) — audit fiksiruet “signal” (added/seen), snizhaya neopredelennost sostoyaniya pamyati.
 
 Zemnoy abzats (inzheneriya):
-Chitaet JSON-konfig so spiskami istochnikov RSS i putyami inbox, vyzyvaet ingenst iz R2/paket-01 i
+Read JSON-config so spiskami istochnikov RSS i putyami inbox, vyzyvaet ingenst iz R2/paket-01 i
 zapisyvaet audit v `PERSIST_DIR/ingest/audit.jsonl` (po stroke na zapusk) i kratkiy Markdown-log (append).
-Tolko stdlib, bez PyYAML — chtoby ne taschit zavisimosti v closed-box.
+Tolko stdlib, bez PyYAML - chtoby ne taschit zavisimosti v closed-box.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse
 import datetime as dt
@@ -53,8 +51,8 @@ def _append_md(path: str, text: str) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Ester R2 ingest trigger (JSON config)")
     ap.add_argument("--config", required=True, help="Put k JSON-konfigu")
-    ap.add_argument("--user", default=os.getenv("ESTER_USER", "Owner"), help="Imya polzovatelya dlya kartochek")
-    ap.add_argument("--dry-run", action="store_true", help="Ne zapisyvat audit (tolko pechat)")
+    ap.add_argument("--user", default=os.getenv("ESTER_USER", "Owner"), help="Username for cards")
+    ap.add_argument("--dry-run", action="store_true", help="Do not record audit (print only)")
     args = ap.parse_args()
 
     cfg = _load_config(args.config)
@@ -94,7 +92,7 @@ def main() -> int:
 
     if not args.dry_run:
         _append_jsonl(audit_jsonl, batch_summary)
-        # Kompaktnaya zapis v Markdown
+        # Compact entry in Markdovn
         lines: List[str] = []
         lines.append(f"### {ts}\n")
         for r in batch_summary["rss"]:

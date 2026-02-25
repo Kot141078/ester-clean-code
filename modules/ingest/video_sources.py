@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ingest/video_sources.py — istochniki video: URL (yt-dlp) i lokalnye fayly. Subtitry, metadannye, audio-trek.
+"""modules/ingest/video_sources.py - istochniki video: URL (yt-dlp) i lokalnye fayly. Subtitle, metadata, audio track.
 
 Mosty:
 - Yavnyy: (Infoteoriya ↔ Seti) yt-dlp/ffprobe dayut szhatoe opisanie istochnika (tegi/taymingi) dlya posleduyuschey semantiki.
-- Skrytyy #1: (Kibernetika ↔ Resurs-menedzhment) Adapter vybiraet strategiyu skachivaniya (audio-only vs full) po resursam.
-- Skrytyy #2: (Bayes ↔ Deduplikatsiya) Kheshi faylov sluzhat nablyudeniyami dlya «to zhe li eto video» — umenshaem povtornuyu rabotu.
+- Skrytyy #1: (Kibernetika ↔ Resurs-menedzhment) Adapter vybiraet strategy skachivaniya (audio-only vs full) po resursam.
+- Skrytyy #2: (Bayes ↔ Deduplikatsiya) Kheshi faylov sluzhat nablyudeniyami dlya “to zhe li eto video” - umenshaem povtornuyu rabotu.
 
 Zemnoy abzats:
-Eto «logist» konveyera: reshaet, gde brat syre (fayl/URL), v kakom vide (tolko zvuk/polnoe video), kak soprovodit nakladnoy (metadannye/subtitry).
+Eto “logist” konveyera: reshaet, where brat syre (fayl/URL), v kakom vide (tolko zvuk/polnoe video), kak soprovodit nakladnoy (metadannye/subtitry).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -38,10 +36,8 @@ def _have(cmd: str) -> bool:
     return shutil.which(cmd) is not None
 
 def fetch_from_url(url: str, prefer_audio: bool = True, want_subs: bool = True) -> SourceArtifacts:
-    """
-    Skachivaet URL (YouTube/drugie) cherez yt-dlp (esli net — brosaet RuntimeError).
-    Vozvraschaet put k faylu (audio ili video), JSON metadannykh i puti subtitrov (esli byli).
-    """
+    """Skachivaet URL (YouTube/drugie) cherez yt-dlp (esli net - brosaet RuntimeError).
+    Vozvraschaet put k faylu (audio or video), JSON metadannykh i puti subtitrov (esli byli)."""
     if not _have("yt-dlp"):
         raise RuntimeError("yt-dlp not found in PATH")
 
@@ -77,21 +73,19 @@ def fetch_from_url(url: str, prefer_audio: bool = True, want_subs: bool = True) 
         main_file = str(max(candidates, key=lambda p: p.stat().st_size))
 
     subs = [str(p) for p in Path(workdir).glob("*.srt")]
-    # Esli skachali video — poprobuem vydrat audio otdelno (mog byt mp4/webm)
+    # If you downloaded the video, let’s try to rip out the audio separately (could be mpch/webm)
     audio_path = main_file if main_file.lower().endswith((".m4a", ".mp3")) else None
     return SourceArtifacts(workdir, main_file, meta_path, subs, audio_path)
 
 def fetch_from_path(path: str) -> SourceArtifacts:
-    """
-    Adapter dlya lokalnykh faylov: proveryaet dostupnost, probuet vytaschit srt cherez ffmpeg, audio put poka None.
-    """
+    """Adapter for local files: checks availability, tries to pull out srt via ffmpeg, audio path for now None."""
     if not os.path.isfile(path):
         raise RuntimeError(f"file-not-found: {path}")
     workdir = tempfile.mkdtemp(prefix="ester_video_")
-    # Skopiruem v rabochuyu papku (chtoby tam zhe khranit pobochki)
+    # Let's copy it to the working folder (to store side effects there)
     local = os.path.join(workdir, os.path.basename(path))
     shutil.copyfile(path, local)
-    # Subtitry iz konteynera (esli est)
+    # Subtitles from the container (if available)
     subs = []
     try:
         subs = [* (p for p in _extract_subs(local, workdir))]

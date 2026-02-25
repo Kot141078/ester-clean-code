@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-CLI: sravnit lokalnye listya Merkle s udalennym uzlom i vyvesti raskhozhdeniya id.
-Primer:
-  python -m tools.p2p_verify_merkle http://10.0.0.11:5000
-"""
+"""SLI: Compare local merkle leaves with remote node and output id divergences.
+Example:
+  pothon -m tools.p2p_verify_merkle http://10.0.0.11:5000"""
 from __future__ import annotations
 
 import json

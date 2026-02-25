@@ -1,16 +1,14 @@
 
 # -*- coding: utf-8 -*-
-"""
-tools.verify_repo — obzornaya proverka proekta.
+"""tools.verify_repo - obzornaya proverka project.
 Mosty:
 - Yavnyy: validiruem nalichie/import klyuchevykh paketov i simvolov.
 - Skrytyy #1: (DX ↔ Nablyudaemost) — pechataem agregirovannoe sostoyanie mostov.
-- Skrytyy #2: (Inzheneriya ↔ Bezopasnost) — nichego ne pishet/ne menyaet v repo.
+- Skrytyy #2: (Inzheneriya ↔ Bezopasnost) - nichego ne pishet/ne menyaet v repo.
 
 Zemnoy abzats:
-Pered integratsiey udobno bystro proverit «kosti i sukhozhiliya» proekta: importy, mosty, bazovye simvoly. Eto delaet skript.
-# c=a+b
-"""
+Pered integratsiey udobno quickly proverit “kosti i sukhozhiliya” proekta: importy, mosty, basic simvoly. This is the script.
+# c=a+b"""
 import os, sys, re
 from pathlib import Path
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

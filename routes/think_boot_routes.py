@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/think_boot_routes.py - REST dlya upravleniya tsiklom myshleniya Ester.
+"""routes/think_boot_routes.py - REST dlya upravleniya tsiklom myshleniya Ester.
 
-Marshruty:
-  POST /think_boot/config       {"impl":"A|B","max_workers":2,"nice_ms":25}
-  POST /think_boot/start        -
-  POST /think_boot/stop         -
-  GET  /think_boot/status       -
-  POST /think_boot/task         {"kind":"consolidate_memory" | "note" | "build_index", ...}
+Route:
+  POST /think_boot/config {"impl":"A|B","max_workers":2,"nice_ms":25}
+  POST /think_boot/start -
+  POST /think_boot/stop -
+  GET /think_boot/status -
+  POST /think_boot/task {"kind":"consolidate_memory" | "note" | "build_index", ...}
 
 Mosty:
 - Yavnyy (Veb ↔ Mysl): knopki upravleniya i ochered zadach dostupny iz HTTP/UI.
@@ -15,11 +14,10 @@ Mosty:
 - Skrytyy #2 (Operatsii ↔ Bezopasnost): safe_mode i avtostop pri anomaliyakh, bez vneshnikh zavisimostey.
 
 Zemnoy abzats:
-Eto «knopka start/stop dvigatelya» i «lotok zadach». Vse lokalno - ne trebuet klyuchey/klaudov.
+This is “knopka start/stop dvigatelya” and “lotok zadach”. All lokalno - ne trebuet klyuchey/klaudov.
 Rabotaet na Windows: potok-demon, myagkie zaderzhki, bez tyazhelykh zavisimostey.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request

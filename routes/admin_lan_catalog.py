@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_lan_catalog.py - UI/API dlya LAN Catalog Sync (read-only) + generatsiya USB-ocheredi iz plana.
+"""routes/admin_lan_catalog.py - UI/API dlya LAN Catalog Sync (read-only) + generatsiya USB-ocheredi iz plana.
 
-Dobavleno:
-  • POST /admin/lan_catalog/plan_to_usb  - {plan, stage?, clean_jobs?, noop_for_remote?} → pishet ESTER/jobs/*.json (+payloads/*)
+Added:
+  • POST /admin/lan_catalog/plan_to_usb - {plan, stage?, clean_jobs?, noop_for_remote?} → pishet ESTER/jobs/*.json (+payloads/*)
 
 Politika:
   • Rabotaet tolko esli LAN_PLAN2USB_ENABLE=1.
   • Avtoopredelyaet fleshku cherez modules.usb_runner.jobs.detect_usb_root().
   • AB_MODE=A - dry-run: nichego ne pishem, tolko prevyu otveta.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from pathlib import Path

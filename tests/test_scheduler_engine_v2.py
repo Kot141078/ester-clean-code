@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-E2E-test dlya modules/scheduler_engine.py:
+"""E2E-test dlya modules/scheduler_engine.py:
  - Sozdaem zadachu vida publish_event (ne tyanet vneshnie zavisimosti)
- - Zapuskaem run_due strogo posle next_run_ts
- - Proveryaem, chto sobytie poyavilos v shine
-"""
+ - Zapuskaem run_due strictly after next_run_ts
+ - Proveryaem, what sobytie poyavilos v shine"""
 
 import os
 import time
@@ -28,10 +26,10 @@ def test_create_and_run_publish_event_task(clean_env):
     res = create_task("tick", "publish_event", rrule, payload)
     assert res["ok"] is True
     next_ts = float(res["next_run_ts"])
-    # Zapuskaem tik planirovschika posle naznachennogo vremeni
+    # We start the scheduler tick after the appointed time
     report = run_due(now_ts=next_ts + 1.0)
     assert report["ran"] >= 1
 
-    # Ubedimsya, chto sobytie poyavilos
+    # Let's make sure the event has appeared
     items = feed(since=0.0, kind="test_tick", limit=10)
 # assert any(it["kind"] == "test_tick" for it in items)

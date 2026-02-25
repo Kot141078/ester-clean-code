@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-rag_pipeline.py — izvlechenie i ranzhirovanie konteksta dlya RAG.
+"""rag_pipeline.py - izvlechenie i ranzhirovanie konteksta dlya RAG.
 
-Glavnaya funktsiya:
+Home funktsiya:
     retrieve(query, *, k:int, mmr_lambda:float|None, filters:dict, max_ctx:int, store) -> dict
 
 Vozvraschaet:
@@ -19,22 +18,21 @@ Vozvraschaet:
   }
 }
 
-Osobennosti:
-- Filtry: collection, folder, doc_id.
-- MMR (Maximal Marginal Relevance) — optsionalno.
-  * Esli est numpy i mozhno dostat embeddings — ispolzuem kosinus.
-  * Esli embeddings net — ispolzuem uproschennyy MMR po token-dzhakkardu (diversity) + base_score (sim).
-  * Esli numpy net — myagko otkatyvaemsya na top-k.
+Features:
+- Filter: collection, folder, doc_id.
+- MMR (Maximal Marginal Relevance) - optional.
+  * If there are numbs and you can get embeddings, we use cosine.
+  * If there are no embeddings, we use the simplified MMR for token jaccard (diversity) + base_quarrel (sim).
+  * If there is no numpa, we gently roll back to top-k.
 - Obrezka konteksta po max_ctx (priblizitelnye tokeny: ~4 simvola na token).
 
 Mosty:
 - Yavnyy: VectorStore.search → ranked/context_chunks → prompt (kontekst kak artefakt dlya “roditelya”).
 - Skrytye:
-  1) Infoteoriya ↔ ekspluatatsiya: max_ctx i tokens — ogranichenie propusknoy sposobnosti kanala.
+  1) Infoteoriya ↔ ekspluatatsiya: max_ctx i tokens - ogranichenie propusknoy sposobnosti kanala.
   2) Kibernetika ↔ nadezhnost: MMR optional → degradatsiya bez padeniya pri nedostayuschikh zavisimostyakh.
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 from __future__ import annotations
 
@@ -44,16 +42,16 @@ from typing import Any, Dict, List, Optional, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 try:
-    import numpy as _np  # dlya MMR
+    import numpy as _np  # for SMR
 except Exception:
     _np = None
 
 
-# --- Tokeny: legkaya approksimatsiya (bez zavisimostey) ---
+# --- Tokens: easy approximation (no dependencies) ---
 def _approx_tokens(txt: str) -> int:
     if not txt:
         return 0
-    # ~4 simvola na token (grubaya otsenka, soglasovana s Trace-praktikoy)
+    # ~4 characters per token (rough estimate, consistent with Trake-practice)
     return max(1, int(math.ceil(len(txt) / 4.0)))
 
 
@@ -80,8 +78,8 @@ def _normalize_scores(scores: List[float]) -> List[float]:
 
 
 def _token_set(txt: str) -> set:
-    # ochen prostoy tokenayzer (bez regex, chtoby ne plodit zavisimostey)
-    # rezhem po probelam, chistim punktuatsiyu krayami
+    # very simple tokenizer (without regex, so as not to create dependencies)
+    # cut by spaces, clean punctuation edges
     out = set()
     for w in (txt or "").lower().split():
         w = w.strip(".,;:!?()[]{}<>\"'`~|/\\")
@@ -121,19 +119,17 @@ def _filter_fn_factory(filters: Dict[str, Any]):
 
 
 def _store_iface(store: Any):
-    """
-    Unifitsiruem raznye realizatsii:
+    """Unifitsiruem raznye realizatsii:
 
     Vozvraschaem:
       search(q, k, filter_fn)->List[(id,score)]
       get(id)->(text, meta)
 
-    Podderzhivaem:
+    Support:
       - .search_with_trace(query, k, filter_fn=...)
       - .search(query, k, filter_fn=...)
       - .get(id) -> dict(text/metadata)
-      - .to_dict()["docs"][id] -> dict(text/metadata/emb)
-    """
+      - .to_dict()["docs"][id] -> dict(text/metadata/emb)"""
     vs = store.vstore if hasattr(store, "vstore") else store
 
     def _get(doc_id: str) -> Tuple[str, Dict[str, Any]]:
@@ -224,11 +220,9 @@ def _store_iface(store: Any):
 
 
 def _try_vectors_for_mmr(store: Any, ids: List[str]):
-    """
-    Pytaemsya vytaschit embeddings kandidatov iz store.to_dict()["docs"][id]["emb"].
+    """Pytaemsya vytaschit embeddings kandidatov iz store.to_dict()["docs"][id]["emb"].
     Vozvraschaet: (query_vec, cand_vecs, ok)
-      query_vec obychno otsutstvuet — vozvraschaem None.
-    """
+      query_vec obychno otsutstvuet — vozvraschaem None."""
     try:
         vs = store.vstore if hasattr(store, "vstore") else store
         dct = vs.to_dict()
@@ -329,7 +323,7 @@ def retrieve(
     search, get = _store_iface(store)
     ffn = _filter_fn_factory(filters or {})
 
-    # Bazovyy poisk (berem zapas kandidatov, chtoby MMR bylo iz chego vybrat)
+    # Basic search (we take a stock of candidates so that TMR has plenty to choose from)
     base = search(query, max(8, k * 3), ffn)
 
     cand_ids: List[str] = [cid for cid, _ in base]
@@ -364,7 +358,7 @@ def retrieve(
                 denom = (np.linalg.norm(C, axis=1, keepdims=True) + 1e-8)
                 Cn = C / denom
                 sim_cc = Cn @ Cn.T
-                # query similarity: esli q_vec net — ispolzuem normirovannye base_scores
+                # cuers similarities: if I'm not at all, we use normalized bass_scores
                 sim_qc = _normalize_scores(cand_scores)
                 selected_idx, weights_map = _mmr_greedy(
                     k=k, mmr_lambda=float(mmr_lambda), sim_qc=sim_qc, sim_cc=sim_cc
@@ -466,9 +460,7 @@ def retrieve(
 __all__ = ["retrieve"]
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-RAG-payplayn — eto kak podgotovka instrumentov pered smenoy: ty beresh ne vse podryad so sklada,
-a tolko to, chto vlezet v yaschik (max_ctx) i realno prigoditsya. MMR — eto “ne brat pyat odinakovykh klyuchey”:
-pust luchshe budet odin klyuch, odna otvertka i odin tester, chem pyat klyuchey odnogo razmera.
-"""
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+RAG-payplayn - eto kak podgotovka instrumentov pered smenoy: ty beresh ne vse podryad so sklada,
+a tolko to, chto vlezet v yaschik (max_ctx) i realno prigoditsya. MMR - eto “ne brat pyat odinakovykh klyuchey”:
+pust luchshe budet odin klyuch, odna otvertka i odin tester, chem pyat klyuchey odnogo razmera."""

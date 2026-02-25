@@ -2,7 +2,7 @@
 # Reliznyy skript: bump versii, kommit, teg, push.
 # Ispolzovanie:
 #   ./scripts/build_release.sh [major|minor|patch] [-f]
-# Po umolchaniyu: patch. Klyuch -f — ignorirovat gryaznoe derevo (ostorozhno).
+# Default: patch. The -f key is to ignore the dirty tree (carefully).
 set -euo pipefail
 
 KIND="${1:-patch}"
@@ -32,13 +32,13 @@ fi
 NEW_VER="$(python3 scripts/version_bump.py "$KIND")"
 TAG="v${NEW_VER}"
 
-# 2) commit VERSION (esli izmenilsya)
+# 2) commit VERSION (if changed)
 if ! git diff --quiet -- VERSION; then
   git add VERSION
   git commit -m "chore(release): ${TAG}"
 fi
 
-# 3) proverim, chto tega esche net
+# 3) check that there is no tag yet
 if git rev-parse "$TAG" >/dev/null 2>&1; then
   echo "[release] Teg $TAG uzhe suschestvuet" >&2
   exit 2

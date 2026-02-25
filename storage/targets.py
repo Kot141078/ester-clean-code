@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/storage/targets.py — reestr tseley khraneniya (lokalno/oblako/pochta) + obnaruzhenie diskov.
+"""modules/storage/targets.py - reestr tseley khraneniya (lokalno/oblako/pochta) + obnaruzhenie disks.
 
 Format zapisi tseli (target):
 {
@@ -12,20 +11,19 @@ Format zapisi tseli (target):
   "created": 1712345678.0
 }
 
-Gde config:
-- local:  { "path": "/srv/ester-backup" }
-- s3:     { "bucket": "ester-backups", "prefix": "releases/", "region": "eu-west-1",
+Where config:
+- local: { "path": "/srv/ester-backup" }
+- s3: { "bucket": "ester-backups", "prefix": "releases/", "region": "eu-west-1",
             "endpoint_url": "https://s3.amazonaws.com", "access_key": "...", "secret_key": "..." }
           (esli access/secret otsutstvuyut — budut vzyaty iz okruzheniya AWS_* ili profilya)
 - webdav: { "url": "https://webdav.example.com/ester", "username": "...", "password": "..." }
-- email:  { "smtp_host": "smtp.example.com", "smtp_port": 587, "use_tls": true,
+- email: { "smtp_host": "smtp.example.com", "smtp_port": 587, "use_tls": true,
             "username": "ester@example.com", "password": "...", "from": "ester@example.com",
             "to": ["owner@example.com"] }
 
 ENV:
-  PERSIST_DIR                 — koren dannykh (po umolchaniyu ./data)
-  ESTER_STORAGE_ALLOWLIST     — cherez ":" spisok korney, kuda mozhno pisat lokalno (dop. zaschita)
-"""
+  PERSIST_DIR — koren dannykh (po umolchaniyu ./data)
+  ESTER_STORAGE_ALLOWLIST — cherez ":" spisok korney, kuda mozhno pisat lokalno (dop. zaschita)"""
 
 from __future__ import annotations
 
@@ -137,10 +135,8 @@ def _linux_mounts() -> List[Tuple[str, str]]:
 
 
 def discover_local_writable(min_free_mb: int = 256) -> List[str]:
-    """
-    Nakhodit direktorii, kuda veroyatno mozhno pisat (dom, /mnt, /media, /srv i t.p.)
-    Filtruet po allowlist, esli zadana.
-    """
+    """Finds directories where you can probably write (home, /tnt, /media, /srv, etc.)
+    Filters by allowlist, if specified."""
     cands: List[str] = []
     home = os.path.expanduser("~")
     for base in (
@@ -169,7 +165,7 @@ def discover_local_writable(min_free_mb: int = 256) -> List[str]:
             seen.add(ap)
             uniq.append(ap)
 
-    # allowlist (esli zadana — tolko prefiksy iz nee)
+    # allowlist (if specified, only prefixes from it)
     allow = _allowlist()
     if allow:
         uniq = [
@@ -179,7 +175,7 @@ def discover_local_writable(min_free_mb: int = 256) -> List[str]:
             for ap in [os.path.abspath(p)]
         ]
 
-    # proverim svobodnoe mesto
+    # check free space
     ok: List[str] = []
     for p in uniq:
         try:

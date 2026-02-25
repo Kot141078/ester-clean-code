@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/hold_routes.py - REST-obvyazka uzhe podklyuchennogo middleware «Bolshogo stopa».
+"""routes/hold_routes.py - REST-obvyazka uzhe podklyuchennogo middleware “Bolshogo stopa”.
 
 Mosty:
-- Yavnyy: (Veb ↔ Chelovek) gde-to udobno imet pryamye ruchki otdelno ot midlvari.
+- Yavnyy: (Veb ↔ Chelovek) somewhere convenient imet pryamye ruchki otdelno ot midlvari.
 - Skrytyy #1: (Audit ↔ Prozrachnost) soglasovano s zhurnalom hold_chain.jsonl.
 - Skrytyy #2: (Politika ↔ Ostorozhnost) popadaet pod cautious-pravila (high).
 
 Zemnoy abzats:
 Stop i start - bystro i yavno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

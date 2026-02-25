@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-R7/services/obs/metrics.py — minimalnaya nablyudaemost (jsonl-metriki, taymery, snapshoty).
+"""R7/services/obs/metrics.py - minimalnaya nablyudaemost (jsonl-metriki, taymery, snapshoty).
 
 Mosty:
-- Yavnyy: Enderton (logika) — metrika kak predikat nad (name, ts, value, labels), proveryaemyy i serializuemyy.
-- Skrytyy #1: Ashbi (kibernetika) — A/B-slot: R7_MODE=A (schetchiki/taymery), B (plyus mini-gistogrammy), pri oshibkakh → katbek.
-- Skrytyy #2: Cover & Thomas (infoteoriya) — jsonl daet lineynyy «signal» nablyudeniy s minimalnoy entropiey formata.
+- Yavnyy: Enderton (logika) - metrika kak predikat nad (name, ts, value, labels), proveryaemyy i serializuemyy.
+- Skrytyy #1: Ashbi (kibernetika) — A/B-slot: R7_MODE=A (schetchiki/taymery), B (plyus mini-histogrammy), pri oshibkakh → katbek.
+- Skrytyy #2: Cover & Thomas (infoteoriya) — jsonl daet lineynyy “signal” nablyudeniy s minimalnoy entropiey formata.
 
 Zemnoy abzats (inzheneriya):
-Bez vneshnikh zavisimostey. Pishet v `PERSIST_DIR/obs/metrics.jsonl` i sozdaet legkie snapshots (`latest.json`).
-Ispolzuem kak biblioteku: `with timer("step", labels={"iter":"R5"}): ...` i `inc("ok")`.
+No matter what. Pishet v `PERSIST_DIR/obs/metrics.jsonl` i sozdaet legkie snapshots (`latest.json`).
+Use as biblioteku: `with timer("step", labels={"iter":"R5"}): ...` i `inc("ok")`.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, time, threading
 from contextlib import contextmanager
@@ -51,7 +49,7 @@ def timer(name: str, **labels):
     err = None
     try:
         yield
-    except Exception as e:  # ne glotaem — tolko fiksiruem
+    except Exception as e:  # doesn’t swallow - just fix it
         err = str(type(e).__name__)
         raise
     finally:
@@ -62,7 +60,7 @@ def timer(name: str, **labels):
             rec["labels"]["error"] = err
         if mode == "B":
             try:
-                # mikro-gistogramma: blizhayshie «korziny» (log. shkala)
+                # micro-histogram: nearest “bins” (log scale)
                 import math
                 b = int(max(0, math.log10(max(1e-3, dt/1000.0)) * 4))  # chetvertidesyatichnye biny
                 rec["bin"] = b

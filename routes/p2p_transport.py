@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-routes/p2p_transport.py — UI/REST dlya P2P cherez Telegram.
+"""routes/p2p_transport.py - UI/REST dlya P2P cherez Telegram.
 
-Marshruty:
-  • GET  /admin/p2p           — HTML
-  • GET  /admin/p2p/status    — JSON: {settings, queues}
-  • POST /admin/p2p/save      — sokhranit nastroyki
-  • POST /admin/p2p/test-send — polozhit testovyy «konvert» v outbox Re popytatsya otpravit
-  • POST /admin/p2p/poll      — opros vkhodyaschikh (odin tsikl)
+Route:
+  • GET /admin/p2p - HTML
+  • GET /admin/p2p/status - JSON: {settings, queues}
+  • POST /admin/p2p/save — sokhranit nastroyki
+  • POST /admin/p2p/test-send — polozhit testovyy “konvert” v outbox Re popytatsya otpravit
+  • POST /admin/p2p/poll - opros vkhodyaschikh (odin tsikl)
 
 Mosty:
-- Yavnyy (Kibernetika v†" UX): «vklyuchi, sokhrani, test» — odnogo ekrana dostatochno.
+- Yavnyy (Kibernetika v†" UX): "vklyuchi, sokhrani, test" - one thing ekrana dostatochno.
 - Skrytyy 1 (Infoteoriya v†" Prozrachnost): pokazyvaem razmery ocheredey Re rezhim AB.
 - Skrytyy 2 (Praktika v†" Sovmestimost): test-konvert — eto pravilnyy envelope.
 
 Zemnoy abzats:
-Odin ekran — chtoby P2P zarabotal bez boli: vklyuchil, vvel token/chat, proveril «test-otpravkoy».
+Odin ekran - chtoby P2P zarabotal bez boli: vklyuchil, vvel token/chat, proveril “test-otpravkoy”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

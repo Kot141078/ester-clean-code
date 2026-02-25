@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-CLI — finalnyy snapshot priemki.
+"""CLI - finalnyy snapshot priemki.
 
 Most (yavnyy):
 - (CLI ↔ UX) Bystryy zapusk itogovogo otcheta iz terminala.
@@ -12,8 +11,7 @@ Mosty (skrytye):
 Zemnoy abzats:
 Komanda sobiraet marshruty/ENV/artefakty i, esli zaprosheno, pishet finalnyy otchet v `ESTER/reports/final_compliance.json`.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -27,7 +25,7 @@ AB_MODE = (os.getenv("AB_MODE") or "A").strip().upper()
 
 def main():
     ap = argparse.ArgumentParser(description="Final acceptance snapshot (A/B).")
-    ap.add_argument("--write", action="store_true", help="Zapisat otchet (B-rezhim zapishet na disk)")
+    ap.add_argument("--write", action="store_true", help="Write report (B-mode will write to disk)")
     args = ap.parse_args()
 
     if args.write:

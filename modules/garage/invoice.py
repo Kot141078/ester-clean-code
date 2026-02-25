@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/garage/invoice.py — invoysy (Markdown) i optsionalno SEPA pain.001 chernovik.
+"""modules/garage/invoice.py - invoysy (Markdown) i optsionalno SEPA pain.001 chernovik.
 
 Mosty:
 - Yavnyy: (Finansy ↔ Dokumenty) sozdaem ponyatnyy schet i pri zhelanii platezhnyy XML-chernovik.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Volya ↔ Eksheny) dostupno cherez actions i REST.
 
 Zemnoy abzats:
-Schet — eto bumaga i rekvizity: odin fayl dlya chteniya chelovekom, vtoroy — dlya banka.
+Schet - eto bumaga i rekvizity: odin fayl dlya chteniya chelovekom, vtoroy - dlya banka.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, json
 from typing import Any, Dict, List

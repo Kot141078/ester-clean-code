@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/watch_routes.py - REST: status/konfig/skaner papok bez demonov.
+"""routes/watch_routes.py - REST: status/konfig/scanner papok bez demonov.
 
 Mosty:
 - Yavnyy: (Veb ↔ FS) skaniruem vkhodyaschie i formiruem sobytiya dlya pravil.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Thinking Rules ↔ Avtonomiya) obedinenie s evaluate().
 
 Zemnoy abzats:
-Odin POST - i «pochtovyy yaschik» razobran; novoe otpravleno dalshe po konveyeru.
+Odin POST - i “pochtovyy yaschik” razobran; novoe otpravleno dalshe po konveyeru.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os

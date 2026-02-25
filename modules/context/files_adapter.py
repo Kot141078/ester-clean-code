@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-modules/context/files_adapter.py — adapter dlya prochitannykh faylov.
+"""modules/context/files_adapter.py - adapter dlya prochitannykh faylov.
 
 Posle uspeshnogo analiza ili chteniya fayla
 vnosit zapis o soderzhimom v pamyat Ester.
 
-# c=a+b
-"""
+# c=a+b"""
 from modules.context.adapters import log_context
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 

@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/autostart_install.py — CLI upravlenie avtozapuskom USB-agenta.
+"""scripts/autostart_install.py - CLI upravlenie avtozapuskom USB-agenta.
 
 Primery:
   AB_MODE=A python -m scripts.autostart_install --status
   AB_MODE=B python -m scripts.autostart_install --install
   AB_MODE=B python -m scripts.autostart_install --uninstall
 
-Flagi:
+Flags:
   --status
   --install
   --uninstall
@@ -18,10 +17,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Bezopasnost): uvazhaet A/B — sukhoy progon/zapis.
 
 Zemnoy abzats:
-Dlya avtomatizatsiy i obrazov — vklyuchit/vyklyuchit avtozapusk komandoy.
+Dlya avtomatizatsiy i obrazov - vklyuchit/vyklyuchit avtozapusk komandoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse

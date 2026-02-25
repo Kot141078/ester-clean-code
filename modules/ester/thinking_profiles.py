@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-Modul profiley myslitelnykh rezhimov Ester.
+"""Modul profiley myslitelnykh rezhimov Ester.
 
 Mosty:
 - Yavnyy: (thinking_manifest <-> ENV) — opisyvaet soglasovannye nabory flagov dlya rezhimov myshleniya.
-- Skrytyy #1: (scripts/ester_thinking_mode.py <-> Shell) — generiruet komandy dlya vklyucheniya profiley bez skrytykh sayd-effektov.
-- Skrytyy #2: (HTTP /ester/status <-> profili) — profili soglasovany s tem, chto pokazyvaet status.
+- Skrytyy #1: (scripts/ester_thinking_mode.py <-> Shell) — generiruet komandy dlya vklyucheniya profiley bez skrytykh said-effektov.
+- Skrytyy #2: (HTTP /ester/status <-> profili) - profili soglasovany s tem, chto pokazyvaet status.
 
 Zemnoy abzats:
-Inzheneru ne khochetsya rukami pomnit desyatok peremennykh. Profile — eto deklaratsiya:
-«tak Ester dumaet kak chelovek s kaskadom i voley» ili «tak — tikhiy bezopasnyy rezhim».
-Kod tolko podskazyvaet znacheniya, no ne pravit .env sam.
-# c=a+b
-"""
+Inzheneru ne khochetsya rukami pomnit desyatok peremennykh. Profile - eto deklaratsiya:
+“tak Ester dumaet kak chelovek s kaskadom i voley” or “tak - tikhiy bezopasnyy rezhim.”
+Kod only podskazyvaet znacheniya, no ne pravit .env sam.
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Bazovyy bezopasnyy (tekuschiy) profil: vse A, fon razreshen, no passiven.
+# Basic secure (current) profile: all A, background allowed but passive.
 PROFILE_PASSIVE_SAFE: Dict[str, str] = {
     "ESTER_VOLITION_MODE": "A",
     "ESTER_WILL_PRIORITY_AB": "A",
@@ -31,13 +29,13 @@ PROFILE_PASSIVE_SAFE: Dict[str, str] = {
     "ESTER_BG_DISABLE": "0",
 }
 
-# Osnovnoy profil dlya «chelovecheskogo» kaskada s voley:
+# The main profile for the “human” cascade with will:
 PROFILE_ACTIVE_HUMAN_LIKE: Dict[str, str] = {
-    # Volya i prioritety vklyucheny
+    # Will and priorities included
     "ESTER_VOLITION_MODE": "B",
     "ESTER_WILL_PRIORITY_AB": "B",
     "ESTER_WILL_SCHED_AB": "B",
-    # Kaskad: mnogokontekst + guard dlya zdravogo smysla
+    # Cascade: multi-context + guard for common sense
     "ESTER_CASCADE_CTX_AB": "B",
     "ESTER_CASCADE_GUARD_AB": "B",
     # Treys: podrobnyy, no bez izlishney boltlivosti
@@ -49,7 +47,7 @@ PROFILE_ACTIVE_HUMAN_LIKE: Dict[str, str] = {
     "THINK_HEARTBEAT_SEC": "15",
 }
 
-# Profile dlya glubokogo nablyudaemogo myshleniya (bolshe refleksii i trassirovki)
+# Profile for deep observable thinking (more reflection and tracing)
 PROFILE_DEEP_TRACE: Dict[str, str] = {
     "ESTER_VOLITION_MODE": "B",
     "ESTER_WILL_PRIORITY_AB": "B",

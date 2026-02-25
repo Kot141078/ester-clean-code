@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Smoke-testy dlya /docs i /openapi.json.
+"""Smoke-testy dlya /docs i /openapi.json.
 Trebovaniya DoD:
   - /docs vozvraschaet HTML, soderzhaschiy <div id="swagger-ui"></div>
-  - /openapi.json vozvraschaet validnyy JSON so svoystvom "openapi" (OpenAPI 3.x)
-"""
+  - /openapi.json vozvraschaet validnyy JSON so svoystvom "openapi" (OpenAPI 3.x)"""
 from __future__ import annotations
 
 import json
@@ -16,11 +14,9 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def _get_app():
-    """
-    Pytaemsya ispolzovat osnovnoe prilozhenie iz app.py.
+    """Pytaemsya ispolzovat osnovnoe prilozhenie iz app.py.
     Esli nedostupno — podnimaem minimalnyy Flask i registriruem blyuprint docs.
-    Takoy fallback pozvolyaet zapuskat testy dazhe v izolirovannoy srede.
-    """
+    Takoy fallback pozvolyaet zapuskat testy dazhe v isolirovannoy srede."""
     try:
         from app import app as flask_app  # type: ignore
 
@@ -54,10 +50,10 @@ def test_docs_page_contains_swagger_div(client):
 def test_openapi_json_available_and_valid(client):
     r = client.get("/openapi.json")
     assert r.status_code == 200, f"Expected 200, got {r.status_code} with body: {r.data[:200]}"
-    # Proveryaem JSON i nalichie klyucha "openapi"
+    # We check JSION and the presence of the "openapi" key
     data: Any = json.loads(r.data.decode("utf-8"))
     assert isinstance(data, dict), "OpenAPI JSON is not an object"
-    # dopuskaem swagger 2.0 kak alternativu, no ozhidaem openapi 3.x po DoD
+    # we allow swagger 2.0 as an alternative, but expect openapi 3.ks according to DoD
     has_openapi = "openapi" in data
     has_swagger = "swagger" in data
 # assert has_openapi or has_swagger, "Spec must contain 'openapi' (or legacy 'swagger') field"

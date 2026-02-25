@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-modules/will/will_planner_adapter.py
+"""modules/will/will_planner_adapter.py
 
-Verkhniy sloy voli Ester: planirovschik zadach.
+Verkhniy layer voli Ester: planirovschik zadach.
 
-Naznachenie:
+Name:
 - Na osnove statusa (selfcheck, memory, will, identity) formirovat predlozheniya zadach:
-  - chto zapuskat v fone/nochyu;
-  - chto analizirovat;
-  - chto zakreplyat v pamyati.
-- Nichego ne ispolnyaet sam po sebe: tolko generiruet plan.
+  - what zapuskat v fone/nochyu;
+  - what to analyze;
+  - what zakreplyat v pamyati.
+- Nothing is done sam po sebe: tolko generiruet plan.
 - Uvazhaet A/B-flag ESTER_WILL_PLANNER_AB.
 
 Mosty:
@@ -19,8 +18,7 @@ Mosty:
 
 Zemnoy abzats:
 Eto kak dispetcher TO na zavode: on smotrit na datchiki i zhurnal,
-i vydaet reglament rabot, a ne lezet sam k gaechnomu klyuchu.
-"""
+i vydaet reglament rabot, a ne lezet sam k gaechnomu klyuchu."""
 
 from __future__ import annotations
 
@@ -59,13 +57,12 @@ def is_enabled() -> bool:
 
 
 def build_plan(snapshot: Dict[str, Any]) -> Dict[str, Any]:
-    """Stroit plan zadach na osnove snapshot.
+    """Build plan zadach na osnove snapshot.
 
     snapshot ozhidaet klyuchi:
     - selfcheck: otvet /ester/selfcheck
     - memory_status: otvet /ester/memory/status (esli est)
-    - will_status: otvet /ester/will/status (esli est)
-    """
+    - will_status: otvet /ester/will/status (esli est)"""
     mode = _mode()
     identity = self_identity.get_identity() if self_identity else {}
 
@@ -78,13 +75,13 @@ def build_plan(snapshot: Dict[str, Any]) -> Dict[str, Any]:
     mem = snapshot.get("memory_status") or {}
     will = snapshot.get("will_status") or {}
 
-    # 1) Regulyarnyy selfcheck
+    # 1) Regular self-check
     tasks.append(
         PlanTask(
             id="daily_selfcheck",
             kind="diagnostics",
-            title="Ezhednevnyy integratsionnyy self-check",
-            reason="Podtverdit tselostnost myshleniya, pamyati i voli.",
+            title="Daily integration self-check",
+            reason="Confirm the integrity of thinking, memory and will.",
             safe_auto=True,
             needs_consent=False,
             recommended_time="night",
@@ -93,14 +90,14 @@ def build_plan(snapshot: Dict[str, Any]) -> Dict[str, Any]:
         )
     )
 
-    # 2) Esli est preduprezhdeniya selfcheck
+    # 2) If there are warnings, selfcheck
     if sc_warn:
         tasks.append(
             PlanTask(
                 id="analyze_selfcheck_warnings",
                 kind="analysis",
-                title="Analiz preduprezhdeniy self-check",
-                reason="Vyyavleny preduprezhdeniya v /ester/selfcheck.",
+                title="Self-check warning analysis",
+                reason="Warnings detected in /ester/selfchesk.",
                 safe_auto=False,
                 needs_consent=True,
                 recommended_time="manual",
@@ -115,8 +112,8 @@ def build_plan(snapshot: Dict[str, Any]) -> Dict[str, Any]:
             PlanTask(
                 id="memory_warnings_review",
                 kind="memory",
-                title="Proverka preduprezhdeniy pamyati",
-                reason="Modul pamyati soobschaet warnings, trebuetsya vnimanie.",
+                title="Checking memory warnings",
+                reason="The memory module reports warnings that attention is required.",
                 safe_auto=False,
                 needs_consent=True,
                 recommended_time="night",
@@ -131,7 +128,7 @@ def build_plan(snapshot: Dict[str, Any]) -> Dict[str, Any]:
             id="daily_experience_summary",
             kind="learning",
             title="Dnevnoy summary opyta",
-            reason="Szhat znachimye sobytiya dnya v ustoychivuyu zapis pamyati.",
+            reason="Condense the significant events of the day into a stable memory record.",
             safe_auto=True,
             needs_consent=False,
             recommended_time="night",
@@ -140,14 +137,14 @@ def build_plan(snapshot: Dict[str, Any]) -> Dict[str, Any]:
         )
     )
 
-    # 5) Proverka soglasovannosti identichnosti (v rezhime B)
+    # 5) Identity consistency check (in mode B)
     if mode == "B":
         tasks.append(
             PlanTask(
                 id="identity_consistency_check",
                 kind="meta",
-                title="Proverka soglasovannosti self_identity",
-                reason="Ubeditsya, chto opisannoe «Ya» sootvetstvuet aktivnym modulyam.",
+                title="Checking consistency of self_identities",
+                reason="Make sure that the described “I” corresponds to the active modules.",
                 safe_auto=True,
                 needs_consent=False,
                 recommended_time="night",

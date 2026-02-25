@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/ci/patcher_llm.py — SARIF→evristicheskiy diff (LM Studio/LLM pri nalichii).
+"""scripts/ci/patcher_llm.py - SARIF→evristicheskiy diff (LM Studio/LLM pri nalichii).
 
 MOSTY:
-- (Yavnyy) Chitaet semgrep.sarif, formiruet podskazki, po vozmozhnosti vyzyvaet lokalnyy LLM.
+- (Yavnyy) Read more
 - (Skrytyy #1) Esli LM Studio nedostupen — primenyaet bezopasnye tekstovye ispravleniya (f-string quotes/backslashes, obvious syntax).
 - (Skrytyy #2) Sokhranyaet patchset/patch.diff i logi prompta dlya vosproizvodimosti.
 
 ZEMNOY ABZATs:
-Eto «avtoslesar»: vidit techi — podzhimaet, no okonchatelnoe slovo za testami i revyu.
+Eto "avtoslesar": vidit techi - podzhimaet, no okonchatelnoe slovo za testami i revyu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, re, argparse, pathlib, subprocess, tempfile, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -40,7 +38,7 @@ def safe_fixes(text: str) -> str:
     text = re.sub(r'f"([^"]*)\{([^}"]*?)[\'"]([^}]*)\}([^"]*)"', r"f'\1{\2\"\\'\\\"\3}\4'", text)
     # 2) Problemnye odnostrochniki s ; if → raznesem na stroki
     text = re.sub(r";\s*if\s+", ";\nif ", text)
-    # 3) Ubiraem obratnye sleshi vnutri {} vyrazheniy f-stroki
+    # 3) Remove backslashes inside ZZF0Z f-string expressions
     text = re.sub(r"\{[^}]*\\[^}]*\}", lambda m: m.group(0).replace("\\", "_"), text)
     return text
 

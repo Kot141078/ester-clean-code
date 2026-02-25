@@ -3,32 +3,32 @@ import os
 from cryptography.hazmat.primitives.asymmetric import ed25519
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Puti iz tvoego zaprosa
+# Paths from your request
 SIGN_PRIVATE_KEY_PATH = "./secrets/ed25519.sk"
 SIGN_PUBLIC_KEY_PATH = "./secrets/ed25519.pk"
 
-# Sozdaem direktoriyu secrets/, esli ne suschestvuet
+# Create the secrets/ directory if it does not exist
 os.makedirs("secrets", exist_ok=True)
 
-# Generiruem privatnyy klyuch Ed25519
+# Generate private key D25519
 private_key = ed25519.Ed25519PrivateKey.generate()
 
-# Poluchaem publichnyy klyuch
+# Getting the public key
 public_key = private_key.public_key()
 
-# Poluchaem raw-bayty: dlya privatnogo — seed (32 bayta), no dlya polnogo SK dobavlyaem public (standart 64 bayta)
+# We get equal bytes: for private - seed (32 bytes), but for full social network we add public (standard 64 bytes)
 seed = private_key.private_bytes_raw()  # 32 bayta seed
 public_bytes = public_key.public_bytes_raw()  # 32 bayta public
-full_private_bytes = seed + public_bytes  # 64 bayta dlya .sk
+full_private_bytes = seed + public_bytes  # 64 bytes for .sk
 
-# Sokhranyaem privatnyy klyuch (64 bayta)
+# Save the private key (64 bytes)
 with open(SIGN_PRIVATE_KEY_PATH, "wb") as f:
     f.write(full_private_bytes)
 
-# Sokhranyaem publichnyy klyuch (32 bayta)
+# Save the public key (32 bytes)
 with open(SIGN_PUBLIC_KEY_PATH, "wb") as f:
     f.write(public_bytes)
 
 print(
-    f"Klyuchi sgenerirovany i sokhraneny:\n- {SIGN_PRIVATE_KEY_PATH} (privatnyy, 64 bayta: seed + public, derzhi v sekrete!)\n- {SIGN_PUBLIC_KEY_PATH} (publichnyy, 32 bayta, mozhno delit)"
+    f"Keys are generated and saved:\n- ZZF0Z (private, 64 bytes: seed + public, keep it secret!)\n- ZZF1ZZ (public, 32 bytes, can be divided)"
 )

@@ -9,7 +9,7 @@ from flask_jwt_extended import jwt_required  # type: ignore
 
 bp_p2p_tasks = Blueprint("p2p_tasks", __name__)
 
-# Ispolzuem imeyuschiysya sink-dvizhok
+# We use the existing sync engine
 from scheduler.sync_job import sync_once  # type: ignore
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
@@ -23,11 +23,9 @@ def _bool_env(name: str, default: bool = False) -> bool:
 
 
 def _schedule_sync(rrule: str) -> Dict[str, Any]:
-    """
-    Pytaemsya sozdat periodicheskuyu zadachu sinkhronizatsii cherez tvoy planirovschik.
+    """Pytaemsya sozdat periodicheskuyu zadachu sinkhronizatsii cherez tvoy planirovschik.
     Sovmestimo s Iteration B API:
-      create_task(kind, action, rrule, payload) -> dict
-    """
+      create_task(kind, action, rrule, payload) -> dict"""
     try:
         from modules.scheduler_engine import create_task  # type: ignore
     except Exception:
@@ -51,9 +49,7 @@ def p2p_sync_run():
 @bp_p2p_tasks.post("/p2p/sync/schedule")
 @jwt_required()
 def p2p_sync_schedule():
-    """
-    Telo: {"rrule": "FREQ=MINUTELY;INTERVAL=1"} ili cron-podobnaya stroka, esli tak realizovano v tvoem planirovschike.
-    """
+    """Body: ZZF0Z or a cron-like string, if so implemented in your scheduler."""
     data = request.get_json(force=True, silent=True) or {}
     rrule = str(data.get("rrule") or "FREQ=MINUTELY;INTERVAL=1")
     r = _schedule_sync(rrule)

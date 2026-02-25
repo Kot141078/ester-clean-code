@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-modules/vision/context_inspector.py — vizualnyy inspektor konteksta (heatmap).
+"""modules/vision/context_inspector.py - vizualnyy inspector konteksta (heatmap).
 
-Naznachenie:
+Name:
 - Sbor koordinat iz zhurnalov: /attention/journal (arrow/box/iplay_step), /triggers (template/ocr s bbox esli est).
-- Postroenie teplokarty (PNG base64) poverkh poslednego skrinshota.
+- Postroenie teplokarty (PNG base64) poverkh poslednego screenshota.
 
-Fayly:
+Faily:
 - data/vision/context/last_heatmap.png
 - data/vision/context/last_heatmap.json (metadannye vyborki)
 
 MOSTY:
-- Yavnyy: (Memory ↔ Vnimanie) pokazyvaem, kuda Ester «smotrela/ukazyvala».
-- Skrytyy #1: (Infoteoriya ↔ Diagnostika) «slepye zony» vidny vizualno.
-- Skrytyy #2: (Kibernetika ↔ Uluchshenie) mozhno stavit novye triggery tam, gde «kholodno».
+- Yavnyy: (Memory ↔ Vnimanie) pokazyvaem, kuda Ester “smotrela/ukazyvala”.
+- Skrytyy #1: (Infoteoriya ↔ Diagnostika) “slepye zony” vidny vizualno.
+- Skrytyy #2: (Kibernetika ↔ Uluchshenie) mozhno stavit novye triggery there, where “kholodno”.
 
 ZEMNOY ABZATs:
 Chistaya matematika po pikselnoy setke, bez vneshnikh lib: gaussovo razmytie svertkoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, io, json, base64, math
 from typing import Dict, Any, List
@@ -41,7 +39,7 @@ def _get(path: str) -> Dict[str, Any]:
 
 def _collect(n: int = 200) -> Dict[str, Any]:
     pts: List[Dict[str,int]] = []
-    # iz zhurnala vnimaniya
+    # from attention magazine
     j = _get(f"/attention/journal/list?n={int(max(10,n))}")
     for it in j.get("items", []):
         det = it.get("detail") or {}
@@ -54,8 +52,8 @@ def _collect(n: int = 200) -> Dict[str, Any]:
         if it.get("event")=="overlay_draw":
             p = det.get("point")
             if p and "x" in p and "y" in p: pts.append({"x": int(p["x"]), "y": int(p["y"])})
-    # iz spiska triggerov (esli est bbox poslednego sovpadeniya — optsionalno)
-    # ostavim kak est; bolshinstvo dvizhkov bbox ne vozvraschayut — propuskaem
+    # from the list of triggers (if there is a last match box - optional)
+    # let's leave it as it is; Most engines don't return boxing - skip it
     return {"pts": pts[-n:]}
 
 def _png_from_screen() -> (bytes, int, int):
@@ -63,14 +61,14 @@ def _png_from_screen() -> (bytes, int, int):
     if not scr.get("ok"): return b"", 0, 0
     b64 = scr.get("png_b64","")
     raw = base64.b64decode(b64)
-    # izvlech razmer bez PIL nevozmozhno prosto — renderim heatmap na toy zhe razmernosti cherez dop API?
+    # It’s impossible to simply extract the size without PIL - render a netmap on the same dimension using an additional API?
     # fallback: sprosit razmery metrik
     met = _get("/desktop/metrics/info")
     w = int(met.get("width", 1280)); h = int(met.get("height", 720))
     return raw, w, h
 
 def _draw_heatmap(w: int, h: int, pts: List[Dict[str,int]], radius: int = 40) -> bytes:
-    # prostaya «teplota»: nakaplivaem v matritsu, zatem normiruem i nanosim tsvetovuyu shkalu (gray→alpha)
+    # prostaya “teplota”: nakaplivaem v matritsu, zatem normiruem i nanosim tsvetovuyu shkalu (gray→alpha)
     import struct, zlib
     field = [0.0]*(w*h)
     rad2 = radius*radius
@@ -94,7 +92,7 @@ def _draw_heatmap(w: int, h: int, pts: List[Dict[str,int]], radius: int = 40) ->
             v = field[y*w+x]/mx if mx>0 else 0.0
             g = int(255*v)
             a = int(200*v)
-            # ottenok v krasno-zheltoy gamme bez slozhnykh kart: g kanal — slabyy
+            # hue in the red-yellow range without complex maps: g channel - weak
             r = int(255*v)
             b = 0
             row += bytes([r, g//2, b, a])

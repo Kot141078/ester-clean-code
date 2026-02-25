@@ -1,6 +1,6 @@
 # rules/proactive_rules.yaml
 # Iteratsiya B — dop. pravila proaktivnosti (sovmestimo s rule_engine.py).
-# Etot fayl mozhno derzhat ryadom s rules/automation_rules.yaml.
+# This file can be kept next to rules/automation_rules.yaml.
 # Dvizhok vozmet pervyy naydennyy fayl iz:
 #   - rules/automation_rules.yaml
 #   - rules/proactive_rules.yaml

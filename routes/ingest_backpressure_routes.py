@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ingest_backpressure_routes.py - podklyuchaemyy backpressure dlya vsekh POST /ingest/*
-(bez smeny kontraktov i imeni blyuprinta).
+"""routes/ingest_backpressure_routes.py - podklyuchaemyy backpressure dlya vsekh POST /ingest/*
+(bez change kontraktov i imeni blyuprinta).
 
 Mosty:
 - Yavnyy: (Kibernetika ↔ Nagruzka) - before_app_request sglazhivaet piki cherez allow(key).
@@ -9,11 +8,10 @@ Mosty:
 - Skrytyy #2: (Set ↔ Bezopasnost) - opredelenie istochnika: X-Source-Key → JSON.meta.source.key → URL.host → anon:IP.
 
 Zemnoy abzats:
-Eto «regulirovschik na vezde k skladu»: propuskaet fury po talonam, chtoby rampa ne zadokhnulas.
+Eto “regulirovschik na vezde k skladu”: propuskaet fury po talonam, chtoby rampa ne zadokhnulas.
 Kontrakty ingest-ruchek ne menyaem - filtr stoit pered nimi, myagko vozvraschaya 429 s Retry-After.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import ipaddress
@@ -21,16 +19,16 @@ from typing import Any, Dict, Tuple, Optional
 
 from flask import Blueprint, jsonify, request, current_app
 
-# --- Konstanty i blyuprint (imya sokhranyaem dlya sovmestimosti) ---
+# --- Constants and blueprint (we save the name for compatibility) ---
 _BP_NAME = "ingest_bp"
 bp_ingest_bp = Blueprint(_BP_NAME, __name__)
 
-# AB-flag (mozhno vremenno vyklyuchit registratsiyu bez pravki koda)
+# AB flag (you can temporarily disable registration without editing the code)
 import os
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 _AB = (os.getenv("ESTER_INGEST_BP_AB") or "B").strip().upper()
 
-# Pytaemsya podtyanut realnye funktsii backpressure; esli net - myagkie zaglushki
+# Tries to tighten up the real functions of Baskpressure; if not - soft plugs
 try:
     from modules.ingest.backpressure import allow, counters, get_config, set_config  # type: ignore
 except Exception:
@@ -38,12 +36,10 @@ except Exception:
 
 
 def _source_key() -> str:
-    """
-    Izvlekaem klyuch istochnika:
-      1) Zagolovok X-Source-Key
-      2) JSON.body.meta.source.key
-      3) anon:<ip> (X-Forwarded-For|remote_addr)
-    """
+    """Retrieving the source key:
+      1) Header S-Source-Key
+      2) JSION.water.meta.source.key
+      3) anon:<ip> (C-Forwarded-For|remote_addr)"""
     key = request.headers.get("X-Source-Key")
     if not key:
         try:
@@ -63,10 +59,10 @@ def _source_key() -> str:
     return key
 
 
-# Podvesim filtr na blyuprint (zaregistriruetsya odin raz vmeste s nim)
+# We will hang the filter on the blueprint (it will be registered once with it)
 @bp_ingest_bp.before_app_request
 def _bp_guard():
-    # Tolko POST i tolko /ingest/*
+    # Only POST and only /ingest/*
     if request.method != "POST":
         return None
     path = request.path or ""
@@ -103,18 +99,16 @@ def api_config():
 
 
 def register(app):
-    """
-    Idempotentnaya registratsiya blyuprinta.
+    """Idempotentnaya registratsiya blyuprinta.
     Ispravlenie oshibki: esli blueprint s imenem 'ingest_bp' uzhe est (goryachiy reload/dvoynoy import) -
-    ne pytaemsya registrirovat vtoroy raz, chtoby ne lovit ValueError(...already registered...).
-    """
+    ne pytaemsya registrirovat vtoroy raz, chtoby ne lovit ValueError(...already registered...)."""
     if _AB != "B":
         if hasattr(app, "logger"):
             app.logger.debug("[ingest_bp] AB flag != B, skip registering")
         return
 
     if _BP_NAME in app.blueprints:
-        # uzhe zaregistrirovan - tikho vykhodim
+        # already registered - quits quietly
         if hasattr(app, "logger"):
             app.logger.debug("[ingest_bp] blueprint already registered, skipping")
         return

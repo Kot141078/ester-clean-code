@@ -20,7 +20,7 @@ def test_diff_json_simulation_no_network():
         CRDT.add(Item("alpha", {"t": 1}))
         CRDT.add(Item("beta", {"t": 2}))
 
-        # Poluchim lokalnoe sostoyanie /p2p/state level=0
+        # We get the local state /p2p/item level=0
         r_state = c.get("/p2p/state?level=0")
         assert r_state.status_code == 200
         st = r_state.get_json()
@@ -37,7 +37,7 @@ def test_diff_json_simulation_no_network():
         assert dj["ok"] is True
         assert dj["diff_ids"] == []
 
-        # Menyaem odnu zapis lokalno, no peredaem starye kheshi — teper dolzhen poyavitsya diff
+        # We change one local entry, but transfer the old hashes - now a diff should appear
         CRDT.add(Item("beta", {"t": 3}))
         r_diff2 = c.post(
             "/ops/p2p/diff/json",

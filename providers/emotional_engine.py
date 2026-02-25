@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Emotsionalnyy dvizhok (leksikon + regex):
+"""Emotsionalnyy dvizhok (leksikon + regex):
 - detect_emotions(text) -> dict[str,float]
 - top_emotions(text, k=3) -> list[str]
-Slovar kompaktnyy, vesa normalizuyutsya do [0,1].
-"""
+Slovar kompaktnyy, vesa normalizuyutsya do [0,1]."""
 from __future__ import annotations
 
 import re

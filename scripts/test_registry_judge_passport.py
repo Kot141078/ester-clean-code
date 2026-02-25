@@ -1,21 +1,19 @@
-"""
-scripts/
+"""scripts/
 
-Proverka svyazki:
+Check it out:
     modules.providers.registry + profile Ester.
 
-Chto delaet:
-1. Dobavlyaet koren proekta (D:\ester-project) v sys.path.
-2. Importiruet registry i (po vozmozhnosti) passport.
+What does it do:
+1. Add koren project (D:\ester-project) v sys.path.
+2. Import registry i (po vozmozhnosti) passport.
 3. Pokazyvaet, kakoy provayder vybran dlya mode="judge".
 4. Pokazyvaet tekuschiy sistemnyy prompt identichnosti (sokraschennyy).
-5. Dergaet registry.answer(..., mode="judge") i pechataet otvet.
+5. Dergaet registry.answer(..., mode="judge") i pechataet answer.
 
 Zapusk:
 
     cd D:\ester-project
-    python scripts\test_registry_judge_passport.py
-"""
+    python scripts\test_registry_judge_passport.py"""
 
 from __future__ import annotations
 
@@ -61,7 +59,7 @@ def main() -> None:
 
     print("\n=== Calling registry.answer(mode='judge') ===")
     msgs = [
-        {"role": "user", "content": "Korotko skazhi, kto ty i kak rabotaesh."}
+        {"role": "user", "content": "Briefly tell us who you are and how you work."}
     ]
 
     try:

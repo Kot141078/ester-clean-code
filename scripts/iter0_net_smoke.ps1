@@ -3,7 +3,7 @@ param()
 Write-Host "=== Iter0 Net smoke ===" -ForegroundColor Cyan
 
 # -------------------------------------------------------------
-# 1. Zagruzka .env (esli est)
+# 1. Loading .env (if available)
 # -------------------------------------------------------------
 
 $envPath = ".env"
@@ -19,7 +19,7 @@ if (Test-Path $envPath) {
             $value = $matches[2]
 
             if (-not [string]::IsNullOrWhiteSpace($name)) {
-                # Ne pereopredelyaem uzhe zadannye peremennye protsessa
+                # We do not override already defined process variables
                 if (-not (Get-Item -Path "Env:$name" -ErrorAction SilentlyContinue)) {
                     Set-Item -Path "Env:$name" -Value $value
                 }
@@ -180,7 +180,7 @@ if (-not [string]::IsNullOrWhiteSpace($LmModel)) {
 # 6. Testy /chat/message
 # -------------------------------------------------------------
 
-# Test 1: yavnyy zapros na internet
+# Test 1: Explicit Internet Request
 Write-Host ""
 Write-Host "Test 1: explicit net request (net_test_1) ..." -ForegroundColor Cyan
 $body1 = @{
@@ -191,7 +191,7 @@ $body1 = @{
 }
 Invoke-JsonPost -Url "$BaseUrl/chat/message" -Body $body1 | Out-Null
 
-# Test 2: neyavnyy, no setevoy (tseny)
+# Test 2: implicit but network (prices)
 Write-Host ""
 Write-Host "Test 2: implicit net request (net_test_2) ..." -ForegroundColor Cyan
 $body2 = @{

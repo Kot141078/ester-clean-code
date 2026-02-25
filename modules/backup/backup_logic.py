@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules.backup.backup_logic — logika importa/eksporta slepkov (rasshiren).
+"""modules.backup.backup_logic - logika importa/eksporta slepkov (expansive).
 
 MOSTY:
 - Yavnyy: import_state(), export_state().
@@ -8,10 +7,9 @@ MOSTY:
 - Skrytyy #2: (Sovmestimost) prostye slovari bez modeley.
 
 ZEMNOY ABZATs:
-Dvizhenie «tuda-obratno»: UI mozhet i vygruzhat, i zagruzhat sostoyaniya.
+Dvizhenie “tuda-back”: UI mozhet i vygruzhat, i zagruzhat sostoyaniya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

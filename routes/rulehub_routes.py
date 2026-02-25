@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/rulehub_routes.py - REST API dlya nablyudaemosti i upravleniya RuleHub.
-  • GET  /rulehub/state          - counters/last_ts/enabled
-  • GET  /rulehub/last?limit=N   - poslednie sobytiya iz zhurnala
-  • POST /rulehub/toggle         - {"enabled":1|0}
-  • GET  /rulehub/config         - YAML-tekst
-  • POST /rulehub/config         - {"yaml":"..."} sokhranit
-  • GET  /admin/mind/rules       - administrativnaya stranitsa UI
+"""routes/rulehub_routes.py - REST API dlya nablyudaemosti i upravleniya RuleHub.
+  • GET /rulehub/state - counters/last_ts/enabled
+  • GET /rulehub/last?limit=N - poslednie sobytiya iz zhurnala
+  • POST /rulehub/toggle - {"enabled":1|0}
+  • GET /rulehub/config - YAML-tekst
+  • POST /rulehub/config - {"yaml":"..."} sokhranit
+  • GET /admin/mind/rules - administrativnaya stranitsa UI
 
 Mosty:
 - Yavnyy: (Nablyudaemost ↔ Myshlenie) bystryy dostup k schetchikam/zhurnalu i nastroykam.
@@ -14,11 +13,10 @@ Mosty:
 - Skrytyy #2: (Infoteoriya ↔ Kontrol) edinyy HTTP dlya operatorskikh paneley i avtomatov.
 
 Zemnoy abzats (anatomiya/inzheneriya):
-Eto «pult»: lampochki (state), istoriya (last), tumbler vklyuchit/vyklyuchit (toggle) i yaschik s instruktsiyami (config).
+This is “pult”: lampochki (state), istoriya (last), tumbler vklyuchit/vyklyuchit (toggle) i yaschik s instructions (config).
 Minimum podvizhnykh chastey, determinirovannye otvety, bezopasnaya zapis faylov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -40,7 +38,7 @@ _CFG = Path("config") / "rulehub.yaml"
 
 def register(app):  # pragma: no cover
     app.register_blueprint(bp_rulehub)
-    # Pri registratsii - myagko importiruem patch (esli prisutstvuet)
+    # When registering, softly import the patch (if present)
     try:
         import modules.thinking.patch_rulehub  # noqa: F401
     except Exception:
@@ -73,7 +71,7 @@ def rulehub_last():
     rows: List[Dict[str, Any]] = []
     if _LOG.exists():
         try:
-            # Prostoy tail po strokam
+            # Simple hidden along the lines
             lines = _LOG.read_text(encoding="utf-8").splitlines()
             for s in lines[-limit:]:
                 try:

@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R2/tests/r2_trigger_smoke.py — smouk triggera po lokalnomu konfigu.
+"""R2/tests/r2_trigger_smoke.py - smouk triggera po lokalnomu konfigu.
 
 Mosty:
 - Yavnyy: Enderton — predikaty: konfig chitaetsya ∧ zadachi vypolnyayutsya ∧ audit zapisan.
-- Skrytyy #1: Ashbi — minimalnyy regulyator: strogo lineynoe vypolnenie, bez gonok.
-- Skrytyy #2: Cover & Thomas — proveryaem dostatochnyy «signal» (poyavlenie zapisey v audit.jsonl).
+- Skrytyy #1: Ashbi — minimalnyy regulyator: strictly lineynoe vypolnenie, bez gonok.
+- Skrytyy #2: Cover & Thomas — proveryaem dostatochnyy “signal” (poyavlenie zapisey v audit.jsonl).
 
 Zemnoy abzats (inzheneriya):
-Zapuskaet trigger na `tests/fixtures/ingest_config.json`, zatem stroit otchet Markdown.
-Dopustim myagkiy rezhim: esli konfig otsutstvuet — test propuskaetsya.
+Zapuskaet trigger na `tests/fixtures/ingest_config.json`, zatem build otchet Markdown.
+Dopustim myagkiy rezhim: esli konfig otsutstvuet - test propuskaetsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import os

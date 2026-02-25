@@ -1,5 +1,4 @@
-"""
-PersonaDetector — legkaya evristika dlya opredeleniya tipa sobesednika bez «tupykh oprosov».
+"""PersonaDetector - legkaya evristika dlya opredeleniya tipa sobesednika bez “tupykh oprosov”.
 Mozhno zamenit/usilit na ML, ne lomaya kontrakt.
 
 MOSTY (yavnyy):
@@ -7,11 +6,10 @@ MOSTY (yavnyy):
 
 MOSTY (skrytye):
 - Skreschivaetsya s profilyami iz cards_memory/data (esli est v proekte), chtoby uchityvat izvestnye kontakty.
-- Mozhet uchityvat politiku «caution_rules» pri somneniyakh — podbiraet bezopasnyy neytralnyy stil.
+- Mozhet uchityvat politiku “caution_rules” pri somneniyakh — podbiraet bezopasnyy neytralnyy stil.
 
 ZEMNOY ABZATs:
-- Rabotaet iz korobki i uzhe daet zametno menshe «mashinnosti» v soobscheniyakh.
-"""
+- Rabotaet iz korobki i uzhe daet zametno menshe “mashinnosti” v soobscheniyakh."""
 
 from typing import Dict, Any
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -27,7 +25,7 @@ class PersonaDetector:
         if any(x in t for x in ["bro", "druzhische", "privet", "go ", "pognali"]):
             return "friend"
 
-        # Meta-podskazki: iz imeni/yuzera
+        # Meta hints: from name/user
         meta = meta or {}
         frm = meta.get("from")
         if isinstance(frm, dict):

@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/backup_restore.py — UI/REST: eksport/import nastroek Re «Sozdat fleshku-repliku».
+"""routes/backup_restore.py - UI/REST: eksport/import nastroek Re "Sozdat fleshku-repliku".
 
-Marshruty:
-  • GET  /admin/backup                 — HTML.
-  • GET  /admin/backup/export          — JSON-bekap.
-  • POST /admin/backup/import          — body {json_text, mode:'merge'|'replace'} v†' primenit.
-  • POST /admin/backup/usb/replica     — body {mount} v†' sozdat strukturu ESTER/ (AB=A v†' dry).
+Route:
+  • GET /admin/backup - HTML.
+  • GET /admin/backup/export - JSON-backup.
+  • POST /admin/backup/import - body {json_text, mode:'merge'|'replace'} v†' primenit.
+  • POST /admin/backup/usb/replica - body {mount} v†' sozdat strukturu ESTER/ (AB=A v†' dry).
 
 Mosty:
-- Yavnyy (Arkhitektura v†" UX): odin ekran — sdelat bekap, vosstanovit, zapisat fleshku.
+- Yavnyy (Arkhitektura v†" UX): odin ekran - sdelat bekap, vosstanovit, zapisat fleshku.
 - Skrytyy 1 (Infoteoriya v†" Prozrachnost): rezhim AB MODE otrazhen v otvetakh; plany pered zapisyu.
 - Skrytyy 2 (Praktika v†" Sovmestimost): replika sovmestima s nashim USB portable-deploem (kind="dump").
 
 Zemnoy abzats:
-Eto «stranitsa tekhobsluzhivaniya»: sdelal snimok, perenes na fleshku, vosstanovil na drugom uzle bez seti.
+This is “stranitsa tekhobsluzhivaniya”: sdelal snimok, perenes na fleshku, vosstanovil na drugom uzle bez seti.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -46,7 +44,7 @@ def api_import():
     text = data.get("json_text") or ""
     mode = (data.get("mode") or "merge").lower()
     if AB != "B":
-        # tolko plan — poprobuem rasparsit Re vernut, chto *by* primenili
+        # just a plan - let's try to parse Re and return what *would* be used
         try:
             b = json.loads(text)
         except Exception:
@@ -54,7 +52,7 @@ def api_import():
         files = (b.get("files") or {})
         plan = {"mode": mode, "would_apply": list(files.keys())}
         return jsonify({"ok": True, "ab": AB, "plan": plan})
-    # rezhim B — realnaya zapis
+    # mode B - real recording
     try:
         b = json.loads(text)
     except Exception:

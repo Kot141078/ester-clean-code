@@ -1,4 +1,4 @@
-# Rolevye vozmozhnosti publikatsii sobytiy (prefiksy s * podderzhivayutsya)
+# Role-based event publishing capabilities (prefixes with * supported)
 roles:
   core:
     allow:

@@ -1,32 +1,30 @@
 # -*- coding: utf-8 -*-
-"""
-routes/missions_plus_routes.py - REST/UI dlya dolgikh missiy.
+"""routes/missions_plus_routes.py - REST/UI dlya dolgikh missiy.
 
 Ruchki:
-  GET  /thinking/missions/list
-  POST /thinking/missions/create   {"goal":"...", "priority":"low|normal|high", "schedule":"@daily 04:20", "template":"cascade|pipeline", "params":{...}}
-  POST /thinking/missions/update   {"id":"...", ...patch}
-  POST /thinking/missions/pause    {"id":"..."}
-  POST /thinking/missions/resume   {"id":"..."}
-  POST /thinking/missions/cancel   {"id":"..."}
+  GET /thinking/missions/list
+  POST /thinking/missions/create {"goal":"...", "priority":"low|normal|high", "schedule":"@daily 04:20", "template":"cascade|pipeline", "params":{...}}
+  POST /thinking/missions/update {"id":"...", ...patch}
+  POST /thinking/missions/pause {"id":"..."}
+  POST /thinking/missions/resume {"id":"..."}
+  POST /thinking/missions/cancel {"id":"..."}
   POST /thinking/missions/finalize {"id":"...","note":"..."}
   POST /thinking/missions/start_scheduler
   POST /thinking/missions/stop_scheduler
-  GET  /thinking/missions/status
-  GET  /admin/missions_plus  (alias k /thinking/missions/admin)
+  GET /thinking/missions/status
+  GET /admin/missions_plus (alias k /thinking/missions/admin)
 
 Mosty:
 - Yavnyy: (Planirovschik ↔ Myslitelnyy kontur) REST-upravlenie zhiznennym tsiklom missiy.
 - Skrytyy #1: (Logika ↔ Kontrakty) determinirovannye JSON-otvety/kody oshibok.
-- Skrytyy #2: (Memory ↔ Audit) legko dobavit zhurnal v «profile».
+- Skrytyy #2: (Memory ↔ Audit) legko add zhurnal v “profile”.
 - Skrytyy #3: (Kibernetika ↔ Obratnaya svyaz) finalize/ pause/ resume zamykayut tsikl.
 
 Zemnoy abzats:
 Eto kak dispetcher poletov: sozdaem reys (missiyu), stavim raspisanie, priostanavlivaem/prodlevaem,
-i v kontse fiksiruem posadku (finalize). Vse prozrachno i predskazuemo.
+i v kontse fiksiruem posadku (finalize). All prozrachno i predskazuemo.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -36,7 +34,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp = Blueprint("missions_plus_routes", __name__, url_prefix="/thinking/missions")
 
-# Myagkiy import myslitelnogo dvizhka
+# Soft import of a thought engine
 try:
     from modules.thinking import missions as MS  # type: ignore
 except Exception:  # pragma: no cover
@@ -196,14 +194,14 @@ def admin():
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta i aliasov (kontrakt proekta)."""
+    """Drop-in registration of blueprint and aliases (project contract)."""
     app.register_blueprint(bp)
-    # Alias dlya admin pod «starym» putem
+    # Alias ​​for admin under the “old” path
     app.add_url_rule("/admin/missions_plus", view_func=admin, methods=["GET"], endpoint="admin_missions_plus_alias")
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

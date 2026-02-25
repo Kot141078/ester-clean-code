@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Admin: Klyuchi i podpisi (oflayn).
+"""Admin: Klyuchi i podpisi (oflayn).
 
 Most (yavnyy):
 - (Kibernetika ↔ UX) Yavnoe sozdanie/prosmotr klyuchey i test podpisi - prozrachnyy kontrol doveriya.
@@ -11,8 +10,7 @@ Mosty (skrytye):
 
 Zemnoy abzats:
 Panel sozdaet Ed25519 (ili HMAC fallback) klyuchi v ESTER/keys, pokazyvaet publichnyy klyuch i fingerprint,
-daet test: podpisat mini-peyload i proverit verifikatsiyu.
-"""
+daet test: podpisat mini-peyload i proverit verifikatsiyu."""
 from __future__ import annotations
 
 import os
@@ -20,7 +18,7 @@ import time
 from typing import Any, Dict
 from flask import Blueprint, jsonify, render_template, request
 
-# Kontrakty ne menyaem: ostavlyaem importnye puti kak v dampe
+# We do not change contracts: we leave import paths as in the dump
 try:
     from modules.crypto.keys import ensure_keys, load_meta, load_public_pem  # type: ignore
 except Exception:
@@ -45,7 +43,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp = Blueprint("admin_keys", __name__, url_prefix="/admin/keys")
 
-# A/B-slot dlya bezopasnoy samo-redaktsii
+# A/B slot for secure self-editing
 AB_MODE = (os.getenv("AB_MODE") or "A").strip().upper()
 
 
@@ -92,12 +90,12 @@ def api_sign_test():
 
 
 def register(app):  # pragma: no cover
-    """Registratsiya blyuprinta (drop-in)."""
+    """Blueprint registration (drop-in)."""
     app.register_blueprint(bp)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

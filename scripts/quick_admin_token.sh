@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# S0/scripts/quick_admin_token.sh — sgenerirovat admin-JWT i proverit /admin (curl)
-# Mosty: (Yavnyy) Enderton — prostye predikaty proverki; (Skrytye) Ashbi — regulyator prosche sistemy; Dzheynes — pravdopodobie validnosti sessii.
-# Zemnoy abzats: pomogaet bystro lokalno ubeditsya, chto RBAC/JWT «dyshit» bez UI. Zavisimosti: python, curl.
+# С0/skripts/kisk_admin_token.sh - generate admin-ZhVT and check /admin (curl)
+# Bridges: (Explicit) Enderton - simple test predicates; (Hidden) Ashby - the regulator is simpler than the system; Janes - likelihood of session validity.
+# Earthly paragraph: helps to quickly locally verify that the RVACH/GVT is “breathing” without UI. Dependencies: pothon, curl.
 # c=a+b
 
 set -euo pipefail

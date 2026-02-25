@@ -8,10 +8,10 @@ name: Lint & Tests (ruff + pytest)
 # Most (yavnyy):
 #  • (CI ↔ Razrabotka) — gonyaem te zhe instrumenty, chto i lokalno (ruff/pytest).
 # Skrytye mosty:
-#  • (Pre-commit ↔ CI) — ruff format i lint sovpadayut s .pre-commit-config.yaml.
+#  • (Pre-commit ↔ CI) - ruff format i lint sovpadayut s .pre-commit-config.yaml.
 #  • (Constraints ↔ Pip) — ustanovka cherez requirements-dev.txt i constraints.
 #
-# Zemnoy abzats: «kontrol kachestva na linii» — bystryy chek bez flake8, chtoby ne vyzyvat dreyf instrumentov.
+# Earthly paragraph: “quality control on the line” - a quick check without flake8, so as not to cause tool drift.
 #
 # c=a+b
 
@@ -54,4 +54,4 @@ jobs:
 
       - name: Pytest (quick)
         run: |
-          pytest -q || true  # ne lomaem repo, esli testov poka net; mozhno uzhestochit pozzhe
+          pytest -q || true  # We don’t break the repo if there are no tests yet; can be tightened later

@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-modules/audit/recplay_link.py — skvoznoy audit REC→PLAY.
+"""modules/audit/recplay_link.py - skvoznoy audit REC→PLAY.
 
-Naznachenie:
+Name:
 - Svyazat zapisannye sobytiya (REC) s fakticheskimi shagami ispolneniya workflow (PLAY).
 - Save svodnyy otchet: sopostavlenie, dlitelnosti, uspekh/oshibka.
 
 Khranilische:
-- data/audit/recplay/<audit_id>.json   — svodka
-- data/audit/recplay/rec_index.json     — indeks poslednikh N auditov
+- data/audit/recplay/<audit_id>.json — svodka
+- data/audit/recplay/rec_index.json — indexes poslednikh N auditov
 
 API (cherez routes/audit_recplay_routes.py):
 - run_with_audit(workflow, session) → audit_id, report
@@ -17,14 +16,13 @@ API (cherez routes/audit_recplay_routes.py):
 
 MOSTY:
 - Yavnyy: (Memory ↔ Deystvie) sopostavlyaem to, chto zapisali, s tem, chto vypolnili.
-- Skrytyy #1: (Infoteoriya ↔ Nadezhnost) raskhozhdeniya vidny chislami — umenshenie entropii «kazhetsya, chto rabotaet».
-- Skrytyy #2: (Kibernetika ↔ Kontrol) petlya «nablyuday–sopostavlyay–uluchshay» dlya makrosov/vorkflou.
+- Skrytyy #1: (Infoteoriya ↔ Nadezhnost) raskhozhdeniya vidny chislami - umenshenie entropii “kazhetsya, chto rabotaet.”
+- Skrytyy #2: (Kibernetika ↔ Kontrol) petlya “nablyuday–sopostavlyay–uluchshay” dlya makrosov/vorkflou.
 
 ZEMNOY ABZATs:
-Fayly JSON, oflayn. Zapusk workflow vypolnyaem kak obychnyy `/rpa/workflows/run`, no oborachivaem taymerami i svyazyvaem sobytiya po tipu/argumentam.
+Faily JSON, offline. Zapusk workflow vypolnyaem kak obychnyy `/rpa/workflows/run`, no oborachivaem taymerami i svyazyvaem sobytiya po tipu/argumentam.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, uuid, http.client
 from typing import Dict, Any, List, Tuple
@@ -47,7 +45,7 @@ def _save_idx(item: Dict[str, Any]) -> None:
         except Exception:
             arr = []
     arr.insert(0, item)
-    arr = arr[:100]  # khranit poslednie 100
+    arr = arr[:100]  # stores the last 100
     with open(idx_p, "w", encoding="utf-8") as f:
         json.dump(arr, f, ensure_ascii=False, indent=2)
 
@@ -76,11 +74,11 @@ def run_with_audit(workflow: str, session: str) -> Dict[str, Any]:
     audit_id = str(uuid.uuid4())
     t0 = time.time()
     rec_events = _read_session_events(session)
-    # Zapusk workflow obychnym sposobom
+    # Launching a workflow in the usual way
     code, run_res = _post_json("/rpa/workflows/run", {"name": workflow})
     t1 = time.time()
 
-    # Sopostavlenie: prostoy khesh po tipu shaga
+    # Matching: simple hash by step type
     def key_ev(ev: Dict[str, Any]) -> str:
         t = ev.get("type")
         if t == "click": return f"click:{int(ev.get('x',0))}:{int(ev.get('y',0))}"
@@ -91,11 +89,11 @@ def run_with_audit(workflow: str, session: str) -> Dict[str, Any]:
         if t == "macro": return f"macro:{ev.get('name','')}"
         return f"{t}"
 
-    # Otvet ispolnitelya mozhet soderzhat trassu, esli realizovano; inache sopostavim po dline/tipam
+    # The executor's response may contain a trace, if implemented; otherwise comparable by length/types
     wf_trace = list(run_res.get("trace", [])) if isinstance(run_res, dict) else []
     m = []
     used = set()
-    # legkoe sopostavlenie po klyucham
+    # easy matching by keys
     for i, ev in enumerate(rec_events):
         kev = key_ev(ev)
         hit = {"rec_idx": i, "rec_key": kev, "play_idx": None, "status": "miss"}

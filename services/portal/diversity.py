@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-R6/services/portal/diversity.py — anti-ekho (dedup) i Maximal Marginal Relevance (MMR) dlya raznoobraziya.
+"""R6/services/portal/diversity.py - anti-ekho (dedup) i Maximal Marginal Relevance (MMR) dlya raznoobraziya.
 
 Mosty:
-- Yavnyy: Cover & Thomas (infoteoriya) — udalyaem izbytochnost (dublikaty) i povyshaem «signal» cherez diversifikatsiyu.
+- Yavnyy: Cover & Thomas (infoteoriya) - udalyaem izbytochnost (dublikaty) i povyshaem “signal” cherez diversifikatsiyu.
 - Skrytyy #1: Enderton (logika) — vse operatsii formalizovany kak predikaty nad mnozhestvami tokenov i schetchikami.
-- Skrytyy #2: Ashbi (kibernetika) — A/B-slot: B vklyuchaet MMR i mezhsektsionnyy anti-ekho; pri isklyucheniyakh — katbek v A.
+- Skrytyy #2: Ashbi (kibernetika) — A/B-slot: B vklyuchaet MMR i mezhsektsionnyy anti-ekho; pri isklyucheniyakh - katbek v A.
 
 Zemnoy abzats (inzheneriya):
-Funktsii prinimayut «ploskie» elementy daydzhesta (summary/snippet/tags/user/score_a/score_b),
-rabotayut tolko na stdlib, ustoychivy k otsutstvuyuschim polyam. Tokenizatsiya — prostaya, bez vneshnikh lib.
+Funktsii prinimayut “flat” elementy daydzhesta (summary/snippet/tags/user/score_a/score_b),
+rabotayut tolko na stdlib, ustoychivy k otsutstvuyuschim polyam. Tokenizatsiya - prostaya, bez vneshnikh lib.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import math
 import os
@@ -27,7 +25,7 @@ def _tokens(s: str) -> List[str]:
 
 def _tokset(s: str) -> set:
     toks = _tokens(s)
-    # legkaya filtratsiya stop-slov (lokalno)
+    # easy filtering of stop words (locally)
     stop = {"i","v","na","s","po","the","a","an","of","to","and","or","no","ne","eto","kak","chto","iz","ot"}
     return {t for t in toks if len(t) > 2 and t not in stop}
 
@@ -40,9 +38,7 @@ def jaccard(a: str, b: str) -> float:
     return float(inter) / float(union or 1)
 
 def dedup_items(items: List[dict], threshold: float) -> List[dict]:
-    """
-    Udalyaet «pokhozhie» elementy po Zhakkaru (summary+snippet). Sokhranyaet iskhodnyy poryadok.
-    """
+    """Removes “similar” elements according to Jaccard (summary + snippet). Maintains the original order."""
     out: List[dict] = []
     seen_texts: List[str] = []
     for it in items:
@@ -54,18 +50,16 @@ def dedup_items(items: List[dict], threshold: float) -> List[dict]:
     return out
 
 def _sim(a: str, b: str) -> float:
-    # kosinus na binarnykh meshkakh (cherez Zhakkar kak approksimatsiyu)
+    # cosine on binary bags (via Jaccard as an approximation)
     return jaccard(a, b)
 
 def mmr_select(query: str, items: List[dict], k: int, lam: float) -> List[dict]:
-    """
-    Zhadnyy MMR: argmax λ*Sim(q,d) - (1-λ)*max Sim(d, S)
-    gde q — stroka zaprosa, d — dokument (summary+snippet), S — uzhe vybrannye.
-    """
+    """Zhadnyy MMR: argmax λ*Sim(q,d) - (1-λ)*max Sim(d, S)
+    gde q - stroka zaprosa, d - dokument (summary+snippet), S - uzhe vybrannye."""
     k = max(1, int(k))
     if not items:
         return []
-    # Predraschet «relevantnosti k zaprosu»
+    # Pre-calculation of “query relevance”
     def _text(it: dict) -> str:
         return (it.get("summary") or "") + " " + (it.get("snippet") or "")
     rel = [ _sim(query, _text(it)) for it in items ]
@@ -75,7 +69,7 @@ def mmr_select(query: str, items: List[dict], k: int, lam: float) -> List[dict]:
         for i in range(len(items)):
             if i in selected:
                 continue
-            # penalty = maks pokhozhesti s uzhe vybrannymi
+            # penalty = maximum similarity with already selected ones
             penalty = 0.0
             for j in selected:
                 penalty = max(penalty, _sim(_text(items[i]), _text(items[j])))

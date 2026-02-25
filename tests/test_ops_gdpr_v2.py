@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-E2E-test GDPR-ruchek (yadro cherez impl-funktsii):
- - napolnyaem Structured (oba vozmozhnykh formata), KG, Hypotheses, Events
+"""E2E-test GDPR-ruchek (yadro cherez impl-funktsii):
+ - napolnyaem Structured (both vozmozhnykh formata), KG, Hypotheses, Events
  - eksportiruem po query
- - udalyaem (dry_run=false), proveryaem, chto vse ischezlo
-"""
+ - udalyaem (dry_run=false), proveryaem, chto vse ischezlo"""
 
 import json
 import os
@@ -82,7 +80,7 @@ def _seed_hypotheses():
 
     hs = HypothesisStore()
     hs.add(
-        "Proverit khranenie email owner@example.com",
+        "Check storage email owner@example.com",
         topic="gdpr",
         tags=["test"],
         score=0.5,
@@ -138,7 +136,7 @@ def test_export_and_delete(clean_env, tmp_path):
     rep2 = _delete_personal_data_impl(q, dry_run=False)
     assert rep2["ok"] is True
     assert rep2["dry_run"] is False
-    # Povtornyy eksport po tomu zhe zaprosu dolzhen vernut nuli/minimumy
+    # Re-exporting the same query should return zeros/minimums
     exp2 = _export_personal_data_impl(q)
     assert exp2["counts"]["structured"] == 0
     assert exp2["counts"]["kg_nodes"] == 0

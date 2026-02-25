@@ -1,8 +1,8 @@
 # deploy/systemd/ester.service — unit-fayl systemd
 # MOSTY:
-# - (Yavnyy) Zapuskaet uvicorn asgi.app_main:app pod zadannym polzovatelem.
-# - (Skrytyy #1) Chitaet peremennye iz /etc/ester.env (sozdayte kopiey .env).
-# - (Skrytyy #2) Restart=always + simple health-logika cherez systemd.
+# - (Explicit) Launches uvikorn asgi.app_mine:app under the given user.
+# - (Hidden #1) Reads variables from /ets/ester.env (create a copy of .env).
+# - (Hidden #2) Restart=always + simple health-logic via systemd.
 
 [Unit]
 Description=Ester Synergy Service

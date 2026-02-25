@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-RewardHub — edinyy skoring/agregator metrik.
-- compute_score: perevodit metriki v skalyarnyy skor
-- RewardHub.update(): dobavlyaet sobytie, vedet EMA/schetchik/poslednie znacheniya
+"""RewardHub - edinyy skoring/agregator metrics.
+- compute_score: perevodit metrics v skalyarnyy skor
+- RewardHub.update(): addvlyaet sobytie, vedet EMA/schetchik/poslednie znacheniya
 - khranenie: $ESTER_DATA_ROOT/meta/reward_hub.json (+ logs/reward_hub.jsonl)
 AB:
   A — ispolzuet judge.fold_scores i DEFAULT_WEIGHTS
-  B — konservativnaya formula (klipping, shtrafy)
-"""
+  B - konservativnaya formula (klipping, shtrafy)"""
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
@@ -60,7 +58,7 @@ def _safe_float(v: Any, default: float = 0.0) -> float:
         return default
 
 def _fold_like(metrics_list: List[Dict[str, Any]], weights: Dict[str, float]) -> Dict[str, float]:
-    # Prostaya zamena, esli net judge.fold_scores
+    # A simple replacement if there is no yuje.fold_score
     agg = {"utility":0.0,"accuracy":0.0,"time_sec":0.0,"err_rate":0.0,"tokens_prompt":0.0,"tokens_gen":0.0}
     n = max(1, len(metrics_list))
     for m in metrics_list:
@@ -104,7 +102,7 @@ def compute_score(payload: Dict[str, Any], mode: Optional[str]=None, weights: Op
         util = max(0.0, min(1.0, agg.get("utility", 0.0)))
         t = max(0.05, agg.get("time_sec", 1.0))
         err = max(0.0, min(1.0, agg.get("err_rate", 1.0)))
-        # logarifmicheskiy shtraf za vremya i kvadratichnyy za oshibku
+        # logarithmic penalty for time and quadratic penalty for error
         score = 2.0*util + 1.0*acc - 0.15*math.log1p(t) - 1.5*(err**2)
         agg["score"] = score
         return {"metrics": agg}

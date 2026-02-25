@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
-"""
-tools/oneclick_make_usb.py — CLI: sobrat perenosimuyu fleshku ESTER (One-Click).
+"""tools/oneclick_make_usb.py - CLI: sobrat perenosimuyu fleshku ESTER (One-Click).
 
-Ispolzovanie:
-  # predprosmotr
+Use:
+  #predprosmotr
   python tools/oneclick_make_usb.py --preview
 
   # zapisat (AB=A → dry, AB=B → zapis)
   AB_MODE=B python tools/oneclick_make_usb.py --apply
 
 Vykhodnye kody:
-  0 — uspekh (vklyuchaya dry)
+  0 - uspekh (vklyuchaya dry)
   1 — oshibka (net USB/isklyucheniya)
 
 Mosty:
 - Yavnyy (DevOps ↔ UX): to zhe, chto v UI, dostupno dlya avtomatizatsii.
 - Skrytyy 1 (Infoteoriya): baseline vklyuchaetsya v sborku srazu.
-- Skrytyy 2 (Praktika): offlayn/stdlib; zapis pod AB=B.
+- Skrytyy 2 (Praktika): offflayn/stdlib; zapis pod AB=B.
 
 Zemnoy abzats:
-CLI-dubler knopki: udobno dlya skriptov i «tikhikh» sborok bez UI.
+CLI-dubler knopki: udobno dlya skriptov i “tikhikh” sborok bez UI.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, sys
 from modules.portable.oneclick import preview, build_plan, apply_plan  # type: ignore

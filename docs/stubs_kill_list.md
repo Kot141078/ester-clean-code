@@ -28,12 +28,12 @@
 
 ## Bridges
 
-- Explicit bridge (Ashby): regulyator dolzhen znat realnuyu sistemu; prioritet pravok zadaetsya dostizhimostyu iz runtime.
+- Explicit bridge (Ashby): the regulator must know the real system; The priority of edits is set by reachability from the rintite.
 - Hidden bridge #1 (Enderton): eksport simvola bez smysla (pass) lomaet dokazuemost kontrakta vyzova.
-- Hidden bridge #2 (Cover&Thomas): ranzhirovanie po reachability/ref_count umenshaet entropiyu pravok i usilivaet poleznyy signal.
+- Hidden bridge #2 (Carpet&Thomas): ranking by rehabilitation/ref_count reduces the entropy of edits and enhances the useful signal.
 
 ## Earth Paragraph
 
-Eto kak defektoskopiya svarnykh shvov: snachala ischem treschiny na nagruzhennykh uzlakh (reachable),
-a ne na dekorativnykh panelyakh. Inache mozhno dolgo shlifovat «kosmetiku», a razryv sluchitsya tam,
-gde realno davlenie i vibratsiya (proactivity/agents/routes).
+It’s like flaw detection of welds: first we look for cracks on loaded units (rehabilier),
+and not on decorative panels. Otherwise, you can polish the “cosmetics” for a long time, and a rupture will happen there,
+where pressure and vibration are real (proactivities/agents/rutes).

@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/orchestrator_v2.py — podbor roley v2 (tselevaya funktsiya, shtrafy, HARD-konstreynty, trace, kesh).
+"""modules/synergy/orchestrator_v2.py - podbor roley v2 (tselevaya funktsiya, shtrafy, HARD-constreynty, trace, kesh).
 
 MOSTY:
 - (Yavnyy) Summarnaya funktsiya: base=Σ suitability; penalties: nagruzka/nizkaya prigodnost/riski platformy/reaktsiya operatora;
-  HARD: nesovmestimosti, platformu — tolko device, limit roley na agenta.
+  HARD: nesovmestimosti, platformu - only device, limit roley na agenta.
 - (Skrytyy #1) Kesh prigodnostey 1–5 minut i idempotentnost po request_id (vozvraschaet tot zhe plan/trace).
 - (Skrytyy #2) Lokalnye svapy (2-opt) s taymboksom i explainability-treysom shagov.
 
 ZEMNOY ABZATs:
-Orkestrator sobiraet «realno rabochuyu» komandu: ne tolko po tsifram prigodnosti, no i s uchetom riskov i pravil.
-Plan obyasnimyy (trace), povtoryaemyy (idempotent) i ne «drozhit» ot melkikh izmeneniy.
+Orkestrator sobiraet “realno rabochuyu” komandu: ne tolko po tsifram prigodnosti, no i s uchetom riskov i pravil.
+Plan obyasnimyy (trace), povtoryaemyy (idempotent) i ne “drozhit” ot melkikkh izmeneniy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple, Optional
 import time
@@ -46,16 +44,16 @@ def _scores_for(a: Dict[str, Any]) -> Dict[str, float]:
     # Keshiruem prigodnosti po updated_at
     return CACHE.get_scores(a["id"], _updated_at(a), lambda: fit_roles_ext(a))
 
-# ------------------------ tsel/shtrafy/konstreynty ------------------------
+# ------------------------ goal/fines/constraints ------------------------
 
 def _hard_violations(assigned: Dict[str, str], agents_by_id: Dict[str, Dict[str, Any]], policies: Dict[str, Any]) -> List[str]:
     vio: List[str] = []
-    # 1) Platforma dolzhna byt device
+    # 1) The platform must be for the girl
     if RoleName.platform.value in assigned:
         aid = assigned[RoleName.platform.value]
         if not _is_device(agents_by_id.get(aid, {})):
             vio.append("platform_must_be_device")
-    # 2) Nesovmestimosti (napr., operator/strategist ne dolzhny sovpadat)
+    # 2) Incompatibilities (e.g. operator/strategist should not be the same)
     incompat = [(str(a), str(b)) for a,b in policies.get("incompat", [])]
     for a,b in incompat:
         if a in assigned and b in assigned and assigned[a] == assigned[b]:
@@ -73,7 +71,7 @@ def _hard_violations(assigned: Dict[str, str], agents_by_id: Dict[str, Dict[str,
 def _penalties(assigned: Dict[str, str], scores: Dict[str, Dict[str, float]], agents_by_id: Dict[str, Dict[str, Any]], policies: Dict[str, Any]) -> Tuple[float, Dict[str, float]]:
     p_total = 0.0
     p_breakdown: Dict[str, float] = {}
-    # Nagruzka: za kazhduyu vtoruyu i dalee rol — myagkiy shtraf
+    # Load: for every second role and beyond - a mild fine
     counts: Dict[str,int] = {}
     for r, aid in assigned.items():
         counts[aid] = counts.get(aid, 0) + 1
@@ -82,14 +80,14 @@ def _penalties(assigned: Dict[str, str], scores: Dict[str, Dict[str, float]], ag
             pen = 0.05 * (n - 1)
             p_total += pen
             p_breakdown[f"load:{aid}"] = p_breakdown.get(f"load:{aid}", 0.0) + pen
-    # Nizkaya prigodnost: esli score < 0.3 — shtraf
+    # Low suitability: if quarrel < 0.3 - fine
     for r, aid in assigned.items():
         sc = scores.get(aid, {}).get(r, 0.0)
         if sc < 0.3:
             pen = (0.3 - sc) * 0.3
             p_total += pen
             p_breakdown[f"lowfit:{r}:{aid}"] = pen
-    # Riski platformy: nizkoe vremya/vysokaya latentnost
+    # Platform risks: low time/high latency
     for r, aid in assigned.items():
         if r != RoleName.platform.value:
             continue
@@ -117,7 +115,7 @@ def _objective(assigned: Dict[str, str], scores: Dict[str, Dict[str, float]], ag
     base = sum(scores.get(aid, {}).get(role, 0.0) for role, aid in assigned.items())
     vio = _hard_violations(assigned, agents_by_id, policies)
     if vio:
-        # beskonechnyy shtraf → ochen malenkaya otsenka
+        # beskonechnyy shtraf → very malenkaya otsenka
         return -1e9, 0.0, vio, {}
     pen, breakdown = _penalties(assigned, scores, agents_by_id, policies)
     total = base - pen
@@ -176,14 +174,12 @@ def _refine_swaps(roles: List[str], agents_by_id: Dict[str, Dict[str, Any]], ass
 # ------------------------ publichnyy API ------------------------
 
 def assign_v2(team_name: str, overrides: Dict[str, str] | None = None, request_id: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Podbor roley (idempotent po request_id). Format otveta sovmestim s predyduschey versiey + dop. polya:
+    """Podbor roley (idempotent po request_id). Format otveta sovmestim s predyduschey versiey + dop. polya:
     - total: itogovaya otsenka plana
-    - penalty: summa shtrafov
+    - penalty: summa fine
     - violations: spisok HARD-narusheniy (esli est)
     - steps: trace optimizatsii (spisok dict'ov)
-    - trace_id: identifikator trassy
-    """
+    - trace_id: identifikator trace"""
     # Idempotentnost
     cached = CACHE.get_plan(request_id)
     if cached:
@@ -204,7 +200,7 @@ def assign_v2(team_name: str, overrides: Dict[str, str] | None = None, request_i
         # fallback: bazovyy nabor
         roles = [RoleName.strategist.value, RoleName.operator.value, RoleName.platform.value]
 
-    # Agenty i prigodnosti (s keshem)
+    # Agents and suitability (with cache)
     agents = STORE.list_agents()
     agents_by_id = {a["id"]: a for a in agents}
     scores: Dict[str, Dict[str, float]] = {a["id"]: _scores_for(a) for a in agents}
@@ -214,7 +210,7 @@ def assign_v2(team_name: str, overrides: Dict[str, str] | None = None, request_i
     if overrides:
         frozen.update({k: v for k, v in overrides.items() if v})
 
-    # Nachalnyy plan i dooptimizatsiya
+    # Initial plan and further optimization
     plan0 = _initial_greedy(roles, agents, scores, frozen)
     steps: List[Dict[str, Any]] = []
     plan = _refine_swaps(roles, agents_by_id, plan0, scores, policies, steps=steps)
@@ -222,7 +218,7 @@ def assign_v2(team_name: str, overrides: Dict[str, str] | None = None, request_i
     total, penalty, vio, pen_break = _objective(plan, scores, agents_by_id, policies)
     trace_id = f"trace:{int(time.time()*1000)}"
 
-    # Sokhranyaem v STORE (kak i ranshe)
+    # We save in the STORE (as before)
     t = STORE.get_team(team_name) or {}
     t.setdefault("assigned", {}).update(plan)
     t["overrides"] = frozen

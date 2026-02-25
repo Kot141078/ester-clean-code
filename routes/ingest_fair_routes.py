@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ingest_fair_routes.py - REST-panel dlya fairness.
+"""routes/ingest_fair_routes.py - REST-panel dlya fairness.
 
 Mosty:
 - Yavnyy: (Veb ↔ Inzhest) status i nastroyka kvot.
-- Skrytyy #1: (Audit ↔ Kontrol) ruchnaya otmetka rezultatov.
+- Skrytyy #1: (Audit ↔ Control) ruchnaya otmetka rezultatov.
 - Skrytyy #2: (Operatsii ↔ Nablyudaemost) udobno dlya UI/skriptov.
 
 Zemnoy abzats:
-Krutilka «skolko v minutu» dlya kazhdogo istochnika.
+Krutilka “skolko v minutu” dlya kazhdogo istochnika.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

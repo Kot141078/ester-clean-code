@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/adaptive_quota.py — adaptivnye kvoty po zaderzhke (RTT) vnutri komnaty.
+"""modules/coop/adaptive_quota.py - adaptivnye kvoty po zaderzhke (RTT) vnutri komnaty.
 
-Ideya:
-- Klienty shlyut heartbeat v psevdo-DC (ili pryamo syuda), gde nesut svoy rtt_ms (otsenennyy na kliente).
+Ideaya:
+- Klienty shlyut heartbeat v psevdo-DC (ili pryamo syuda), where nesut svoy rtt_ms (otsenennyy na kliente).
 - My derzhim skolzyaschee srednee rtt i rasschityvaem kvotu: quota = clamp(Qmax - k * log1p(rtt_ms), Qmin..Qmax).
 - Otdaem kvoty dlya integratsii v game_sync/sync_keyboard.
 
@@ -14,15 +13,14 @@ API:
 - status(room)
 
 MOSTY:
-- Yavnyy: (Infoteoriya ↔ Spravedlivost) bolee «medlennym» — myagche kvota, «bystrym» — bolshe deystviy.
+- Yavnyy: (Infoteoriya ↔ Spravedlivost) bolee “medlennym” - myagche kvota, “bystrym” - bolshe deystviy.
 - Skrytyy #1: (Kibernetika ↔ Stabilnost) snizhaet peregruzku kanala.
-- Skrytyy #2: (Inzheneriya ↔ Ekspluatatsiya) prostaya formula, predskazuemye granitsy.
+- Skrytyy #2: (Inzheneriya ↔ Ekspluatatsiya) simple formula, predskazuemye granitsy.
 
 ZEMNOY ABZATs:
 Memory protsessa, skolzyaschee srednee EMA. Nikakikh fonovykh zadach.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

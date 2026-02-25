@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/kg_routes.py - REST: /mem/kg/autolink
+"""routes/kg_routes.py - REST: /mem/kg/autolink
 
 Mosty:
 - Yavnyy: (Veb ↔ KG) bystryy avtolink suschnostey dlya dokumentov/subtitrov/zametok.
-- Skrytyy #1: (Profile ↔ Prozrachnost) zhurnaliruem rezultaty.
+- Skrytyy #1: (Profile ↔ Prozrachnost) zhurnaliruem result.
 - Skrytyy #2: (RAG ↔ Podsvetka) uzly prigodyatsya dlya navigatsii/podskazok.
 
 Zemnoy abzats:
-Paket iz tekstov na vkhod - svyazi «dokument→suschnost» na vykhode. Prostoy sposob ozhivit graf znaniy.
+Paket iz tekstov na vkhod - svyazi “dokument→suschnost” na vykhode. Prostoy sposob ozhivit graf znaniy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
@@ -30,7 +28,7 @@ def init_app(app):  # pragma: no cover
     register(app)
 
 
-# Myagkiy import yadra
+# Soft kernel import
 try:
     from modules.kg.autolink import autolink as _autolink  # type: ignore
 except Exception:  # pragma: no cover
@@ -38,7 +36,7 @@ except Exception:  # pragma: no cover
 
 
 def _log_passport(event: str, data: Dict[str, Any]) -> None:
-    """Zhurnalirovanie v «profile» pamyati (best-effort)."""
+    """Journaling in a memory “profile” (best-effort)."""
     try:
         from modules.mem.passport import append as passport  # type: ignore
         passport(event, data, "kg://routes")
@@ -72,7 +70,7 @@ def api_autolink():
         _log_passport("kg_autolink", {"n": len(items), "ok": bool(rep.get("ok", True))})
         return jsonify(rep)
 
-    # Sovmestimost, esli modul vernul ne-slovar
+    # Compatibility if the module returned a non-dictionary
     out = {"ok": True, "items": rep}
     _log_passport("kg_autolink", {"n": len(items), "ok": True})
     return jsonify(out)

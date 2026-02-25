@@ -19,8 +19,8 @@ function Ensure-Dir($p) {
 }
 
 function Fix-MojibakeUtf8([string]$s) {
-  # Vosstanavlivaem UTF-8, kotoryy byl odin raz "prochitan" kak cp1251,
-  # plyus podderzhka C1 control bayt (0x80..0x9F), kotorye chasto poyavlyayutsya v emoji-mojibake.
+  # We restore UTF-8, which was once “read” as sp1251,
+  # plus support for K1 control bytes (0x80..0x9F), which often appear in etozhy-mojiwak.
   $cp1251 = [System.Text.Encoding]::GetEncoding(1251)
   $utf8   = [System.Text.Encoding]::UTF8
 
@@ -44,12 +44,12 @@ function Fix-MojibakeUtf8([string]$s) {
 }
 
 function Looks-LikeMojibake([string]$line) {
-  # Silnye markery "slomannogo UTF-8" v russkikh logakh/tekste
-  # (obychnyy russkiy tak pochti nikogda ne vyglyadit)
+  # Strong markers of "broken UTF-8" in Russian stocks/text
+  # (an ordinary Russian almost never looks like this)
   if ($line -match "rџ") { return $true }    # emoji mojibake
   if ($line -match "vЂ") { return $true }    # tipografika mojibake (—, “ ” i t.p.)
   if ($line -match "R[A-Yaa-ya]") {
-    # Ostorozhno: russkiy mozhet soderzhat "R", no seriya "R...S..." kharakterna dlya mojibake
+    # Be careful: Russian may contain "R", but the series "Р...С..." is typical for Mojiwake
     if ($line -match "R.\S*S") { return $true }
   }
   if ($line -match "vњ") { return $true }    # ✨ i t.p. v mojibake
@@ -103,10 +103,10 @@ Save-Freeze $venvPy $freezePath
 Write-Ok ("Saved freeze: " + $freezePath)
 
 Write-Ok "Installing PTB JobQueue extra (so volition/heartbeat works in venv)..."
-# Zhestko fiksiruem tu zhe vetku, chto u tebya uzhe stoit: 21.11.1
+# Rigidly fixes the same branch that you already have: 11.21.1
 & $venvPy -m pip install -U "python-telegram-bot[job-queue]==21.11.1" | Out-Host
 
-# Mini-proverka, chto job_queue realno poyavilsya
+# Mini-check that the fuck_queue actually appeared
 $probe = @"
 from telegram.ext import ApplicationBuilder
 app = ApplicationBuilder().token("0:0").build()
@@ -155,7 +155,7 @@ if ($FixPassport) {
     Copy-Item -Force $pass $bak
     Write-Ok ("Backup passport: " + $bak)
 
-    # Chitaem/pishem kak UTF-8 bez BOM
+    # Read/write like UTF-8 without BOT
     $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
     $lines = [System.IO.File]::ReadAllLines($pass, $utf8NoBom)
 
@@ -165,7 +165,7 @@ if ($FixPassport) {
       if (Looks-LikeMojibake $ln) {
         $fx = Fix-MojibakeUtf8 $ln
 
-        # Printsip "A/B s avto-otkatom": prinimaem fiks tolko esli stalo "chische"
+        # The “A/B with auto-rollback” principle: we accept a fix only if it has become “cleaner”
         $badBefore = Looks-LikeMojibake $ln
         $badAfter  = Looks-LikeMojibake $fx
 

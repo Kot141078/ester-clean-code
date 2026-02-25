@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Generatsiya SBOM s pomoschyu syft.
+# SNOM generation using software.
 # Varianty:
 #   ./scripts/sbom.sh image ghcr.io/owner/repo:tag
 #   ./scripts/sbom.sh dir .

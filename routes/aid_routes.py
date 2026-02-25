@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/aid_routes.py - REST dlya ekstrennoy pomoschi Pape: kontakty/nastroyki, SOS-plan/trigger, fin.-obnaruzhenie.
+"""routes/aid_routes.py - REST dlya ekstrennoy pomoschi Pape: kontakty/nastroyki, SOS-plan/trigger, fin.-obnaruzhenie.
 
 Mosty:
 - Yavnyy: (Volya ↔ Deystviya) prostye ruchki dlya upravleniya zabotoy o Pape.
-- Skrytyy #1: (Prioritet ↔ Kontrol) integratsiya s papinymi modulyami (prioritet, «tabletki») - bez izmeneniya kontraktov.
+- Skrytyy #1: (Prioritet ↔ Kontrol) integratsiya s papinymi modulyami (prioritet, “tabletki”) - bez izmeneniya kontraktov.
 - Skrytyy #2: (UX ↔ Prozrachnost) panel /admin/aid s bystrymi knopkami (plan, simulyatsiya, trigger).
 
 Zemnoy abzats:
-Eto «krasnaya papka»: knopka SOS, spisok kontaktov i chek-listy - vse v odnom meste.
+This is “krasnaya papka”: knopka SOS, spisok kontaktov i chek-listy - vse v odnom meste.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from flask import Blueprint, jsonify, request, render_template
@@ -74,7 +72,7 @@ def api_trig():
     d: Dict[str, Any] = request.get_json(True, True) or {}
     return jsonify(_trigger(d.get("plan") or {}))
 
-# finansy (myagkoe obnaruzhenie)
+# finance (soft detection)
 @bp_aid.route("/aid/fin/discovery/start", methods=["POST"])
 def api_fin_start():
     if _fin_start is None: return jsonify({"ok": False, "error":"aid module unavailable"}), 500

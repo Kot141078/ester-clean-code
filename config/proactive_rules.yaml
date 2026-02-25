@@ -1,6 +1,6 @@
 # config/proactive_rules.yaml
-# Zerkalo dlya sovmestimosti: te zhe pravila mozhno khranit v config/.
-# Dvizhok vyberet pervyy suschestvuyuschiy fayl sredi standartnykh putey.
+# Mirror for compatibility: the same rules can be stored in config/.
+# The engine will select the first existing file among the standard paths.
 
 version: 1
 defaults:

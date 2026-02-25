@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-modules/retire/planner.py — Dolgosrochnyy planirovschik (3–15 let).
+"""modules/retire/planner.py - Dolgosrochnyy planirovschik (3–15 let).
 
-Naznachenie:
+Name:
 - Khranit profil tseley: mesyachnyy tselevoy dokhod (evro), srok, startovyy kapital, dop.vznosy, tolerantnost k risku.
 - Stroit traektorii: nakopleniya (podushka), tsikly dokhoda (iz M32 pathways), reinvestirovanie.
-- Ezhemesyachnyy tsikl: vybiraet «put k dengam» (M32/M33), sostavlyaet spisok zadach (M28), planiruet «ruchnye» deystviya.
-- Otchet: «sdelano/metriki/chto dalshe», zapis v pamyat (M30), politika/bezopasnost (M29).
-- Svyaz s M34: stsenariy «Ester, mne nuzhny dengi» stanovitsya kirpichom v mesyachnom plane.
+- Ezhemesyachnyy tsikl: vybiraet “put k dengam” (M32/M33), sostavlyaet spisok zadach (M28), planiruet “ruchnye” deystviya.
+- Otchet: “sdelano/metriki/chto dalshe”, zapis v pamyat (M30), politika/bezopasnost (M29).
+- Svyaz s M34: stsenariy “Ester, mne nuzhny dengi” stanovitsya kirpichom v mesyachnom plane.
 
 MOSTY:
-- Yavnyy: (Fin. puti M32–M33 ↔ Dolgiy gorizont) — kratkosrochnye stsenarii vkladyvayutsya v mnogo-letniy plan.
-- Skrytyy #1: (Infoteoriya ↔ Planirovanie) — tseli svedeny v maloe chislo parametrov, iz kotorykh determiniruyutsya zadachi.
+- Yavnyy: (Fin. puti M32–M33 ↔ Dolgiy gorizont) - kratkosrochnye stsenarii vkladyvayutsya v mnogo-letniy plan.
+- Skrytyy #1: (Infoteoriya ↔ Planning) - tseli svedeny v maloe chislo parametrov, iz kotorykh determiniruyutsya zadachi.
 - Skrytyy #2: (Kibernetika ↔ Upravlyaemost) — mesyachnye tsikly, otchetnye tochki i politika pozvolyat ustoychivo idti k tseli.
 
 ZEMNOY ABZATs:
-Inzhenerno eto «nadstroyka-orkestrator» nad uzhe suschestvuyuschimi agentami/pamyatyu: ona raz v mesyats generiruet
-realistichnyy nabor zadach pod tsel «X €/m cherez N let», proveryaet riski i fiksiruet rezultat. Prakticheski —
+Inzhenerno eto “nadstroyka-orkestrator” nad uzhe suschestvuyuschimi agentsami/pamyatyu: ona raz v mesyats generiruet
+realistichnyy nabor zadach pod tsel “X €/m cherez N let”, proveryaet riski i fiksiruet result. Practically
 ty poluchaesh ponyatnyy ezhemesyachnyy plan, kotoryy Ester pokazyvaet/delaet i so vremenem podstraivaet.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Optional, Tuple
 import os, json, time, math
@@ -46,7 +44,7 @@ _DEFAULT_PROFILE = {
   "start_capital_eur": 0.0,
   "monthly_contrib_eur": 100.0,
   "risk_tolerance": "low",   # low/med/high (vliyaet na vybor kanalov)
-  "hands": ["podpisat","otkryt_akkaunt"],  # ruchnye deystviya, kotorymi gotov zanimatsya polzovatel
+  "hands": ["podpisat","otkryt_akkaunt"],  # manual actions that the user is ready to perform
   "notes": "initsializatsiya"
 }
 
@@ -68,16 +66,16 @@ def save_profile(p:Dict[str,Any])->Dict[str,Any]:
 def profile()->Dict[str,Any]:
     return {"ok":True,"profile":_ensure_profile()}
 
-# --------- prostaya model nakopleniy/dokhodov ---------
+# --------- simple savings/income model ---------
 def _monthly_growth(capital:float, contrib:float, reinvest_rate:float)->float:
-    # prirost kapitala: konservativnyy «kvazi-kupon» ot sistemnykh putey (tsifr. produkty/uslugi), reinvestiruemaya dolya
+    # capital: conservative gains “quasi-coupon” from system paths (digital products/services), reinvested share
     return max(0.0, contrib + capital * max(0.0, reinvest_rate))
 
 def simulate(months:int=12)->Dict[str,Any]:
     p=_ensure_profile()
     cap=float(p.get("start_capital_eur",0.0))
     contrib=float(p.get("monthly_contrib_eur",0.0))
-    # grubaya zavisimost reinvestiruemoy «dokhodnosti» ot riska
+    # rough dependence of reinvested “return” on risk
     rmap={"low":0.002,"med":0.006,"high":0.012}
     reinv=rmap.get(p.get("risk_tolerance","low"),0.002)
     tr=[]
@@ -100,15 +98,13 @@ def _filter_channels_by_risk(ch:str, risk:str)->bool:
 
 # --------- mesyachnyy plan ---------
 def make_monthly_plan(target_amount:float|None=None, weeks:int=4)->Dict[str,Any]:
-    """
-    Generiruem plan mesyatsa: 2–4 fokusa iz M32, zavisyaschie ot riska/vremeni/proshlykh uspekhov (M33),
-    materializuem stsenarii v M28 (v rezhime A po umolchaniyu).
-    """
+    """Generiruem plan mesyatsa: 2–4 fokusa iz M32, zavisyaschie ot riska/vremeni/proshlykh uspekhov (M33),
+    materializuem stsenarii v M28 (v rezhime A po umolchaniyu)."""
     p=_ensure_profile()
     risk=p.get("risk_tolerance","low")
     answers = {
       "capital_eur": p.get("start_capital_eur",0.0),
-      "time_week_h": 10,  # otsenka po umolchaniyu; UI dast pravit
+      "time_week_h": 10,  # default score; UI will let you rule
       "skills": "Python, Docs",
       "hands": ", ".join(p.get("hands") or [])
     }
@@ -129,9 +125,7 @@ def make_monthly_plan(target_amount:float|None=None, weeks:int=4)->Dict[str,Any]
     return {"ok":True,"items":items,"risk":risk}
 
 def run_month(mode:str|None=None)->Dict[str,Any]:
-    """
-    Proigryvaem/ispolnyaem plan mesyatsa: dlya kazhdogo vybrannogo puti sozdaem i proigryvaem stsenariy TaskTutor.
-    """
+    """We play/execute the monthly plan: for each selected path we create and play the TaskTutor script."""
     plan = make_monthly_plan()
     res=[]
     for it in plan.get("items") or []:
@@ -140,22 +134,20 @@ def run_month(mode:str|None=None)->Dict[str,Any]:
     MH.log_result("retire","month_run","Plan mesyatsa vypolnen", artifacts={"runs":len(res),"mode":mode or MODE})
     return {"ok":all(x.get("ok",True) for x in res),"runs":res}
 
-# --------- otchet «chto sdelano/chto dalshe» ---------
+# --------- "what's done/what's next" report ---------
 def monthly_report()->Dict[str,Any]:
-    """
-    Vytyagivaem khvost sobytiy M30 i sobiraem korotkiy otchet po retayrment-konturu.
-    """
+    """Pulls out the tail of M30 events and collects a short report on the acquisition circuit."""
     tail = MH.counts()
     summary = {
       "events_total": tail.get("count"),
       "recent": tail.get("tail")
     }
-    # minimalnyy tekst otcheta
-    text = f"Otchet: sobytiy vsego {summary['events_total']}, svezhikh {len(summary['recent'] or [])}. Sleduyuschiy shag — sgenerirovat plan na mesyats i zapustit v rezhime {MODE}."
-    MH.log_result("retire","report","Sobran otchet", artifacts={"text":text})
+    # minimal report text
+    text = f"Report: events of all ZZF0Z, recent ZZF1ZZ. The next step is to generate a plan for the month and run it in ZZF2ZZ mode."
+    MH.log_result("retire","report","Report collected", artifacts={"text":text})
     return {"ok":True,"summary":summary,"text":text}
 
-# --------- planirovschik «data mesyatsa» (psevdo) ---------
+# --------- "date of month" scheduler (pseudo) ---------
 def should_run_monthly_report(date:Optional[datetime]=None)->bool:
     d = date or datetime.now()
     return d.day == REPORT_DAY

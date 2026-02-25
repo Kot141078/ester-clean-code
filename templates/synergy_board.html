@@ -47,8 +47,8 @@
     <div class="card">
       <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
         <button class="btn" id="apply">Primenit naznacheniya</button>
-        <button class="btn secondary" id="showTrace">Pokazat trace</button>
-        <span class="muted">Kliknite po yacheyke, chtoby zakrepit agenta za rolyu (overrayd).</span>
+        <button class="btn secondary" id="showTrace">Show track</button>
+        <span class="muted">Click on the cell to assign the agent to the role (override).</span>
       </div>
       <div id="table"></div>
     </div>
@@ -72,7 +72,7 @@
     </div>
 
     <div class="card" style="grid-column:1 / -1;">
-      <pre id="out" class="muted">// otvety API budut zdes</pre>
+      <pre id="out" class="muted">// API responses will be here here</pre>
     </div>
   </div>
 </main>
@@ -146,7 +146,7 @@
       line.innerHTML = `<span>${r.name}</span><span>${Math.round(r.severity*100)}% • ${r.reason||''}</span>`;
       risksDiv.appendChild(line);
     });
-    if (!rs.length) risksDiv.innerHTML = '<div class="muted">net yavnykh riskov</div>';
+    if (!rs.length) risksDiv.innerHTML = '<div class="muted">no obvious risks</div>';
   }
 
   function render(){
@@ -206,7 +206,7 @@
       try{
         const j = JSON.parse(e.data);
         $('#stamp').textContent = stamp(j.ts);
-        await load(); // podtaschim svezhie dannye i agregaty
+        await load(); // Let's bring in fresh data and aggregates
       }catch(_){}
     });
   }

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-JudgeProvider — sintez «luchshego» otveta (evristika poverkh local+cloud).
-Metod: generate(prompt, temperature) -> str
-"""
+"""YudzheProvider - synthesis of the “best” answer (heuristics on top of local+cloud).
+Method: generate(prompt, temperature) -> page"""
 from __future__ import annotations
 
 from .cloud import CloudProvider
@@ -21,5 +19,5 @@ class JudgeProvider:
     def generate(self, prompt: str, temperature: float = 0.2) -> str:
         a = self.local.generate(prompt, temperature=temperature)
         b = self.cloud.generate(prompt, temperature=temperature)
-        # Evristicheskiy «dzhadzh»: vybiraem bolee informativnyy (dlina kak proksi)
+        # Heuristic “judge”: choose the more informative one (length as a proxy)
 # return a if len(a) >= len(b) else b

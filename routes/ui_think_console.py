@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ui_think_console.py - prostaya HTML-panel upravleniya «dvigatelem mysley».
+"""routes/ui_think_console.py - prostaya HTML-panel upravleniya "dvigatelem mysley".
 
 Mosty:
 - Yavnyy (UI ↔ Mysl): start/stop/status/ochered zadach v dva klika.
 - Skrytyy #1 (Kibernetika ↔ Ekonomiya): regulirovka nice/max_workers dlya uvazheniya resursov.
-- Skrytyy #2 (Anatomiya ↔ PO): kak pult dykhaniya: vidno ritm (queue/status) i mozhno «vdokh/vydokh».
+- Skrytyy #2 (Anatomiya ↔ PO): kak remote dykhaniya: visible rhythm (queue/status) i mozhno “vdokh/vydokh”.
 
 Zemnoy abzats:
-Eto «ruchka gaza» Ester. Kogda tebe nuzhen PK - ubiraem gaz (stop). Kogda mozhno - daem kholostoy khod (start).
-Knopki «konsolidatsiya pamyati», «psevdo-indeksatsiya» i «zametka» - dlya bystroy proverki.
+This is “ruchka gaza” Ester. Kogda tebe nuzhen PK - ubiraem gaz (stop). Kogda mozhno - daem kholostoy khod (start).
+Knopki “konsolidatsiya pamyati”, “psevdo-indeksatsiya” i “zametka” - dlya bystroy proverki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, Response
@@ -25,7 +23,7 @@ def register(app):
 
 @bp.get("/think_ui")
 def think_ui_page() -> Response:
-    html = """<!doctype html><html lang="ru"><meta charset="utf-8">
+    html = """<!doctype html><html lang="en"><meta charset="utf-8">
 <title>Ester - Dvigatel mysley</title>
 <style>
 body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;max-width:980px;margin:32px auto;padding:0 14px}
@@ -41,9 +39,9 @@ small{opacity:.75}
 <div class="card">
   <div class="row">impl:
     <select id="impl"><option>A</option><option>B</option></select>
-    &nbsp;max_workers: <input id="workers" type="number" min="1" max="16" value="2">
-    &nbsp;nice_ms: <input id="nice" type="number" min="0" max="1000" value="25">
-    &nbsp;<button onclick="cfg()">Primenit</button>
+     max_workers: <input id="workers" type="number" min="1" max="16" value="2">
+     nice_ms: <input id="nice" type="number" min="0" max="1000" value="25">
+     <button onclick="cfg()">Primenit</button>
   </div>
   <div class="row">
     <button onclick="start()">Start</button>

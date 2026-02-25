@@ -1,5 +1,5 @@
-# R3/scripts/r3_smoke.ps1 — obertka smouka R3 dlya Windows PowerShell
-# Mosty: (Yavnyy) Enderton — predikaty; (Skrytyy #1) Cover&Thomas — informativnyy minimum; (Skrytyy #2) Ashbi — prostaya regulyatsiya.
+# Rz/skripts/rz_stoke.ps1 - Smoke Rz wrapper for Windows PowerShell
+# Bridges: (Explicit) Enderton - predicates; (Hidden #1) Carpet & Thomas - minimal information; (Hidden #2) Ashby - simple regulation.
 # Zemnoy abzats: build→score; myagkiy rezhim na pustykh dannykh.
 # c=a+b
 

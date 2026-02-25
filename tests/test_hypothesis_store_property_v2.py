@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Property-testy dlya memory/hypothesis_store.py (v2):
- - Determinirovannyy id po (text, topic)
+"""Property-testy dlya memory/hypothesis_store.py (v2):
+ - Determined id po (text, topic)
  - LWW po mtime (vtoraya zapis svezhee) i obedinenie tags bez dubley
- - Persist/reload, list/topic, delete
-"""
+ - Persist/reload, list/topic, delete"""
 
 import os
 import time
@@ -28,7 +26,7 @@ def test_idempotent_add_and_tags_merge(clean_env):
     )
     assert hid1.startswith("h_")
 
-    # Povtorno dobavlyaem s novymi tegami i inym score — dolzhen byt tot zhe id, tegi obedineny, score obnovlen
+    # We re-add with new tags and another quarrel - must be the same id, association tags, quarrel updated
     time.sleep(0.01)  # garantiruem rost mtime
     hid2 = hs.add(
         "Gipoteza o CRDT", topic="replication", tags=["mesh", "dream"], score=0.77
@@ -67,6 +65,6 @@ def test_persist_reload_and_delete(clean_env):
     assert ok is True
     assert hs2.get(hid) is None
 
-    # list pust po teme posle udaleniya
+    # the sheet is empty on the topic after deletion
     items = hs2.list(topic="providers", limit=10)
 # assert all(it["id"] != hid for it in items)

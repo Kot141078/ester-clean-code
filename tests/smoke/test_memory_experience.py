@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/smoke/test_memory_experience.py
+"""tests/smoke/test_memory_experience.py
 
 Smoke:
   - modul modules.memory.experience importiruetsya;
@@ -9,13 +8,12 @@ Smoke:
 
 Mosty:
 - Yavnyy: (tests ↔ experience) — garantiruem rabotosposobnost sloya opyta.
-- Skrytyy #1: (CI ↔ struktura repo) — bootstrap kornya proekta.
-- Skrytyy #2: (Opyt ↔ son/refleksiya) — daem signal, chto verkhniy sloy pamyati podklyuchen.
+- Skrytyy #1: (CI ↔ struktura repo) - bootstrap kornya proekta.
+- Skrytyy #2: (Opyt ↔ son/refleksiya) — daem signal, chto verkhniy layer pamyati podklyuchen.
 
 Zemnoy abzats:
-Esli etot test zelenyy — u Ester est tekhnicheski validnyy sloy "opyta",
-dazhe esli poka on pustoy iz-za otsutstviya insaytov.
-"""
+Esli etot test zelenyy - u Ester est tekhnicheski validnyy sloy "opyta",
+dazhe esli poka on empty iz-za otsutstviya insaytov."""
 from __future__ import annotations
 
 import os

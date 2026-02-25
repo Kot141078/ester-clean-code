@@ -1,17 +1,15 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.reports.http — minimalnyy HTTP‑router otchetov (bez avtopodklyucheniya).
+"""modules.reports.http - minimalnyy HTTP‑router otchetov (bez avtopodklyucheniya).
 Mosty:
 - Yavnyy: get_fastapi_router(prefix), register_fastapi(app, prefix), register_flask(app, prefix).
-- Skrytyy #1: (DX ↔ Sovmestimost) — bez avtozagruzki, ty sam reshaesh podklyuchat ili net.
+- Skrytyy #1: (DX ↔ Sovmestimost) — bez avtozagruzki, ty sam reshaesh podklyuchat or net.
 - Skrytyy #2: (Kachestvo ↔ Prozrachnost) — otdaem markdown‑svodku i ping.
 
 Zemnoy abzats:
-Deshevyy veb‑«stetoskop»: bystryy endpoynt, kotoryy pokazyvaet svodku sostoyaniya — bez tyazhelykh zavisimostey.
-# c=a+b
-"""
+Deshevyy web‑“stetoskop”: bystryy endpoynt, kotoryy pokazyvaet svodku sostoyaniya — bez tyazhelykh zavisimostey.
+# c=a+b"""
 import os
 from typing import Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

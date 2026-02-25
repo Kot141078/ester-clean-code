@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/task_tutor_routes.py - REST/UI dlya TaskTutor.
+"""routes/task_tutor_routes.py - REST/UI dlya TaskTutor.
 
 Ruchki:
-  GET  /tutor/list
-  POST /tutor/create        {"title":"...","intent":"..."}
-  GET  /tutor/get?id=scn_x
-  POST /tutor/save          {scenario: {...}}
-  POST /tutor/validate      {"id":"scn_x"}
-  POST /tutor/play          {"id":"scn_x","mode":"A|B"}
-  POST /tutor/remove        {"id":"scn_x"}
-  POST /tutor/append_step   {"id":"scn_x","step":{...}}
-  POST /tutor/insert_step   {"id":"scn_x","idx":0,"step":{...}}
-  POST /tutor/delete_step   {"id":"scn_x","idx":0}
+  GET /tutor/list
+  POST /tutor/create {"title":"...","intent":"..."}
+  GET /tutor/get?id=scn_x
+  POST /tutor/save {scenario: {...}}
+  POST /tutor/validate {"id":"scn_x"}
+  POST /tutor/play {"id":"scn_x","mode":"A|B"}
+  POST /tutor/remove {"id":"scn_x"}
+  POST /tutor/append_step {"id":"scn_x","step":{...}}
+  POST /tutor/insert_step {"id":"scn_x","idx":0,"step":{...}}
+  POST /tutor/delete_step {"id":"scn_x","idx":0}
 
-  GET  /admin/task_tutor
+  GET /admin/task_tutor
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.agents import task_tutor as TT

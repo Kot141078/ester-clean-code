@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/rpa_tasks_routes.py - REST dlya makrosov RPA (mysli → deystviya).
+"""routes/rpa_tasks_routes.py - REST dlya makrosov RPA (mysli → deystviya).
 
 Ruchki:
-  GET  /desktop/rpa/macro/list                -> {ok, items:[...]}
+  GET /desktop/rpa/macro/list -> {ok, items:[...]}
   POST /desktop/rpa/macro/run {"name": "...", "args": {...}} -> {ok, ...}
 
-Trebuet rol JWT: operator (sm. security/rbac_utils.require_role).
+Require rol JWT: operator (sm. security/rbac_utils.require_role).
 Dlya lokalnoy otladki mozhno vystavit ENV RPA_RBAC_DISABLE=1.
 
 MOSTY:
@@ -15,11 +14,10 @@ MOSTY:
 - Skrytyy #2: (Kibernetika ↔ Audit) makrosy ispolzuyut uzhe logiruemye /desktop/rpa/* → edinyy zhurnal.
 
 ZEMNOY ABZATs:
-Daet Ester i operatoru «pult stsenariev»: ot prostykh do sostavnykh deystviy,
+Daet Ester i operatoru “pult stsenariev”: ot prostykh do sostavnykh deystviy,
 ne menyaya nizkourovnevye kontrakty.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from typing import Any, Dict

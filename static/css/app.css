@@ -46,9 +46,9 @@ a:hover { text-decoration: underline; }
   font-size: 12px;
 }
 
-/* Tablichki dlya bloka provayderov (app.js ikh napolnyaet) */
+/* Plates for the block of providers (app.zhs fills them) */
 table { border-collapse: collapse; }
 th, td { border-bottom: 1px solid var(--border); padding: 6px 8px; text-align:left; }
 
-/* Mini-tulbar kopirovaniya dlya trace (kanon) */
+/* Mini copy toolbar for track (canon) */
 .trace-copy-toolbar { margin-top: 6px; }

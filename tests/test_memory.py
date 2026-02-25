@@ -3,20 +3,20 @@ import time
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
-def _make_dialog(client, hdr, text="Eto testovyy dialog"):
+def _make_dialog(client, hdr, text="This is a test dialog"):
     r = client.post("/chat/message", json={"query": text, "use_rag": False}, headers=hdr)
     assert r.status_code == 200
 
 
 def test_flashback_alias_compact(client, auth_hdr_user):
     # Sozdaem zapis dialoga
-    _make_dialog(client, auth_hdr_user, "Zapomni eto vazhnoe soobschenie")
+    _make_dialog(client, auth_hdr_user, "Remember this important message")
 
     # Ischem fleshbek
     r = client.get("/mem/flashback", query_string={"query": "vazhnoe"}, headers=auth_hdr_user)
     assert r.status_code == 200, r.data
     j = r.get_json()
-    assert j.get("results"), "Ozhidalis rezultaty flashback"
+    assert j.get("results"), "Flash tank results were expected"
     first = j["results"][0]
     assert "id" in first
 

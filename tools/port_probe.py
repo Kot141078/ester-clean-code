@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-S0/tools/port_probe.py — Bystraya proverka dostupnosti BASE_URL na urovne TCP/TLS + GET /live.
+"""S0/tools/port_probe.py - Bystraya proverka dostupnosti BASE_URL na urovne TCP/TLS + GET /live.
 
 Mosty:
 - Yavnyy: Enderton (logika) — proverka formalizuetsya kak predikaty: TCP dostupen ∧ (opts.) TLS rukopozhatie prokhodit.
-- Skrytyy #1: Ashbi (kibernetika) — regulyator prosche sistemy: minimalnyy TCP dial + prostoy GET dostatochno dlya pervichnoy diagnostiki.
-- Skrytyy #2: Cover & Thomas (infoteoriya) — snimaem neopredelennost: otlichaem «port zakryt», «TLS ne soshelsya», «HTTP zhiv».
+- Skrytyy #1: Ashbi (kibernetika) — regulyator prosche systemy: minimalnyy TCP dial + prostoy GET dostatochno dlya pervichnoy diagnostiki.
+- Skrytyy #2: Cover & Thomas (infoteoriya) - snimaem neopredelennost: otlichaem “port zakryt”, “TLS ne soshelsya”, “HTTP zhiv”.
 
 Zemnoy abzats (inzheneriya):
 Skript ne trogaet rantaym. Delaet TCP-konnekt k khost:port, pytaetsya TLS (esli skhema https),
-posle — GET /live s taymautom. Vse na standartnoy biblioteke. Vydaet JSON-itog.
+postle - GET /live s taymautom. All na standartnoy biblioteke. Vydaet JSON-total.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import os

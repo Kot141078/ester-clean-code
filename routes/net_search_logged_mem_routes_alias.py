@@ -1,34 +1,32 @@
 # routes/ester_net_bridge_routes_alias.py
-"""
-Net bridge alias for Ester.
+"""Net bridge alias for Ester.
 
 Tsel:
 - Dat chat_api i prochim modulyam stabilnye tochki vkhoda:
   - /ester/net/search_logged_mem
   - (optsionalno) /ester/net/search, esli esche ne suschestvuet.
-- Ne lomat originalnye marshruty ester-net-search / ester-net-search-logged.
+- Ne lomat originalnye route ester-net-search / ester-net-search-logged.
 - Delat vnutrenniy forvard cherez Flask test_client (bez HTTP-petli v sebya).
-- Normalizovat payload tak, chtoby raznye vyzovy ("q", "query") rabotali odinakovo.
+- Normalizovat payload so, chtoby raznye vyzovy ("q", "query") rabotali odinakovo.
 
 AB-flag:
-    ESTER_NET_BRIDGE_AB = A | B   (po umolchaniyu A)
+    ESTER_NET_BRIDGE_AB = A | B (by default A)
 
-A — bazovyy bezopasnyy rezhim:
+A - bazovyy bezopasnyy rezhim:
     - /ester/net/search_logged_mem → snachala /ester/net/search_logged, potom /ester/net/search.
-    - Proksiruet tolko esli tselevoy marshrut suschestvuet.
+    - Proksiruet tolko esli tselevoy route suschestvuet.
     - Esli nichego net — vozvraschaet ok=False, no bez 500.
 
-B — eksperimentalnyy:
-    - Povedenie takoe zhe, no logiruet bolshe detaley i dopuskaet rasshireniya.
+B - experimentalnyy:
+    - Povedenie takoe zhe, no logiruet bolshe detaley i dopuskaet rasshirniya.
     - Seychas otlichiy minimum, flag nuzhen kak stop-kran.
 
 Zemnoy abzats:
     Etot fayl — tonkiy adapter mezhdu "voley" Ester vyyti v set (chat_api, net_autobridge)
     i realnym HTTP-dvizhkom poiska (/ester/net/search*, kotoryy mozhet menyatsya).
     Vmesto togo, chtoby vshivat adresa i formaty pryamo v mozg, my vynosim ikh syuda:
-    esli v buduschem smenitsya realizatsiya poiska (Google, SerpAPI, lokalnyy indeks),
-    pravim tolko etot most, a ne vse myshlenie/pamyat.
-"""
+    esli v buduschem smenitsya realizatsiya poiska (Google, SerpAPI, lokalnyy indexes),
+    pravim tolko etot most, a ne vse myshlenie/pamyat."""
 from __future__ import annotations
 
 import os
@@ -44,33 +42,31 @@ bp = Blueprint(BP_NAME, __name__)
 
 
 def _has_route(app, path: str) -> bool:
-    """Proveryaem, est li v karte URL tochnyy marshrut."""
+    """We check whether the exact route is in the URL map."""
     try:
         for rule in app.url_map.iter_rules():
             if rule.rule == path:
                 return True
     except Exception:
-        # Esli chto-to poshlo ne tak — schitaem, chto marshruta net (bez padeniya prilozheniya).
+        # If something goes wrong, we assume that there is no route (without crashing the application).
         return False
     return False
 
 
 def _forward_internal(path: str, payload: Dict[str, Any]) -> Optional[Tuple[Dict[str, Any], int]]:
-    """
-    Delaet vnutrenniy POST na ukazannyy path cherez test_client.
+    """Delaet vnutrenniy POST na ukazannyy path cherez test_client.
 
-    Eto yavnyy most:
+    This is yavnyy most:
     - chat_api i drugie moduli vsegda byut v /ester/net/search_logged_mem;
     - etot adapter vnutri prilozheniya perenapravlyaet vyzov v aktualnyy dvizhok poiska.
 
-    Vozvraschaet (json, status) ili None, esli marshrut ne nayden.
-    """
+    Vozvraschaet (json, status) or None, esli route ne nayden."""
     app = current_app._get_current_object()
 
     if not _has_route(app, path):
         return None
 
-    # Vazhno: test_client ispolzuet tot zhe protsess, bez setevykh petel.
+    # Important: test_client uses the same process, without network loops.
     with app.test_client() as c:
         rv = c.post(path, json=payload)
         status = rv.status_code
@@ -82,7 +78,7 @@ def _forward_internal(path: str, payload: Dict[str, Any]) -> Optional[Tuple[Dict
 
 
 def _extract_query(body: Dict[str, Any]) -> str:
-    # Podderzhivaem neskolko variantov imeni polya
+    # Supports multiple field name options
     q = (
         body.get("q")
         or body.get("query")
@@ -90,18 +86,16 @@ def _extract_query(body: Dict[str, Any]) -> str:
         or body.get("text")
         or ""
     )
-    # Strakhovka: inogda zapros kladut v message
+    # Insurance: sometimes the request is included in the message
     if not q and isinstance(body.get("message"), str):
         q = body["message"]
     return str(q)
 
 
 def _normalize_payload(body: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Normalizuem payload:
-    - privodim klyuchi q/query k obschemu vidu,
-    - ne lomaem dopolnitelnye polya (sid, source, max_results, log_to_memory, etc).
-    """
+    """Normalizes the payload:
+    - bring the keys to a general form,
+    - we don’t break additional fields (seed, source, max_resilts, log_to_memory, etc)."""
     norm = dict(body)
     q = _extract_query(body)
     if q:
@@ -112,22 +106,20 @@ def _normalize_payload(body: Dict[str, Any]) -> Dict[str, Any]:
 
 @bp.route("/ester/net/search_logged_mem", methods=["POST"])
 def ester_net_search_logged_mem_bridge():
-    """
-    Glavnyy most dlya autobridge.
+    """Glavnyy most dlya autobridge.
 
-    Kontrakt:
-    - Prinimaet vse, chto shlet chat_api / vneshnie klienty.
+    Contract:
+    - Prinimaet vse, what shlet chat_api / vneshnie klienty.
     - Pytaetsya vyzvat:
         1) /ester/net/search_logged
         2) /ester/net/search
-      cherez vnutrenniy forvard.
+      through vnutrenniy forward.
     - Normalizuet chastichno otvet pod ozhidaemyy chat_api format:
-        { ok: bool, used: "search_logged"|"search"|None, items: [...], error?: str }
-    """
+        { ok: bool, used: "search_logged"|"search"|None, items: [...], error?: str }"""
     body = request.get_json(silent=True) or {}
     norm = _normalize_payload(body)
 
-    # Esli voobsche net teksta — ne vrem, chto poisk byl.
+    # If there is no text at all, it’s not a lie that there was a search.
     if not _extract_query(norm):
         return jsonify(
             ok=False,
@@ -136,8 +128,8 @@ def ester_net_search_logged_mem_bridge():
             error="no_query",
         ), 400
 
-    # A/B slot na buduschee: seychas obe vetki identichny po logike,
-    # no ostavlyaem pereklyuchatel kak stop-kran dlya eksperimentov.
+    # A/B slot for the future: now both branches are identical in logic,
+    # but we leave the switch as a stop valve for experiments.
     ab = NET_BRIDGE_AB
 
     # 1. Probuem /ester/net/search_logged
@@ -156,12 +148,12 @@ def ester_net_search_logged_mem_bridge():
                 or data.get("data")
                 or []
             )
-            # Skhlopyvaem v ozhidaemyy format, nichego ne lomaya.
+            # We collapse it into the expected format without breaking anything.
             return jsonify(
                 ok=True,
                 used="search_logged",
                 items=items,
-                # Ostavlyaem originalnyy otvet ryadom dlya prodvinutykh klientov.
+                # We leave the original answer nearby for advanced clients.
                 raw=data,
             ), 200
 
@@ -184,8 +176,8 @@ def ester_net_search_logged_mem_bridge():
                 raw=data,
             ), 200
 
-    # Esli dobralis syuda — libo marshrutov net, libo oba vernuli oshibku.
-    # Ne kidaem 500, chtoby ne ronyat /chat/message.
+    # If you get here, either there are no routes, or both returned an error.
+    # We don’t throw 500 so as not to drop the /chat/message.
     return jsonify(
         ok=False,
         used=None,
@@ -195,12 +187,10 @@ def ester_net_search_logged_mem_bridge():
 
 
 def _register_optional_search_alias(app):
-    """
-    Optsionalno sozdaem alias /ester/net/search, esli ego net.
-    Eto skrytyy most:
-    - Pozvolyaet ispolzovat edinyy URL, dazhe esli realnyy dvizhok zhivet v drugom meste.
-    Seychas on ne navyazyvaetsya, tolko strakhuet ot polomok.
-    """
+    """Optionalno sozdaem alias /ester/net/search, esli ego net.
+    This is skrytyy most:
+    - Pozvolyaet ispolzovat edinyy URL, dazhe esli realnyy dvizhok zhivet v drugom place.
+    Seychas on ne navyazyvaetsya, tolko strakhuet ot polomok."""
     if _has_route(app, "/ester/net/search"):
         return  # Nichego ne trogaem
 
@@ -212,8 +202,8 @@ def _register_optional_search_alias(app):
         if not q:
             return jsonify(ok=False, items=[], error="no_query"), 400
 
-        # Zdes mozhno povesit prostoy dvizhok (napr. requests k vneshnemu API),
-        # no po umolchaniyu daem neytralnyy otvet, chtoby ne lomat ozhidaniya.
+        # Here you can install a simple engine (for example, register to an external IP),
+        # but by default gives a neutral answer so as not to break expectations.
         return jsonify(
             ok=True,
             used="noop",
@@ -223,17 +213,15 @@ def _register_optional_search_alias(app):
 
 
 def auto_reg():
-    """
-    Avto-registratsiya: vyzyvaetsya iz app.py, ne trogaya suschestvuyuschie registratsii.
+    """Avto-registratsiya: vyzyvaetsya iz app.py, ne trogaya suschestvuyuschie registratsii.
 
-    Invarianty:
+    Invariance:
     - Ne sozdaem dublikatov marshrutov.
-    - Vse oshibki vnutri zaglatyvaem, chtoby ne uronit prilozhenie.
-    """
+    - All oshibki vnutri zaglatyvaem, chtoby ne uronit prilozhenie."""
     try:
         from app import app  # type: ignore
     except Exception:
-        # Esli net globalnogo app — tikho vykhodim.
+        # If there is no global app, it exits quietly.
         return
 
     try:
@@ -242,7 +230,7 @@ def auto_reg():
             app.register_blueprint(bp)
             print("[ester-net-bridge/routes-alias] registered /ester/net/search_logged_mem")
 
-        # Optsionalnyy alias /ester/net/search — tolko esli realno pusto.
+        # Optional alias /ester/no/search - only if it’s really empty.
         before = any(rule.rule == "/ester/net/search" for rule in app.url_map.iter_rules())
         _register_optional_search_alias(app)
         after = any(rule.rule == "/ester/net/search" for rule in app.url_map.iter_rules())

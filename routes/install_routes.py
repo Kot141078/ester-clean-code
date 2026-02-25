@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/install_routes.py - proverka/plan i zapusk ustanovki po zaprosu polzovatelya.
+"""routes/install_routes.py - proverka/plan i zapusk ustanovki po zaprosu polzovatelya.
 
 Ruchki:
-  GET  /install/check?app=chrome            -> {ok, installed:bool}
-  POST /install/plan {"app":"chrome"}       -> {ok, plan:{...}}
-  POST /install/run  {"app":"chrome","source":"D:\\ChromeSetup.exe"} -> {ok}
+  GET /install/check?app=chrome -> {ok, installed:bool}
+  POST /install/plan {"app":"chrome"} -> {ok, plan:{...}}
+  POST /install/run {"app":"chrome","source":"D:\\ChromeSetup.exe"} -> {ok}
 
-Konsens: domen "install.*" - dolzhen byt razreshen polzovatelem.
+Consens: domain "install.*" - dolzhen byt razreshen polzovatelem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from typing import Any, Dict
@@ -50,7 +48,7 @@ def inst_run():
         return jsonify({"ok": False, "error": "app_and_source_required"}), 400
     domain = "install."+app
     if domain_needs_consent(domain):
-        # ozhidaem yavnogo razresheniya (odnokratno mozhno "ask_once")
+        # We are waiting for explicit permission (you can do "ask_end" once)
         mode = (data.get("consent") or "").strip()  # allow/deny/ask_once
         if mode not in ("allow","ask_once"):
             return jsonify({"ok": False, "prompt": f"Razreshit ustanovku {app} iz {src}?", "domain": domain}), 403
@@ -61,10 +59,10 @@ def inst_run():
 
     try:
         if _is_windows():
-            # Tikhiy klyuch ne navyazyvaem - neizvesten u kazhdogo installyatora. Pokazyvaem obychnyy ustanovschik.
+            # The silent key does not impose - it is unknown to each installer. Shows the normal installer.
             subprocess.Popen([src], shell=True)
         else:
-            # Esli fayl .deb/.rpm - vyzyvaem dpkg/rpm; esli ispolnyaemyy - zapuskaem; inache - otdadim podskazku
+            # If the file is .deb/.rpm - calls dpkg/rpm; if executable, run it; otherwise, we'll give you a hint
             if src.endswith(".deb"):
                 subprocess.Popen(["/usr/bin/pkexec","/usr/bin/dpkg","-i",src])
             elif src.endswith(".rpm"):

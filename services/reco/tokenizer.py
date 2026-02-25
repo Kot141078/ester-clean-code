@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-R3/services/reco/tokenizer.py — prostaya tokenizatsiya RU/EN (stdlib), bez vneshnikh zavisimostey.
+"""R3/services/reco/tokenizer.py - prostaya tokenizatsiya RU/EN (stdlib), bez vneshnikh zavisimostey.
 
 Mosty:
-- Yavnyy: Enderton (logika) — tokenizatsiya kak proveryaemye predikaty nad simvolami/klassami, daet determinirovannyy rezultat.
+- Yavnyy: Enderton (logika) — tokenizatsiya kak proveryaemye predikaty nad simvolami/klassami, daet determinirovannyy result.
 - Skrytyy #1: Cover & Thomas (infoteoriya) — filtratsiya stop-slov snizhaet "shum" i povyshaet otnoshenie signal/shum.
 - Skrytyy #2: Ashbi (kibernetika) — A/B-slot: A=unigrammy, B=unigrammy+bigrammy; pri oshibke B ⇒ avtootkat v A.
 
 Zemnoy abzats:
-Ispolzuem tolko stdlib: regex dlya slov, nizhniy registr, korotkie stop-listy ru/en.
-V rezhime B dobavlyaem bigrammy iz sosednikh tokenov. Podkhodit dlya CPU nizkogo klassa (N100).
+Use tolko stdlib: regex dlya slov, nizhniy registr, korotkie stop-listy ru/en.
+V rezhime B dobavlyaem bigrammy iz sosednikh tokenov. Podkhodit dlya CPU low class (N100).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 import re

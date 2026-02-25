@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Sinkhronizatsiya lokalnykh bekapov v oblako (S3 ili GDrive).
+"""Sinkhronizatsiya lokalnykh bekapov v oblako (S3 or GDrive).
 Skript ischet *.enc i sootvetstvuyuschie .sig v BACKUPS_DIR (po umolchaniyu ./backups)
 i zagruzhaet, esli ikh esche net na tselevom provaydere.
 ENV:
   BACKUPS_DIR=./backups
   BACKUP_PROVIDER=S3|GDRIVE
   # S3 nastroyki sm. cloud/s3_adapter.py
-  # GDrive: GDRIVE_SERVICE_ACCOUNT_FILE, GDRIVE_BACKUP_FOLDER_ID
-"""
+  # GDrive: GDRIVE_SERVICE_ACCOUNT_FILE, GDRIVE_BACKUP_FOLDER_ID"""
 from __future__ import annotations
 
 import glob

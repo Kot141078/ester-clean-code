@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/studio/video.py — sborka video iz subtitrov/fonovogo audio i kartinok (FFmpeg).
+"""modules/studio/video.py - sborka video iz subtitrov/fonovogo audio i kartinok (FFmpeg).
 
 Mosty:
 - Yavnyy: (Tekst/Audio ↔ Video) sozdaet roliki dlya short/long formatov s taymingom.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Garazh/Flot ↔ Volya) mozhet ispolnyatsya kak zadacha.
 
 Zemnoy abzats:
-Eto «skleyschik»: titry+fon → akkuratnyy mp4 pod nuzhnoe sootnoshenie storon.
+Eto “skleyschik”: titry+fon → akkuratnyy mp4 pod nuzhnoe sootnoshenie storon.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, subprocess, tempfile
 from typing import Any, Dict, List

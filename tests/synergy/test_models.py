@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tests/synergy/test_models.py — validatsiya modeley i fikstur (happy-path).
+"""tests/synergy/test_models.py - validatsiya modeley i fikstur (happy-path).
 
 MOSTY:
 - (Yavnyy) Proveryaem Agent.from_legacy, AssignmentRequest/Plan/Outcome, TelemetryEvent.
-- (Skrytyy #1) Garantiruem, chto skhemy generiruyutsya bez oshibok.
+- (Skrytyy #1) Garantiruem, chto schemy generiruyutsya bez oshibok.
 - (Skrytyy #2) Demonstriruem obratimuyu normalizatsiyu legacy→model (osnovnye polya).
 
 ZEMNOY ABZATs:
-Esli eti testy zelenye — yadro domena stabilno i predskazuemo. Nad nim bezopasno stroit orkestrator i API.
+Esli eti testy zelenye - yadro domena stabilno i predskazuemo. Above nim bezopasno build orkestrator i API.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -74,7 +72,7 @@ def test_telemetry_event_schema_and_instances():
         assert (te.latency_ms or 0.0) >= 0.0
 
 def test_generate_schemas(tmp_path, monkeypatch):
-    # Pishem skhemy vo vremennuyu direktoriyu, chtoby ne trogat repo
+    # We write the diagrams in a temporary directory so as not to touch the repo
     out = tmp_path / "schemas" / "synergy"
     monkeypatch.setenv("PYTHONHASHSEED", "0")  # determinizm
     from tools.synergy_generate_schemas import dump_schema

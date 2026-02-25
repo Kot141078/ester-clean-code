@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mem_routes.py - bazovye REST-ruchki pamyati.
+"""routes/mem_routes.py - bazovye REST-ruchki pamyati.
 
 MOSTY:
 - (Yavnyy) POST /mem/put, GET /mem/get/<id>, GET /mem/search?q=&top_k=
-- (Skrytyy #1) Normalizuet zapis (kind/text/meta), sloy vybiraetsya avtomaticheski.
+- (Skrytyy #1) Normalizuet zapis (kind/text/meta), layer vybiraetsya avtomaticheski.
 - (Skrytyy #2) Bez vneshnikh zavisimostey; khranenie v data/mem/<layer>/*.json
 
 ZEMNOY ABZATs:
-Eto «okoshko arkhiva»: polozhit kartochku, nayti pokhozhie, dostat po nomeru.
+This is “okoshko arkhiva”: polozhit kartochku, nayti pokhozhie, dostat po nomeru.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, request, jsonify
 from modules.memory.layers import store, get, search

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/proactive/test_proactive_routes.py — smoke dlya /proactive/*.
-"""
+"""tests/proactive/test_proactive_routes.py - smoke dlya /proactive/*."""
 from __future__ import annotations
 
 import os
@@ -17,16 +15,16 @@ except Exception:  # pragma: no cover
 def test_proactive_morning_smoke_and_previews(monkeypatch, tmp_path):
     assert flask_app is not None, "Flask app import failed"
 
-    # Izoliruem PERSIST_DIR dlya prevyu
+    # Isolating PERSIST_HOLES for preview
     monkeypatch.setenv("PERSIST_DIR", str(tmp_path))
 
-    # Stavim okno «utra», chtoby tik garantirovanno proshel
+    # We set a “morning” window so that the tick is guaranteed to pass
     import datetime as dt
 
     monkeypatch.setenv("MORNING_HOUR", str(dt.datetime.now().hour))
     monkeypatch.setenv("MORNING_WINDOW_MIN", "180")
 
-    # Otklyuchaem realnye kanaly, chtoby srabotal preview
+    # Disable real channels for the preview to work
     monkeypatch.delenv("TELEGRAM_TOKEN", raising=False)
     monkeypatch.delenv("TELEGRAM_CHAT_ID", raising=False)
     monkeypatch.delenv("SMTP_HOST", raising=False)
@@ -41,7 +39,7 @@ def test_proactive_morning_smoke_and_previews(monkeypatch, tmp_path):
     assert j["ok"] is True
     assert "result" in j
 
-    # Prevyu dolzhno poyavitsya
+    # A preview should appear
     r2 = c.get("/proactive/previews")
     assert r2.status_code == 200
     j2 = r2.get_json()

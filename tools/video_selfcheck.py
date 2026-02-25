@@ -1,26 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-tools/video_selfcheck.py — oflayn-proverka okruzheniya dlya video-konveyera.
+"""tools/video_selfcheck.py - oflayn-proverka okruzheniya dlya video-konveyera.
 
-Chto proveryaet:
+What to prove:
   • Nalichie binarey: ffmpeg, ffprobe, yt-dlp.
-  • Nalichie Python-moduley: faster-whisper (dlya B-slota), (optsionalno) modules.ingest.asr_engine (A-slot).
+  • Nalichie Python-modules: faster-whisper (dlya B-slot), (optsionalno) modules.ingest.asr_engine (A-slot).
   • ENV-presety: VIDEO_INGEST_AB, VIDEO_ASR_MODEL, VIDEO_SUBS_ENABLED, USE_CUDA.
   • Direktorii: data/video_ingest.
 
 Vykhod: JSON-otchet dlya udobstva v logakh/CI.
 
 Mosty:
-- Yavnyy: (Inzheneriya ↔ Ekspluatatsiya) «diagnostik» pered startom — menshe syurprizov v rantayme.
+- Yavnyy: (Inzheneriya ↔ Ekspluatatsiya) “diagnostik” pered startom - menshe syurprizov v rantayme.
 - Skrytyy #1: (Kibernetika ↔ Regulyatsiya) cherez ENV mozhno bystro pereklyuchat A/B i resursy (CPU/GPU).
 - Skrytyy #2: (Infoteoriya ↔ Nadezhnost) odnotipnyy format otcheta uproschaet analiz/alerty.
 
 Zemnoy abzats:
-Eto kak predsmennyy cheklist stanka: smazka est, pitanie podano, reztsy na meste — zapuskaem.
+This is how predsmennyy cheklist stanka: smazka est, pitanie podano, reztsy na meste - zapuskaem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

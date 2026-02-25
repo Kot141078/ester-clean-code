@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/voice_api_routes.py - API/UI predprosmotra «golosa avtora».
+"""routes/voice_api_routes.py - API/UI predprosmotra "golosa avtora".
 
 MOSTY:
 - (Yavnyy) /voice/api/preview - primenyaet Voice poverkh bazovogo shablona pisma.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) UI /voice/admin - lokalnyy instrument nastroyki, bez vneshnikh zavisimostey.
 
 ZEMNOY ABZATs:
-Pozvolyaet Ester pisat rovno «kak vy privykli», ne putaya lyudey i ne narushaya pravila ploschadok.
+Pozvolyaet Ester pisat rovno “kak vy privykli”, ne putaya lyudey i ne narushaya pravila ploschadok.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, request, jsonify, render_template
 from modules.author_voice import render_with_voice, load_voice

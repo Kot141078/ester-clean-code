@@ -80,9 +80,9 @@
         <button class="btn" onclick="tryWhoAmI()">/whoami</button>
         <input id="ovHeaderSubject" class="input" style="min-width:180px" placeholder="subject (opts., napr. Owner)">
         <input id="ovHeaderUser" class="input" style="min-width:180px" placeholder="user (opts., napr. Owner)">
-        <span class="muted">Servernaya proverka (esli ruchka est). V UI ispolzuetsya tolko lokalnyy JWT dlya indikatsii.</span>
+        <span class="muted">Server check (if there is a handle). The UI uses only local gastrointestinal tract for indication.</span>
       </div>
-      <div class="muted" style="margin-top:6px">Esli v subject/user est Unicode, zagolovki peredayutsya bezopasno cherez <code>X-Subject-B64</code>/<code>X-User-B64</code>.</div>
+      <div class="muted" style="margin-top:6px">If the subject/user is Unicode, the headers are sent securely via <code>X-Subject-B64</code>/<code>X-User-B64</code>.</div>
       <pre id="ovWho" class="log" style="height:100px;margin-top:6px"></pre>
     </div>
 
@@ -107,7 +107,7 @@
           <tbody id="pingBody"></tbody>
         </table>
       </div>
-      <p class="muted" style="margin-top:6px">GET s <code>no-cache</code>, 3 progona na ruchku. JWT podstavlyaetsya avtomaticheski.</p>
+      <p class="muted" style="margin-top:6px">GET s <code>no-cache</code>, 3 runs per handle. The gastrointestinal tract is inserted automatically.</p>
     </div>
   </div>
 </section>
@@ -149,9 +149,9 @@
       <div class="box">
         <strong>Podskazki</strong>
         <ul style="margin:8px 0 0 18px;line-height:1.6">
-          <li>Sprosi: «Summiruy etot dokument…» i zagruzi fayl na sosedney vkladke.</li>
-          <li>Pereklyuchay rezhimy: <code>local/cloud/judge</code>.</li>
-          <li>Vklyuchay/vyklyuchay RAG — dlya otvetov iz tvoey BZ.</li>
+          <li>Ask: “Summarize this document...” and upload the file in the adjacent tab.</li>
+          <li>Switching modes: <code>local/cloud/judge</code>.</li>
+          <li>Turn on/off RAG - for answers from your business center.</li>
         </ul>
       </div>
     </div>
@@ -183,7 +183,7 @@
     <span class="chip right">{{ API_BASE }}/providers/status · {{ API_BASE }}/providers/select</span>
   </div>
   <div class="row" style="gap:10px;margin-bottom:8px">
-    <button class="btn" onclick="pvLoad()">Obnovit status</button>
+    <button class="btn" onclick="pvLoad()">Update status</button>
     <input id="pvFilter" class="input" placeholder="filtr…" oninput="pvRender()"/>
     <label class="stack" style="align-items:center">
       <span class="muted">Role:</span>
@@ -243,7 +243,7 @@
   </div>
   <div class="row" style="gap:10px;margin-bottom:8px">
     <input id="hTitle" class="input" style="min-width:300px" placeholder="Zagolovok…">
-    <input id="hTags" class="input" placeholder="tegi (cherez zapyatuyu)">
+    <input id="hTags" class="input" placeholder="tags (separated by commas)">
     <select id="hPriority" class="input">
       <option value="normal">normal</option><option value="low">low</option>
       <option value="high">high</option><option value="urgent">urgent</option>
@@ -306,7 +306,7 @@
       <div class="spacer"></div>
       <button class="btn" onclick="rSend()">Otpravit</button>
     </div>
-    <textarea id="tBody" class="textarea" placeholder="Telo JSON (dlya ne-GET)…"></textarea>
+    <textarea id="tBody" class="textarea" placeholder="Body ZhSION (for non-GET)…"></textarea>
     <pre id="tOut" class="log box" style="height:220px;margin-top:6px"></pre>
   </div>
 </section>
@@ -324,13 +324,13 @@
     <button class="btn" onclick="reloadDocs()">Perezagruzit</button>
     <div class="spacer"></div>
     <button class="btn" onclick="openNew(api('/docs'))">Otkryt v novoy vkladke</button>
-    <button class="btn" onclick="fetchSpec()">Pokazat openapi.json</button>
+    <button class="btn" onclick="fetchSpec()">Show openapi.zsion</button>
   </div>
   <pre id="specOut" class="log box" style="height:220px;margin-top:8px"></pre>
 </section>
 
 <script>
-/* === bazovyy prefiks dlya safe-/obychnykh marshrutov === */
+/* === base prefix for safe/regular routes === */
 window.API_BASE = (location.pathname.startsWith('/_safe/') ? '/_safe' : '');
 function api(path){ return (window.API_BASE || '') + path; }
 document.addEventListener('DOMContentLoaded', () => {
@@ -386,7 +386,7 @@ async function loadHealth(){
     if(h.status==='fulfilled'){
       document.getElementById('ovHealth').textContent = await h.value.text();
     }else{
-      document.getElementById('ovHealth').textContent = 'Oshibka /health: '+h.reason;
+      document.getElementById('ovHealth').textContent = 'Error /healthn:'+h.reason;
     }
     let liveText='—', liveOk=false;
     if(live.status==='fulfilled'){ liveText = await live.value.text(); liveOk = live.value.ok; }
@@ -574,7 +574,7 @@ function pvRender(){
     tr.appendChild(td(p.status==='up' ? '<span class="chip" style="border-color:var(--ok);color:var(--ok)">up</span>' : '<span class="chip" style="border-color:var(--danger);color:var(--danger)">down</span>'));
     tr.appendChild(td(p.latency? (p.latency+' ms') : ''));
     const act=document.createElement('td'); act.style.padding='8px 6px'; act.style.borderBottom='1px solid var(--border)';
-    const b=document.createElement('button'); b.className='btn'; b.textContent='Sdelat aktivnym';
+    const b=document.createElement('button'); b.className='btn'; b.textContent='Make active';
     b.onclick=()=> pvSelect(p.name);
     act.appendChild(b); tr.appendChild(act); body.appendChild(tr);
   }
@@ -612,7 +612,7 @@ async function bkList(){
     try{ const r=await $fetch(u); const j=await r.json(); const arr=Array.isArray(j)?j:(j.items||j.snapshots||[]); bkListRender(arr); bkLogLine('OK: '+u); return; }
     catch(e){}
   }
-  bkLogLine('Oshibka spiska');
+  bkLogLine('List Error');
 }
 async function bkRun(){
   bkLogLine('→ run');
@@ -621,7 +621,7 @@ async function bkRun(){
     try{ const r=await $fetch(u,{method:m}); const j=await r.json(); bkLogLine('OK: '+(j.message||j.status||'run started')); bkList(); return; }
     catch(e){}
   }
-  bkLogLine('Oshibka run');
+  bkLogLine('Rune error');
 }
 async function bkVerify(){
   bkLogLine('→ verify');
@@ -630,18 +630,18 @@ async function bkVerify(){
     try{ const r=await $fetch(u,{method:m}); const j=await r.json(); bkLogLine('OK: '+(j.message||j.status||'verify done')); return; }
     catch(e){}
   }
-  bkLogLine('Oshibka verify');
+  bkLogLine('Verification error');
 }
 async function bkRestore(){
   const id=(document.getElementById('bkId').value||'').trim();
-  if(!id){ alert('Ukazhi snapshot id'); return; }
+  if(!id){ alert('Specify snapshot ID'); return; }
   bkLogLine('→ restore '+id);
   const urls=[[api('/ops/backup/restore'),'POST'],[api('/ops/backup?mode=restore'),'POST']];
   for(const [u,m] of urls){
     try{ const r=await $fetch(u,{method:m, body: {snapshot:id}}); const j=await r.json(); bkLogLine('OK: '+(j.message||j.status||'restore requested')); return; }
     catch(e){}
   }
-  bkLogLine('Oshibka restore');
+  bkLogLine('Restore error');
 }
 
 /* === Hypotheses === */
@@ -675,19 +675,19 @@ async function hCreate(){
   const tags=hTags(document.getElementById('hTags').value||''); const priority=(document.getElementById('hPriority').value||'normal');
   const payload={title, tags, priority}; const urls=[api('/hypotheses'),api('/hypotheses/create'),api('/api/hypotheses')];
   for(const u of urls){ try{ const r=await $fetch(u,{method:'POST', body: payload}); if(r.ok) { document.getElementById('hTitle').value=''; document.getElementById('hTags').value=''; hLoad(); return; } }catch(e){} }
-  alert('Ne udalos sozdat');
+  alert('Failed to create');
 }
 async function hUpdate(id, field, value){
   if(!id) return; const payload={id}; payload[field]=value;
   const urls=[api(`/hypotheses/${encodeURIComponent(id)}`), api('/hypotheses/update'), api('/api/hypotheses/update')];
   for(const u of urls){ try{ const r=await $fetch(u,{method:(u.includes('/update')?'POST':'PUT'), body: payload}); if(r.ok) return; }catch(e){} }
-  alert('Ne udalos obnovit');
+  alert('Failed to update');
 }
 async function hDel(id){
   if(!confirm('Udalit '+id+'?')) return;
   const urls=[api(`/hypotheses/${encodeURIComponent(id)}`), api('/hypotheses/delete'), api('/api/hypotheses/delete')];
   for(const u of urls){ try{ const r=await $fetch(u,{method:(u.includes('/delete')?'POST':'DELETE'), body: {id}}); if(r.ok){ hLoad(); return; } }catch(e){} }
-  alert('Ne udalos udalit');
+  alert('Failed to delete');
 }
 
 /* === Routes === */

@@ -17,9 +17,9 @@ def test_ingest_status_flow_txt(client, auth_hdr_user):
     assert isinstance(j, dict)
     _id = j.get("id")
     if not _id:
-        # esli sistema otvechaet drugim klyuchom — poprobuem sovmestimye polya
+        # if the system responds with a different key, try compatible fields
         _id = j.get("upload_id") or j.get("task_id")
-    assert _id, "ozhidali id zadachi ingest"
+    assert _id, "expected ingest task ID"
 
     # 2) poll status
     for _ in range(60):

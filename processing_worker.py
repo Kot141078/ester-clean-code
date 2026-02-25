@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""processing_worker.py — fonovaya “pochinka” khranilisch pamyati (heal_stores), s Celery ili bez.
+"""processing_worker.py - fonovaya “pochinka” khranilisch pamyati (heal_stores), s Celery or bez.
 
 Pochemu padalo:
 - `from celery import ...` → No module named 'celery' (u tebya Celery ne ustanovlen).
   Pri etom sam modul nuzhen vsego dlya periodicheskogo zapuska `heal_stores`. fileciteturn35file0
 
-Chto sdelano:
-- Esli Celery dostupen: ispolzuem nastoyaschiy Celery (broker po ENV).
+What was done:
+- Esli Celery available: ispolzuem nastoyaschiy Celery (broker po ENV).
 - Esli Celery net: ispolzuem `celery_shim` i daem CLI dlya sinkhronnogo zapuska:
     python processing_worker.py --once
     python processing_worker.py --loop --interval 24h
 
 ENV:
-- ESTER_CELERY_BROKER   (po umolchaniyu redis://localhost:6379/0)
-- ESTER_CELERY_BACKEND  (optsionalno)
-- WORKER_INTERVAL_SEC   (esli --loop bez --interval)
+- ESTER_CELERY_BROKER (po umolchaniyu redis://localhost:6379/0)
+- ESTER_CELERY_BACKEND (optsionalno)
+- WORKER_INTERVAL_SEC (esli --loop bez --interval)
 
 Mosty:
 - Yavnyy: planirovschik/vorker → heal_all() → ustoychivost pamyati.
@@ -24,8 +24,7 @@ Mosty:
   1) Infoteoriya ↔ ekspluatatsiya: “heal” kak periodicheskaya defragmentatsiya/sanatsiya kanala pamyati.
   2) Inzheneriya ↔ nadezhnost: Celery optional → kontur zhivet i bez Redis/ocheredey.
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 import argparse
 import os
@@ -83,10 +82,10 @@ def _create_memory_manager():
 
 @shared_task
 def heal_stores() -> Dict[str, Any]:
-    """Fonovaya pochinka khranilisch (ideya: raz v sutki)."""
+    """Background repair of storages (idea: once a day)."""
     mm = _create_memory_manager()
     res = mm.heal_all()
-    # pytaemsya sdelat rezultat JSON-friendly
+    # we are trying to make the result ZhSON-friendly
     try:
         if isinstance(res, dict):
             return {"ok": True, **res}
@@ -118,10 +117,10 @@ def _parse_interval(s: str) -> int:
 
 def main(argv: Optional[list] = None) -> int:
     ap = argparse.ArgumentParser(description="Background worker: heal_stores (Celery optional)")
-    ap.add_argument("--once", action="store_true", help="Zapustit heal_stores odin raz i vyyti")
-    ap.add_argument("--loop", action="store_true", help="Zapuskat heal_stores v tsikle")
-    ap.add_argument("--interval", default="24h", help="Interval dlya --loop: 24h, 30m, 10s...")
-    ap.add_argument("--print-env", action="store_true", help="Pokazat rezhim (celery/shim) i broker")
+    ap.add_argument("--once", action="store_true", help="Run heal_stores once and exit")
+    ap.add_argument("--loop", action="store_true", help="Run heal_stores in a loop")
+    ap.add_argument("--interval", default="24h", help="Interval for --loop: 24n, 30m, 10s...")
+    ap.add_argument("--print-env", action="store_true", help="Show mode (celers/shim) and broker")
 
     args = ap.parse_args(argv)
 
@@ -132,7 +131,7 @@ def main(argv: Optional[list] = None) -> int:
 
     if args.once or not args.loop:
         out = heal_stores.delay() if hasattr(heal_stores, "delay") else heal_stores()  # type: ignore
-        # shim vozvraschaet dict, celery vernet AsyncResult — pechataem best-effort
+        # Shim returns dist, celery returns AsinkResilt - print best-effort
         try:
             print(out)  # type: ignore
         except Exception:
@@ -157,9 +156,7 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Etot vorker — kak nochnaya uborka na proizvodstve: dnem vse rabotayut, a nochyu kto-to dolzhen proytis,
-podkrutit bolty, vykinut musor i ubeditsya, chto linii ne zakhlamleny. Celery — eto brigada uborschikov s dispetcherom,
-a shim — odin chelovek s klyuchom i fonarikom. Glavnoe — chtoby uborka voobsche proiskhodila.
-"""
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Etot vorker - kak nochnaya uborka na proizvodstve: dnem vse rabotayut, a nochyu kto-to dolzhen proytis,
+podkrutit bolty, vykinut musor i ubeditsya, what linii ne zakhlamleny. Celery - eto brigada uborschikov s dispetcherom,
+a shim - odin chelovek s klyuchom i fonarikom. Glavnoe - chtoby uborka voobsche proiskhodila."""

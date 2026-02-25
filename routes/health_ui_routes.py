@@ -4,7 +4,7 @@ from __future__ import annotations
 from flask import Blueprint, render_template
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Otdelnaya stranitsa statusa: /status/ui
+# Separate status page: /status/oh
 health_ui_bp = Blueprint("health_ui", __name__)
 
 
@@ -19,10 +19,8 @@ def health_ui_index_slash():
 
 
 def register_health_ui(app, url_prefix: str | None = None) -> None:
-    """
-    Sovmestimyy s dampom registrator. Po umolchaniyu registriruet /status/ui.
-    Esli peredan url_prefix — dobavit dubl po {url_prefix}/status/ui.
-    """
+    """Dump compatible logger. By default registers /status/oi.
+    If url_prefix is ​​passed, add a duplicate by ZZF0Z/status/oi."""
     if url_prefix:
         prefixed = Blueprint("health_ui_prefixed", __name__, url_prefix=url_prefix)
 

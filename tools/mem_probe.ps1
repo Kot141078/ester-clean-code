@@ -1,4 +1,4 @@
-# tools/mem_probe.ps1 — diagnostika putey pamyati Ester (sovmestim s Windows PowerShell 5.1)
+# tools/theme_probe.ps1 - diagnostics of Ester memory paths (compatible with Windows PowerShell 5.1)
 param([string]$Root = (Get-Location).Path)
 
 Write-Host "=== ENV ==="
@@ -21,7 +21,7 @@ $roots = @(
 foreach ($r in $roots) {
   if (Test-Path $r) {
     Write-Host " - $r"
-    # Bez -Depth dlya sovmestimosti: prosto ogranichim vyvod pervymi 5 elementami
+    # Without -Depth for compatibility: just limit the output to the first 5 elements
     Get-ChildItem -Path $r -Directory -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq 'memory' } | Select-Object -First 5 | ForEach-Object {
       $_.FullName
       Get-ChildItem -Path $_.FullName -Filter *.json -Recurse -ErrorAction SilentlyContinue | Select-Object -First 5 | ForEach-Object {

@@ -12,9 +12,9 @@ def _auth_token(client, role):
 
 
 def test_push_requires_replicator_when_strict(monkeypatch):
-    # Vklyuchaem strogiy rezhim do importa modulya s blyuprintom
+    # Enable strict mode before importing a module with blueprint
     monkeypatch.setenv("ESTER_RBAC_STRICT", "1")
-    # Perezagruzhaem modul marshruta, chtoby RBAC_STRICT prochitalsya s env
+    # Reload the route module so that RVACH_STRICT is read from the env
     import routes.p2p_crdt_routes as p2p_mod  # noqa
 
     importlib.reload(p2p_mod)
@@ -33,6 +33,6 @@ def test_push_requires_replicator_when_strict(monkeypatch):
         # Token s rolyu replicator
         t_rep = _auth_token(c, role="replicator")
         r_ok = c.post("/p2p/push", headers={"Authorization": f"Bearer {t_rep}"}, json={"ops": []})
-        # Esli HMAC vyklyuchen (po umolchaniyu) — dolzhno proyti
+        # If XMAS is turned off (by default) it should pass
         assert r_ok.status_code == 200
 # assert r_ok.get_json()["ok"] is True

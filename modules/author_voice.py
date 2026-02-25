@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/author_voice.py — «Golos avtora» dlya pisem i soobscheniy.
+"""modules/author_voice.py - “Voices avtora” dlya pisem i soobscheniy.
 
 MOSTY:
-- (Yavnyy) Post-obrabotka teksta (posle persona_style) s uchetom predpochteniy avtora: teplee/koroche/formalnee, signatury.
+- (Yavnyy) Post-obrabotka teksta (post persona_style) s uchetom predpochteniy avtora: teplee/koroche/formalnee, signatury.
 - (Skrytyy #1) Passivnaya podstroyka pod auditoriyu: ne lomaet stil, a lish myagko korrektiruet registr/ritm.
-- (Skrytyy #2) Bezopasnaya normalizatsiya: ne iskazhaet fakty, ne dobavlyaet «obmannykh» fraz, ne imitiruet cheloveka protiv pravil.
+- (Skrytyy #2) Bezopasnaya normalizatsiya: ne iskazhaet fakty, ne dobavlyaet “obmannykh” fraz, ne imitiruet cheloveka protiv pravil.
 
 ZEMNOY ABZATs:
-Daet Ester posledniy shtrikh — prevraschaet «pravilnyy» tekst v «moy privychnyy» (rovno v granitsakh etiki i platform).
+Daet Ester posledniy shtrikh - prevraschaet “pravilnyy” tekst v “my privychnyy” (rovno v granitsakh etiki i platform).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from dataclasses import dataclass
@@ -26,7 +24,7 @@ class Voice:
     brevity: float = 0.6     # 0..1 (1 — maksimalno kratko)
     formality: float = 0.7   # 0..1 (1 — ochen formalno)
     signature: str = ""      # dop. podpis (napr. «Owner»)
-    prefix: str = ""         # privetstv. obraschenie (esli nuzhno)
+    prefix: str = ""         # greetings appeal (if necessary)
 
 def _clip(x: float, lo=0.0, hi=1.0) -> float:
     return max(lo, min(hi, float(x)))
@@ -48,13 +46,13 @@ def load_voice(path: str = DEFAULT_PATH) -> Voice:
     return Voice()
 
 def _de_canc(s: str) -> str:
-    # myagkaya de-«kantselyarizatsiya»
+    # soft de-“officialization”
     repl = {
         "osuschestvit": "sdelat",
         "neobkhodimo": "nuzhno",
         "po vysheukazannomu": "po ukazannomu",
         "vysheperechislennoe": "opisannoe vyshe",
-        "v svyazi s chem": "poetomu",
+        "in connection with which": "poetomu",
     }
     for k, v in repl.items():
         s = s.replace(k, v)
@@ -65,13 +63,13 @@ def _limit_length(s: str, brevity: float) -> str:
     return s if len(s) <= maxlen else (s[:maxlen - 1] + "…")
 
 def _formality_norm(s: str, formality: float) -> str:
-    # pri vysokoy formalnosti ubiraem mezhdometiya, smayly; pri nizkoy — pozvolyaem chut myagkosti
+    # in case of high formality, we remove interjections and emoticons; at low - allows a little softness
     if formality >= 0.8:
         for t in [":)", "😉", "😀", "👍", "!", "!!"]:
             s = s.replace(t, ".")
     if formality <= 0.3:
         # slegka druzhelyubno (bez infantilizma)
-        s = s.replace("Proshu", "Pozhaluysta, proshu")
+        s = s.replace("Proshu", "Please, please")
     return s
 
 def _warmth_tone(s: str, warmth: float) -> str:
@@ -90,7 +88,7 @@ def apply_voice(text: str, voice: Voice) -> str:
     t = _limit_length(t, voice.brevity)
     t = _formality_norm(t, voice.formality)
     t = _warmth_tone(t, voice.warmth)
-    # Prefiks i podpis — esli umestno
+    # Prefix and signature - if appropriate
     if voice.prefix and not t.lower().startswith(voice.prefix.lower()):
         t = f"{voice.prefix} {t}"
     if voice.signature and not t.rstrip().endswith(voice.signature):
@@ -100,7 +98,7 @@ def apply_voice(text: str, voice: Voice) -> str:
     return t
 
 def render_with_voice(audience: str, intent: str, content: str, voice_overrides: Dict[str, Any] | None = None) -> str:
-    # Renderim bazovyy tekst cherez persona_style_ext (pochtovyy maket), a zatem nakladyvaem golos
+    # Render base text via person_style_is (postal layout) and then overlay voice
     from modules.persona_style_ext import render_email
     base = render_email(audience, intent, content)
     v = load_voice()

@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_discovery.py — discover.* + debug/doctor + bootstrap.
+"""modules/thinking/actions_discovery.py - discover.* + debug/doctor + bootstrap.
 
 Zachem etot fayl:
 - Avtozagruzka "neyronov" iz modules/thinking po prefiksam (actions_/cascade_/loop_/volition_/affect_).
-- Registratsiya discover.* deystviy v action_registry c timeout_sec i concurrency.
-- Optsionalno: dobavlyaet /debug/actions i /debug/doctor (esli peredan Flask app).
+- Registration discover.* deystviy v action_registry c timeout_sec i concurrency.
+- Optionalno: add /debug/actions i /debug/doctor (esli peredan Flask app).
 
-Fiksy/usileniya (po sravneniyu s chasto vstrechayuschimisya polomannymi versiyami):
-- Net BOM/markdown-obvyazki → ne byvaet SyntaxError na stroke 2.
-- Put dlya skanirovaniya beretsya ot __file__ (ne zavisit ot cwd).
+Fiksy/usileniya (po sravneniyu s often vstrechayuschimisya polomannymi versiyami):
+- Net BOM/markdown-obvyazki → ne byvaet SyntaxError on stroke 2.
+- Put dlya scanirovaniya beretsya ot __file__ (ne zavisit ot cwd).
 - Myagkiy sys.path fallback: esli fayl gruzyat kak odinochku, absolute-import modules.* ne lomaetsya.
 
 Mosty:
@@ -18,8 +17,7 @@ Mosty:
   1) Infoteoriya ↔ ustoychivost: timeout_sec + concurrency = ogranichenie propusknoy sposobnosti (ne daem sisteme “zakhlebnutsya”).
   2) Inzheneriya ↔ ekspluatatsiya: avtoskan po __file__ = menshe “magii” v zapuske.
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 from __future__ import annotations
 
@@ -34,7 +32,7 @@ import urllib.request
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-# --- sys.path fallback (kogda modul gruzyat kak fayl) ---
+# --- sys.path false (when the module is loaded as a file) ---
 import sys as _sys
 if __package__ in (None, ""):  # pragma: no cover
     try:
@@ -45,7 +43,7 @@ if __package__ in (None, ""):  # pragma: no cover
     except Exception:
         pass
 
-# Importiruem tsentralnyy reestr zdorovya (optsionalno)
+# We import the central health registry (optional)
 try:
     from modules.health_check import HealthCheck  # type: ignore
 except Exception:
@@ -254,7 +252,7 @@ def _ensure_debug_routes(app: Any) -> None:
 # Main Discovery
 # -------------------------
 def discover_actions(app: Optional[Any] = None, *, bootstrap: bool = True) -> Dict[str, Dict[str, Any]]:
-    """Registriruet discover.* i vozvraschaet kartu zaregistrirovannykh deystviy."""
+    """Registers a discovery.* and returns a map of registered activities."""
     try:
         _set_ep(_base_url())
     except Exception:
@@ -276,7 +274,7 @@ def discover_actions(app: Optional[Any] = None, *, bootstrap: bool = True) -> Di
         except Exception:
             pass
 
-    # 3) registratsiya deystviy s timeout/concurrency
+    # 3) registration of actions with timeout/competition
     _areg(
         kind="discover.scan",
         inputs={},
@@ -336,9 +334,7 @@ def discover_actions(app: Optional[Any] = None, *, bootstrap: bool = True) -> Di
 __all__ = ["discover_actions"]
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Discovery — eto kak “zritelnaya kora” u operatora: bystro zametit, chto poyavilos novoe.
-No esli glaza morgayut beskonechno bystro — mozg zavisaet. Poetomu timeout_sec i concurrency — eto
-kak chastota i ogranichenie nagruzki: vidim dostatochno, chtoby deystvovat, no ne ukhodim v sudorogi.
-"""
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Discovery - eto kak “zritelnaya kora” u operatora: bystro zametit, chto poyavilos novoe.
+No esli glaza morgayut beskonechno bystro - mozg zavisaet. Poetomu timeout_sec i concurrency - eto
+kak chastota i ogranichenie nagruzki: vidim dostatochno, chtoby deystvovat, no ne ukhodim v sudorogi."""

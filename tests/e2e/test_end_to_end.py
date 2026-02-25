@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tests/e2e/test_end_to_end.py — skvoznoy test API v2: podpis, idempotentnost, obnovlenie bordy.
+"""tests/e2e/test_end_to_end.py - skvoznoy test API v2: podpis, idempotentnost, obnovlenie bordy.
 
 MOSTY:
 - (Yavnyy) Podnimaem FastAPI-prilozhenie (asgi.synergy_api_v2.app), shlem podpisannye zaprosy na /api/v2/synergy/assign.
-- (Skrytyy #1) Parallelno zaprashivaem /api/v2/synergy/board/data i ubezhdaemsya, chto naznachenie otrazhaetsya.
-- (Skrytyy #2) Povtor s tem zhe X-Request-Id — tot zhe trace_id.
+- (Skrytyy #1) Parallelno zaprashivaem /api/v2/synergy/board/data i ubezhdaemsya, what naznachenie otrazhaetsya.
+- (Skrytyy #2) Povtor s tem zhe X-Request-Id - tot zhe trace_id.
 
 ZEMNOY ABZATs:
-Proverka «kak u integratora»: odin HTTP-klient, podpis po HMAC, validnye otvety JSON i stabilnaya idempotentnost.
+Verka "kak u integratora": odin HTTP-client, podpis po HMAC, validnye otvety JSON i stabilnaya idempotentnost.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import hashlib
@@ -35,7 +33,7 @@ def prep(monkeypatch):
     # Nastroim podpis
     monkeypatch.setenv("P2P_SIGNING_REQUIRED","1")
     monkeypatch.setenv("P2P_HMAC_KEY","E2EKEY")
-    # Chistaya pamyat
+    # Clean memory
     STORE._agents.clear(); STORE._teams.clear()
     # Dannye
     STORE.upsert_agent({"id":"human.expert","kind":"human","profile":{"name":"Sergey","age":62,"exp_years":35,"domains":["aerorazvedka","taktika"]}})
@@ -67,6 +65,6 @@ def test_assign_and_board_reflects():
     assert b["ok"] is True
     assert b["assigned"].get("operator") == "human.pilot"
 
-    # povtor tot zhe request-id — tot zhe trace
+    # repeat same reguest-id - same track
     r2 = c.post(path, content=body, headers=hdr).json()
     assert r2["trace_id"] == j1["trace_id"]

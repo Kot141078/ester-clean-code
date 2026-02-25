@@ -1,16 +1,14 @@
 
 # -*- coding: utf-8 -*-
-"""
-modules.jobs — prostoy in-memory planirovschik.
+"""modules.jobs - prostoy in-memory planirovschik.
 Mosty:
 - Yavnyy: enqueue()/status().
 - Skrytyy #1: (Planirovschik ↔ Podsoznanie) — mozhet vyzyvat subconscious.tick.
 - Skrytyy #2: (DX ↔ Otkazoustoychivost) — bez vneshnikh brokerov.
 
 Zemnoy abzats:
-Nuzhna ochered pryamo seychas — berem pamyat protsessa.
-# c=a+b
-"""
+Nuzhna ochered pryamo seychas - berem pamyat protsessa.
+# c=a+b"""
 from __future__ import annotations
 import time, os
 from typing import Dict, Any, List

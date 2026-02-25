@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/patch_rulehub.py — tonkaya «vrezka» v dvizhok pravil myshleniya bez smeny kontraktov.
-Naznachenie: nablyudaemost, prioritizatsiya, kvoty na deystviya, zhurnal resheniy.
+"""modules/thinking/patch_rulehub.py - tonkaya “vrezka” v dvizhok pravil myshleniya bez smeny kontraktov.
+Naznachenie: nablyudaemost, prioritizatsiya, kvoty na deystviya, zhurnal decision.
 
-Kak rabotaet:
+How it works:
 - Pri importe, esli RULEHUB_ENABLED=1, oborachivaet modules.thinking_pipelines.run_rules (esli est).
 - Logiruet kazhdoe srabatyvanie: input_len, actions, duration_ms, status, err.
-- Primenyaet myagkie kvoty/prioritety iz config/rulehub.yaml (esli kvota=0 — ne ogranichivaem).
+- Primenyaet myagkie kvoty/prioritety iz config/rulehub.yaml (esli kvota=0 - ne ogranichivaem).
 - Pishet sobytiya v data/rulehub/log.jsonl i schetchiki v data/rulehub/state.json.
 
 Mosty:
-- Yavnyy: (Kibernetika ↔ Logika) kvoty/prioritety stabiliziruyut povedenie v pikakh, sokhranyaya kachestvo resheniy.
-- Skrytyy #1: (Infoteoriya ↔ Nablyudaemost) zhurnal snizhaet entropiyu diagnostiki «pochemu reshenie takoe?».
-- Skrytyy #2: (Memory ↔ Myshlenie) statistika po actions pomogaet adaptirovat politiku zapisi v pamyat.
+- Yavnyy: (Kibernetika ↔ Logika) kvoty/prioritety stabiliziruyut povedenie v pikakh, sokhranyaya kachestvo decision.
+- Skrytyy #1: (Infoteoriya ↔ Nablyudaemost) zhurnal snizhaet entropiyu diagnostiki “pochemu reshenie takoe?”.
+- Skrytyy #2: (Memory ↔ Myshlenie) statistika po actions help adaptirovat politiku zapisi v pamyat.
 
 Zemnoy abzats:
-Eto «avtomat s takhografom»: rulit skorostyu i pishet trek, ne menyaya rulevoe koleso (API run_rules).
+This is “avtomat s takhografom”: rulit skorostyu i pishet trek, ne menyaya rulevoe koleso (API run_rules).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -58,7 +56,7 @@ def _append_log(row: Dict[str, Any]) -> None:
         f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 def _read_cfg() -> Dict[str, Any]:
-    # minimalnyy parser yaml: klyuch: znachenie; sektsii v odnu glubinu
+    # minimal yaml parser: key: value; sections one deep
     if not _CFG_PATH.exists():
         return {"priorities": {}, "quotas_per_min": {}}
     cfg: Dict[str, Any] = {"priorities": {}, "quotas_per_min": {}}
@@ -71,7 +69,7 @@ def _read_cfg() -> Dict[str, Any]:
             k = k.strip()
             v = v.strip()
             if k in ("priorities", "quotas_per_min"):
-                # nachinaem sektsiyu; posleduyuschie stroki "  action: N"
+                # start the section; subsequent lines "action: N"
                 continue
             if s.startswith("priorities"):
                 continue
@@ -135,7 +133,7 @@ def _wrap_run_rules():
             acts = [a.get("kind","") for a in (rules or {}).get("actions", [])]
         except Exception:
             acts = []
-        # Primenim kvoty: esli zapreschen khotya by odin action — zafiksiruem i vernem pustoy rezultat
+        # Let's apply quotas: if at least one action is prohibited, we will fix it and return an empty result
         blocked = [k for k in acts if not _allow_action(k, st, cfg)]
         if blocked:
             row = {
@@ -147,13 +145,13 @@ def _wrap_run_rules():
                 "duration_ms": 0,
             }
             _append_log(row)
-            # uvelichim schetchiki
+            # increase the counters
             for k in blocked:
                 st["counters"][f"blocked.{k}"] = int(st["counters"].get(f"blocked.{k}", 0)) + 1
             st["last_ts"] = int(t0)
             _save_state(st)
             return {"ok": True, "blocked": blocked}
-        # Inache vypolnyaem original
+        # Otherwise we execute the original
         try:
             res = _orig(rules)
             dur = int((time.time() - t0) * 1000)
@@ -191,6 +189,6 @@ def _wrap_run_rules():
     run_rules_patched._ester_rulehub_patched = True  # type: ignore[attr-defined]
     tp.run_rules = run_rules_patched  # type: ignore[assignment]
 
-# Patch aktiviruem srazu pri importe modulya (esli vklyucheno)
+# We activate the patch immediately when importing the module (if enabled)
 if _enabled():
     _wrap_run_rules()

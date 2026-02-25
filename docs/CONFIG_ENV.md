@@ -1,14 +1,14 @@
-# CONFIG_ENV — svodka peremennykh okruzheniya (Synergy + Messaging + Email)
+# CONFIG_ENV - summary of environment variables (Synergy + Messaging + Email)
 
 **Mosty (yavnyy):**
-- Odna stranitsa perechislyaet klyuchevye ENV, chtoby bystro podnyat vse bez poiska po kodu.
+- One page lists key ENVs to quickly pull everything up without searching by code.
 
 **Mosty (skrytye):**
-- Sovmestimo s ranee dobavlennymi modulyami (nudges, roles, edges, telegram/whatsapp/email).
-- Pomogaet onbordingu inzhenera i snizhaet riski nevernoy konfiguratsii.
+- Compatible with previously added modules (News, Roles, Edges, Telegram/WhatsApp/Email).
+- Helps engineer onboarding and reduces risks of misconfiguration.
 
 **Zemnoy abzats:**  
-Otkryvaete fayl — vidite, chto propisat v `.env`, chtoby Ester obschalas v Telegram/WhatsApp, pisala pisma, schitala roli i pokazyvala bordy.
+You open the file - you see what to write in e.enve so that Esther communicates on Telegram/Whatsapp, writes letters, counts roles and shows burgundy.
 
 ---
 
@@ -26,8 +26,8 @@ Otkryvaete fayl — vidite, chto propisat v `.env`, chtoby Ester obschalas v Tel
 - `WHATSAPP_TOKEN=...`
 - `WHATSAPP_PHONE_NUMBER_ID=...`
 - `WHATSAPP_GRAPH_BASE=https://graph.facebook.com/v20.0` *(opts.)*
-- `WHATSAPP_VERIFY_TOKEN=...` *(dlya /webhooks/whatsapp verify)*
-- `WHATSAPP_TEMPLATE_LANG=ru` *(opts. yazyk HSM)*
+- еWHATSAPP_VERIFIES_TOKEN=...е *(for /webhooks/whatsapp verifications)*
+- eWHATSAPP_TEMPLATE_LANG=ruyo *(optional language HSM)*
 
 ## Email
 - `EMAIL_SMTP_HOST=localhost`
@@ -38,13 +38,13 @@ Otkryvaete fayl — vidite, chto propisat v `.env`, chtoby Ester obschalas v Tel
 - `EMAIL_FROM_ADDR=ester@example.org`
 - `EMAIL_DISPLAY_NAME=E.`
 - `EMAIL_INFER_MODE=A` *(A=evristika, B=LLM most)*
-- `EMAIL_LLM_PROVIDER=module:function` *(dlya rezhima B)*
+- eEMAIL_LLM_PROVIDER=module:function*(for mode B)*
 - `EMAIL_SIGNATURE_OPT=soft` *(soft|none|formal)*
 
 ## Nudges/Styling
 - `NUDGES_USE_STYLED=0` *(1 — chelovechnyy ton rassylok)*
 - `NUDGES_MAX_PER_EVENT=5`
-- `NUDGES_POST_ESC_SILENCE_MIN=15` *(minut «tishiny» posle eskalatsii)*
+- ёНъОДГЭС_ПОСТ_ЭСК_СИ places_МИН=15е *(minutes of “silence” after escalation)*
 
 ## Roles / Discovery / Graph
 - `ROLE_UNCERTAINTY_THR=0.35`
@@ -52,7 +52,7 @@ Otkryvaete fayl — vidite, chto propisat v `.env`, chtoby Ester obschalas v Tel
 
 ## Advisor (sovetnik)
 - `ADVISOR_MODE=A` *(A — lokalno, B — popytka delegirovat v /synergy/assign/advice)*
-- `ADVISOR_BLEND=0.2` *(rekomendatsiya dlya vneshnikh potrebiteley, zdes ne primenyaetsya nasilno)*
+- ёADVISOR_BLEND=0.2е *(recommendation for external consumers, not enforced here)*
 
 ---
 

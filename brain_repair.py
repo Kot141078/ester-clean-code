@@ -11,23 +11,22 @@ def repair_and_fix_p2p():
     with open(TARGET_FILE, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # 1. Ispravlyaem glavnuyu oshibku: sozdaem obekt hive globalno ili vnutri funktsii, 
-    # chtoby on byl dostupen vezde.
-    # My naydem mesto pered klassom VolitionSystem i ubedimsya, chto hive tam est.
+    # 1. Correcting the main mistake: creating a hive object globally or inside a function,
+    # so that it is available everywhere.
+    # We'll find a spot in front of the Volitionsystem class and make sure the Hiwe are there.
     
     if "hive = EsterHiveMind()" not in content:
         print("🔧 Vosstanavlivayu obekt HiveMind...")
         content = content.replace("class VolitionSystem:", "hive = EsterHiveMind()\n\nclass VolitionSystem:")
 
-    # 2. Pravilnaya versiya synthesize_thought, kotoraya NE lomaet oblast vidimosti
-    REPAIR_CODE = '''
-    async def synthesize_thought(self, user_text: str, safe_history: List[Dict[str, Any]], base_system_prompt: str, identity_prompt: str, people_context: str, evidence_memory: str, file_context: str, facts_str: str, daily_report: str, chat_id: int = None) -> str:
+    # 2. The correct version of synthese_thught, which does NOT break scope
+    REPAIR_CODE = '''async def synthesize_thought(self, user_text: str, safe_history: List[Dict[str, Any]], base_system_prompt: str, identity_prompt: str, people_context: str, evidence_memory: str, file_context: str, facts_str: str, daily_report: str, chat_id: int = None) -> str:
         # Ispolzuem globalnyy obekt hive, sozdannyy pri starte
         global hive
         synth = hive.pick_reply_synth()
         logging.info(f"[HIVE] P2P Synapse Active. Judge: {synth}")
 
-        # Zapuskaem parallelno: opros sestry i lokalnye mneniya
+        # Launching in parallel: sister survey and local opinions
         sister_task = asyncio.create_task(ask_sister_opinion(user_text))
         
         opinion_tasks = []
@@ -57,18 +56,17 @@ def repair_and_fix_p2p():
         ]
         
         final = await _safe_chat(synth, final_prompt, chat_id=chat_id)
-        return clean_ester_response(final)
-'''
+        return clean_ester_response(final)'''
 
-    # Agressivnaya zamena slomannoy funktsii
-    # Ischem ot async def synthesize_thought do hive = EsterHiveMind() (kotoruyu my vstavili skriptom force_p2p)
+    # Aggressive replacement of broken function
+    # We are looking from asyns def synthnesyze_thught to hive = EsterHiveMind() (which we inserted with the force_p2p script)
     start_pattern = "async def synthesize_thought"
     end_marker = "hive = EsterHiveMind()"
     
     if start_pattern in content:
         parts = content.split(start_pattern)
         pre = parts[0]
-        # Ischem konets funktsii po sleduyuschemu def
+        # We are looking for the end of the function using the following def
         post_parts = parts[1].split("    async def", 1)
         if len(post_parts) < 2: # probuem obychnyy def
              post_parts = parts[1].split("    def", 1)
@@ -79,9 +77,9 @@ def repair_and_fix_p2p():
         
         with open(TARGET_FILE, 'w', encoding='utf-8') as f:
             f.write(new_content)
-        print("✅ Zhiznedeyatelnost vosstanovlena. Poprobuy zapustit.")
+        print("✅ Zhiznedeyatelnost vosstanovlena. Try it out.")
     else:
-        print("❌ Ne udalos nayti funktsiyu dlya remonta.")
+        print("❌ Could not find a repair function.")
 
 if __name__ == "__main__":
     repair_and_fix_p2p()

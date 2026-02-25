@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Generator openapi.json iz openapi.yaml (lokalnaya utilita).
-"""
+"""Openapi.jsion generator from openapi.yaml (local utility)."""
 from __future__ import annotations
 
 import json
@@ -12,8 +10,8 @@ from pathlib import Path
 try:
     import yaml  # type: ignore
 except Exception:
-    # fallback cherez lokalnyy shim (yaml.py)
-    import yaml  # noqa: F401  # nash shim podmenit safe_load
+    # falsification vya local shym (yaml.po)
+    import yaml  # leg: F401 # replace our shield with safe_load
 
 from yaml import safe_load  # type: ignore
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

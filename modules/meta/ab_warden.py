@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-AB Warden — edinyy «storozh» A/B-slotov i bezopasnogo avtokatbeka.
+"""AB Warden — edinyy “storozh” A/B-slotov i bezopasnogo avtokatbeka.
 
 Mosty:
-- Yavnyy: (Infrastruktura ↔ Moduli prilozheniy) — obschiy abstraktnyy mekhanizm A/B dlya vsekh podsistem.
-- Skrytyy 1: (Nadezhnost ↔ Samoredaktura) — pri isklyucheniyakh v slote B vklyuchaetsya myagkiy otkat bez padeniya servisa.
+- Yavnyy: (Infrastruktura ↔ Moduli prilozheniy) - obschiy abstraktnyy mekhanizm A/B dlya vsekh podsistem.
+- Skrytyy 1: (Nadezhnost ↔ Samoredaktura) - pri isklyucheniyakh v slote B vklyuchaetsya myagkiy otkat bez padeniya servisa.
 - Skrytyy 2: (Nablyudaemost ↔ UX) — sostoyanie slota/otkat fiksiruetsya v state-fayle, dostupno interfeysu.
 
 Zemnoy abzats:
 Daem prostoy tumbler A/B dlya riskovannykh putey. Esli B dal sboy — avtomaticheski vozvraschaemsya k A i pishem zametku
-v fayl sostoyaniya. Eto kak predokhranitel v elektroschite: srabotal — svet ne pogas, prosto vetka otklyuchilas.
-"""
+v fayl sostoyaniya. Eto kak predokhranitel v elektroschite: srabotal - svet ne pogas, prosto vetka otklyuchilas."""
 from __future__ import annotations
 
 import os
@@ -40,17 +38,15 @@ def _save_state(d: Dict[str, Any]) -> None:
     try:
         AB_STATE.write_text(json.dumps(d, ensure_ascii=False, indent=2), encoding="utf-8")
     except Exception:
-        # ne meshaem rabochemu potoku
+        # does not interfere with work flow
         pass
 
 
 def get_ab_mode(name: Optional[str] = None) -> str:
-    """
-    Vozvraschaet aktivnyy slot ('A'|'B') dlya konkretnogo modulya ili globalno.
-    Prioritet: PHYSIO_AB / {NAME}_AB -> AB_MODE -> 'A'
-    """
+    """Returns the active slot (bAb|bb) for a specific module or globally.
+    Priority: FOSIO_AB / ZZF0Z_AB -> AB_MODE -> bAb"""
     if name:
-        v = os.getenv(f"{name.upper()}_AB") or os.getenv("PHYSIO_AB")  # primer modulya-imenovaniya
+        v = os.getenv(f"{name.upper()}_AB") or os.getenv("PHYSIO_AB")  # example module-naming
         if v:
             return "B" if str(v).strip().upper().startswith("B") else "A"
     v = os.getenv("AB_MODE", "A")
@@ -74,7 +70,7 @@ def ab_switch(name: str) -> Iterator[str]:
     _save_state(st)
     try:
         yield slot
-        # uspekh — otmechaem
+        # success - celebrate
         st = _load_state()
         st.setdefault("modules", {}).setdefault(name, {})["last_ok"] = {"slot": slot, "ts": time.time()}
         _save_state(st)
@@ -86,14 +82,12 @@ def ab_switch(name: str) -> Iterator[str]:
             rec["last_fail"] = {"slot": slot, "ts": time.time(), "err": f"{type(e).__name__}:{e}"}
             rec["forced"] = "A"
             _save_state(st)
-        # probrasyvaem dalshe — pust verkhniy uroven reshit (log/metrika)
+        # forward further - let the upper level decide (log/metric)
         raise
 
 
 def get_ab_state() -> Dict[str, Any]:
-    """
-    Otdaet agregirovannoe sostoyanie A/B dlya UI/diagnostiki.
-    """
+    """Provides the aggregated state of A/B for UI/diagnostics."""
     d = _load_state()
     d["global"] = {"AB_MODE": get_ab_mode(None)}
     return d

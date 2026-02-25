@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/bootstrap/merge_policies.py — sliyanie pravil ostorozhnosti (*caution*) v edinyy fayl.
+"""modules/bootstrap/merge_policies.py — sliyanie pravil ostorozhnosti (*caution*) v edinyy fayl.
 
 Mosty:
-- Yavnyy: (Politiki ↔ Ispolnenie) daem okhranniku odnu «sshituyu» politiku.
+- Yavnyy: (Politiki ↔ Ispolnenie) daem okhranniku odnu “sshituyu” politiku.
 - Skrytyy #1: (Audit ↔ Prozrachnost) vkhody/vykhody fiksiruyutsya na diske.
 - Skrytyy #2: (Inzheneriya ↔ Nadezhnost) zaschischaemsya ot polomki pri mnozhestve .extend faylov.
 
 Zemnoy abzats:
-Sobrali kusochki «ne zhgi krasnuyu knopku» v odin svod — menshe shansov oshibitsya.
+Sobrali kusochki “ne zhgi krasnuyu knopku” v odin svod - menshe shansov oshibitsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, glob
 from typing import Any, Dict, List

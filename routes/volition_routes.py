@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-routes/volition_routes.py - REST-uroven dlya «pulsa voli» (volition pulse).
+"""routes/volition_routes.py - REST-uroven dlya "pulsa voli" (volition pulse).
 
-Endpointy:
-  • GET  /volition/pulse/config    - poluchit konfig
-  • POST /volition/pulse/config    - zapisat konfig (trebuetsya «pilyulya»)
-  • POST /volition/pulse/tick      - vypolnit odin tik planirovschika voli (optsionalno s «pilyuley»)
-  • GET  /volition/pulse/status    - status/schetchiki
+Endpoint:
+  • GET /volition/pulse/config - poluchit config
+  • POST /volition/pulse/config - zapisat config (trebuetsya “pilyulya”)
+  • POST /volition/pulse/tick - vypolnit odin tik planirovschika voli (optsionalno s “pilyuley”)
+  • GET /volition/pulse/status - status/schetchiki
 
 Mosty:
-- Yavnyy: (Veb ↔ Volya) UI/skripty/pravila mogut dergat konfig, status i tik cherez HTTP.
-- Skrytyy #1: (Ostorozhnost ↔ Pilyuli) izmenenie konfiga i riskovannye tiki zaschischeny proverkoy tokena.
-- Skrytyy #2: (Memory ↔ Audit) otvety determinirovany i udobny dlya zhurnalirovaniya v «profile pamyati».
+- Yavnyy: (Veb ↔ Volya) UI/skripty/pravila mogut dergat config, status i tik cherez HTTP.
+- Skrytyy #1: (Ostorozhnost ↔ Pilyuli) izmenenie configa i riskovannye tiki zaschischeny proverkoy tokena.
+- Skrytyy #2: (Memory ↔ Audit) otvety determinirovany i udobny dlya zhurnalirovaniya v “profile pamyati”.
 
 Zemnoy abzats (anatomiya/inzheneriya):
-Predstav «kardiomonitor» ispolnitelnosti: odna ruchka - posmotret konfiguratsiyu,
+Predstav "kardiomonitor" ispolnitelnosti: odna ruchka - posmotret konfiguratsiyu,
 vtoraya - akkuratno ee izmenit (s zaschitoy), tretya - sdelat myagkiy shag vpered (tik).
-Prosto, prozrachno i s predokhranitelem.
+Simply, prozrachno i s predokhranitelem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -29,7 +27,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp_vol = Blueprint("volition_routes", __name__)
 
-# Myagkie importy yadra «voli»
+# Soft "will" core imports
 try:  # pragma: no cover
     from modules.volition.pulse import (  # type: ignore
         load_cfg as _load,
@@ -40,7 +38,7 @@ try:  # pragma: no cover
 except Exception:  # pragma: no cover
     _load = _save = _tick = _status = None  # type: ignore
 
-# Myagkiy import proveryayuschego «pilyulyu»
+# Soft Import of Pill Validator
 try:  # pragma: no cover
     from modules.caution.pill import verify as _verify_pill  # type: ignore
 except Exception:  # pragma: no cover
@@ -48,9 +46,7 @@ except Exception:  # pragma: no cover
 
 
 def _pill_ok(req, pattern: str) -> bool:
-    """
-    Proverka zaschitnoy «pilyuli» (tokena). Fail-closed: esli verifikator nedostupen - zapret.
-    """
+    """Checking the security “pill” (token). File-closed: if the verifier is not available - prohibited."""
     if _verify_pill is None:
         return False
     tok = (req.args.get("pill") or "").strip()
@@ -104,7 +100,7 @@ def api_set_cfg():
 def api_tick():
     if _tick is None:
         return jsonify({"ok": False, "error": "volition_unavailable"}), 500
-    # Pilyulya mozhet potrebovatsya dlya vnutrennikh tasks (requires_pill=true); peredaem kak est.
+    # The pill may be required for internal tasks (recoires_dust=three); conveys as is.
     pill = (request.args.get("pill") or "").strip()
     try:
         rep = _tick(pill=pill)  # type: ignore[misc]

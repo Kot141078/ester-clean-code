@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/smoke_routes.py - REST: /tools/smoke/* - progon/status/spisok testov.
+"""routes/smoke_routes.py - REST: /tools/smoke/* - progon/status/spisok tests.
 
 Mosty:
 - Yavnyy: (Veb ↔ Diagnostika) knopki zapustit smoke, posmotret otchet.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Odin POST - i sistema probegaetsya po klyuchevym tochkam, davaya zelenuyu/krasnuyu lampu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

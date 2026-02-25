@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_env_panel.py - ENV-panel: UI/API dlya importa recommend.env, predprosmotra i zapisi active.env.
+"""routes/admin_env_panel.py - ENV-panel: UI/API dlya importa recommend.env, predprosmotra i zapisi active.env.
 
-Marshruty:
-  • GET  /admin/env                     - stranitsa
-  • GET  /admin/env/recommend           - zagruzit tekst recommend.env (esli est na USB)
-  • POST /admin/env/preview             - {text?} → diff s tekuschim okruzheniem
-  • POST /admin/env/apply               - {vars?} → zapisat ESTER/portable/active.env (AB=A → dry)
+Route:
+  • GET /admin/env - stranitsa
+  • GET /admin/env/recommend - zagruzit tekst recommend.env (esli est na USB)
+  • POST /admin/env/preview - {text?} → diff s tekuschim okruzheniem
+  • POST /admin/env/apply - {vars?} → zapisat ESTER/portable/active.env (AB=A → dry)
 
 Mosty:
 - Yavnyy (konfig → deystvie): odin ekran ot zagruzki recommend.env do gotovogo active.env.
-- Skrytyy 1 (Infoteoriya): determinirovannyy diff umenshaet «ruchnye» oshibki.
+- Skrytyy 1 (Infoteoriya): determinirovannyy diff umenshaet “ruchnye” oshibki.
 - Skrytyy 2 (Praktika): zapis tolko v portable/*, stdlib, offlayn, AB-guard.
 
 Zemnoy abzats:
-Eto «panel nastroyki»: vidno, chto pomenyaetsya, i aktivnyy nabor pishetsya otdelnym faylom bez troganiya protsessa.
+This is “panel nastroyki”: vidno, chto pomenyaetsya, i aktivnyy nabor pishetsya otdelnym faylom bez troganiya protsessa.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

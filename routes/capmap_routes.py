@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/capmap_routes.py - REST/HTML: /self/capmap (json + html)
+"""routes/capmap_routes.py - REST/HTML: /self/capmap (json + html)
 
 Mosty:
 - Yavnyy: (Veb ↔ Self) edinaya tochka obzora vozmozhnostey.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Planning ↔ Volya) opora dlya resheniy i obyasnimosti.
 
 Zemnoy abzats:
-Otkryli stranitsu - i srazu vidno, chto dostupno seychas: knopki, marshruty, peremennye, artefakty.
+Otkryli stranitsu - i srazu vidno, what dostupno seychas: knopki, route, peremennye, artefakty.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, current_app, Response
 import html, json, time

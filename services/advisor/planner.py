@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-U1/services/advisor/planner.py — sostavlenie plana daydzhesta po temam/zabotam.
+"""U1/services/advisor/planner.py - sostavlenie plana daydzhesta po temam/zabotam.
 
 Mosty:
 - Yavnyy: Enderton — plan kak spetsifikatsiya (title/sections), determinirovannaya generatsiya.
 - Skrytyy #1: Cover & Thomas — ostavlyaem tolko informativnye zaprosy (unikalnye, bez dubley).
-- Skrytyy #2: Ashbi — A/B-slot: B dobavlyaet «sovety» (recommendations), pri oshibke — katbek v A.
+- Skrytyy #2: Ashbi — A/B-slot: B dobavlyaet “sovety” (recommendations), pri oshibke — katbek v A.
 
 Zemnoy abzats (inzheneriya):
-Iz spiska tem formiruem sections s filtrami po tegam (rss/inbox). Razmer topa konfiguriruem.
+Iz spiska tem formiruem sections s filtrami po tegam (rss/inbox). Size topa configurable.
 Plan sovmestim s R5/tools/r5_digest_build.py.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from typing import Dict, List, Any

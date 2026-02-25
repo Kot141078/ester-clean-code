@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/whatsapp_templates_routes.py - REST-obertka otpravki HSM-shablonov WhatsApp po spisku contact_key.
+"""routes/whatsapp_templates_routes.py - REST-obertka otpravki HSM-shablonov WhatsApp po spisku contact_key.
 
 MOSTY:
 - (Yavnyy) POST /whatsapp/send_template → keys[], template, lang?, body_params[], header_params[], buttons[].
 - (Skrytyy #1) Marshrutiziruem tolko keys s prefiksom 'whatsapp:' (ostalnye tikho propuskaem).
-- (Skrytyy #2) Metriki (sent/skipped/by_key) prigodny dlya alertov/bordy i treysinga «pochemu ne ushlo».
+- (Skrytyy #2) Metriki (sent/skipped/by_key) prigodny dlya alertov/bordy i treysinga “pochemu ne ushlo”.
 
 ZEMNOY ABZATs:
-Odin vyzov - i vashi soglasovannye shablony ukhodyat lyudyam, dazhe esli okno 24 chasov zakryto.
+Odin vyzov - i vashi soglasovannye shablony ukhodyat lyudyam, dazhe esli okno 24 hours zakryto.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List

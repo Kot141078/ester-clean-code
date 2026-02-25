@@ -35,7 +35,7 @@ nodes:
     depends: ["annotate"]
 
   - id: gather
-    type: join
+    type:join
     from: "fork"
     out: "joined"
     select:
@@ -43,8 +43,7 @@ nodes:
       n: "{{ctx.note}}"
     mode: list
     await_nodes: ["noop_finish"]
-    depends: ["noop_finish"]
-"""
+    depends: ["noop_finish"]"""
 
 
 def _wait_until(cond, timeout=5.0, step=0.02):
@@ -60,7 +59,7 @@ def test_graph_start_endpoint_idempotent():
     with tempfile.TemporaryDirectory() as tmp:
         os.environ["DAG_RUN_ROOT"] = os.path.join(tmp, "runs")
         os.environ["DAG_BRANCH_ROOT"] = os.path.join(tmp, "branches")
-        os.environ["LLM_API_BASE"] = ""  # ne nuzhen LLM
+        os.environ["LLM_API_BASE"] = ""  # no need for LLM
         os.environ["LLM_MODEL"] = "gpt-4o-mini"
 
         app = Flask(__name__)
@@ -74,10 +73,10 @@ def test_graph_start_endpoint_idempotent():
         assert data.get("ok") is True
         run_id = data["run_id"]
 
-        # 2) /graph/start dopuskaetsya vyzyvat povtorno (dolzhno byt OK)
+        # 2) /graph/start can be called again (should be OK)
         r2 = client.post("/graph/start", json={"run_id": run_id})
         assert r2.status_code == 200
         assert r2.get_json().get("ok") is True
 
-        # 3) Dozhdatsya zaversheniya
+        # 3) Wait for completion
         assert _wait_until(lambda: bool(load_state(run_id).get("finished")), timeout=5.0)

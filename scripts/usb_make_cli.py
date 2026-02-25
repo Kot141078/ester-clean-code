@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/usb_make_cli.py — CLI dlya sozdaniya portable-fleshki Ester.
+"""scripts/usb_make_cli.py - CLI dlya sozdaniya portable-fleshki Ester.
 
 Primery:
   AB_MODE=A python -m scripts.usb_make_cli --mount /media/usb --include-state
   AB_MODE=B python -m scripts.usb_make_cli --mount /media/usb --release ~/build/ester_release.tar.gz --dump ~/data/project/
   python -m scripts.usb_make_cli --mount E:\\ --release C:\\tmp\\rel.zip --compute-sha --dry
 
-Flagi:
-  --mount <PATH>           — tochka montirovaniya fleshki (obyazatelen)
-  --include-state          — vklyuchit ~/.ester sostoyanie
-  --release <FILE>         — arkhiv reliza (optsionalno)
-  --dump <FILE|DIR>        — damp (fayl ili papka, optsionalno)
-  --label <NAME>           — papka na fleshke (po umolchaniyu ESTER)
-  --compute-sha            — schitat SHA256 v manifest (po umolchaniyu vklyucheno)
-  --dry                    — prinuditelnyy dry-run (ignoriruet AB_MODE)
+Flags:
+  --mount <PATH> - tochka montirovaniya fleshki (obyazatelen)
+  --include-state — vklyuchit ~/.ester sostoyanie
+  --release <FILE> — arkhiv reliza (optsionalno)
+  --dump <FILE|DIR> — damp (fayl or papka, optsionalno)
+  --label <NAME> - papka na fleshke (po umolchaniyu ESTER)
+  --compute-sha — schitat SHA256 v manifest (po umolchaniyu vklyucheno)
+  --dry — prinuditelnyy dry-run (ignoreet AB_MODE)
 
 Mosty:
 - Yavnyy (Kibernetika ↔ Orkestratsiya): sozdaet fleshku bez UI, kak /admin/usb/make.
@@ -24,8 +23,7 @@ Mosty:
 Zemnoy abzats:
 Kak master na vse ruki: sobiraet fleshku s relizami, dampami ili sostoyaniem, ostavlyaet chetkiy plan i otchet. Rabotaet dazhe v starykh sistemakh.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -35,7 +33,7 @@ from pathlib import Path
 from typing import Dict, Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Proveryaem dostupnost moduley
+# Checking the availability of modules
 try:
     from modules.usb.portable_layout import build_plan, apply_plan  # type: ignore
     HAS_PORTABLE_LAYOUT = True
@@ -51,7 +49,7 @@ except ImportError:
 AB = (os.getenv("AB_MODE") or "A").strip().upper()
 
 def _validate_path(path: str, kind: str) -> tuple[Optional[Path], Optional[str]]:
-    """Proveryaet suschestvovanie i prava dostupa k faylu ili papke."""
+    """Checks the existence and permissions of a file or folder."""
     if not path:
         return None, None
     p = Path(path)
@@ -62,11 +60,11 @@ def _validate_path(path: str, kind: str) -> tuple[Optional[Path], Optional[str]]
     return p, None
 
 def main(argv: list[str] | None = None) -> int:
-    """Osnovnaya logika sozdaniya USB-nositelya."""
+    """The basic logic of creating a USB drive."""
     ap = argparse.ArgumentParser(description="Ester USB portable maker")
-    ap.add_argument("--mount", required=True, help="tochka montirovaniya fleshki")
-    ap.add_argument("--include-state", action="store_true", help="vklyuchit ~/.ester sostoyanie")
-    ap.add_argument("--release", default="", help="put k arkhivu reliza (optsionalno)")
+    ap.add_argument("--mount", required=True, help="flash drive mount point")
+    ap.add_argument("--include-state", action="store_true", help="enable ~/.ester state")
+    ap.add_argument("--release", default="", help="path to the release archive (optional)")
     ap.add_argument("--dump", default="", help="put k dampu (fayl/papka, optsionalno)")
     ap.add_argument("--label", default=os.getenv("ESTER_USB_LABEL", "ESTER"), help="papka na fleshke")
     ap.add_argument("--compute-sha", action="store_true", default=True, help="schitat SHA256")
@@ -75,13 +73,13 @@ def main(argv: list[str] | None = None) -> int:
 
     report: Dict = {"ok": True, "module": None, "plan": None, "result": {}, "ab": AB, "dry": args.dry or (AB != "B")}
 
-    # Proveryaem moduli
+    # Checking the modules
     if not (HAS_PORTABLE_LAYOUT or HAS_USB_MAKER):
         report = {"ok": False, "error": "no-modules-available", "details": "Neither portable_layout nor usb_maker found"}
         print(json.dumps(report, ensure_ascii=False, indent=2))
         return 2
 
-    # Proveryaem puti
+    # Checking the paths
     release_path, release_error = _validate_path(args.release, "release")
     dump_path, dump_error = _validate_path(args.dump, "dump")
     if release_error or dump_error:
@@ -89,7 +87,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report, ensure_ascii=False, indent=2))
         return 2
 
-    # Proveryaem tochku montirovaniya
+    # Checking the mount point
     mount_path = Path(args.mount)
     if not mount_path.exists() or not os.access(mount_path, os.W_OK):
         report = {"ok": False, "error": f"mount-inaccessible: {args.mount}"}

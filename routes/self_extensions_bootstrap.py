@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_extensions_bootstrap.py - drop-in «butstrap»: podkhvatit vse rasshireniya pri registratsii blyuprinta.
+"""routes/self_extensions_bootstrap.py - drop-in “butstrap”: podkhvatit vse rasshirniya pri registratsii blyuprinta.
 
-Effekt:
+Effect:
   • Pri starte prilozheniya (avtoregistratsiya blyuprintov) vyzovem dynamic_loader.load_all(app).
 
 Mosty:
-- Yavnyy: (Inzheneriya ↔ Sovmestimost) ne trogaem app.py - rasshireniya podklyuchatsya sami.
-- Skrytyy #1: (Kibernetika ↔ Kontrol) oshibki zagruzki ne valyat server; log viden v otvete /self/capabilities.
+- Yavnyy: (Inzheneriya ↔ Sovmestimost) ne trogaem app.py - rashirniya podklyuchatsya sami.
+- Skrytyy #1: (Kibernetika ↔ Kontrol) oshibki zagruzki ne valyat server; log visible v otvete /self/capabilities.
 - Skrytyy #2: (Infoteoriya ↔ Audit) sokhranyaetsya predskazuemost putey i registriruemykh moduley.
 
 Zemnoy abzats:
-Eto tikhiy «zvonok elektrika»: pri zapuske proyti i akkuratno vklyuchit vse novye moduli.
+Eto tikhiy “zvonok elektrika”: pri zapuske proyti i akkuratno vklyuchit vse novye moduli.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify
@@ -30,7 +28,7 @@ except Exception:
 def register(app):
     app.register_blueprint(bp_self_boot)
     if load_all:
-        # zapuskaem utilitu pri registratsii
+        # launch the utility upon registration
         app.config["SELF_EXT_LOAD_RESULT"] = load_all(app)
 
 @bp_self_boot.route("/self/extensions/load_result", methods=["GET"])

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/memory_nav_routes.py - REST/UI navigatora pamyati.
+"""routes/memory_nav_routes.py - REST/UI navigator pamyati.
 
 Ruchki:
-  GET  /mem/probe
-  GET  /mem/counts
-  GET  /mem/timeline?session=...&scenario=...&limit=300
-  GET  /mem/search?q=kind:click_text text:Privet
-  POST /mem/quick_demo   # zapisyvaet 3 svyazannykh sobytiya (plan, vospriyatie, deystvie)
-  GET  /admin/mem
+  GET /mem/probe
+  GET /mem/counts
+  GET /mem/timeline?session=...&scenario=...&limit=300
+  GET /mem/search?q=kind:click_text text:Privet
+  POST /mem/quick_demo # zapisyvaet 3 svyazannykh sobytiya (plan, vospriyatie, deystvie)
+  GET /admin/mem
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.memory import hub as MH

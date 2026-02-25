@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/papa_policy_routes.py - REST dlya politiki prioriteta Papy (vesa i «tabletka»).
+"""routes/papa_policy_routes.py - REST dlya politiki prioriteta Papy (vesa i “tabletka”).
 
 Mosty:
 - Yavnyy: (Volya ↔ Kontrol) vklyuchaem/nastraivaem silu prioriteta.
-- Skrytyy #1: (Ekonomika ↔ Plany) planirovschiki mogut «sprosit» vesa cherez eti ruchki.
-- Skrytyy #2: (UX ↔ Prozrachnost) prostaya, izolirovannaya tochka upravleniya.
+- Skrytyy #1: (Ekonomika ↔ Plany) planirovschiki mogut “sprosit” vesa cherez eti ruchki.
+- Skrytyy #2: (UX ↔ Prozrachnost) prostaya, isolated tochka upravleniya.
 
 Zemnoy abzats:
-Ruchka gromkosti i knopka «na vsyakiy sluchay» - bez nee sistema tikhaya i predskazuemaya.
+Ruchka gromkosti i knopka “na vsyakiy sluchay” - bez nee sistema tikhaya i predskazuemaya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

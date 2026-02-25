@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-modules/knowledge/quality.py — kachestvo znaniy: dedup, antimusor, uverennost.
+"""modules/knowledge/quality.py - kachestvo znaniy: dedup, antimusor, uverennost.
 
 Funktsii:
-  dedup_records(records:list) -> dict               # snimet yavnye/semanticheskie dubli
-  compute_confidence(evidence:list) -> dict         # agregiruet uverennost (0..1)
-  build_evidence(query:str, top_k:int=12) -> dict   # podbiraet dokazatelstva iz pamyati
-  attach_provenance(record_id:str, source_id:str)   # privyazyvaet zapis k istochniku
+  dedup_records(records:list) -> dict # snimet yavnye/semanticheskie dubli
+  compute_confidence(evidence:list) -> dict # agregiruet uverennost (0..1)
+  build_evidence(query:str, top_k:int=12) -> dict # podbiraet dokazatelstva iz pamyati
+  attach_provenance(record_id:str, source_id:str) # privyazyvaet zapis k istochniku
 
 MOSTY:
-- Yavnyy: (Kachestvo ↔ Memory) — pered svodkoy/otvetom chistim shum.
+- Yavnyy: (Kachestvo ↔ Memory) — pered svodkoy/otvetom chistim noise.
 - Skrytyy #1: (Infoteoriya ↔ Entropiya) — dedup snizhaet izbytochnost.
-- Skrytyy #2: (Kibernetika ↔ Nadezhnost) — uverennost → resheniya safer.
+- Skrytyy #2: (Kibernetika ↔ Nadezhnost) - uverennost → resheniya safer.
 
 ZEMNOY ABZATs:
-Inzhenerno — filtr/otsenschik pered vyvodom. Prakticheski — «proverka na vshivost»:
+Inzhenerno - filtr/otsenschik pered vyvodom. Prakticheski - “check na vshivost”:
 sobrat opory, snyat povtory, poschitat uverennost i tolko potom govorit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple
 from collections import defaultdict
@@ -41,11 +39,11 @@ def dedup_records(records:List[Dict[str,Any]], text_key:str="text", jacc:float=0
         words=set([w.lower() for w in t.split() if len(w)>2])
         v=r.get("vec")
         dup=False
-        # tekstovaya skhozhest
+        # textual similarity
         for i,kr in enumerate(keep):
             kw=set((kr.get(text_key) or "").lower().split())
             if _jaccard(words, kw) >= jacc: dup=True; break
-        # semanticheskaya skhozhest po kosinusu
+        # semantic similarity by cosine
         if not dup and v:
             for kr in keep:
                 kv=kr.get("vec")
@@ -77,13 +75,11 @@ def _src_score(source_id:str)->float:
     return float(s.get("score",0.5))
 
 def compute_confidence(evidence:List[Dict[str,Any]])->Dict[str,Any]:
-    """
-    Uverennost ~ vzveshennaya summa:
+    """Confidence ~ vzveshennaya summa:
       - plotnost soglasovannykh istochnikov
       - raznoobrazie tipov zapisey
       - kachestvo istochnikov (registry.score)
-    (0..1)
-    """
+    (0..1)"""
     if not evidence:
         return {"ok":True,"confidence":0.2,"factors":{}}
     # raznoobrazie tipov

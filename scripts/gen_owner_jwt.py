@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Generator owner-JWT dlya Ester.
+"""Generator owner-JWT dlya Ester.
 
 Sovmestim s dvumya versiyami modules.security.jwt_owner.generate_owner_jwt:
 
@@ -9,7 +8,7 @@ Sovmestim s dvumya versiyami modules.security.jwt_owner.generate_owner_jwt:
 
 2) Novaya signatura:
        generate_owner_jwt(cfg: dict | None = None) -> dict | str
-   gde cfg mozhet soderzhat:
+   where cfg mozhet soderzhat:
        {
          "sub": ...,
          "roles": [...],
@@ -17,8 +16,7 @@ Sovmestim s dvumya versiyami modules.security.jwt_owner.generate_owner_jwt:
          "save_path": ...
        }
 
-Skript sam opredelyaet, kak vyzyvat funktsiyu.
-"""
+Skript sam opredelyaet, kak vyzyvat funktsiyu."""
 
 from __future__ import annotations
 
@@ -31,8 +29,8 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 try:
     from modules.security.jwt_owner import generate_owner_jwt
-except Exception as e:  # zemlya: esli modul ne importiruetsya — ne zapuskaem raketu bez topliva
-    raise SystemExit(f"[gen_owner_jwt] Ne udalos importirovat modules.security.jwt_owner: {e}")
+except Exception as e:  # earth: if the module is not imported, we do not launch the rocket without fuel
+    raise SystemExit(f"yugen_ovner_zhvtsch Failed to import modules.security.zhvt_ovner: ZZF0Z")
 
 
 def parse_args(argv):
@@ -40,7 +38,7 @@ def parse_args(argv):
     p.add_argument(
         "--sub",
         default=os.getenv("ESTER_OWNER_SUB", "owner"),
-        help="sub (subject) dlya tokena (po umolchaniyu 'owner')",
+        help="sub (subject) for token (default)",
     )
     p.add_argument(
         "--roles",
@@ -52,23 +50,23 @@ def parse_args(argv):
         "--ttl",
         type=int,
         default=None,
-        help="Srok zhizni v dnyakh (esli ne zadan, beretsya JWT_TTL_DAYS ili 365)",
+        help="Lifetime in days (if not specified, take ZVT_TTL_DAYS or 365)",
     )
     p.add_argument(
         "--save",
         default=os.path.join("data", "owner_jwt.token"),
-        help="Fayl dlya sokhraneniya tokena",
+        help="File to save the token",
     )
     p.add_argument(
         "--print-only",
         action="store_true",
-        help="Pechatat tolko token (bez obertki JSON)",
+        help="Print only the token (without the JSION wrapper)",
     )
     return p.parse_args(argv)
 
 
 def call_generate(sub: str, roles, ttl_days: int | None, save_path: str):
-    # znacheniya po umolchaniyu
+    # default values
     if not roles:
         roles = ["owner", "admin"]
     if ttl_days is None:
@@ -77,7 +75,7 @@ def call_generate(sub: str, roles, ttl_days: int | None, save_path: str):
         except ValueError:
             ttl_days = 365
 
-    # gotovim konfig dlya novoy signatury
+    # preparing the config for the new signature
     cfg = {
         "sub": sub,
         "roles": roles,
@@ -98,16 +96,16 @@ def call_generate(sub: str, roles, ttl_days: int | None, save_path: str):
         try:
             res = generate_owner_jwt(cfg) if len(params) == 1 else generate_owner_jwt()
         except TypeError:
-            # na sluchay, esli realizatsiya ozhidaet imenno cfg
+            # in case the implementation awaits the sfg
             res = generate_owner_jwt(cfg)
-    # Variant 2: staraya signatura (4 pozitsionnykh)
+    # Option 2: old signature (4 positional)
     elif len(params) >= 4:
         res = generate_owner_jwt(sub, roles, ttl_days, save_path)
     else:
-        # strannaya signatura — pytaemsya peredat cfg kak edinstvennyy argument
+        # strange signature - we are trying to pass sfg as the only argument
         res = generate_owner_jwt(cfg)
 
-    # Normalizuem otvet: dict s polem token
+    # Normalizes response: dist with token field
     if isinstance(res, str):
         return {"token": res, "sub": sub, "roles": roles, "ttl_days": ttl_days, "path": save_path}
     if isinstance(res, dict):
@@ -125,7 +123,7 @@ def main(argv=None) -> int:
 
     tok = info.get("token", "")
 
-    # sokhranyaem v fayl (esli funktsiya vnutri esche ne sokhranila)
+    # save to a file (if the function inside has not yet been saved)
     try:
         path = a.save
         if path and tok:
@@ -133,7 +131,7 @@ def main(argv=None) -> int:
             with open(path, "w", encoding="utf-8") as f:
                 f.write(tok.strip())
     except Exception:
-        # ne kritichno dlya raboty
+        # not critical for work
         pass
 
     if a.print_only:

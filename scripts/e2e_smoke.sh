@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# E2E smoke dlya «Zhelezobeton».
-# Trebovaniya: curl, jq. Server uzhe podnyat lokalno etim zhe job'om.
+# E2E stock for “Reinforced Concrete”.
+# Requirements: curl, residential complex. The server has already been raised locally by the same thing.
 # Autentifikatsiya:
-#  - Esli zadan ADMIN_JWT — ispolzuem ego.
-#  - Inache pytaemsya poluchit token cherez /auth/login (esli ENABLE_SIMPLE_LOGIN=1).
+#  - If ADMIN_ZhVT is specified, use it.
+#  - Otherwise, we try to get a token via /outn/login (if ENABLE_SIMPLE_LOGIN=1).
 
 BASE_URL="${BASE_URL:-http://127.0.0.1:${PORT:-8080}}"
 CURL="curl -fsS"
@@ -17,7 +17,7 @@ get_admin_jwt() {
   if [[ -n "${ADMIN_JWT:-}" ]]; then
     echo "$ADMIN_JWT"; return 0
   fi
-  # Popytka dev-logina
+  # Dev login attempt
   if $CURL -X POST "$BASE_URL/auth/login" -H 'Content-Type: application/json' \
       -d '{"user":"ci","role":"admin"}' >/tmp/login.json 2>/dev/null; then
     tok="$(cat /tmp/login.json | $JQ '.access_token' || true)"
@@ -73,7 +73,7 @@ if [[ -z "$ADMIN_JWT" ]]; then
   exit 1
 fi
 
-# 2) /portal pod adminom (proveryaem, chto UI otdaetsya)
+# 2) /portal under the admin (check that the OP is being sent)
 require_200 "portal (admin)" -H "Authorization: Bearer $ADMIN_JWT" "$BASE_URL/portal"
 
 # 3) mTLS whoami: imitiruem zagolovki ot ingress
@@ -82,7 +82,7 @@ require_200 "mtls whoami" \
   -H "X-Client-DN: CN=node-1,OU=core,O=Ester" \
   "$BASE_URL/mtls/whoami"
 
-# 4) RBAC: pod user rolyu /ops/* dolzhen dat 403
+# 4) RVACH: under the user role /ops/* should give 403
 USER_JWT="$(get_user_jwt || true)"
 if [[ -n "$USER_JWT" ]]; then
   require_403 "RBAC deny /ops as user" -H "Authorization: Bearer $USER_JWT" "$BASE_URL/ops/secure_ping" \
@@ -91,7 +91,7 @@ else
   log "WARN: no user JWT (dev login disabled). Skipping RBAC user check."
 fi
 
-# 5) P2P echo pod podpisyu (esli zaschischeno p2p_guard'om, potrebuetsya X-P2P-*)
+# 5) P2P echo under the signature (if protected by p2p_guard, you will need S-P2P-*)
 ts="$(date +%s)"
 sig="$(python - <<'PY'
 import os,hashlib,hmac,time,sys
@@ -114,7 +114,7 @@ else
   log "INFO: ESTER_P2P_SECRET not set; skipping /p2p/echo signed check."
 fi
 
-# 6) Replikatsiya: replicator dopuskaetsya, ops zapreschen
+# 6) Replication: replicator allowed, ops prohibited
 require_200 "replication snapshot (replicator)" \
   -H "X-Client-Verified: SUCCESS" \
   -H "X-Client-DN: CN=node-1,OU=core,O=Ester" \
@@ -125,7 +125,7 @@ require_403 "replication snapshot (ops denied)" \
   -H "X-Client-DN: CN=ops-1,OU=ops,O=Ester" \
   "$BASE_URL/replication/test_snapshot"
 
-# 7) OPS secure ping: dostupen tolko ops po mTLS
+# 7) OPS secure ping: only OPS via mTLS is available
 require_200 "ops secure_ping (ops)" \
   -H "X-Client-Verified: SUCCESS" \
   -H "X-Client-DN: CN=ops-1,OU=ops,O=Ester" \

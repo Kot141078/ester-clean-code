@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tools/verify_routes.py — proverka konfliktov marshrutov Flask: put/metod → unikalnyy handler.
+"""tools/verify_routes.py — proverka konfliktov marshrutov Flask: put/method → ​​unique handler.
 
 Zapusk:
   python tools/verify_routes.py
@@ -15,15 +14,14 @@ MOSTY:
 ZEMNOY ABZATs:
 Skript ne menyaet kod prilozheniya; on lish inspektiruet zaregistrirovannye pravila Flask i ischet dubli.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import importlib, sys
 from typing import Dict, Tuple, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def main():
-    # Ozhidaem, chto app.py sozdaet Flask-prilozhenie v peremennoy 'app'
+    # We expect that app.po creates a Flask application in the yappy variable
     app_module = importlib.import_module("app")
     app = getattr(app_module, "app", None)
     if app is None:

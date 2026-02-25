@@ -15,7 +15,7 @@
 <body>
   <div class="card">
     <h1 style="margin:0 0 8px 0;font-size:20px">Perekhodim…</h1>
-    <p class="muted">Esli brauzer ne perenapravil avtomaticheski, nazhmite: <a href="{{ target }}">{{ target }}</a></p>
+    <p class="muted">If the browser did not redirect automatically, click: <a href="{{ target }}">{{ target }}</a></p>
   </div>
   <script> setTimeout(function(){ location.replace({{ target|tojson }}); }, 0); </script>
 </body>

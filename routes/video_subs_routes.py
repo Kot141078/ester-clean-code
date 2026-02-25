@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/video_subs_routes.py — REST CRUD dlya podpisok video: /proactive/video/subs*.
+"""routes/video_subs_routes.py - REST CRUD dlya podpisok video: /proactive/video/subs*.
 
 Mosty:
 - Yavnyy: (UX v†" Proaktiv) Upravlenie istochnikami pryamo iz interfeysov/skriptov bez pravki faylov vruchnuyu.
-- Skrytyy #1: (Kibernetika v†" Nadezhnost) Validatsiya Re idempotent upsert predotvraschayut «drozhanie» konfiguratsii.
-- Skrytyy #2: (Infoteoriya v†" Memory) Konfig — dolgovremennyy istochnik pritoka dannykh v pamyat, redaktiruemyy bezopasno.
+- Skrytyy #1: (Kibernetika v†" Nadezhnost) Validatsiya Re idempotent upsert predotvraschayut "drozhanie" konfiguratsii.
+- Skrytyy #2: (Infoteoriya v†" Memory) Config - dolgovremennyy istochnik pritoka dannykh v pamyat, redaktiruemyy bezopasno.
 
 Zemnoy abzats:
-Eto kak vynos upravlyayuschikh ventiley na schit: vklyuchit trubu, smenit filtr, ogranichit potok — bez perekladki kabeley.
+Eto kak vynos upravlyayuschikh ventiley na schit: vklyuchit trubu, change filtr, ogranichit potok - bez perekladki kabeley.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List

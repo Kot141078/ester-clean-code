@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mem_passport_routes.py — REST dlya «profilenogo stola»: make/upsert/list/sweep.
+"""routes/mem_passport_routes.py - REST dlya "profilenogo stola": make/upsert/list/sweep.
 
 Mosty:
 - Yavnyy: (Beb v†" Profile) edinyy vkhod dlya UI Re vneshnikh moduley.
@@ -9,23 +8,22 @@ Mosty:
 - Skrytyy #3: (Otchety v†" Prozrachnost) UI mozhet bystro pokazat, chto proiskhodilo, dlya kontrolya khronologii.
 
 Zemnoy abzats:
-Polnyy nabor knopok dlya profileizatsii: «vydat profile», «slozhit v pamyat», «posmotret poslednie» i «proverit starye zapisi».
+Polnyy nabor knopok dlya profileizatsii: “vydat profile”, “slozhit v pamyat”, “posmotret poslednie” i “check starye zapisi”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp = Blueprint("mem_passport_routes", __name__)
 
-# Popytka importirovat zavisimost dlya dostupa k pamyati
+# Trying to import a dependency for memory access
 try:
     from services.mm_access import get_mm  # type: ignore
 except Exception:
     get_mm = None  # type: ignore
 
-# Popytka importirovat osnovnye funktsii modulya "passport"
+# Trying to import the main functions of the "passport" module
 try:
     from modules.mem.passport import (
         make_passport as _make,
@@ -36,12 +34,12 @@ except Exception:
     _make = _upsert = _list = None  # type: ignore
 
 def register(app):
-    """R egistriruet etot blueprint v prilozhenii Flask."""
+    """Registers this blueprint in the Flask application."""
     app.register_blueprint(bp)
 
 @bp.route("/mem/passport/make", methods=["POST"])
 def api_make():
-    """Sozdaђt profile, ne sokhranyaya ego v pamyati."""
+    """Create a profile without saving it in memory."""
     if _make is None:
         return jsonify({"ok": False, "error": "passport_unavailable"}), 500
     
@@ -57,7 +55,7 @@ def api_make():
 
 @bp.route("/mem/passport/upsert", methods=["POST"])
 def api_upsert():
-    """Sokhranyaet zapis s profileom v pamyat (sozdaet ili obnovlyaet)."""
+    """Saves a profile entry to memory (creates or updates)."""
     if _upsert is None or get_mm is None:
         return jsonify({"ok": False, "error": "passport_or_mm_unavailable"}), 500
     
@@ -73,10 +71,8 @@ def api_upsert():
 
 @bp.route("/mem/passport/sweep", methods=["POST"])
 def api_sweep():
-    """
-    Best-effort: skaniruet khranilische i dobavlyaet profilea zapisyam, u kotorykh ikh net.
-    Ozhidaet, chto u obekta mm budet metod iteratsii: iter(), export() ili list().
-    """
+    """Best-effort: skaniruet khranilische i dobavlyaet profilea zapisyam, u kotorykh ikh net.
+    Ozhidaet, chto u obekta mm budet metod iteratsii: iter(), export() or list()."""
     if get_mm is None or _upsert is None:
         return jsonify({"ok": False, "error": "passport_or_mm_unavailable"}), 500
         
@@ -98,13 +94,13 @@ def api_sweep():
         for doc in it() or []:
             scanned += 1
             meta = doc.get("meta") or {}
-            # Propuskaem zapisi, u kotorykh uzhe est profile
+            # We skip entries that already have a profile
             if meta.get("provenance"):
                 continue
             
             text = doc.get("text", "")
             source = meta.get("source") or "sweep://unknown"
-            _upsert(mm, text, meta, source) # Ispolzuem versiyu po umolchaniyu
+            _upsert(mm, text, meta, source) # Using the default version
             added += 1
             
     except Exception as e:
@@ -114,7 +110,7 @@ def api_sweep():
 
 @bp.route("/mem/passport/list", methods=["GET"])
 def api_list():
-    """Vozvraschaet spisok poslednikh dobavlennykh profileov dlya audita."""
+    """Returns a list of the most recently added audit profiles."""
     if _list is None:
         return jsonify({"ok": False, "error": "passport_unavailable"}), 500
     

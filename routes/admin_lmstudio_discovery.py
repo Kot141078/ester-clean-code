@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Admin LM Studio Discovery - offlayn avtopoisk lokalnykh LM Studio i generatsiya alias.
+"""Admin LM Studio Discovery - offlayn avtopoisk lokalnykh LM Studio i generatsiya alias.
 
 Most (yavnyy):
 - (Kibernetika ↔ Arkhitektura) Pereklyuchatel A/B: A = nablyudaem, B = deystvuem. Upravlyaemost sostoyaniya snizhaet entropiyu izmeneniy.
@@ -11,8 +10,7 @@ Mosty (skrytye):
 
 Zemnoy abzats:
 Marshruty pozvolyayut bez interneta proskanirovat disk/porty, pokazat naydennye modeli/servery LM Studio i
-v rezhime B bezopasno dopisat predlozhennye LLM-aliasy v ESTER/portable/recommend.env. Eto oblegchaet podklyuchenie lokalnykh LLM.
-"""
+v rezhime B bezopasno dopisat predlozhennye LLM-aliasy v ESTER/portable/recommend.env. This is obligchaet podklyuchenie lokalnykh LLM."""
 from __future__ import annotations
 
 import os
@@ -58,9 +56,7 @@ def _read_recommend_env(env_path: Path) -> Dict[str, str]:
 
 
 def _append_new_pairs(env_path: Path, new_pairs: Dict[str, str]) -> Tuple[List[str], List[str]]:
-    """
-    Vozvraschaet (added_keys, skipped_keys). V A-rezhime (dry-run) nichego ne pishet.
-    """
+    """Returns (added_case, skipped_case). In A-mode (dry-rune) it does not write anything."""
     existing = _read_recommend_env(env_path)
     to_add = {k: v for k, v in new_pairs.items() if k not in existing}
     skipped = sorted(set(new_pairs) - set(to_add))
@@ -68,7 +64,7 @@ def _append_new_pairs(env_path: Path, new_pairs: Dict[str, str]) -> Tuple[List[s
     if IS_DRY:
         return sorted(to_add), skipped
 
-    # Zapis (append) tolko nedostayuschikh klyuchey
+    # Write (append) only the missing keys
     needs_newline = False
     if env_path.exists():
         try:
@@ -134,16 +130,14 @@ def _scan_servers() -> List[Dict[str, object]]:
     for port in SCAN_PORTS:
         base = f"http://127.0.0.1:{port}"
         alive = _port_open("127.0.0.1", port)
-        # V A-rezhime API ne trogaem (dry). V B mozhno poprobovat sprosit spisok modeley pozzhe.
+        # In A-mode, we do not touch the API (drives). In B you can try asking for a list of models later.
         servers.append({"base": base, "alive": alive, "models": []})
     return servers
 
 
 def _propose_aliases(servers: List[Dict[str, object]]) -> Dict[str, str]:
-    """
-    Generiruem LLM_LOCAL_* → http://127.0.0.1:<port>
-    Pervyy «zhivoy» port poluchaet druzhelyubnyy psevdonim, ostalnye - po nomeru.
-    """
+    """Generiruem LLM_LOCAL_* → http://127.0.0.1:<port>
+    Pervyy “zhivoy” port poluchaet druzhelyubnyy psevdonim, ostalnye - po nomeru."""
     aliases: Dict[str, str] = {}
     friendly_given = False
     for srv in servers:
@@ -158,11 +152,9 @@ def _propose_aliases(servers: List[Dict[str, object]]) -> Dict[str, str]:
 
 
 def _discover() -> Dict[str, object]:
-    """
-    Pytaemsya vospolzovatsya imeyuschimsya modules.lmstudio.discovery (esli est),
-    inache ispolzuem lokalnyy skaner vyshe.
-    Ozhidaem kontrakt discover(): {"ok": True, "models": [...], "servers": [...]}
-    """
+    """Pytaemsya vospolzovatsya imeyuschimsya modules.lmstudio.discovery (esli est),
+    inache ispolzuem lokalnyy scaner vyshe.
+    Ozhidaem kontrakt discover(): {"ok": True, "models": [...], "servers": [...]}"""
     try:
         from modules.lmstudio import discovery as core  # type: ignore
         if hasattr(core, "discover") and callable(core.discover):
@@ -221,7 +213,7 @@ def api_apply():
     )
 
 
-# Khuki registratsii dlya raznykh stiley init
+# Registration hooks for different init styles
 def register(app):  # pragma: no cover
     app.register_blueprint(bp)
 

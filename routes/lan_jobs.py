@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-routes/lan_jobs.py - UI/REST: ochered zadach LAN.
+"""routes/lan_jobs.py - UI/REST: ochered zadach LAN.
 
-Marshruty:
-  • GET  /admin/lan/jobs              - HTML
-  • GET  /admin/lan/jobs/status       - ochered + metrika
+Route:
+  • GET /admin/lan/jobs - HTML
+  • GET /admin/lan/jobs/status - ochered + metrics
   • POST /admin/lan/jobs/enqueue_pull - {peer, pri?}
   • POST /admin/lan/jobs/enqueue_offer
   • POST /admin/lan/jobs/clear
@@ -15,10 +14,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): interfeysy prostye JSON - legko dergat iz skriptov.
 
 Zemnoy abzats:
-Zdes stavim zadaniya «zabrat/otdat» i sledim, chtoby vse shlo po normam i bez shtorma.
+Zdes stavim zadaniya “zabrat/otdat” i sledim, chtoby vse shlo po normam i bez shtorma.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os
 from pathlib import Path

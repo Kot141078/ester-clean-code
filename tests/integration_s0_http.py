@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-S0/tests/integration_s0_http.py — HTTP-smouk zhivogo prilozheniya (bez vneshnikh zavisimostey).
+"""S0/tests/integration_s0_http.py - HTTP-smouk zhivogo prilozheniya (bez vneshnikh zavisimostey).
 
 Mosty:
 - Yavnyy: Dzheynes (bayes) → nablyudaem "dokazatelstva" (kody otvetov) i obnovlyaem pravdopodobie "sistema zdorova".
@@ -10,11 +9,10 @@ Mosty:
 
 Zemnoy abzats (inzheneriya):
 Skript ne trebuet `requests`, rabotaet na standartnoy biblioteke `urllib`.
-Po umolchaniyu bem po BASE_URL=http://127.0.0.1:8080. Esli prilozhenie ne zapuscheno — vydaem ponyatnye WARN i vykhodim 0.
-Optsionalno mozhno sgenerirovat HS256-JWT na letu (ENV GENERATE_JWT=1) — algoritm polnostyu lokalnyy.
+Po umolchaniyu bem po BASE_URL=http://127.0.0.1:8080. Esli prilozhenie ne zapuscheno - vydaem ponyatnye WARN i vykhodim 0.
+Optionalno mozhno sgenerirovat HS256-JWT na letu (ENV GENERATE_JWT=1) - algoritm polnostyu lokalnyy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import base64
 import hashlib
@@ -91,7 +89,7 @@ def main() -> int:
     # /live
     code, _ = _http_get("/live")
     if code is None:
-        print("[HTTP-SMOKE] WARN: servis ne otvechaet (vozmozhno, ne zapuschen). Zavershayu bez oshibki.")
+        print("YuHTTP-SMOKESH VARN: the service is not responding (possibly not running). I complete without error.")
         return 0
     if code not in (200, 204):
         print(f"[HTTP-SMOKE] WARN: /live => {code}, ozhidaetsya 200/204")
@@ -106,7 +104,7 @@ def main() -> int:
     if code in (200, 201):
         print("[HTTP-SMOKE] WARN: /admin vernul 200 bez tokena — prover RBAC")
 
-    # /admin s tokenom (esli mozhem)
+    # /admin with a token (if we can)
     jwt = None
     if os.environ.get("GENERATE_JWT", "1") == "1":
         jwt = mint_jwt("Owner", "admin", 600)
@@ -115,14 +113,14 @@ def main() -> int:
         if code not in (200, 302):  # dopuskaem redirekt v UI
             print(f"[HTTP-SMOKE] WARN: /admin s JWT => {code}")
 
-    # /portal (status mozhet otlichatsya ot realizatsii)
+    # /portal (status may differ from implementation)
     code, _ = _http_get("/portal")
     if code in (401, 403):
-        print("[HTTP-SMOKE] INFO: /portal zakryt pravami — eto ok dlya tekuschey konfiguratsii.")
+        print("YuHTTP-SMOKESCH INFO: /portal is closed with rights - this is ok for the current configuration.")
     elif code in (200, 302, 404):
         pass  # ok
 
-    # Telegram webhook (esli skonfigurirovan)
+    # Telegram webhook (if configured)
     hook_secret = os.environ.get("TELEGRAM_WEBHOOK_SECRET")
     if hook_secret:
         payload = {
@@ -141,7 +139,7 @@ def main() -> int:
         elif code in (401, 403):
             print("[HTTP-SMOKE] WARN: Telegram webhook otklonen (401/403) — prover sekret/rol")
         elif code == 404:
-            print("[HTTP-SMOKE] INFO: Telegram webhook ne nayden (404) — vozmozhno, marshrut ne vklyuchen")
+            print("YuHTTP-SMOKESCH INFO: Telegram webhook not found (404) - the route may not be enabled")
         else:
             print(f"[HTTP-SMOKE] WARN: Telegram webhook => {code}")
 

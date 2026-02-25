@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
-"""
-modules/agents/installer_agent.py — «Ustanovschik PO» (planirovschik shagov ustanovki).
+"""modules/agents/installer_agent.py - “Ustanovschik PO” (planirovschik shagov ustanovki).
 
 Podderzhka (kontseptualno):
   - vybor istochnika (repo/manifest), proverka podpisi (esli est), plan shagov,
     dry-run s riskom/stoimostyu, zatem commit (simulirovannyy).
 
 Operatsii (kind):
-  - plan_install  meta: {"app":"VLC","source":"winget|apt|manual","args":{}}
-  - remove_app    meta: {"app":"..."}
-  - update_app    meta: {"app":"..."}
+  - plan_install meta: {"app":"VLC","source":"winget|apt|manual","args":{}}
+  - remove_app meta: {"app":"..."}
+  - update_app meta: {"app":"..."}
 
 MOSTY:
-- Yavnyy: (Ustanovka ↔ Safety) — osobenno vazhno prosit soglasie.
+- Yavnyy: (Ustanovka ↔ Safety) - osobenno vazhno prosit soglasie.
 - Skrytyy #1: (Kachestvo znaniy ↔ Istochniki) — v ideale privyazka k registry.
 - Skrytyy #2: (Kibernetika ↔ Otkat) — vsegda predusmatrivat rollback.
 
 ZEMNOY ABZATs:
-Inzhenerno — eto retsept: otkuda stavim, kakie komandy, gde otkat.
-Prakticheski — Ester mozhet otvetit: «vizhu, chto prilozhenie ne ustanovleno, predlagayu plan i
-raschet riska; esli ok — vypolnyu». Zdes my delaem bezopasnyy prototip (simulyatsiya).
+Inzhenerno - eto retsept: otkuda stavim, kakie komandy, where otkat.
+Prakticheski - Ester mozhet otvetit: “vizhu, what prilozhenie ne ustanovleno, predlagayu plan i
+calculate riska; esli ok - vypolnyu.” Zdes my delaem bezopasnyy prototip (simulyatsiya).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple
 from modules.agents.base_agent import AgentBase, Action

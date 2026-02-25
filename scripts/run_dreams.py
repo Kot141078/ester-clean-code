@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/run_dreams.py — CLI dlya zapuska «Snov 2.0» (klasterizatsiya flashback → HypothesisStore → KG).
+"""scripts/run_dreams.py - CLI dlya zapuska “Snov 2.0” (klasterizatsiya flashback → HypothesisStore → KG).
 
 Primery:
   python -m scripts.run_dreams --rules config/dreams_rules.yaml --json
-  PERSIST_DIR=./data python scripts/run_dreams.py
-"""
+  PERSIST_DIR=./data python scripts/run_dreams.py"""
 
 from __future__ import annotations
 
@@ -26,11 +24,11 @@ def _load_rules(path: str) -> list[DreamRule]:
         yaml = None
 
     if not path or not os.path.exists(path) or yaml is None:
-        # Esli konfiga net, vozvraschaem defoltnoe pravilo
+        # If there is no config, return the default rule
         return [DreamRule()]
 
     try:
-        # Yavno ukazyvaem utf-8, chtoby konfig pravil tozhe chitalsya korrektno
+        # Explicitly indicates UTF-8 so that the rules config is also read correctly
         with open(path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
         
@@ -49,7 +47,7 @@ def _load_rules(path: str) -> list[DreamRule]:
             )
         return rules or [DreamRule()]
     except Exception:
-        # Fallback pri oshibke parsinga
+        # False on parsing error
         return [DreamRule()]
 
 
@@ -63,11 +61,11 @@ def main(argv=None) -> int:
     p.add_argument("--json", action="store_true")
     a = p.parse_args(argv)
 
-    # Initsializatsiya pamyati (Memory Stack)
+    # Initializing memory (Memory Stask)
     mm = build_mm_from_env()
     engine = DreamsEngine(mm, provider=None)
     
-    # Zapusk protsessa snovideniy (Deep Thinking / Clustering)
+    # Starting the Dreaming Process (Deep Thinking/Clustering)
     report = engine.run(_load_rules(a.rules))
 
     if a.json:

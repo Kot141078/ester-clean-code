@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# tools/selfcheck.sh — mini-smoke dlya Ester
+# tools/selfchesk.sh - mini-smoke for Esther
 # MOSTY:
-# - (Yavnyy) Proveryaet python, importy, zapuskaet verify_routes.py
-# - (Skrytyy #1) curl k /health i /metrics/prom (esli server podnyat)
-# - (Skrytyy #2) Pishet artefakty v data/selfcheck
-# ZEMNOY ABZATs: «Podralsya s provodami?» — odnoy komandoy vidno, gde obryv.
+# - (Explicit) Checks pothon, imports, runs verifs_rutes.po
+# - (Hidden #1) curl to /healthtn and /matrix/prom (if the server is up)
+# - (Hidden #2) Writes artifacts to data/selfcheck
+# EARTHLY Paragraph: “Fought with the wires?” — with one command you can see where the break is.
 # c=a+b
 set -euo pipefail
 

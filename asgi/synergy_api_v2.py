@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-asgi/synergy_api_v2.py — FastAPI-prilozhenie dlya Synergy API v2.
+"""asgi/synergy_api_v2.py - FastAPI-prilozhenie dlya Synergy API v2.
 
 MOSTY:
 - (Yavnyy) Routy: /synergy/assign, /overrides, /roles, /policies, /outcome, /board/data, /health.
 - (Skrytyy #1) Verifikatsiya HMAC cherez security/signing.py, idempotentnost po X-Request-Id (reuse orkestratora v2).
-- (Skrytyy #2) Paginatsiya spiska agentov dlya bordy; otvety oshibok v formate application/problem+json.
+- (Skrytyy #2) Paginatsiya spiska agentov dlya bordy; otvety oshibok v format application/problem+json.
 
 ZEMNOY ABZATs:
-Chistyy, predskazuemyy API vtorogo pokoleniya — sovmestim so starym stekom i gotov k vneshnim integratsiyam.
+Chistyy, predskazuemyy API vtorogo pokoleniya - sovmestim so starym stekom i gotov k vneshnim integratsiyam.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -43,7 +41,7 @@ def problem(status: int, title: str, detail: str) -> JSONResponse:
 
 
 async def _auth(request: Request) -> None:
-    # Verifitsiruem podpis (esli vklyucheno)
+    # Verify the signature (if enabled)
     raw = await request.body()
     ok, prob = verify_headers(request.method, request.url.path, raw, request.headers)
     if not ok:
@@ -57,7 +55,7 @@ async def _auth(request: Request) -> None:
         raise HTTPException(status_code=status, detail=prob)
 
 
-# --------- modeli zaprosov/otvetov (tonkie) ---------
+# --------- request/response models (thin) ---------
 class AssignBody(BaseModel):
     team_id: str
     overrides: Optional[Dict[str, str]] = None

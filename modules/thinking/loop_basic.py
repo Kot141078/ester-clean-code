@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-app — zaschischennyy karkas zapuska Ester.
+"""app - zaschischennyy karkas zapuska Ester.
 
 Iteratsiya U1 + U2:
 - U1: Unicode-safe razbor tel POST (UTF-8/UTF-16/CP1251/BOM).
-- U2: «Remont» mojibake na vykhode iz /mem_boot/qa i /chat_boot/history
+- U2: “Remont” mojibake na vykhode iz /mem_boot/qa i /chat_boot/history
       (i echo iz /mem_boot/remember), bez vtorzheniya v modules.memory.
 
 MOSTY:
-- Yavnyy: Set ↔ Memory — remontiruem vyvod, sokhranyaya API kontrakty.
+- Yavnyy: Set ↔ Memory - remontiruem vyvod, sokhranyaya API kontrakty.
 - Skrytyy #1: Inzheneriya OS ↔ Lingvistika — evristika detekta mojibake.
-- Skrytyy #2: UX ↔ Nadezhnost — dazhe starye korrapt-zapisi chitayutsya «po-lyudski».
+- Skrytyy #2: UX ↔ Nadezhnost — dazhe starye korrapt-zapisi chitayutsya “po-lyudski”.
 
 ZEMNOY ABZATs:
-Esli gluboko v pamyati fayly otkryvayutsya ne v UTF-8, poyavlyayutsya «Ð…Ñ…».
+Esli gluboko v pamyati fayly otkryvayutsya ne v UTF-8, poyavlyayutsya “Ð…Ñ...”.
 My ne perepilivaem vsyu pamyat seychas — myagko lechim vyvod: esli stroka
 vyglyadit kak mojibake, perekodiruem ee v realnuyu kirillitsu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 import json
@@ -110,7 +108,7 @@ def _parse_json_body_safely(environ) -> Dict[str, Any]:
 def _looks_mojibake(s: str) -> bool:
     if not s or not isinstance(s, str):
         return False
-    # evristika: dolya «Ð Ñ �» simvolov i otsutstvie kirillitsy
+    # evristika: dolya “Ð Ñ �” simvolov i otsutstvie kirillitsy
     bad_chars = sum(1 for ch in s if ch in "ÐÑ�")
     cyr = sum(1 for ch in s if "a" <= ch <= "ya" or "A" <= ch <= "Ya" or ch == "E" or ch == "e")
     return bad_chars >= max(3, len(s) // 12) and cyr == 0
@@ -120,18 +118,18 @@ def _repair_mojibake_str(s: str) -> str:
         return s
     if not _looks_mojibake(s):
         return s
-    # Lechim samyy chastyy sluchay: UTF-8 bayty byli prochitany kak latin-1
+    # We treat the most common case: UTF-8 bytes were read as Latin-1
     try:
         return s.encode("latin-1", errors="strict").decode("utf-8", errors="strict")
     except Exception:
-        # zapasnoy: popytatsya cherez cp1252
+        # spare: try through sp1252
         try:
             return s.encode("cp1252", errors="strict").decode("utf-8", errors="strict")
         except Exception:
             return s
 
 def _repair_mojibake(obj: Any) -> Any:
-    # Rekursivno chinim stroki v izvestnykh polyakh
+    # Recursively repairing strings in known fields
     if isinstance(obj, str):
         return _repair_mojibake_str(obj)
     if isinstance(obj, list):
@@ -139,7 +137,7 @@ def _repair_mojibake(obj: Any) -> Any:
     if isinstance(obj, dict):
         fixed = {}
         for k, v in obj.items():
-            if k in ("text", "answer", "meta", "role", "tags"):  # klyuchevye polya
+            if k in ("text", "answer", "meta", "role", "tags"):  # key fields
                 fixed[k] = _repair_mojibake(v)
             elif k in ("contexts", "items"):  # massivy obektov
                 fixed[k] = _repair_mojibake(v)
@@ -154,7 +152,7 @@ def create_app() -> Flask:
     app.config["JSON_SORT_KEYS"] = False
     app.config["ESTER_ROOT"] = str(Path(__file__).resolve().parent)
 
-    # Registratsiya blyuprintov (ne valim protsess pri oshibkakh)
+    # Registration of blueprints (we don’t crash the process if there are errors)
     try:
         from modules.register_all import register_all as _register_all
         _fn = _register_all
@@ -220,7 +218,7 @@ def create_app() -> Flask:
                 "tags": list(data.get("tags", [])),
                 "meta": dict(data.get("meta", {})),
             })
-            # U2: remontiruem echo-sobytie
+            # Yu2: repairing the echo event
             return Response(_safe_json_dumps(_repair_mojibake({"ok": True, "event": e})), mimetype="application/json")
         except Exception as ex:
             _bringup_log("direct_mem_remember failed: " + repr(ex))
@@ -233,7 +231,7 @@ def create_app() -> Flask:
             req = Request(environ)
             q = req.args.get("q", "")
             res = mem_qa(q)
-            # U2: remontiruem otvet (answer + contexts[*].text/…)
+            # Yu2: repairing the answer (answer + context*sch.text/…)
             fixed = _repair_mojibake(res)
             return Response(_safe_json_dumps(fixed), mimetype="application/json")
         except Exception as ex:
@@ -311,7 +309,7 @@ def create_app() -> Flask:
             return Response('{"ok":false}', status=500, mimetype="application/json")
 
     def _direct_chat_history(environ) -> Response:
-        """Poslednie n soobscheniy (role in {user,assistant} s tegom 'chat'). Remont mojibake (U2)."""
+        """Latest messages (role in ZZF0Z with tag xat). Repair of Mozhiwake (Yu2)."""
         try:
             try:
                 from modules.memory import get_store

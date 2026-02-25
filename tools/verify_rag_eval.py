@@ -12,8 +12,8 @@ def _hub_add(text, meta=None):
 
 def main():
     # 0) sidiruem 2-3 dokumenta
-    _hub_add("Ester — offlayn-agent. Ona ispolzuet lokalnyy indeks RAG dlya otvetov.", {"lang":"ru"})
-    _hub_add("RAG otvechaet na voprosy, izvlekaya fragmenty relevantnykh dokumentov.", {"lang":"ru"})
+    _hub_add("Esther is an offline agent. It uses the local RAG index for responses.", {"lang":"ru"})
+    _hub_add("The RAG answers questions by extracting fragments of relevant documents.", {"lang":"ru"})
     _hub_add("The system stores notes and snippets for offline Q&A.", {"lang":"en"})
 
     # 1) sobiraem malenkiy dataset
@@ -22,13 +22,13 @@ def main():
     os.makedirs(os.path.dirname(path), exist_ok=True)
     examples = [
         {"q": "Kto takaya Ester?", "gold": ["Ester — offlayn-agent."]},
-        {"q": "Kak RAG gotovit otvet?", "gold": ["izvlekaya fragmenty relevantnykh dokumentov"]},
+        {"q": "How does the RAG prepare a response?", "gold": ["extracting fragments of relevant documents"]},
     ]
     with open(path, "w", encoding="utf-8") as f:
         for ex in examples:
             f.write(json.dumps(ex, ensure_ascii=False) + "\\n")
 
-    # 2) zapuskaem otsenku
+    # 2) start the assessment
     from modules.rag import eval as ev
     rep = ev.run_file(path, k=3)
     print("report.ok:", rep.get("ok"), "n:", rep.get("n"), "hit@k:", rep.get("hit@k"))

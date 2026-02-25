@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-modules.subconscious.engine — minimalnyy offlayn-dvizhok podsoznaniya (rasshirenie).
-# c=a+b
-"""
+"""modules.subsonsious.engine - minimal offline subconscious engine (extension).
+# c=a+b"""
 from __future__ import annotations
 import os, time, json
 from dataclasses import dataclass, asdict

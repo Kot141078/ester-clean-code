@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_env_routes.py - bezopasnyy runtime-kontrol ENV (whitelist).
+"""routes/admin_env_routes.py - bezopasnyy runtime-kontrol ENV (whitelist).
 
 MOSTY:
 - (Yavnyy) /admin/runtime/env GET/POST - edinaya tochka vklyucheniya "chelovechnogo" tona, sovetnika i dr.
 - (Skrytyy #1) Menyaet tolko whitelisted klyuchi; chast - "zhivye" (vliyayut srazu), chast - potrebuyut restart.
-- (Skrytyy #2) Nichego ne lomaet: eto nadstroyka nad os.environ; suschestvuyuschie moduli chitayut ENV kak i ranshe.
+- (Skrytyy #2) Nothing ne lomaet: eto nadstroyka nad os.environ; suschestvuyuschie moduli chitayut ENV kak i ranshe.
 
 ZEMNOY ABZATs:
-Vklyuchit «chelovechnyy» stil rassylok ili pomenyat rezhim sovetnika bez deploya - pryamo iz brauzera.
+Vklyuchit “chelovechnyy” stil rassylok ili pomenyat rezhim sovetnika bez deploya - pryamo iz brauzera.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, time
@@ -22,10 +20,10 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 router = APIRouter()
 
-# kakie klyuchi pozvoleno menyat cherez UI
+# what keys are allowed to be changed through the user interface?
 WHITELIST = {
     # live - chitayutsya pri kazhdom vyzove → vliyayut srazu
-    "NUDGES_USE_STYLED": {"live": True,  "desc": "Chelovechnyy stil soobscheniy (0/1)"},
+    "NUDGES_USE_STYLED": {"live": True,  "desc": "Human message style (0/1)"},
     "ADVISOR_MODE":      {"live": True,  "desc": "Rezhim sovetnika A(lokalno)/B(delegat)"},
     "ADVISOR_BLEND":     {"live": True,  "desc": "Ves podskazki v overlay (0..1)"},
     "ROLE_CLARIFY_THRESHOLD": {"live": True, "desc":"Porog neuverennosti profilya (0..1)"},

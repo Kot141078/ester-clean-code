@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-Paket selfmanage (shim).
+"""Package self-manage (shim).
 
 MOSTY:
 - Yavnyy: (routes.backup_and_clone ↔ backup_settings) importiruemaya tochka.
-- Skrytyy #1: (Status ↔ Diagnostika) minimum API dostupen.
+- Skrytyy #1: (Status ↔ Diagnostika) minimum API available.
 - Skrytyy #2: (Importer ↔ Nadezhnost) __all__.
 
 ZEMNOY ABZATs:
 Paket suschestvuet, importy prokhodyat.
 
-# c=a+b
-"""
+# c=a+b"""
 from . import backup_settings  # noqa: F401
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 

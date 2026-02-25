@@ -8,5 +8,5 @@ def test_routes_listing_smoke():
     j = r.get_json()
     assert isinstance(j, dict)
     assert "routes" in j and isinstance(j["routes"], list)
-    # v spiske dolzhen byt khotya by odin put
+    # there must be at least one path in the list
     assert len(j["routes"]) > 0

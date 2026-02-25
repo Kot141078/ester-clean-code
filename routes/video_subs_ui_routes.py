@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/video_subs_ui_routes.py — UI-stranitsa /admin/video/subs: CRUD po podpiskam.
+"""routes/video_subs_ui_routes.py - UI-stranitsa /admin/video/subs: CRUD po podpiskam.
 
 Mosty:
-- Yavnyy: (UX v†" Konveyer) R edaktor podpisok ryadom s pultom analiza — operator vidit vkhod Re mozhet im upravlyat.
+- Yavnyy: (UX v†" Konveyer) R edaktor podpisok ryadom s pultom analiza - operator vidit vkhod Re mozhet im upravlyat.
 - Skrytyy #1: (Logika v†" Planirovschik) Tumbler enabled opredelyaet uchastie istochnika v obkhodakh bez perezapuska sistemy.
-- Skrytyy #2: (Inzheneriya v†" Ekspluatatsiya) Minimalnyy chistyy HTML/JS, otdelennyy ot servernoy logiki — prosto podderzhivat.
+- Skrytyy #2: (Inzheneriya v†" Ekspluatatsiya) Minimalnyy chistyy HTML/JS, otdelennyy ot servernoy logiki - prosto podderzhivat.
 
 Zemnoy abzats:
-Eto kak stol dispetchera s reestrom postavschikov: vklyuchit liniyu, vyklyuchit, popravit limity — vse v odnom okne.
+Eto kak stol dispetchera s reestrom postavschikov: vklyuchit liniyu, vyklyuchit, popravit limity - vse v odnom okne.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, render_template

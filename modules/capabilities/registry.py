@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/capabilities/registry.py — samodeklaratsii vozmozhnostey + avtoinventar.
+"""modules/capabilities/registry.py - samodeklaratsii vozmozhnostey + avtoinventar.
 
 Mosty:
-- Yavnyy: (Samosoznanie ↔ UX) spisok «chto ya umeyu» dlya voli/polzovatelya.
-- Skrytyy #1: (Inzheneriya ↔ Inventar) skaniruet routes/* i actions.
-- Skrytyy #2: (Planirovanie ↔ Energiya) mozhno stroit plany ot dostupnykh primitivov.
+- Yavnyy: (Samosoznanie ↔ UX) spisok “what ya umeyu” dlya voli/polzovatelya.
+- Skrytyy #1: (Inzheneriya ↔ Inventar) scaniruet routes/* i actions.
+- Skrytyy #2: (Planirovanie ↔ Energiya) mozhno build plany ot dostupnykh primitivov.
 
 Zemnoy abzats:
-Kak rezyume: deystviya, marshruty i opisaniya — v odnom meste, obnovlyaemo.
+Kak rezyume: deystviya, route i opisaniya - v odnom meste, obnovlyaemo.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, pkgutil, importlib
 from typing import Any, Dict, List

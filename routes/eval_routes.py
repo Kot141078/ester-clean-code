@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/eval_routes.py - REST: spisok i zapusk minimalnykh regress-testov.
+"""routes/eval_routes.py - REST: spisok i zapusk minimalnykh regress-testov.
 
 Mosty:
 - Yavnyy: (Operatsii ↔ Kachestvo) bystryy progon pered opasnymi izmeneniyami.
-- Skrytyy #1: (Kontrol ↔ Prozrachnost) rezultaty v JSON, udobno integrirovat v UI/skripty.
+- Skrytyy #1: (Kontrol ↔ Prozrachnost) resultaty v JSON, udobno integrirovat v UI/skripty.
 - Skrytyy #2: (Vyzhivanie ↔ Otkat) ne proshli - ne deploim.
 
 Zemnoy abzats:
-Pered tem kak krutit «bolshoy rubilnik», ubedis, chto zelenoe - zelenoe.
+Pered tem kak krutit “bolshoy rubilnik”, ubedis, chto zelenoe - zelenoe.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict, List
 from flask import Blueprint, jsonify, request

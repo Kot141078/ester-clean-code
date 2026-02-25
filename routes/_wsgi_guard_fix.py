@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-WSGI-guard s rezhimami otveta i endpointami otladki.
+"""WSGI-guard s rezhimami otveta i endpointami otladki.
 
 Mosty:
-- Yavnyy: WSGI ↔ HTTP — oshibki ne maskiruem 204, vozvraschaem 500 s telom.
+- Yavnyy: WSGI ↔ HTTP - oshibki ne maskiruem 204, vozvraschaem 500 s telom.
 - Skrytyy #1: Otladka ↔ Routing — /_debug/last_error i /_where.
 - Skrytyy #2: Bezopasnost ↔ Logi — redaktiruem potentsialnye sekrety v treysakh.
 
 Zemnoy abzats (inzheneriya):
-Kak zamenit «molchalivyy» avtomat v schite na normalnyy: pri KZ on ne prosto
-obestochivaet liniyu (204), a zazhigaet indikator (500 + tekst) i pishet v zhurnal.
+Kak zamenit “molchalivyy” avtomat v schite na normalnyy: pri KZ on ne prosto
+obestochivaet liniyu (204), a zazhigaet indicator (500 + tekst) i pishet v zhurnal.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 import os, sys, json, traceback, re
 from datetime import datetime
@@ -36,7 +34,7 @@ def _make_guard(original_wsgi: Callable[[Any, Any], Iterable[bytes]]) -> Callabl
         try:
             return original_wsgi(environ, start_response)
         except Exception:
-            # sokhranit posledniy stek
+            # will save the last stack
             _LAST["ts"] = datetime.utcnow().isoformat()+"Z"
             _LAST["path"] = environ.get("PATH_INFO")
             _LAST["exc"] = traceback.format_exc()
@@ -44,7 +42,7 @@ def _make_guard(original_wsgi: Callable[[Any, Any], Iterable[bytes]]) -> Callabl
             print(_redact(_LAST["exc"]), file=sys.stderr, flush=True)
 
             if mode == "silent":
-                # esli ochen nuzhno molchat — no NE 204, a 500 bez tela
+                # if you really need to be silent - but NOT 204, but 500 without a body
                 start_response("500 INTERNAL SERVER ERROR", [("Content-Type","text/plain; charset=utf-8")])
                 return [b""]
 
@@ -60,7 +58,7 @@ def _make_guard(original_wsgi: Callable[[Any, Any], Iterable[bytes]]) -> Callabl
                 start_response("500 INTERNAL SERVER ERROR", headers)
                 return [body]
 
-            # dev (po umolchaniyu): minimalnaya HTML-stranitsa
+            # dev (default): minimal HTML page
             html = f"""<!doctype html><meta charset="utf-8">
 <title>HTTP 500 · Ester</title>
 <style>body{{font:14px/1.45 system-ui,Segoe UI,Roboto,Arial;margin:0;background:#0b1020;color:#e5e7eb}}
@@ -88,7 +86,7 @@ def last_error():
 
 @bp.get("/_where")
 def where():
-    """Pokazat realnuyu konfiguratsiyu prilozheniya i spisok routov."""
+    """Show the actual application configuration and list of routes."""
     app_mod = sys.modules.get("__main__")
     app_file = getattr(app_mod, "__file__", None)
     rules = sorted(r.rule for r in current_app.url_map.iter_rules())
@@ -104,7 +102,7 @@ def where():
     )
 
 def register(app):
-    """Podmenit wsgi_app, esli esche ne podmenen."""
+    """Replace vsgi_app, if not already replaced."""
     if getattr(app, "_ester_guard_patched", False) is False:
         original = app.wsgi_app
         app.wsgi_app = _make_guard(original)

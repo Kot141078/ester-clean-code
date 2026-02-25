@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-Bridges (explicit): Jaynes (proveryay nablyudeniya pered vyvodami) + inzhenernaya otladka (provod/razem/endpoint) -> ne filosofstvuem, meryaem.
+"""Bridges (explicit): Jaynes (proveryay nablyudeniya pered vyvodami) + inzhenernaya otladka (provod/razem/endpoint) -> ne filosofstvuem, meryaem.
 (hidden): Ashby (regulyator dolzhen videt signal), Cover&Thomas (esli kanal podmenen, poluchish "ekho").
-Zemnoy abzats: eto kak podklyuchit manometr k vozdukhu vmesto gidrolinii — pokazaniya budut, a smysla net.
-"""
+Zemnoy abzats: eto kak podklyuchit manometr k vozdukhu vmesto gidrolinii - pokazaniya budut, a smysla net."""
 
 import os
 import sys
@@ -22,7 +20,7 @@ def main():
     print("OPENAI_API_KEY:", mask(key))
     print("OPENAI_BASE_URL/API_BASE:", base_url or "<default>")
 
-    # Esli base_url sluchayno ukazyvaet na localhost — vot tebe i "ekho"
+    # If base_url accidentally points to the localhost, here's an "echo"
     if "127.0.0.1" in base_url or "localhost" in base_url:
         print("[WARN] OpenAI base url points to localhost. This will not hit OpenAI.")
     try:

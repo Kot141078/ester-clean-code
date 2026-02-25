@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/p2p/filter.py — obertka nad Bloom dlya REST: add/check/state.
+"""modules/p2p/filter.py — obertka nad Bloom dlya REST: add/check/state.
 
 Mosty:
 - Yavnyy: (REST ↔ Bloom) konvertiruet zaprosy v prostye operatsii filtra.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Profile ↔ Prozrachnost) mozhno pomechat setevye sobytiya.
 
 Zemnoy abzats:
-Tonkaya prosloyka: «dobavit id» i «proverit id» — vse, chto nuzhno dlya prilichnogo setevogo povedeniya.
+Tonkaya prosloyka: “dobavit id” and “verify id” - vse, chto nuzhno dlya prilichnogo setevogo povedeniya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

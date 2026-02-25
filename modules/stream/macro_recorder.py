@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/stream/macro_recorder.py — makrorekorder «iz zhivogo potoka» → safe-stsenariy.
+"""modules/stream/macro_recorder.py - makrorekorder “iz zhivogo potoka” → safe-stsenariy.
 
-Ideya:
+Ideaya:
 - Arm: podpisyvaemsya logicheski (flag) i nachinaem pisat sobytiya: hotkey, type_char, mouse_move/click.
 - Disarm: ostanavlivaem zapis.
 - Preview: konvertiruem sobytiya v shagi (do) + minimalnye proverki (check) po evristikam.
-- Export safe: dobavlyaem undo (cherez undo_suggester.patch) i vydaem polnotsennyy safe JSON.
+- Export safe: add undo (cherez undo_suggester.patch) i vydaem polnotsennyy safe JSON.
 
 Evristiki:
 - CTRL+S → check: OCR "Save|Save"
 - ALT+F → check: "Fayl|File"
-- mouse_click → check: pustoy (ostavlyaem na polzovatelya), no shag sokhranyaem
+- mouse_click → check: empty (ostavlyaem na polzovatelya), no shag sokhranyaem
 - type_text → check: po fragmentu teksta (pervye 5 simvolov)
 
 MOSTY:
@@ -22,8 +21,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Nikakikh khukov OS — ispolzuem uzhe suschestvuyuschie REST-ruchki i nash flag zapisi.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 from modules.coop.undo_suggester import patch as _patch

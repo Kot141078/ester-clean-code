@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/creator/scriptgen.py — generatsiya stsenariya i storiborda (oflayn shablony).
+"""modules/creator/scriptgen.py - generatsiya stsenariya i storiborda (oflayn shablony).
 
 Mosty:
 - Yavnyy: (Creator ↔ Media) stsenariy → kadry → video.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Uploader ↔ Metadannye) iz stsenariya vyvodim zagolovki/tegi.
 
 Zemnoy abzats:
-Kak tetrad rezhissera: korotkiy «kryuchok», punkty suti i prizyv — gotovyy plan dlya rolika.
+Kak tetrad rezhissera: korotkiy “kryuchok”, punkty suti i prizyv - gotovyy plan dlya rolika.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, math, re
 from typing import List, Dict, Any
@@ -28,9 +26,7 @@ def _passport(note: str, meta: dict):
         pass
 
 def gen_script(topic: str, style: str="shorts", duration: int=60)->Dict[str,Any]:
-    """
-    Vozvraschaet markdown-podobnyy skript s sektsiyami HOOK/POINT/CTA.
-    """
+    """Returns a markdown-like script with HOOK/POINT/STA sections."""
     style=style.lower().strip()
     sec=max(10, min(300, int(duration or 60)))
     points=max(2, min(6, sec//15))
@@ -41,8 +37,8 @@ def gen_script(topic: str, style: str="shorts", duration: int=60)->Dict[str,Any]
     }.get(style, ("HOOK","POINT","CTA"))
     lines=[f"[{tpl[0]}] {topic}: za {sec} sekund."]
     for i in range(1, points+1):
-        lines.append(f"[{tpl[1]}] Shag {i}: klyuchevaya mysl po teme «{topic}».")
-    lines.append(f"[{tpl[2]}] Podpisyvaysya i smotri prodolzhenie.")
+        lines.append(f"YuZF0ZZsch Step ZZF1ZZ: key idea on the topic “ZZF2ZZ”.")
+    lines.append(f"YuZF0ZZsch Subscribe and watch the continuation.")
     script="\n".join(lines)
     path=os.path.join(BASE, f"script_{int(time.time())}.txt")
     open(path,"w",encoding="utf-8").write(script)
@@ -50,9 +46,7 @@ def gen_script(topic: str, style: str="shorts", duration: int=60)->Dict[str,Any]
     return {"ok": True, "script": script, "path": path, "points": points}
 
 def storyboard(script: str, shots: int|None=None)->Dict[str,Any]:
-    """
-    Razbivaem skript na kadry: kazhdyy [TAG] — kadr; esli malo, padadingi do shots.
-    """
+    """We break the script into frames: each YuTAGshch is a frame; if not enough, padding to shots."""
     tags=re.findall(r"\\[(.*?)\\]", script)
     units=[s.strip() for s in re.split(r"\\[.*?\\]", script) if s.strip()]
     frames=[]

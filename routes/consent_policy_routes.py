@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/consent_policy_routes.py - REST+UI dlya policy soglasiy.
+"""routes/consent_policy_routes.py - REST+UI dlya policy soglasiy.
 
 Ruchki:
-  GET  /policy/list
+  GET /policy/list
   POST /policy/upsert {"scope":"hotkey","title":"BankApp","decision":"deny","ttl":0}
   POST /policy/remove {"index":0}
   POST /policy/decide {"scope":"mix_apply","title":"Notepad"} -> {"decision":"allow|deny|ask|pass","ttl"?:int}
-  GET  /admin/policy
+  GET /admin/policy
 
-Integratsiya:
+Integratsia:
 - Pered vyzovami, trebuyuschimi soglasiya, sperva sprashivayte /policy/decide; esli pass - ispolzuyte /consent/request.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.security.consent_policy import list_rules, upsert, remove, decide

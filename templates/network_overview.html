@@ -33,13 +33,13 @@
     <h3>Deystviya</h3>
     <div class="row">
       <button onclick="hello()">Otpravit hello (LAN)</button>
-      <button onclick="inforeq()">Zaprosit info u vsekh</button>
+      <button onclick="inforeq()">Request information from everyone</button>
       <input id="ip" placeholder="IP uzla (opts.)"/>
-      <button onclick="inforeqOne()">Zaprosit info u IP</button>
+      <button onclick="inforeqOne()">Request information from the individual entrepreneur</button>
       <button onclick="pingTask()">task.ping → IP</button>
       <span class="chip"><a href="/admin/lan" style="color:#9aa9bd;text-decoration:none">LAN-nastroyki →</a></span>
       <span class="chip"><a href="/admin/lan/tasks" style="color:#9aa9bd;text-decoration:none">LAN-zadachi →</a></span>
-      <button style="margin-left:auto" onclick="clearCache()">Ochistit info-kesh</button>
+      <button style="margin-left:auto" onclick="clearCache()">Clear info cache</button>
     </div>
   </section>
 
@@ -54,7 +54,7 @@
   </section>
 
   <section>
-    <h3>Poslednie info-otvety</h3>
+    <h3>Latest info answers</h3>
     <table id="info"><thead><tr><th>IP</th><th>Vremya</th><th>Proverka</th><th>AB</th><th>Ocheredi</th><th>Vork.</th><th>Uzel/OS</th></tr></thead><tbody></tbody></table>
   </section>
 

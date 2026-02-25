@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ops/app_capabilities.py — proverka nalichiya prilozheniy i plan ustanovki.
+"""modules/ops/app_capabilities.py - proverka nalichiya prilozheniy i plan ustanovki.
 
 Podderzhka:
-- Windows: ischem ispolnyaemye cherez standartnye puti (Chrome, Notepad, PowerShell i t.p.)
-- Linux: proveryaem cherez which
+- Windows: ischem ispolnyaemye cherez standartnye puti (Chrome, Notepad, PowerShell etc.)
+- Linux: proveryaem through which
 
 Installyatsiya:
-- Plany tolko kak opisanie (oflayn). Ispolnenie — cherez otdelnyy shag: polzovatel ukazyvaet istochnik (put k .exe/.msi/.deb/.rpm),
-  my delaem sistemnyy Start-Process/apt/dpkg/rpm — po zaprosu.
+- Plany tolko kak opisanie (oflayn). Ispolnenie - cherez otdelnyy shag: polzovatel ukazyvaet istochnik (put k .exe/.msi/.deb/.rpm),
+  my delaem sistemnyy Start-Process/apt/dpkg/rpm - by request.
 
 MOSTY:
-- Yavnyy: (Kontekst ↔ Deystvie) esli «pokazhi X», a X net — formiruem volevoy zapros: «ukazhi istochnik, ustanovit?».
+- Yavnyy: (Kontekst ↔ Deystvie) esli “pokazhi X”, a X net - formiruem volevoy zapros: “ukazhi istochnik, ustanovit?”.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) yavnyy plan snizhaet neozhidannosti pri ustanovke.
 - Skrytyy #2: (Arkhitektura ↔ Bezopasnost) deystvie ustanovki gated cherez soglasie "install.*".
 
 ZEMNOY ABZATs:
-Rabotaet tselikom lokalno; ustanovka — tolko s podtverzhdennym putem fayla na diske/lokalnoy seti.
+Rabotaet tselikom lokalno; ustanovka - tolko s podtverzhdennym putem fayla na diske/lokalnoy seti.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, platform, shutil
 from typing import Dict
@@ -59,13 +57,13 @@ def install_plan(app: str) -> Dict[str, str]:
         return {
             "app": app,
             "strategy": "local_installer",
-            "ask": "Ukazhi put k ustanovschiku (EXE/MSI) na diske/lokalke",
+            "ask": "Specify the path to the installer (EXE/MSI) on the disk/local computer",
             "hint": "<PROJECT_ROOT>/Installers/ChromeSetup.exe"
         }
     else:
         return {
             "app": app,
             "strategy": "package_or_local",
-            "ask": "Predpochtenie: paketnyy menedzher (apt/rpm) ili lokalnyy fayl? Ukazhi put/komandu.",
-            "hint": "apt install ./chrome.deb  (ili) dpkg -i ./chrome.deb"
+            "ask": "Prefer: package manager (apt/rpm) or local file? Specify the path/command.",
+            "hint": "apt install ./chrome.deb (or) dpkg -i ./chrome.deb"
         }

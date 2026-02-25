@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/p2p/bloom.py — stabilnyy Bloom-filtr dlya P2P-deDup: lokalnyy + blob-exchange s merge.
+"""modules/p2p/bloom.py - stabilnyy Bloom-filtr dlya P2P-deDup: lokalnyy + blob-exchange s merge.
 
 Mosty:
 - Yavnyy: (P2P ↔ Dedup) test/dobavlenie ID bez dublikatov v set/pamyat.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Mesh/Survival ↔ Rasprostranenie) blob dlya gossip, TTL-reset dlya gigieny.
 
 Zemnoy abzats:
-Eto sito dlya dannykh: dublikaty zastrevayut, svezhie proletayut. Ester khikhikaet: "Moi bity — kak pautina: lovyat povtorki, a idei — na volyu!"
+Eto sito dlya dannykh: dublikaty zastrevayut, svezhie proletayut. Ester khikhikaet: "Moi bity - kak pautina: lovyat povtorki, and idei - na volyu!"
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, math, gzip, base64, hashlib, threading, random
 from typing import Any, Dict, List
@@ -21,7 +19,7 @@ FILE = os.getenv("P2P_BLOOM_FILE", "data/p2p/bloom.bin")
 META_FILE = os.getenv("P2P_BLOOM_META", "data/p2p/bloom_meta.json")
 BITS = int(os.getenv("P2P_BLOOM_BITS", "8388608") or "8388608")  # ~1MB
 HASHES = int(os.getenv("P2P_BLOOM_HASHES", "7") or "7")
-SALT = os.getenv("P2P_BLOOM_SALT", "ester") or f"ester_{random.randint(0, 9999)}"  # Avto-salt esli pustoy
+SALT = os.getenv("P2P_BLOOM_SALT", "ester") or f"ester_{random.randint(0, 9999)}"  # Auto-salt if empty
 RESET_DAYS = int(os.getenv("P2P_BLOOM_RESET_DAYS", "7") or "7")
 
 os.makedirs(os.path.dirname(FILE), exist_ok=True)
@@ -57,7 +55,7 @@ def _save_meta(meta: Dict[str, Any]):
     json.dump(meta, open(META_FILE, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 
 def _load() -> bytearray:
-    meta = _load_meta()  # Obespechivaet reset esli nuzhno
+    meta = _load_meta()  # Provides reset if needed
     if not os.path.isfile(FILE):
         buf = _empty()
         with open(FILE, "wb") as f: f.write(buf)

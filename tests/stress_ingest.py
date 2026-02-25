@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-tests/stress_ingest.py — generator korpusa i nagruzochnyy inzhest s uchetom dedupa.
+"""tests/stress_ingest.py - generator korpusa i nagruzochnyy inzhest s uchetom dedupa.
 
-Naznachenie:
+Name:
   • Sinteticheski sozdaet N dokumentov zadannogo razmera, chast — blizkie dublikaty.
   • Skladyvaet fayly v ./tmp/ingest_gen i podaet v IngestManager (bez vneshnikh zavisimostey).
   • Pechataet metriki: skorost inzhesta (fayly/s), dolyu otbroshennykh dedupom, itog po chankam.
@@ -11,23 +10,22 @@ CLI:
   python tests/stress_ingest.py --docs 200 --size 120000 --dup-rate 0.35 --workers 1
 
 Argumenty:
-  --docs       kolichestvo faylov
-  --size       razmer odnogo fayla (simvolov), ~ ravnomerno
-  --dup-rate   dolya dublikatov (0..1), generiruyutsya per-frazovye perefrazy
-  --workers    skolko potokov obrabotki vyzvat sinkhronno (dlya demonstratsii)
-  --persist    katalog dannykh (po umolchaniyu ./data)
+  --docs kolichestvo faylov
+  --size size odnogo fayla (simvolov), ~ ravnomerno
+  --dup-rate dolya dublikatov (0..1), generiruyutsya per-frazovye perefrazy
+  --workers skolko potokov obrabotki vyzvat sinkhronno (dlya demonstratsii)
+  --persist katalog dannykh (po umolchaniyu ./data)
 
 Zemnoy abzats (inzheneriya):
-Etot skript — «trenazhernyy patron»: proveryaet, kak konveyer vedet sebya pod nepreryvnoy podachey,
-skolko «struzhki» (dubley) otsekaetsya, i ne klinit li mekhanizm.
+This skript - “trenazhernyy patron”: proveryaet, kak konveyer vedet sebya pod nepreryvnoy podachey,
+skolko “struzhki” (dubley) otsekaetsya, i ne klinit li mekhanizm.
 
 Mosty:
 - Yavnyy (Kibernetika ↔ Arkhitektura): nagruzka+obratnaya svyaz metrik pokazyvaet ustoychivost regulyatorov dedupa.
 - Skrytyy 1 (Infoteoriya ↔ Ekonomika): kontroliruemaya dolya dubley izmeryaet ekonomiyu IO/diska ot MinHash.
-- Skrytyy 2 (Anatomiya ↔ PO): kak nagruzochnyy test serdtsa — rastim puls i smotrim, derzhit li sosudistaya sistema.
+- Skrytyy 2 (Anatomiya ↔ PO): kak nagruzochnyy test serdtsa - rastim pulse i smotrim, derzhit li sosudistaya sistema.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse, os, random, string, time, pathlib, json
@@ -46,11 +44,11 @@ def _paragraph(seed: int, target_chars: int) -> str:
         if len(words) % random.randint(8,15) == 0:
             words.append("\n")
     base = " ".join(words)
-    # vstavim «glavy» dlya L1
+    # insert "chapters" for L1
     return ("Glava 1\n" + base[: target_chars//2] + "\nGlava 2\n" + base[target_chars//2 : target_chars])
 
 def _near_dup(text: str) -> str:
-    # legkie perefrazy — sinonimnye zameny/perestanovki: dostatochno dlya MinHash
+    # easy paraphrases - synonymous substitutions/rearrangements: enough for Minnash
     parts = text.split()
     random.shuffle(parts)
     for i in range(0, len(parts), 17):

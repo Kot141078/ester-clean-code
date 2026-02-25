@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.rag.answer — retrieve-then-summarize poverkh modules.rag.hub.
+"""modules.rag.answer - retrieve-then-summarize poverkh modules.rag.hub.
 
 Mosty:
-- Yavnyy: hub.search ↔ llm.broker.complete (esli dostupen).
-- Skrytyy #1: (A/B) ESTER_RAG_ANSWER_AB — A: LLM, B: tolko ekstraktsiya.
+- Yavnyy: hub.search ↔ llm.broker.complete (if available).
+- Skrytyy #1: (A/B) ESTER_RAG_ANSWER_AB - A: LLM, B: tolko ekstraktsiya.
 - Skrytyy #2: (DX ↔ Prozrachnost) — vozvraschaem spisok tsitat (id, score) i ispolzovannyy rezhim.
 
 Zemnoy abzats:
-Prakticheskaya «otvetnaya duga»: berem blizkie fragmenty i kratko pereskazyvaem. Esli sintez nedostupen —
+Prakticheskaya “otvetnaya duga”: berem blizkie fragmenty i kratko pereskazyvaem. Esli sintez nedostupen —
 delaem chestnoe ekstraktivnoe rezyume, chtoby ne molchat.
-# c=a+b
-"""
+# c=a+b"""
 import os, textwrap
 from typing import Dict, Any, List
 from modules.rag import hub
@@ -46,7 +44,7 @@ def _llm_summarize(q: str, ctx: str) -> str | None:
         from modules.llm import broker
         if not hasattr(broker, "complete"):
             return None
-        sys = "Ty kratko i tochno otvechaesh na vopros na osnove privedennykh istochnikov. Esli otveta net v istochnikakh — skazhi ob etom pryamo."
+        sys = "You answer the question briefly and accurately based on the sources provided. If the answer is not in the sources, say so directly."
         prompt = textwrap.dedent(f"""
         [SYSTEM]
         {sys}
@@ -69,9 +67,9 @@ def _llm_summarize(q: str, ctx: str) -> str | None:
         return None
 
 def _extractive(q: str, items: List[Dict[str,Any]]) -> str:
-    # prostaya bezopasnaya vyzhimka bez gallyutsinatsiy
+    # simple safe squeeze without hallucinations
     tops = [f"- #{it.get('id')} ({float(it.get('score',0.0)):.3f}): { (it.get('text') or '').strip()[:200]}" for it in items[:max(1, MAX_SNIPPETS)]]
-    head = "Otvet po istochnikam:"
+    head = "Answer by sources:"
     tail = "refs: " + ", ".join(str(it.get("id")) for it in items[:max(1, MAX_SNIPPETS)])
     return "\n".join([head] + tops + [tail])
 

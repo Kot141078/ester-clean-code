@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/devices/robot_arm.py — adapter manipulyatorov.
+"""modules/synergy/devices/robot_arm.py - adapter manipulyatorov.
 
 MOSTY:
-- (Yavnyy) Perevodit latency/hold_weight_g → kanon; flight_time_min=0 po umolchaniyu.
+- (Yavnyy) Translate latency/hold_weight_g → kanon; flight_time_min=0 po umolchaniyu.
 - (Skrytyy #1) Uchityvaet safe-payload iz profilya pri otsutstvii v pakete.
 - (Skrytyy #2) Granitsy bezopasnosti.
 
 ZEMNOY ABZATs:
-Manipulyator ne avtonomen po vremeni, no ego «peyload» vazhen dlya naznacheniya zadach podem/manipulyatsii.
+Manipulyator ne avtonomen po vremeni, no ego “peyload” vazhen dlya naznacheniya zadach podem/manipulyatsii.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict

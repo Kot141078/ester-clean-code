@@ -1,16 +1,14 @@
 
 # -*- coding: utf-8 -*-
-"""
-modules.storage — most k top-level storage/* libo bezopasnyy FS-stab.
+"""modules.storage - most k top-level storage/* libo bezopasnyy FS-stab.
 Mosty:
-- Yavnyy: (storage.X ↔ storage/X.py) — esli est realnyy modul, otdaem ego.
+- Yavnyy: (storage.X ↔ storage/X.py) - esli est realnyy modul, otdaem ego.
 - Skrytyy #1: (FS ↔ Memory) — minimal FileStore dlya lokalnoy diskovoy zapisi.
-- Skrytyy #2: (DX ↔ Sovmestimost) — odinakovyy interfeys dlya dalneyshego rasshireniya.
+- Skrytyy #2: (DX ↔ Sovmestimost) — odinakovyy interfeys dlya dalneyshego rashirniya.
 
 Zemnoy abzats:
-Khranilische nuzhno seychas, a ne «kogda-nibud». Esli net realnoy realizatsii — daem prostoy FileStore.
-# c=a+b
-"""
+Khranilische nuzhno seychas, a ne “kogda-nibud”. Esli net realnoy realizatsii - daem prostoy FileStore.
+# c=a+b"""
 from __future__ import annotations
 import importlib, os, json, pathlib, hashlib
 from typing import Optional

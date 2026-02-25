@@ -54,7 +54,7 @@ def save_snapshot(path: str, data: Dict[str, Any]) -> None:
     fd, tmp_path = tempfile.mkstemp(prefix=".tmp_mem_", suffix=".json", dir=dir_, text=True)
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
-            # kompaktno: bystree pishet, menshe shans slovit polubityy fayl pri vneshnem ubiystve protsessa
+            # compact: writes faster, less chance of catching a half-broken file when killing a process externally
             json.dump(data, f, ensure_ascii=False)
         os.replace(tmp_path, path)
     finally:

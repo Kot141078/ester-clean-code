@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/garage/projects.py — «garazh» proektov: reestr i prostoy bild (static site / bundle).
+"""modules/garage/projects.py - “garazh” proektov: reestr i prostoy bild (static site/bundle).
 
 Mosty:
-- Yavnyy: (Proekty ↔ Bild) khranit opisanie i stroit artefakty bez vneshnikh zavisimostey.
+- Yavnyy: (Proekty ↔ Bild) khranit opisanie i build artefakty bez vneshnikh zavisimostey.
 - Skrytyy #1: (Workbench/AutoDiscover ↔ Rasshirenie) gotovit fayly, kotorye mozhno srazu registrirovat.
 - Skrytyy #2: (Ledzher ↔ Monetizatsiya) rezultaty mozhno poschitat/vystavit schet v posleduyuschem.
 
 Zemnoy abzats:
-Eto kak mini-stanok ChPU: dal zadanie — poluchil sayt/skript-sborku, kotoruyu mozhno otpravit zakazchiku.
+Eto kak mini-stanok ChPU: dal zadanie - poluchil sayt/skript-sborku, kotoruyu mozhno otpravit zakazchiku.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict, List

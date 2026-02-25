@@ -64,7 +64,7 @@ def test_export_import_neighbors(monkeypatch, tmp_path):
     g = kg.export_all()
     assert len(g["nodes"]) == 3 and len(g["edges"]) == 2
 
-    # dobavim dublikat rebra s bolshim vesom — posle merge dolzhen sokhranitsya max(weight)
+    # add a duplicate edge with a large weight - after merging, max(weight) should be preserved
     g2 = {
         "nodes": g["nodes"],
         "edges": g["edges"]

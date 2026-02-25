@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/synergy_trace_extras.py - REST dlya polucheniya "extras" (sovety+affinnost) k explain-trace orkestratsii.
+"""routes/synergy_trace_extras.py - REST dlya polucheniya "extras" (sovety+affinnost) k explain-trace orkestratsii.
 
 MOSTY:
 - (Yavnyy) POST /synergy/trace/extras → {"advice":[...], "team_bonus":x, "pairwise":{a__b:w}}
-- (Skrytyy #1) Ne vmeshivaetsya v /synergy/assign/v2 - potrebiteli sami reshayut, kak podmeshivat extras v otobrazhenie/reshenie.
+- (Skrytyy #1) Ne vmeshivaetsya v /synergy/assign/v2 - potrebiteli sami decide, kak podmeshivat extras v otobrazhenie/reshenie.
 - (Skrytyy #2) Ispolzuet modules.synergy.advisor i obschie khranilischa roley/grafa, bez zavisimosti ot konkretnoy realizatsii orkestratora.
 
 ZEMNOY ABZATs:
-Mozhno ostavit orkestrator kak est - no pokazyvat operatoru «umnye» podskazki i realnuyu sygrannost komandy, povyshaya doverie i skorost resheniya.
+Mozhno ostavit orkestrator kak est - no pokazyvat operatoru “umnye” podskazki i realnuyu sygrannost komandy, povyshaya doverie i skorost resheniya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List

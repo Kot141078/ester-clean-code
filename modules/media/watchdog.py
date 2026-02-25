@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/media/watchdog.py — votcher papok: nakhodit novye fayly, progonyaet cherez ingest.
+"""modules/media/watchdog.py - votcher papok: nakhodit novye fayly, progonyaet cherez ingest.
 
 Mosty:
-- Yavnyy: (Avtonomiya ↔ Planirovschik) pozvolyaet Ester «samoy» podtyagivat kontent.
-- Skrytyy #1: (Memory ↔ Profile) kazhdoe dobavlenie kladetsya s edinym profileom.
+- Yavnyy: (Avtonomiya ↔ Planirovschik) pozvolyaet Ester “samoy” podtyagivat kontent.
+- Skrytyy #1: (Memory ↔ Profile) kazhdoe addavlenie kladetsya s edinym profileom.
 - Skrytyy #2: (Inzheneriya ↔ Nadezhnost) vedem state.json, chtoby ne dublirovat.
 
 Zemnoy abzats:
-Kak konveyer: polozhil fayl v papku — on razobran i zanesen v pamyat.
+Kak konveyer: polozhil fayl v papku - on razobran i zanesen v pamyat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict, List

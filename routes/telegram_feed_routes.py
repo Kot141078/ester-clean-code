@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/telegram_feed_routes.py - HTML-lenta dialogov Telegram.
+"""routes/telegram_feed_routes.py - HTML-lenta dialogov Telegram.
 
 MOSTY:
-- (Yavnyy) GET /feeds/telegram - chitaet data/messaging/telegram.jsonl i pokazyvaet «kto/chto/kogda».
+- (Yavnyy) GET /feeds/telegram - chitaet data/messaging/telegram.jsonl i pokazyvaet “kto/chto/kogda”.
 - (Skrytyy #1) Esli fayl otsutstvuet - stranitsa pustaya, bez 500.
 - (Skrytyy #2) Podkhvatyvaet zapisi, kotorye drugie moduli mogut pisat v JSONL (drop-in).
 
 ZEMNOY ABZATs:
-Okno nablyudeniya: vidno, kto napisal i chto otvetila Ester, bez vmeshatelstva v messendzher.
+Okno nablyudeniya: vidno, who napisal i chto otvetila Ester, bez vmeshatelstva v messendzher.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from flask import Blueprint, render_template

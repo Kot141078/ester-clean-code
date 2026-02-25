@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/run_morning_digest.py — CLI dlya odnorazovogo zapuska utrennego daydzhesta.
+"""scripts/run_morning_digest.py - CLI dlya odnorazovogo zapuska utrennego daydzhesta.
 
 Primery:
   python scripts/run_morning_digest.py
-  MORNING_HOUR=0 MORNING_WINDOW_MIN=1440 python scripts/run_morning_digest.py  # prinuditelno «v okno»
+  MORNING_HOUR=0 MORNING_WINDOW_MIN=1440 python scripts/run_morning_digest.py # prinuditelno “v window”
 
-Vyvodit JSON s rezultatom (kanal: telegram/email/preview).
-"""
+Vyvodit JSON s resultatom (channel: telegram/email/preview)."""
 from __future__ import annotations
 
 import json

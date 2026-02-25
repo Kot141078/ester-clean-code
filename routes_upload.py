@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-routes/routes_upload.py — zagruzka faylov cherez API dlya ingest/RAG.
+"""routes/routes_upload.py - zagruzka faylov cherez API dlya ingest/RAG.
 
 Endpointy (po umolchaniyu url_prefix="/ingest"):
-- POST /ingest/file   (multipart/form-data, pole "file")
-- GET  /ingest/status?id=...
+- POST /ingest/file (multipart/form-data, pole "file")
+- GET /ingest/status?id=...
 
-Povedenie:
-- Kartinki zaprescheny (deny-list rasshireniy).
-- Limit razmera: MAX_UPLOAD_MB (env, po umolchaniyu 25MB).
+Behavior:
+- Kartinki zaprescheny (deny-list rashirniy).
+- Limit size: MAX_UPLOAD_MB (env, by default 25MB).
 - Esli est app.ingest: submit_file(tmp_path) → {"id": job_id, "status":"QUEUED"}
 - Esli ingest net, no est vstore: chitaem tekst (utf-8 ignore) i kladem v vstore → DONE
 - Esli net ni ingest, ni vstore: sokhranyaem fayl v inbox i vozvraschaem STORED (ne padaem)
 
 Sovmestimost:
 - Signatura register_upload_routes(app, vstore, memory_manager, url_prefix="/ingest") sokhranena
-  (memory_manager poka ispolzuetsya best-effort: mozhno dopolnit, no etot rout ne dolzhen lomatsya
-  iz-za razlichiy versiy).
-"""
+  (memory_manager so far ispolzuetsya best-effort: mozhno dopolnit, no etot rout ne dolzhen lomatsya
+  iz-za razlichiy versiy)."""
 
 import logging
 import os
@@ -32,7 +30,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 log = logging.getLogger(__name__)
 
-# Yavnyy deny-list kartinok
+# Explicit day-sheet of pictures
 IMAGE_DENY = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tif", ".tiff", ".svg"}
 
 # Limit fayla (MB)
@@ -45,21 +43,19 @@ MAX_MB = max(1, MAX_MB)
 
 def _ext_ok(name: str) -> bool:
     ext = os.path.splitext(name)[1].lower()
-    # zapreschaem izobrazheniya, vse ostalnoe propuskaem v konveyer
+    # prohibits images, everything else is passed into the pipeline
     return ext not in IMAGE_DENY
 
 
 def _safe_basename(filename: str) -> str:
-    # Werkzeug uzhe daet chto-to adekvatnoe, no my usilim: vyrezhem puti
+    # Werkzeug already gives something adequate, but we will strengthen it: we will cut out the paths
     return os.path.basename(filename or "").strip() or "file.bin"
 
 
 def _get_file_size_bytes(f) -> Optional[int]:
-    """
-    Nadezhno poluchit razmer fayla iz werkzeug FileStorage.
-    Vozvraschaet None, esli opredelit nevozmozhno.
-    """
-    # 1) content_length (mozhet byt None)
+    """Reliably obtain file size from VerkZeug FileStorage.
+    Returns to None if it cannot be determined."""
+    # 1) content_langth (can be None)
     try:
         cl = getattr(f, "content_length", None)
         if cl is not None:
@@ -82,19 +78,17 @@ def _get_file_size_bytes(f) -> Optional[int]:
 
 
 def _vstore_add_text(vstore, text: str, meta: Dict[str, Any]) -> None:
-    """
-    Best-effort: podderzhivaem raznye signatury add_texts (Chroma-podobnye) ili add.
-    """
+    """Best-effort: supports different add_text signatures (Chroma-like) or add."""
     if vstore is None:
         return
 
-    # add_texts(texts, metadatas=[...]) — samyy chastyy variant
+    # add_text(text, metadata=yu...sch) - the most common option
     if hasattr(vstore, "add_texts") and callable(getattr(vstore, "add_texts")):
         try:
             vstore.add_texts([text], metadatas=[meta])  # type: ignore[attr-defined]
             return
         except TypeError:
-            # nekotorye realizatsii prinimayut meta=
+            # some implementations accept meta=
             vstore.add_texts([text], meta=meta)  # type: ignore[attr-defined]
             return
 
@@ -103,14 +97,12 @@ def _vstore_add_text(vstore, text: str, meta: Dict[str, Any]) -> None:
 
 
 def register_upload_routes(app, vstore, memory_manager, url_prefix: str = "/ingest"):
-    """
-    Realizuet:
-      POST /ingest/file
-      GET  /ingest/status?id=
+    """Implements:
+      POST/ingest/fillet
+      GET /ingest/status?id=
 
-    inbox_dir: gde vremenno skladiruem fayly do obrabotki ingest-menedzherom.
-    """
-    # Esli u vstore est persist_dir — ispolzuem ego; inache cwd.
+    inbox_dir: where it temporarily stores files before processing by the ingest manager."""
+    # If the store has a persistent_dir, we use it; otherwise svd.
     base_dir = getattr(getattr(app, "vstore", None), "persist_dir", None) or os.getcwd()
     inbox_dir = os.path.join(base_dir, "inbox")
     os.makedirs(inbox_dir, exist_ok=True)
@@ -134,7 +126,7 @@ def register_upload_routes(app, vstore, memory_manager, url_prefix: str = "/inge
         if size is not None and size > MAX_MB * 1024 * 1024:
             return jsonify({"ok": False, "error": "too large", "max_mb": MAX_MB}), 413
 
-        # Sokhranyaem vo vremennyy fayl v inbox_dir
+        # Save to a temporary file in inbox_dir
         tmp_name = f"{uuid.uuid4().hex}_{filename}"
         tmp_path = os.path.join(inbox_dir, tmp_name)
 
@@ -151,7 +143,7 @@ def register_upload_routes(app, vstore, memory_manager, url_prefix: str = "/inge
                 job_id = ingest.submit_file(tmp_path)  # type: ignore[attr-defined]
                 return jsonify({"ok": True, "id": job_id, "status": "QUEUED"}), 200
             except Exception as e:
-                # Vazhno: ne teryaem fayl. On uzhe v inbox_dir.
+                # Important: do not lose the file. He's already in inbox_dir.
                 log.exception("ingest.submit_file failed; file kept in inbox")
                 return jsonify(
                     {
@@ -163,7 +155,7 @@ def register_upload_routes(app, vstore, memory_manager, url_prefix: str = "/inge
                     }
                 ), 202
 
-        # vstore fallback: pytaemsya izvlech tekst i srazu proindeksirovat
+        # false in the store: trying to extract the text and immediately index it
         if vstore is not None:
             try:
                 with open(tmp_path, "rb") as rf:
@@ -174,7 +166,7 @@ def register_upload_routes(app, vstore, memory_manager, url_prefix: str = "/inge
                     meta = {"source": filename, "filename": filename, "path": tmp_name}
                     _vstore_add_text(vstore, text, meta)
 
-                    # best-effort: mozhno dobavit v structured pamyat kak «ingest-sled»
+                    # best-effort: can be added to structured memory as an “ingest trace”
                     try:
                         if memory_manager is not None and hasattr(memory_manager, "add_to_medium_term"):
                             memory_manager.add_to_medium_term("*", {"text": text, "tags": ["ingest"], "weight": 0.6})
@@ -189,7 +181,7 @@ def register_upload_routes(app, vstore, memory_manager, url_prefix: str = "/inge
                 log.exception("vstore fallback failed; file kept in inbox")
                 return jsonify({"ok": False, "error": f"fallback_failed: {e}", "status": "STORED"}), 202
 
-        # posledniy variant — prosto sokhranit
+        # the last option is to just save
         return jsonify({"ok": True, "id": "stored", "status": "STORED", "note": "no ingest/vstore; file saved to inbox"}), 200
 
     @app.get(url_prefix + "/status")

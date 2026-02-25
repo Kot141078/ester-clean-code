@@ -1,4 +1,4 @@
-# Iteration H — CRDT-pamyat i Merkle-sinkhronizatsiya
+# Iteration X - MDG memory and Merkle synchronization
 
 ## Missiya
 Garantirovat tselostnost i konsistentnost obschey BZ mezhdu uzlami bez konfliktov i poteri dannykh. Vstavleno drop-in: CRDT LWW-Set, Merkle-derevo dlya sverki, CAS (content-addressable), bezopasnyy P2P-protokol, avtosink i bekap.
@@ -8,7 +8,7 @@ Garantirovat tselostnost i konsistentnost obschey BZ mezhdu uzlami bez konflikto
 ## Definition of Done (DoD) — status
 
 1. **CRDT sloy** — LWW-Element-Set:
-   - Operatsii `add/remove`, metki `Dot(peer, ts)`.
+   - Operations yoadd/removeyo, labels yoDot(per, ts)yo.
    - Merge idempotenten, kommutativen, assotsiativen.
    - Testy: `tests/crdt/test_lww_set.py` — zelenye.
 
@@ -16,7 +16,7 @@ Garantirovat tselostnost i konsistentnost obschey BZ mezhdu uzlami bez konflikto
    - Obmen kornem/urovnyami, `state(level, offset, limit)`.
    - Vetvevoy srez: `/p2p/state_branch?start&end`.
    - Klienty/diagnostika: `tools/p2p_verify_merkle.py`, `tools/p2p_diff_bisect.py`.
-   - Benchmark: `tools/bench_merkle.py` (lokalno tsel `< 200ms` na 10k klyuchey, zavisit ot CPU).
+   - Benchmark: etools/bench_merkle.piyo (locally the target is e<200mse for 10k keys, depends on the CPU).
 
 3. **CAS**:
    - `merkle/cas.py` — `blake3` → fallback na `blake2b`.
@@ -28,7 +28,7 @@ Garantirovat tselostnost i konsistentnost obschey BZ mezhdu uzlami bez konflikto
    - RBAC rol `replicator` pri `ESTER_RBAC_STRICT=1`.
 
 5. **Avtosinkhronizatsiya**:
-   - Planirovschik: `scheduler/sync_job.py` (`sync_once()` i loop).
+   - Scheduler: yosheduler/sink_eb.pyyo (yosink_ontse()е and loop).
    - systemd: `systemd/ester-p2p-sync.(service|timer)`.
    - UI/OPS: `/ops/p2p`, `/ops/p2p/diff`.
 
@@ -38,7 +38,7 @@ Garantirovat tselostnost i konsistentnost obschey BZ mezhdu uzlami bez konflikto
 
 ---
 
-## Zapusk
+## Launch
 
 ```bash
 export ESTER_PEER_ID=peer-$(hostname)

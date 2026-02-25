@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 
-"""
-routes/ester_autonomy_routes_alias.py
+"""routes/ester_autonomy_routes_alias.py
 
 GET /ester/autonomy/map
 
-Naznachenie:
+Name:
 - Dat svodnuyu kartinu avtonomii i zaschit Ester:
   - kakie A/B-flagi aktivny;
   - kakie zaschitnye/statusnye moduli podklyucheny.
 
-Invarianty:
-- Tolko chtenie.
-- Ne menyaet povedenie voli, kaskada, pamyati ili setevykh moduley.
+Invariance:
+- Just read.
+- Ne menyaet povedenie voli, kaskada, pamyati or setevykh moduley.
 - Bez vneshnikh zaprosov.
 
 Mosty:
@@ -21,9 +20,8 @@ Mosty:
 - Skrytyy #2: Karta ↔ operator (Owner) dlya bystroy verifikatsii “vse podchineno Ester”.
 
 Zemnoy abzats:
-Kak skhema elektroprovodki s pometkami avtomatov: vidno, chto gde zaschischeno,
-no sami avtomaty schelkaesh rukami.
-"""
+How skhema elektroprovodki s pometkami avtomatov: vidno, what where zaschischeno,
+no sami avtomaty schelkaesh rukami."""
 
 from __future__ import annotations
 

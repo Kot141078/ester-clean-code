@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/selfmanage/playbooks.py — «garazh» samovosstanovleniya.
+"""modules/selfmanage/playbooks.py - “garazh” samovosstanovleniya.
 
 MOSTY:
 - (Yavnyy) Playbook: spisok shagov (callable) s otchetom; vstroennye: recover-db, restart-telemetry, rotate-plan-cache.
-- (Skrytyy #1) Bezopasnye shagi — ne menyayut kontrakty; rollback ne trebuetsya (idempotentnye protsedury).
+- (Skrytyy #1) Bezopasnye shagi - ne menyayut kontrakty; rollback ne trebuetsya (idempotentnye protsedury).
 - (Skrytyy #2) Myagkaya integratsiya: mozhno vyzyvat iz admin-UI/CLI bez perezapuska protsessa.
 
 ZEMNOY ABZATs:
-Kogda «chto-to poshlo ne tak» — zapuskaem zaranee prigotovlennyy stsenariy: osvezhit konnekty, ochistit kesh, pnut adaptery.
+Kogda “something poshlo ne tak” - zapuskaem zaranee prigotovlennyy stsenariy: osvezhit konnekty, ochistit kesh, pnut adaptery.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -84,10 +82,10 @@ class Garage:
             return _fail("cache:write", int((time.monotonic() - t0) * 1000), reason=str(e))
 
     def _telemetry_ping(self) -> HealthStatus:
-        # Zdes mozhet byt vyzov k adapteram; ostavim legkiy ping
+        # There may be a call to adapters here; let's leave a light ping
         t0 = time.monotonic()
         try:
-            # Nichego ne delaem — podrazumevaetsya vneshnyaya sistema
+            # We do nothing - an external system is implied
             return _ok("telemetry:ping", int((time.monotonic() - t0) * 1000))
         except Exception as e:
             return _fail("telemetry:ping", int((time.monotonic() - t0) * 1000), reason=str(e))

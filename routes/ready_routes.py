@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-routes/ready_routes.py — /live i /ready (zhivuchest i gotovnost servisa).
+"""routes/ready_routes.py - /live i /ready (zhivuchest i gotovnost servisa).
 
-/live  → vsegda 200, esli protsess otvechaet.
-/ready → 200, kogda kritichnye zavisimosti v poryadke; inache 503.
+/live → vsegda 200, esli protsess otvechaet.
+/ready → 200, when kritichnye zavisimosti v poryadke; inache 503.
 
 MOSTY:
-- Yavnyy: Observability ↔ Runtime — odno mesto dlya liveness/readiness.
+- Yavnyy: Observability ↔ Runtime — one place dlya liveness/readiness.
 - Skrytyy #1: ENV ↔ Povedenie — ESTER_BACKUP_MAX_AGE_H/… upravlyayut proverkami bez pravki koda.
-- Skrytyy #2: Backup ↔ Khranilische — chitaem mtime fayla «poslednego uspeshnogo bekapa» kak SLI.
+- Skrytyy #2: Backup ↔ Khranilische — chitaem mtime fayla “poslednego uspeshnogo bekapa” kak SLI.
 
 ZEMNOY ABZATs (inzheneriya):
-Bag «UnboundLocalError: local variable 'os' referenced before assignment» voznik iz-za
-lokalnogo `import os` VNUTRI funktsii, gde `os` ispolzuetsya DO importa. V Python eto
-prevraschaet `os` v lokalnuyu peremennuyu na vsyu funktsiyu. Fiks — importiruem os/time na
+Bag "UnboundLocalError: local variable 'os' referenced before assignment" voznik iz-za
+lokalnogo `import os` VNUTRI funktsii, where `os` ispolzuetsya DO importa. V Python eto
+prevraschaet `os` v lokalnuyu peremennuyu na vsyu funktsiyu. Fiks - import os/time na
 urovne modulya i ne pereopredelyaem ikh v funktsiyakh. Takzhe garantiruem vozvrat otveta iz /ready.
-# c=a+b
-"""
+# c=a+b"""
 import os
 import time
 import base64
@@ -59,10 +57,8 @@ def _check_secrets() -> Tuple[bool, str]:
 
 
 def _check_backup_freshness() -> Tuple[bool, str]:
-    """
-    Proveryaem, chto time_since(last_success) <= ESTER_BACKUP_MAX_AGE_H.
-    Esli peremennaya ne zadana ili <=0 — proverku propuskaem.
-    """
+    """We check that time_synce(last_success) <= ESTER_BACHKUP_MAX_AGE_X.
+    If the variable is not set or <=0, we skip the check."""
     try:
         max_h = int((os.getenv("ESTER_BACKUP_MAX_AGE_H") or "0").strip() or "0")
     except Exception:
@@ -82,9 +78,7 @@ def _check_backup_freshness() -> Tuple[bool, str]:
 
 
 def _check_feature_flags() -> Tuple[bool, str]:
-    """
-    Zagruzhaem YAML pri nalichii PyYAML; esli fayla net — propuskaem, esli YAML bityy — oshibka.
-    """
+    """We load the YML if there is a PYML; if there is no file, we skip it; if the YML is broken, it’s an error."""
     path = (os.getenv("ESTER_FEATURE_FLAGS") or "config/feature_flags.yaml").strip()
     if not os.path.exists(path):
         return True, "skip"

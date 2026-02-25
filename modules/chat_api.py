@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/chat_api.py — REST-vkhod dlya chata (vnutri proekta Ester/Liah)
+"""modules/chat_api.py - REST-vkhod dlya chata (vnutri proekta Ester/Liah)
 
 Zadacha fayla: dat edinyy HTTP endpoint, kotoryy:
 - sobiraet sistemnyy prompt (profile + tekuschee vremya + RAG-fragmenty),
@@ -8,20 +7,19 @@ Zadacha fayla: dat edinyy HTTP endpoint, kotoryy:
 - vyzyvaet lokalnyy OpenAI-compatible endpoint (LM Studio / Ollama OpenAI / vLLM),
 - vozvraschaet otvet i (po vozmozhnosti) podpis provaydera.
 
-YaVNYY MOST: c=a+b — chelovek zadaet vopros, LLM-protsedury derzhat formu (limiter/pamyat/vremya).
+YaVNYY MOST: c=a+b - chelovek zadaet vopros, LLM-protsedury derzhat formu (limiter/pamyat/vremya).
 SKRYTYE MOSTY:
-  - Ashby: variety — rezhem shum, no ostavlyaem raznoobrazie (istoriya+RAG) v dopustimykh granitsakh.
-  - Cover&Thomas: ogranichenie kanala — byudzhetiruem kontekst/tokeny, inache kanal «zabivaetsya».
+  - Ashby: variety - rezhem noise, no ostavlyaem raznoobrazie (istoriya+RAG) v dopustimykh granitsakh.
+  - Cover&Thomas: ogranichenie kanala - byudzhetiruem kontekst/tokeny, inache kanal “zabivaetsya”.
 ZEMNOY ABZATs:
-  Kontekst — kak obem legkikh: vdokhnut mozhno mnogo, no esli pytatsya vdokhnut «vse srazu»,
-  nachinaetsya kashel (truncation/oshibka). Limiter — eto diafragma: doziruet vozdukh, chtoby zhit.
+  Kontekst - kak obem legkikh: vdokhnut mozhno mnogo, no esli pytatsya vdokhnut “vse srazu”,
+  nachinaetsya kashel (truncation/oshibka). Limiter - eto diaphragma: doziruet vozdukh, chtoby zhit.
 
 PATCh 2026-02-09 (v2):
-  - SYSTEM_PROMPT zamenen na identity_anchor.build_system_prompt()
+  - SYSTEM_PROMPT replaced with identity_anchor.build_system_prompt()
   - Profile chitaetsya cherez identity_anchor.load_passport()
   - HARD_PROMPT_CHARS podnyat do 24000
-  - Ubran random-fallback iz recall (teper pustaya pamyat = chestnoe «Pusto»)
-"""
+  - Ubran random-fallback iz recall (teper pustaya pamyat = chestnoe “Empty”)"""
 
 from __future__ import annotations
 
@@ -41,7 +39,7 @@ import requests
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# --- PATCh: import edinogo yakorya identichnosti ---
+# --- Patch: import single identity anchor ---
 try:
     from modules.identity_anchor import (
         build_system_prompt,
@@ -60,14 +58,14 @@ bp = Blueprint("chat_api", __name__)
 LMSTUDIO_URL = os.getenv("LMSTUDIO_URL", "http://127.0.0.1:1234/v1/chat/completions").strip()
 TIMEOUT = float(os.getenv("REST_TIMEOUT", "120"))
 
-# LEGACY fallback — ispolzuetsya TOLKO esli identity_anchor nedostupen
+# LEGACY false - used ONLY if identites_ankhor is not available
 _LEGACY_SYSTEM_PROMPT = os.getenv(
     "REST_SYSTEM_PROMPT",
     (
         "You are the configured digital entity. Owner profile is provided by Web UI.\n"
         "Otvechay po-russki, teplo i po delu.\n"
-        "Esli ne pomnish — skazhi chestno, NE VYDUMYVAY.\n"
-        "Ne obrezay otvet, pishi do kontsa."
+        "If you don’t remember, tell me honestly, DON’T MAKE IT UP."
+        "Don't cut off the answer, food to the end."
     ),
 )
 
@@ -76,15 +74,15 @@ MAX_HISTORY_CHARS = int(os.getenv("REST_MAX_HISTORY_CHARS", "30000"))
 PASSPORT_MAX_CHARS = int(os.getenv("REST_PASSPORT_MAX_CHARS", "30000"))
 RAG_MAX_CHARS = int(os.getenv("REST_RAG_MAX_CHARS", "30000"))
 
-# Zhestkiy obschiy limit na SUMMARNYY prompt (system+history+user).
-# PATCh: podnyat s 12000 do 24000 — inache Ester zadykhaetsya.
+# Hard overall limit on TOTAL prompt (system+history+user).
+# Patch: raise from 12000 to 24000 - otherwise Esther will suffocate.
 HARD_PROMPT_CHARS = int(os.getenv("REST_HARD_PROMPT_CHARS", "35000"))
 
 PASSPORT_PATH = os.getenv("REST_PASSPORT_PATH", os.path.join("data", "passport", "passport.txt"))
 RAG_CONTEXT_PATH = os.getenv("REST_RAG_CONTEXT_PATH", os.path.join("data", "passport", "rag_context.txt"))
 CLEAN_MEMORY_PATH = os.getenv("REST_CLEAN_MEMORY_PATH", os.path.join("data", "passport", "clean_memory.jsonl"))
 
-# CLOSED_BOX (po umolchaniyu True — kak u tebya)
+# CLOSED_BOX (default Three - like yours)
 CLOSED_BOX = os.getenv("CLOSED_BOX", "1").strip() in ("1", "true", "yes", "True")
 
 HEADERS = {"Content-Type": "application/json"}
@@ -112,9 +110,8 @@ def _format_time_for_prompt() -> str:
 
 
 def _trim_history(messages: List[Dict[str, str]], max_chars: int) -> List[Dict[str, str]]:
-    """Obrezaem istoriyu po simvolam (bystro i predskazuemo).
-    Sokhranyaem system i poslednie soobscheniya, poka ne vlezem v byudzhet.
-    """
+    """We cut the story by characters (quickly and predictably).
+    We save systems and the latest messages until it fits into the budget."""
     if not messages:
         return []
 
@@ -287,11 +284,9 @@ def _build_system_prompt_full(
     passport_max: int = PASSPORT_MAX_CHARS,
     rag_max: int = RAG_MAX_CHARS,
 ) -> str:
-    """
-    Sobiraet system prompt.
-    Esli identity_anchor dostupen — cherez nego (polnaya identichnost).
-    Inache — legacy (obednennyy, no uzhe ne golaya stroka).
-    """
+    """Collects system prompts.
+    If identity_ankhor is available - through it (full identity).
+    Otherwise - legacy (depleted, but no longer a bare string)."""
     passport = ""
     rag = ""
 
@@ -309,13 +304,13 @@ def _build_system_prompt_full(
             closed_box=CLOSED_BOX,
         )
 
-    # --- LEGACY fallback (esli identity_anchor ne importirovan) ---
+    # --- LEGACY false (if identites_ankhor is not imported) ---
     human_t = _format_time_for_prompt()
     sys_prompt = _LEGACY_SYSTEM_PROMPT
     if passport:
         sys_prompt += "\n\n[PASPORT]\n" + passport + "\n"
-    sys_prompt += f"\n\n[SYSTEM REALTIME]\nData/vremya (UTC): {human_t}\n"
-    sys_prompt += "VAZhNO: vremya i datu brat TOLKO iz stroki vyshe.\n"
+    sys_prompt += f"uSYSTEM REALTIMEsch\nDate/time (UTS): ZZF0Z"
+    sys_prompt += "Important: take the time and date ONLY from the line above."
     if rag:
         sys_prompt += "\n[PAMYaT]\n" + rag + "\n"
     else:
@@ -356,14 +351,13 @@ def _build_messages_for_llm(
 
 
 def _enforce_hard_budget(messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
-    """Garantiruet, chto summarnyy prompt ne razduetsya.
-    Esli slishkom bolshoy — rezhem istoriyu, zatem umenshaem profile/rag.
-    """
+    """Ensures that the total prompt does not inflate.
+    If it’s too big, we cut the story, then reduce the profile/rags."""
     total = _messages_total_chars(messages)
     if total <= HARD_PROMPT_CHARS:
         return messages
 
-    # 1) Snachala rezhem istoriyu silnee (v 2 raza)
+    # 1) First, we cut the story harder (2 times)
     sys = messages[0] if messages and messages[0].get("role") == "system" else None
     tail = messages[1:] if sys else messages[:]
     user_msg = tail[-1] if tail else {"role": "user", "content": ""}
@@ -384,7 +378,7 @@ def _enforce_hard_budget(messages: List[Dict[str, str]]) -> List[Dict[str, str]]
     if _messages_total_chars(msgs3) <= HARD_PROMPT_CHARS:
         return msgs3
 
-    # 3) Posledniy shag — sovsem zhestko
+    # 3) The last step is very tough
     sys3 = _shrink_system_prompt_v2(
         passport_keep=800,
         rag_keep=400,
@@ -394,25 +388,24 @@ def _enforce_hard_budget(messages: List[Dict[str, str]]) -> List[Dict[str, str]]
     return msgs4
 
 
-# ---------- Publichnaya funktsiya dlya vyzova iz run_ester_fixed.py (bez HTTP) ----------
+# ---------- Public function for calling from run_ester_fixed.po (without HTTP) ----------
 def handle_message(
     text: str,
     history: Optional[List[Dict[str, str]]] = None,
     engine: Optional[str] = None,
     temperature: Optional[float] = None,
 ) -> Dict[str, Any]:
-    """Lokalnyy obrabotchik soobscheniya.
-    Vozvraschaet dict: {ok, reply, provider, engine}
-    """
+    """Local message handler.
+    Returns dist: ZZF0Z"""
     message = (text or "").strip()
     if not message:
         return {"ok": False, "error": "empty message"}
 
-    # "ruchnoy rychag"
-    if message.lower() in ("sozhmi istoriyu", "/compress", "/compact"):
+    # "hand lever"
+    if message.lower() in ("compress the story", "/compress", "/compact"):
         return {
             "ok": True,
-            "reply": "Ok. Dalshe budu rezat istoriyu i sistemnye vstavki zhestche. Teper sprosi esche raz koroche.",
+            "reply": "OK. Next I will cut the history and system inserts more harshly. Now ask again briefly.",
             "provider": "SYSTEM",
             "engine": engine or os.getenv("REST_ENGINE", "local-model"),
         }
@@ -422,7 +415,7 @@ def handle_message(
 
     hist = history if isinstance(history, list) else []
 
-    # 1) sobiraem soobscheniya
+    # 1) collect messages
     messages = _build_messages_for_llm(
         message,
         hist,
@@ -435,7 +428,7 @@ def handle_message(
     # 2) osnovnoy vyzov
     answer, err = _call_llm(model, messages, temperature=temp)
 
-    # 3) retry pri yavnom overflow
+    # 3) retro with obvious overflow
     if (not answer) and err and _looks_like_context_overflow(err):
         logging.warning(f"[chat_api] overflow -> retry: {err}")
         messages2 = _build_messages_for_llm(
@@ -451,11 +444,11 @@ def handle_message(
     if not answer:
         logging.warning(f"[chat_api] LLM error: {err}")
         answer = (
-            "Izvini, ya ne smogla otvetit: libo kontekst slishkom bolshoy, libo provayder dal sboy.\n"
+            "Sorry, I couldn't answer: either the context is too large, or the provider crashed."
             "Sdelay tak:\n"
             "1) Pereformuliruy koroche, ili\n"
-            "2) napishi: «sozhmi istoriyu», ili\n"
-            "3) prover, chto lokalnaya model dostupna (LM Studio/Ollama endpoint)."
+            "2) write: “compress the story”, or"
+            "3) check that the local model is available (LM Studio/Ollama endpoint)."
         )
         provider = "ERROR"
     else:
@@ -555,10 +548,8 @@ def register(app):
 
 # ----------------------------- Telegram async wrapper -----------------------------
 async def handle_message_telegram(update, context):
-    """
-    Async wrapper dlya Telegram.
-    Izvlekaet tekst iz update i vyzyvaet handle_message.
-    """
+    """Asins wrapper for Telegram.
+    Retrieves text from update and calls handle_message."""
     from telegram import Update
     from telegram.ext import ContextTypes
     import asyncio

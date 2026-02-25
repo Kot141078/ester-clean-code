@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/usb_pkg_scanner.py — fonovyy skaner USB-paketov (optsionalno, po ENV).
+"""listeners/usb_pkg_scanner.py - fonovyy scanner USB-paketov (optsionalno, po ENV).
 
-Povedenie:
-  • Raz v PKG_SCAN_INTERVAL sekund skaniruet vse USB toma (modules.usb.recovery.list_usb_targets).
+Behavior:
+  • Raz v PKG_SCAN_INTERVAL sekund scaniruet vse USB toma (modules.usb.recovery.list_usb_targets).
   • Ischet ZIP v ESTER/packages/, logiruet kolichestvo.
-  • Esli PKG_AUTO_IMPORT=1 i PKG_IMPORTER_ENABLE=1 — pytaetsya verify+import (mode=merge).
-  • Bezopasnost: pri lyubom sboe — tolko log, bez padeniya protsessa.
+  • Esli PKG_AUTO_IMPORT=1 i PKG_IMPORTER_ENABLE=1 - pytaetsya verify+import (mode=merge).
+  • Bezopasnost: pri lyubom sboe - tolko log, bez padeniya protsessa.
 
 AB: odinakovo bezopasen v A/B (auto-import vypolnitsya tolko v B).
 
@@ -16,10 +15,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): vyklyucheno po umolchaniyu; offlayn i drop-in.
 
 Zemnoy abzats:
-Eto «dezhurnyy priemschik»: uvidel paket na fleshke — proveril plombu i mozhet akkuratno prinyat (esli razresheno).
+Eto "dezhurnyy priemschik": uvidel paket na fleshke - proveril plombu i mozhet akkuratno prinyat (esli razresheno).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, os, time
 from modules.usb.recovery import list_usb_targets  # type: ignore

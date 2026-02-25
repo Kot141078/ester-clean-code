@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/selfevo/forge.py — «kuznitsa» samoevolyutsii: shablony moduley, A/B-slot, dryrun/apply, zhurnal.
+"""modules/selfevo/forge.py - “kuznitsa” samoevolyutsii: shablony moduley, A/B-slot, dryrun/apply, zhurnal.
 
 Mosty:
 - Yavnyy: (Volya ↔ FS) bezopasnoe sozdanie novykh moduley v razreshennykh katalogakh.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Registrator ↔ Zhiznennyy tsikl) po zhelaniyu srazu importiruetsya i registriruetsya v prilozhenii.
 
 Zemnoy abzats:
-Eto kak oborudovannyy «garazh»: s shablonami, svetoforami i zhurnalom — chtoby rasti bez khaosa i polomok.
+Eto kak oborudovannyy “garazh”: s shablonami, svetoforami i zhurnalom - chtoby rasti bez khaosa i polomok.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hashlib, textwrap
 from typing import Any, Dict
@@ -104,7 +102,7 @@ def _tpl(kind: str, name: str, desc: str, export: str)->str:
             return jsonify({{"ok": True, "msg": msg, "slot": A_SLOT}})
         # c=a+b
         """)
-    # inye vidy mozhno dobavit pri razvitii
+    # other types can be added during development
 # return f"# {name} — placeholder\n# c=a+b\n"
 
 def dryrun(path: str, kind: str, name: str, desc: str, export: str)->Dict[str,Any]:
@@ -125,7 +123,7 @@ def apply(path: str, code: str, register_after: bool=False)->Dict[str,Any]:
     if not _allowed(path): return {"ok": False, "error":"path_not_allowed"}
     if os.getenv("SELF_EVO_ALLOW_WRITE","false").lower()!="true": return {"ok": False, "error":"write_forbidden_env"}
     if os.environ.get("X_CHANGE_APPROVAL","").lower()!="yes":
-        # alternativnyy kanal — zagolovok v route; zdes podderzhka ENV dlya CLI
+        # alternative channel - header in the route; here is ENV support for SLI
         pass
 
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -141,14 +139,14 @@ def apply(path: str, code: str, register_after: bool=False)->Dict[str,Any]:
     except Exception:
         pass
 
-    # optsionalnaya registratsiya (esli est /app/discover/register)
+    # optional registration (if available /app/discover/register)
     ok_reg=False
     if register_after and path.endswith(".py"):
         modname = path.replace("/",".").replace("\\",".").rstrip(".py")
         if modname.endswith(".py"): modname=modname[:-3]
         try:
             import importlib; m=importlib.import_module(modname)
-            # esli eto rout — vyzvat register(current_app)
+            # if this is a route, call register(current_app)
             from flask import current_app
             if hasattr(m, "register"):
                 m.register(current_app)  # type: ignore

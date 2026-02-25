@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# S0/scripts/smoke_http_s0.sh — HTTP-smouk dlya *nix
-# Mosty: (Yavnyy) Enderton — proverki kak predikaty; (Skrytye) Ashbi — regulyator prosche sistemy; Cover&Thomas — minimizatsiya "shuma" konfiguratsii cherez selfcheck.
-# Zemnoy abzats: obertka, ne trogaet rantaym. Proverki bezopasny k otsutstviyu servisa (myagkoe zavershenie).
+# S0/scripts/smoke_http_s0.sh - HTTP-smouk dlya *nix
+# Mosty: (Yavnyy) Enderton — proverki kak predikaty; (Skrytye) Ashbi - regulyator prosche sistemy; Cover&Thomas — minimizatsiya "shuma" konfiguratsii cherez selfcheck.
+# Earthly paragraph: wrapper, does not touch runtime. Checks are safe to the absence of service (soft termination).
 # c=a+b
 
 set -euo pipefail

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-routes/rulehub_export_routes.py - Eksport zhurnala RuleHub v NDJSON/CSV.
+"""routes/rulehub_export_routes.py - Eksport zhurnala RuleHub v NDJSON/CSV.
 
-Endpointy:
+Endpoint:
   • GET /rulehub/export.ndjson?limit=N&status=ok|err|blocked
   • GET /rulehub/export.csv?limit=N&status=...
 
@@ -12,10 +11,9 @@ Mosty:
 - Skrytyy #2: (Infoteoriya ↔ Diagnostika) filtratsiya po statusu dlya bystrogo triage.
 
 Zemnoy abzats:
-Eto «lyuk dlya revizorov»: otkryl - vygruzil zhurnal pachkoy, pones v analiz.
+This is “lyuk dlya revizorov”: otkryl - vygruzil zhurnal pachkoy, pones v analiz.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, Response, request, current_app

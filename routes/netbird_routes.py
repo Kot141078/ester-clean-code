@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/netbird_routes.py — sluzhebnye proverki dostupnosti Ester po overleynoy seti (NetBird/Tailscale/Re pr.).
+"""routes/netbird_routes.py - sluzhebnye proverki dostupnosti Ester po overleynoy seti (NetBird/Tailscale/Re pr.).
 
-Prefiks: /ops
+Prefixes: /ops
 
-R uchki:
+Ruchki:
   GET /ops/netbird-check
       Klyuchi:
-        ?target=IP:port        — tsel TCP-podklyucheniya (po umolchaniyu iz ENV NETBIRD_CHECK_TARGET)
-        ?path=/healthz         — HTTP-put dlya zaprosa k NETBIRD_OVERLAY_BASE (esli zadan)
-      Otvet:
+        ?target=IP:port - tsel TCP-podklyucheniya (po umolchaniyu iz ENV NETBIRD_CHECK_TARGET)
+        ?path=/healthz — HTTP-put dlya zaprosa k NETBIRD_OVERLAY_BASE (esli zadan)
+      Answer:
         {
           "ok": true/false,
           "tcp": {"target":"100.64.0.2:8080","ok":true,"err":""},
@@ -24,22 +23,21 @@ R uchki:
 Ogranichenie dostupa: tolko lokalnaya set (127.0.0.1/::1/192.168.*), chtoby ne raskryvat topologiyu vovne.
 
 ENV:
-  NETBIRD_ENABLED=1                    — vklyuchaet smyslovye proverki (ne prepyatstvuet dostupu k endpoyntam)
+  NETBIRD_ENABLED=1 — vklyuchaet smyslovye proverki (ne prepyatstvuet dostupu k endpoyntam)
   NETBIRD_CHECK_TARGET=100.64.0.2:8080 — TCP-tsel po umolchaniyu
-  NETBIRD_OVERLAY_BASE=http://100.64.0.2:8080  — bazovyy URL Ester po overleyu; pri nalichii dergaem /healthz (ili ?path=)
-  NETBIRD_HTTP_TIMEOUT=2               — taymaut HTTP/TCP (sek)
+  NETBIRD_OVERLAY_BASE=http://100.64.0.2:8080 - bazovyy URL Ester po overleyu; pri nalichii dergaem /healthz (ili ?path=)
+  NETBIRD_HTTP_TIMEOUT=2 — taymaut HTTP/TCP (sek)
 
 Zemnoy abzats (inzheneriya):
-Eto «tester linii»: korotkaya proverka, chto overleynyy interfeys zhiv (viden), TCP do tseli ustanavlivaetsya, a HTTP-uzel otvechaet.
-R abotaet bez vneshnikh zavisimostey, chitaet /proc/net/dev kak «indikator nalichiya» interfeysa (wg0/wt0/netbird0 Re pr.).
+This is “tester linii”: korotkaya proverka, what overleynyy interfeys zhiv (viden), TCP do tseli ustanavlivaetsya, and HTTP-uzel otvechaet.
+R abotaet bez vneshnikh zavisimostey, chitaet /proc/net/dev kak “indikator nalichiya” interfeysa (wg0/wt0/netbird0 Re pr.).
 
 Mosty:
-- Yavnyy (Kibernetika v†" Arkhitektura): diagnosticheskiy kanal obratnoy svyazi — podtverzhdaem rabotosposobnost «nervnogo volokna» (overley).
-- Skrytyy 1 (Infoteoriya v†" Set): minimalnyy paket proverki (SYN/ACK + HEAD/GET) daet maksimum informatsii na bayt o sostoyanii puti.
-- Skrytyy 2 (Anatomiya v†" PO): kak bystryy «refleks na bol» — prostaya proverka svyazi do vmeshatelstva «kory» (slozhnoy diagnostiki/logov).
+- Yavnyy (Kibernetika v†" Arkhitektura): diagnosticheskiy kanal obratnoy svyazi - podtverzhdaem rabotosposobnost "nervnogo volokna" (overley).
+- Skrytyy 1 (Infoteoriya v†" Set): minimalnyy paket proverki (SYN/ACK + HEAD/GET) daet maximum informatsii na bayt o sostoyanii puti.
+- Skrytyy 2 (Anatomiya v†" PO): kak bystryy “reflexes na bol” - prostaya proverka svyazi do vmeshatelstva “kory” (slozhnoy diagnostiki/logov).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -58,7 +56,7 @@ def _require_local() -> None:
         abort(403, description="local only")
 
 def _list_ifaces() -> List[str]:
-    # Bez vneshnikh zavisimostey: Linux-put; na drugikh OS vernem pusto.
+    # No external dependencies: Linux path; on other OS it will return empty.
     ifaces: List[str] = []
     try:
         with open("/proc/net/dev", "r", encoding="utf-8") as f:
@@ -101,7 +99,7 @@ def netbird_check():
 
     notes: List[str] = []
     if not enabled:
-        notes.append("NETBIRD_ENABLED=0 (proverki vyklyucheny)")
+        notes.append("NETBIRD_ENABLED=0 (checks are disabled)")
 
     ifaces = _list_ifaces()
     # pometim «podozritelno-overleynye» imena

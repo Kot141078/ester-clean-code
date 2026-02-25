@@ -15,15 +15,15 @@ c=a+b
 {% extends "_admin_base.html" %}
 
 {% block content %}
-<h2>Judge — agregator otvetov</h2>
-<p>Rezhim: <b>{{ ab_mode }}</b> (A=dry/moki, B=lokalnye HTTP-zaprosy)</p>
+<h2>Yuje - answer aggregator</h2>
+<p>Rezhim: <b>{{ ab_mode }}</b> (A=waste/torment, B=local HTTP requests)</p>
 
 <div style="margin:10px 0;">
   <textarea id="prompt" rows="6" style="width:100%;" placeholder="Vash prompt..."></textarea>
   <div style="margin:6px 0;">
     <label>Rezhim:
       <select id="mode">
-        <option value="local">Tolko lokalnye</option>
+        <option value="local">Only local</option>
         <option value="full">Polnyy sintez (zaglushka)</option>
         <option value="flex">Gibkiy sintez (lokalnyy)</option>
       </select>
@@ -38,7 +38,7 @@ c=a+b
 <h3>Finalnaya sborka</h3>
 <pre id="final" style="white-space:pre-wrap;"></pre>
 
-<h3>Syrye otvety</h3>
+<h3>Raw answers</h3>
 <table border="1" cellpadding="6" cellspacing="0">
   <thead>
     <tr><th>alias</th><th>elapsed</th><th>error</th><th>text</th></tr>

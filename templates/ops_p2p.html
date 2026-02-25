@@ -18,7 +18,7 @@
 </head>
 <body>
   <h1>⚙️ Ester — P2P / CRDT Ops</h1>
-  <p class="muted">Kontrol merkli-sverki i sinkhronizatsii pamyati mezhdu uzlami.</p>
+  <p class="muted">Control of merkle reconciliation and memory synchronization between nodes.</p>
 
   <div class="grid">
     <div class="card">
@@ -35,7 +35,7 @@
     </div>
 
     <div class="card">
-      <h3>Obnaruzhennye piry (LAN + staticheskiy)</h3>
+      <h3>Detected peers (LAN + static)</h3>
       {% if summary.peers and summary.peers|length > 0 %}
         <ul>
           {% for p in summary.peers %}
@@ -43,12 +43,12 @@
           {% endfor %}
         </ul>
       {% else %}
-        <p class="muted">Pirov ne obnaruzheno. Prover ESTER_P2P_STATIC ili zeroconf.</p>
+        <p class="muted">No peers found. Check ESTER_P2P_STATIC or zeroconf.</p>
       {% endif %}
     </div>
 
     <div class="card">
-      <h3>Lokalnaya Merkle-svodka</h3>
+      <h3>Local Merkle summary</h3>
       {% if summary.local_state %}
         <pre>{{ summary.local_state | tojson(indent=2) }}</pre>
       {% else %}

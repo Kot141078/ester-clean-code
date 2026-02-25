@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/portable/self_build.py — «samosborka» portable-paketa i avto-raskladka faylov.
+"""modules/portable/self_build.py - “samosborka” portable-paketa i avto-raskladka faylov.
 
 MOSTY:
 - (Yavnyy) build(portable_dir, dry_run=False) — sobiraet perenosimyy distributiv (skripty, env, templates, routes, modules).
-- (Skrytyy #1) place_unknown(path) — kuda polozhit «neznakomyy fayl» (evristika po rasshireniyu/soderzhimomu).
+- (Skrytyy #1) place_unknown(path) — kuda polozhit “neznakomyy fayl” (evristika po rashshireniyu/soderzhimomu).
 - (Skrytyy #2) Uvazhaet peremennye .env (PORTABLE_*), generiruet manifest i khesh-kartu.
 
 ZEMNOY ABZATs:
-Eto «chemodanchik s instrumentami»: odnoy komandoy — sobrat perenosimuyu kopiyu i razlozhit naydennoe po polkam.
+This is “chemodanchik s instruments”: one command - sobrat perenosimuyu kopiyu i razlozhit naydennoe po polkam.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, re, io, json, hashlib, zipfile, glob
 from typing import Dict, Any, List, Tuple
@@ -35,9 +33,7 @@ def _match_globs(path: str, patterns: List[str]) -> bool:
     return any(fnmatch(p, pat) for pat in patterns)
 
 def place_unknown(path: str) -> Tuple[str, str]:
-    """
-    Vozvraschaet (podkatalog v proekte, prichina).
-    """
+    """Returns (subdirectory in project, reason)."""
     lower = path.lower()
     try:
         with open(path, "rb") as f:

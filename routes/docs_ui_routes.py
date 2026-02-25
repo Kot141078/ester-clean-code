@@ -4,7 +4,7 @@ from __future__ import annotations
 from flask import Blueprint, render_template
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Otdelnaya vitrina dokumentatsii: /docs/ui
+# Separate documentation showcase: /dox/oh
 docs_ui_bp = Blueprint("docs_ui", __name__)
 
 
@@ -19,10 +19,8 @@ def docs_ui_index_slash():
 
 
 def register_docs_ui(app, url_prefix: str | None = None) -> None:
-    """
-    Sovmestimyy s dampom registrator. Po umolchaniyu registriruet /docs/ui.
-    Esli peredan url_prefix — dobavit dubl po {url_prefix}/docs/ui.
-    """
+    """Dump compatible logger. By default it registers /dox/oi.
+    If url_prefix is ​​passed, add a duplicate by ZZF0Z/dox/oh."""
     if url_prefix:
         prefixed = Blueprint("docs_ui_prefixed", __name__, url_prefix=url_prefix)
 

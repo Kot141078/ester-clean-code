@@ -1,18 +1,16 @@
 # routes/admin_portable_compliance.py
 # -*- coding: utf-8 -*-
-"""
-routes/admin_portable_compliance.py - administrativnye endpointy sootvetstviya/komplaensa portable-sborok.
+"""routes/admin_portable_compliance.py - administrativnye endpointy sootvetstviya/komplaensa portable-sborok.
 
 Mosty:
 - Yavnyy (Portable ↔ Compliance): esli enterprise-modul est - podklyuchaem ego UI/API pod /admin/portable/compliance.
 - Skrytyy #1 (Ekspluatatsiya ↔ Bezopasnost): otsutstvie modulya ne vyzyvaet ImportError na starte.
-- Skrytyy #2 (Nablyudaemost ↔ Dokumentooborot): dazhe bez modulya otdaem «stub»-status, chtoby panel ne padala.
+- Skrytyy #2 (Nablyudaemost ↔ Dokumentooborot): dazhe bez modulya otdaem “stub”-status, chtoby panel ne padala.
 
 Zemnoy abzats:
 Role fayla - myagko podklyuchit blyuprint iz modules.portable.compliance (ili sovmestimogo paketa).
-Pri otsutstvii - zaregistrirovat nebolshoy stub-rout, chtoby UI mog oprosit status.
-# c=a+b
-"""
+Pri otsutstvii - zaregistrirovat nebolshoy stub-rout, chtoby UI can ask status.
+# c=a+b"""
 from __future__ import annotations
 
 import logging
@@ -29,12 +27,12 @@ def portable_compliance_stub():
 def _safe_register(app, bp, prefix: str):
     try:
         app.register_blueprint(bp, url_prefix=prefix)
-        logging.info("Admin Portable Compliance: podklyuchen %s", prefix)
+        logging.info("Admin Portable Complianke: connected ZZF0Z", prefix)
     except Exception as e:
-        logging.error("Admin Portable Compliance: ne udalos podklyuchit %s: %s", prefix, e)
+        logging.error("Admin Portable Complianke: failed to connect ZZF0Z: ZZF1ZZ", prefix, e)
 
 def register_routes(app, seen_endpoints: Dict[str, str] | None = None):
-    # 1) Popytka podklyuchit gotovyy blyuprint
+    # 1) Trying to connect a ready-made blueprint
     try:
         from modules.portable.compliance import bp as compliance_bp  # type: ignore
         _safe_register(app, compliance_bp, "/admin/portable/compliance")
@@ -42,7 +40,7 @@ def register_routes(app, seen_endpoints: Dict[str, str] | None = None):
     except Exception as e:
         logging.warning("Portable Compliance: modules.portable.compliance.bp nedostupen: %s", e)
 
-    # 2) Popytka cherez fabriku
+    # 2) Trying through the factory
     try:
         m = __import__("modules.portable.compliance", fromlist=["get_admin_blueprint"])
         if hasattr(m, "get_admin_blueprint"):

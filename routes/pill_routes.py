@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/pill_routes.py - REST: /pill/* - upravlenie «pilyulyami».
+"""routes/pill_routes.py - REST: /pill/* - upravlenie "pilyulyami".
 
 Mosty:
 - Yavnyy: (UI/Volya ↔ Pillbox) zapros/spisok/approve/deny/status.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Hub/Rules ↔ Avtonomiya) mozhno vyzyvat iz paneli i planirovschika.
 
 Zemnoy abzats:
-Prostaya ochered «na podtverzhdenie»: posmotret, nazhat «da» ili «net», i deystvie proydet/zablokiruetsya.
+Prostaya ochered “na podtverzhdenie”: posmotret, nazhat “da” or “net”, i deystvie proydet/zablokiruetsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

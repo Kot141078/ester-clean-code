@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-"""output_filters — filtry vyvoda na baze TRS-metrik (best-effort).
+"""output_filters - filtry vyvoda na baze TRS-metrik (best-effort).
 
-Oshibka iz loga:
+Error from loga:
   '{' was never closed (__init__.py, line 19)
 
-Eto pochti vsegda oznachaet, chto fayl `output_filters/__init__.py` (ili analogichnyy, kotoryy realno gruzitsya)
+Eto pochti vsegda oznachaet, chto fayl `output_filters/__init__.py` (or analogichnyy, kotoryy realno gruzitsya)
 okazalsya obrezan/skleen/isporchen tak, chto slovar/stroka ne zakrylis. V tvoem zagruzhennom variante
-oshibka drugaya — tam prosto net `return`, no sintaksis tselyy. Poetomu ya dayu “kanonicheskiy” fayl,
-kotoryy kompiliruetsya i rabotaet, a ty polozhish ego v to mesto, kotoroe realno importiruetsya:
-- esli u tebya paket: D:\ester-project\output_filters\__init__.py  ← VAZhNO
+oshibka drugaya - tam prosto net `return`, no sintaksis tselyy. Poetomu ya dayu “kanonicheskiy” fayl,
+kotoryy kompiliruetsya i rabotaet, a ty polozhish ego v to place, kotoroe realno importiruetsya:
+- esli u tebya paket: D:\ester-project\output_filters\__init__.py ← VAZhNO
 - esli u tebya modul: D:\ester-project\output_filters.py
 
 API:
@@ -17,11 +17,10 @@ API:
 Mosty:
 - Yavnyy most: validator.trs.measure_text/apply_rules → edinaya “sanitarnaya obrabotka” vyvoda pered otdachey polzovatelyu.
 - Skrytye mosty:
-  1) Infoteoriya ↔ ekspluatatsiya: score/issues = kompaktnyy kanal obratnoy svyazi (chto imenno ukhudshaet tekst).
-  2) Kibernetika ↔ nadezhnost: best-effort fallback — esli TRS-modul ne dostupen, kontur ne padaet.
+  1) Infoteoriya ↔ ekspluatatsiya: score/issues = kompaktnyy kanal obratnoy svyazi (what imenno ukhudshaet tekst).
+  2) Kibernetika ↔ nadezhnost: best-effort fallback - esli TRS-modul ne dostupen, kontur ne padaet.
 
-ZEMNOY ABZATs: vnizu fayla.
-"""
+ZEMNOY ABZATs: vnizu fayla."""
 
 from __future__ import annotations
 
@@ -48,7 +47,7 @@ except Exception as e:  # pragma: no cover
 
 
 def filter_output(text: str) -> Tuple[str, Dict[str, Any]]:
-    """Primenyaet TRS-filtry (ili fallback) i vozvraschaet (cleaned, report)."""
+    """Applies TRS filters (or false) and returns (cleaned, report)."""
     score, issues = measure_text(text or "")
     cleaned = apply_rules(text or "", score, issues)
     report: Dict[str, Any] = {
@@ -66,9 +65,7 @@ def filter_output(text: str) -> Tuple[str, Dict[str, Any]]:
 __all__ = ["filter_output"]
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Filtr vyvoda — kak marlya na vkhode v dykhatelnye puti: on ne lechit organizm, no zaderzhivaet krupnyy musor,
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Filtr vyvoda - kak marlya na vkhode v dykhatelnye puti: on ne lechit organizm, no zaderzhivaet krupnyy musor,
 chtoby dalshe sistema ne “kashlyala” v samykh nepodkhodyaschikh mestakh (UI/logakh/integratsiyakh).
-Glavnoe — chtoby marlya ne perekryvala potok polnostyu: poetomu fallback ne ronyaet modul, dazhe esli TRS net.
-"""
+Glavnoe - chtoby marlya ne perekryvala potok polnostyu: poetomu fallback ne ronyaet modul, dazhe esli TRS net."""

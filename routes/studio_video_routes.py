@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/studio_video_routes.py - REST: komponovka i spiski video/shablonov.
+"""routes/studio_video_routes.py - REST: komponovka i spiski video/shablonov.
 
 Mosty:
-- Yavnyy: (Veb ↔ Kompozer) knopka «sobrat rolik», plyus inventar gotovykh mp4 i shablonov.
+- Yavnyy: (Veb ↔ Kompozer) knopka “sobrat rolik”, plyus inventory gotovykh mp4 i shablonov.
 - Skrytyy #1: (Studiya ↔ Sotsdeploy) itogovye mp4 v STUDIO_OUT avtomaticheski vidny /social/kit.
-- Skrytyy #2: (Memory ↔ Profile) modul pishet «profile» sborki.
+- Skrytyy #2: (Memory ↔ Profile) modul pishet “profile” sborki.
 
 Zemnoy abzats:
-Eto kak «eksport iz montazhki»: odnoy ruchkoy sdelali rolik, drugoy - uvideli vse rezultaty.
+Eto kak “eksport iz montazhki”: odnoy ruchkoy sdelali rolik, drugoy - uvideli vse result.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os, glob

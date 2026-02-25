@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-bin/rpa_schedule_tick.py — odnokratnyy tik planirovschika (CLI).
+"""bin/rpa_schedule_tick.py - odnokratnyy tik planirovschika (CLI).
 Zapuskat raz v minutu/5 minut planirovschikom OS.
 
 Primer:
@@ -9,8 +8,7 @@ Primer:
 
 Vozvratit JSON s rezultatami zapuskov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 from modules.thinking.rpa_workflows import sched_tick

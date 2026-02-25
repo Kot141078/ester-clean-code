@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/roles_graph_routes.py - REST-nadstroyka dlya grafa i selektivnykh utochneniy.
+"""routes/roles_graph_routes.py - REST-nadstroyka dlya grafa i selektivnykh utochneniy.
 
 MOSTY:
 - (Yavnyy) /roles/graph/edge, /roles/graph/neighbors/{agent_id} - upravlenie grafom.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Ne trebuet pravok v rolyakh/soobscheniyakh - eto dobavochnyy sloy.
 
 ZEMNOY ABZATs:
-Utochnyaem redko i po delu - tolko kogda profilya nedostatochno. Tak my «uchimsya ot lyudey», ne prevraschayas v anketu.
+Utochnyaem redko i po delu - tolko kogda profilya nedostatochno. So my “uchimsya ot lyudey”, ne prevraschayas v anketu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, math, time
@@ -26,7 +24,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 router = APIRouter()
 
 def _uncertainty(vec: Dict[str,float]) -> float:
-    # prostaya mera: 1 - srednyaya "uverennost" po ne nulevym osyam
+    # simple measure: 1 - average “confidence” along non-zero axes
     if not vec: return 1.0
     vals = [abs(v) for v in vec.values()]
     return max(0.0, 1.0 - sum(vals)/ (len(vals) or 1))

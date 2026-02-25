@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-modules/security/consent_policy.py — policy-nastroyschik poverkh protokola soglasiy.
+"""modules/security/consent_policy.py - policy-nastroyschik poverkh protokola soglasiy.
 
-Ideya:
-- Gibkie pravila «kogda sprashivat/razreshat/zapreschat» po (scope, title_pattern).
+Ideaya:
+- Gibkie pravila “kogda sprashivat/razreshat/zapreschat” po (scope, title_pattern).
 - Prioritet: allow > deny > ask > default(protocol mode).
-- Sovmestimo s consent_protocol.request(): snachala policy, zatem (esli nuzhno) obschiy protokol.
+- Sovmestimo s consent_protocol.request(): snachala policy, zatem (esli nuzhno) obschiy protocol.
 
 Format: data/security/consent_policy.json
 {
@@ -25,10 +24,9 @@ MOSTY:
 - Skrytyy #2: (Memory ↔ UX) TTL umenshaet trenie pri seriyakh deystviy.
 
 ZEMNOY ABZATs:
-Prostoy JSON. Podstrochnye sopostavleniya; «*» — lyuboy zagolovok. Bez vneshnikh zavisimostey.
+Simple JSON. Podstrochnye sopostavleniya; “*” — lyuboy zagolovok. No matter what.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, fnmatch
 from typing import Dict, Any, List, Optional

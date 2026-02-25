@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# U2/scripts/u2_smoke.sh — offlayn-smoke Cortex
-# Mosty: (Yavnyy) Enderton — proveryaemye shagi; (Skrytye) Ashbi — ustoychivost/katbek; Cover&Thomas — szhatyy signal.
-# Zemnoy abzats: odna knopka — podumat i sdelat nuzhnoe.
+# U2/scripts/u2_smoke.sh - offflayn-smoke Cortex
+# Bridges: (Explicit) Enderton - verifiable steps; (Hidden) Ashby - stability/cutback; Carpet&Thomas - compressed signal.
+# Earthly paragraph: one button - think and do what is necessary.
 # c=a+b
 
 set -euo pipefail

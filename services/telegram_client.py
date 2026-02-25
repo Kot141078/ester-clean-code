@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # services/telegram_client.py
-"""
-TelegramClient — tonkaya obertka nad Bot API.
+"""TelegramClient - tonkaya obertka nad Bot API.
 
 Podderzhano (ispolzuetsya v UI/routakh):
   • send_message, get_updates, set_webhook, delete_webhook
@@ -10,16 +9,15 @@ Podderzhano (ispolzuetsya v UI/routakh):
   • get_my_commands, set_my_commands
 
 Zemnoy abzats (inzheneriya):
-Edinyy klient umenshaet raskhozhdenie vyzovov: odin HTTP-stek, edinye taymauty i obrabotka oshibok.
+Ediny klient umenshaet raskhozhdenie vyzovov: odin HTTP-stek, edinye taymauty i obrabotka oshibok.
 Metody mappyat 1:1 na Bot API i legko proslezhivayutsya v logakh.
 
 Mosty:
-- Yavnyy (Kibernetika ↔ Arkhitektura): odin «sensor/effektornyy» kanal k Telegram uproschaet obratnuyu svyaz.
+- Yavnyy (Kibernetika ↔ Arkhitektura): odin “sensor/effektornyy” kanal k Telegram uproschaet obratnuyu svyaz.
 - Skrytyy 1 (Infoteoriya ↔ Interfeysy): unifikatsiya API-stsenariev snizhaet entropiyu integratsii mezhdu UI i bekom.
-- Skrytyy 2 (Anatomiya ↔ PO): kak edinyy nervnyy puchok — raznye signaly, odna provodyaschaya sistema.
+- Skrytyy 2 (Anatomiya ↔ PO): kak edinyy nervnyy puchok - raznye signaly, odna provodyaschaya sistema.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

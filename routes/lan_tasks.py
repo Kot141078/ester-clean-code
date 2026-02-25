@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/lan_tasks.py - UI/REST: raspredelennye zadachi po LAN.
+"""routes/lan_tasks.py - UI/REST: raspredelennye zadachi po LAN.
 
-Marshruty:
-  • GET  /admin/lan/tasks            - HTML
-  • GET  /admin/lan/tasks/status     - sostoyanie ocheredi i nastroek
-  • POST /admin/lan/tasks/submit     - sozdat i otpravit zadachu
-  • POST /admin/lan/tasks/clear      - ochistit done
-  • POST /admin/lan/tasks/settings   - sokhranit nastroyki tasks (enable/port/interval/max_active/accept)
+Route:
+  • GET /admin/lan/tasks - HTML
+  • GET /admin/lan/tasks/status - sostoyanie ocheredi i nastroek
+  • POST /admin/lan/tasks/submit - sozdat i otpravit zadachu
+  • POST /admin/lan/tasks/clear - ochistit done
+  • POST /admin/lan/tasks/settings - sokhranit nastroyki tasks (enable/port/interval/max_active/accept)
 
 Mosty:
 - Yavnyy (Kibernetika ↔ Orkestratsiya): odin ekran dlya postanovki i nablyudeniya zadach v seti.
@@ -15,10 +14,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): format zadach odin i tot zhe v UI/UDP/REST; drop-in.
 
 Zemnoy abzats:
-Zdes stavim «porucheniya sosedyam» i vidim, kak oni ispolnyayutsya - bez oblakov i lishnikh voprosov.
+Zdes stavim “porucheniya sosedyam” i vidim, kak oni ispolnyayutsya - bez oblakov i lishnikh voprosov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -42,7 +40,7 @@ def api_status():
     net = load_net()
     cfg = load_tasks_settings()
     db = _load_db()
-    # urezhem vydachu spiskov (tolko zagolovki)
+    # we will reduce the output of lists (only headers)
     def _short(d):
         arr=[]
         for k,v in (d or {}).items():

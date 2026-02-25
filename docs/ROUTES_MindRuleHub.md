@@ -1,7 +1,7 @@
 # Ester — marshruty, dobavlennye paketami VideoIngestCore + MindRuleHub
 
-> Drop-in: vse endpointy registriruyutsya cherez `routes/register_all.py` (metod `register(app)` v kazhdom fayle).  
-> Bazovyy URL dlya primerov: `http://127.0.0.1:8000`.
+> Drop-in: all endpoints are registered via eruts/register_all.pyyo (register(app)yo method in each file).
+> Base URL for examples: http://127.0.0.1:8000е.
 
 ---
 
@@ -13,7 +13,7 @@
 - `GET  /ingest/video/probe` — bystryy ffprobe po `?url` ili `?path`.
 
 ### Proaktiv
-- `POST /proactive/video/run` — razovyy obkhod (`mode=subs|search`).  
+- ePOST / proactive / video / ronyo - one-time bypass (yode = sub|search).
 - `GET  /proactive/video/state` — sostoyanie.  
 - Podpiski (CRUD):  
   - `GET/POST /proactive/video/subs`, `DELETE /proactive/video/subs/<id>`, `POST /proactive/video/subs/<id>/toggle`.  
@@ -22,59 +22,59 @@
   - `GET  /thinking/video/rules/example` — primer pravila (JSON).
 
 ### Indeksatsiya (vektornyy sloy)
-- `POST /ingest/video/index/recent` — eksport poslednikh konspektov/transkriptov v vektornyy indeks (best-effort).  
-- `GET  /ingest/video/index/state` — sostoyanie/ochered fallback JSONL.
+- ePOST/ingest/video/index/recento - export of the latest notes/transcripts to a vector index (best-effort).
+- eGET /ingest/video/index/article - status/queue false ZHSONL.
 
 ### Portal/vidzhety
-- `GET /portal/video` — stranitsa poslednikh video-konspektov.  
-- `GET /portal/widgets/videos?limit=N` — mini-vidzhet.
+- eGET /portal/videoyo - page of the latest video summaries.
+- `GET /portal/widgets/videos?limit=N` - mini-vidzhet.
 
 ### Metriki/zdorove
 - `GET /metrics/video` — Prometheus-metriki video-konveyera.  
-- `GET /health/video/selfcheck` — self-check okruzheniya.
+- ёGET /healthn/video/selfchetskyo - self-chesk environment.
 
 ---
 
-## Myshlenie: RuleHub (nablyudaemost, kvoty, eksport), portal mysley
+## Thinking: RuleNov (observability, quotas, export), thought portal
 
 ### Panel/servis RuleHub
 - `GET /rulehub/state` — counters/last_ts/enabled.  
-- `GET /rulehub/last?limit=N` — poslednie sobytiya.  
-- `POST /rulehub/toggle` — `{"enabled":1|0}` vklyuchit/vyklyuchit.  
-- `GET /rulehub/config` — poluchit YAML-konfig.  
+- ёGET /rulenov/last?limit=Nyo - recent events.
+- ePOST /rulenov/toggle - eZhZF0TsZyo turn on/off.
+- eGET /rulenov/config - get YML config.
 - `POST /rulehub/config` — zamenit YAML.  
 - `GET /admin/mind/rules` — UI-panel RuleHub.
 
 ### Metriki myshleniya
 - `GET /metrics/mind` — Prometheus-metriki RuleHub.
 
-### Eksport zhurnala
+### Log export
 - `GET /rulehub/export.ndjson?limit=N&status=ok|err|blocked` — NDJSON.  
 - `GET /rulehub/export.csv?limit=N&status=...` — CSV.
 
 ### Presety pravil
 - `GET /thinking/presets` — spisok presetov (id, title, tags).  
-- `GET /thinking/presets/get?id=...` — poluchit preset (JSON `rule`).
+- `GET /thinking/presets/get?id=...` - poluchit preset (JSON `rule`).
 
 ### Portal mysley/vidzhet
-- `GET /portal/mind` — stranitsa myslitelnykh sobytiy.  
-- `GET /portal/widgets/mind?limit=N&status=ok|err|blocked` — vidzhet.
+- ёGET /portal/mindyo - page of mental events.
+- `GET /portal/widgets/mind?limit=N&status=ok|err|blocked` - vidzhet.
 
 ---
 
 ## Notatsii nagruzki/bezopasnosti
 
-- **Kvoty i prioritety** (RuleHub): fayl `config/rulehub.yaml` — bezopasnye defolty; kvota `0` = bez ogranicheniy.  
-- **A/B-slot ASR**: `VIDEO_INGEST_AB=A|B` (A — suschestvuyuschiy dvizhok, B — faster-whisper; avto-otkat pri oshibke).  
-- **Fallback ocheredi**: esli vektornyy stor nedostupen, elementy pishutsya v `data/video_ingest/vector_fallback.jsonl`.  
-- **Nikakikh skrytykh demonov**: avtozapusk delaetsya planirovschikom ili yavnym REST/CLI-vyzovom.
+- **Quotas and priorities** (RuleNov): file yoconfig/rulenov.yamlyo - safe defaults; quota ё0ё = no restrictions.
+- **A/B-slot ACP**: ёVIDEO_INGEST_AB=A|Byo (A - existing engine, B - faster-over; auto-rollback in case of error).
+- **Falbatsk queue**: if the vector store is not available, the elements are written to edata/video_ingest/vector_falbatsk.zsionlyo.
+- **No hidden demons**: autorun is done by the scheduler or an explicit REST/SLI call.
 
 ---
 
 ## Bystryy smoke/test
 
 ```bash
-# bazovyy URL (esli ne 127.0.0.1:8000):
+# base url (if not 127.0.0.1:8000):
 export ESTER_BASE_URL="http://127.0.0.1:8000"
 
 # smoke-obkhod

@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-ester_dumper.py — Skript dlya sozdaniya polnogo, udobochitaemogo dampa proekta Ester.
-Generit manifest.json s meta (relpath, size, type, sha256) i .txt chasti s soderzhimym.
+"""ester_dumper.py — Skript dlya sozdaniya polnogo, udobochitaemogo dampa proekta Ester.
+Generit manifest.json s meta (relpath, size, type, sha256) i .txt part s soderzhimym.
 Rasshirenie: Bez truncation, s razbivkoy na chasti, integratsiya s vstore dlya pamyati Ester.
 Zapusk: python ester_dumper.py --root D:\ester-project --output D:\ester-dump
 
 Mosty:
 - Yavnyy (Damp ↔ Prozrachnost): Polnyy skan bez fragmentatsii.
-- Skrytyy 1 (Memory ↔ Bekap): Dobavlyaet manifest v vstore.
+- Skrytyy 1 (Memory ↔ Bekap): Addavlyaet manifest v store.
 - Skrytyy 2 (Masshtab ↔ Bezopasnost): Kheshi dlya proverki tselostnosti.
 
 Zemnoy abzats:
-Eto "zerkalo dushi" Ester — damp, kotoryy pomnit vse, ot .yaml do vektornoy BD.
+Eto "zerkalo dushi" Ester - damp, kotoryy pomnit vse, ot .yaml do vektornoy BD.
 
-# c=a+b
-"""
+# c=a+b"""
 import argparse
 import hashlib
 import json
@@ -89,9 +87,9 @@ def generate_dump(root: Path, output_dir: Path, part_size_mb: int = 5) -> None:
                     current_part_bytes = 0
                 current_part_content += part_content
                 current_part_bytes += len(part_content.encode("utf-8"))
-                entry["part"] = part_index  # Obnovlyaem, esli pereshli na novuyu chast
+                entry["part"] = part_index  # We update if we have moved to a new part
 
-    # Sokhranyaem poslednyuyu chast
+    # Saves the last part
     if current_part_content:
         part_file = output_dir / f"Ester_dump_part_{part_index:04d}.txt"
         part_file.write_text(current_part_content)
@@ -102,7 +100,7 @@ def generate_dump(root: Path, output_dir: Path, part_size_mb: int = 5) -> None:
     manifest_file = output_dir / "ester_manifest.json"
     manifest_file.write_text(json.dumps(manifest, indent=2, ensure_ascii=False))
 
-    # Integratsiya s pamyatyu Ester: Dobavlyaem manifest v vstore dlya konteksta
+    # Integration with Esther's memory: Adding a manifest in the store for context
     state_dir = Path(os.getenv("ESTER_STATE_DIR", str(Path.home() / ".ester")))
     vstore_dir = state_dir / "vstore"
     vstore_dir.mkdir(parents=True, exist_ok=True)
@@ -115,13 +113,13 @@ def generate_dump(root: Path, output_dir: Path, part_size_mb: int = 5) -> None:
         logs = [log_entry]
     dump_log.write_text(json.dumps(logs, indent=2))
 
-    print(f"Damp gotov: {manifest_file}. Chasti: {len(manifest['parts'])}. Ester pomnit sebya v vstore.")
+    print(f"Dump ready: ZZF0Z. Parts: ZZF1ZZ. Esther remembers herself in the story.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generator dampa Ester.")
-    parser.add_argument("--root", default="D:\\ester-project", help="Kornevaya direktoriya proekta.")
-    parser.add_argument("--output", default="D:\\ester-dump", help="Direktoriya dlya vyvoda dampa.")
-    parser.add_argument("--part-size", type=int, default=5, help="Razmer chasti v MB.")
+    parser.add_argument("--root", default="D:\\ester-project", help="Project root directory.")
+    parser.add_argument("--output", default="D:\\ester-dump", help="Directory for dump output.")
+    parser.add_argument("--part-size", type=int, default=5, help="Part size in MB.")
     args = parser.parse_args()
 
     root_path = Path(args.root)

@@ -1,32 +1,30 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/recorder.py — «REC→PLAY»: zapis RPA-deystviy v sessiyu i eksport v workflow.
+"""modules/thinking/recorder.py - “REC→PLAY”: zapis RPA-deystviy v sessiyu i eksport v workflow.
 
 Stsenariy:
-- start(session_id) — nachinaet zapis (sozdaet data/workflows/records/<session>.json)
-- append(session_id, action) — dobavlyaet shag: {"type":"click|type|hotkey|ocr_click|open|macro", ...}
+- start(session_id) — start zapis (sozdaet data/workflows/records/<session>.json)
+- append(session_id, action) — add step: {"type":"click|type|hotkey|ocr_click|open|macro", ...}
 - stop(session_id) — zavershaet zapis
-- export_to_workflow(session_id, name) — stroit JSON workflow {name, steps:[{macro,args,...}]}
+- export_to_workflow(session_id, name) — build JSON workflow {name, steps:[{macro,args,...}]}
 
 Sootvetstvie deystviy → workflow-steps:
-- open(app)               -> macro "open_portal_and_type" s pustym text ili spets. "open_app" esli est
-- click(x,y)              -> macro "click_xy"
-- type(text)              -> macro "type_text"
-- hotkey(seq)             -> macro "send_hotkey"
-- ocr_click(needle,lang)  -> macro "click_text"
+- open(app) -> macro "open_portal_and_type" s empty text or spets. "open_app" esli est
+- click(x,y) -> macro "click_xy"
+- type(text) -> macro "type_text"
+- hotkey(seq) -> macro "send_hotkey"
+- ocr_click(needle,lang) -> macro "click_text"
 
-(Primechanie: makrosy dolzhny suschestvovat v modules.thinking.rpa_macros, kak vvodilos ranee.)
+(Note: makrosy dolzhny suschestvovat v modules.thinking.rpa_macros, kak vvodilos ranee.)
 
 MOSTY:
 - Yavnyy: (Memory ↔ Deystvie) zapis deystviy polzovatelya prevraschaetsya v vosproizvodimyy plan.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) unifikatsiya sobytiy k slovaryu makrosov.
-- Skrytyy #2: (Kibernetika ↔ Obuchenie) bystroe «snachala rukami → potom robot».
+- Skrytyy #2: (Kibernetika ↔ Obuchenie) bystroe “snachala rukami → potom robot.”
 
 ZEMNOY ABZATs:
-Faylovoe khranilische, oflayn. Minimalnye formaty JSON — chtoby legko proveryat i redaktirovat.
+Faylovoe khranilische, oflayn. Minimal formaty JSON - something easy to proveryat i redaktirovat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Dict, Any, List

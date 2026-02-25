@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/policy/papa_priority.py — Politika prioriteta Papy: vesa, «tabletka», sovety planirovschikam/koshelku.
+"""modules/policy/papa_priority.py - Politika prioriteta Papy: vesa, “tabletka”, sovety planirovschikam/koshelku.
 
 Mosty:
 - Yavnyy: (Myshlenie ↔ Ekonomika) vydaem bias dlya kaskada/agentstva: bolshe vesa zadacham, veduschim k blagu Papy.
-- Skrytyy #1: (Kibernetika ↔ Kontrol) prioritet upravlyaem, a spornye operatsii trebuyut «tabletku».
+- Skrytyy #1: (Kibernetika ↔ Kontrol) prioritet upravlyaem, a spornye operatsii trebuyut “tabletku”.
 - Skrytyy #2: (Memory ↔ Audit) sostoyanie khranitsya v fayle s metadannymi i metkoy family_sensitive.
 
 Zemnoy abzats:
-Eto regulyator gromkosti: naskolko silno «podkruchivat» plan i byudzhet v polzu Papy — i na kakoy srok.
+Eto regulyator gromkosti: naskolko silno “podkruchivat” plan i byudzhet v polzu Papy - i na kakoy srok.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, time
 from typing import Any, Dict
@@ -56,12 +54,12 @@ def pill(arm: bool, ttl_sec: int = 300) -> Dict[str, Any]:
     st["ts"] = int(time.time()); _save(st)
     return {"ok": True, **st}
 
-# Podskazki dlya planirovschika/koshelka (bez izmeneniya ikh kontraktov)
+# Planner/wallet tips (without changing their contracts)
 def money_allowed(amount_eur: float) -> bool:
     st = status()
     if st["ab"] == "B": return False
     if st["pill"]["armed"]: return True
-    # myagkaya evristika: esli prioritet vysok i summa nevelika — sklonyaem k razresheniyu (no fakticheskaya proverka v ekonomike)
+    # soft heuristic: if the priority is high and the amount is small, it favors permission (but the actual check is in economics)
     return (st["priority"] * st["money_bias"] >= 0.75 and amount_eur <= 25.0)
 
 def weight_task(title: str) -> float:

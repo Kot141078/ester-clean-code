@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/safety/abslot.py — A/B-sloty s avto-otkatom: bezopasnoe pereklyuchenie logiki bez regressiy.
+"""modules/safety/abslot.py - A/B-sloty s avto-otkatom: bezopasnoe pereklyuchenie logiki bez regressiy.
 
 Mosty:
 - Yavnyy: (Biznes-logika ↔ Bezopasnost) odin helper dlya vybora realizatsii A|B.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Thinking Rules ↔ Avtonomiya) slot mozhno menyat ekshenom/ruchkoy.
 
 Zemnoy abzats:
-Kak tumbler s predokhranitelem: mozhno poprobovat «B», no pri sboe srazu vernut «A», ne lomaya sistemu.
+Kak tumbler s predokhranitelem: mozhno poprobovat “B”, no pri sboe srazu vernut “A”, ne lomaya sistemu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, functools, traceback
 from typing import Callable, Any, Dict
@@ -31,9 +29,7 @@ def active_slot()->str:
     return os.getenv("AB_SLOT","A").upper() or "A"
 
 def choose(fn_a: Callable[...,Any], fn_b: Callable[...,Any])->Callable[...,Any]:
-    """
-    Obertka: vyzyvaet B, esli aktiven B; pri isklyuchenii — logiruet i vyzyvaet A.
-    """
+    """Wrapper: Calls B if B is active; if an exception occurs, it logs and calls A."""
     @functools.wraps(fn_a)
     def wrapper(*args, **kwargs):
         slot=active_slot()
@@ -43,7 +39,7 @@ def choose(fn_a: Callable[...,Any], fn_b: Callable[...,Any])->Callable[...,Any]:
             except Exception as e:
                 _passport("abslot_b_fail", {"err": str(e), "trace": traceback.format_exc()[-4000:]})
                 if AB_AUTOROLLBACK:
-                    # myagkoe pereklyuchenie na A (v tekuschem protsesse)
+                    # soft switching to A (in the current process)
                     return fn_a(*args, **kwargs)
                 raise
         # slot A po umolchaniyu

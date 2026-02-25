@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/training_scenarios_routes.py - REST/UI dlya «stsenariev obucheniya».
+"""routes/training_scenarios_routes.py - REST/UI dlya "stsenariev obucheniya".
 
 Ruchki:
   POST /training/start {"peers":[...],"mode":"iplay","steps":[...]}
-  POST /training/stop  {}
-  GET  /admin/training
+  POST /training/stop {}
+  GET /admin/training
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.coop.training_scenarios import start as tstart, stop as tstop

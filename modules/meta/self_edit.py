@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-Self-Edit — bezopasnaya samoredaktura koda Ester s A/B-slotom, bekapom i avtokatbekom.
+"""Self-Edit - bezopasnaya samoredaktura koda Ester s A/B-slotom, bekapom i avtokatbekom.
 
 Mosty:
 - Yavnyy: (Kodovaya baza ↔ QA) — dry-run diffy, proverka sintaksisa i validatsiya routov pered primeneniem.
-- Skrytyy 1: (A/B ↔ Nadezhnost) — v slote A razreshen tolko prosmotr izmeneniy; slot B primenyaet, no s bekapom i avtokatbekom pri provale.
+- Skrytyy 1: (A/B ↔ Nadezhnost) - v slote A razreshen tolko prosmotr izmeneniy; slot B primenyaet, no s bekapom i avtokatbekom pri provale.
 - Skrytyy 2: (Dokumentatsiya/Portal ↔ UX) — log pravok i statusy dostupny UI i khranyatsya v state.
 
 Zemnoy abzats:
-Eto «umnaya ruchka-sterka»: snachala pokazyvaet, chto pomenyaet, i tolko v «smelom» rezhime deystvitelno pishet.
-Esli chto-to poshlo ne tak — otkatyvaet i ostavlyaet zametku, chtoby rukami ne lovit bagi.
-"""
+This is “umnaya ruchka-sterka”: snachala pokazyvaet, chto pomenyaet, i tolko v “smelom” rezhime deystvitelno pishet.
+Esli chto-to poshlo ne tak - otkatyvaet i ostavlyaet zametku, chtoby rukami ne lovit bagi."""
 from __future__ import annotations
 
 import os, re, json, time, shutil, importlib.util, types, traceback
@@ -30,9 +28,7 @@ BACKUPS = SE_DIR / "backups"
 ALLOWED_ROOTS = [Path.cwd() / "modules", Path.cwd() / "routes", Path.cwd() / "templates", Path.cwd() / "register_all.py", Path.cwd() / "tools"]
 
 def _safe_path(p: str) -> Tuple[bool, Path, str]:
-    """
-    Proverka puti: vnutri razreshennykh katalogov, bez traversal.
-    """
+    """Path checking: inside allowed directories, without traversals."""
     raw = Path(p)
     if raw.is_absolute():
         return False, raw, "absolute_path_forbidden"
@@ -42,7 +38,7 @@ def _safe_path(p: str) -> Tuple[bool, Path, str]:
         if pp.exists():
             return True, pp, "ok"
         else:
-            # redaktiruem tolko suschestvuyuschie fayly (bez sozdaniya)
+            # edit only existing files (without creating)
             return False, pp, "not_exists"
     return False, pp, "outside_allowed_roots"
 
@@ -79,9 +75,7 @@ def _check_syntax(py_text: str, file_path: Path) -> Tuple[bool, str]:
         return False, f"syntax_error:{type(e).__name__}:{e}"
 
 def _run_verify_routes() -> Tuple[bool, str]:
-    """
-    Zapuskaem tools/verify_routes.py kak modul i vozvraschaem kod vozvrata/soobschenie.
-    """
+    """We launch tools/verify_rutes.po as a module and returns a return code/message."""
     try:
         spec = importlib.util.find_spec("tools.verify_routes")
         if spec is None:
@@ -94,10 +88,8 @@ def _run_verify_routes() -> Tuple[bool, str]:
         return False, f"verify_exception:{type(e).__name__}:{e}"
 
 def dry_run(label: str, edits: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Vozvraschaet diffy bez zapisi. Vsegda razresheno (A i B).
-    Format edits: [{"path": "...", "pattern": "regex", "replacement": "text", "multiple": false}, ...]
-    """
+    """Returns diffs without writing. Always allowed (A and B).
+    Unit format: yuZF0Z, ...sch"""
     results: List[Dict[str, Any]] = []
     for e in (edits or [])[:10]:
         ok, fp, reason = _safe_path(str(e.get("path","")))
@@ -114,10 +106,8 @@ def dry_run(label: str, edits: List[Dict[str, Any]]) -> Dict[str, Any]:
     return {"ok": True, "label": label, "slot": get_ab_mode("SELFEDIT"), "results": results}
 
 def apply(label: str, edits: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Primenyaet izmeneniya v slote B s avtokatbekom po proverkam.
-    V slote A — prinuditelno dry-run.
-    """
+    """Applies changes in slot B with auto-catback for checks.
+    In slot A - forced drain-rune."""
     with ab_switch("SELFEDIT") as slot:
         if slot == "A":
             res = dry_run(label, edits)
@@ -130,7 +120,7 @@ def apply(label: str, edits: List[Dict[str, Any]]) -> Dict[str, Any]:
         touched: List[Path] = []
         per_file: List[Dict[str, Any]] = []
         try:
-            # 1) podgotovit novye versii i lokalnye proverki sintaksisa
+            # 1) prepare new versions and local syntax checks
             prepared: List[Tuple[Path, str, str]] = []
             for e in (edits or [])[:10]:
                 ok, fp, reason = _safe_path(str(e.get("path","")))
@@ -149,7 +139,7 @@ def apply(label: str, edits: List[Dict[str, Any]]) -> Dict[str, Any]:
                 _log({"ts": ts, "label": label, "slot": slot, "status": "no_changes"})
                 return {"ok": False, "label": label, "slot": slot, "error": "no_changes"}
 
-            # 2) sdelat bekapy i zapisat novye fayly
+            # 2) make backups and write new files
             for fp, src, new in prepared:
                 rel = fp.relative_to(Path.cwd())
                 backup_fp = bdir / rel
@@ -158,7 +148,7 @@ def apply(label: str, edits: List[Dict[str, Any]]) -> Dict[str, Any]:
                 fp.write_text(new, encoding="utf-8")
                 touched.append(fp)
 
-            # 3) verifikatsiya marshrutov (i kosvenno importy)
+            # 3) route verification (and indirectly imports)
             ok_verify, vmsg = _run_verify_routes()
             if not ok_verify:
                 raise RuntimeError(f"verify_failed:{vmsg}")

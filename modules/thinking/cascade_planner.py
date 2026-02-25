@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/cascade_planner.py — kaskadnoe prakticheskoe myshlenie:
+"""modules/thinking/cascade_planner.py — kaskadnoe prakticheskoe myshlenie:
 tsel → razbor → strategii (build/buy/earn/spread) → deystviya → byudzhety i zadaniya.
 
 Mosty:
 - Yavnyy: (Myshlenie ↔ Operatsii) vydaem ispolnimye shagi i zadaniya (cheloveku i Ester).
 - Skrytyy #1: (Infoteoriya ↔ Ekonomika) uchityvaem koshelek/porogi/odobreniya.
-- Skrytyy #2: (Poisk ↔ Zakupki) dlya BUY shagov mozhno podskazat postavschikov (cherez web_search).
+- Skrytyy #2: (Search ↔ Zakupki) dlya BUY shagov mozhno podskazat postavschikov (cherez web_search).
 
 Zemnoy abzats:
-Po-zemnomu: «chto nuzhno → kupit/sdelat/zarabotat/rasprostranit → kto chto delaet → skolko deneg i kogda spisat».
+Po-zemnomu: “what nuzhno → kupit/sdelat/zarabotat/rasprostranit → who what to do → skolko deneg i kogda spisat.”
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, re, time
 from typing import Any, Dict, List, Tuple
@@ -30,7 +28,7 @@ def _infer_need(goal: str) -> Dict[str, Any]:
 
 def _strategy(goal: str, hints: Dict[str, Any]) -> List[str]:
     S: List[str] = []
-    # pravilo: esli nuzhny vneshnie resursy → BUY; esli est vremya/kod → BUILD; esli ne khvataet sredstv → EARN; dlya rasshireniya moschnostey seti → SPREAD
+    # pravilo: esli nuzhny vneshnie resursy → BUY; esli est vremya/kod → BUILD; esli ne khvataet sredstv → EARN; dlya rashshirniya moschnostey seti → SPREAD
     if any(hints.values()): S.append("BUY")
     S.append("BUILD")
     if "gpu" in goal.lower() or "rasshirit" in goal.lower(): S.append("SPREAD")
@@ -71,17 +69,17 @@ def make_plan(goal: str, budget: float | None = None) -> Dict[str, Any]:
 
     # BUILD
     if "BUILD" in strat:
-        steps.append({"kind":"self.codegen", "idea":"sozdat/uluchshit modul dlya zadachi", "guard":"SELF_CODE_ALLOW_APPLY gate"})
+        steps.append({"kind":"self.codegen", "idea":"create/improve a module for a task", "guard":"SELF_CODE_ALLOW_APPLY gate"})
 
     # SPREAD (legalno)
     if "SPREAD" in strat:
-        steps.append({"kind":"network.spread", "note":"rasprostranit legalnye komponenty po sestram (P2P), indeks/katalog obnovit"})
+        steps.append({"kind":"network.spread", "note":"distribute legal components among sisters (P2P), update index/catalog"})
 
     # EARN (bezopasnye mikro-podrabotki)
     if "EARN" in strat:
-        steps.append({"kind":"earn.micro", "note":"podgotovit instruktsii dlya mikrozadaniy/grantov (bez PDn i sekretov), poschitat dokhod"})
+        steps.append({"kind":"earn.micro", "note":"prepare instructions for microtasks/grants (without personal income and secrets), calculate income"})
 
-    # Naznacheniya «cheloveku» (Pape): tolko esli yavno sformirovany pokupki
+    # Assignments to the “person” (Dad): only if purchases are clearly formed
     for st in steps:
         if st.get("kind") == "ops.shopping.plan":
             for it in st.get("items") or []:
@@ -91,12 +89,10 @@ def make_plan(goal: str, budget: float | None = None) -> Dict[str, Any]:
     return plan
 
 def execute(plan: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Ispolnyaem TOLKO «bezopasnye vnutrennie» shagi:
+    """Execution TOLKO “bezopasnye vnutrennie” steps:
     - self.codegen → sozdaem chernovik skeleta
     - ops.shopping.plan → sozdaem zadaniya i, pri zhelanii, rezervy (ne spisyvaem)
-    Denezhnye operatsii ne provodim (oni idut cherez /economy ruchkami/odobreniem).
-    """
+    Denezhnye operatsii ne provodim (oni idut cherez /economy ruchkami/odobreniem)."""
     if CASCADE_AB == "B":
         return {"ok": True, "executed": [], "note":"A/B=B: dry-only"}
     exec_log: List[Dict[str, Any]] = []

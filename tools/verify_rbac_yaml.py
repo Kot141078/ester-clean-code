@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-S0/tools/verify_rbac_yaml.py — myagkaya proverka RBAC-matritsy v YAML (bez lomki kontrakta).
+"""S0/tools/verify_rbac_yaml.py - myagkaya proverka RBAC-matritsy v YAML (bez lomki kontrakta).
 
 Mosty:
-- Yavnyy: Enderton (logika) — roli i prava kak formuly nad (subject, action, resource); validiruem strukturu/obyazatelnye klyuchi.
-- Skrytyy #1: Ashbi (kibernetika) — proverka prosche sistemy i ne vliyaet na rantaym; podderzhivaet «defektnye» konfigi preduprezhdeniyami.
-- Skrytyy #2: Cover & Thomas (infoteoriya) — ubiraem neopredelennost: yavnoe ukazanie «propuscheno/dubliruetsya».
+- Yavnyy: Enderton (logika) - role i prava kak formulaly nad (subject, action, resource); validiruem strukturu/obyazatelnye klyuchi.
+- Skrytyy #1: Ashbi (kibernetika) — proverka prosche sistemy i ne vliyaet na rantaym; podderzhivaet "defektnye" configi preduprezhdeniyami.
+- Skrytyy #2: Cover & Thomas (infoteoriya) — ubiraem neopredelennost: yavnoe ukazanie “propuscheno/dubliruetsya”.
 
 Zemnoy abzats (inzheneriya):
 Esli PyYAML otsutstvuet, vyvodit preduprezhdenie i zavershaetcya 0 (S0 — ne valim payplayn).
-Trebuet minimum: razdel roles s klyuchami guest/user/admin (khotya by pustymi), i spisok pravil.
+Requires minimum: razdel roles s klyuchami guest/user/admin (khotya by pustymi), i spisok pravil.
 Ne menyaet fayly, tolko pechataet otchet i kod vozvrata 0/1.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import sys
 import json
@@ -22,7 +20,7 @@ import json
 try:
     import yaml  # type: ignore
 except Exception:  # noqa: BLE001
-    print("[verify_rbac_yaml] WARN: PyYAML ne ustanovlen — propusk proverki (OK dlya S0).")
+    print("juverify_rach_yamlsch VARN: PiYaML is not installed - skipping the check (OK for C0).")
     sys.exit(0)
 
 from typing import Any, Dict, List, Set  # noqa: E402
@@ -43,7 +41,7 @@ def main() -> int:
 
     roles = data.get("roles")
     if not isinstance(roles, dict):
-        problems.append("Otsutstvuet razdel 'roles' (dict)")
+        problems.append("Missing section \"roles\" (dist)")
     else:
         have = set(roles.keys())
         missing = REQUIRED_ROLES - have
@@ -52,9 +50,9 @@ def main() -> int:
 
     rules = data.get("rules")
     if not isinstance(rules, list):
-        warnings.append("Otsutstvuet spisok 'rules' (list) — vozmozhno, primenyayutsya tolko defoltnye ogranicheniya.")
+        warnings.append("The list is missing (sheet) - perhaps only default restrictions are applied.")
 
-    # Prostaya proverka dublikatov po (role, method, path)
+    # Simple check for duplicates by (role, method, path)
     seen: Set[str] = set()
     dups: List[str] = []
     if isinstance(rules, list):
@@ -74,7 +72,7 @@ def main() -> int:
     out = {"problems": problems, "warnings": warnings}
     print(json.dumps(out, ensure_ascii=False, indent=2))
 
-    # V S0 — dazhe pri problemakh ne valim payplayn, prosto vozvraschaem 0
+    # In C0 - even if there are problems, we don’t crash the pipeline, we just return 0
     return 0
 
 if __name__ == "__main__":

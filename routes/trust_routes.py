@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/trust_routes.py — REST dlya upravleniya doveriem: lokalnyy klyuch, piry, priglasheniya Re podpisi.
+"""routes/trust_routes.py - REST dlya upravleniya doveriem: lokalnyy klyuch, piry, priglasheniya Re podpisi.
 
 Mosty:
 - Yavnyy: (Beb v†" Goverie) CRUD-dostup k klyucham, piram, priglasheniyam Re podpisyam.
@@ -9,30 +8,29 @@ Mosty:
 - Skrytyy #3: (Release v†" Vekap) podpisi relizov vlivayutsya v manifest dlya tselostnosti.
 
 Zemnoy abzats:
-Polnyy nabor dlya doveriya: upravlyay klyuchami, opredelyay, «komu verim»,
-vydavay i proveryay «kto razreshil», stav i proveryay tsifrovye pechati.
+Polnyy nabor dlya doveriya: upravlyay klyuchami, opredelyay, “komu verim”,
+vydavay i proveryay “kto razreshil”, stav i proveryay tsifrovye pechati.
 Bse prosto, nadezhno Re v odnom meste.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Edinyy Blueprint dlya vsekh marshrutov, svyazannykh s doveriem
+# Single Blueprint for all routes associated with the trust
 bp_trust = Blueprint("trust", __name__)
 
 try:
-    # Funktsii dlya raboty s lokalnoy identifikatsiey
+    # Functions for working with local identification
     from modules.trust.keystore import get_local_identity  # type: ignore
-    # Funktsii dlya upravleniya doverennymi pirami
+    # Functions for managing trusted peers
     from modules.trust.peers import list_peers, add_peer  # type: ignore
-    # Funktsii dlya sozdaniya i proverki priglasheniy (tokenov)
+    # Functions for creating and validating invitations (tokens)
     from modules.trust.invite import issue as issue_invite, verify as verify_invite  # type: ignore
-    # Funktsii dlya raboty s klyuchom i tsifrovymi podpisyami
+    # Functions for working with keys and digital signatures
     from modules.trust.sign import key_status, key_init, sign_path, verify_sig  # type: ignore
 except Exception:
-    # Esli moduli ne naydeny, vse funktsii-zaglushki budut None
+    # If no modules are found, all stub functions will be None
     get_local_identity = None  # type: ignore
     list_peers = add_peer = None  # type: ignore
     issue_invite = verify_invite = None  # type: ignore
@@ -42,20 +40,20 @@ def register(app):
     """R egistriruet dannyy Blueprint v prilozhenii Flask."""
     app.register_blueprint(bp_trust)
 
-# --- Marshruty dlya lokalnoy identifikatsii ---
+# --- Routes for local identification ---
 
 @bp_trust.route("/trust/local", methods=["GET"])
 def api_local():
-    """Vozvraschaet informatsiyu o lokalnom klyuche/identifikatsii."""
+    """Returns local key/identity information."""
     if get_local_identity is None:
         return jsonify({"ok": False, "error": "keystore_unavailable"}), 500
     return jsonify({"ok": True, **get_local_identity()})
 
-# --- Marshruty dlya upravleniya doverennymi pirami ---
+# --- Routes for managing trusted peers ---
 
 @bp_trust.route("/trust/peers", methods=["GET"])
 def api_peers():
-    """Vozvraschaet spisok doverennykh pirov."""
+    """Returns a list of trusted peers."""
     if list_peers is None:
         return jsonify({"ok": False, "error": "trust_store_unavailable"}), 500
     return jsonify({"ok": True, **list_peers()})
@@ -68,7 +66,7 @@ def api_peers_add():
     d = (request.get_json(True, True) or {})
     return jsonify(add_peer(str(d.get("id","")), str(d.get("name","")), str(d.get("alg","")), str(d.get("pubkey",""))))
 
-# --- Marshruty dlya sozdaniya i proverki priglasheniy (tokenov) ---
+# --- Routes for creating and checking invitations (tokens) ---
 
 @bp_trust.route("/trust/invite/issue", methods=["POST"])
 def api_inv_issue():
@@ -80,34 +78,34 @@ def api_inv_issue():
 
 @bp_trust.route("/trust/invite/verify", methods=["POST"])
 def api_inv_verify():
-    """Proveryaet token-priglashenie."""
+    """Checks the invitation token."""
     if verify_invite is None:
         return jsonify({"ok": False, "error": "invite_unavailable"}), 500
     d = (request.get_json(True, True) or {})
     tok = d.get("token") or d  # dopuskaem pryamuyu otpravku tokena
     return jsonify(verify_invite(tok))
 
-# --- Marshruty dlya upravleniya klyuchom podpisi ---
+# --- Routes for signing key management ---
 
 @bp_trust.route("/trust/key/status", methods=["GET"])
 def api_key_status():
-    """Vozvraschaet status lokalnogo klyucha dlya podpisi."""
+    """Returns the status of the local signing key."""
     if key_status is None:
         return jsonify({"ok": False, "error": "trust_sign_unavailable"}), 500
     return jsonify(key_status())
 
 @bp_trust.route("/trust/key/init", methods=["POST"])
 def api_key_init():
-    """Initsializiruet (sozdaet) novyy klyuch dlya podpisi."""
+    """Initializes (creates) a new signing key."""
     if key_init is None:
         return jsonify({"ok": False, "error": "trust_sign_unavailable"}), 500
     return jsonify(key_init())
 
-# --- Marshruty dlya sozdaniya i proverki tsifrovykh podpisey ---
+# --- Routes for creating and verifying digital signatures ---
 
 @bp_trust.route("/trust/sign", methods=["POST"])
 def api_sign():
-    """Sozdaђt tsifrovuyu podpis dlya ukazannogo puti."""
+    """Create a digital signature for the specified path."""
     if sign_path is None:
         return jsonify({"ok": False, "error": "trust_sign_unavailable"}), 500
     d = request.get_json(True, True) or {}
@@ -115,7 +113,7 @@ def api_sign():
 
 @bp_trust.route("/trust/verify", methods=["POST"])
 def api_verify_sig():
-    """Proveryaet tsifrovuyu podpis."""
+    """Verifies the digital signature."""
     if verify_sig is None:
         return jsonify({"ok": False, "error": "trust_sign_unavailable"}), 500
     d = request.get_json(True, True) or {}

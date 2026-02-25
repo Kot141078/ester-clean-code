@@ -44,7 +44,7 @@
       <pre id="peers">—</pre>
     </div>
     <div>
-      <h3>Udalennyy indeks</h3>
+      <h3>Remote index</h3>
       <div class="row">
         <button onclick="fetchRemote()">Poluchit</button>
         <input id="filterId" placeholder="filter node_id (opts.)"/>
@@ -114,7 +114,7 @@ function addPeer(){
 function renderRemote(j){
   remote=j; const fi=(document.getElementById('filterId').value||'').trim();
   let d = j?.diag || {};
-  if(fi && d?.signature?.node_id !== fi){ document.getElementById('remote').textContent='Filtr ne propustil etot uzel.'; return; }
+  if(fi && d?.signature?.node_id !== fi){ document.getElementById('remote').textContent='The filter did not miss this node.'; return; }
   const rows = [];
   (d.history||[]).forEach(i=> rows.push(`<div class="row"><code>${i.name}</code><span>${i.size} bayt</span><button onclick="selectName('${i.name.replaceAll('\\','\\\\')}'); document.getElementById('kind').value='history'">Vybrat</button></div>`));
   (d.tickets||[]).forEach(i=> rows.push(`<div class="row"><code>${i.name}</code><span>${i.size} bayt</span><button onclick="selectName('${i.name.replaceAll('\\','\\\\')}'); document.getElementById('kind').value='ticket'">Vybrat</button></div>`));
@@ -128,11 +128,11 @@ async function fetchRemote(){
     renderRemote(j);
     document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
   }catch(e){
-    document.getElementById('remote').textContent='Oshibka zaprosa indeksa.';
+    document.getElementById('remote').textContent='Index request failed.';
   }
 }
 async function opFetch(op){
-  if(!currentBase){ alert('Snachala zagruzite udalennyy indeks'); return; }
+  if(!currentBase){ alert('First load the remote index'); return; }
   if(!selected){ alert('Vyberite element'); return; }
   const kind=document.getElementById('kind').value;
   const r = await fetch('/lan/diagnostics/fetch',{method:'POST',headers:{'Content-Type':'application/json'},

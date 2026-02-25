@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-routes/session_guardian_routes.py - tsentralizovannyy guard, kotoryy NE lomaet UI/avtofiks.
+"""routes/session_guardian_routes.py - tsentralizovannyy guard, kotoryy NE lomaet UI/avtofiks.
 
-Chto delaet:
+What does it do:
   • Stavit before_request-khuki cherez security.auth_rbac.install_hooks(app).
   • Daet prostuyu diagnostiku na /guard/status.
   • Uchityvaet ENV: RBAC_MODE, RBAC_AB, RBAC_EXTRA_ALLOW.
 
 Mosty:
   • Yavnyy: (Inzheneriya bezopasnosti ↔ Ekspluatatsiya) - guard upravlyaemyy peremennymi okruzheniya.
-  • Skrytyy #1: (Infoteoriya ↔ Nadezhnost) - allowlist snizhaet lozhnye srabatyvaniya i shum.
+  • Skrytyy #1: (Infoteoriya ↔ Nadezhnost) - allowlist snizhaet lozhnye srabatyvaniya i noise.
   • Skrytyy #2: (Kibernetika ↔ Refleksy) - sloty A/B dlya myagkogo vklyucheniya i avto-otkata bez dauntayma.
 
 Zemnoy abzats:
   Ranshe globalnyy filtr mog otdavat 403 dlya sluzhebnykh ruchek i UI.
   Teper bazovyy allowlist puskaet /ui/*, /autofix/*, /debug/*, /app/discover/*
-  (v slote A), a dop. puti dobavlyayutsya cherez RBAC_EXTRA_ALLOW - bez pravok koda.
+  (v slot A), a dop. puti dobavlyayutsya cherez RBAC_EXTRA_ALLOW - bez pravok koda.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -27,7 +25,7 @@ from typing import Any, Dict, List
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Yadro RBAC: myagkiy import
+# RVACH core: soft import
 try:  # pragma: no cover
     from security.auth_rbac import install_hooks, _split_extra_allow  # type: ignore
 except Exception as e:  # avariynyy rezhim - ne padaem
@@ -41,10 +39,8 @@ bp = Blueprint("session_guardian", __name__)
 
 
 def _extra_allow() -> List[str]:
-    """
-    Vozvraschaet spisok dopolnitelnykh allow-patternov iz yadra (esli dostupno)
-    libo iz peremennoy okruzheniya RBAC_EXTRA_ALLOW.
-    """
+    """Returns a list of additional all-patterns from the kernel (if available)
+    or from the environment variable RVACH_EXTRA_ALLOV."""
     if _split_extra_allow is not None:
         try:
             return [s for s in _split_extra_allow() if s]  # type: ignore[misc]
@@ -56,7 +52,7 @@ def _extra_allow() -> List[str]:
 
 @bp.get("/guard/status")
 def guard_status():
-    """Diagnostika statusa RBAC-khukera i tekuschikh peremennykh okruzheniya."""
+    """Diagnostics of the RVAH hooker status and current environment variables."""
     info: Dict[str, Any] = {
         "ok": True,
         "rbac_mode": os.getenv("RBAC_MODE", "regex"),
@@ -71,10 +67,8 @@ def guard_status():
 
 
 def register(app):  # pragma: no cover
-    """
-    Drop-in tochka vkhoda (kak ranshe): registriruem blyuprint i naveshivaem khuki.
-    Vazhno vyzyvat kak mozhno ranshe, chtoby politika primenyalas ko vsem marshrutam.
-    """
+    """Drop-in tochka vkhoda (kak ranshe): register blyuprint i naveshivaem khuki.
+    Vazhno vyzyvat kak mozhno ranshe, chtoby politika primenyalas ko vsem marshrutam."""
     app.register_blueprint(bp)
     if install_hooks:
         try:
@@ -87,7 +81,7 @@ def register(app):  # pragma: no cover
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii."""
+    """Compatible initialization hook."""
     register(app)
 
 

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/synergy/test_properties.py — property-based testy orkestratora.
+"""tests/synergy/test_properties.py - property-based testy orkestratora.
 
 MOSTY:
 - (Yavnyy) Generiruem sluchaynye komandy i nabory agentov; proveryaem bazovye invarianty naznacheniya.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Idempotentnost assign_v2 po request_id na odnom i tom zhe vkhode.
 
 ZEMNOY ABZATs:
-Daet uverennost, chto kakie by «sostavy» ni prishli, plan validen: vse trebuemye roli naznacheny, shtrafy ne ukhodyat v nekorrektnye znacheniya, a fiksy soblyudayutsya.
+Daet surennost, chto kakie by “sostavy” ni prishli, plan validen: vse trebuemye roli naznacheny, shtrafy ne ukhodyat v nekorrektnye znacheniya, a fiksy soblyudayutsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -73,7 +71,7 @@ def test_assign_invariants(n_h, n_d, roles_cnt, monkeypatch):
     for a in agents:
         STORE.upsert_agent(a)
 
-    # Komanda i roli
+    # Komanda i role
     team_id = "T-"+_rand_id("team")
     roles = random.sample(ROLES, k=roles_cnt)
     STORE.create_team(team_id, "raznoe", roles)
@@ -93,11 +91,11 @@ def test_assign_invariants(n_h, n_d, roles_cnt, monkeypatch):
     # Invarianty:
     # 1) Vse trebuemye roli prisutstvuyut
     assert set(roles).issubset(set(assigned.keys()))
-    # 2) Kazhdaya naznachennaya suschnost suschestvuet sredi agentov
+    # 2) Each designated entity exists among agents
     ids = set(a["id"] for a in agents)
     for r, aid in assigned.items():
         assert aid in ids
-    # 3) Shtraf/total — konechnye chisla
+    # 3) Penalty/total - final numbers
     tot = float(res.get("total") or 0.0)
     pen = float(res.get("penalty") or 0.0)
     assert tot >= 0.0

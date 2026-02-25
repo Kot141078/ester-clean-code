@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ester_hub.py — Tsentralnyy khab podklyucheniy Ester (FastAPI + avtodiskaveri + P2P demo).
+"""modules/ester_hub.py - Tsentralnyy khab podklyucheniy Ester (FastAPI + avtodiskaveri + P2P demo).
 
 Sut:
 - Podnimaet FastAPI-prilozhenie.
-- Avto-skaniruet pakety (services/modules/bridges/...).
-- Montiruet routy moduley (esli est mount_to_app(app)).
-- Daet odin «vkhod» /query/{q} → lokalnaya obrabotka → sintez (esli dostupen XAIIntegrator).
+- Auto-scan package (services/modules/bridges/...).
+- Montiruet routey moduley (esli est mount_to_app(app)).
+- Daet odin “vkhod” /query/{q} → lokalnaya obrabotka → sintez (if available XAIIntegrator).
 - P2P: minimalnyy socket-server (demo) dlya priema JSON i zapisi v vstore.
 
 Pochemu u tebya moglo padat "unterminated string literal":
-- chasche vsego eto sled ot bitogo BOM/nevidimykh simvolov ili «umnykh kavychek» v mnogostrochnom
-  opisanii. V etoy versii: chistyy UTF-8, obychnye kavychki, bez ekzotiki.
+- chasche vsego eto sled ot bitogo BOM/nevidimykh simvolov ili “umnykh kavychek” v mnogostrochnom
+  description V etoy versii: pure UTF-8, obychnye kavychki, bez ekzotiki.
 
 Mosty:
-- Yavnyy: Ashbi (kibernetika) → khab kak regulyator «raznoobraziya» podklyuchaemykh moduley.
+- Yavnyy: Ashbi (kibernetika) → khab kak regulyator “raznoobraziya” podklyuchaemykh moduley.
 - Skrytyy 1: Cover & Thomas → CAS/kheshi/replikatsiya snizhayut entropiyu sinka (tyanut tolko deltu).
 - Skrytyy 2: Enderton → predikaty registratsii (exists/implication) dlya podklyucheniya interfeysov.
 
 Zemnoy abzats:
 Eto kak raspredelitelnyy schit: ne vazhno, skolko u tebya liniy (moduley), vazhno chtoby byla
-tsentralnaya tochka, gde izmeryaetsya nagruzka i gde stoyat predokhraniteli. Logi, taymauty i
-ogranichenie razmera paketa v P2P — eto «predokhraniteli» ot strannykh fleshek i sluchaynykh
+tsentralnaya tochka, where izmeryaetsya nagruzka i where stoyat predokhraniteli. Logi, taymauty i
+ogranichenie razmera paketa v P2P - eto “predokhraniteli” ot strannykh fleshek i sluchaynykh
 paketov v seti.
 
-# c=a+b
-"""
+# c=a+b"""
 
 from __future__ import annotations
 
@@ -73,7 +71,7 @@ def _mirror_background_event(text: str, source: str, kind: str) -> None:
 
 
 # -------------------------
-# Optsionalnye zavisimosti (myagko)
+# Optional dependencies (soft)
 # -------------------------
 
 def _optional_import(path: str):
@@ -84,7 +82,7 @@ def _optional_import(path: str):
         return None
 
 
-# Eti importy mogut otlichatsya v tvoem dereve, poetomu delaem myagko
+# These imports may differ in your tree, so we do it gently
 _actions_discovery = _optional_import("actions_discovery")
 _xai_integration = _optional_import("xai_integration")
 _vector_store = _optional_import("vector_store")
@@ -106,7 +104,7 @@ class _NullVectorStore:
 
 class _NullXAI:
     def synthesize_with_xai(self, query: str, local_responses: Dict[str, Any], provider: str = "all") -> Any:
-        # degradatsiya: vozvraschaem lokalnye rezultaty bez sinteza
+        # degradation: return local results without synthesis
         return {"query": query, "provider": provider, "local": local_responses}
 
 
@@ -184,16 +182,14 @@ class QueryResponse(BaseModel):
 # -------------------------
 
 class EsterHub:
-    """
-    Tsentralnyy khab. Po umolchaniyu:
+    """Tsentralnyy khab. By default:
       - P2P vklyuchen (mozhno vyklyuchit ESTER_P2P_ENABLE=0)
-      - limit paketa P2P (ESTER_P2P_MAX_BYTES), chtoby ne slomat pamyat/CPU
-    """
+      - limit paketa P2P (ESTER_P2P_MAX_BYTES), chtoby ne slomat pamyat/CPU"""
 
     def __init__(self) -> None:
         self.app = FastAPI(title="Ester Hub")
         self.modules: Dict[str, Any] = {}
-        self.agents: List[str] = []  # Spisok agentov v seti (dlya buduschego)
+        self.agents: List[str] = []  # List of agents on the network (for the future)
         self.vstore = _make_vstore()
         self.xai = _make_xai()
 
@@ -216,10 +212,8 @@ class EsterHub:
 
     @staticmethod
     def _iter_module_candidates(dirs: Iterable[str]) -> Iterable[str]:
-        """
-        Vozvraschaet imena moduley vida "services.foo" dlya .py v direktorii.
-        Rabotaet otnositelno CWD (kak u tebya bylo), bez voprosov/magii.
-        """
+        """Returns module names of the form "services.fu" for .software in the directory.
+        It works relative to SVD (as you had), without questions/magic."""
         for d in dirs:
             if not os.path.isdir(d):
                 continue
@@ -249,11 +243,11 @@ class EsterHub:
             try:
                 mod = importlib.import_module(mod_name)
                 self.modules[mod_name] = mod
-                log.info("Podklyuchen modul: %s", mod_name)
+                log.info("Module connected: ZZF0Z", mod_name)
             except Exception as e:  # noqa: BLE001
-                log.warning("Oshibka podklyucheniya %s: %s", mod_name, e)
+                log.warning("Connection error ZZF0Z: ZZF1ZZ", mod_name, e)
 
-        # actions (esli est)
+        # actions (if est)
         self.modules["actions"] = _discover_actions_safe()
 
     # ---------- Routes ----------
@@ -278,7 +272,7 @@ class EsterHub:
 
             return QueryResponse(query=query, provider="all", local=local_responses, synthesized=synthesized).model_dump()
 
-        # Dobavlyaem routy iz moduley (esli modul umeet mount_to_app(app))
+        # Add routes from modules (if the module can mount_to_app(app))
         for mod_name, mod in list(self.modules.items()):
             try:
                 if hasattr(mod, "mount_to_app") and callable(getattr(mod, "mount_to_app")):

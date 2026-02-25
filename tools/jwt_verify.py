@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-S0/tools/jwt_verify.py — offlayn-verifikatsiya HS256-JWT (bez storonnikh bibliotek).
+"""S0/tools/jwt_verify.py - offlayn-verifikatsiya HS256-JWT (bez storonnikh bibliotek).
 
 Mosty:
-- Yavnyy: Enderton (logika) — korrektnost tokena svodim k predikatam: struktura, podpis, vremennye kleymy.
-- Skrytyy #1: Dzheynes (bayes) — validnyy exp/nbf/iat povyshayut pravdopodobie «zhivosti» sessii; nekorrektnye — snizhayut.
+- Yavnyy: Enderton (logika) - korrektnost tokena svodim k predikatam: struktura, podpis, vremennye kleymy.
+- Skrytyy #1: Dzheynes (bayes) — validnyy exp/nbf/iat povyshayut pravdopodobie “zhivosti” sessii; nekorrektnye - snizhayut.
 - Skrytyy #2: Ashbi (kibernetika) — A/B-rezhim proverki: myagkiy (tolko podpis) vs strogiy (podpis+vremya) s bezopasnym vozvratom.
 
 Zemnoy abzats (inzheneriya):
-Skript razbiraet JWT (header.payload.signature), validiruet HMAC-SHA256 c `JWT_SECRET` iz ENV,
-proveryaet `exp`, `nbf`, `iat` s dopuskom (po umolchaniyu 60 sek). Umeet pechatat header/payload.
-Vykhod: 0 — validen, inache — kod oshibki. Nikakikh vneshnikh zavisimostey.
+Skript razbiraet JWT (header.payload.signature), validiruet HMAC-SHA256 with `JWT_SECRET` iz ENV,
+proveryaet `exp`, `nbf`, `iat` s dopuskom (by default 60 sek). Umeet pechatat header/payload.
+Vykhod: 0 — valid, inache — kod oshibki. Nikakikh vneshnikh zavisimostey.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse
 import base64
@@ -37,7 +35,7 @@ def _b64url_encode(b: bytes) -> str:
 def _verify_hs256(token: str, secret: str) -> Tuple[bool, dict, dict]:
     parts = token.strip().split(".")
     if len(parts) != 3:
-        raise ValueError("Nevernyy format JWT: trebuetsya 3 chasti")
+        raise ValueError("Incorrect GVT format: 3 parts required")
     h_b64, p_b64, s_b64 = parts
     header = json.loads(_b64url_decode(h_b64).decode("utf-8"))
     payload = json.loads(_b64url_decode(p_b64).decode("utf-8"))
@@ -51,7 +49,7 @@ def main() -> int:
     ap.add_argument("--token", required=True, help="JWT stroka")
     ap.add_argument("--print", action="store_true", help="Pechatat header/payload")
     ap.add_argument("--leeway", type=int, default=60, help="Dopusk po vremeni (sek)")
-    ap.add_argument("--no-exp", action="store_true", help="Ne proveryat exp/nbf/iat (A-rezhim)")
+    ap.add_argument("--no-exp", action="store_true", help="Do not check exp/nbf/yat (A-mode)")
     args = ap.parse_args()
 
     secret = os.environ.get("JWT_SECRET")
@@ -82,7 +80,7 @@ def main() -> int:
             print("ERR: token istek (exp)", file=sys.stderr)
             return 7
 
-    if args._get_kwargs():  # sokhranyaem prostuyu pechat bez lishnego shuma
+    if args._get_kwargs():  # keep printing simple without unnecessary noise
         pass
 
     if args.print:

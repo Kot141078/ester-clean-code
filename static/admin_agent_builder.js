@@ -1,4 +1,4 @@
-/* static/admin_agent_builder.js — mini-pult dlya vnutrennego Agent Builder.
+/* static/admin_agent_builder.zhs - mini-remote for internal Agent Builder.
 
 Mosty:
 - Yavnyy: (UX ↔ Mysli/Kaskad) knopki vyzyvayut /thinking/act i /thinking/cascade/*.
@@ -26,10 +26,10 @@ c=a+b
     const r1 = await fetchJSON('/thinking/act', {method:'POST', body: JSON.stringify({name:'agent.builder.templates.list', args:{}})});
     const r2 = await fetchJSON('/rulehub/state');
     ab.slot = (r1 && r1.ab) || 'unknown';
-    ab.write = false; // klient ne vidit env, otobrazhaem podskazku
+    ab.write = false; // the client does not see ENV, displays hints
     E('abState').textContent = `AB-slot: ${ab.slot} (zapis razreshaetsya cherez ENV na servere)`;
     E('rulehubState').textContent = pjson(r2||{});
-    println('✔ Okruzhenie oprosheno.');
+    println('✔ Okruzhenie asked.');
   }
 
   async function listTemplates(){
@@ -83,7 +83,7 @@ c=a+b
   // RuleHub helpers (ne menyaem kontraktov)
   async function loadRuleHubCfg(){
     const r = await fetch('/rulehub/config');
-    try{ const j = await r.json(); E('rulehubCfg').value = j.yaml || ''; }catch(e){ E('rulehubCfg').value = 'Oshibka chteniya YAML'; }
+    try{ const j = await r.json(); E('rulehubCfg').value = j.yaml || ''; }catch(e){ E('rulehubCfg').value = 'YML reading error'; }
   }
   async function saveRuleHubCfg(){
     const yaml = E('rulehubCfg').value;

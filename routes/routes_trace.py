@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes_trace.py — blyuprint trassirovki.
-Endpointy:
+"""routes_trace.py - blyuprint trace.
+Endpoint:
   GET /trace/recent?limit=... -> { ok, items: [...] }
-  GET /trace/item?id=...      -> { ok, item } | 404
-Chitaet JSONL-logi iz kataloga TRACE_LOG_DIR (po umolchaniyu vstore/logs).
+  GET /trace/item?id=... -> { ok, item } | 404
+Read JSONL-logi iz kataloga TRACE_LOG_DIR (by default vstore/logs).
 Graceful fallback: esli trace_logger.TraceLogger nedostupen/nepolon, chitaem fayly napryamuyu.
-Nikakikh blokirovok osnovnogo potoka: prostoe chtenie, bez isklyucheniy naruzhu.
-"""
+Nikakikh blokirovok osnovnogo potoka: prostoe chtenie, bez isklyucheniy naruzhu."""
 from __future__ import annotations
 
 import glob
@@ -18,11 +16,11 @@ from typing import Any, Dict, List, Optional
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Put k logam (bez zavisimosti ot config.py dlya sovmestimosti so starymi sborkami)
+# Path to logs (without dependence on config. software for compatibility with old builds)
 _LOG_DIR = os.getenv("TRACE_LOG_DIR", "vstore/logs")
 os.makedirs(_LOG_DIR, exist_ok=True)
 
-# Pytaemsya ispolzovat suschestvuyuschiy TraceLogger, no ne zavyazyvaemsya na nego zhestko.
+# We are trying to use the existing TraceLogger, but it is not strictly tied to it.
 _TraceLogger = None
 try:
     from trace_logger import TraceLogger as _TraceLogger  # type: ignore
@@ -57,17 +55,17 @@ def _tail_file(path: str, limit: int) -> List[Dict[str, Any]]:
         return []
 
 def _recent_fallback(limit: int) -> List[Dict[str, Any]]:
-    """Sobiraem zapisi iz neskolkikh poslednikh faylov, poka ne naberem limit."""
+    """We collect records from the last few files until the limit is reached."""
     items: List[Dict[str, Any]] = []
     for fp in _list_log_files():
         need = max(0, limit - len(items))
         if need <= 0:
             break
         chunk = _tail_file(fp, need)
-        # starye — snizu, no my idem po faylam nazad; normalizuem poryadok po ts/timestamp
+        # the old ones are at the bottom, but we go backwards through the files; normalizes the order by ts/timestamp
         items.extend(chunk)
 
-    # Sortirovka po vremeni, esli est ts|timestamp
+    # Sorting by time, if there is ts|timestamp
     def _key(x: Dict[str, Any]):
         return x.get("ts") or x.get("timestamp") or 0
 
@@ -97,11 +95,11 @@ def get_recent():
         limit = 20
 
     items: List[Dict[str, Any]] = []
-    # Esli est TraceLogger s get_recent — ispolzuem
+    # If there is a TraceLogger with get_recent, use it
     if _TraceLogger is not None:
         try:
             logger = _TraceLogger(_LOG_DIR)
-            # Popytka poluchit srazu mnozhestvo zapisey (esli realizatsiya podderzhivaet tolko "segodnya" — dopolnim fallback'om)
+            # An attempt to get many records at once (if the implementation only supports “today”, add falseback)
             today_items = logger.get_recent(limit)  # type: ignore[attr-defined]
             items = today_items or []
             if len(items) < limit:
@@ -114,7 +112,7 @@ def get_recent():
                     if not eid or eid not in seen:
                         items.append(it)
                         seen.add(eid)
-                # finalnaya normalizatsiya poryadka
+                # final order normalization
                 items = sorted(
                     items,
                     key=lambda x: x.get("ts") or x.get("timestamp") or 0,

@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/mem/entity_linker.py — legkiy izvlekatel suschnostey + best-effort privyazka k KG.
+"""modules/mem/entity_linker.py - legkiy izvlekatel suschnostey + best-effort privyazka k KG.
 
 Mosty:
 - Yavnyy: (Memory ↔ KG) iz teksta dostaem suschnosti i apsertim uzly/svyazi.
-- Skrytyy #1: (Profile ↔ Audit) kazhdaya operatsiya fiksiruetsya v «profilenom stole».
+- Skrytyy #1: (Profile ↔ Audit) kazhdaya operatsiya fiksiruetsya v “profilenom stole”.
 - Skrytyy #2: (RAG ↔ Navigatsiya) razmetka suschnostey uluchshaet posleduyuschiy retriv.
 
 Zemnoy abzats:
-Kak bibliotekar: uvidel imena/adresa/ssylki — polozhil kartochki v katalog, svyazal mezhdu soboy.
-Obedineno iz trekh versiy: rasshiren regex-okhvat, dobavleny stats, svyaz s hypothesis, logirovanie dlya pamyati Ester.
+Kak bibliotekar: uvidel imena/adresa/ssylki - polozhil kartochki v katalog, svyazal mezhdu soboy.
+Obedineno iz trekh versiy: rasshiren regex-okhvat, addavleny stats, svyaz s hypothesis, logirovanie dlya pamyati Ester.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, re, json
 import urllib.request, urllib.error
@@ -20,13 +18,13 @@ import logging
 from typing import Any, Dict, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Nastroyka logirovaniya dlya "pamyati" oshibok v Ester
+# Setting up logging for error “memory” in Esther
 logging.basicConfig(filename=os.getenv("MEM_LOG", "data/logs/mem_entity.log"), level=logging.ERROR,
                     format="%(asctime)s - %(levelname)s - %(message)s")
 
 KG_SHADOW = os.getenv("KG_SHADOW_DB", "data/mem/kg_shadow.json")
 
-_stats = {"runs": 0, "linked": 0}  # Iz py2 dlya prozrachnosti
+_stats = {"runs": 0, "linked": 0}  # From 2 for transparency
 
 def _ensure():
     os.makedirs(os.path.dirname(KG_SHADOW), exist_ok=True)
@@ -53,10 +51,10 @@ def extract_entities(text: str) -> List[Dict[str, str]]:
     for kind, rx in RX.items():
         for m in rx.finditer(s):
             val = m.group(0).strip()
-            # Filtratsiya, kak v py1/py2
+            # Filtration, as in po1/po2
             if kind in ["PERSON", "ORG", "PLACE", "TECH"] and len(val) < 3: continue
             out.append({"type": kind, "value": val})
-    # Dedup, kak v py1/py
+    # Dedup, as in po1/po
     uniq = []; seen = set()
     for e in out:
         k = (e["type"], e["value"])
@@ -65,10 +63,8 @@ def extract_entities(text: str) -> List[Dict[str, str]]:
     return uniq
 
 def _kg_upsert_node(label: str, value: str) -> str:
-    """
-    Best-effort: pytaemsya postuchatsya v lokalnye /mem/kg/upsert, inache — pishem v shadow-kg.
-    Vozvraschaet node_id (lokalnyy).
-    """
+    """Best-effort: we try to knock on local /tem/kg/upsert, otherwise we write to shadov-kg.
+    Returns node_id (local)."""
     node_id = f"{label}:{value}"
     try:
         body = json.dumps({"label": label, "value": value}).encode("utf-8")
@@ -105,7 +101,7 @@ def link_text(text: str, memory_id: str | None = None, upsert: bool = True) -> D
         if upsert:
             nid = _kg_upsert_node(label, e["value"])
         else:
-            nid = f"{label}:{e['value']}"  # Bez upsert, kak v py2
+            nid = f"{label}:{e['value']}"  # Without upsert, as in po2
         mapped.append({"node": nid, "label": label, "value": e["value"]})
         if memory_id:
             _kg_link(memory_id, "MENTIONS", nid)
@@ -119,7 +115,7 @@ def link_text(text: str, memory_id: str | None = None, upsert: bool = True) -> D
     except Exception:
         logging.error("Hypothesis link failed")
         pass
-    # Profile (best-effort), kak v py/py1
+    # Profile (best-effort), as in po/po1
     try:
         from services.mm_access import get_mm  # type: ignore
         from modules.mem.passport import upsert_with_passport  # type: ignore
@@ -128,7 +124,7 @@ def link_text(text: str, memory_id: str | None = None, upsert: bool = True) -> D
         pass
     return {"ok": True, "entities": mapped}
 
-# Alias dlya sovmestimosti s py1
+# Alias ​​for compatibility with software 1
 def autolink(items: List[Dict[str, Any]], tags: List[str] | None = None) -> Dict[str, Any]:
     linked = []
     for it in items or []:
@@ -141,7 +137,7 @@ def autolink(items: List[Dict[str, Any]], tags: List[str] | None = None) -> Dict
 def status() -> Dict[str, Any]:
     j = _load()
 # return {"ok": True, "stats": dict(_stats), "nodes": len(j.get("nodes", {})), "edges": len(j.get("edges", []))}
-    # Ideya rasshireniya: dlya P2P-sinkhronizatsii shadow — dobav funktsiyu sync_shadow(peers: List[str]):
+    # Extension idea: for P2P synchronization of shads, add the function sync_shads (persian: Listustrsch):
     #   for peer in peers:
     #       try: req to peer/kg_shadow, merge nodes/edges, resolve conflicts by timestamp.
-    #   Esli nuzhno, realizuyu v otdelnom module sync_shadow.py dlya detsentralizatsii Ester.
+    #   If necessary, I will implement it in a separate module sync_shadov.po for decentralization of Esther.

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/make_usb_headless.py — headless: sobrat reliz (opts.) i zapisat /ESTER na ukazannyy tom.
+"""scripts/make_usb_headless.py - headless: sobrat reliz (opts.) i zapisat /ESTER na ukazannyy tom.
 
 Primery:
   python -m scripts.make_usb_headless --mount /media/USB --with-release --label ESTER_USB
@@ -14,8 +13,7 @@ Mosty:
 Zemnoy abzats:
 Udobno v stsenariyakh bez brauzera i na CI-stankakh: sdelat fleshku odnoy komandoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -33,9 +31,9 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Ester USB Maker (headless)")
     ap.add_argument("--mount", required=True, help="put montirovaniya USB")
     ap.add_argument("--with-release", action="store_true", help="sobrat i dobavit arkhiv reliza")
-    ap.add_argument("--with-dump", type=str, default="", help="put k dampu dlya dobavleniya")
+    ap.add_argument("--with-dump", type=str, default="", help="path to dump to add")
     ap.add_argument("--label", type=str, default=os.getenv("ESTER_USB_LABEL", "ESTER"))
-    ap.add_argument("--dry", action="store_true", help="ne zapisyvat (tolko sobrat/splanirovat)")
+    ap.add_argument("--dry", action="store_true", help="do not record (only collect/plan)")
     args = ap.parse_args(argv)
 
     archive_path = None

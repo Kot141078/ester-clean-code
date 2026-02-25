@@ -41,7 +41,7 @@
     <h3>Redaktor</h3>
     <div class="row">
       <input id="id" placeholder="id (pusto — novyy)" class="mono" style="min-width:260px"/>
-      <input id="name" placeholder="Imya profilya" style="min-width:260px"/>
+      <input id="name" placeholder="Profile name" style="min-width:260px"/>
     </div>
     <div class="row">
       <input id="release_dest" class="mono" style="min-width:420px" placeholder="releases/{project}/{ts}/"/>
@@ -91,7 +91,7 @@ async function save(){
   load();
 }
 async function del(id){
-  if(!confirm('Udalit profil?')) return;
+  if(!confirm('Delete profile?')) return;
   const fd=new FormData(); fd.append('id',id);
   await fetch('/admin/sync-profiles/delete',{method:'POST',body:fd});
   load();

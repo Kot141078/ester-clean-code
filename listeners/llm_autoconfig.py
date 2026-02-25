@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/llm_autoconfig.py — fonovyy avtokonfig LLM.
+"""listeners/llm_autoconfig.py - fonovyy avtokonfig LLM.
 
-Povedenie:
+Behavior:
   • Kazhdye interval sek: run_once().
-  • V AB=A — tolko plany i self-check bez izmeneniy.
-  • V AB=B — esli plan predlagaet import — sozdaem modeli v Ollama (lokalnye .gguf).
+  • V AB=A — only plany i self-check bez izmeneniy.
+  • V AB=B - esli plan predlagaet import - sozdaem modeli v Ollama (lokalnye .gguf).
 
 ENV/CFG: sm. modules.llm.autoconfig_settings.
 
 Mosty:
-- Yavnyy (Kibernetika ↔ Orkestratsiya): avtonomnyy tsikl privedeniya LLM k «rabochemu minimumu».
+- Yavnyy (Kibernetika ↔ Orkestratsiya): avtonomnyy tsikl privedeniya LLM k “rabochemu minimumu”.
 - Skrytyy 1 (Infoteoriya ↔ Nadezhnost): zhurnal sostoyaniya na diske; otsutstvie vneshney seti.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): drop-in; uvazhenie AB-rezhima.
 
 Zemnoy abzats:
-Eto «naladchik»: periodicheski proveryaet, khvataet li dvizhku modeley, i pri neobkhodimosti dozavozit iz lokalnykh faylov.
+This is “naladchik”: periodicheski proveryaet, khvataet li dvizhku modeley, i pri neobkhodimosti dozavozit iz lokalnykh faylov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse, time

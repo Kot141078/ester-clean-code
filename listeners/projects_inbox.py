@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/projects_inbox.py — avto-podkhvat proektov/zadaniy iz drop-folder.
+"""listeners/projects_inbox.py - avto-podkhvat proektov/zadaniy iz drop-folder.
 
-Povedenie (pri PROJECTS_INBOX_ENABLE=1):
+Behavior (pri PROJECTS_INBOX_ENABLE=1):
   • Raz v PROJECTS_INBOX_POLL sekund chitaet {ESTER_STATE_DIR}/inbox/projects/.
   • Dlya *.json: ozhidaetsya {"name": "...", "jobs":[{"prompt": "..."}], "defaults":{...}} — sozdaet proekt i perenosit fayl v processed/.
-  • Dlya *.txt: kazhdaya nepustaya stroka = zadanie; imya proekta = imya fayla; sozdaet proekt, dobavlyaet zadaniya; perenosit fayl v processed/.
-  • Bezopasno: esli parsing padaet — fayl perenositsya v failed/ s kommentariem.
+  • Dlya *.txt: kazhdaya nepustaya stroka = zadanie; imya project = imya fayla; sozdaet proekt, dobavlyaet zadaniya; perenosit fayl v processed/.
+  • Safe: if parsing padaet - fayl perenositsya v failed/ s comment.
 
 AB-zamechanie: sozdanie faylov proekta ne izmenyaet yadro Ester; opasnykh deystviy net.
 
 Mosty:
-- Yavnyy (UX ↔ Ekspluatatsiya): faylopapka kak «bumazhnyy yaschik» dlya zadach.
+- Yavnyy (UX ↔ Ekspluatatsiya): faylopapka kak “bumazhnyy yaschik” dlya zadach.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): vse validiruetsya i protokoliruetsya cherez faylovuyu strukturu processed/failed.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): perenosimye tekst/JSON formaty.
 
 Zemnoy abzats:
-Eto «yaschik vkhodyaschikh»: polozhil fayl — poluchil proekt; udobno offlayn i dlya massovykh puskov.
+Eto “yaschik vkhodyaschikh”: polozhil fayl - poluchil project; udobno offlayn i dlya massovykh puskov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, os, shutil, time
 from pathlib import Path

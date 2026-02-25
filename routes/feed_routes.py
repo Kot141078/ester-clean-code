@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/feed_routes.py — publichnyy fid dlya UI: /feed/latest.
-Istochniki:
-  1) StructuredMemory.flashback (po tegam i zaprosu)
-  2) Telegram feed (fallback) — modules.telegram_feed_store.latest
-R egistratsiya:
+"""routes/feed_routes.py - publichnyy fid dlya UI: /feed/latest.
+Sources:
+  1) StructuredMemory.flashback (by tag i zaprosu)
+  2) Telegram feed (fallback) - modules.telegram_feed_store.latest
+Registration:
   from routes.feed_routes import register_feed_routes
-  register_feed_routes(app, url_prefix="/feed")
-"""
+  register_feed_routes(app, url_prefix="/feed")"""
 from __future__ import annotations
 
 import os
@@ -60,7 +58,7 @@ def register_feed_routes(app, url_prefix: str = "/feed"):
         q = (request.args.get("q") or "*").strip()
         tags_csv = request.args.get("tags", "")
         req_tags = _parse_tags_csv(tags_csv)
-        # Pytaemsya iz pamyati
+        # Trying from memory
         items: List[Dict[str, Any]] = []
         try:
             hits = _mm().flashback(query=q, k=min(5 * limit, 200))  # type: ignore[attr-defined]
@@ -81,7 +79,7 @@ def register_feed_routes(app, url_prefix: str = "/feed"):
             )
             if len(items) >= limit:
                 break
-        # Esli pusto — vozmem iz Telegram feed
+        # If empty, take it from Telegram fed
         if not items:
             try:
                 from modules.telegram_feed_store import latest as tg_latest  # type: ignore
@@ -108,7 +106,7 @@ def register_feed_routes(app, url_prefix: str = "/feed"):
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
 def register(app):
-    # vyzyvaem suschestvuyuschiy register_feed_routes(app) (url_prefix beretsya po umolchaniyu vnutri funktsii)
+    # calls an existing register_fed_rutes(app) (url_prefix is ​​taken by default inside the function)
     return register_feed_routes(app)
 
 # === /AUTOSHIM ===

@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-compat — sloy sovmestimosti dlya Ester.
+"""compat - layer sovmestimosti dlya Ester.
 Naznachenie: ne menyaya starye importy/puti, akkuratno podlozhit aliasy i myagkie patchi:
 - sopostavit starye prostranstva imen (memory, agents, quality, graph, llm, ...)
-  s realnym derevom modules.*;
+  s realnym tree modules.*;
 - dobavit otsutstvuyuschie simvoly, ozhidaemye kodom (napr. modules.quality.guard.enable);
 - sgladit nesovmestimosti storonnikh paketov (flask_jwt_extended v4).
 
 MOSTY:
-- Yavnyy: Teoriya informatsii (Kover–Tomas) → kanal s shumom. Aliasy umenshayut «shum» putey, sokhranyaya poleznyy signal (rabochie importy), chto snizhaet veroyatnost oshibki pri dekodirovanii (importe).
-- Skrytyy 1: Bayes (Dzheynes) → aposteriornaya pravdopodobnost. Esli modul suschestvuet pod modules.*, alias uvelichivaet veroyatnost uspeshnogo importa «starogo» imeni.
+- Yavnyy: Teoriya informatsii (Kover–Tomas) → kanal s noise. Aliasy umenshayut “shum” putey, sokhranyaya poleznyy signal (rabochie importy), chto snizhaet veroyatnost oshibki pri dekodirovanii (importe).
+- Skrytyy 1: Bayes (Dzheynes) → aposteriornaya pravdopodobnost. Esli modul suschestvuet pod modules.*, alias uvelichivaet veroyatnost uspeshnogo importa “starogo” imeni.
 - Skrytyy 2: Kibernetika (Eshbi) → regulyator raznoobraziya. Szhimaem raznomastnye importy do upravlyaemogo mnozhestva cherez tsentralizovannyy kontroller.
 
 ZEMNOY ABZATs:
-Eto kak kollektor dlya kabeley v stoyke: kuda by staryy provod ni byl protyanut, kollektor perenapravit ego na pravilnyy port. Svet ne morgaet, stoyka ne padaet.
-"""
+Eto kak kollektor dlya kabeley v stoyke: kuda by staryy provod ni byl protyanut, kollektor perenapravit ego na pravilnyy port. Svet ne morgaet, stoyka ne padaet."""
 from __future__ import annotations
 import importlib
 import sys
@@ -42,9 +40,9 @@ ALIASES = {
     "registry": "modules.registry",
     "reports": "modules.reports",
     "selfmanage": "modules.selfmanage",
-    # Chastye opechatki/varianty
-    "listners": "listeners",  # esli gde-to zovut oshibochno, perekinem v nastoyaschiy paket listeners
-    # Tochechnye puti, kotorye vstrechalis v logakh
+    # Frequent typos/variants
+    "listners": "listeners",  # if somewhere the name is wrong, we will transfer it to the real listeners package
+    # Point paths that were found in the logs
     "graph.dag_engine": "modules.graph.dag_engine",
     "subconscious.engine": "modules.subconscious.engine",
     "llm.autoconfig_settings": "modules.llm.autoconfig_settings",
@@ -52,7 +50,7 @@ ALIASES = {
 }
 
 def _ensure_parent(pkg: str) -> None:
-    """Sozdaet nedostayuschie roditelskie pakety v sys.modules (pustye namespace-moduli)."""
+    """Creates missing parent packages in sys.modules (empty namespace-modules)."""
     parts = pkg.split(".")
     for i in range(1, len(parts)):
         name = ".".join(parts[:i])
@@ -62,14 +60,14 @@ def _ensure_parent(pkg: str) -> None:
             sys.modules[name] = m
 
 def _alias_module(old: str, new: str) -> None:
-    """Svyazyvaet modul old s realnym modulem new (esli on importiruetsya). Inache — sozdaet pustoy namespace."""
+    """Links the old module to the real new module (if it is imported). Otherwise, it creates an empty namespace."""
     try:
         real_mod = importlib.import_module(new)
         _ensure_parent(old)
         sys.modules[old] = real_mod
-        # Takzhe linkuem podmoduli (old.*) na letu cherez finder'y pitona — ostavim Pythonu, zdes ne pereuslozhnyaem
+        # We also link submodules (old.*) on the fly through Python findry - we’ll leave it to Pithuna, we won’t overcomplicate it here
     except Exception:
-        # Esli tselevogo net — sozdaem pustoy modul, chtoby sam import old ne valil protsess
+        # If there is no target, we create an empty module so that the old import itself does not crash the process
         _ensure_parent(old)
         if old not in sys.modules:
             fallback = types.ModuleType(old)
@@ -80,17 +78,17 @@ def _install_aliases():
     for left, right in ALIASES.items():
         _alias_module(left, right)
 
-# --- Myagkie patchi izvestnykh nesovmestimostey -------------------------------
+# --- Soft patches for known incompatibilities -------------------------------
 
 def _patch_quality_guard_enable():
-    """Esli modules.quality.guard est, no v nem net enable/disable — dobavim neytralnye shiny."""
+    """If there is modules.kalita.guard, but it does not have enable/disable, we will add neutral tires."""
     try:
         mod = importlib.import_module("modules.quality.guard")
     except Exception:
         return
     if not hasattr(mod, "enable"):
         def enable(*args, **kwargs):
-            # Neytralnyy pereklyuchatel kachestva (po umolchaniyu nichego ne delaet)
+            # Neutral quality switch (does nothing by default)
             return {"ok": True, "mode": "compat", "feature": "quality_guard", "enabled": True}
         mod.enable = enable  # type: ignore[attr-defined]
     if not hasattr(mod, "disable"):
@@ -99,7 +97,7 @@ def _patch_quality_guard_enable():
         mod.disable = disable  # type: ignore[attr-defined]
 
 def _patch_messaging_telegram_adapter():
-    """Esli messaging.telegram_adapter est, no net TelegramAdapter — dobavim bezopasnuyu zaglushku-klass."""
+    """If there is a messaging.telegram_adapter, but there is no TelegramAdapter, we will add a safe stub class."""
     try:
         mod = importlib.import_module("messaging.telegram_adapter")
     except Exception:
@@ -116,24 +114,24 @@ def _patch_messaging_telegram_adapter():
         mod.TelegramAdapter = TelegramAdapter  # type: ignore[attr-defined]
 
 def _patch_flask_jwt_extended():
-    """Dobavlyaem verify_jwt_in_request_optional, esli biblioteka ego ubrala/pereimenovala."""
+    """We add verifs_zhvt_in_reguest_optional if the library removed/renamed it."""
     try:
         fj = importlib.import_module("flask_jwt_extended")
     except Exception:
         return
     if not hasattr(fj, "verify_jwt_in_request_optional"):
-        # Poprobuem sobrat funktsional cherez verify_jwt_in_request(optional=True)
+        # Let's try to assemble the functionality through verifications_zhvt_in_reguest (optional=Three)
         def verify_jwt_in_request_optional(*args, **kwargs):
             try:
                 if hasattr(fj, "verify_jwt_in_request"):
                     return fj.verify_jwt_in_request(optional=True)  # type: ignore
             except Exception:
-                # V kraynem sluchae — nichego ne delaem (marshrut ne budet trebovat JWT)
+                # As a last resort, we do nothing (the route will not require gas transportation)
                 return None
         fj.verify_jwt_in_request_optional = verify_jwt_in_request_optional  # type: ignore[attr-defined]
 
 def enable():
-    """Glavnaya tochka vklyucheniya sloya sovmestimosti."""
+    """The main point of inclusion of the compatibility layer."""
     _install_aliases()
     _patch_quality_guard_enable()
     _patch_messaging_telegram_adapter()
@@ -144,7 +142,7 @@ def enable():
 try:
     enable()
 except Exception:
-    # Nikogda ne ronyaem protsess na urovne sovmestimosti
+    # We never drop the process at the compatibility level
     pass
 
 # c=a+b

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ops_summary_routes.py - REST: /ops/summary
+"""routes/ops_summary_routes.py - REST: /ops/summary
 
 Mosty:
 - Yavnyy: (Veb ↔ Operatsii) odna ruchka vozvraschaet kompaktnuyu svodku sostoyaniya.
 - Skrytyy #1: (Panel ↔ UX) udobno risovat dashbord v UI.
-- Skrytyy #2: (Samorazvitie ↔ Volya) po svodke «puls» mozhet prinimat resheniya (naprimer, usilit ingest).
+- Skrytyy #2: (Samorazvitie ↔ Volya) po svodke “puls” mozhet prinimat resheniya (for example, usilit ingest).
 
 Zemnoy abzats:
-Otkryl «priborku» - uvidel vse vazhnoe srazu.
+Otkryl "priborku" - uvidel vse vazhnoe srazu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

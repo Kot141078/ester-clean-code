@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-U1/tools/u1_daily_job.py — ezhednevnyy offlayn-dzhob «Sovetnik»: odin vyzov dlya planirovschika.
+"""U1/tools/u1_daily_job.py — ezhednevnyy offlayn-dzhob “Sovetnik”: odin vyzov dlya planirovschika.
 
 Mosty:
 - Yavnyy: Enderton — formalnye shagi payplayna; fonov ne podnimaem.
@@ -9,11 +8,10 @@ Mosty:
 - Skrytyy #2: Cover & Thomas — sozdaem rovno nuzhnye artefakty: JSON/MD/HTML + outbox.
 
 Zemnoy abzats (inzheneriya):
-Zapuskat raz v den/chas. Kontekst zabot beretsya iz fayla ili iz pamyati (kartochki s tegami chat/dialog/concern).
-Rezultat — obnovlennyy portal i `portal/advice.md`.
+Zapuskat raz v den/hour. Kontekst zabot beretsya iz fayla ili iz pamyati (kartochki s tegami chat/dialog/concern).
+Rezultat - updated portal i `portal/advice.md`.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, subprocess, sys
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

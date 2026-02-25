@@ -11,9 +11,9 @@ def fix_typing_error():
     with open(TARGET, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # Ischem oshibochnuyu stroku
+    # Looking for the wrong line
     bad_line = "WEB_CONTEXT_BY_CHAT: Dict[str, str] = {}"
-    # Menyaem na prostuyu versiyu (bez Dict, chtoby ne zaviset ot importov)
+    # Change to a simple version (without Dist, so as not to depend on imports)
     good_line = "WEB_CONTEXT_BY_CHAT = {}  # type: ignore"
 
     if bad_line in content:
@@ -23,7 +23,7 @@ def fix_typing_error():
         print("✅ Fixed NameError: Removed premature type hint.")
     else:
         print("⚠️ Line not found exactly as expected. Trying 'dict' lower case variant just in case.")
-        # Na sluchay esli tam drugie probely
+        # In case there are other gaps
         if "WEB_CONTEXT_BY_CHAT" in content and "Dict[" in content:
              content = content.replace("Dict[str, str]", "dict")
              with open(TARGET, "w", encoding="utf-8") as f:

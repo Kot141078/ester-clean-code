@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/resilience/boot.py — samodiagnostika zapuska i legkiy «repair».
+"""modules/resilience/boot.py - samodiagnostika zapuska i legkiy “repair”.
 
 Mosty:
 - Yavnyy: (Inzheneriya ↔ Operatsii) proveryaem direktorii/fayly/politiki/klyuchi.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Samoobsluzhivanie ↔ Cron) mozhno gonyat raz v sutki.
 
 Zemnoy abzats:
-Pered dlinnym puteshestviem — proverili remen, maslo i aptechku.
+Pered dlinnym puteshestviem - proverili remen, maslo i aptechku.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from typing import Any, Dict, List

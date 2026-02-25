@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/messaging/test_contacts_csv.py — eksport/import CSV.
+"""tests/messaging/test_contacts_csv.py - eksport/import CSV.
 
 MOSTY:
 - (Yavnyy) Eksportiruet pustuyu/nepustuyu bazu v CSV i importiruet obratno.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) CSV_DELIM vliyaet na format.
 
 ZEMNOY ABZATs:
-Garantiruet, chto operator mozhet perenosit kontakty mezhdu sredami bez syurprizov.
+Garantiruet, what operator mozhet perenosit kontakty mezhdu sredami bez syurprizov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, time

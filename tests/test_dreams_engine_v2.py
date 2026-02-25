@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-E2E-test dlya «Snov» (modules/dreams_engine.DreamsEngine):
+"""E2E-test dlya “Snov” (modules/dreams_engine.DreamsEngine):
  - podmenyaem MemoryManager na minimalnyy stab (flashback/add_record)
  - progonyaem klasterizatsiyu i generatsiyu gipotez
- - proveryaem, chto HypothesisStore i KGStore poluchili zapisi
-"""
+ - proveryaem, chto HypothesisStore i KGStore poluchili zapisi"""
 
 import json
 import os
@@ -26,7 +24,7 @@ class _StructuredStub:
         self._items = [{"text": t, "mtime": time.time()} for t in seed_texts]
 
     def flashback(self, query="*", k=200):
-        # prostaya filtratsiya po podstroke (kak v realnoy ruchke)
+        # simple filtering by substring (like in a real pen)
         ql = (query or "*").lower()
         out = []
         for it in self._items[::-1]:
@@ -63,7 +61,7 @@ def test_dreams_generate_hypotheses_and_kg(clean_env):
     from memory.kg_store import KGStore
     from modules.dreams_engine import DreamRule, DreamsEngine
 
-    # Zadem "istoriyu", gde yavno budet klaster po replikatsii/CRDT
+    # Touch “history”, where there will clearly be a cluster on replication/MDGs
     seed = [
         "P2P replication status: vector clocks and CRDT merge policy",
         "Discuss CRDT LWW strategy and KG edges merge",
@@ -90,11 +88,11 @@ def test_dreams_generate_hypotheses_and_kg(clean_env):
     assert report["hypotheses"] >= 1
     assert report["saved"] >= 1
 
-    # Proveryaem HypothesisStore
+    # Checking the HopotnessStore
     hs = HypothesisStore()
     items = hs.list(limit=50)
     assert len(items) >= 1
-    # Naydem khotya by odnu gipotezu, soderzhaschuyu klyuch "crdt" ili "replication" (na russkom/angl mogut otlichatsya, proveryaem prosto nalichie teksta)
+    # Let's find at least one hypothesis containing the key "tsrdt" or "replication" (in Russian/English they may differ, we just check for the presence of text)
     assert any(
         "klaster" in (it["text"].lower())
         or "klyuch" in (it["text"].lower())
@@ -102,7 +100,7 @@ def test_dreams_generate_hypotheses_and_kg(clean_env):
         for it in items
     )
 
-    # Proveryaem KG: dolzhny poyavitsya nodes/edges
+    # Checking the CG: nodes/edges should appear
     kg = KGStore()
     dump = kg.export_all()
     assert len(dump.get("nodes", [])) >= 1

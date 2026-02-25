@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/peer_rpa_proxy_routes.py - prostoe proksirovanie RPA na drugoy uzel Ester po lokalnoy seti.
+"""routes/peer_rpa_proxy_routes.py - prostoe proksirovanie RPA na drugoy uzel Ester po lokalnoy seti.
 
 Ruchka:
   POST /peer/proxy {"host":"127.0.0.1:8000","path":"/desktop/rpa/open","payload":{...}}
 
-Naznachenie:
-- Kooperativ: «Ester na moem PK» pomogaet na drugom PK s Ester, ne raskryvaya vnutrenniy agent napryamuyu.
+Name:
+- Kooperativ: “Ester na moem PK” pomogaet na drugom PK s Ester, ne raskryvaya vnutrenniy agent napryamuyu.
 - Bezopasnost: eto yavnaya operatsiya, trebuyuschaya roli operator (JWT) i soglasiya domena "rpa.coop".
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from typing import Dict, Any
@@ -39,7 +37,7 @@ def peer_proxy():
     if domain_needs_consent(domain):
         mode = (data.get("consent") or "").strip()  # allow/ask_once
         if mode not in ("allow","ask_once"):
-            return jsonify({"ok": False, "prompt": f"Razreshit kooperativnoe deystvie na {host}?", "domain": domain}), 403
+            return jsonify({"ok": False, "prompt": f"Allow cooperative action on ZZF0Z?", "domain": domain}), 403
         set_rule(domain, mode, persist=(mode!="ask_once"))
 
     # uproschennyy HTTP klient

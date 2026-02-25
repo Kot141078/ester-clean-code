@@ -35,7 +35,7 @@
         channel: "ui"
         message: "🧊 Karantin: {{ payload.quarantine_path }} (sha={{ payload.sha256 }})"
 
-# 3) Lyubaya modifikatsiya v kanareyke → myagkiy log + odnorazovyy obzor
+# 3) Any modification in canary → soft log + one-time review
 - name: modified_review
   match:
     type: security.signal.canary_modified

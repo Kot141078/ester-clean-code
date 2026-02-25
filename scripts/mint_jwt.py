@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Vypusk dev-JWT s rolyami.
-Ispolzuet HS256, esli zadan JWT_SECRET/JWT_SECRET_KEY.
-Inache pytaetsya RS256 iz JWT_PRIVATE_KEY_PATH.
-"""
+"""Release of girls-ZhVT with roles.
+Uses HC256 if ZhVT_SECRET/ZhVT_SECRET_KEY is specified.
+Otherwise, RS256 from ZhVT_PRIVATE_KEY_PATH tries."""
 import json
 import os
 import sys

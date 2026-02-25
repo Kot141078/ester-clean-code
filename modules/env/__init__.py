@@ -1,7 +1,6 @@
 
 # -*- coding: utf-8 -*-
-"""
-modules.env — tonkaya obertka nad peremennymi okruzheniya.
+"""modules.env - tonkaya obertka nad peremennymi okruzheniya.
 Mosty:
 - Yavnyy: get()/set()/get_bool().
 - Skrytyy #1: (Bezopasnost ↔ DX) — edinaya tochka dostupa.
@@ -9,8 +8,7 @@ Mosty:
 
 Zemnoy abzats:
 Edinoe obraschenie k ENV snizhaet rassypanie po kodu.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

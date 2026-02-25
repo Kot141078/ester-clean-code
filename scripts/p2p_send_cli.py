@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/p2p_send_cli.py — polozhit «konvert» v outbox i initsiirovat otpravku (Telegram).
+"""scripts/p2p_send_cli.py - polozhit “konvert” v outbox i initsiirovat otpravku (Telegram).
 
 Primer:
   AB_MODE=B python -m scripts.p2p_send_cli --project MyProj --profile default --note "hello"
 
-Flagi:
-  --project <name>     — logicheskoe imya proekta (string)
-  --profile <id>       — sync_profile_id (string)
-  --note "<text>"      — komment v payload (opts.)
+Flags:
+  --project <name> — logicheskoe imya project (string)
+  --profile <id> — sync_profile_id (string)
+  --note "<text>" — comment v payload (opts.)
 
 Mosty:
-- Yavnyy (Kibernetika ↔ Orkestratsiya): unifitsirovannaya otpravka «kak UI», no iz CLI.
-- Skrytyy 1 (Infoteoriya ↔ Diagnostika): pechataet itogovyy put i rezultat send().
-- Skrytyy 2 (Praktika ↔ Sovmestimost): envelope identichen LAN/USB.
+- Yavnyy (Kibernetika ↔ Orkestratsiya): unifitsirovannaya otpravka “kak UI”, no iz CLI.
+- Skrytyy 1 (Infoteoriya ↔ Diagnostika): pechataet itogovyy put i resultat send().
+- Skrytyy 2 (Praktika ↔ Sovmestimost): envelope identical LAN/USB.
 
 Zemnoy abzats:
-Eto «otpravit pismo iz konsoli»: polozhil v outbox — kurer zabral i dones v chat.
+Eto “otpravit pismo iz konsoli”: polozhil v outbox - kurer zabral i dones v chat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse

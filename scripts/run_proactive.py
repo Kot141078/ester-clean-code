@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/run_proactive.py — odnorazovyy ili periodicheskiy zapusk proaktivnykh pravil.
+"""scripts/run_proactive.py — odnorazovyy or periodicheskiy zapusk proaktivnykh pravil.
 ENV:
   PROACTIVE_RULES=config/proactive_rules.yaml
-  PROACTIVE_INTERVAL_SECS=0   # esli >0 — tsikl s pauzoy
-  PROACTIVE_ONCE=1            # "1" => odin progon
-"""
+  PROACTIVE_INTERVAL_SECS=0 # esli >0 — tsikl s pauzoy
+  PROACTIVE_ONCE=1 # "1" => odin progon"""
 from __future__ import annotations
 
 import json

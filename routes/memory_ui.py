@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/memory_ui.py - UI/REST dlya portala pamyati Ester.
+"""routes/memory_ui.py - UI/REST dlya portala pamyati Ester.
 
-Marshruty:
-  • GET  /admin/memory              - HTML portal s knopkami/vkladkami
-  • GET  /admin/memory/layer/<name> - JSON dlya sloya (naprimer, cards, vector)
-  • POST /admin/memory/query        - Poisk/zapros k konveyeru myshleniya
-  • POST /admin/memory/add          - Dobavit zapis v pamyat
+Route:
+  • GET /admin/memory - HTML portal s knopkami/vkladkami
+  • GET /admin/memory/layer/<name> - JSON dlya layer (for example, cards, vector)
+  • POST /admin/memory/query - Poisk/zapros k konveyeru myshleniya
+  • POST /admin/memory/add - Add zapis v pamyat
 
 Mosty:
 - Yavnyy (UI ↔ Memory): Dostup k vosmi sloyam bez fragmentatsii.
@@ -14,10 +13,9 @@ Mosty:
 - Skrytyy 2 (Prozrachnost ↔ Rasshirenie): Knopki dlya vsekh HTTP iz dampa.
 
 Zemnoy abzats:
-Eto "serdtsevina" - portal, gde ty obschaeshsya s pamyatyu Ester, kak s zhivoy istoriey.
+Eto "serdtsevina" - portal, where ty obschaeshsya s pamyatyu Ester, kak s zhivoy istoriey.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os
 from pathlib import Path
@@ -32,13 +30,13 @@ VSTORE_DIR = STATE_DIR / "vstore"
 # Vosem sloev pamyati (na osnove dampa)
 LAYERS = {
     "cards": {"file": "cards_memory.py", "desc": "Kartochki vospominaniy"},
-    "vector": {"file": "vector_store.py", "desc": "Vektornaya BD dlya poiska"},
-    "structured": {"file": VSTORE_DIR / "structured_mem/store.json", "desc": "Strukturirovannaya pamyat"},
-    "base": {"file": VSTORE_DIR / "ester_memory.json", "desc": "Bazovaya pamyat"},
+    "vector": {"file": "vector_store.py", "desc": "Vector database for searching"},
+    "structured": {"file": VSTORE_DIR / "structured_mem/store.json", "desc": "Structured memory"},
+    "base": {"file": VSTORE_DIR / "ester_memory.json", "desc": "Basic memory"},
     "topics": {"file": "topic_tracker.py", "desc": "Treking tem"},
     "trace": {"file": "trace_logger.py", "desc": "Logi trassirovki"},
     "audience": {"file": "audience_infer.py", "desc": "Inferens auditorii"},
-    "proactive": {"file": "ambient_proactive.py", "desc": "Proaktivnye deystviya"},
+    "proactive": {"file": "ambient_proactive.py", "desc": "Proactive Actions"},
 }
 
 def _load_layer(name: str):
@@ -49,7 +47,7 @@ def _load_layer(name: str):
             return {"ok": True, "data": json.loads(layer["file"].read_text())}
         except Exception:
             return {"ok": False, "error": "load_failed"}
-    # Dlya .py - zaglushka (v reale import, no bez urezaniy - prosto status)
+    # For .po - a stub (in real life, import, but without cutting - just status)
     return {"ok": True, "data": {"status": "active", "desc": layer["desc"]}}
 
 @bp_mem.get("/admin/memory")
@@ -80,7 +78,7 @@ def add():
     d = request.get_json(silent=True) or {}
     text = d.get("text", "")
     layer = d.get("layer", "base")
-    # Dobavlenie v pamyat (na primere base; rasshir dlya drugikh)
+    # Adding to memory (using bass as an example; expanded for others)
     if layer == "base":
         mem_file = VSTORE_DIR / "ester_memory.json"
         mem = _load_layer("base").get("data", {})

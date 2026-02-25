@@ -9,7 +9,7 @@
 <div class="vid-list">
   {% for r in rows %}
   <div class="vid-item">
-    <div><span class="pill">{{ r.backend }}</span> <span class="muted">ts={{ r.ts }} · {{ r.probe_format }}</span></div>
+    <div><span class="pill">{{ r.backend }}</span> <span class="muted">ts={{ r.ts }} {{ r.probe_format }}</span></div>
     <div class="wrap"><strong>src:</strong> {{ r.src }}</div>
     {% if r.summary %}
       <div class="wrap"><strong>summary:</strong> {{ r.summary }}</div>

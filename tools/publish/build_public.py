@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tools/publish/build_public.py — sborka «public-safe» eksporta proekta.
+"""tools/publish/build_public.py - sborka "public-safe" eksporta proekta.
 
 MOSTY:
 - (Yavnyy) build_public(dry_run=True|False) — formiruet ochischennuyu kopiyu + ZIP.
 - (Skrytyy #1) A/B-sloty sanitizatsii: A (umerennaya, po umolchaniyu), B (strogaya cherez SANITIZE_STRICT=1).
-- (Skrytyy #2) Avtokatbek: pri provale strogoy — avtomaticheski probuem slot A.
+- (Skrytyy #2) Avtokatbek: pri provale strogoy — avtomaticheski try slot A.
 
 ZEMNOY ABZATs:
-Pakuem akkuratnyy chemodan: iskhodniki i shablony ostayutsya, sekrety — v chekhle, lichnoe — doma.
+Pakuem akkuratnyy chemodan: iskhodniki i shablony ostayutsya, sekrety - v chekhle, lichnoe - doma.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, io, json, time, shutil, zipfile, re, glob
 from typing import Dict, Any, List, Tuple
@@ -52,9 +50,7 @@ def _write_file(dst_root: str, src_path: str):
     shutil.copy2(src_path, dst_path)
 
 def _make_env_public(dst_root: str, slot: str):
-    """
-    Pishem .env.public s redaktirovaniem klyuchey. Lokalnyy .env ne trogaem.
-    """
+    """We write .env.public with editing keys. We don’t touch the local .env."""
     src = ".env"
     dst_public = os.path.join(dst_root, ".env.public")
     lines_out: List[str] = []
@@ -68,10 +64,10 @@ def _make_env_public(dst_root: str, slot: str):
                     lines_out.append(line); continue
                 k, v = m.group(1), m.group(2)
                 if slot == "B":
-                    # strogaya: vse znacheniya klyuchey maskiruem
+                    # strict: we mask all key values
                     lines_out.append(f"{k}=<REDACTED>\n")
                 else:
-                    # umerennaya: tolko ochevidnye sekrety
+                    # moderate: only obvious secrets
                     if any(s in k for s in ("KEY","TOKEN","SECRET","PASSWORD","PASS","PRIVATE","SIGNING")):
                         lines_out.append(f"{k}=<REDACTED>\n")
                     else:
@@ -113,14 +109,14 @@ def _build(slot: str, dry_run: bool) -> Dict[str, Any]:
 
 def build_public(dry_run: bool = True) -> Dict[str, Any]:
     os.makedirs(EXPORT_DIR, exist_ok=True)
-    # B-slot, esli vklyuchili stroguyu sanitiatsiyu
+    # B-slot, if strict sanitation is enabled
     strict = (os.getenv("SANITIZE_STRICT","0") == "1")
     try:
         if strict:
             resB = _build("B", dry_run)
             if resB.get("ok"): 
                 return resB
-            # esli vdrug "ok" = False — probuem A
+            # if suddenly “ok” = False - try A
         resA = _build("A", dry_run)
         return resA
     except Exception as e:

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_mesh_garage_fin.py — eksheny «voli» dlya Mesh/Garage/Finance.
+"""modules/thinking/actions_mesh_garage_fin.py - eksheny "voli" dlya Mesh/Garage/Finance.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Proizvodstvo/Uchet) pozvolyaet Ester brat zadaniya, sobirat proekty i uchityvat dengi.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Planirovschik ↔ Avtonomiya) mozhno stavit regulyarnye sborki i sverki.
 
 Zemnoy abzats:
-Nabor korotkikh komand: «kakie u menya stanki», «vozmi rabotu», «soberi sayt», «zapishi dokhod». Vse — ne v teorii, a v dele.
+Nabor korotkikh komand: “kakie u menya stanki”, “vozmi rabotu”, “soberi sayt”, “zapishi dokhod”. Vse - ne v teorii, a v dele.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from typing import Any, Dict

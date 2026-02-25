@@ -28,8 +28,8 @@ nodes:
 
   - id: human_check
     type: human.review
-    message: "Prover {{ctx.item.file}}. Otvet: OK/pravki."
-    out: "approval"
+    message: "Prover {{ctx.item.file}}. Answer: OK/pravki."
+    out: "approved"
     depends: ["fork"]
 
   - id: finalize
@@ -39,7 +39,7 @@ nodes:
     depends: ["human_check"]
 
   - id: joiner
-    type: join
+    type:join
     from: "fork"
     out: "joined"
     select:
@@ -48,8 +48,7 @@ nodes:
       t: "{{ctx.final_branch}}"
     mode: list
     await_nodes: ["finalize"]
-    depends: ["finalize"]
-"""
+    depends: ["finalize"]"""
 
 
 def _spin_until_inflight(run_id, timeout=5.0):
@@ -66,10 +65,10 @@ def test_resume_with_cold_engine_and_complete_human_tasks():
     with tempfile.TemporaryDirectory() as tmp:
         os.environ["DAG_RUN_ROOT"] = os.path.join(tmp, "runs")
         os.environ["DAG_BRANCH_ROOT"] = os.path.join(tmp, "branches")
-        os.environ["LLM_API_BASE"] = ""  # otklyuchit vneshnie LLM
+        os.environ["LLM_API_BASE"] = ""  # disable external LLMs
         os.environ["LLM_MODEL"] = "gpt-4o-mini"
 
-        # 1) Zapuskaem progon do poyavleniya inflight
+        # 1) Start the run until inflation appears
         eng1 = DAGEngine(load_plan_from_text(PLAN))
         for _ in range(300):
             eng1.tick()
@@ -78,9 +77,9 @@ def test_resume_with_cold_engine_and_complete_human_tasks():
             time.sleep(0.005)
         assert (
             load_state(eng1.run_id).get("inflight") or {}
-        ), "Ne poyavilsya inflight dlya human.review"
+        ), "Inflight for human.reviews did not appear"
 
-        # 2) Imitiruem «perezapusk» protsessa: sozdaem kholodnyy dvizhok bez iskhodnogo plana
+        # 2) Simulates a “restart” of the process: creating a cold engine without an initial plan
         st = load_state(eng1.run_id)
         main_nodes = list((st.get("branches", {}).get("main", {}) or {}).get("nodes", {}).keys())
         eng2 = DAGEngine(
@@ -91,17 +90,17 @@ def test_resume_with_cold_engine_and_complete_human_tasks():
             }
         )
 
-        # 3) Zavershaem vse human-zadachi cherez on_human_completed() na kholodnom dvizhke
+        # 3) We complete all human tasks through on_human_completed() on a cold engine
         inflight_ids = list((st.get("inflight") or {}).keys())
         for tid in inflight_ids:
             assert eng2.on_human_completed(tid, {"result": "OK"}) is True
 
-        # 4) Dokruchivaem vypolnenie do finisha uzhe kholodnym dvizhkom
+        # 4) We finish the execution with a cold engine
         run_loop(eng2, poll_interval=0.02)
 
         st_fin = load_state(eng2.run_id)
         assert st_fin.get("finished") is True
-        # Proverim, chto join sobral rezultaty
+        # Let's check that he has collected the results
         main_ctx = load_context(eng2.run_id, "main")
         joined = main_ctx.get("joined")
         assert isinstance(joined, list) and len(joined) == 2

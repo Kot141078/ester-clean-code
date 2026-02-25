@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/instructor_routes.py - REST/UI dlya «rezhima instruktora».
+"""routes/instructor_routes.py - REST/UI dlya "rezhima instruktora".
 
 Ruchki:
   POST /instructor/start {"peers":["192.168.1.22:8000"]}
-  POST /instructor/stop  {}
+  POST /instructor/stop {}
   POST /instructor/ready {"peer":"192.168.1.22:8000"}
   POST /instructor/confirm {"peer":"ip:port","index":0,"ok":true,"latency_ms":250}
-  GET  /instructor/status
-  GET  /admin/instructor
+  GET /instructor/status
+  GET /admin/instructor
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request, render_template
@@ -94,12 +92,12 @@ def admin():
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta (kontrakt proekta)."""
+    """Drop-in registration of blueprint (project contract)."""
     app.register_blueprint(bp)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

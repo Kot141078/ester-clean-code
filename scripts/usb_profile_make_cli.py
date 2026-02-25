@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/usb_profile_make_cli.py — headless-sborka /ESTER po profilyu.
+"""scripts/usb_profile_make_cli.py - headless-sborka /ESTER po profilyu.
 
 Primer:
   AB_MODE=B python -m scripts.usb_profile_make_cli --profile-id <ID> --mount /media/USB
   AB_MODE=A python -m scripts.usb_profile_make_cli --profile-id <ID> --mount E:\\ --dry
 
 Mosty:
-- Yavnyy (Kibernetika ↔ Orkestratsiya): odna komanda — sobrat po sokhranennym nastroykam.
+- Yavnyy (Kibernetika ↔ Orkestratsiya): odna komanda - sobrat po sokhranennym nastroykam.
 - Skrytyy 1 (Infoteoriya ↔ Kontrakty): ispolzuet suschestvuyuschie build_release_archive + write_usb.
 - Skrytyy 2 (Praktika ↔ Bezopasnost): dry-run po umolchaniyu cherez AB_MODE=A.
 
 Zemnoy abzats:
-Eto «konveyer»: beret kartu (profil) i skladyvaet nositel po ney bez UI.
+This is “konveyer”: beret kartu (profil) i skladyvaet nositel po ney bez UI.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse

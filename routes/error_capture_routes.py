@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-routes/error_capture_routes.py - REST dlya error-capture.
+"""routes/error_capture_routes.py - REST dlya error-capture.
 
 Ruchki:
   POST /vision/error/report {"kind":"ocr|template","box":{...} | "point":{...}, "why":"..."}
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.vision.error_capture import report

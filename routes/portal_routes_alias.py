@@ -18,7 +18,7 @@ def _portal():
             "<!doctype html><meta charset='utf-8'>"
             "<title>Ester - Portal fallback</title>"
             "<h3>Portal vremenno nedostupen</h3>"
-            "<p>Shablon <code>templates/portal.html</code> ne nayden ili ne podkhvachen.</p>"
+            "<p>Thablon <code>templates/portal.html</code> ne nayden or ne podkhvachen.</p>"
         )
         return make_response(html, 200)
     except Exception as e:

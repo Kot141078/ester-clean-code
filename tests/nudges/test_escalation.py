@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tests/nudges/test_escalation.py — proverka eskalatsiy pri prosrochke.
+"""tests/nudges/test_escalation.py — proverka eskalatsiy pri prosrochke.
 
 MOSTY:
 - (Yavnyy) Na otritsatelnykh shagakh SLA-tsepochki sozdaetsya nudzh na teg 'manager' (esli mapping zadan).
 - (Skrytyy #1) Ogranichenie NUDGES_MAX_PER_EVENT soblyudaetsya.
-- (Skrytyy #2) Vremya due dlya eskalatsii — now+1 (mgnovenno k otpravke).
+- (Skrytyy #2) Vremya due dlya eskalatsii - now+1 (mgnovenno k otpravke).
 
 ZEMNOY ABZATs:
-Pokazyvaet, chto pri «goryachey» situatsii soobschenie poluchaet ne tolko ispolnitel, no i otvetstvennoe litso.
+Pokazyvaet, chto pri “goryachey” situatsii soobschenie poluchaet ne tolko ispolnitel, no i otvetstvennoe litso.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import time, os

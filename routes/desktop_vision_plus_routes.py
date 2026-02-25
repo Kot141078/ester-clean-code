@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-routes/desktop_vision_plus_routes.py - REST UI dlya DesktopVision++.
+"""routes/desktop_vision_plus_routes.py - REST UI dlya DesktopVision++.
 
 Ruchki:
-  GET  /desktop/visionpp/probe
-  POST /desktop/visionpp/ocr            {"image_path":"/tmp/ester_screenshot.png"}
-  POST /desktop/visionpp/find_text      {"image_path":"...","key":"OK","regex?":false}
-  POST /desktop/visionpp/annotate       {"image_path":"...","boxes":[{"box":[x,y,w,h],"label":"..."}]}
-  POST /desktop/visionpp/heatmap        {"image_path":"...","hits":[[x,y,conf],...]}
+  GET /desktop/visionpp/probe
+  POST /desktop/visionpp/ocr {"image_path":"/tmp/ester_screenshot.png"}
+  POST /desktop/visionpp/find_text {"image_path":"...","key":"OK","regex?":false}
+  POST /desktop/visionpp/annotate {"image_path":"...","boxes":[{"box":[x,y,w,h],"label":"..."}]}
+  POST /desktop/visionpp/heatmap {"image_path":"...","hits":[[x,y,conf],...]}
   POST /desktop/visionpp/find_and_annot {"image_path":"...","key":"OK"}
-  GET  /admin/desktop_vision_plus
+  GET /admin/desktop_vision_plus
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.agents import desktop_vision_plus as DVPP

@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-modules/llm/providers_lmstudio.py — Adapter dlya LM Studio / OpenAI (v1.0+).
+"""modules/llm/providers_lmstudio.py - Adapter dlya LM Studio / OpenAI (v1.0+).
 
 Rezhim: Heavy Duty (dlya modeley 32B+ i bolshikh kontekstov).
-Integratsiya: Identity Core (Passport) dlya suvereniteta lichnosti.
-"""
+Integratsiya: Identity Core (Passport) dlya suvereniteta lichnosti."""
 import os
 import logging
-import httpx  # Ispolzuem dlya nastroyki taymautov na nizkom urovne
+import httpx  # Used to configure timeouts at a low level
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Importiruem Profile dlya svyazi s lichnostyu (c = a + b)
+# Importing a Profile to connect with a person (c = a + b)
 try:
     from modules.memory import passport
 except ImportError:
@@ -24,22 +22,20 @@ try:
     _HAS_OPENAI = True
 except ImportError:
     _HAS_OPENAI = False
-    # Zaglushki dlya tipov, chtoby kod ne padal pri importe
+    # Stubs for types so that the code does not crash during import
     OpenAI = None
     APIError = Exception
     APITimeoutError = Exception
     APIConnectionError = Exception
 
 class LMStudioProvider:
-    """
-    Provayder dlya lokalnykh LLM s podderzhkoy dlinnykh kontekstov (32k+) i Identity Core.
-    """
+    """Provider for local LLMs with support for long contexts (32k+) and Identity Core."""
     def __init__(self):
         self.base_url = os.getenv("LM_STUDIO_API_URL", "http://127.0.0.1:1234/v1")
         self.api_key = os.getenv("LM_STUDIO_API_KEY", "lm-studio")
         self.model = os.getenv("LM_STUDIO_MODEL", "local-model")
         
-        # VAZhNO: Taymaut dlya Deep Thinking
+        # Important: Timeout for Deep Thinking
         try:
             self.timeout_sec = float(os.getenv("LLM_TIMEOUT", "1200.0"))
         except ValueError:
@@ -50,7 +46,7 @@ class LMStudioProvider:
 
     def _init_client(self):
         if not _HAS_OPENAI:
-            log.error("[LLM] Oshibka: Biblioteka 'openai' ne ustanovlena.")
+            log.error("yLLMsch Error: The library is not installed.")
             return
 
         try:
@@ -69,10 +65,10 @@ class LMStudioProvider:
             log.error(f"[LLM] Client Init Failed: {e}")
 
     def _get_identity_prompt(self) -> str:
-        """Poluchaet aktualnyy prompt lichnosti iz profilea."""
+        """Retrieves the current personality prompt from the profile."""
         if passport:
             return passport.get_identity()
-        return "Ty — Ester, intellektualnaya tsifrovaya sistema. Your owner — Owner."
+        return "You are Esther, an intelligent digital system. Yur ovner - Ovner."
 
     def generate(
         self, 
@@ -82,18 +78,16 @@ class LMStudioProvider:
         max_tokens: int = -1,
         **kwargs
     ) -> str:
-        """
-        Generatsiya otveta s uchetom lichnosti.
-        Esli system_prompt ne zadan yavno, ispolzuetsya Identity Core.
-        """
+        """Personality-based response generation.
+        If system_prompt is not specified explicitly, Identities Core is used."""
         if not self.client:
             self._init_client()
             if not self.client:
                 return "[ERROR] LLM Client is offline."
 
         # LOGIKA LIChNOSTI:
-        # Esli sistemnyy prompt pust — zagruzhaem Lichnost (Profile).
-        # Esli on zadan (naprimer, dlya summarizatsii teksta) — ispolzuem zadannyy.
+        # If the system prompt is yes, we load the Personality (Profile).
+        # If it is specified (for example, to summarize text), it uses the specified one.
         current_system_prompt = system_prompt if system_prompt else self._get_identity_prompt()
 
         messages = []
@@ -136,7 +130,7 @@ class LMStudioProvider:
 
         except APITimeoutError:
             log.error(f"[LLM] Timeout after {self.timeout_sec}s. Deep Thinking took too long.")
-            return "[ERROR] Timeout: Mysl byla slishkom glubokoy dlya tekuschego taymauta."
+            return "Error Timeout: The thought was too deep for the current timeout."
         
         except APIConnectionError:
             log.error(f"[LLM] Connection refused at {self.base_url}. Is LM Studio running?")
@@ -150,9 +144,9 @@ class LMStudioProvider:
         if not self.client: 
             return "FAILED: Library not loaded"
         try:
-            # Proverka svyazi
+            # Checking connection
             self.client.models.list()
-            # Proverka Profilea
+            # Profilea check
             id_check = "Passport Linked" if passport else "Passport Missing"
             return f"OK (Connected 32B Ready, {id_check})"
         except Exception as e:
@@ -161,6 +155,6 @@ class LMStudioProvider:
 # Singleton instance
 adapter = LMStudioProvider()
 
-# Funktsiya-obertka dlya sovmestimosti
+# Compatibility wrapper function
 def generate(prompt, system_prompt="", **kwargs):
     return adapter.generate(prompt, system_prompt, **kwargs)

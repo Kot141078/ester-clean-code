@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/memory_meta_routes.py - REST/UI dlya meta-pamyati.
+"""routes/memory_meta_routes.py - REST/UI dlya meta-pamyati.
 
 Ruchki:
   POST /memory/meta/evaluate
   POST /memory/meta/decay
   POST /memory/meta/consolidate
-  GET  /memory/meta/stats
-  GET  /admin/memory_meta
+  GET /memory/meta/stats
+  GET /admin/memory_meta
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, render_template, request
 from modules.memory import meta

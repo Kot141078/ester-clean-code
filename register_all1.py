@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-register_all.py — edinyy registrator UI i «samolechaschiy» Bootstrap dlya Ester.
+"""register_all.py - edinyy registrator UI i “samolechaschiy” Bootstrap dlya Ester.
 
-Naznachenie:
-  • Zaregistrirovat po maksimumu vse UI/admin/portalnye blyuprinty (esli oni prisutstvuyut).
-  • Vklyuchit CORS (po .env CORS_ENABLED=1) i myagko podklyuchit RBAC guard, esli dostupen.
+Name:
+  • Zaregistrirovat po maximumu vse UI/admin/portalnye blyuprinty (esli oni prisutstvuyut).
+  • Vklyuchit CORS (po .env CORS_ENABLED=1) i myagko podklyuchit RBAC guard, if available.
   • Avtomaticheski vstraivat na vse HTML-stranitsy skript /static/ester_bootstrap.js,
     kotoryy:
       - sinkhroniziruet localStorage klyuchi 'jwt' i 'ester.jwt',
@@ -14,15 +13,14 @@ Naznachenie:
 Mosty:
   • Yavnyy (RBAC ↔ UI): rol/token → dostup k /admin/*.
   • Skrytyy #1 (Brauzernoe khranilische ↔ HTTP): raskhozhdenie klyuchey localStorage lomaet Authorization.
-  • Skrytyy #2 (Arkh-registratsiya ↔ Ekspluatatsiya): neregistr. blyuprint = vechnyy 404 pri idealnoy avtorizatsii.
+  • Skrytyy #2 (Arkh-registratsiya ↔ Ekspluatatsiya): neregistr. blueprint = vechnyy 404 pri idealnoy avtorizatsii.
 
 Zemnoy abzats (inzheneriya):
-  Dumayte o sisteme kak o schitke s avtomatami: token — klyuch; RBAC — okhrannik; reestr blyuprintov — provodka.
-  My dobavlyaem «umnuyu vstavku» skripta, kotoraya kladet klyuch v obe skvazhiny, a provodku vklyuchaem polnostyu:
-  registriruem vse, chto naydeno, i avtomaticheski podaem pitanie na UI-zaprosy.
+  Dumayte o sisteme kak o schitke s avtomatami: token - klyuch; RBAC - okhrannik; reestr blyuprintov - provodka.
+  My dobavlyaem “umnuyu vstavku” skripta, kotoraya kladet klyuch v obe skvazhiny, a provodku vklyuchaem polnostyu:
+  register vse, chto naydeno, i avtomaticheski podaem pitanie na UI-zaprosy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -37,14 +35,12 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 # ------------------------------
 
 def register_all(app) -> None:
-    """
-    Podklyuchaet vse nuzhnoe:
+    """Podklyuchaet vse nuzhnoe:
       1) myagko prikruchivaet RBAC (esli est),
-      2) vklyuchaet CORS (esli vklyuchen v .env),
-      3) registriruet maksimalno vozmozhnyy nabor blyuprintov UI/ADMIN,
-      4) publikuet /static/ester_bootstrap.js (A/B-sloty),
-      5) vnedryaet <script src="/static/ester_bootstrap.js"> v lyubye HTML-otvety.
-    """
+      2) vklyuchaet CORS (esli vklyuchen v.env),
+      3) register maximalno vozmozhnyy nabor blyuprintov UI/ADMIN,
+      4) publikuet/static/ester_bootstrap.js (A/B-sloty),
+      5) vnedryaet <script src="/static/ester_bootstrap.js"> v lyubye HTML-otvety."""
     _maybe_attach_rbac(app)
     _maybe_enable_cors(app)
     _register_best_effort_blueprints(app)
@@ -53,14 +49,12 @@ def register_all(app) -> None:
 
 
 # ------------------------------
-# RBAC (best-effort podklyuchenie)
+# RVACH (best-effort connection)
 # ------------------------------
 
 def _maybe_attach_rbac(app) -> None:
-    """
-    Podklyuchaem RBAC, esli modul est i v nem imeetsya attach_app/apply.
-    Nichego ne rushim pri otsutstvii.
-    """
+    """We connect RVACH if there is a module and it contains attach_app/appli.
+    Absence doesn't ruin anything."""
     for mod_name in ("security.rbac", "modules.security.rbac", "rbac"):
         try:
             mod = importlib.import_module(mod_name)
@@ -90,7 +84,7 @@ def _maybe_enable_cors(app) -> None:
         app.logger.info("[register_all] CORS disabled by env")
         return
 
-    # Pytaemsya ispolzovat flask_cors, esli est.
+    # We are trying to use flask_course, if available.
     try:
         from flask_cors import CORS
         CORS(app, supports_credentials=True)
@@ -120,11 +114,11 @@ def _maybe_enable_cors(app) -> None:
 
 
 # ------------------------------
-# Registratsiya blyuprintov UI/ADMIN
+# Registration of blueprints UI/ADMIN
 # ------------------------------
 
 _CANDIDATE_ROUTE_MODULES: List[str] = [
-    # Chasto vstrechayuscheesya:
+    # Frequently encountered:
     "routes.ui_routes",
     "routes.portal_routes",
     "routes.security_rbac_routes",
@@ -180,7 +174,7 @@ def _register_best_effort_blueprints(app) -> None:
 
 
 # ------------------------------
-# Bootstrap JS: A/B-sloty + marshrut
+# Bootstrap JS: A/B slots + routes
 # ------------------------------
 
 _BOOTSTRAP_JS_A = r"""
@@ -210,7 +204,7 @@ _BOOTSTRAP_JS_A = r"""
       } catch(e){ return true; }
     }
 
-    // Esli est tolko odin klyuch, dubliruem vo vtoroy.
+    // If there is only one key, duplicate it in the second one.
     if (tok) {
       localStorage.setItem(K1, tok);
       localStorage.setItem(K2, tok);
@@ -225,7 +219,7 @@ _BOOTSTRAP_JS_A = r"""
       console.warn('[ester_bootstrap:A] JWT expired: cleaned');
     }
 
-    // Inektsiya v fetch: esli same-origin i net Authorization — podstavit.
+    // Injection into feth: if it is the same-origin and there is no Authorization, substitute it.
     if (tok) {
       var _origFetch = window.fetch;
       window.fetch = function(input, init){
@@ -273,7 +267,7 @@ _BOOTSTRAP_JS_A = r"""
 """
 
 _BOOTSTRAP_JS_B = r"""
-/* ester_bootstrap.js (slot B) — konservativnyy: tolko sync tokena + diagnostika */
+/* ester_bootstrap.zhs (slot B) - conservative: only token sync + diagnostics */
 (function(){
   try {
     var K1 = 'jwt', K2 = 'ester.jwt';
@@ -297,13 +291,13 @@ def _mount_bootstrap_js_blueprint(app) -> None:
 
     @bp.route("/static/ester_bootstrap.js", methods=["GET"])
     def ester_bootstrap_js():
-        # Esli brauzer prislal cookie ob oshibke slota A — podaem slot B.
+        # If the browser sends an error message for slot A, submit slot B.
         err = request.cookies.get("ester_bootstrap_error", "")
         slot = "B" if err == "A" else "A"
         js = _BOOTSTRAP_JS_B if slot == "B" else _BOOTSTRAP_JS_A
         resp = make_response(js)
         resp.headers["Content-Type"] = "application/javascript; charset=utf-8"
-        # Sbrasyvaem flag oshibki, chtoby ne zalipalo.
+        # We reset the error flag to prevent it from sticking.
         if err:
             resp.set_cookie("ester_bootstrap_error", "", path="/", max_age=0)
         return resp
@@ -313,7 +307,7 @@ def _mount_bootstrap_js_blueprint(app) -> None:
 
 
 # ------------------------------
-# Vstroyka skripta v HTML-otvety
+# Embedding a script in HTML responses
 # ------------------------------
 
 _SCRIPT_TAG = '<script src="/static/ester_bootstrap.js"></script>'
@@ -331,7 +325,7 @@ def _inject_bootstrap_into_html(app) -> None:
             if _SCRIPT_TAG in data:
                 return resp
 
-            # Podmeshivaem pered </body> (ili v konets, esli net tega)
+            # Add before </water> (or at the end if there is no tag)
             insert_at = data.lower().rfind("</body>")
             if insert_at != -1:
                 new_data = data[:insert_at] + _SCRIPT_TAG + data[insert_at:]
@@ -349,18 +343,18 @@ def _inject_bootstrap_into_html(app) -> None:
 
 
 # ------------------------------
-# Optsionalno: otladochnaya stranitsa /debug/doctor (esli net)
+# Optional: debug page/debug/doctor (if not present)
 # ------------------------------
 
 def _doctor_payload(app) -> dict:
     return {
         "blueprints": sorted(list(app.blueprints.keys())),
         "url_map": [str(r) for r in app.url_map.iter_rules()],
-        "rbac_attached": True,  # my ne znaem tochno, no guard sam otdast realnost na svoikh endpointakh
+        "rbac_attached": True,  # we don’t know for sure, but the guard himself will give away reality at his endpoints
     }
 
 def _maybe_mount_doctor(app) -> None:
-    # Zaregistriruem tolko esli takogo endpointa net.
+    # We will register only if there is no such endpoint.
     if "register_all_doctor" in app.view_functions:
         return
 
@@ -373,12 +367,12 @@ def _maybe_mount_doctor(app) -> None:
     app.register_blueprint(bp)
     app.logger.info("[register_all] Mounted /register_all/doctor")
 
-# Srazu podklyuchim doctor, chtoby bylo gde posmotret itog.
+# Contact your doctor right away so you can see the results.
 # (Ne obyazatelen, no polezen; ne konfliktuet, t.k. neymspeys unikalnyy)
 try:
-    # Esli register_all(app) ne vyzvan — doctor uvidit pustoy spisok blyuprintov.
-    # Eto diagnosticheskiy marshrut po zaprosu Ownera.
-    # Ne padaem pri import-vremennykh ogranicheniyakh.
+    # If register_all(app) is not called, the doctor will see an empty list of blueprints.
+    # This is a diagnostic route requested by Ovner.
+    # Does not crash under import time restrictions.
     pass
 except Exception:
     pass

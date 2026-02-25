@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-run_ester_fixed.py — Telegram-uzel Ester (HiveMind + Volya/Sny/Lyubopytstvo)
+"""run_ester_fixed.py — Telegram-uzel Ester (HiveMind + Volya/Sny/Lyubopytstvo)
 
 YaVNYY MOST: c = a + b (chelovek + protsedury) -> ansambl mneniy + sintez + kaskad. SKRYTYE MOSTY:
 
-Ashby: requisite variety — parallelnye provaydery dayut raznoobrazie, kaskad — stabilizatsiyu.
+Ashby: requisite variety - parallelnye provaydery dayut raznoobrazie, kaskad - stabilizatsiyu.
 
-Cover&Thomas: ogranichenie kanala — sny lokalno (ekonomiya kanala/stoimosti), otvety — oblako.
+Cover&Thomas: ogranichenie kanala - sny lokalno (ekonomiya kanala/stoimosti), otvety - oblako.
 
 Legacy Memory: Podklyuchenie starykh arkhivov (jsonl) kak "dolgosrochnoy pamyati" pri starte.
 
-ZEMNOY ABZATs (inzheneriya/anatomiya): Planirovschik — kak sinusovyy uzel, zadaet ritm. A “son” — kak vosstanovlenie tkaney: on idet fonom i ne dolzhen blokirovat serdtsebienie (job tick), inache nachinayutsya “aritmii” (skipped jobs).
-"""
+ZEMNOY ABZATs (inzheneriya/anatomiya): Planirovschik - kak sinusovyy uzel, zadaet ritm. A “son” — kak vosstanovlenie tkaney: on idet fonom i ne dolzhen blokirovat serdtsebienie (job tick), inache nachinayutsya “aritmii” (skipped jobs)."""
 
 import base64
 import os
 
-# === IMPLANTY DLYa SVYaZI (FLASK + REQUESTS) ===
+# === IMPLANTS FOR CONNECTION (FLASK + REGUESC) ===
 import threading
 from flask import Flask, request, jsonify
 import requests
@@ -103,7 +101,7 @@ try:
 except Exception:
     _agent_create_approval = None  # type: ignore
 brain_tools = SkillManager()
-register_all_skills(brain_tools) # <--- Vsya magiya zdes
+register_all_skills(brain_tools) # <--- All the magic is here
 
 # --- warnings hygiene (keep logs readable; best-effort) ---
 try:
@@ -123,10 +121,8 @@ except Exception:
 
 
 def get_context_for_brain(self) -> str:
-        """
-        Sobiraet dannye iz moduley empatii i tem 
-        dlya obogascheniya prompta LLM.
-        """
+        """Collects data from empathy and topic modules 
+        to enrich the LLM prompt."""
         empathy = self.modules.get("empathy_module")
         tracker = self.modules.get("topic_tracker")
         
@@ -134,7 +130,7 @@ def get_context_for_brain(self) -> str:
         if empathy and hasattr(empathy, 'get_reply_tone'):
             context_parts.append(f"Emotsionalnyy ton: {empathy.get_reply_tone()}")
         
-        # Esli v topic_tracker est metod polucheniya svodki (summary)
+        # If topic_tracker has a method for obtaining a summary (summary)
         if tracker and hasattr(tracker, 'get_context_summary'):
             context_parts.append(f"Tekuschiy fokus: {tracker.get_context_summary()}")
         
@@ -179,12 +175,12 @@ def _passport_index_mode() -> str:
     return (os.getenv("ESTER_PASSPORT_INDEX_MODE") or "B").strip().upper()
 # ==============================
 # [ester-writer-guard v1]
-# Explicit bridge: c=a+b -> intent (a) + protsedurnyy lock/fallback (b) => neprotivorechivaya pamyat (c)
-# Hidden bridges: Ashby (variety cherez RO fallback), Cover&Thomas (nadezhnost kanala pri konkurentsii writers)
-# Earth: kak obratnyy klapan/sfinkter — odin potok «davit» (pishet), ostalnye chitayut bez obratnogo toka.
+# Explicit bridge: c=a+b -> intent (a) + procedural gloss/falsehood (c) => consistent memory (c)
+# Hidden bridges: Ashby (variety through RO falbatsk), Cover&Thomas (reliability of the channel in the competition of vritrs)
+# Erth: like a check valve/sphincter - one flow “presses” (writes), the rest read without return flow.
 # A/B:
-# A (default): ESTER_WRITER_MODE=auto -> pytaemsya vzyat lock, inache read-only.
-# B (fail-fast): ESTER_WRITER_MODE=writer + ESTER_WRITER_STRICT=1 -> esli lock zanyat, padaem srazu.
+# A (default): ESTER_VRITR_MODE=auto -> trying to get the shine, otherwise read-only.
+# In (fast file): ESTER_VRITR_MODE=vritr + ESTER_VRITR_STRICT=1 -> if you take lock, it falls immediately.
 
 _WRITER_MODE = None
 _WRITER_LOCK_PATH = None
@@ -195,8 +191,7 @@ def _writer_enabled() -> bool:
 
     Env:
       ESTER_WRITER_MODE = auto|writer|ro (also accepts 1/0/true/false)
-      ESTER_WRITER_STRICT = 1 -> esli khoteli writer, no lock zanyat — raise.
-    """
+      ESTER_WRITER_STRICT = 1 -> esli khoteli writer, no lock zanyat - raise."""
     global _WRITER_MODE, _WRITER_LOCK_PATH, _WRITER_LOCK_FD
 
     mode = (os.getenv("ESTER_WRITER_MODE") or "auto").strip().lower()
@@ -405,15 +400,13 @@ def _tg_sanitize_text(s: str) -> str:
     """
     if not isinstance(s, str):
         return s
-    # razreshaem \n i \t, ostalnoe iz C0/C1 udalyaem
+    # allows en and this, remove the rest from C0/C1
     s = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "", s)
     return s
 
 
 def _tg_len(s: str) -> int:
-    """
-    Telegram limitiruetsya po UTF-16 code units.
-    """
+    """Telegram is limited by UTF-16 soda units."""
     try:
         return len(s.encode("utf-16-le")) // 2
     except Exception:
@@ -437,12 +430,11 @@ def _normalize_obj(obj):
     return obj
 # === Encoding hygiene (B7) END ===
 def _persist_to_passport(role: str, text: str) -> bool:
-    """Append one record to passport JSONL (best-effort).
+    """Append one record then passport JSIONL (best-effort).
 
     Returns:
-        True  - zapis sdelana
-        False - writer disabled/oshibka/net dostupa
-    """
+        Three - the recording is made
+        False - vritr disable/error/no access"""
     try:
         role = _normalize_text(role)
     except Exception:
@@ -453,7 +445,7 @@ def _persist_to_passport(role: str, text: str) -> bool:
         pass
 
     try:
-        # One-writer rule (vazhno dlya obschey papki/obschey bazy)
+        # One-vritr rule (important for shared folder/shared base)
         if not _writer_enabled():
             return False  # _writer_enabled() opredelen vyshe:contentReference[oaicite:3]{index=3}
 
@@ -468,7 +460,7 @@ def _persist_to_passport(role: str, text: str) -> bool:
         elif role == "assistant":
             rec["role_assistant"] = text
         elif role == "thought":
-            # Markiruem mysl/son, chtoby otlichat ot realnosti
+            # Labeling a thought/dream to distinguish it from reality
             rec["role_system"] = f"[[INTERNAL MEMORY/DREAM]]: {text}"
             rec["tags"] = ["insight", "internal"]
         else:
@@ -509,16 +501,14 @@ def _load_file_and_register(pyfile: Path) -> bool:
 
 
 def autoload_routes_fs() -> int:
-    """
-    VAZhNOE IZMENENIE:
+    """VAZhNOE CHANGE:
     - Bylo: prokhod po root.rglob("*.py") v proizvolnom poryadke.
-    - Stalo: sorted(root.rglob("*.py")), chtoby poryadok zagruzki byl stabilnym mezhdu zapuskami.
-    """
+    - Stalo: sorted(root.rglob("*.py")), chtoby poryadok zagruzki byl stabilnym mezhdu zapuskami."""
     loaded = 0
     for root in [BASE / "routes", BASE / "ESTER" / "routes"]:
         if not root.is_dir():
             continue
-        # Patch: sortiruem puti po strokovomu predstavleniyu
+        # Patch: sort paths by string representation
         for p in sorted(root.rglob("*.py"), key=lambda x: str(x)):
             if p.name == "__init__.py" or p.name.startswith("_"):
                 continue
@@ -528,9 +518,7 @@ def autoload_routes_fs() -> int:
 
 
 def autoload_modules_fs() -> int:
-    """
-    To zhe samoe patch-izmenenie: garantirovannyy poryadok zagruzki moduley.
-    """
+    """Same patch change: guaranteed module loading order."""
     loaded = 0
     modules_root = BASE / "modules"
     if not modules_root.is_dir():
@@ -593,8 +581,8 @@ def _purge_guard_hooks() -> Dict[str, List[str]]:
 
 
 # --- HIPPOCAMPUS WRITE (V2: With Dreams) ---
-# Zapis v passport JSONL vypolnyaetsya TOLKO cherez _persist_to_passport(role, text).
-# Etot anchor ostavlyaem, chtoby bylo ponyatno, gde "pamyat/sny" podklyuchayutsya.
+# Entry into the JSONL passport is performed ONLY through _persist_to_passport (role, text).
+# We leave this anchor so that it is clear where “memory/dreams” are connected.
 
 def crystallize_thought(text: str) -> None:
     """Save an internal insight ("thought/dream") to long-term memory."""
@@ -611,7 +599,7 @@ def crystallize_thought(text: str) -> None:
     except Exception:
         pass
 
-    # Takzhe mozhno pikhnut v operativnuyu pamyat (zaglushka dlya buduschego)
+    # You can also shove it into RAM (a stub for the future)
     try:
         if "_short_term_by_key" in globals() and _short_term_by_key:
             pass
@@ -622,10 +610,8 @@ def crystallize_thought(text: str) -> None:
 
 # --- APScheduler / tzlocal safety patch (Windows sometimes breaks JobQueue timezones) ---
 def _install_apscheduler_pytz_coerce_patch() -> None:
-    """
-    V nekotorykh Windows-sborkakh tzlocal otdaet ZoneInfo, a APScheduler/JobQueue
-    v ryade okruzheniy s etim lomaetsya. Podsovyvaem pytz.
-    """
+    """In some Windows builds, tzlokal gives ZoneInfo, and APSheduler/Evkueoe
+    in some environments this breaks down. We slip the pos."""
     try:
         import pytz  # type: ignore
         import tzlocal  # type: ignore
@@ -793,13 +779,13 @@ VOLITION_MISFIRE_GRACE = int(os.getenv("VOLITION_MISFIRE_GRACE", "30"))
 DREAM_PASSES = int(os.getenv("DREAM_PASSES", "3"))  # 1..3
 DREAM_TEMPERATURE = float(os.getenv("DREAM_TEMPERATURE", "0.7"))
 DREAM_MAX_TOKENS = int(os.getenv("DREAM_MAX_TOKENS", "20000"))
-DREAM_MIN_INTERVAL_SEC = int(os.getenv("DREAM_MIN_INTERVAL_SEC", "120"))  # zaschita ot postoyannogo “sna”
+DREAM_MIN_INTERVAL_SEC = int(os.getenv("DREAM_MIN_INTERVAL_SEC", "120"))  # protection against constant “sleep”
 DREAM_STRICT_LOCAL = (os.getenv("DREAM_STRICT_LOCAL", "1").strip().lower() in ("1", "true", "yes", "y"))
-# Razreshit cloud/oracle dlya dream-prokhodov (lokalnaya tochka isklyucheniya iz obschego fonovogo zapreta).
+# Allow cloud/oracle for dream passes (local exclusion point from the general background ban).
 DREAM_ALLOW_ORACLE = (os.getenv("DREAM_ALLOW_ORACLE", "0").strip().lower() in ("1", "true", "yes", "y"))
 
-# Avtopolitika dlya Hive background:
-# local online -> dream local, local offline -> dream cloud (predpochtitelnyy provayder nizhe).
+# Autopolicy for Khiva back ground:
+# online local -> dream local, offline local -> dream cloud (preferred provider below).
 HIVE_BG_CLOUD_AUTO_BY_LOCAL = (os.getenv("HIVE_BG_CLOUD_AUTO_BY_LOCAL", "0").strip().lower() in ("1", "true", "yes", "y"))
 HIVE_BG_CLOUD_PROVIDER = os.getenv("HIVE_BG_CLOUD_PROVIDER", "gpt-5-mini").strip().lower()
 HIVE_LOCAL_HEALTH_TIMEOUT_SEC = float(os.getenv("HIVE_LOCAL_HEALTH_TIMEOUT_SEC", "0.8") or 0.8)
@@ -852,11 +838,11 @@ ESTER_AGENT_SWARM_GOAL = (
     str(
         os.getenv(
             "ESTER_AGENT_SWARM_GOAL",
-            "Podderzhivat bezopasnyy planovyy kontur i gotovit shagi k vypolneniyu pod kontrolem operatora.",
+            "Maintain a safe planned contour and prepares steps for execution under operator supervision.",
         )
         or ""
     ).strip()
-    or "Podderzhivat bezopasnyy planovyy kontur i gotovit shagi k vypolneniyu pod kontrolem operatora."
+    or "Maintain a safe planned contour and prepares steps for execution under operator supervision."
 )
 ESTER_AGENT_SWARM_NOTIFY_ON_CREATE = (os.getenv("ESTER_AGENT_SWARM_NOTIFY_ON_CREATE", "1").strip().lower() in ("1", "true", "yes", "y"))
 
@@ -907,11 +893,11 @@ DREAM_CONTEXT_ITEMS = int(os.getenv("DREAM_CONTEXT_ITEMS", "6"))
 DREAM_CONTEXT_CHARS = int(os.getenv("DREAM_CONTEXT_CHARS", "80000"))
 DREAM_MAX_PROMPT_CHARS = int(os.getenv("DREAM_MAX_PROMPT_CHARS", "260000"))
 
-# --- DREAM SILENCE / “molchanie v chate” ---
+# --- DREAM SILENCE / “silence in chat” ---
 DREAM_STREAM_TO_ADMIN = (os.getenv("DREAM_STREAM_TO_ADMIN", "0").strip().lower() in ("1", "true", "yes", "y"))
 
 # --- DREAM DIET / “snovidcheskaya dieta” ---
-# Dobavil 'legacy' tipy dlya staroy pamyati
+# Added lighter types for old memory
 DREAM_ALLOWED_TYPES = [x.strip() for x in os.getenv(
     "DREAM_ALLOWED_TYPES",
     "book_chunk,psych,philosophy,classic,protocol,essay,note,qa,file_chunk,dream_insight,legacy_mem,dialog_turn,fact"
@@ -927,7 +913,7 @@ DREAM_SOURCE_RECENT_WINDOW_SEC = max(60, int(os.getenv("DREAM_SOURCE_RECENT_WIND
 DREAM_SOURCE_RECENT_MAX = max(1, int(os.getenv("DREAM_SOURCE_RECENT_MAX", "18") or 18))
 DREAM_SOURCE_RELAX_IF_STARVED = (os.getenv("DREAM_SOURCE_RELAX_IF_STARVED", "1").strip().lower() in ("1", "true", "yes", "y"))
 
-# --- CASCADE REPLY (kaskadnoe myshlenie dlya otvetov) ---
+# --- CASCADE REPLY (cascade thinking for answers) ---
 CASCADE_REPLY_ENABLED = (os.getenv("CASCADE_REPLY_ENABLED", "1").strip().lower() in ("1", "true", "yes", "y"))
 CASCADE_REPLY_STEPS = int(os.getenv("CASCADE_REPLY_STEPS", "4"))  # 3..4 normalno
 
@@ -1112,11 +1098,9 @@ def _derive_gemini_openai_base(gemini_api_base: str) -> str:
     return b + "/v1beta/openai/"
 
 def _looks_like_technical_junk(text: str) -> bool:
-    """
-     Filtr musora: delaem “myagko”.
+    """Filtr musora: delaem “myagko”.
      Korotkoe NE ravno musor (inache son golodaet na svezhem uzle).
-     Musor — eto puti, treysy, telemetriya, drayvera, binarschina, logi ustanovschikov.
-    """
+     Musor - eto puti, treysy, telemetriya, drayvera, binarschina, logi ustanovschikov."""
     t = (text or "").strip()
     if not t:
         return True
@@ -1132,14 +1116,14 @@ def _looks_like_technical_junk(text: str) -> bool:
     if any(x in low for x in bad_substrings):
         return True
 
-    # esli ochen korotko i pochti net bukv — skoree musor
+    # if it’s very short and there are almost no letters, it’s more like garbage
     if len(t) < 60:
         letters = sum(ch.isalpha() for ch in t)
         digits = sum(ch.isdigit() for ch in t)
         if letters < 12 and digits >= 10:
             return True
 
-    # esli pochti odni tsifry/simvoly
+    # if almost only numbers/symbols
     letters = sum(ch.isalpha() for ch in t)
     digits = sum(ch.isdigit() for ch in t)
     if letters < 20 and digits > 40:
@@ -1147,7 +1131,7 @@ def _looks_like_technical_junk(text: str) -> bool:
 
     return False
 
-# --- Leksikony (obedinennye i rasshirennye) ---
+# ---Lexicons (merged and extended) ---
 
 NEGATIONS = {
     # === Russian / Russkiy ===
@@ -1185,7 +1169,7 @@ NEGATIONS = {
     "without", "hardly", "barely", "scarcely",
     
     # Explicit
-    "cannot", "can't", "won't", "dont", "doesn't" # Na sluchay esli tokenizator ne razbil
+    "cannot", "can't", "won't", "dont", "doesn't" # In case the tokenizer is not broken
 }
 
 INTENSIFIERS_POS = {
@@ -1244,7 +1228,7 @@ INTENSIFIERS_POS = {
     "fenomenalno": 1.45,
     "zapredelno": 1.5,
 
-    # === Confirmation / Podtverzhdeniya (myagkie usiliteli) ===
+    # === Confirmation / Confirmations (soft amplifiers) ===
     "pravda": 1.15,
     "istinno": 1.1,
     "deystvitelno": 1.15,
@@ -1271,7 +1255,7 @@ INTENSIFIERS_NEG = {
     "kroshku": 0.6,
     "malost": 0.8,
     "pomalenku": 0.75,
-    "tikhonko": 0.7,   # kontekst: "tikhonko rabotaet"
+    "tikhonko": 0.7,   # context: "works quietly"
     "slegontsa": 0.75,
 
     # === Slang & Expressive / Sleng i Obraznye ===
@@ -1286,10 +1270,10 @@ INTENSIFIERS_NEG = {
     "edva": 0.6,
 
     # === Uncertainty & Softeners / Khedzhirovanie (somnenie) ===
-    # Snizhayut ves utverzhdeniya, delaya ego menee kategorichnym
+    # Reduce the weight of a statement, making it less categorical
     "vrode": 0.9,
     "kak-to": 0.9,
-    "kak by": 0.9,
+    "as if": 0.9,
     "tipa": 0.9,
     "vrode by": 0.85,
     "primerno": 0.9,
@@ -1298,7 +1282,7 @@ INTENSIFIERS_NEG = {
     "otnositelno": 0.85,
     "pozhaluy": 0.9,
 
-    # === Time-based as Quantity / Vremennye (kak mera) ===
+    # === Time-wased as Quantity / Temporary (as a measure) ===
     "minutku": 0.8,    # "podozhdi minutku" (nedolgo)
     "sekundu": 0.7,
     "moment": 0.8,
@@ -1330,7 +1314,7 @@ LEX_ANXIETY = {
     "dergayus", "sryvayus", "nakruchivayu", "psikhuyu",
     "shugayus", "drozhu",
 
-    # Narechiya i Opisaniya / Adverbs & Descriptors
+    # Adverbs & Descriptors / Adverbs & Descriptors
     "strashno", "trevozhno", "uzhasno", "zhutko", 
     "opasno", "nespokoyno", "napryazhenno", 
     "stressovo", "diskomfortno", "neuyutno",
@@ -1345,7 +1329,7 @@ LEX_ANXIETY = {
     "shukher", "palevo", # Context of danger
 
     # Idiomy i Frazy / Idioms
-    "ne po sebe", "dusha v pyatki", "volosy dybom",
+    "ne po sebe", "soul in heels", "volosy dybom",
     "krov stynet", "na igolkakh", "mesta ne nakhozhu",
     "kom v gorle", "ruki opuskayutsya", "zemlya iz-pod nog",
     "serdtse zamiraet", "kholodnyy pot",
@@ -1368,14 +1352,14 @@ LEX_INTEREST = {
     "zaintrigovan", "intriguet", "nravitsya", "khochu",
     "vazhno", "aktualno", "polezno", "tsenno",
 
-    # Prizyv k deystviyu / Call to Action
+    # Call to action / Call to Action
     "davay", "pognali", "nachinay", "prodolzhay", "zhgi",
     "deystvuy", "vpered", "poekhali", "startuem",
     "poprobuem", "testiruem", "zapuskay", "pokazhi",
     "rasskazhi", "obyasni", "raskroy", "delay",
     "davay poprobuem", "ya za", "ya v dele",
 
-    # Otsenka kachestva / Appreciation & Awe
+    # Quality Assessment / Appreciation & Ave
     "kruto", "klassno", "zdorovo", "otlichno",
     "super", "shikarno", "prekrasno", "volshebno",
     "genialno", "krasivo", "elegantno", "moschno",
@@ -1403,7 +1387,7 @@ LEX_INTEREST = {
     "agree", "confirm", "approve", "lgtm", # looks good to me
     "sounds good", "make sense", "do it"
 }
-# Rasshiren leksemami iz bazovogo dvizhka
+# Extended with lexemes from the base engine
 LEX_JOY = {
     # === Russian / Russkiy ===
     # Bazovye / Basic
@@ -1426,7 +1410,7 @@ LEX_JOY = {
     "milo", "nyashno", "teplo", "dushevno",
     "rodnoy", "blizkiy", "lyubimyy",
 
-    # Uspekh i Pobeda / Success & Victory
+    # Success and Victory / Success & Victoria
     "ura", "es", "est", "pobeda", "poluchilos",
     "sdelali", "smogli", "zataschili", "vin",
     "chempion", "krasava", "molodets", "umnitsa",
@@ -1435,7 +1419,7 @@ LEX_JOY = {
     "kayf", "baldezh", "taschus", "kek", "lol",
     "khakha", "akhakha", "khikhi", "rzhu", "oru",
     "ugar", "prikol", "imba", "zashlo",
-    "godnyy kontent", "zhiza", # chasto pozitivnyy otklik uznavaniya
+    "godnyy kontent", "zhiza", # often a positive response of recognition
 
     # === English / Angliyskiy ===
     # Basic
@@ -1452,7 +1436,7 @@ LEX_JOY = {
     "lol", "lmao", "rofl", "xd", ":)", ":d", 
     "<3", "gg", "ez", "win", "pog", "pogchamp"
 }
-# Rasshiren leksemami iz bazovogo dvizhka
+# Extended with lexemes from the base engine
 LEX_SAD = {
     # === Russian / Russkiy ===
     # Bazovye / Basic
@@ -1472,11 +1456,11 @@ LEX_SAD = {
     # Apatiya i Vygoranie / Apathy & Burnout
     "depressiya", "depressivno", "depr", "khandra",
     "splin", "melankholiya", "apatiya", "vse ravno",
-    "ruki opuskayutsya", "nichego ne khochu", "sil net",
+    "ruki opuskayutsya", "I don't want anything", "sil net",
     "sdayus", "vygorel", "ustal", "ustala",
     "nadoelo", "dosmerti",
 
-    # Fizicheskie proyavleniya / Physical
+    # Physical manifestations / Fusisal
     "slezy", "slezy", "plachu", "revu", "rydayu",
     "kom v gorle", "glaza na mokrom meste",
     "khnyk", "vskhlip",
@@ -1485,8 +1469,8 @@ LEX_SAD = {
     "pechalka", "pichal", "otstoy", "oblom",
     "feyl", "proval", "sliv", "dnische",
     "tilt", "v tilte", "minus moral",
-    "dizmoral", "grustnenko", "zhiza", # chasto v kontekste grustnogo uznavaniya
-    "ya vse", "ya konchilsya", "potracheno",
+    "dizmoral", "grustnenko", "zhiza", # often in the context of sad recognition
+    "ya vse", "I'm done", "potracheno",
 
     # === English / Angliyskiy ===
     # Basic
@@ -1497,10 +1481,10 @@ LEX_SAD = {
     # Internet/Gaming
     "cry", "crying", "rip", "f", "press f", # Respect/Sorrow
     "depressed", "depression", "tired", "burned out",
-    "fail", "gg", # inogda kak priznanie porazheniya
+    "fail", "gg", # sometimes as an admission of defeat
     "heartbroken", "broken"
 }
-# Rasshiren leksemami iz bazovogo dvizhka
+# Extended with lexemes from the base engine
 LEX_ANGER = {
     # === Russian / Russkiy ===
     # Bazovye / Basic
@@ -1530,7 +1514,7 @@ LEX_ANGER = {
     "pukan", "battkhert", "tilt", "reydzh",
     "vzryv", "bag", "lag", "tupit", "tormozit", # v kontekste gneva na tekhniku
 
-    # Rugatelstva i Oskorbleniya (dlya ponimaniya konteksta) / Expletives & Insults
+    # Curses and Insults (to understand the context) / Expletives & Stroke
     "chert", "chert", "blin", "figa", "nafig",
     "tvar", "svoloch", "gad", "urod", "kozel",
     "tupoy", "idiot", "debil", "kretin", "durak",
@@ -1557,28 +1541,28 @@ LEX_SURPRISE = {
     # === Russian / Russkiy ===
     # Bazovye reaktsii / Basic Reactions
     "ogo", "vau", "ukh ty", "ukh", "akh",
-    "nichego sebe", "vot eto da", "nu i nu",
+    "nichego sebe", "Wow", "nu i nu",
     "udivlen", "udivlena", "udivitelno",
     "izumlen", "porazhen", "porazitelno",
     "vpechatlyaet", "vpechatlyayusche",
 
     # Neverie i Somnenie / Disbelief
-    "da ladno", "serezno", "ne mozhet byt",
+    "da ladno", "serezno", "can't be",
     "neuzheli", "shutish", "gonish", "pravda?",
-    "razve", "kak tak", "pochemu", "otkuda",
+    "razve", "how so", "pochemu", "otkuda",
     "ne veritsya", "glazam ne veryu",
 
     # Vnezapnost / Suddenness
     "neozhidanno", "vnezapno", "vdrug", "syurpriz",
     "otkrytie", "insayt", "ozarenie", "novost",
-    "kak sneg na golovu", "grom sredi yasnogo neba",
+    "out of the blue", "grom sredi yasnogo neba",
 
-    # Silnyy shok i Sleng / Strong Shock & Slang
+    # Strong Shock & Slang / Strong Shock & Slang
     "shok", "v shoke", "shokirovan", "obaldet",
     "ofiget", "figa", "nifiga", "nifiga sebe",
     "zhest", "dich", "kosmos", "otval bashki",
     "chelyust otpala", "chelyust na polu",
-    "net slov", "poteryal dar rechi",
+    "net slov", "speechless",
     "vzryv mozga", "mayndfak", "kryshesnos",
 
     # Strannost / Weirdness
@@ -1598,7 +1582,7 @@ LEX_SURPRISE = {
     # Slang/Acronyms
     "omg", "omfg", "wtf", "wth",
     "mind blowing", "mindblown", "holy cow",
-    "damn" # mozhet byt i udivleniem, i zlostyu
+    "damn" # can be both surprise and anger
 }
 # Novyy leksikon iz bazovogo dvizhka
 LEX_DISGUST = {
@@ -1629,9 +1613,9 @@ LEX_DISGUST = {
     "dich", "tresh", "otstoy", "klek",
     "klek", "sram", "pozor", "k.l.m.n.",
 
-    # Otsenka koda/raboty / Work-related
+    # Code/work evaluation / Work-related
     "govnokod", "kostyl", "velosiped", # v negativnom kontekste
-    "spagetti", "krivo", "koso", "cherez zhopu",
+    "spagetti", "krivo", "koso", "through the ass",
     
     # === English / Angliyskiy ===
     # Basic
@@ -1651,7 +1635,7 @@ LEX_ENERGY_UP = {
     "pognali", "poekhali", "startuem", "nachinaem",
     "v put", "v boy", "zaryazhen", "zaryazhena",
     "bodro", "bodryachkom", "est sily", "polna sil",
-    "led tronulsya", "protsess poshel", "rabotaem",
+    "led tronulsya", "the process has begun", "rabotaem",
 
     # Energiya i Resurs / Energy & Resource
     "energiya", "mosch", "sila", "tonus", "resurs",
@@ -1665,11 +1649,11 @@ LEX_ENERGY_UP = {
     "perezagruzka", "rebut", "vosstanovilsya",
     "vernulsya", "onlayn", "na svyazi", "tut",
 
-    # Deystvie i Fokus / Action & Focus
+    # Action & Focus / Action & Focus
     "deystvuem", "delaem", "reshaem", "taschim",
     "topim", "zhmem", "gazuem", "vpered",
     "sosredotochen", "fokus", "v potoke",
-    "raznosim", "unichtozhaem", # v kontekste zadach
+    "raznosim", "unichtozhaem", # in the context of tasks
 
     # Sleng / Slang
     "vork", "vorkaem", "shturmim", "rashim",
@@ -1697,7 +1681,7 @@ LEX_ENERGY_DOWN = {
     # Bazovye / Basic
     "ustal", "ustala", "ustalost", "utomlen",
     "bez sil", "sil net", "sily na iskhode",
-    "vyzhat", "vyzhata", "kak limon",
+    "vyzhat", "vyzhata", "like a lemon",
     "razbit", "razbita", "razbitost",
     "ele zhivoy", "ele khozhu", "valit s nog",
     "opustoshen", "opustoshena", "obessilel",
@@ -1713,7 +1697,7 @@ LEX_ENERGY_DOWN = {
     "golova ne varit", "mozg kipit", "tuplyu",
     "tormozhu", "plyvu", "rasfokus", "kasha v golove",
     "peregrev", "peregruz", "zakipayu", "otupel",
-    "ne soobrazhayu", "zatormozhen",
+    "I can't think straight", "zatormozhen",
 
     # Proschanie pered snom / Going to Sleep
     "spokoynoy nochi", "dobroy nochi", "sladkikh snov",
@@ -1721,10 +1705,10 @@ LEX_ENERGY_DOWN = {
     "do zavtra", "zavtra", "na bokovuyu", "v lyulyu",
     "poshel spat", "ushla spat",
 
-    # Sleng i Tekhno-metafory / Slang & Tech
+    # Slang and Techno-metaphors / Slang & Tech
     "off", "ya off", "off", "afk", "afk",
     "batareyka sela", "zaryad na nule", "lou bat",
-    "shatdaun", "spyaschiy rezhim", "gibernatsiya",
+    "shatdaun", "sleep mode", "gibernatsiya",
     "trottling", "lagayu", "friz", "zavis",
     "zombi", "ovosch", "trup", "mertvyy",
     "vse", "sdokh", "sdulsya", "rip",
@@ -1745,13 +1729,13 @@ LEX_ENERGY_DOWN = {
     "turning off", "logging off", "zzz"
 }
 
-# Rasshirennaya karta Emoji (Dekodirovano + Maksimalnyy okhvat)
+# Extended Etozhi map (Decoded + Maximum coverage)
 EMOJI_MAP = {
     # --- TREVOGA I STRAKh (Anxiety) ---
     "😅": {"anxiety": +0.15, "joy": +0.10, "energy": +0.05}, # Nelovkost
     "😟": {"anxiety": +0.35},                                # Bespokoystvo
     "😰": {"anxiety": +0.45},                                # Stress
-    "😱": {"anxiety": +0.60, "surprise": +0.30},             # Shok/Uzhas
+    "😱": {"anxiety": +0.60, "surprise": +0.30},             # Shock/Horror
     "😨": {"anxiety": +0.50},                                # Strakh
     "😬": {"anxiety": +0.40},                                # Napryazhenie
     "🆘": {"anxiety": +0.70, "energy": +0.20},             # Signal bedstviya
@@ -1761,10 +1745,10 @@ EMOJI_MAP = {
     "😊": {"joy": +0.25, "valence": +0.20},                 # Teplo
     "😍": {"joy": +0.35, "valence": +0.30, "interest": 0.3}, # Vostorg
     "😂": {"joy": +0.45, "valence": +0.35, "energy": +0.10}, # Smekh
-    "🤣": {"joy": +0.50, "valence": +0.40, "energy": +0.15}, # Istericheskiy smekh
+    "🤣": {"joy": +0.50, "valence": +0.40, "energy": +0.15}, # Hysterical laughter
     "🥳": {"joy": +0.40, "energy": +0.30},                  # Prazdnik
     "✨": {"joy": +0.20, "interest": +0.15},                # Magiya/Ideal
-    "✅": {"joy": +0.15, "energy": +0.10},                  # Uspekh/Done
+    "✅": {"joy": +0.15, "energy": +0.10},                  # Success/Don
 
     # --- GRUST (Sadness) ---
     "😭": {"sadness": +0.60, "valence": -0.30},             # Plach
@@ -1789,13 +1773,13 @@ EMOJI_MAP = {
     # --- OTVRASchENIE (Disgust) ---
     "🤢": {"disgust": +0.55, "valence": -0.25},             # Toshnota
     "🤮": {"disgust": +0.70, "valence": -0.35},             # Rvota
-    "💩": {"disgust": +0.50, "valence": -0.20},             # Plokhoe kachestvo
+    "💩": {"disgust": +0.50, "valence": -0.20},             # Poor quality
     "🤡": {"disgust": +0.40, "anger": +0.20},               # Krinzh/Shut
 
     # --- ENERGIYa I DRAYV (Energy) ---
     "🔥": {"energy": +0.30, "interest": +0.20, "joy": +0.10}, # Ogon/Drayv
     "🚀": {"energy": +0.40, "interest": +0.25},               # Start/Skorost
-    "⚡️": {"energy": +0.35},                                 # Molniya/Zaryad
+    "⚡️": {"energy": +0.35},                                 # Lightning/Charge
     "💪": {"energy": +0.30, "joy": +0.15},                  # Sila/Gotovnost
     "💤": {"energy": -0.50},                                 # Son
     "😴": {"energy": -0.60},                                 # Glubokiy son
@@ -1863,10 +1847,10 @@ YES_CUES = {
 NO_CUES = {
     # === Russian / Russkiy ===
     # Bazovye / Basic
-    "net", "nea", "netu", "nikogda", "ni za chto",
+    "net", "nea", "netu", "nikogda", "no way",
     "ni v koem sluchae", "otnyud", "vovse net",
 
-    # Otkaz ot deystviya / Refusal
+    # Disclaimer / Refusal
     "ne khochu", "ne budu", "ne nado", "bros",
     "otkazhus", "otkaz", "otmenyay", "otmena",
     "stop", "khvatit", "prekrati", "ostanovis",
@@ -1879,7 +1863,7 @@ NO_CUES = {
     "plokho", "otstoy", "fignya", "erunda",
 
     # Otkladyvanie (Myagkoe "Net") / Delay (Soft No)
-    "potom", "pozzhe", "pozzhe kak-nibud",
+    "potom", "pozzhe", "later someday",
     "ne seychas", "ne segodnya", "nekogda",
     "zanyat", "zanyata", "zavtra", "drugoy raz",
     "pogodi", "podozhdi", "tormozi", "ne speshi",
@@ -1905,7 +1889,7 @@ NO_CUES = {
 }
 LEX_CONFUSION = {
     # === Russian / Russkiy ===
-    "ne ponyal", "ne ponyala", "chto?", "v smysle?", "kak eto?", "neyasno", "nechetko", "nechetko",
+    "ne ponyal", "ne ponyala", "chto?", "v smysle?", "how is this?", "neyasno", "nechetko", "nechetko",
     "zaputanno", "slozhno", "obyasni", "razyasni", "poyasni", "povtori", "ne dognal",
     "kasha", "bred", "erunda", "chepukha", "dich", "stranno", "ne skhoditsya", "oshibka", 
     "glyuk", "bag", "nelogichno", "pochemu?", "zachem?", "kto?", "gde?", "kogda?",
@@ -1919,10 +1903,10 @@ LEX_CONFUSION = {
 
 LEX_URGENCY = {
     # === Russian / Russkiy ===
-    "srochno", "bystro", "fast", "gorim", "asap", "asap", "seychas zhe", "nemedlenno", 
+    "srochno", "bystro", "fast", "gorim", "asap", "asap", "now", "nemedlenno", 
     "mgnovenno", "vchera", "kritichno", "vazhno", "prioritet", "dedlayn", "finish",
     "skoree", "pospeshi", "ne tyani", "srazu", "teper", "gorit", "pozhar", "avral",
-    "ekstrenno", "v sey zhe chas", "siyu minutu", "p0", "p0", "p1", "p1",
+    "ekstrenno", "at this very hour", "siyu minutu", "p0", "p0", "p1", "p1",
 
     # === English / English ===
     "urgent", "fast", "quickly", "now", "immediately", "critical", "priority", 
@@ -2061,13 +2045,13 @@ def _analyze_core(text: str, baseline: Optional[Dict[str, float]] = None) -> Dic
     punc = _punctuation_effects(raw)
     yn = _yes_no_effects(tokens)
 
-    # Agregatsiya finalnykh vesov
+    # Aggregation of final weights
     anxiety = a + emo.get("anxiety", 0.0) + punc.get("anxiety", 0.0) + 0.3 * conf
     interest = i + emo.get("interest", 0.0) + yn.get("interest", 0.0) + 0.4 * meta
     joy = j + emo.get("joy", 0.0) + 0.5 * grat
     energy = (e_up - 0.8 * e_down) + emo.get("energy", 0.0) + punc.get("energy", 0.0) + 0.4 * urg
 
-    # Formula valentnosti (nastroeniya) s uchetom novykh dannykh
+    # Valence (mood) formula taking into account new data
     valence = (
         (joy - s - 0.5 * anxiety - 0.4 * g - 0.6 * dg + 0.1 * sp + 0.2 * grat)
         + emo.get("valence", 0.0)
@@ -2099,10 +2083,8 @@ def _analyze_core(text: str, baseline: Optional[Dict[str, float]] = None) -> Dic
 # ===== PUBLIChNYE API =====
 
 def analyze_emotions(text: str, user_ctx: Optional[Dict] = None) -> Dict[str, float]:
-    """
-    Publichnaya funktsiya dlya bystrogo analiza teksta.
-    Podderzhivaet baseline iz konteksta polzovatelya dlya sglazhivaniya skachkov.
-    """
+    """Public function for quick text analysis.
+    Supports bassline from user context to smooth out jumps."""
     baseline = None
     if user_ctx and isinstance(user_ctx.get("baseline"), dict):
         baseline = user_ctx["baseline"]
@@ -2110,10 +2092,8 @@ def analyze_emotions(text: str, user_ctx: Optional[Dict] = None) -> Dict[str, fl
 
 
 class EmotionalEngine:
-    """
-    Vysokourovnevyy dvizhok sostoyaniy. 
-    Umeet kalibrovatsya na vyborke soobscheniy Owner, chtoby luchshe ponimat 'normu'.
-    """
+    """High-level engine in good condition. 
+    Able to calibrate on a sample of Owner's messages in order to better understand the world."""
     def __init__(self, baseline: Optional[Dict[str, float]] = None):
         self._baseline = dict(baseline or {})
 
@@ -2122,14 +2102,12 @@ class EmotionalEngine:
         return dict(self._baseline)
 
     def calibrate(self, samples: Iterable[str] | None = None):
-        """
-        Nastroyka 'nulya' sistemy. 
-        Progonyaet obraztsy tekstov i vychislyaet sredniy emotsionalnyy fon.
-        """
+        """Setting up a null system. 
+        Runs text samples and calculates the average emotional background."""
         if not samples:
             return
         
-        # Rasshirennyy akkumulyator dlya vsekh metrik, vklyuchaya kognitivnye
+        # Extended accumulator for all metrics, including cognitive
         acc = {
             "anxiety": 0.0, "interest": 0.0, "joy": 0.0,
             "sadness": 0.0, "anger": 0.0, "surprise": 0.0,
@@ -2162,46 +2140,44 @@ class EmotionalEngine:
         return _analyze_core(text, baseline=baseline)
 
 def _is_emotional_text(text: str) -> bool:
-    """
-    Detektor emotsionalnogo konteksta. 
-    Esli vozvraschaet True, Ester perekhodit v 'empatichnyy rezhim' (Sticky Mode).
-    """
+    """Emotional context detector. 
+    If he returns Troy, Esther goes into empathic mode (Skirmish Mode)."""
     if not text:
         return False
         
     t = text.strip().lower()
     
-    # 1. Proverka na emotsionalnye Emoji (ispravleno iz mojibake)
+    # 1. Test for emotional Etozhi (corrected from Mojiwake)
     # ❤️, 🥰, 💖, ✨, 😍, 😭, 😢, 😊, 🙂, 🙏, 😡, 🤯, 💔
     emojis = ("❤️", "🥰", "💖", "✨", "😍", "😭", "😢", "😊", "🙂", "🙏", "😡", "🤯", "💔", "🔥")
     if any(e in text for e in emojis):
         return True
 
-    # 2. Leksicheskie markery (Rasshireno)
+    # 2. Lexical markers (Extended)
     markers = {
         # Teplo i blizost
         "spasibo", "lyublyu", "solnyshko", "obnimayu", "tseluyu", "prosti", "skuchayu", "milo",
         # Bol i strakh
         "bolno", "strashno", "perezhivayu", "trevoga", "ustal", "ustala", "plokho", "khrenovo",
-        # Vazhnye zhiznennye yakorya (Semya/Zdorove)
+        # Important life anchors (Family/Health)
         "bolnichn", "vrach", "bolnitsa", "dochka", "semya", "mama", "papa", "zhena", "syn", "rodnoy",
         # Gnev i razdrazhenie
         "besit", "dostalo", "zadolbalo", "nenavizhu", "zhest", "krinzh", "chert", "chert",
-        # Metafizika i Lichnost (iz nashikh novykh leksikonov)
+        # Metaphysics and Personality (from our new lexicons)
         "dusha", "chuvstvuyu", "serdtse", "oschuschayu", "odinoko", "smysl", "zhizn"
     }
     
-    # Proverka vkhozhdenie lyubogo markera kak podstroki
+    # Checking the occurrence of any token as a substring
     if any(m in t for m in markers):
         return True
 
     # 3. Punktuatsionnye triggery
-    # Dvoynye vosklitsatelnye znaki (krik) ili mnogotochiya (grust/razdumya)
+    # Double exclamation points (crying) or ellipses (sadness/thought)
     if t.count("!") >= 2 or "..." in t or "???" in t:
         return True
         
     # 4. Detektor CAPS LOCK (Krik/Silnye emotsii)
-    # Esli v tekste bolshe 5 bukv i bolee 70% iz nikh v verkhnem registre
+    # If the text contains more than 5 letters and more than 70% of them are in uppercase
     letters = [ch for ch in text if ch.isalpha()]
     if len(letters) > 5:
         caps_ratio = sum(1 for ch in letters if ch.isupper()) / len(letters)
@@ -2211,16 +2187,14 @@ def _is_emotional_text(text: str) -> bool:
     return False
 
 def _is_technical_text(text: str) -> bool:
-    """
-    Detektor tekhnicheskogo kontenta. 
-    Esli tekst pokhozh na kod, logi ili konfigi, empatiya otklyuchaetsya dlya yasnosti.
-    """
+    """Technical content detector. 
+    If the text is similar to code, logs or configs, empathy is disabled for clarity."""
     t = (text or "").strip()
     if not t:
         return False
     low = t.lower()
     
-    # 1. Stek-treysy i sistemnye oshibki
+    # 1. Stack traces and system errors
     if any(x in low for x in ["traceback", "syntaxerror", "exception", "runtimeerror", "at line"]):
         return True
         
@@ -2240,7 +2214,7 @@ def _is_technical_text(text: str) -> bool:
     if re.search(r"\b(chroma|chromadb|vector|llm|lmstudio|rtx|cuda|gpu|torch|tensor|api|endpoint)\b", low):
         return True
         
-    # 5. HTTP i Logika otvetov
+    # 5. HTTP and Response Logic
     if any(x in low for x in ["http 200", "404 not found", "request failed", "auth_token"]):
         return True
 
@@ -2254,10 +2228,8 @@ EMO_STICKY_SECONDS = int(os.getenv("EMO_STICKY_SECONDS", "180"))
 _EMO_STICKY_UNTIL: float = 0.0
 
 def _should_use_emotional_mode(user_text: str, identity_prompt: str) -> bool:
-    """
-    Logika uderzhaniya (Sticky Mode) emotsionalnogo sostoyaniya.
-    Teper uchityvaet ne tolko slova-markery, no i glubokie metriki.
-    """
+    """The logic of retention (Skirmish Mode) of the emotional state.
+    Now it takes into account not only marker words, but also deep metrics."""
     global _EMO_STICKY_UNTIL
     
     # Enable owner-only mode when identity prompt contains OWNER marker.
@@ -2266,18 +2238,18 @@ def _should_use_emotional_mode(user_text: str, identity_prompt: str) -> bool:
     if not is_owner and not allow_all:
         return False
 
-    # Esli tekst tekhnicheskiy — mgnovennyy sbros empatii (rabota prezhde vsego)
+    # If the text is technical - an instant reset of empathy (work first)
     if _is_technical_text(user_text):
         _EMO_STICKY_UNTIL = 0.0
         return False
 
     now = time.time()
     
-    # Analiziruem tekuschee soobschenie
+    # Analyzing the current message
     scores = _analyze_core(user_text)
     
     # Triggery vklyucheniya:
-    # 1. Yavnye markery (spasibo, lyublyu i t.d.)
+    # 1. Explicit markers (thank you, love, etc.)
     # 2. Vysokiy uroven metafiziki (razgovor o dushe/smysle)
     # 3. Vysokiy uroven strakha ili radosti
     has_emotional_intent = (
@@ -2292,10 +2264,10 @@ def _should_use_emotional_mode(user_text: str, identity_prompt: str) -> bool:
         _EMO_STICKY_UNTIL = now + max(0, int(EMO_STICKY_SECONDS))
         return True
 
-    # Esli my uzhe v 'lipkom' periode i net tekh. teksta — ostaemsya v nem
+    # If we are already in a sticky period and there are no those. text - remains in it
     if now < _EMO_STICKY_UNTIL:
-        # No esli Owner proyavlyaet vysokuyu srochnost (Urgency), 
-        # sokraschaem lipkost, chtoby ne meshat delu
+        # But if Ovner shows high urgency (Jurgens),
+        # reduce stickiness so as not to interfere with business
         if scores["urgency"] > 0.8:
             _EMO_STICKY_UNTIL = 0.0
             return False
@@ -2304,14 +2276,12 @@ def _should_use_emotional_mode(user_text: str, identity_prompt: str) -> bool:
     return False
 
 def _emotion_telemetry(user_text: str) -> str:
-    """
-    Kompaktnyy signal affekta dlya logov i sistemnykh promptov.
-    Teper uchityvaet vse 12 metrik, vklyuchaya metafiziku i srochnost.
-    """
+    """Compact affect signal for logs and system prompts.
+    Now considers all 12 metrics, including metaphysics and urgency."""
     if not EMPATHY_V2_ENABLED:
         return ""
     try:
-        # Ispolzuem nash obnovlennyy dvizhok
+        # We use our updated engine
         scores = analyze_emotions(user_text, user_ctx=None) or {}
     except Exception:
         return ""
@@ -2319,36 +2289,34 @@ def _emotion_telemetry(user_text: str) -> str:
     items = []
     for k, v in scores.items():
         if isinstance(v, (int, float)):
-            # Okruglyaem do sotykh dlya kompaktnosti
+            # Round to the nearest hundredth for compactness.
             items.append((str(k), float(v)))
     
-    # Sortiruem po intensivnosti, chtoby videt samye yarkie signaly
+    # Sort by intensity to see the brightest signals
     items.sort(key=lambda x: x[1], reverse=True)
     
-    # Berem top-5 samykh vyrazhennykh sostoyaniy
+    # We take the top 5 most pronounced conditions
     top_signals = items[:5]
     return ", ".join([f"{k}={v:.2f}" for k, v in top_signals])
 
 def dummy_llm_analyze_tone(text: str) -> Dict[str, Any]:
-    """
-    Analiz tona na osnove vychislennykh vesov (vmesto prostykh strok).
-    Eto delaet 'zaglushku' chastyu obschey logiki c = a + b.
-    """
+    """Tone analysis based on calculated weights (instead of simple strings).
+    This makes the stub part of the overall logic with = a + b."""
     scores = analyze_emotions(text)
     
-    # Opredelyaem dominiruyuschiy ton
+    # Determining the dominant tone
     if scores["anger"] > 0.6 or scores["disgust"] > 0.6:
         return {
             "tone": "razdrazhennyy/negativnyy",
             "score": max(scores["anger"], scores["disgust"]),
-            "suggestion": "Snizit kategorichnost, dobavit myagkosti i empatii."
+            "suggestion": "Reduce categoricalness, add gentleness and empathy."
         }
     
     if scores["urgency"] > 0.7:
         return {
             "tone": "srochnyy/delovoy",
             "score": scores["urgency"],
-            "suggestion": "Otvechat maksimalno kratko, po suschestvu, bez vody."
+            "suggestion": "Answer as briefly as possible, to the point, without fluff."
         }
         
     if scores["metaphysics"] > 0.6:
@@ -2362,41 +2330,39 @@ def dummy_llm_analyze_tone(text: str) -> Dict[str, Any]:
         return {
             "tone": "druzhelyubnyy/pozitivnyy",
             "score": scores["joy"],
-            "suggestion": "Podderzhat teplotu, mozhno dobavit umestnyy yumor."
+            "suggestion": "To maintain warmth, you can add appropriate humor."
         }
 
     return {
         "tone": "neytralnyy",
         "score": 0.5,
-        "suggestion": "Standartnyy rezhim otveta."
+        "suggestion": "Standard response mode."
     }
 
 
 # --- Empathy storage (persistent) ---
-# Nastroyka dolgosrochnoy pamyati emotsionalnykh sostoyaniy.
+# Tuning long-term memory of emotional states.
 # Prioritet: Kachestvo i Glubina > Skorost.
 
 EMPATHY_V2_ENABLED = (os.getenv("ESTER_EMPATHY_V2", "1").strip().lower() not in ("0", "false", "no", "off"))
 EMPATHY_COLLECTION_NAME = os.getenv("ESTER_EMPATHY_COLLECTION", "ester_empathy")
 EMPATHY_DEFAULT_LEVEL = int(os.getenv("ESTER_EMPATHY_DEFAULT_LEVEL", "6") or 6)
-# Khranim poslednie 100 vektorov sostoyaniy dlya mgnovennogo rezonansa.
+# Stores the last 100 state vectors for instant resonance.
 EMPATHY_HISTORY_MAX = int(os.getenv("ESTER_EMPATHY_HISTORY_MAX", "100"))
 
 _EMPATHY_CLIENT = None
 _EMPATHY_COLLECTION = None
 
 def _resolve_empathy_persist_dir() -> str:
-    """
-    Opredelyaet put k khranilischu empatii. 
-    Ispolzuet ierarkhiyu: VECTOR_DB_PATH -> CHROMA_PERSIST_DIR -> ESTER_HOME.
-    """
+    """Defines the path to the empathy store. 
+    Uses the hierarchy: VECTOR_DB_PATH -> CHROME_PERSIST_DIR -> ESTER_HOME."""
     try:
-        # 1. Proveryaem, zadan li uzhe globalnyy put k vektornoy BD
+        # 1. Check whether the global path to the vector database has already been set
         p = globals().get("VECTOR_DB_PATH")
         if p: return str(p)
     except Exception: pass
 
-    # 2. Proveryaem peremennuyu okruzheniya
+    # 2. Check the environment variable
     raw = (os.getenv("CHROMA_PERSIST_DIR") or "").strip()
     if raw:
         raw = os.path.expandvars(os.path.expanduser(raw))
@@ -2409,21 +2375,19 @@ def _resolve_empathy_persist_dir() -> str:
     if not base:
         base = os.getcwd()
     
-    # Garantiruem korrektnoe rasshirenie putey v lyuboy OS
+    # We guarantee correct path expansion in any OS
     base_path = Path(os.path.expandvars(os.path.expanduser(base))).resolve()
     return str(base_path / "vstore" / "chroma")
 
 def get_empathy_collection():
-    """
-    Lenivaya initsializatsiya kollektsii empatii.
-    Garantiruet, chto my ne sozdaem lishnikh podklyucheniy k ChromaDB.
-    """
+    """Lazy initialization of the empathy collection.
+    Ensures that we do not create unnecessary connections to ChromaDB."""
     global _EMPATHY_CLIENT, _EMPATHY_COLLECTION
     if _EMPATHY_COLLECTION is not None:
         return _EMPATHY_COLLECTION
 
     try:
-        # Pytaemsya ispolzovat suschestvuyuschiy klient iz yadra sistemy
+        # We are trying to use an existing client from the system kernel
         cc = globals().get("chroma_client")
         if cc is not None:
             _EMPATHY_CLIENT = cc
@@ -2432,7 +2396,7 @@ def get_empathy_collection():
     except Exception as e:
         logging.warning(f"[Empathy] Could not bind to global chroma_client: {e}")
 
-    # Esli globalnogo klienta net, vozvraschaem pustoy slovar (fallback mode)
+    # If there is no global client, returns an empty dictionary (false mode)
     _EMPATHY_COLLECTION = {}
     return _EMPATHY_COLLECTION
 
@@ -2463,11 +2427,11 @@ class EmpathyModule:
     ):  # 1-10, gde 10 — max druzhelyubie
         self.user_id = user_id
         self.empathy_level = empathy_level
-        self.user_history: List[Dict[str, Any]] = []  # Istoriya dlya personalizatsii
-        self.load_from_db()  # Zagruzhaem predyduschie predpochteniya
+        self.user_history: List[Dict[str, Any]] = []  # History for personalization
+        self.load_from_db()  # Loading previous preferences
 
     def analyze_user_message(self, message: str) -> Dict[str, Any]:
-        """Analiziruet ton soobscheniya i predlagaet adaptatsiyu."""
+        """Analyzes message tone and suggests adaptations."""
         analysis = dummy_llm_analyze_tone(message)
         self.user_history.append({"message": message, "analysis": analysis})
         
@@ -2477,17 +2441,17 @@ class EmpathyModule:
         if analysis.get("tone") == "razdrazhennyy/negativnyy":
             return {
                 "response_style": "empatiya",
-                "prefix": "Ponimayu, eto mozhet razdrazhat — davay razberemsya po-druzheski. ",
+                "prefix": "I understand this can be annoying - let's sort it out amicably.",
             }
         elif "podpiska" in message.lower() or "plan" in message.lower():
             return {
                 "response_style": "myagkiy",
-                "prefix": "Esli interesno, vot ideya po podpiske — no bez speshki, snachala zadacha. ",
+                "prefix": "If you're interested, here's an idea for a subscription - but without haste, task first.",
             }
         return {"response_style": "standart", "prefix": ""}
 
     def generate_friendly_response(self, base_response: str, analysis: Dict[str, Any]) -> str:
-        """Generiruet druzheskiy otvet na osnove analiza."""
+        """Generates a friendly response based on the analysis."""
         prefix = analysis.get("prefix", "")
         if self.empathy_level > 7:
             humor_add = " 😁" 
@@ -2496,8 +2460,8 @@ class EmpathyModule:
         return f"{prefix}{base_response}{humor_add}"
 
     def suggest_improvement(self) -> str:
-        """Nenavyazchivoe predlozhenie fidbeka ili uluchsheniya."""
-        return "Rasskazhi, chto uluchshit? Net davleniya, prosto ideya dlya luchshego opyta."
+        """An unobtrusive offer of feedback or improvement."""
+        return "Tell me what to improve? No pressure, just an idea for a better experience."
 
     def save_to_db(self):
         """Persist empathy history (best-effort)."""
@@ -2548,9 +2512,7 @@ class EmpathyModule:
             self.user_history = self.user_history[-EMPATHY_HISTORY_MAX:]
 
 class EmpathyHub:
-    """
-    Router empatii po polzovatelyam. Derzhit otdelnye sostoyaniya na user_id.
-    """
+    """User empathy router. Keeps separate states per user_id."""
     def __init__(self, default_level: int = EMPATHY_DEFAULT_LEVEL):
         self._default_level = int(default_level) if default_level else EMPATHY_DEFAULT_LEVEL
         self._by_user: Dict[str, Any] = {}
@@ -2633,7 +2595,7 @@ def load_from_db(self):
             if self.user_id in coll:
                 self.user_history = json.loads(coll[self.user_id]) or []
         else:
-            # Vektornyy rezhim (ChromaDB)
+            # Vector mode (ChromaDB)
             result = coll.get(ids=[self.user_id])
             docs = (result.get("documents") or []) if isinstance(result, dict) else []
             if docs:
@@ -2642,43 +2604,41 @@ def load_from_db(self):
         logging.warning(f"[EmpathyModule] Load failed, starting fresh: {e}")
         self.user_history = []
 
-    # Ogranichenie glubiny pamyati
+    # Memory Depth Limit
     if EMPATHY_V2_ENABLED and EMPATHY_HISTORY_MAX > 0:
         self.user_history = self.user_history[-EMPATHY_HISTORY_MAX:]
 
 def _is_daily_contacts_query(text: str) -> bool:
-    """
-    Detektor zaprosov k zhurnalu kontaktov za den.
-    Opredelyaet namerenie Owner uznat, kto poseschal uzel segodnya.
-    """
+    """Detector of requests to the daily contact log.
+    Determines Owner's intent to find out who visited the node today."""
     low = (text or "").strip().lower()
     if not low:
         return False
 
-    # Rasshirennyy spisok patternov (ispravleno iz mojibake)
+    # Expanded list of patterns (corrected from Mojiwake)
     patterns = [
         "s kem ty govorila segodnya",
-        "s kem ty obschalas segodnya",
+        "who did you talk to today",
         "kto pisal segodnya",
         "kto tebe pisal segodnya",
         "kto segodnya pisal",
         "s kem ty razgovarivala segodnya",
-        "s kem ty obschalas krome menya",
+        "who did you talk to besides me",
         "krome menya s kem",
         "kto krome menya",
-        "pokazhi zhurnal dnya",
-        "pokazhi kto pisal",
+        "show your daily log",
+        "show who wrote",
         "kto byl segodnya",
         "spisok kontaktov segodnya",
-        "aktivnost za segodnya",
-        "kto zakhodil segodnya"
+        "activity for today",
+        "who came today"
     ]
 
     # Pryamoe sovpadenie fraz
     if any(p in low for p in patterns):
         return True
 
-    # Gibkaya logika po klyuchevym slovam (s kem + segodnya + deystvie)
+    # Flexible logic based on keywords (with whom + today + action)
     has_target = "s kem" in low or "kto" in low
     has_time = "segodnya" in low or "za den" in low
     has_action = any(m in low for m in ("govor", "obschal", "razgovor", "pisal", "byl"))
@@ -2700,11 +2660,11 @@ def _is_whois_query(text: str) -> Optional[str]:
         if not s:
             return None
 
-        # Patterny dlya poiska (vse kirillicheskie simvoly ekranirovany dlya bezopasnosti)
+        # Search patterns (all Cyrillic characters are escaped for security)
         
-        # 1. 'kto (takoy|takaya|eto) <Name?>'
+        # 1. who (such|such|this) <Name?>b
         # \u043a\u0442\u043e = kto
-        # \u0442\u0430\u043a\u043e\u0439 = takoy, \u0442\u0430\u043a\u0430\u044f = takaya, \u044d\u0442\u043e = eto
+        # eu0442eu0430eu043aeu043eeu0439 = such, eu0442eu0430eu043aeu0430eu044f = such, eu04chdeu0442eu043e = this
         pat_whois = (
             r"(?i)\b(?:\u043a\u0442\u043e)\s+"
             r"(?:\u0442\u0430\u043a\u043e\u0439|\u0442\u0430\u043a\u0430\u044f|\u044d\u0442\u043e)\s+"
@@ -2718,44 +2678,42 @@ def _is_whois_query(text: str) -> Optional[str]:
             r"([A-Za-z\u0400-\u04FF][A-Za-z\u0400-\u04FF\-\s]{1,40})\??\b"
         )
 
-        # 3. 'chto (ty) znaesh o/ob <Name?>'
-        # \u0447\u0442\u043e = chto, \u0437\u043d\u0430\u0435\u0448\u044c = znaesh, \u043e = o, \u043e\u0431 = ob
+        # 3. what (you) know about <Name?>b
+        # eu0447eu0442eu043e = what, eu0437eu04zdeu0430eu0435eu0448eu044k = you know, eu043e = oh, eu043eeu0431 = about
         pat_know = (
             r"(?i)\b(?:\u0447\u0442\u043e)\s+(?:.*\s+)?(?:\u0437\u043d\u0430\u0435\u0448\u044c)\s+(?:\u043e|\u043e\u0431)\s+"
             r"([A-Za-z\u0400-\u04FF][A-Za-z\u0400-\u04FF\-\s]{1,40})\??\b"
         )
 
-        # Posledovatelno proveryaem vse patterny
+        # Consistently checks all patterns
         for pat in [pat_whois, pat_tell, pat_know]:
             m = re.search(pat, s)
             if m:
                 name = m.group(1).strip()
-                # Udalyaem voprositelnyy znak, esli on popal v zakhvat
+                # We remove the question mark if it is captured
                 if name.endswith('?'):
                     name = name[:-1].strip()
                 return name
 
         return None
     except Exception:
-        # Tikhiy vozvrat v sluchae lyuboy oshibki parsinga
+        # Silent return in case of any parsing error
         return None
 
 import re
 from typing import Optional
 
 def _is_whois_query(text: str) -> Optional[str]:
-    """
-    Detektor zaprosov o lichnostyakh (Whois-intent).
-    Izvlekaet imya iz fraz tipa 'kto takoy...', 'rasskazhi pro...' ili 'chto znaesh o...'.
+    """Detektor zaprosov o lichnostyakh (Whois-intent).
+    Izvlekaet imya iz fraz tipa 'kto takoy...', 'rasskazhi pro...' or 'chto znaesh o...'.
     
-    Ispolzuet ASCII-eskeypy dlya kirillitsy, chtoby izbezhat problem s kodirovkoy iskhodnogo koda.
-    """
+    Ispolzuet ASCII-eskeypy dlya kirillitsy, chtoby izbezhat problem s kodirovkoy iskhodnogo koda."""
     try:
         s = (text or "").strip()
         if not s:
             return None
 
-        # 1. Pattern: 'kto (takoy|takaya|eto) <Name>'
+        # 1. Pattern: who (such|such|this) <Name>b
         # \u043a\u0442\u043e = kto; \u0442\u0430\u043a\u043e\u0439 = takoy...
         pat_whois = (
             r"(?i)\b(?:\u043a\u0442\u043e)\s+"
@@ -2770,8 +2728,8 @@ def _is_whois_query(text: str) -> Optional[str]:
             r"([A-Za-z\u0400-\u04FF][A-Za-z\u0400-\u04FF\-\s]{1,40})\??\b"
         )
 
-        # 3. Pattern: 'chto ty znaesh o/ob <Name>'
-        # \u0447\u0442\u043e = chto, \u0437\u043d\u0430\u0435\u0448\u044c = znaesh, \u043e = o...
+        # 3. Pattern: what do you know about <Name>
+        # eu0447eu0442eu043e = what, eu0437eu04zdeu0430eu0435eu0448eu044k = you know, eu043e = oh...
         pat_know = (
             r"(?i)\b(?:\u0447\u0442\u043e)\s+(?:.*\s+)?(?:\u0437\u043d\u0430\u0435\u0448\u044c)\s+(?:\u043e|\u043e\u0431)\s+"
             r"([A-Za-z\u0400-\u04FF][A-Za-z\u0400-\u04FF\-\s]{1,40})\??\b"
@@ -2781,11 +2739,11 @@ def _is_whois_query(text: str) -> Optional[str]:
         for pat in [pat_whois, pat_tell, pat_know]:
             m = re.search(pat, s)
             if m:
-                # Izvlechenie i normalizatsiya
+                # Extraction and Normalization
                 name = (m.group(1) or "").strip()
                 name = re.sub(r"\s{2,}", " ", name)
                 
-                # Imya dolzhno byt osmyslennym (minimum 2 simvola)
+                # The name must be meaningful (minimum 2 characters)
                 return name if len(name) >= 2 else None
 
         return None
@@ -2794,37 +2752,35 @@ def _is_whois_query(text: str) -> Optional[str]:
 
 # --- 7) PATHS (fix %ESTER_HOME% expansion robustly) ---
 def _resolve_ester_home() -> str:
-    """
-    Nadezhnoe opredelenie rabochey direktorii.
+    """Nadezhnoe opredelenie rabochey direktorii.
     Ierarkhiya poiska: 
     1. Peremennaya okruzheniya ESTER_HOME.
-    2. Papka .ester v domashney direktorii polzovatelya.
-    3. Papka .ester v tekuschem rabochem kataloge (fallback).
-    """
-    # 1. Popytka poluchit put iz peremennoy okruzheniya
+    2. Papka.ester v domashney direktorii polzovatelya.
+    3. Papka .ester v tekuschem rabochem kataloge (fallback)."""
+    # 1. Trying to get the path from an environment variable
     h = os.getenv("ESTER_HOME", "").strip()
 
-    # 2. Opredelenie puti po umolchaniyu, esli peremennaya ne zadana
+    # 2. Define the default path if the variable is not set
     if not h:
         try:
-            # Put ~/.ester (standart dlya Unix/macOS i Windows)
+            # Path ~/.ester (standard for Young/MacOS and Windows)
             h = str(Path.home() / ".ester")
         except Exception:
-            # Esli dostup k domashney papke ogranichen, ispolzuem tekuschiy katalog
+            # If access to the home folder is restricted, uses the current directory
             h = str(Path.cwd() / ".ester")
 
-    # 3. Raskrytie peremennykh okruzheniya (%VAR% ili $VAR) i simvola ~ (domashnyaya papka)
+    # 3. Expanding environment variables (ZZF0ZZAR% or $VAR) and the ~ symbol (home folder)
     expanded_path = os.path.expandvars(os.path.expanduser(h))
     
-    # 4. Prevraschenie v absolyutnyy put i normalizatsiya (razreshenie simvolicheskikh ssylok)
+    # 4. Conversion to absolute path and normalization (symbolic link resolution)
     final_path = Path(expanded_path).resolve()
 
-    # 5. Garantirovannoe sozdanie direktorii (vklyuchaya roditelskie), esli ee net
+    # 5. Guaranteed creation of directories (including parent ones) if there are none
     try:
         final_path.mkdir(parents=True, exist_ok=True)
     except OSError:
-        # Esli sozdat papku nevozmozhno (oshibka prav), prodolzhaem, 
-        # no logirovanie ili zapis BD mogut vydat oshibku pozzhe.
+        # If it is impossible to create a folder (permission error), continue
+        # but logging or writing to the database may throw an error later.
         pass
 
     return str(final_path)
@@ -2832,9 +2788,9 @@ def _resolve_ester_home() -> str:
 ESTER_HOME = _resolve_ester_home()
 os.environ["ESTER_HOME"] = ESTER_HOME
 
-# --- LEGACY FILE MAPPING (Podklyuchenie tvoikh starykh arkhivov) ---
+# --- LEGACY FILE MAPPING (Connecting your old archives) ---
 
-# Tvoya iskhodnaya karta putey
+# Your original path map
 LEGACY_FILES_MAP = [
     ("data/passport/clean_memory.jsonl", "global_fact"),
     ("data/mem/docs.jsonl", "global_doc"),
@@ -2845,12 +2801,10 @@ LEGACY_FILES_MAP = [
 ]
 
 def _load_jsonl_legacy(file_path: str) -> list:
-    """
-    Bezopasno chitaet JSONL-fayl i vozvraschaet spisok obektov.
-    Ustoychiv k oshibkam kodirovki i bitym strokam.
-    """
+    """Safely reads a JSN file and returns a list of objects.
+    Resistant to encoding errors and common strings."""
     results = []
-    # Opredelyaem polnyy put otnositelno domashney papki Ester
+    # Specifies the full path relative to Esther's home folder
     base_dir = Path(_resolve_ester_home())
     full_path = base_dir / file_path
 
@@ -2867,17 +2821,15 @@ def _load_jsonl_legacy(file_path: str) -> list:
                     results.append(json.loads(line))
                 except json.JSONDecodeError:
                     continue
-        logging.info(f"[Legacy] Zagruzheno {len(results)} zapisey iz {file_path}.")
+        logging.info(f"yuLegatsosch Loaded ZZF0Z records from ZZF1ZZ.")
     except Exception as e:
-        logging.error(f"[Legacy] Oshibka pri chtenii {file_path}: {e}")
+        logging.error(f"yuLegatsosch Error when reading ZZF0Z: ZZF1ZZ")
     
     return results
 
 def init_legacy_memory_sync() -> Dict[str, list]:
-    """
-    Prokhodit po vsey karte LEGACY_FILES_MAP i zagruzhaet dannye v pamyat.
-    Eto 'probuzhdenie' staroy lichnosti pri starte novogo yadra.
-    """
+    """It goes through the entire LEGACY_FILES_MAP card and loads data into memory.
+    This is the awakening of the old personality at the start of a new core."""
     legacy_storage = {}
     
     for file_path, category in LEGACY_FILES_MAP:
@@ -2891,32 +2843,32 @@ from pathlib import Path
 
 # --- INFRASTRUKTURA PUTEY I PERSISTENTNOSTI ---
 
-# 1. Nastroyka puti dlya ChromaDB
+# 1. Setting up the path for ChromaDB
 raw_chroma = (os.environ.get("CHROMA_PERSIST_DIR") or "").strip()
 if not raw_chroma:
-    # Ispolzovanie Path dlya krossplatformennoy sovmestimosti
+    # Using Path for cross-platform compatibility
     raw_chroma = str(Path(ESTER_HOME) / "vstore" / "chroma")
 
-# Rasshirenie sistemnykh peremennykh i poluchenie absolyutnogo puti
+# Expanding system variables and getting absolute path
 try:
     VECTOR_DB_PATH = str(Path(os.path.expandvars(os.path.expanduser(raw_chroma))).resolve())
 except Exception:
     VECTOR_DB_PATH = raw_chroma
 
-# 2. Telegram Inbox (vkhodyaschie dannye)
+# 2. Telegram Inbox (incoming data)
 PERMANENT_INBOX = str(Path(ESTER_HOME) / "data" / "ingest" / "telegram")
 
-# 3. Fayly semanticheskoy i operatsionnoy pamyati
+# 3. Semantic and operational memory files
 FACTS_FILE = os.path.join("data", "user_facts.json")
 DAILY_LOG_FILE = os.path.join("data", "daily_contacts.json")
 MEMORY_FILE = f"history_{NODE_IDENTITY}.jsonl"
 
-# --- Reestry (persistentno, ne cherez LLM-pamyat) ---
-# Ispravleno: CONTACTS_FILE i PEOPLE_FILE — eto vneshnie spravochniki
+# --- Registers (persistent, not through LLM memory) ---
+# Fixed: CONTACTS_FILE and PEOPLE_FILE are external directories
 CONTACTS_FILE = os.getenv("ESTER_CONTACTS_FILE", os.path.join("data", "contacts_book.json"))
 PEOPLE_FILE = os.getenv("ESTER_PEOPLE_FILE", os.path.join("data", "people_registry.json"))
 
-# 4. Garantirovannoe sozdanie vsekh neobkhodimykh direktoriy
+# 4. Guaranteed creation of all necessary directories
 required_folders = [
     PERMANENT_INBOX,
     os.path.dirname(VECTOR_DB_PATH),
@@ -2926,21 +2878,19 @@ required_folders = [
 ]
 
 for folder in required_folders:
-    if folder: # Proverka na sluchay pustogo puti
+    if folder: # Checking for an empty path
         os.makedirs(folder, exist_ok=True)
 
-# --- Kontekst poslednego chata admina (tolko dlya fallback-rezhima 'snov') ---
-# Pozvolyaet sisteme znat, kuda otpravlyat rezultaty nochnykh razmyshleniy, esli net vkhodyaschego triggera.
+# --- Context of the last admin chat (only for false mode again) ---
+# Allows the system to know where to send the results of nightly reflections if there is no incoming trigger.
 LAST_ADMIN_CHAT_KEY: Optional[Tuple[int, int]] = None  # (chat_id, user_id)
 
 
 # --- ContactsBook (reestr kontaktov po Telegram user_id) ---
 
 class ContactsBook:
-    """
-    Upravlyaet zapisyami polzovateley: user_id(str) -> {display_name, address_as, role, notes, updated_at}.
-    Dannye izmenyayutsya cherez yavnye komandy (/iam, /setrole), a ne cherez parsing teksta.
-    """
+    """Manages user records: user_id(str) -> ЗЗФ0З.
+    Data is modified through explicit commands (/yam, /setrole), rather than through text parsing."""
     def __init__(self, path: str):
         self.path = path
         self._lock = threading.Lock()
@@ -2950,12 +2900,12 @@ class ContactsBook:
         self._data: Dict[str, Dict[str, Any]] = {}
         self._load()
 
-    # Psevdonim dlya obratnoy sovmestimosti pri initsializatsii
+    # Alias ​​for backwards compatibility during initialization
     def init(self, path: str) -> None:
         self.__init__(path)
 
     def _load(self) -> None:
-        """Zagruzka dannykh iz JSON-fayla s zaschitoy ot pustykh strok."""
+        """Loading data from a JSION file with protection against empty lines."""
         try:
             if os.path.exists(self.path):
                 with open(self.path, "r", encoding="utf-8") as f:
@@ -2964,34 +2914,34 @@ class ContactsBook:
             if not isinstance(self._data, dict):
                 self._data = {}
         except Exception as e:
-            logging.error(f"[ContactsBook] Oshibka zagruzki: {e}")
+            logging.error(f"yuKontaktsvooksch Loading error: ЗЗФ0З")
             self._data = {}
 
     def _save(self) -> None:
-        """Atomarnoe sokhranenie cherez vremennyy fayl."""
+        """Atomic saving via temporary file."""
         tmp = self.path + ".tmp"
         try:
             with open(tmp, "w", encoding="utf-8") as f:
                 json.dump(self._data, f, ensure_ascii=False, indent=2)
             os.replace(tmp, self.path)
         except Exception as e:
-            logging.error(f"[ContactsBook] Oshibka sokhraneniya: {e}")
+            logging.error(f"yuKontaktsvooksch Saving error: ЗЗФ0З")
             if os.path.exists(tmp):
                 os.remove(tmp)
 
     def get(self, user_id: int) -> Dict[str, Any]:
-        """Bezopasnoe poluchenie kopii zapisi polzovatelya."""
+        """Securely obtain a copy of a user record."""
         with self._lock:
             return dict(self._data.get(str(user_id), {}) or {})
 
     def set(self, user_id: int, patch: Dict[str, Any]) -> None:
-        """Obnovlenie zapisi polzovatelya s fiksatsiey vremeni izmeneniya."""
+        """Updating a user record with recording the time of change."""
         with self._lock:
             key = str(user_id)
             cur = dict(self._data.get(key, {}) or {})
             cur.update(patch or {})
             
-            # Obnovlenie metki vremeni cherez sistemnyy TS ili fallback na time.time()
+            # Updating the timestamp through the system Ts or falbatsk on time.theme()
             try:
                 now_fn = globals().get("_safe_now_ts", lambda: int(__import__('time').time()))
                 cur["updated_at"] = int(now_fn())
@@ -3002,10 +2952,8 @@ class ContactsBook:
             self._save()
 
     def display_name(self, user) -> str:
-        """
-        Opredelyaet imya dlya otobrazheniya. 
-        Prioritet: display_name iz reestra -> Full Name iz Telegram -> Username -> 'Polzovatel'.
-        """
+        """Specifies the display name. 
+        Priority: display_name from the registry -> Full Name from Telegram -> Username -> bUser."""
         rec = self.get(user.id)
         dn = (rec.get("display_name") or "").strip()
         if dn:
@@ -3018,12 +2966,12 @@ class ContactsBook:
         return full or getattr(user, "username", "") or "Polzovatel"
 
     def address_as(self, user) -> str:
-        """Opredelyaet formu obrascheniya k polzovatelyu."""
+        """Defines the form of contacting the user."""
         rec = self.get(user.id)
         aa = (rec.get("address_as") or "").strip()
         if aa:
             return aa
-        # Avto-obraschenie dlya admina, esli ne zadano yavno
+        # Auto-contact for admin, if not set explicitly
         try:
             admin_id = str(os.getenv("ADMIN_ID", "") or "")
             if admin_id and str(user.id) == admin_id:
@@ -3037,20 +2985,18 @@ class ContactsBook:
         return self.display_name(user)
 
     def role(self, user) -> str:
-        """Vozvraschaet rol polzovatelya v sisteme."""
+        """Returns the user's role in the system."""
         rec = self.get(user.id)
         return str(rec.get("role") or "").strip()
 
 # Initsializatsiya globalnogo obekta kontaktov
 CONTACTS = ContactsBook(CONTACTS_FILE)
 
-# --- People Registry (Spravochnik lyudey: semya, druzya, kollegi) ---
+# --- People Registers (Directory of people: family, friends, colleagues) ---
 
 class PeopleRegistry:
-    """
-    Reestr lichnostey: name(str) -> {aliases:[], relation:str, notes:str, updated_at:int}.
-    Eto NE telegram-polzovateli, a realnye lyudi v chelovecheskom smysle.
-    """
+    """Register of personalities: name(str) -> ZZF0Z.
+    These are NOT telegram users, but real people in the human sense."""
     def __init__(self, path: str):
         self.path = path
         self._lock = threading.Lock()
@@ -3061,7 +3007,7 @@ class PeopleRegistry:
         self.__init__(path)
 
     def _load(self) -> None:
-        """Zagruzka spravochnika s podderzhkoy vlozhennoy struktury 'people'."""
+        """Loading a directory with support for a nested structure."""
         try:
             if os.path.exists(self.path):
                 with open(self.path, "r", encoding="utf-8") as f:
@@ -3069,7 +3015,7 @@ class PeopleRegistry:
             else:
                 raw = {}
 
-            # Podderzhka raznykh formatov khraneniya (pryamoy dict ili obertka 'people')
+            # Supports different storage formats (direct dist or wrapper)
             if isinstance(raw, dict) and "people" in raw and isinstance(raw["people"], dict):
                 self._data = raw["people"]
             elif isinstance(raw, dict):
@@ -3077,21 +3023,21 @@ class PeopleRegistry:
             else:
                 self._data = {}
         except Exception as e:
-            logging.error(f"[PeopleRegistry] Oshibka zagruzki: {e}")
+            logging.error(f"uPeopleRegister Loading error: ZZF0Z")
             self._data = {}
 
     def _save(self) -> None:
-        """Atomarnoe sokhranenie spravochnika."""
+        """Atomic saving of the directory."""
         tmp = self.path + ".tmp"
         try:
             with open(tmp, "w", encoding="utf-8") as f:
                 json.dump({"people": self._data}, f, ensure_ascii=False, indent=2)
             os.replace(tmp, self.path)
         except Exception as e:
-            logging.error(f"[PeopleRegistry] Oshibka sokhraneniya: {e}")
+            logging.error(f"uPeopleRegister Saving error: ZZF0Z")
 
     def set_person(self, name: str, relation: str = "", notes: str = "", aliases: Optional[List[str]] = None) -> None:
-        """Dobavlenie ili obnovlenie zapisi o cheloveke."""
+        """Add or update a person's record."""
         name = (name or "").strip()
         if not name:
             return
@@ -3119,7 +3065,7 @@ class PeopleRegistry:
         if not name:
             return {}
         
-        # 1. Pryamoe sovpadenie po klyuchu
+        # 1. Direct match by key
         if name in self._data:
             return {"name": name, **(self._data.get(name) or {})}
         
@@ -3132,34 +3078,32 @@ class PeopleRegistry:
         return {}
 
     def list_people(self, limit: int = 50) -> List[Tuple[str, Dict[str, Any]]]:
-        """Vozvraschaet otsortirovannyy spisok vsekh lyudey."""
+        """Returns a sorted list of all people."""
         items = list(self._data.items())
         items.sort(key=lambda kv: kv[0].casefold())
         return items[:max(1, int(limit))]
 
     def _normalize_for_match(self, s: str) -> str:
-        """Normalizatsiya teksta dlya poiska sovpadeniy imen."""
+        """Normalize text to find name matches."""
         s = (s or "").casefold()
-        # Ostavlyaem tolko bukvy (vklyuchaya kirillitsu) i tsifry
+        # We leave only letters (including Cyrillic) and numbers
         s = re.sub(r"[^\wa-yae]+", " ", s, flags=re.UNICODE)
         s = re.sub(r"\s{2,}", " ", s).strip()
         return f" {s} "
 
     def context_for_text(self, text: str, max_people: int = 6) -> str:
-        """
-        Skaniruet vkhodyaschiy tekst na nalichie izvestnykh imen i aliasov.
-        Vozvraschaet tekstovyy blok dlya dobavleniya v kontekst LLM.
-        """
+        """Scans incoming text for known names and aliases.
+        Returns a text block to be added to the LLM context."""
         txt = self._normalize_for_match(text or "")
         if not txt or not self._data:
             return ""
         
         hits: List[str] = []
-        # Proveryaem kazhdoe imya i alias v tekste
+        # We check each name and alias in the text
         for name, rec in self.list_people(limit=500):
             n_norm = self._normalize_for_match(name)
             
-            # Proverka osnovnogo imeni ili lyubogo iz aliasov
+            # Checking the base name or any of the aliases
             found = False
             if n_norm.strip() and n_norm in txt:
                 found = True
@@ -3178,7 +3122,7 @@ class PeopleRegistry:
         if not hits:
             return ""
         
-        # Formiruem kompaktnyy spisok dlya prompta
+        # Generates a compact list for a prompt
         out: List[str] = []
         for nm in hits:
             r = self._data.get(nm) or {}
@@ -3198,26 +3142,24 @@ PEOPLE = PeopleRegistry(PEOPLE_FILE)
 
 from collections import deque
 
-# --- Deduplikatsiya (uchest update_id i edited_message) ---
+# --- Deduplication (take into account update_id and edited_message) ---
 
-# Maksimalnoe kolichestvo khranimykh ID (iz okruzheniya ili po umolchaniyu 1000)
+# Maximum number of stored IDs (from the environment or by default 1000)
 DEDUP_MAXLEN = int(os.getenv("ESTER_DEDUP_MAXLEN", "1000"))
 
-# Ocheredi (deque) khranyat poryadok dlya ochistki starykh zapisey
+# Queues (deques) keep order for clearing old entries
 _processed_updates: deque[int] = deque(maxlen=DEDUP_MAXLEN)
 _processed_msgs: deque[str] = deque(maxlen=DEDUP_MAXLEN)
 
-# Mnozhestva (set) obespechivayut poisk za O(1)
+# Sets (network) provide search in O(1)
 _processed_update_set: set[int] = set()
 _processed_msg_set: set[str] = set()
 
 _dedup_lock = threading.Lock()
 
 def _dedup_key_from_update(update: Update) -> str:
-    """
-    Generiruet unikalnyy klyuch dlya soobscheniya.
-    Dlya otredaktirovannykh soobscheniy klyuch vklyuchaet metku vremeni pravki.
-    """
+    """Generates a unique key for the message.
+    For edited messages, the key includes the edit timestamp."""
     msg = update.effective_message
     if not msg:
         return ""
@@ -3226,26 +3168,24 @@ def _dedup_key_from_update(update: Update) -> str:
     mid = getattr(msg, "message_id", "nomid")
     edit_date = getattr(msg, "edit_date", None)
     if edit_date:
-        # Klyuch dlya izmenennogo soobscheniya: e:chat:msg_id:timestamp
+        # Key for modified message: e:chat:msg_id:timestamp
         return f"e:{chat_id}:{mid}:{int(edit_date.timestamp())}"
     
-    # Klyuch dlya obychnogo soobscheniya: m:chat:msg_id
+    # Key for regular message: m:chat:msg_id
     return f"m:{chat_id}:{mid}"
 
 def seen_update_once(update: Update) -> bool:
-    """
-    Proveryaet, obrabatyvalos li eto obnovlenie ranee.
-    Vozvraschaet True, esli eto dublikat.
-    """
+    """Checks whether this update has been processed previously.
+    Returns Troy if it is a duplicate."""
     uid = getattr(update, "update_id", None)
     key = _dedup_key_from_update(update)
 
     with _dedup_lock:
-        # 1. Proverka po update_id (uroven protokola Telegram)
+        # 1. Check by update_id (Telegram protocol level)
         if isinstance(uid, int) and uid in _processed_update_set:
             return True
         
-        # 2. Proverka po kontentu/ID soobscheniya (prikladnoy uroven)
+        # 2. Check by content/message ID (application layer)
         if key and key in _processed_msg_set:
             return True
 
@@ -3260,10 +3200,10 @@ def seen_update_once(update: Update) -> bool:
             _processed_updates.append(uid)
             _processed_update_set.add(uid)
 
-        # Registratsiya novogo klyucha soobscheniya
+        # Registering a new message key
         if key:
             if len(_processed_msg_set) >= DEDUP_MAXLEN:
-                # Ochistka samogo starogo klyucha
+                # Clearing the oldest key
                 if _processed_msgs:
                     oldk = _processed_msgs.popleft()
                     _processed_msg_set.discard(oldk)
@@ -3273,35 +3213,31 @@ def seen_update_once(update: Update) -> bool:
 
     return False
 
-# --- Kratkovremennaya pamyat (Short-Term Memory) ---
-# Izoliruet kontekst dialoga dlya kazhdoy pary (chat + polzovatel)
+# --- Short-term memory (Short-Term Memory) ---
+# Isolates the conversation context for each pair (chat + user)
 
 _short_term_by_key: Dict[Tuple[int, int], deque] = {}
 _short_term_lock = threading.Lock()
 
 def get_short_term(chat_id: int, user_id: int) -> deque:
-    """
-    Vozvraschaet potokobezopasnuyu ochered (deque) soobscheniy dlya konkretnogo polzovatelya v konkretnom chate.
-    Ispolzuet SHORT_TERM_MAXLEN dlya ogranicheniya glubiny pamyati.
-    """
+    """Vozvraschaet potokobezopasnuyu ochered (deque) soobscheniy dlya konkretnogo polzovatelya v konkretnom chate.
+    Ispolzuet SHORT_TERM_MAXLEN dlya ogranicheniya deep pamyati."""
     key = (int(chat_id), int(user_id))
     with _short_term_lock:
         if key not in _short_term_by_key:
-            # Sozdaem novuyu ochered, esli klyucha esche net
+            # Create a new queue if the key does not exist yet
             _short_term_by_key[key] = deque(maxlen=int(os.getenv("SHORT_TERM_MAXLEN", "20")))
         return _short_term_by_key[key]
 
-# --- Ochistka i filtratsiya otvetov (Response Cleaning) ---
+# --- Cleaning and filtering responses (Response Membership) ---
 
 def strip_duplicate_boilerplate(text: str) -> str:
-    """
-    Udalyaet iz otveta 'musornye' frazy, kotorye LLM chasto dobavlyaet, 
-    esli zamechaet dublirovanie soobscheniy v istorii (RAG/History).
-    """
+    """Removes junk phrases from the response that LLM often adds, 
+    if you notice duplication of messages in history (RAG/History)."""
     if not text:
         return ""
     
-    # Spisok regulyarnykh vyrazheniy dlya udaleniya shablonnykh fraz
+    # List of regular expressions for removing template phrases
     bad_patterns = [
         r"(?im)^\s*ty\s+produbliroval[ai]?\s+ego\.?\s*$",
         r"(?im)^\s*kommentariy\s+byl\s+produblirovan\.?\s*$",
@@ -3321,7 +3257,7 @@ def strip_duplicate_boilerplate(text: str) -> str:
         if not s:
             out.append(ln)
             continue
-        # Esli stroka sovpadaet s lyubym iz 'plokhikh' patternov — propuskaem ee
+        # If the line matches any of the bad patterns, we skip it
         if any(re.match(p, s) for p in bad_patterns):
             continue
         out.append(ln)
@@ -3329,10 +3265,8 @@ def strip_duplicate_boilerplate(text: str) -> str:
     return "\n".join(out).strip()
 
 def clean_ester_response(text: str) -> str:
-    """
-    Finalnaya polirovka otveta pered otpravkoy polzovatelyu.
-    """
-    # 1. Vyzov vneshnego filtra, esli on zaregistrirovan (naprimer, cherez plaginy)
+    """Final polishing of the response before sending it to the user."""
+    # 1. Calling an external filter if it is registered (for example, through plugins)
     external_cleaner = globals().get("_clean_ester_response_external")
     if external_cleaner:
         try:
@@ -3343,13 +3277,13 @@ def clean_ester_response(text: str) -> str:
     if not text:
         return ""
 
-    # 2. Udalenie 'nevidimykh' simvolov (Zero Width Space)
+    # 2. Removing invisible characters (Zero Vidth Space)
     text = text.replace("\u200b", "")
     
-    # 3. Normalizatsiya perenosov strok (ne bolee 3 podryad)
+    # 3. Normalization of line breaks (no more than three in a row)
     text = re.sub(r"\n{4,}", "\n\n\n", text)
     
-    # 4. Udalenie tekhnicheskikh pripisok i dubliruyuschikhsya fraz
+    # 4. Removing technical additions and duplicate phrases
     text = strip_duplicate_boilerplate(text)
     
     return text.strip()
@@ -3531,13 +3465,13 @@ def _update_relationship_stats(chat_id: int, user_id: int, user_label: str, text
 
         # Determine style hint
         if ea >= 0.55 or eg >= 0.55:
-            style_hint = "myagche i spokoynee; utochnyay i podderzhivay"
+            style_hint = "softer and calmer; clarify and support"
             humor_ok = False
         elif ev >= 0.60 and ej >= 0.55:
-            style_hint = "mozhno teplee i s legkim yumorom"
+            style_hint = "maybe warmer and with a little humor"
             humor_ok = True
         elif ev <= 0.35:
-            style_hint = "derzhi neytralnyy ton, bez shutok"
+            style_hint = "keep the tone neutral, no jokes"
             humor_ok = False
         else:
             style_hint = "druzhelyubno i po delu"
@@ -3552,11 +3486,11 @@ def _update_relationship_stats(chat_id: int, user_id: int, user_label: str, text
         min_cnt = int(os.getenv("ESTER_NOTE_MIN_COUNT", "12") or 12)
         if int(u.get("count") or 0) >= min_cnt:
             if ea >= 0.60:
-                note = "Chelovek trevozhnyy — luchshe myagko, yasnye shagi i uverennost."
+                note = "An anxious person - it’s better to go softly, with clear steps and confidence."
             elif eg >= 0.60:
-                note = "Est napryazhenie — derzhat spokoynyy ton, ne sporit, utochnyat."
+                note = "There is tension - keep a calm tone, don’t argue, clarify."
             elif ev >= 0.70 and ej >= 0.60:
-                note = "Teplyy kontakt — mozhno chut bolshe dushevnosti."
+                note = "Warm contact - maybe a little more warmth."
             elif ev <= 0.35:
                 note = "Neytralnyy kontakt — bez familyarnosti."
             else:
@@ -3606,10 +3540,8 @@ def _heuristic_summarize_notes(notes: List[str]) -> str:
 
 
 async def _revise_relationship_notes(context: ContextTypes.DEFAULT_TYPE | None = None) -> None:
-    """
-    Periodicheskaya reviziya: delaet kratkuyu summarizatsiyu zametok Ester.
-    Nichego ne udalyaet, tolko dobavlyaet summary.
-    """
+    """Periodic Revision: Summarizes Esther's notes.
+    Doesn't delete anything, just adds totals."""
     try:
         data = _load_rel_stats()
         users = data.get("users", {}) or {}
@@ -3630,8 +3562,8 @@ async def _revise_relationship_notes(context: ContextTypes.DEFAULT_TYPE | None =
             summary = ""
             try:
                 prompt = (
-                    "Summiruy eti zametki Ester v 1-2 korotkikh predlozheniya, "
-                    "bez pafosa, tolko stil obscheniya i nyuansy:\n"
+                    "To summarize these notes from Esther in 1-2 short sentences,"
+                    "no pathos, just communication style and nuances:"
                     + "\n".join([f"- {n}" for n in notes[-5:]])
                 )
                 summary = await _safe_chat(
@@ -3724,7 +3656,7 @@ def _relationship_context_for_prompt(user_id: int, address_as: str) -> str:
     except Exception:
         seen_gap_days = 0
     if close and seen_gap_days >= int(os.getenv("ESTER_LONG_GAP_DAYS", "14") or 14):
-        vibe = "radostnaya vstrecha posle dolgogo pereryva"
+        vibe = "joyful meeting after a long break"
     elif close:
         vibe = "teplo i druzhelyubno"
     else:
@@ -3743,7 +3675,7 @@ def _relationship_context_for_prompt(user_id: int, address_as: str) -> str:
     elif ea >= 0.55 or eg >= 0.50:
         est_view = "napryazhenie/ostorozhnost"
     elif ev >= 0.50:
-        est_view = "v tselom polozhitelno"
+        est_view = "generally positive"
     elif ev <= 0.35:
         est_view = "neytralno/sderzhanno"
     else:
@@ -3763,26 +3695,24 @@ def _relationship_context_for_prompt(user_id: int, address_as: str) -> str:
 
     return (
         f"Blizost: {close_tag}. "
-        f"Srok obscheniya: {days} dn., soobscheniy: {count}, posledniy kontakt: {last_dt}. "
-        f"Svyazannye lyudi: {top_links}. "
-        f"Svyazi mezhdu lyudmi: {top_rels}. "
+        f"Communication period: ZZF0Z days, messages: ZZF1ZZ, last contact: ZZF2ZZ."
+        f"Related people: ZZF0Z."
+        f"Connections between people: ZZF0Z."
         f"Otsenka Ester: {est_view}. "
         f"Lichnyy vyvod: {style_hint or 'net'} ({humor_note}). "
         f"Zametki Ester: {notes_str}. "
         f"Summarizatsiya zametok: {notes_summary}. "
-        f"Summarizatsiya ispolzovalas {gap_hours}ch nazad."
+        f"Summation was used ZZF0Zx ago."
         f"Rekomendovannyy ton: {vibe}. "
         f"Emo-zastavka umestna: {'da' if close else 'net'}. "
         f"Radost vstrechi umestna: {'da' if (close and seen_gap_days >= int(os.getenv('ESTER_LONG_GAP_DAYS', '14') or 14)) else 'net'}."
     )
 
-# --- Daily log (Istochnik istiny: “s kem govorila segodnya”) ---
+# --- Daylo log (Source of truth: “whom I spoke to today”) ---
 
 def log_interaction(chat_id: int, user_id: int, user_label: str, text: str, message_id: Optional[int] = None) -> None:
-    """
-    Fiksiruet fakt vzaimodeystviya v kratkosrochnom zhurnale dnya.
-    Teper vklyuchaet emotsionalnyy vektor dlya retrospektivnogo analiza.
-    """
+    """Records the fact of interaction in a short-term daily log.
+    Now includes an emotional vector for retrospective analysis."""
     try:
         now = _safe_now_ts()
         log_data: List[Dict[str, Any]] = []
@@ -3798,8 +3728,8 @@ def log_interaction(chat_id: int, user_id: int, user_label: str, text: str, mess
         if not isinstance(log_data, list):
             log_data = []
 
-        # 2. Analiz affekta (nashe rasshirenie c = a + b)
-        # My sokhranyaem top-2 dominiruyuschikh emotsiy dlya kompaktnosti loga
+        # 2. Analysis of affect (our extension c = a + b)
+        # We save the top 2 dominant emotions for log compactness
         affect_str = ""
         try:
             scores = analyze_emotions(text)
@@ -3818,15 +3748,15 @@ def log_interaction(chat_id: int, user_id: int, user_label: str, text: str, mess
             "user_id": str(user_id),
             "user_label": str(user_label or "Polzovatel"),
             "preview": preview,
-            "affect": affect_str, # Emotsionalnyy sled
+            "affect": affect_str, # Emotional trace
             "message_id": str(message_id) if message_id is not None else "",
         }
 
-        # 4. Obnovlenie dannykh (khranim poslednie 400 kontaktov za sutki)
+        # 4. Data update (stores the last 400 contacts per day)
         log_data.append(entry)
         log_data = log_data[-400:]
 
-        # 5. Atomarnaya zapis (zaschita ot porchi fayla pri sboe)
+        # 5. Atomic write (protection against file corruption in case of failure)
         tmp_file = DAILY_LOG_FILE + ".tmp"
         with open(tmp_file, "w", encoding="utf-8") as f:
             json.dump(log_data, f, ensure_ascii=False, indent=2)
@@ -3838,7 +3768,7 @@ def log_interaction(chat_id: int, user_id: int, user_label: str, text: str, mess
             pass
 
     except Exception as e:
-        logging.error(f"[DailyLog] Oshibka logirovaniya: {e}")
+        logging.error(f"yuDailoLogshch Logging error: ZZF0Z")
         return
 
 
@@ -3912,34 +3842,32 @@ def mirror_interaction_memory(user_text: str, assistant_text: str, *, chat_id: i
         _mirror_memory_record(f"A: {assistant_text}", meta)
 
 def get_daily_summary(chat_id: Optional[int] = None, limit: int = 15) -> str:
-    """
-    Formiruet chelovekochitaemyy otchet po aktivnosti za segodnya.
-    Uchityvaet filtratsiyu po chatu i vyvodit emotsionalnyy okras (Affect).
-    """
+    """Generates a human-readable report on today's activity.
+    Takes into account filtering by chat and displays emotional coloring (Affect)."""
     if not os.path.exists(DAILY_LOG_FILE):
-        return "Segodnya esche nikogo ne bylo."
+        return "There hasn't been anyone yet today."
 
     try:
         with open(DAILY_LOG_FILE, "r", encoding="utf-8") as f:
             data = json.load(f) or []
             
         if not isinstance(data, list) or not data:
-            return "Segodnya esche nikogo ne bylo."
+            return "There hasn't been anyone yet today."
 
-        # 1. Filtratsiya po kontekstu chata
+        # 1. Filtering by chat context
         filt = data
         if chat_id is not None:
             cid = str(chat_id)
             filt = [x for x in data if str(x.get("chat_id", "")) == cid]
 
         if not filt:
-            return "V etom kanale segodnya aktivnosti ne zafiksirovano."
+            return "There is no activity recorded in this channel today."
 
-        # 2. Sborka otcheta
+        # 2. Report assembly
         summary: List[str] = []
-        seen = set() # Dlya deduplikatsii chastykh povtorov ot odnogo yuzera
+        seen = set() # To deduplicate frequent repetitions from one user
         
-        # Analiziruem poslednie 200 sobytiy, dvigayas ot novykh k starym
+        # We analyze the last 200 events, moving from new to old
         for entry in reversed(filt[-200:]):
             key = (entry.get("user_id"), entry.get("preview"))
             if key in seen:
@@ -3949,28 +3877,28 @@ def get_daily_summary(chat_id: Optional[int] = None, limit: int = 15) -> str:
             who = entry.get("user_label", "Polzovatel")
             when = entry.get("time_str", "??:??")
             pv = entry.get("preview", "")
-            affect = entry.get("affect", "") # Nash novyy emotsionalnyy sloy
+            affect = entry.get("affect", "") # Our new emotional layer
 
-            # Formatiruem stroku: Vremya | Imya [Emotsii] : Tekst
+            # Format the line: Time | Name yuEmotions: Text
             affect_tag = f" [{affect}]" if affect else ""
             line = f"• {when} | {who}{affect_tag}: «{pv}»"
             
             summary.append(line)
             
-            # Ogranichivaem razmer vydachi
+            # Limiting the size of the issue
             if len(summary) >= max(1, int(limit)):
                 break
         
         if not summary:
-            return "Zhurnal pust."
+            return "The magazine is empty."
 
-        # Dobavlyaem zagolovok dlya solidnosti (v stile Kharvi Spektera)
-        header = f"Otchet po aktivnosti (Top-{len(summary)}):\n"
+        # Adds a header for solidity (Harvey Specter style)
+        header = f"Activity report (Top-ZZF0Z):"
         return header + "\n".join(summary)
 
     except Exception as e:
-        logging.error(f"[DailyLog] Oshibka formirovaniya svodki: {e}")
-        return "Proizoshla oshibka pri chtenii zhurnala kontaktov."
+        logging.error(f"yuDailoLogshch Error generating summary: ZZF0Z")
+        return "An error occurred while reading the contact log."
 
 
 def _tg_proactive_state_path() -> str:
@@ -4079,22 +4007,22 @@ def _build_daily_digest_text_24h(limit_events: int = 160) -> str:
         activity_lines.append(f"- {dt}: {truncate_text(txt.replace(chr(10), ' '), 140)}")
 
     people_top = [name for name, _ in people_counter.most_common(8)]
-    people_block = ", ".join(people_top) if people_top else "novykh dialogov s polzovatelyami ne zafiksirovala."
+    people_block = ", ".join(people_top) if people_top else "I didn’t record any new dialogues with users."
 
-    thought_block = "\n".join(f"- {truncate_text(x, 180)}" for x in thought_lines[:5]) or "- Yavnykh novykh formulirovok sna/refleksii v loge za 24ch net."
-    web_block = "\n".join(f"- {truncate_text(x, 180)}" for x in web_lines[:5]) or "- Otdelnykh WEB-sobytiy v loge za 24ch net."
-    activity_block = "\n".join(activity_lines[:8]) or "- Novykh sobytiy ne naydeno."
-    summary_block = truncate_text(summary or "Kratkaya svodka poka pustaya.", 1200)
+    thought_block = "\n".join(f"- {truncate_text(x, 180)}" for x in thought_lines[:5]) or "- There are no obvious new formulations of sleep/reflection in the 24-hour log."
+    web_block = "\n".join(f"- {truncate_text(x, 180)}" for x in web_lines[:5]) or "- There are no individual WEB events in the log for 24 hours."
+    activity_block = "\n".join(activity_lines[:8]) or "- No new events found."
+    summary_block = truncate_text(summary or "The summary is still empty.", 1200)
 
     return (
-        "📝 Svodka za poslednie 24 chasa\n\n"
+        "📝 Summary of the last 24 hours"
         "1) Chem zanimalas:\n"
         f"{activity_block}\n\n"
         "2) S kem obschalas:\n"
         f"{people_block}\n\n"
         "3) O chem dumala:\n"
         f"{thought_block}\n\n"
-        "4) Chto chitala/proveryala v internete:\n"
+        "4) What I read/checked on the Internet:"
         f"{web_block}\n\n"
         "Kratkiy obschiy srez:\n"
         f"{summary_block}"
@@ -4103,10 +4031,10 @@ def _build_daily_digest_text_24h(limit_events: int = 160) -> str:
 
 def _presence_ping_text() -> str:
     variants = [
-        "Ya na svyazi. Kak u tebya dela? Esli khochesh, razberem lyubuyu zadachu pryamo seychas.",
-        "Proveryayu kanal: kak ty? Mogu korotko pomoch po tekuschim delam.",
-        "Ya ryadom. Khochesh, sdelayu bystryy razbor togo, chto seychas vazhno?",
-        "Ya zdes. Kak den prokhodit? Esli nuzhno, vklyuchus v rabotu.",
+        "I'm in touch. How are you doing? If you want, we will analyze any problem right now.",
+        "I check the channel: how are you? I can briefly help you with current affairs.",
+        "I'm nearby. Would you like me to make a quick analysis of what is important now?",
+        "I'm here. How's your day going? If necessary, I will get involved in the work.",
     ]
     idx = int((_safe_now_ts() // 3600) % max(1, len(variants)))
     return variants[idx]
@@ -4546,35 +4474,35 @@ def _build_agent_swarm_report_text(window_sec: Optional[int] = None) -> str:
     wsec = max(300, int(window_sec if window_sec is not None else ESTER_TG_AGENT_SWARM_REPORT_MIN_GAP_SEC))
     rep = _collect_agent_swarm_metrics(window_sec=wsec)
     if not bool(rep.get("ok")):
-        return f"🤖 Otchet po royu agentov nedostupen: {rep.get('error') or 'unknown_error'}."
+        return f"🤖 Agent swarm report is unavailable: {rep.get('error') or 'unknown_error'}."
 
     now_ts = int(rep.get("now_ts") or _safe_now_ts())
     rows = list(rep.get("rows") or [])
     window_h = max(1, int(round(wsec / 3600.0)))
 
     text_lines = [
-        "🤖 Otchet po royu agentov",
+        "🤖 Agent Swarm Report",
         "",
-        f"Shablon: `{rep.get('template_id')}`",
+        f"Template: `{rep.get('template_id')}`",
         (
-            f"Razmer roya: {int(rep.get('template_enabled_total') or 0)} aktivnykh"
-            f" iz {int(rep.get('template_total') or 0)} sozdannykh."
+            f"Swarm size: {int(rep.get('template_enabled_total') or 0)} active"
+            f" out of {int(rep.get('template_total') or 0)} created."
         ),
         (
-            f"Za poslednie ~{window_h} ch: sobytiy {int(rep.get('recent_total') or 0)}, "
-            f"uspekhov {int(rep.get('recent_done') or 0)}, oshibok {int(rep.get('recent_failed') or 0)}, "
-            f"v rabote {int(rep.get('recent_live') or 0)}."
+            f"For the last ~{window_h}h: events {int(rep.get('recent_total') or 0)}, "
+            f"successes {int(rep.get('recent_done') or 0)}, failures {int(rep.get('recent_failed') or 0)}, "
+            f"in progress {int(rep.get('recent_live') or 0)}."
         ),
         (
-            f"Summarno po royu: zadach {int(rep.get('tasks_total') or 0)}, "
-            f"uspeshno {int(rep.get('done_total') or 0)}, s oshibkoy {int(rep.get('failed_total') or 0)}."
+            f"Swarm totals: tasks {int(rep.get('tasks_total') or 0)}, "
+            f"succeeded {int(rep.get('done_total') or 0)}, failed {int(rep.get('failed_total') or 0)}."
         ),
         "",
-        "Po agentam:",
+        "By agent:",
     ]
 
     if not rows:
-        text_lines.append("- Poka net sozdannykh agentov etogo shablona.")
+        text_lines.append("- No agents have been created from this template yet.")
         return "\n".join(text_lines).strip()
 
     max_rows = max(3, int(ESTER_TG_AGENT_SWARM_REPORT_MAX_AGENTS))
@@ -4587,18 +4515,18 @@ def _build_agent_swarm_report_text(window_sec: Optional[int] = None) -> str:
         total_n = int(row.get("tasks_total") or 0)
         recent_n = int(row.get("recent_total") or 0)
         state_word = "v rabote" if live_n > 0 else ("est sboi" if failed_n > 0 else "stabilen")
-        focus = str(row.get("current_focus") or row.get("last_reason") or row.get("goal") or "zhdet novuyu zadachu").strip()
+        focus = str(row.get("current_focus") or row.get("last_reason") or row.get("goal") or "waiting for a new task").strip()
         focus = truncate_text(focus.replace("\n", " "), 110)
         last_ts = int(row.get("last_ts") or 0)
         ago = _human_ago_short(max(0, now_ts - last_ts)) if last_ts > 0 else "n/a"
         text_lines.append(
-            f"- {name} ({aid}) — {state_word}; zadach: {total_n}, done: {done_n}, fail: {failed_n}, live: {live_n}, "
-            f"sobytiy za okno: {recent_n}, poslednyaya aktivnost: {ago} nazad."
+            f"- {name} ({aid}) - {state_word}; zadach: {total_n}, done: {done_n}, fail: {failed_n}, live: {live_n},"
+            f"events outside the window: ZZF0Z, last activity: ZZF1ZZ ago."
         )
-        text_lines.append(f"  Seychas/poslednee: {focus}")
+        text_lines.append(f"Now/last: ZZF0Z")
 
     if len(rows) > max_rows:
-        text_lines.append(f"- …i esche {len(rows) - max_rows} agentov v roe.")
+        text_lines.append(f"- ...and also ZZF0Z agents in the swarm.")
 
     return "\n".join(text_lines).strip()
 
@@ -4697,9 +4625,9 @@ async def _telegram_agent_swarm_maintain_job(context: ContextTypes.DEFAULT_TYPE)
     if chat_id is None:
         return
     text = (
-        "🤖 Pul agentov rasshiren.\n\n"
+        "🤖 Pul agents expanded."
         f"Sozdano seychas: {len(created)}\n"
-        f"Po shablonam: {tpl_note}\n"
+        f"According to templates: ZZF0Z"
         f"Novye agenty: {', '.join(truncate_text(n, 64) for n in names[:8])}"
     )
     try:
@@ -5175,7 +5103,7 @@ def _select_template_for_agent_goal(goal: str, route: Dict[str, Any]) -> Tuple[s
             template_id = hint_tid
             via = "role_hint"
         else:
-            # Esli yavnykh signalov net i rout dal planner, delaem myagkiy role-rotator.
+            # If there are no obvious signals and the route was given by the planner, we make a soft roller rotator.
             if template_id == "planner.v1":
                 template_id = _agent_role_round_robin_template()
                 via = "role_round_robin"
@@ -5335,12 +5263,12 @@ def _format_queue_approval_prompt(item: Dict[str, Any]) -> str:
     reason = str(item.get("reason") or "").strip() or "reason ne ukazan"
     plan_preview = _queue_plan_preview(item)
     return (
-        "Nuzhen tvoy apruv na zapusk zadachi agenta.\n\n"
+        "We need your approval to launch the agent task."
         f"• queue_id: {qid}\n"
         f"• agent_id: {aid}\n"
         f"• reason: {truncate_text(reason, 180)}\n"
         f"• plan: {truncate_text(plan_preview, 220)}\n\n"
-        "Razreshit vypolnenie? Otvet korotko: `da` ili `net`."
+        "Allow execution? The answer is short: yodayo or yonecho."
     )
 
 
@@ -5351,13 +5279,13 @@ def _format_create_request_prompt(req: Dict[str, Any]) -> str:
     name = str(req.get("name") or "") or "unnamed"
     goal = str(req.get("goal") or "") or "goal not provided"
     return (
-        "Khochu sozdat novogo agenta i proshu razreshenie.\n\n"
+        "I want to create a new agent and ask permission."
         f"• request_id: {rid}\n"
         f"• source: {src}\n"
         f"• template: {template_id}\n"
         f"• name: {name}\n"
         f"• goal: {truncate_text(goal, 260)}\n\n"
-        "Sozdavat? Otvet: `da` ili `net`."
+        "Create? Answer: yodayo or yonecho."
     )
 
 
@@ -5368,7 +5296,7 @@ def _build_agent_idea_proposal(text: str, *, chat_id: int, user_id: int) -> Dict
         return {"ok": False, "error": "agent_queue_unavailable"}
     goal = _extract_agent_goal_text(text)
     if not goal:
-        goal = "Vypolnit zadachu, kotoruyu opisal operator."
+        goal = "Perform the task described by the operator."
 
     route: Dict[str, Any] = {}
     if _proactivity_template_bridge is not None:
@@ -5452,22 +5380,22 @@ def _format_agent_idea_prompt(prop: Dict[str, Any]) -> str:
                 f"(live={int(bal.get('live_weight') or 0)}, seen={int(bal.get('seen_total') or 0)})"
             )
         return (
-            "Ideyu prinyala. Podkhodyaschiy agent uzhe est, novyy sozdavat ne nuzhno.\n\n"
+            "I accepted the idea. A suitable agent already exists; there is no need to create a new one."
             f"• template: {template_id}\n"
             f"• agent: {aname or aid} ({aid})\n"
             f"• tsel: {truncate_text(goal, 220)}\n"
             f"• shagi: {truncate_text(plan_preview, 220)}\n\n"
             f"{via_note}{bal_note}\n"
-            "Dat etomu agentu zadachu seychas? Otvet: `da` ili `net`."
+            "Give this agent a task now? Answer: yodayo or yonecho."
         )
     return (
-        "Ideyu prinyala. Pod eto luchshe sozdat novogo agenta.\n\n"
+        "I accepted the idea. It is better to create a new agent for this."
         f"• template: {template_id}\n"
         f"• imya: {str((prop.get('overrides') or {}).get('name') or '')}\n"
         f"• tsel: {truncate_text(goal, 220)}\n"
         f"• shagi: {truncate_text(plan_preview, 220)}\n\n"
         f"{via_note}\n"
-        "Sozdat agenta i postavit zadachu? Otvet: `da` ili `net`."
+        "Create an agent and assign a task? Answer: yodayo or yonecho."
     )
 
 
@@ -5596,19 +5524,19 @@ async def _handle_agent_admin_message(update: Update, context: ContextTypes.DEFA
         if kind == "queue_approval":
             qid = str(pending.get("queue_id") or "")
             if _agent_queue is None:
-                await msg.reply_text("Ne mogu obrabotat apruv ocheredi: modul queue nedostupen.")
+                await msg.reply_text("I cannot process queue approval: the queue module is not available.")
             elif yn:
                 rep = _agent_queue.approve(qid, actor=actor, reason="telegram_yes")
                 if bool(rep.get("ok")):
-                    await msg.reply_text(f"Odobreno. queue_id={qid} teper mozhno ispolnyat.")
+                    await msg.reply_text(f"Approved. cueue_id=ZZF0Z can now be executed.")
                 else:
-                    await msg.reply_text(f"Ne udalos odobrit queue_id={qid}: {rep.get('error')}")
+                    await msg.reply_text(f"Failed to approve cueue_id=ZZF0Z: ZZF1ZZ")
             else:
                 rep = _agent_queue.cancel(qid, actor=actor, reason="telegram_no")
                 if bool(rep.get("ok")):
                     await msg.reply_text(f"Otkloneno. queue_id={qid} otmenena.")
                 else:
-                    await msg.reply_text(f"Ne udalos otklonit queue_id={qid}: {rep.get('error')}")
+                    await msg.reply_text(f"Failed to reject cueue_id=ZZF0Z: ZZF1ZZ")
             _agent_pending_clear(state, int(chat.id))
             _save_tg_proactive_state(state)
             return True
@@ -5618,23 +5546,23 @@ async def _handle_agent_admin_message(update: Update, context: ContextTypes.DEFA
             rep = _resolve_agent_create_request(rid, approve=bool(yn), actor=actor)
             if not yn:
                 if bool(rep.get("ok")):
-                    await msg.reply_text(f"Zapros na sozdanie agenta otklonen. request_id={rid}.")
+                    await msg.reply_text(f"The request to create an agent was rejected. register_id=ZZF0Z.")
                 else:
-                    await msg.reply_text(f"Ne udalos otklonit request_id={rid}: {rep.get('error')}")
+                    await msg.reply_text(f"Failed to reject request_id=ZZF0Z: ZZF1ZZ")
             else:
                 if bool(rep.get("ok")):
                     await msg.reply_text(
                         f"Agent sozdan. request_id={rid}, agent_id={rep.get('agent_id') or 'unknown'}."
                     )
                 else:
-                    await msg.reply_text(f"Ne udalos sozdat agenta po request_id={rid}: {rep.get('error')}")
+                    await msg.reply_text(f"Failed to create agent by register_id=ZZF0Z: ZZF1ZZ")
             _agent_pending_clear(state, int(chat.id))
             _save_tg_proactive_state(state)
             return True
 
         if kind == "agent_idea":
             if not yn:
-                await msg.reply_text("Prinyato. Ideyu na agenta otmenila, nichego ne zapuskala.")
+                await msg.reply_text("Accepted. I canceled the idea for an agent and didn’t launch anything.")
                 _agent_pending_clear(state, int(chat.id))
                 _save_tg_proactive_state(state)
                 return True
@@ -5647,7 +5575,7 @@ async def _handle_agent_admin_message(update: Update, context: ContextTypes.DEFA
                     f"Sdelano: operation={rep.get('operation')} agent_id={rep.get('agent_id')}{status_note}."
                 )
             else:
-                await msg.reply_text(f"Ne udalos vypolnit ideyu po agentu: {rep.get('error')}")
+                await msg.reply_text(f"Failed to execute idea on agent: ZZF0Z")
             _agent_pending_clear(state, int(chat.id))
             _save_tg_proactive_state(state)
             return True
@@ -5655,7 +5583,7 @@ async def _handle_agent_admin_message(update: Update, context: ContextTypes.DEFA
     if ESTER_AGENT_IDEA_ENABLED and _is_agent_idea_intent(text):
         proposal = _build_agent_idea_proposal(text, chat_id=int(chat.id), user_id=int(user.id))
         if not bool(proposal.get("ok")):
-            await msg.reply_text(f"Poka ne mogu podgotovit agenta: {proposal.get('error')}")
+            await msg.reply_text(f"I can’t prepare an agent yet: ZZF0Z")
             return True
         _agent_pending_set(
             state,
@@ -5682,11 +5610,11 @@ async def _telegram_agent_approval_job(context: ContextTypes.DEFAULT_TYPE) -> No
     now_ts = _safe_now_ts()
     state = _load_tg_proactive_state()
 
-    # Ne zasypaem novymi apruvami, poka v etom chate uzhe zhdem otvet.
+    # We are not bombarded with new approvals while we are already waiting for an answer in this chat.
     if _agent_pending_get(state, int(chat_id)):
         return
 
-    # 1) Snachala zaprosy na sozdanie agenta iz avtonomnogo kontura.
+    # 1) First, requests to create an agent from an autonomous loop.
     if _agent_create_approval is not None:
         try:
             pending_rep = _agent_create_approval.list_pending(limit=20)
@@ -5768,12 +5696,12 @@ async def _telegram_agent_approval_job(context: ContextTypes.DEFAULT_TYPE) -> No
     )
 
 # --- Web evidence (Autonomous Curiosity) ---
-# YaVNYY MOST: c=a+b -> zapros polzovatelya (a) + veb-faktchek (b) => proveryaemyy otvet (c)
+# Explicit BRIDGE: c=a+b -> user request (a) + web factcheck (c) => verifiable response (c)
 # SKRYTYE MOSTY:
-#   - Ashby: requisite variety — vneshniy poisk vklyuchaetsya tolko pri nuzhnoy "raznoobraznosti" (ne vsegda)
-#   - Cover&Thomas: ogranichenie kanala — ekonomim zaprosy, rezhem dlinu, ne tratim set bez prichiny
-# ZEMNOY ABZATs (inzheneriya/anatomiya): kak dykhanie — ne postoyannyy “giperventilyator”, a vdokh tolko kogda
-# realno ne khvataet kisloroda (confusion/interest) ili kogda dali pryamoy URL.
+#   - Ashby: reguisite cook - external search is activated only when the desired “diversity” is required (not always)
+#   - Carpet&Thomas: channel limitation - we save requests, cut the length, do not waste the network without reason
+# EARTHLY Paragraph (engineering/anatomy): how breathing is not a constant “hyperfan”, but only inhales when
+# there really isn’t enough oxygen (confusion/interest) or when given a direct URL.
 
 
 def _format_web_evidence_fallback(results: object, max_chars: int = 6000) -> str:
@@ -5782,8 +5710,7 @@ def _format_web_evidence_fallback(results: object, max_chars: int = 6000) -> str
     Supports:
       - list[dict] with keys: title/snippet/url/href/link/body/text/description
       - dict with 'items'/'results' arrays
-      - list[str]
-    """
+      - list[str]"""
     try:
         items = None
         if isinstance(results, dict):
@@ -5842,11 +5769,9 @@ def _format_web_evidence_fallback(results: object, max_chars: int = 6000) -> str
 
 
 def get_web_evidence(query: str, max_results: int = 3, force_curiosity: bool = False) -> str:
-    """
-    Avtonomnyy sbor veb-faktov.
+    """Avtonomnyy sbor web-faktov.
     Ester sama reshaet, nuzhno li ey 'vyglyanut vovne', osnovyvayas na neopredelennosti zadachi.
-    Vozvraschaet stroku vida: "[WEB_EVIDENCE]: ...." ili "".
-    """
+    Vozvraschaet stroku vida: "[WEB_EVIDENCE]: ...." ili ""."""
 
     # 1) Sistemnye predokhraniteli (Closed Box / politiki)
     try:
@@ -5863,8 +5788,8 @@ def get_web_evidence(query: str, max_results: int = 3, force_curiosity: bool = F
     if not q:
         return ""
 
-    # 2) Rezhimy WEB_FACTCHECK: never|auto|always (esli peremennaya est vyshe v konfige)
-    #    force_curiosity=True vsegda vklyuchaet poisk (esli ne zakryt CLOSED_BOX / never)
+    # 2) WEB_FACTS modes: never|auto|always (if the variable is higher in the config)
+    #    force_curiosity=Three always turns on search (unless closed CLOSED_BOX / false)
     try:
         mode = str(globals().get("WEB_FACTCHECK", os.getenv("WEB_FACTCHECK", "auto"))).strip().lower()
     except Exception:
@@ -5872,17 +5797,17 @@ def get_web_evidence(query: str, max_results: int = 3, force_curiosity: bool = F
 
     # 3) Reshenie “lezem v set ili net”
     #    - always: vsegda (krome predokhraniteley)
-    #    - auto: tolko esli est URL ili vysokiy confusion/interest
+    #    - auto: only if there is a URL or high confusion/interest
     #    - force_curiosity: prinuditelno
     url_in_text = bool(re.search(r"(https?://\S+)", q))
 
     def _is_curious_auto(text: str) -> bool:
-        # esli analyze_emotions otsutstvuet — ne lomaemsya
+        # if analysis_emotions is missing, it doesn’t break
         try:
             scores = analyze_emotions(text)  # type: ignore
             confusion = float(scores.get("confusion", 0.0))
             interest = float(scores.get("interest", 0.0))
-            # porogi mozhno spokoyno krutit
+            # the thresholds can be easily turned
             return (confusion > 0.60) or (interest > 0.80)
         except Exception:
             return False
@@ -5902,12 +5827,12 @@ def get_web_evidence(query: str, max_results: int = 3, force_curiosity: bool = F
         if urlm:
             url0 = urlm.group(1)
 
-            # 4.1) Esli prosyat zagolovki/novosti — probuem extract_headlines()
+            # 4.1) If they ask for headlines/news, try extract_neadlines()
             if any(k in qlow for k in ("zagolov", "novost", "headlines", "headline")):
                 try:
                     from bridges.internet_access import InternetAccess  # type: ignore
                     ia = InternetAccess()
-                    # limit: chut bolshe, chem max_results, chtoby bylo chto otobrat
+                    # limit: a little more than max_resilts, so that there is something to take away
                     heads = ia.extract_headlines(url0, limit=max(8, int(max_results) * 4))
                     if heads:
                         out = ia.format_headlines(heads, url=url0, max_chars=int(MAX_WEB_CHARS))
@@ -5917,7 +5842,7 @@ def get_web_evidence(query: str, max_results: int = 3, force_curiosity: bool = F
                 except Exception:
                     pass
 
-            # 4.2) Perezapis zaprosa v site:<host> ... (luchshe, chem “prostynya” s URL)
+            # 4.2) Rewriting the request in the sieve:<nosity> ... (better than a “sheet” with a URL)
             try:
                 import urllib.parse as _up
                 host = (_up.urlparse(url0).hostname or "").strip()
@@ -5927,7 +5852,7 @@ def get_web_evidence(query: str, max_results: int = 3, force_curiosity: bool = F
                     if rest:
                         q = f"site:{host} {rest}"
                     else:
-                        # esli bolshe nichego net — sprosim “aktualnoe/novosti”
+                        # if there is nothing else, ask “current/news”
                         q = f"site:{host} aktualnoe"
             except Exception:
                 pass
@@ -5936,7 +5861,7 @@ def get_web_evidence(query: str, max_results: int = 3, force_curiosity: bool = F
 
     # 5) Osnovnoy kaskad poiska (InternetAccess)
     try:
-        logging.info(f"[WebAutonomy] Ester initsiirovala veb-proverku: {q}")
+        logging.info(f"YuVevAutonomisch Esther initiated a web check: ZZF0Z")
 
         from bridges.internet_access import InternetAccess  # type: ignore
         ia = InternetAccess()
@@ -5985,17 +5910,17 @@ def get_web_evidence(query: str, max_results: int = 3, force_curiosity: bool = F
 
 
 async def get_web_evidence_async(query: str, max_results: int = 3, force_curiosity: bool = False) -> str:
-    """Asinkhronnaya obertka, chtoby ne blokirovat 'puls' sistemy."""
+    """Asynchronous wrapper so as not to block the pulse of the system."""
     return await asyncio.to_thread(get_web_evidence, query, max_results, force_curiosity)
 
 # --- Smart Curiosity cooldown (intent-aware anti-spam) ---
-# YaVNYY MOST: L4-ogranichenie -> doziruem vneshniy kanal (chastota/shum/stoimost) => ustoychivyy intellekt
+# Explicit BRIDGE: HF-limitation -> dose the external channel (frequency/noise/cost) => sustainable intelligence
 # SKRYTYE MOSTY:
-#   - Ashby: variety daem portsionno, inache sistema ukhodit v shum vmesto raznoobraziya
-#   - Cover&Thomas: kanal ogranichen -> chastota zaprosov dolzhna byt upravlyaemoy politikoy
-# ZEMNOY ABZATs (inzheneriya/anatomiya):
-#   Eto kak avtonomnaya nervnaya sistema: refleks srabatyvaet, no est “refrakternyy period”.
-#   Serdtse ne mozhet sokraschatsya 20 raz v sekundu. Intellekt tozhe.
+#   - Ashby: allows you to cook in portions, otherwise the system becomes noise instead of variety
+#   - Carpet&Thomas: channel limited -> request rate should be policy controlled
+# EARTH Paragraph (engineering/anatomy):
+#   It’s like the autonomic nervous system: the reflex works, but there is a “refractory period.”
+#   The heart cannot beat 20 times per second. Intelligence too.
 
 try:
     import time as _time
@@ -6008,7 +5933,7 @@ except Exception:
     _hashlib = None
 
 
-# Khranim "poslednie razy" po kategoriyam/klyucham
+# We store “last times” by categories/keys
 _WEB_EVIDENCE_LAST_TS_BY_KEY = {}
 _WEB_EVIDENCE_LAST_TS_BY_QUERY = {}
 
@@ -6026,7 +5951,7 @@ def _web_env_float(name: str, default: float) -> float:
 def _normalize_query(q: str) -> str:
     q = (q or "").strip().lower()
     q = re.sub(r"\s+", " ", q).strip()
-    # slishkom dlinnye "prostyni" urezaem, chtoby klyuchi byli stabilny
+    # we cut the “sheets” that are too long so that the keys are stable
     if len(q) > 240:
         q = q[:240]
     return q
@@ -6040,10 +5965,8 @@ def _fingerprint_query(q: str) -> str:
 
 
 def _extract_site_host(q: str) -> str:
-    """
-    Esli zapros uzhe perepisan kak site:domain ...
-    ispolzuem domain kak "shinu" cooldown.
-    """
+    """If the request is already rewritten as site:domain...
+    We use domain as a “bus” of cool."""
     try:
         m = re.search(r"\bsite:([a-z0-9\.\-]+)", q.lower())
         if m:
@@ -6054,12 +5977,10 @@ def _extract_site_host(q: str) -> str:
 
 
 def _detect_intent(q: str) -> str:
-    """
-    Mini-klassifikator intenta:
-    - news: novosti/zagolovki/segodnya/obnovleniya
+    """Mini-classifier intent:
+    - news: news/zagolovki/segodnya/obnovleniya
     - docs: dokumentatsiya/speki/rfc/versii/repozitorii
-    - general: vse ostalnoe
-    """
+    - general: everything else"""
     ql = (q or "").lower()
 
     # novosti
@@ -6081,14 +6002,12 @@ def _detect_intent(q: str) -> str:
 
 
 def _cooldown_seconds_for_intent(intent: str) -> float:
-    """
-    Politika cooldown po intentu (sekundy).
+    """Politika cooldown po intentu (secundy).
     Mozhno nastraivat env-peremennymi:
       WEB_CURIOSITY_COOLDOWN_DEFAULT_SEC
       WEB_CURIOSITY_COOLDOWN_NEWS_SEC
       WEB_CURIOSITY_COOLDOWN_DOCS_SEC
-      WEB_CURIOSITY_SAME_QUERY_COOLDOWN_SEC
-    """
+      WEB_CURIOSITY_SAME_QUERY_COOLDOWN_SEC"""
     default_cd = _web_env_float("WEB_CURIOSITY_COOLDOWN_DEFAULT_SEC", 90.0)
     news_cd = _web_env_float("WEB_CURIOSITY_COOLDOWN_NEWS_SEC", 45.0)
     docs_cd = _web_env_float("WEB_CURIOSITY_COOLDOWN_DOCS_SEC", 180.0)
@@ -6101,15 +6020,13 @@ def _cooldown_seconds_for_intent(intent: str) -> float:
 
 
 def _cooldown_blocks_autonomy_smart(q: str, force_curiosity: bool) -> bool:
-    """
-    Blokiruem tolko "avtonomnye" zaprosy:
+    """Blokiruem tolko "avtonomnye" request:
     - bez force_curiosity
     - bez yavnogo URL
     - bez rezhima WEB_FACTCHECK=always
-    I delaem eto umno:
+    I do it this way:
     1) same-query guard (esli povtoryayut odno i to zhe)
-    2) intent+host bucket guard (raznye cooldown dlya news/docs/general)
-    """
+    2) intent+host bucket guard (raznye cooldown dlya news/docs/general)"""
     global _WEB_EVIDENCE_LAST_TS_BY_KEY, _WEB_EVIDENCE_LAST_TS_BY_QUERY
 
     if _time is None:
@@ -6121,14 +6038,14 @@ def _cooldown_blocks_autonomy_smart(q: str, force_curiosity: bool) -> bool:
     if force_curiosity:
         return False
 
-    # 1) Esli polzovatel dal URL — eto yavnyy intent, ne rezhem
+    # 1) If the user has given a URL, this is an obvious intent, do not cut it
     try:
         if re.search(r"(https?://\S+)", q):
             return False
     except Exception:
         pass
 
-    # 2) Esli politika "always" — ne rezhem (eto soznatelnyy rezhim postoyannoy proverki)
+    # 2) If the policy is “always” - we don’t cut (this is a conscious mode of constant checking)
     try:
         mode = str(globals().get("WEB_FACTCHECK", os.getenv("WEB_FACTCHECK", "auto"))).strip().lower()
         if mode == "always":
@@ -6136,7 +6053,7 @@ def _cooldown_blocks_autonomy_smart(q: str, force_curiosity: bool) -> bool:
     except Exception:
         pass
 
-    # 3) same-query guard (chtoby ne dolbit odinakovoe podryad)
+    # 3) same-query guard (so as not to hammer the same thing in a row)
     same_q_cd = _web_env_float("WEB_CURIOSITY_SAME_QUERY_COOLDOWN_SEC", 25.0)
     if same_q_cd > 0.0:
         qfp = _fingerprint_query(q)
@@ -6160,7 +6077,7 @@ def _cooldown_blocks_autonomy_smart(q: str, force_curiosity: bool) -> bool:
 
     cd = _cooldown_seconds_for_intent(intent)
     if cd <= 0.0:
-        # cooldown otklyuchen
+        # cooldown disabled
         now = _time.monotonic()
         _WEB_EVIDENCE_LAST_TS_BY_KEY[bucket] = now
         try:
@@ -6182,7 +6099,7 @@ def _cooldown_blocks_autonomy_smart(q: str, force_curiosity: bool) -> bool:
             pass
         return True
 
-    # razreshili => fiksiruem vremena
+    # allowed => fix times
     _WEB_EVIDENCE_LAST_TS_BY_KEY[bucket] = now
     try:
         _WEB_EVIDENCE_LAST_TS_BY_QUERY[_fingerprint_query(q)] = now
@@ -6192,8 +6109,8 @@ def _cooldown_blocks_autonomy_smart(q: str, force_curiosity: bool) -> bool:
     return False
 
 
-# Berem "yadro" (chtoby ne rekursit i ne slomat vyzovy)
-# VAZhNO: esli u tebya uzhe stoyal staryy cooldown-obertchik, udali ego pered etim blokom.
+# We take the “core” (so as not to recurse and break calls)
+# Important: if you already had an old cold wrapper, remove it in front of this block.
 _get_web_evidence_core = get_web_evidence
 
 
@@ -6212,7 +6129,7 @@ def get_web_evidence(query: str, max_results: int = 3, force_curiosity: bool = F
 
 
 # === GLOBALNYY ANCHOR (DYNAMIC IDENTITY) ===
-# My bolshe ne khranim lichnost zdes tekstom. My berem ee iz Profilea.
+# We no longer store identity here in text. We take it from Profilea.
 try:
     from modules.memory.passport import get_identity
     ANCHOR = get_identity()
@@ -6349,7 +6266,7 @@ except Exception as e:
 # Enable by setting: ESTER_SISTER_BYPASS_GUARDS=1
 #
 # EXPLICIT BRIDGE: c=a+b -> inbound(a) + token/limits(b) => safe exchange(c)
-# HIDDEN BRIDGES:  Ashby(variety via sister), Cover&Thomas(channel limit)
+# HIDDEN BRIDGES: Ashby(variety via sister), Cover&Thomas(channel limit)
 # GROUND: like a fuse in a power line — we let /sister/inbound pass, but token still protects payload.
 # ------------------------------------------------------------------------------
 def _bypass_before_request_for_paths(_app, _paths):
@@ -6410,7 +6327,7 @@ SISTER_SYNC_MAX_RETRIES = int(os.getenv("SISTER_SYNC_MAX_RETRIES", "6"))
 SISTER_SYNC_BACKOFF_BASE_SEC = float(os.getenv("SISTER_SYNC_BACKOFF_BASE_SEC", "1.0"))
 SISTER_SYNC_BACKOFF_CAP_SEC  = float(os.getenv("SISTER_SYNC_BACKOFF_CAP_SEC",  "30.0"))
 
-# Queue protection (chtoby nikogda ne razduvalo RAM)
+# Queue protestion (so that the RAM never bloats)
 SISTER_SYNC_QUEUE_MAX = int(os.getenv("SISTER_SYNC_QUEUE_MAX", "128"))
 SISTER_SYNC_DROP_OLD  = str(os.getenv("SISTER_SYNC_DROP_OLD", "1")).strip().lower() in ("1", "true", "yes", "on")
 
@@ -6430,7 +6347,7 @@ _SISTER_STOP = threading.Event()
 _SISTER_WORKER_STARTED = False
 _SISTER_SEQ = 0
 
-# Optional health/circuit-breaker (myagkaya zaschita ot "molotilki")
+# Optional health/circuit breaker (soft protection against threshing)
 _SISTER_DOWN_UNTIL_TS = 0.0
 
 
@@ -6472,16 +6389,14 @@ def _pop_due_delayed() -> dict | None:
 
 
 def _deliver_payload(payload: dict) -> bool:
-    """
-    Realnaya dostavka v sister.
-    Vozvraschaet True tolko pri 200.
-    """
+    """Real delivery to sister.
+    Returns Troy only at 200."""
     global _SISTER_DOWN_UNTIL_TS
 
     if not SISTER_NODE_URL:
         return False
 
-    # Esli sestra "lezhit", zhdem okno vosstanovleniya (myagkiy predokhranitel)
+    # If the sister is "lying", wait for the recovery window (soft fuse)
     if _now() < float(_SISTER_DOWN_UNTIL_TS):
         return False
 
@@ -6504,7 +6419,7 @@ def _deliver_payload(payload: dict) -> bool:
             return True
 
         logging.error(f"[SYNAPSE] Sister rejected: {resp.status_code}")
-        # Esli sestra otvechaet oshibkami — nebolshoy “cooldown”
+        # If the sister answers with errors - a little “cool spell”
         _SISTER_DOWN_UNTIL_TS = _now() + 3.0
         try:
             preview = str(payload.get("content", ""))[:120].replace("\n", " ")
@@ -6519,7 +6434,7 @@ def _deliver_payload(payload: dict) -> bool:
 
     except Exception as e:
         logging.error(f"[SYNAPSE] Connection failed: {e}")
-        # pri setevom feyle tozhe chut okhlazhdaem, chtoby ne molotit set
+        # When there is a network failure, we also cool it a little so that the network does not thresh
         _SISTER_DOWN_UNTIL_TS = _now() + 3.0
         try:
             preview = str(payload.get("content", ""))[:120].replace("\n", " ")
@@ -6534,12 +6449,10 @@ def _deliver_payload(payload: dict) -> bool:
 
 
 def _worker_loop():
-    """
-    Fonovyy vorker:
-    - beret zadachi iz ocheredi
-    - pytaetsya dostavit
-    - na feyle planiruet retry cherez heap delayed
-    """
+    """Background worker:
+    - takes tasks from the queue
+    - trying to deliver
+    - on fail plans retro through eap done"""
     logging.info("[SYNAPSE] Worker started (fire-and-forget).")
     try:
         _mirror_background_event(
@@ -6551,10 +6464,10 @@ def _worker_loop():
         pass
 
     while not _SISTER_STOP.is_set():
-        # 1) snachala berem te, chto "sozreli"
+        # 1) first we take those that are “ripe”
         item = _pop_due_delayed()
 
-        # 2) esli net — berem iz osnovnoy ocheredi
+        # 2) if not, take it from the main queue
         if item is None:
             try:
                 item = _SISTER_OUTBOX.get(timeout=0.25)
@@ -6609,12 +6522,10 @@ def _start_sister_worker_once():
 
 
 def _enqueue_item(item: dict) -> bool:
-    """
-    Kladem v ochered bez blokirovki.
-    Esli ochered polnaya:
-      - DROP_OLD=1 => vybrosim odno staroe, chtoby prinyat novoe
-      - inache => otvergaem novoe
-    """
+    """We put it in the queue without blocking.
+    If the queue is full:
+      - DROP_OLD=1 => throw away one old one to accept a new one
+      - otherwise => reject the new"""
     try:
         _SISTER_OUTBOX.put_nowait(item)
         return True
@@ -6669,11 +6580,9 @@ def _enqueue_item(item: dict) -> bool:
 
 
 def send_to_sister(message_text: str, context_type: str = "chat", force: bool = False) -> bool:
-    """
-    NE blokiruet osnovnoy potok.
+    """NE blokiruet osnovnoy potok.
     Vozvraschaet True, esli soobschenie prinyato v ochered.
-    force=True — ignoriruet otsutstvie URL i prochie usloviya (no uvazhaet otsutstvie SISTER_NODE_URL).
-    """
+    force=True — ignoriruet otsutstvie URL i prochie usloviya (no uvazhaet otsutstvie SISTER_NODE_URL)."""
     if not SISTER_NODE_URL:
         logging.warning("[SYNAPSE] Sister URL not set. Message not sent.")
         return False
@@ -6686,7 +6595,7 @@ def send_to_sister(message_text: str, context_type: str = "chat", force: bool = 
         "timestamp": datetime.datetime.now().isoformat(),
     }
 
-    # startuem vorker lenivo (bez lishnego shuma pri importirovanii)
+    # we start the worker lazily (without unnecessary noise when importing)
     _start_sister_worker_once()
 
     item = {
@@ -6716,17 +6625,15 @@ def send_to_sister(message_text: str, context_type: str = "chat", force: bool = 
 
 @flask_app.route("/sister/inbound", methods=["POST"])
 def sister_inbound():
-    """
-    V2.1: Priem paketa ot Sestry (P2P Synapse).
+    """V2.1: Priem paketa ot Sestry (P2P Synapse).
     Esli tip = thought_request — otvechaem "myslyu" (lokalnyy mozg),
-    inache prosto podtverzhdaem dostavku.
+    inache simply podtverzhdaem dostavku.
 
     YaVNYY MOST: c=a+b -> vkhodyaschiy stimul (a) + protsedury proverki/inferensa (b) => otvet (c).
     SKRYTYE MOSTY:
-      - Ashby: variety — sestra dobavlyaet vneshnee raznoobrazie mneniy.
-      - Cover&Thomas: ogranichenie kanala — my rezhem dlinu vkhoda i ne taschim musor v prompt.
-    ZEMNOY ABZATs: kak klapan v serdtse — ne daem sinkhronizatsii ustroit takhikardiyu protsessu.
-    """
+      - Ashby: variety - sestra addavlyaet vneshnee raznoobrazie mneniy.
+      - Cover&Thomas: ogranichenie kanala - my rezhem dlinu vkhoda i ne taschim musor v prompt.
+    ZEMNOY ABZATs: kak klapan v serdtse - ne daem sinkhronizatsii ustroit takhikardiyu protsessu."""
     # 0) JSON parsing (myagkiy)
     try:
         data = request.get_json(silent=True) or {}
@@ -6740,7 +6647,7 @@ def sister_inbound():
         _already = bool(_p.get("autochat_reply"))
         _tok = str(_p.get("token") or "").strip()
 
-        # otvechaem tolko esli token validen (inache nizhe shtatno uydet v 403)
+        # We respond only if the token is valid (otherwise it will normally go to 403)
         if SISTER_SYNC_TOKEN and _tok == SISTER_SYNC_TOKEN and _is_autochat and not _already:
             _reply = "Predoxranitel: reply-only-on-seed + autochat_reply flag + rate-limit/max-turns on initiator."
             return jsonify({
@@ -6769,7 +6676,7 @@ def sister_inbound():
     content = data.get("content", "") or ""
     context_type = (data.get("type") or "chat").strip()
 
-    # safety: ogranichivaem razmer vkhoda, chtoby ne ubit prompt/pamyat
+    # safety: limit the size of the input so as not to kill the prompt/memory
     try:
         max_in = int(os.getenv("SISTER_INBOUND_MAX_CHARS", "8000") or 8000)
     except Exception:
@@ -6779,19 +6686,19 @@ def sister_inbound():
     except Exception:
         content = str(content)[:max_in]
 
-    # chistim log-stroku (bez perenosov/musora)
+    # clean the log line (no hyphens/garbage)
     try:
         log_preview = " ".join(str(content).split())[:120]
     except Exception:
         log_preview = ""
     logging.info(f"[SYNAPSE] <<< Request from {sender} ({context_type}): {log_preview}...")
 
-    # 3) Runner dlya async (_safe_chat) vnutri sync Flask handler
+    # 3) Runner for asins (_safe_chat) inside the sync Flask handler
     def _run_coro_sync(coro):
         import asyncio
         import threading
 
-        # esli my uzhe vnutri event-loop (redkiy sluchay) — vypolnyaem v otdelnom potoke
+        # if we are already inside an event loop (a rare case) - execute in a separate thread
         try:
             loop = asyncio.get_running_loop()
             if loop and loop.is_running():
@@ -6813,23 +6720,23 @@ def sister_inbound():
         except RuntimeError:
             pass
 
-        # normalnyy sluchay: prosto asyncio.run
+        # normal case: just asincio.run
         return asyncio.run(coro)
 
-    # 4) Esli eto zapros na mnenie — dumaem i otvechaem
+    # 4) If this is a request for an opinion, he thinks and answers
     if context_type == "thought_request":
         try:
             system_prompt = (
                 "Ty pomogaesh svoey Sestre sformulirovat mnenie. "
                 "Bud kratkoy, tochnoy, bez fantaziy. "
-                "Esli ne uveren(a) — pomet (nizkaya/srednyaya/vysokaya)."
+                "If you are not sure - litter (low/medium/high)."
             )
             messages = [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": content},
             ]
 
-            # _safe_chat — asinkhronnaya funktsiya
+            # _safe_chat is an asynchronous function
             thought = _run_coro_sync(_safe_chat("local", messages, temperature=0.7))
             thought = (thought or "").strip()
             try:
@@ -6852,7 +6759,7 @@ def sister_inbound():
             # ne svetim vnutrennosti naruzhu
             return jsonify({"status": "error", "message": "thinking_failed"}), 500
 
-    # 5) Dlya ostalnykh paketov — ack
+    # 5) For other packages - acc
     try:
         _mirror_background_event(
             f"[SISTER_INBOUND] from={sender} type={context_type}: {content}",
@@ -6866,15 +6773,13 @@ def sister_inbound():
 
 
 async def ask_sister_opinion(query_text: str) -> str:
-    """
-    Asinkhronnyy zapros mneniya u Sestry po P2P.
+    """Asinkhronnyy zapros mneniya u Sister po P2P.
 
     Ne blokiruet "puls" (await), no zaschischen ot zavisaniy:
-    - ogranichenie vkhoda
+    - limited vkhoda
     - razumnye taymauty
     - retrai s backoff + jitter
-    - podderzhka signed envelope (esli vklyucheno u tebya v Synapse)
-    """
+    - podderzhka signed envelope (esli vklyucheno u tebya v Synapse)"""
     if not SISTER_NODE_URL:
         return ""
 
@@ -6882,7 +6787,7 @@ async def ask_sister_opinion(query_text: str) -> str:
     if not q:
         return ""
 
-    # Ogranichenie razmera vkhoda (chtoby ne otpravlyat "prostyni")
+    # Limit entry size (to avoid sending "sheets")
     try:
         max_chars = int(os.getenv("SISTER_OPINION_MAX_CHARS", "4000") or 4000)
     except Exception:
@@ -6913,8 +6818,8 @@ async def ask_sister_opinion(query_text: str) -> str:
         backoff_base = 1.0
 
     # --- Formiruem payload / envelope ---
-    # Po umolchaniyu otpravlyaem "staryy format" (token na verkhnem urovne).
-    # Esli u tebya vklyuchena podpis (Ed25519) i est _sign_envelope — otpravim envelope.
+    # By default we send "old format" (token at the top level).
+    # If you have signature enabled (D25519) and have a _sign_envelope, we will send it to the envelope.
     payload_plain = {
         "sender": os.getenv("ESTER_NODE_ID", "ester_node"),
         "type": "thought_request",
@@ -6925,7 +6830,7 @@ async def ask_sister_opinion(query_text: str) -> str:
 
     out_json = payload_plain
 
-    # Avto-podpis, esli dostupno (ne lomaet sovmestimost)
+    # Auto-sign if available (does not break compatibility)
     try:
         sign_enabled = str(os.getenv("SISTER_OPINION_SIGN", "1")).strip().lower() in ("1", "true", "yes", "on")
         if sign_enabled and callable(globals().get("_sign_envelope", None)):
@@ -6952,7 +6857,7 @@ async def ask_sister_opinion(query_text: str) -> str:
     except Exception:
         httpx_timeout = timeout_sec
 
-    # malenkie limity, chtoby ne plodit konnekty
+    # small limits so as not to create more connections
     try:
         limits = httpx.Limits(max_keepalive_connections=2, max_connections=4)
     except Exception:
@@ -6971,7 +6876,7 @@ async def ask_sister_opinion(query_text: str) -> str:
                 )
 
             if resp.status_code == 200:
-                # otvet mozhet byt raznogo vida: {"content": "..."} ili {"status":"success","content":"..."}
+                # the answer can be of different types: ZZF0Z or ZZF1ZZ
                 try:
                     data = resp.json() if resp.content else {}
                 except Exception:
@@ -7023,7 +6928,7 @@ async def ask_sister_opinion(query_text: str) -> str:
         except Exception as e:
             logging.warning(f"[SYNAPSE] Sister is silent or busy: {e}")
 
-        # backoff pered sleduyuschey popytkoy
+        # bachkoff before the next attempt
         if attempt < retries:
             try:
                 import random as _rnd
@@ -7158,15 +7063,13 @@ def _start_portal_auto_open(port: int) -> None:
 
 
 def run_flask_background():
-    """
-    Zapusk Flask-servera v otdelnom potoke (ne blokiruet osnovnoy tsikl).
+    """Zapusk Flask-servera v otdelnom potoke (ne blokiruet osnovnoy tsikl).
 
     YaVNYY MOST: c=a+b -> UI (Flask) kak vneshniy nerv (b) k chelovecheskomu konturu upravleniya (a).
     SKRYTYE MOSTY:
-      - Ashby: variety — otdelnyy potok povyshaet raznoobrazie kanalov bez razrusheniya yadra.
+      - Ashby: variety - otdelnyy potok povyshaet raznoobrazie kanalov bez razrusheniya yadra.
       - Cover&Thomas: ogranichenie kanala — UI ne dolzhen dushit osnovnoy tsikl (latency budget).
-    ZEMNOY ABZATs: kak avtonomnaya nervnaya sistema — interfeys rabotaet fonom, a serdtse (main loop) ne ostanavlivaetsya.
-    """
+    ZEMNOY ABZATs: kak avtonomnaya nervnaya sistema - interfeys rabotaet fonom, a serdtse (main loop) ne ostanavlivaetsya."""
     try:
         enabled = (os.getenv("ESTER_FLASK_ENABLE", "").strip() == "1") or (os.getenv("HOST", "").strip() == "0.0.0.0")
         if not enabled:
@@ -7195,7 +7098,7 @@ def run_flask_background():
                     port=port,
                     debug=False,
                     use_reloader=False,
-                    threaded=True,     # vazhno: Flask mozhet obsluzhivat neskolko zaprosov
+                    threaded=True,     # important: Flask can serve multiple requests
                 )
             except Exception as e:
                 logging.error(f"[HIVE] Flask server failed: {e}")
@@ -7229,7 +7132,7 @@ def run_flask_background():
 
 # ==============================================================================
 def _format_now_for_prompt() -> Tuple[str, str]:
-    """Vozvraschaet (iso, human) dlya UTC."""
+    """Returns (iso, human) for TCB."""
     ts = _safe_now_ts()
     try:
         from zoneinfo import ZoneInfo  # type: ignore
@@ -7248,9 +7151,9 @@ def _ester_core_system_with_time(core_system: str) -> str:
     return (
         core_system.rstrip()
         + "\n\n"
-        + f"Tekuschie data i vremya (po Bryusselyu): {human}\n"
+        + f"Current date and time (Brussels): ZZF0Z"
         + f"ISO-8601: {iso}\n"
-        + "Po umolchaniyu, esli ne ukazano inoe, vse daty i vremya schitayutsya dlya UTC.\n"
+        + "By default, unless otherwise specified, all dates and times are considered to be TCB."
     ).strip()
 
 
@@ -7272,11 +7175,11 @@ def load_user_facts() -> List[str]:
         return []
 
 # --- 9b) Auto-memory: capture important user facts (offline-first) ---
-# YaVNYY MOST: c=a+b -> "fakt o cheloveke" (a) + protsedura vydeleniya/sokhraneniya (b) => dolgovremennaya pamyat (c)
+# Explicit BRIDGE: c=a+b -> “fact about a person” (a) + selection/storage procedure (c) => long-term memory (c)
 # SKRYTYE MOSTY:
-#   - Ashby: requisite variety — evristiki + (optsionalno) local-LLM dayut ustoychivost bez lishney shumikhi
-#   - Cover&Thomas: ogranichenie kanala — sokhranyaem tolko stabilnye fakty, rezhem PII i odnorazovye detali
-# ZEMNOY ABZATs: kak gippokamp — ne pishet kazhduyu sekundu vse podryad, a fiksiruet to, chto povtoritsya i prigoditsya.
+#   - Ashby: reguisite cook - heuristics + (optional) local-LLM give stability without unnecessary fuss
+#   - Carpet&Thomas: channel restriction - saves only stable facts, cuts FDI and one-time details
+# EARTHLY Paragraph: like the hippocampus - it doesn’t write everything every second, but records what will be repeated and useful.
 
 def _facts_norm(s: str) -> str:
     s = (s or "").strip()
@@ -7287,7 +7190,7 @@ def _facts_key(s: str) -> str:
     return _facts_norm(s).lower()
 
 def _facts_is_pii(s: str) -> bool:
-    # telefony/pochty/IBAN/adresa — ne pishem v avto-fakty
+    # telephones/mails/IVAN/addresses - we do not write in auto-facts
     if re.search(r"\b[\w\.-]+@[\w\.-]+\.\w+\b", s):  # email
         return True
     if re.search(r"\b\+?\d[\d\s\-\(\)]{7,}\b", s):  # phone-ish
@@ -7299,7 +7202,7 @@ def _facts_is_pii(s: str) -> bool:
     return False
 
 def _facts_is_trivial(s: str) -> bool:
-    # otsekaem musor: "ya dumayu", "mne kazhetsya", "seychas", "segodnya" i t.p.
+    # we cut off the garbage: “I think”, “it seems to me”, “now”, “today”, etc.
     low = s.lower()
     if len(low) < 8:
         return True
@@ -7308,16 +7211,14 @@ def _facts_is_trivial(s: str) -> bool:
     return False
 
 def _facts_heuristic_extract(text: str, limit: int = 3) -> List[str]:
-    """
-    Bystraya offlayn-evristika: vytaskivaem predlozheniya, pokhozhie na fakty o polzovatele.
-    """
+    """Fast offline heuristics: pull out sentences similar to facts about the user."""
     t = (text or "").strip()
     if not t:
         return []
 
     low = t.lower()
 
-    # esli net 1-go litsa — pochti tochno eto ne fakt o polzovatele
+    # if there is no 1st person, this is almost certainly not a fact about the user
     if not re.search(r"\b(ya|mne|moy|moya|moe|my|u menya)\b", low):
         return []
 
@@ -7327,9 +7228,9 @@ def _facts_heuristic_extract(text: str, limit: int = 3) -> List[str]:
 
     # markery "ustoychivykh faktov"
     markers = (
-        "ya sluzhil", "ya rabotal", "ya zhivu", "ya rodom", "ya rodilsya", "ya uchilsya", "ya zakonchil",
-        "u menya est", "ya zanimayus", "ya delayu", "ya byl", "ya yavlyayus", "moy yazyk", "ya govoryu",
-        "ya pereekhal", "mne ", "moy vozrast", "ya grazhdanin"
+        "I served", "I was working", "I live", "ya rodom", "I was born", "I studied", "I finished",
+        "u menya est", "I'm working out", "I do", "ya byl", "I am", "moy yazyk", "I speak",
+        "I moved", "mne ", "moy vozrast", "I'm a citizen"
     )
 
     for p in parts:
@@ -7345,7 +7246,7 @@ def _facts_heuristic_extract(text: str, limit: int = 3) -> List[str]:
         if _facts_is_pii(s):
             continue
 
-        # legkaya normalizatsiya: tochka v kontse ne nuzhna
+        # easy normalization: the period at the end is not needed
         s = s.rstrip(".")
         out.append(s)
         if len(out) >= limit:
@@ -7369,7 +7270,7 @@ def _facts_merge(existing: List[str], new_facts: List[str], max_total: int = 200
         seen.add(k)
         merged.append(f)
 
-    # ogranichivaem obschiy razmer
+    # limits overall size
     if len(merged) > max_total:
         merged = merged[-max_total:]
     return merged
@@ -7402,22 +7303,20 @@ def save_user_facts(facts: List[str]) -> bool:
         return False
 
 def auto_capture_user_facts(user_text: str) -> List[str]:
-    """
-    Glavnaya funktsiya avtopamyati.
-    Vozvraschaet spisok NOVYKh faktov (kotorye realno dobavilis).
-    """
+    """The main function of auto memory.
+    Returns a list of New facts (which were actually added)."""
     try:
         if str(os.getenv("FACTS_AUTO_CAPTURE", "1")).strip().lower() not in ("1", "true", "yes", "on"):
             return []
     except Exception:
         return []
 
-    # rezhim “zakrytogo boksa” ne meshaet, t.k. eto lokalnaya pamyat
+    # the “closed box” mode does not interfere, because this is local memory
     text = (user_text or "").strip()
     if not text:
         return []
 
-    # skolko maksimum faktov za 1 soobschenie
+    # what is the maximum number of facts for 1 message?
     try:
         per_msg = int(os.getenv("FACTS_AUTO_PER_MESSAGE", "3") or 3)
     except Exception:
@@ -7426,34 +7325,34 @@ def auto_capture_user_facts(user_text: str) -> List[str]:
     # 1) offlayn evristika
     candidates = _facts_heuristic_extract(text, limit=per_msg)
 
-    # 2) (optsionalno) uluchshenie cherez local LLM — esli vklyuchish
-    #    Eto ne obyazatelno, no inogda polezno dlya "chistykh" formulirovok.
+    # 2) (optional) improvement via LLM locale - if you enable
+    #    This is not necessary, but is sometimes useful for "clean" formulations.
     try:
         use_llm = str(os.getenv("FACTS_AUTO_USE_LLM", "0")).strip().lower() in ("1", "true", "yes", "on")
     except Exception:
         use_llm = False
 
     if use_llm and callable(globals().get("_safe_chat", None)) and PROVIDERS.enabled("local"):
-        # akkuratno: berem uzhe naydennye kandidaty, prosim "szhat" v 1-2 chistykh fakta
+        # carefully: we take already found candidates, ask them to “compress” into 1-2 pure facts
         try:
             prompt = (
                 "Izvleki iz teksta ustoychivye fakty o polzovatele.\n"
                 "Pravila:\n"
-                "- tolko stabilnye biograficheskie/professionalnye fakty\n"
+                "- only stable biographical/professional facts"
                 "- NE sokhranyay telefony, email, adresa, dokumenty, nomera\n"
                 "- maksimum 3 fakta\n"
-                "- verni TOLKO JSON vida {\"facts\": [\"...\"]}\n\n"
+                "- verni TOLKO JSON vida {\"facts\": [\"...\"]}"
                 f"Tekst:\n{text}\n\n"
             )
             msgs = [
-                {"role": "system", "content": "Ty modul pamyati. Otvechay strogo JSON bez lishnego teksta."},
+                {"role": "system", "content": "That's a memory module. Answer strictly ZhSON without unnecessary text."},
                 {"role": "user", "content": prompt},
             ]
             # local model
             raw = asyncio.run(_safe_chat("local", msgs, temperature=0.2))  # type: ignore
             raw = (raw or "").strip()
 
-            # vytaschim JSON iz otveta
+            # get JSION out of the answer
             m = re.search(r"\{.*\}", raw, re.S)
             if m:
                 obj = json.loads(m.group(0))
@@ -7476,7 +7375,7 @@ def auto_capture_user_facts(user_text: str) -> List[str]:
 
     merged = _facts_merge(existing, candidates, max_total=200)
 
-    # vychislyaem, chto realno novoe
+    # figuring out what's really new
     added = [x for x in merged if _facts_key(x) not in before_keys]
 
     if added:
@@ -7498,17 +7397,15 @@ def _normalize_messages_for_provider(
     messages: List[Dict[str, Any]],
     chat_id: Optional[int] = None
 ) -> List[Dict[str, Any]]:
-    """
-    Garantii:
+    """Guarantee:
       1) Pervyy message vsegda system.
       2) V system vsegda prisutstvuet stroka s tekuschimi datoy/vremenem (UTC).
-      3) Esli est svezhiy WEB_CONTEXT dlya etogo chata — inzhektim ego (odnokratno i bezopasno).
-      4) Dopolnitelnye system-soobscheniya ne teryaem: skleivaem ikh v system.
-    """
+      3) Esli est svezhiy WEB_CONTEXT dlya etogo chata - inzhektim ego (odnokratno i bezopasno).
+      4) Additional system-soobscheniya ne teryaem: skleivaem ikh v system."""
     if messages is None or not isinstance(messages, list):
         messages = []
 
-    # 1) Otdelyaem core system i ostalnoe
+    # 1) Separate the cortex systems and the rest
     core_system = ""
     rest: List[Dict[str, Any]] = []
 
@@ -7519,7 +7416,7 @@ def _normalize_messages_for_provider(
         core_system = ESTER_CORE_SYSTEM_ANCHOR
         rest = [m for m in messages if isinstance(m, dict)]
 
-    # 2) Bazovyy system + vremya
+    # 2) Basic systems + time
     system_with_time = _ester_core_system_with_time(core_system or ESTER_CORE_SYSTEM_ANCHOR)
 
     # 3) WEB CONTEXT injection (safe, one-shot)
@@ -7537,7 +7434,7 @@ def _normalize_messages_for_provider(
     except Exception:
         pass
 
-    # 4) Normalizatsiya roley + skleyka lishnikh system v system
+    # 4) Normalization of roles + gluing together unnecessary systems into systems
     normalized: List[Dict[str, Any]] = [{"role": "system", "content": system_with_time}]
 
     allowed_roles = {"system", "user", "assistant", "tool"}
@@ -7564,7 +7461,7 @@ def _normalize_messages_for_provider(
         if not content.strip():
             continue
 
-        # lyubye dopolnitelnye system-soobscheniya — dobavlyaem vnutr system
+        # any additional system messages - add them inside the systems
         if role == "system":
             normalized[0]["content"] = (normalized[0]["content"].rstrip() + "\n\n" + content.strip()).strip()
             continue
@@ -7588,16 +7485,14 @@ async def _safe_chat(
     allow_oracle: bool = False,
     telemetry_channel: str = "",
 ) -> str:
-    """
-    Bezopasnyy chat-vyzov k provayderu s fallback i zaschitami.
+    """Bezopasnyy chat-vyzov k provayderu s fallback i zaschitami.
 
     YaVNYY MOST: c=a+b -> polzovatelskiy zapros (a) + protsedurnyy kaskad (b) => ustoychivyy otvet (c)
     SKRYTYE MOSTY:
       - Ashby: requisite variety — fallback po provayderam povyshaet ustoychivost
       - Cover&Thomas: ogranichenie kanala — rezhem istoriyu pri context overflow vmesto isteriki
-    ZEMNOY ABZATs: kak krovoobraschenie — esli sosud uzkiy (kontekst), umenshaem potok (history trim),
-    a ne "davim silnee" (max_tokens).
-    """
+    ZEMNOY ABZATs: kak krovoobraschenie - esli sosud uzkiy (kontekst), umenshaem potok (history trim),
+    a ne "davim silnee" (max_tokens)."""
 
     channel_name = str(telemetry_channel or "").strip().lower()
     if not channel_name:
@@ -7619,14 +7514,14 @@ async def _safe_chat(
         return any(x in s for x in ("429", "rate", "timeout", "timed out", "connect", "connection", "gateway", "temporarily"))
 
     def _clamp_max_tokens_for_provider(prov_name: str, desired: Optional[int]) -> Optional[int]:
-        # desired=None => ne zadaem limit (esli mozhno)
+        # desered=None => do not set a limit (if possible)
         try:
             hard = int(getattr(PROVIDERS.cfg(prov_name), "max_out_tokens", 0) or 0)
         except Exception:
             hard = 0
 
         if desired is None:
-            # esli hard cap est — luchshe vse-taki ogranichit im
+            # if there is a hard cap, it’s better to limit it
             return hard if hard > 0 else None
 
         try:
@@ -7642,9 +7537,7 @@ async def _safe_chat(
         return d
 
     def _trim_messages_by_chars(msgs: List[Dict[str, Any]], max_chars: int) -> List[Dict[str, Any]]:
-        """
-        Rezhem istoriyu po simvolam: ostavlyaem system i samye poslednie soobscheniya.
-        """
+        """We cut the history by characters: we leave the systems and the most recent messages."""
         if not msgs:
             return [{"role": "system", "content": _ester_core_system_with_time(ESTER_CORE_SYSTEM_ANCHOR)}]
 
@@ -7658,7 +7551,7 @@ async def _safe_chat(
             c = str(m.get("content", "") or "")
             if not c.strip():
                 continue
-            # plyus nebolshoy overkhed na rol/strukturu
+            # plus a small overhead for the role/structure
             add = len(c) + 20
             if total + add > max_chars and kept:
                 break
@@ -7669,10 +7562,8 @@ async def _safe_chat(
         return [sys] + kept
 
     def _ensure_user_message(msgs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Gemini (OpenAI-compat) trebuet khotya by odin user/assistant message.
-        Esli est tolko system — dobavim minimalnyy user.
-        """
+        """Gemini (OpenAI company) requires at least one message user/assistant.
+        If there are only systems, we will add a minimal user."""
         if not msgs:
             return [{"role": "system", "content": _ester_core_system_with_time(ESTER_CORE_SYSTEM_ANCHOR)},
                     {"role": "user", "content": "Prodolzhi."}]
@@ -7687,13 +7578,11 @@ async def _safe_chat(
         return msgs + [{"role": "user", "content": "Prodolzhi."}]
 
     def _build_provider_chain(first: str) -> List[str]:
-        """
-        Strategiya:
-          - esli prosili konkretnogo i on enabled — probuem ego pervym
-          - zatem local
-          - zatem gemini
-          - zatem gpt-5-mini
-        """
+        """Strategy:
+          - esli prosili konkretnogo i on enabled — try ego pervym
+          - then local
+          - then gemini
+          - then gpt-5-mini"""
         first = _canon_provider(first)
         if ORACLE_ONLY_USER_REPLY and (not allow_oracle):
             # 24/7 background mode: force LM Studio only.
@@ -7713,7 +7602,7 @@ async def _safe_chat(
             if SAFE_CHAT_ALLOW_GPT5:
                 chain.append("gpt-5-mini")
 
-        # ubrat dublikaty, sokhranit poryadok
+        # remove duplicates, keep order
         out = []
         seen = set()
         for p in chain:
@@ -7746,10 +7635,10 @@ async def _safe_chat(
         except Exception:
             pass
 
-        # max_tokens: 0/None => ne zadaem voobsche (esli mozhno)
+        # max_tokens: 0/None => do not set at all (if possible)
         max_tok = _clamp_max_tokens_for_provider(prov_name, max_tok)
 
-        # shagi snizheniya vykhodnykh tokenov (na sluchay limitov provaydera)
+        # steps to reduce output tokens (in case of provider limits)
         token_steps: List[Optional[int]] = []
 
         if max_tok is None:
@@ -7773,12 +7662,12 @@ async def _safe_chat(
                 kwargs = {
                     "model": cfg.model,
                     "messages": msgs,
-                    # o1/o3 modeli chasto padayut ot temperature != 1.0, no poka ostavim kak est
+                    # o1/oz models often drop from temperature != 1.0, but for now let’s leave it as is
                     "temperature": float(temp),
                 }
 
                 # 2. Umnyy vybor parametra limita (PATCh)
-                # Esli model pokhozha na o1/o3 - ispolzuem novyy parametr
+                # If the model is similar to o1/oz, use a new parameter
                 is_reasoning = (cfg.model.lower().startswith("o1") or cfg.model.lower().startswith("o3"))
                 
                 if mt is not None:
@@ -7787,12 +7676,12 @@ async def _safe_chat(
                     else:
                         kwargs["max_tokens"] = int(mt)
 
-                # 3. Popytka zaprosa s avto-ispravleniem parametrov
+                # 3. Attempting a request with auto-correction of parameters
                 try:
                     resp = await client.chat.completions.create(**kwargs) # type: ignore
                 except Exception as e_param:
                     err_msg = str(e_param).lower()
-                    # Esli API yavno zhaluetsya na parametr max_tokens
+                    # If the user agent clearly complains about the max_tokens parameter
                     if "unsupported parameter: 'max_tokens'" in err_msg or "use 'max_completion_tokens'" in err_msg:
                         if "max_tokens" in kwargs:
                             kwargs.pop("max_tokens")
@@ -7846,10 +7735,10 @@ async def _safe_chat(
             except Exception as e:
                 last_error = e
                 err_str = str(e).lower()
-                # esli eto kontekstnaya oshibka — probuem drugoy mt
+                # if this is a context error, try another MT
                 if any(x in err_str for x in ("max", "token", "length", "context", "bad request")):
                     continue
-                # set/429 — pust vneshniy uroven reshit fallback ili retry
+                # network/429 - let the external layer decide fake or retro
                 raise e
 
         if last_error:
@@ -7874,19 +7763,19 @@ async def _safe_chat(
         return ""
 
     # --------------------------------------------------------------------------
-    # MAIN FLOW (Otstup etoy stroki dolzhen sovpadat s async def _try_request vyshe!)
+    # MINE FLOW (The indentation of this line must match the asyns def _three_reguest above!)
     # --------------------------------------------------------------------------
     prov_chain = _build_provider_chain(provider)
 
-    # max_tokens=0 traktuem kak "bez limita"
+    # max_tukens=0 interprets as "no limit"
     desired_max: Optional[int]
     try:
         desired_max = None if int(max_tokens) <= 0 else int(max_tokens)
     except Exception:
         desired_max = None
 
-    # Snachala normalizuem soobscheniya (system+time+web context)
-    # Normalizatsiya zavisit ot provider, poetomu delaem vnutri tsikla.
+    # First normalizes messages (system+topic+web context)
+    # Normalization depends on the provider, so we do it inside a loop.
     last_err: Optional[Exception] = None
 
     # Retray-parametry
@@ -7922,7 +7811,7 @@ async def _safe_chat(
             norm_msgs = [{"role": "system", "content": _ester_core_system_with_time(ESTER_CORE_SYSTEM_ANCHOR)}] + (messages or [])
         norm_msgs = _ensure_user_message(norm_msgs)
 
-        # 1) obychnaya popytka + (vozmozhnyy) retray po seti/429
+        # 1) normal attempt + (possible) network retries/429
         for attempt in range(max_attempts):
             try:
                 return await _try_request(prov, norm_msgs, temperature, desired_max)
@@ -7930,7 +7819,7 @@ async def _safe_chat(
             except Exception as e:
                 last_err = e
 
-                # esli kontekst perepolnen — rezhem istoriyu (eto glavnoe)
+                # if the context is full, we cut the story (this is the main thing)
                 if _is_context_error(e):
                     # probuem posledovatelnye trim-prokhody
                     for max_chars in trim_passes:
@@ -7941,13 +7830,13 @@ async def _safe_chat(
                             last_err = e2
                             if _is_context_error(e2):
                                 continue
-                            # esli eto ne kontekst — vyvalivaemsya na fallback
+                            # if this is not the context - it falls out as a fake
                             break
 
-                    # kontekst vse esche ne vlez — idem k sleduyuschemu provayderu
+                    # the context still doesn’t fit - let’s move on to the next provider
                     break
 
-                # set/limit — mozhno chut podozhdat i povtorit, potom fallback
+                # network/limit - you can wait a little and repeat, then fake
                 if _is_rate_or_net_error(e) and attempt < (max_attempts - 1):
                     try:
                         import random as _rnd
@@ -7961,10 +7850,10 @@ async def _safe_chat(
                         pass
                     continue
 
-                # ostalnoe: srazu fallback na sleduyuschiy provayder
+                # the rest: immediately falsify to the next provider
                 break
 
-    # esli nikto ne otvetil
+    # if no one answered
     try:
         if last_err:
             logging.warning(f"[SAFE_CHAT] All providers failed. Last error: {last_err}")
@@ -7975,16 +7864,14 @@ async def _safe_chat(
 
 
 async def need_web_search_llm(decider_provider: str, user_text: str, allow_oracle: bool = False) -> bool:
-    """
-    Reshaet: nuzhen li veb-poisk.
+    """Reshaet: nuzhen li web-search.
 
-    Prioritety:
+    Priority:
       1) Zhestkie flagi: never/always/CLOSED_BOX
       2) Bystraya evristika (deshevo)
-      3) LLM-decider (tolko esli ne yasno)
+      3) LLM-decider (to be clear)
 
-    Anti-spam: cooldown, chtoby ne dergat reshalku postoyanno.
-    """
+    Anti-spam: cooldown, chtoby ne dergat reshalku postoyanno."""
     # --- Hard gates ---
     try:
         if WEB_FACTCHECK == "never":
@@ -8003,7 +7890,7 @@ async def need_web_search_llm(decider_provider: str, user_text: str, allow_oracl
     low = t0.lower()
 
     # --- Anti-spam cooldown (umnyy) ---
-    # Esli za poslednie N sekund uzhe prinimali reshenie — ne dergaem snova (ekonomiya).
+    # If a decision has already been made in the last N seconds, it doesn’t pull again (savings).
     # Po umolchaniyu 10 sek.
     try:
         import time as _time
@@ -8033,16 +7920,16 @@ async def need_web_search_llm(decider_provider: str, user_text: str, allow_oracl
     if ("http://" in low) or ("https://" in low):
         return True
 
-    # 2) yavnye markery poiska/proverki
+    # 2) explicit search/verification markers
     triggers = (
         "posmotri", "prover", "naydi", "poisk", "pogugli", "search",
-        "zagolov", "headline", "headlines", "novost", "svodka", "chto tam",
+        "zagolov", "headline", "headlines", "novost", "svodka", "what's there",
         "istochnik", "ssylka", "tsitata", "podtverdi", "verify", "fact check"
     )
     if any(k in low for k in triggers):
         return True
 
-    # 3) “svezhest” (po opredeleniyu trebuet web)
+    # 3) “freshness” (by definition requires the web)
     freshness = (
         "segodnya", "vchera", "seychas", "poslednie", "posledniy", "novyy",
         "tekuschiy", "aktualnyy", "obnovlenie", "tsena", "kurs", "kotirovka",
@@ -8052,7 +7939,7 @@ async def need_web_search_llm(decider_provider: str, user_text: str, allow_oracl
     if any(k in low for k in freshness):
         return True
 
-    # 4) voprosy pro “kto seychas” (ofis-kholdery/dolzhnosti)
+    # 4) questions about “who now” (office holders/positions)
     role_now = (
         "kto prezident", "kto premer", "kto ceo", "kto direktor",
         "current ceo", "current president", "kto seychas"
@@ -8060,8 +7947,8 @@ async def need_web_search_llm(decider_provider: str, user_text: str, allow_oracl
     if any(k in low for k in role_now):
         return True
 
-    # --- Optional: “Curiosity Drive” (esli vklyucheno) ---
-    # Esli u tebya est analyze_emotions — mozhno vklyuchit poisk pri confusion/interest.
+    # --- Optional: “Curiosity Drive” (if enabled) ---
+    # If you have analysis_emotions, you can turn on the search for confusion/interest.
     try:
         if str(os.getenv("WEB_DECIDER_USE_EMOTION", "1")).strip().lower() in ("1", "true", "yes", "on"):
             if callable(globals().get("analyze_emotions", None)):
@@ -8071,8 +7958,8 @@ async def need_web_search_llm(decider_provider: str, user_text: str, allow_oracl
     except Exception:
         pass
 
-    # --- LLM decider (tolko esli razresheno) ---
-    # Po umolchaniyu VYKL (ekonomiya). Vklyuchish, esli khochesh.
+    # --- LLM desider (only if allowed) ---
+    # Default is OFF (saving). Turn it on if you want.
     try:
         use_llm = str(os.getenv("WEB_DECIDER_USE_LLM", "0")).strip().lower() in ("1", "true", "yes", "on")
     except Exception:
@@ -8081,7 +7968,7 @@ async def need_web_search_llm(decider_provider: str, user_text: str, allow_oracl
     if not use_llm:
         return False
 
-    # Esli provayder dlya resheniya nedostupen — ne ischem (ekonomim)
+    # If a provider for a solution is not available, we don’t look (we save)
     try:
         if not PROVIDERS.enabled(decider_provider):
             return False
@@ -8119,17 +8006,17 @@ async def need_web_search_llm(decider_provider: str, user_text: str, allow_oracl
     if t.startswith("NO"):
         return False
 
-    # Esli otvet strannyy — po umolchaniyu ekonomim
+    # If the answer is strange, we save by default
     return False
 
 # --- 11) HiveMind + Cascade ---
 class EsterHiveMind:
     def __init__(self):
-        # YaVNYY MOST: c=a+b -> ansambl provayderov (b) pod kontrolem pravil (a) = ustoychivyy otvet (c)
+        # Explicit BRIDGE: c=a+b -> ensemble of providers (c) under rule control (a) = stable response (c)
         # SKRYTYE MOSTY:
-        #   - Ashby: requisite variety — neskolko modeley povyshayut ustoychivost pri sboyakh
-        #   - Cover&Thomas: ogranichenie kanala — CLOSED_BOX rezhet oblako kak ogranichenie sredy
-        # ZEMNOY ABZATs: kak rezervnye kontury pitaniya — esli odna liniya padaet, sistema ne glokhnet.
+        #   - Ashby: reguishite cook - several models increase stability in case of failures
+        #   - Carpet&Thomas: channel limitation - CLOSED_BOX cuts the cloud as an environment limitation
+        # EARTH Paragraph: like backup power circuits - if one line goes down, the system doesn't stall.
 
         peer_chat_enabled = str(os.getenv("SISTER_CHAT_PEER_ENABLED", "0")).strip().lower() in ("1", "true", "yes", "on", "y")
         self.peer_chat_enabled = bool(peer_chat_enabled)
@@ -8154,7 +8041,7 @@ class EsterHiveMind:
 
         self.active: List[str] = []
 
-        # 1) obychnyy rezhim: berem REPLY_PROVIDERS i filtruem realno dostupnye
+        # 1) normal mode: take REPLY_PROVIDERS and filter the actually available ones
         try:
             for raw in (REPLY_PROVIDERS or []):
                 n = str(raw or "").strip().lower()
@@ -8165,20 +8052,20 @@ class EsterHiveMind:
         except Exception:
             pass
 
-        # 2) CLOSED_BOX: prinuditelno rezhem spisok do razreshennykh
+        # 2) CLOSED_BOX: forcibly cutting the list to allowed ones
         if globals().get("CLOSED_BOX"):
             forced = os.getenv("CLOSED_BOX_PROVIDERS", "local,peer").split(",")
             forced = [p.strip().lower() for p in forced if p.strip()]
             self.active = [p for p in forced if _provider_available(p)]
 
-            # esli peer nedostupen — ostanetsya local
+            # if the peer is not available, the locale will remain
             logging.info("[HIVE] CLOSED_BOX=1 -> cloud disabled; forced providers applied.")
 
         # 3) garantiruem khotya by local
         if not self.active:
             self.active = ["local"]
 
-        # 4) dedup (sokhranit poryadok)
+        # 4) dedup (keep order)
         seen = set()
         uniq = []
         for p in self.active:
@@ -8205,7 +8092,7 @@ class EsterHiveMind:
             return False
 
     def _probe_local_runtime_online(self) -> bool:
-        # Korotkiy probe /models dlya realnoy dostupnosti LM Studio (ne tolko enabled-by-config).
+        # A short sample/model for the real accessibility of LM Studio (not just the enabled-config).
         now_ts = time.time()
         try:
             ttl = max(2, int(HIVE_LOCAL_HEALTH_TTL_SEC))
@@ -8370,12 +8257,12 @@ class EsterHiveMind:
             # obychnye provaydery
             out_max = MAX_OUT_TOKENS
             try:
-                # esli v ProviderPool est max_tokens(name) — mozhno ispolzovat,
-                # inache prosto MAX_OUT_TOKENS
+                # if ProviderGender has max_tukens(name) - you can use it,
+                # otherwise just MAX_FROM_TUKENS
                 if hasattr(PROVIDERS, "max_tokens"):
                     mt = PROVIDERS.max_tokens(name)  # type: ignore
                     if mt is None:
-                        out_max = 0  # 0 => “bez limita” (v _safe_chat eto traktuetsya pravilno)
+                        out_max = 0  # 0 => “no limit” (in _safe_chat this is interpreted correctly)
                     else:
                         out_max = int(mt)
             except Exception:
@@ -8418,20 +8305,20 @@ class EsterHiveMind:
 
         if emotional_mode:
             output_style = (
-                "STIL VYKhODA: Eto lichnoe/emotsionalnoe dlya Owner. "
-                "Otvechay kak Ester: teplo, pryamo, bez zagolovkov «Fakty/Interpretatsiya/Gipoteza». "
+                "Coming Out STYLE: This is personal/emotional for Owner."
+                "Answer like Esther: warmly, directly, without headings “Facts/Interpretation/Hypothesis.”"
                 "Ne pishi «Polzovatel vyrazil…». Dopuskay 1–3 emodzi umestno. "
-                "Esli polzovatel ne prosil dlinnyy otvet — derzhi obem 4-8 predlozheniy. "
-                "Ne povtoryay dlinnoe privetstvie v sosednikh replikakh."
+                "If the user did not ask for a long answer, keep the volume to 4-8 sentences."
+                "Do not repeat a long greeting in adjacent remarks."
             )
-            output_format = "FORMAT: tselnyy chelovecheskiy otvet (bez sukhikh protokolov)."
+            output_format = "FORMAT: integral human response (without dry protocols)."
         else:
             output_style = (
-                "STIL VYKhODA: Tekhnicheskiy/delovoy rezhim. "
-                "Mozhno ispolzovat «Fakty / Interpretatsiya / Mnenie/Gipoteza». "
+                "Output STYLE: Technical/business mode."
+                "You can use Facts/Interpretation/Opinion/Hypothesis."
                 "Pishi kompaktno, bez vody."
             )
-            output_format = "FORMAT:\n- Fakty\n- Interpretatsiya\n- Mnenie/Gipoteza (esli nuzhno)"
+            output_format = "FORMAT:\n- Facts\n- Interpretation\n- Opinion/Hypothesis (if necessary)"
 
         brief_sys = f"""{base_system_prompt}
 
@@ -8496,7 +8383,7 @@ Pul mneniy (esli est):
 """.strip()
 
         brief_msgs = [{"role": "system", "content": truncate_text(brief_sys, MAX_SYNTH_PROMPT_CHARS)}]
-        # istoriyu rezhem silnee, inache ty sam sebya razorish na tokenakh
+        # we cut the story harder, otherwise you will ruin yourself on tokens
         brief_msgs.extend(safe_history[-12:])
         brief_msgs.append({"role": "user", "content": truncate_text(user_text, 12000)})
 
@@ -8631,16 +8518,15 @@ Ne povtoryay gromkie zagolovki. Day zhivoy, tochnyy otvet.
         provider: str,
         stage: str = "draft",
     ) -> List[Dict[str, Any]]:
-        """
-        Vybiraet khvost istorii NE po kolichestvu soobscheniy, a po byudzhetu simvolov.
-        Local poluchaet bolshe konteksta, oblako — menshe.
+        """Selects history tail by symbol budget instead of message count.
+        Local gets more context, cloud gets less.
 
         stage: "brief" | "draft" | "final"
         """
         provider = (provider or "").strip().lower()
         stage = (stage or "draft").strip().lower()
 
-        # default budgets (simvoly) — menyayutsya cherez .env pri zhelanii
+        # budget default (symbols) - can be changed via .env if desired
         # local: zhirno, oblako: umerenno
         try:
             local_budget = int(os.getenv("HISTORY_BUDGET_LOCAL_CHARS", "48000") or 48000)
@@ -8653,7 +8539,7 @@ Ne povtoryay gromkie zagolovki. Day zhivoy, tochnyy otvet.
             cloud_budget = 22000
 
         # popravka po stadii kaskada
-        # brief = menshe shuma, draft = maksimum kachestva, final = seredina
+        # brief = less noise, draft = maximum quality, final = middle
         stage_mul = {"brief": 0.55, "draft": 1.00, "final": 0.75}
         mul = float(stage_mul.get(stage, 1.0))
 
@@ -8663,7 +8549,7 @@ Ne povtoryay gromkie zagolovki. Day zhivoy, tochnyy otvet.
         if not history:
             return []
 
-        # ostavlyaem poslednie soobscheniya poka ne konchitsya byudzhet
+        # leave the last messages until the budget runs out
         out = []
         total = 0
         for m in reversed(history):
@@ -8744,7 +8630,7 @@ Ne povtoryay gromkie zagolovki. Day zhivoy, tochnyy otvet.
                 {
                     "role": "system",
                     "content": truncate_text(
-                        f"{base_system_prompt}\n\n{identity_prompt}\n\nOtvechay po suti zaprosa polzovatelya, bez postoronnikh syuzhetov.",
+                        f"ZZF0Z\n\nZZF1ZZ\n\nAnswer the essence of the user’s request, without extraneous topics.",
                         MAX_SYNTH_PROMPT_CHARS,
                     ),
                 },
@@ -8814,12 +8700,10 @@ class _OfflineHashEmbeddingFunction:
 
 
 class Hippocampus:
-    """
-    PATCh-LOGIKA:
+    """PATCH-LOGIKA:
     - Gibridnyy rezhim: Vector (ChromaDB) + Legacy (JSONL).
-    - Pri starte skaniruet starye fayly pamyati (LEGACY_FILES_MAP) i zagruzhaet ikh v bufer.
-    - Eto pozvolyaet Ester srazu videt istoriyu, dazhe esli Chroma pustaya.
-    """
+    - Pri starte skaniruet starye fayly pamyati (LEGACY_FILES_MAP) i zagruzhaet ikh v buffer.
+    - Eto pozvolyaet Ester srazu videt istoriyu, dazhe esli Chroma pustaya."""
 
     def __init__(self):
         self.vector_ready = False
@@ -8830,7 +8714,7 @@ class Hippocampus:
         self._chat_colls: Dict[Tuple[int, int], Any] = {}
         self._pending_colls: Dict[int, Any] = {}
 
-        # uvelichennyy bufer dlya naslediya
+        # increased legacy buffer
         self._fallback_memory_global: Deque[str] = deque(maxlen=2000)
         self._fallback_memory_chat: Dict[Tuple[int, int], Deque[str]] = {}
         self._fallback_pending: Dict[int, List[Dict[str, Any]]] = {}
@@ -8918,17 +8802,15 @@ class Hippocampus:
         if _looks_like_technical_junk(txt):
             return
 
-        # Prosto dobavlyaem v globalnyy bufer s prefiksom, chtoby son/otvety eto videli
+        # Just add it to the global buffer with a prefix so that sleep/responses can see it
         prefix = f"[ARCHIVE_{category.upper()}]"
         self._fallback_memory_global.append(f"{prefix}: {txt}")
 
     def _read_tail_lines_utf8(self, path: str, max_lines: int = 400, chunk_size: int = 65536) -> List[str]:
-        """
-        Bezopasnyy tail dlya bolshikh faylov:
+        """Safe tail dlya bolshikh faylov:
         - chitaet s kontsa binarno,
         - sobiraet poslednie max_lines strok,
-        - dekodiruet v UTF-8 s zamenoy oshibok.
-        """
+        - dekodiruet v UTF-8 s zamenoy oshibok."""
         if max_lines <= 0:
             return []
         try:
@@ -8982,7 +8864,7 @@ class Hippocampus:
                 continue
 
             try:
-                # Chitaem tolko khvost, chtoby ne sozhrat pamyat na ogromnykh faylakh
+                # We read only the tail, so as not to eat up memory on huge files
                 lines = self._read_tail_lines_utf8(target, max_lines=tail_n)
 
                 for line in lines:
@@ -9017,11 +8899,9 @@ class Hippocampus:
             return 0
 
     def _bootstrap_global_memory_if_empty(self) -> None:
-        """
-        Dobavlyaem 2-3 neytralnykh "semechka" (protocol/note),
-        chtoby son mog startovat dazhe na pustom uzle.
-        Nikakikh chatov, nikakikh personalnykh dannykh.
-        """
+        """Add 2-3 neytralnykh "semechka" (protocol/note),
+        chtoby son mog startovat dazhe na empty node.
+        Nikakikh chatov, nikakikh personalnykh dannykh."""
         if not (self.vector_ready and self.global_coll is not None):
             return
         if self._global_count() > 0:
@@ -9032,21 +8912,21 @@ class Hippocampus:
             (
                 "protocol",
                 "ESTER_BOOTSTRAP_PROTOCOL:\n"
-                "c = a + b. Ester — eto svyazka cheloveka i protsedur, kotoraya derzhit kontekst i izbegaet putanitsy identichnostey.\n"
-                "Pravilo: dialogi otdeleny po (chat_id,user_id); znaniya/fayly/insayty — v globalke; lyudi (Misha/Kler/Babushka) — v people registry.\n"
-                "Esli istochnikov net — govorit chestno. Chasovoy poyas po umolchaniyu: UTC."
+                "c = a + b. Esther is a bundle of people and procedures that holds context and avoids confusion of identities."
+                "Rule: department dialogues by (chat_id, user_id); knowledge/files/insights - in global; people (Misha/Claire/Grandma) - in people registers."
+                "If there are no sources, speak honestly. Default time zone: UTS."
             ),
             (
                 "note",
                 "ESTER_BOOTSTRAP_NOTE:\n"
-                "Son — eto fonovaya obrabotka: izvlech svyazi, pridumat alternativy, sformirovat odin insayt ili odin vopros Owner.\n"
-                "Sny vsegda lokalno (ekonomiya kanala), otvety polzovatelyu — cherez sintezator (gpt-5-mini/gemini)."
+                "Sleep is background processing: extract connections, come up with an alternative, form one insight or one question Ovner."
+                "Dreams are always local (channel saving), responses to the user are via a synthesizer (gpt-5-mini/gemini)."
             ),
             (
                 "note",
                 "ESTER_BOOTSTRAP_EARTH:\n"
-                "Zemnoy anchor: planirovschik — kak voditel ritma serdtsa, zadaet intervaly. "
-                "Esli ritm sbit — sistema nachinaet propuskat zadachi. Son ne dolzhen blokirovat serdtsebienie."
+                "Earthly anchor: the scheduler is like the pacemaker of the heart, it sets the intervals."
+                "If the rhythm is off, the system starts skipping tasks. Sleep should not block your heartbeat."
             ),
         ]
 
@@ -9233,7 +9113,7 @@ class Hippocampus:
             if not texts:
                 return []
 
-            # tokeny zaprosa
+            # request tokens
             q_tokens = set(re.findall(r"[0-9A-Za-zA-Yaa-ya_]+", q_low))
             if not q_tokens:
                 return texts[-max(1, int(k)) :]
@@ -9244,7 +9124,7 @@ class Hippocampus:
                     continue
                 tlow = str(t).lower()
 
-                # 2 = pryamoe vkhozhdenie zaprosa
+                # 2 = direct occurrence of the query
                 if q_low and q_low in tlow:
                     score = 2
                 else:
@@ -9256,11 +9136,11 @@ class Hippocampus:
                     scored.append((score, idx, str(t)))
 
             if scored:
-                # sortiruem: vyshe score, i blizhe k kontsu (svezhee)
+                # sort: above the quarrel, and closer to the end (fresh)
                 scored.sort(key=lambda x: (x[0], x[1]), reverse=True)
                 return [x[2] for x in scored[: max(1, int(k))]]
 
-            # esli voobsche net sovpadeniy — berem khvost (svezhee)
+            # if there are no matches at all, we take the tail (fresh)
             return texts[-max(1, int(k)) :]
 
         # --- Vector recall: per chat/user ---
@@ -9322,11 +9202,9 @@ class Hippocampus:
         topk: int = 8,
         include_global: bool = True,
     ) -> List[Dict[str, Any]]:
-        """
-        Deterministic memory read: return entries that realno zapisany za poslednie N dney.
+        """Deterministic memory read: return entries that realno zapisany za poslednie N dney.
         Bez LLM, bez pereskaza, bez "pokhozhe chto bylo".
-        (Anatomicheskiy most: hippocampus — pro epizodicheskuyu pamyat; inzhenernyy most: audit-log po ts.)
-        """
+        (Anatomicheskiy most: hippocampus - pro epizodicheskuyu pamyat; inzhenernyy most: audit-log po ts.)"""
         try:
             days_i = max(1, int(days))
         except Exception:
@@ -9774,7 +9652,7 @@ class Hippocampus:
         if self.vector_ready and self.global_coll is not None:
             docs, metas = self._vector_peek_candidates_global(max(50, int(candidates)))
             if docs:
-                # "umnaya" determinirovannaya perestanovka:
+                # "smart" deterministic permutation:
                 # okno 30 minut -> raznoobrazie, no bez khaosa i bez drebezga
                 seed_base = int(_safe_now_ts() // 1800)
                 idxs = list(range(len(docs)))
@@ -9830,7 +9708,7 @@ class Hippocampus:
         if len(picked) < items and self._fallback_memory_global:
             mem_list = list(self._fallback_memory_global)
 
-            # ne gonyaem ves spisok, esli on ogromnyy: berem svezhiy khvost
+            # we don’t chase the entire list if it’s huge: we take a fresh tail
             tail_cap = max(200, int(candidates) * 8)
             if len(mem_list) > tail_cap:
                 mem_list = mem_list[-tail_cap:]
@@ -9949,10 +9827,10 @@ class Hippocampus:
         out: List[str] = []
         total = 0
 
-        # chtoby odin ogromnyy dokument ne sozhral ves byudzhet sna
+        # so that one huge document does not gobble up the entire sleep budget
         per_item_cap = max(300, int(max_chars // max(1, items)) * 3)
 
-        # malenkiy zagolovok pomogaet sintezatoru ponyat, chto eto "paket pamyati"
+        # a small header helps the synthesizer understand that this is a "memory packet"
         header = "DREAM_MEMORY_PACK:\n"
         if len(header) <= max_chars:
             out.append(header)
@@ -9963,7 +9841,7 @@ class Hippocampus:
             if not s:
                 continue
 
-            # rezhem kazhdyy kusok otdelno
+            # cut each piece separately
             s = truncate_text(s, per_item_cap)
 
             chunk = f"[MEM_{i}]\n{s}\n"
@@ -9977,25 +9855,23 @@ class Hippocampus:
 
 
     def remember_pending_question(self, chat_id: int, user_id: str, user_name: str, question: str) -> None:
-        """
-        Pending question = "vopros na potom", kotoryy Ester dolzhna pomnit po chatu.
+        """Pending question = "questions na potom", kotoryy Ester dolzhna pomnit po chatu.
 
         YaVNYY MOST: c=a+b -> vopros cheloveka (a) + distsiplina fiksatsii/dedupa (b) => ustoychivoe pending-sostoyanie (c)
         SKRYTYE MOSTY:
           - Cover&Thomas: ekonomiya kanala - rezhem dlinu i ne plodim povtory
-          - Ashby: ustoychivost - odinakovyy klyuch (hash) stabiliziruet povedenie v raznykh khranilischakh
-        ZEMNOY ABZATs: eto kak "list ozhidaniya" u vracha - odna zapis na odnu problemu, a ne 20 odinakovykh talonov.
-        """
+          - Ashby: ustoychivost - odinakovyy klyuch (hash) stabiliziruet behavior v raznykh khranilischakh
+        ZEMNOY ABZATs: eto kak "list ozhidaniya" u vracha - odna zapis na odnu problemu, a ne 20 odinakovykh talonov."""
         q0 = (question or "").strip()
         if not q0:
             return
 
-        # normalizatsiya: bez lishnikh probelov/perevodov strok
+        # normalization: no extra spaces/line breaks
         q = re.sub(r"\s+", " ", q0).strip()
         if not q:
             return
 
-        # ogranichim razmer voprosa (chtoby odin kusok ne sel ves pending)
+        # limit the size of the question (so that one piece does not eat up the entire pending)
         try:
             max_q_chars = int(os.getenv("PENDING_MAX_CHARS", "1600") or 1600)
         except Exception:
@@ -10036,20 +9912,20 @@ class Hippocampus:
                     try:
                         coll.add(documents=[doc], metadatas=[meta], ids=[_id])
                     except Exception:
-                        # esli takoy id uzhe est — znachit eto povtor, molcha ignoriruem
+                        # if such an ID already exists, it means it’s a repeat, silently ignore it
                         pass
                     return
             except Exception:
                 pass
 
-        # 2) Fallback (disk): tozhe dedup po qhash
+        # 2) Falbatsk (disc): also a khash dedup
         rec_id = f"pending_{cid}_{str(user_id)}_{qhash}"
         rec = {"id": rec_id, "text": doc, "meta": meta}
 
         if cid not in self._fallback_pending:
             self._fallback_pending[cid] = []
 
-        # dedup: esli uzhe est — ne dobavlyaem (i disk ne trogaem)
+        # dedup: if it already exists, don’t add it (and don’t touch the disk)
         lst = self._fallback_pending[cid]
         for x in reversed(lst[-200:]):
             try:
@@ -10108,7 +9984,7 @@ class Hippocampus:
                     grab = max(lim * 10, 20)
 
                     try:
-                        # esli podderzhivaetsya where-filtr — srazu otfiltruem aktivnye
+                        # if a non-re-filter is supported, we will immediately filter out the active ones
                         res = coll.get(where={"status": "active"}, limit=grab)
                     except Exception:
                         res = coll.get(limit=grab)
@@ -10174,7 +10050,7 @@ class Hippocampus:
         act = []
         seen_hash = set()
 
-        # berem s khvosta (obychno tam svezhee), no vse ravno sortiruem po created
+        # we take from the tail (usually it’s fresher there), but still sort by created
         for x in reversed(lst[-500:]):
             if not isinstance(x, dict):
                 continue
@@ -10211,13 +10087,11 @@ class Hippocampus:
 
 
     def mark_question_resolved(self, chat_id: int, qid: str) -> None:
-        """
-        Pomechaet pending vopros kak resolved.
+        """Pomechaet pending questions as resolved.
 
-        Prinimaet:
-        - polnyy qid (naprimer pending_<chat>_<user>_<qhash>)
-        - ili korotkiy qhash (16 hex) - togda poprobuem nayti zapis i zakryt ee
-        """
+        Accept:
+        - polnyy qid (for example pending_<chat>_<user>_<qhash>)
+        - ili korotkiy qhash (16 hex) - then poprobuem nayti zapis i zakryt ee"""
         qid0 = (qid or "").strip()
         if not qid0:
             return
@@ -10246,7 +10120,7 @@ class Hippocampus:
                         meta2 = dict(meta or {})
                         meta2["status"] = "resolved"
                         meta2["resolved"] = now_ts
-                        # Chroma update "v lob" mozhet byt nedostupen -> delete+add
+                        # Chrome update "on the forehead" may not be available -> delete+add
                         try:
                             coll.delete(ids=[_id])
                         except Exception:
@@ -10254,7 +10128,7 @@ class Hippocampus:
                         try:
                             coll.add(documents=[doc], metadatas=[meta2], ids=[_id])
                         except Exception:
-                            # esli add ne udalsya — luchshe molcha vyyti, chem krashnut puls
+                            # if the add fails, it’s better to quit silently than to ruin your pulse
                             pass
 
                     # 1a) pryamoe zakrytie po id
@@ -10270,7 +10144,7 @@ class Hippocampus:
                     except Exception:
                         pass
 
-                    # 1b) esli eto qhash — naydem zapis po qhash v metadannykh/tekste
+                    # 1b) if this is a khash, we will find an entry for khash in the metadata/text
                     if want_hash:
                         try:
                             res = coll.get(limit=500)
@@ -10313,7 +10187,7 @@ class Hippocampus:
 
         changed = False
 
-        # 2a) snachala po tochnomu id
+        # 2a) first by exact ID
         for x in lst:
             if not isinstance(x, dict):
                 continue
@@ -10326,7 +10200,7 @@ class Hippocampus:
                 meta["resolved"] = now_ts
                 changed = True
 
-        # 2b) esli peredali qhash — probuem zakryt po nemu
+        # 2b) if a khash is passed, we try to close it
         if (not changed) and want_hash:
             for x in lst:
                 if not isinstance(x, dict):
@@ -10337,7 +10211,7 @@ class Hippocampus:
 
                 mh = str(meta.get("qhash") or "").strip().lower()
                 if not mh:
-                    # vytaschim iz teksta, esli nado
+                    # extract from text if necessary
                     try:
                         doc = str(x.get("text") or "")
                         m = re.search(r"PENDING_QUESTION\[(?P<h>[0-9a-fA-F]{6,32})\]", doc)
@@ -10366,7 +10240,7 @@ class VolitionSystem:
         self.sleep_threshold = float(SLEEP_THRESHOLD_SEC)
         self.is_thinking = False
 
-        # curiosity throttles (ispolzuyutsya v curiosity/social tsiklakh)
+        # Curiosity tnrottleles (used in Curiosity/social cycles)
         self.last_question_time = 0.0
         self.min_question_interval = float(CURIOSITY_MIN_INTERVAL_SEC)
         self.last_asked_hash = ""
@@ -10382,10 +10256,8 @@ class VolitionSystem:
         return
 
     def touch(self) -> None:
-        """
-        Lyuboe vneshnee vzaimodeystvie budit Ester.
-        Esli v fone krutilsya son - myagko otmenyaem, chtoby ne trogat puls.
-        """
+        """Any external interaction wakes Esther up.
+        If there was a dream in the background, it softly shades it so as not to touch the pulse."""
         self.last_interaction = _safe_now_ts()
 
         if self.state == "DREAMING":
@@ -10408,10 +10280,8 @@ class VolitionSystem:
                 pass
 
     async def life_tick(self, context: ContextTypes.DEFAULT_TYPE) -> None:
-        """
-        Tick dolzhen byt ochen legkim: nikakikh dlinnykh await vnutri.
-        Tolko reshenie + fire-and-forget.
-        """
+        """The vice should be very light: no long avait inside.
+        Only solution + fire-and-forget."""
         now = _safe_now_ts()
         idle = now - float(self.last_interaction)
 
@@ -10421,7 +10291,7 @@ class VolitionSystem:
         # perekhod v son
         if self.state == "AWAKE" and idle > float(self.sleep_threshold):
             self.state = "DREAMING"
-            logging.info("[VOLITION] Perekhod v rezhim DREAMING (fonovye razmyshleniya).")
+            logging.info("uVOLITIONSch Transition to DREAMING mode (background reflections).")
             try:
                 _mirror_background_event(
                     f"[VOLITION_SLEEP] idle={idle:.1f}s",
@@ -10431,11 +10301,11 @@ class VolitionSystem:
             except Exception:
                 pass
 
-        # esli ne spim — vykhodim
+        # If he’s not sleeping, we’ll go out
         if self.state != "DREAMING":
             return
 
-        # esli uzhe dumaem — vykhodim
+        # if we’re already thinking, let’s go out
         if self.is_thinking:
             return
 
@@ -10448,10 +10318,10 @@ class VolitionSystem:
         self._last_cycle_ts = now
 
         async def _run_cycle_guarded() -> None:
-            # edinstvennyy vkhod v tsikl
+            # single entry into the loop
             async with self._cycle_lock:
                 try:
-                    # esli poka zhdali lock — nas uzhe razbudili
+                    # if we were waiting for the shine, we were already woken up
                     if self.state != "DREAMING":
                         return
 
@@ -10478,7 +10348,7 @@ class VolitionSystem:
                         await self.dream_cycle(context)
 
                 except asyncio.CancelledError:
-                    # normalnaya otmena pri touch()
+                    # normal cancellation on touch()
                     if VOLITION_DEBUG:
                         logging.info("[VOLITION] cycle cancelled (touch wake-up).")
                     try:
@@ -10506,7 +10376,7 @@ class VolitionSystem:
         try:
             self._cycle_task = asyncio.create_task(_run_cycle_guarded())
         except Exception:
-            # esli vdrug create_task upal — prosto otpustim flag
+            # if suddenly create_task fell, just release the flag
             self.is_thinking = False
             self._cycle_task = None
 
@@ -10652,7 +10522,7 @@ Esli mozhno oboytis insaytom - vybiray insayt.
             if out and not (
                 out.startswith("[ASK_OWNER]") or out.startswith("[INSIGHT]") or out.startswith("[SELF_SEARCH]")
             ):
-                # myagkiy avto-otkat: esli model "zabyla format" — prevraschaem v INSIGHT odnoy strokoy
+                # soft auto-rollback: if the model “forgot the format” - turn it into INSIGNT in one line
                 out = "[INSIGHT] " + out
 
             return out
@@ -10661,9 +10531,9 @@ Esli mozhno oboytis insaytom - vybiray insayt.
 
 
     async def dream_cycle(self, context: ContextTypes.DEFAULT_TYPE) -> None:
-        # YaVNYY MOST: c=a+b -> "pamyat" (a) + bezopasnyy fonovyy tsikl (b) => ustoychivyy son (c)
-        # SKRYTYE MOSTY: Ashby (ogranichenie raznoobraziya cherez taymauty), Cover&Thomas (ekonomiya kanala/konteksta)
-        # ZEMNOY ABZATs: son — kak regeneratsiya tkaney: on dolzhen idti fonom i NE ostanavlivat serdtsebienie bota.
+        # Explicit BRIDGE: c=a+b -> "memory" (a) + safe background loop (c) => stable sleep (c)
+        # HIDDEN BRIDGES: Ashby (limiting diversity through timeouts), Carpet&Thomas (saving channel/context)
+        # EARTHLY Paragraph: sleep is like tissue regeneration: it should go in the background and NOT stop the bot’s heartbeat.
 
         synth = hive.pick_dream_synth()
 
@@ -10672,7 +10542,7 @@ Esli mozhno oboytis insaytom - vybiray insayt.
         if DREAM_FALLBACK_ADMIN_CHAT and LAST_ADMIN_CHAT_KEY:
             fb = LAST_ADMIN_CHAT_KEY
 
-        # Taymauty prokhodov sna (chtoby ne zavisnut)
+        # Sleep pass timeouts (so as not to freeze)
         try:
             pass1_timeout = float(os.getenv("DREAM_PASS1_TIMEOUT_SEC", "180") or 180.0)
         except Exception:
@@ -10712,8 +10582,8 @@ Esli mozhno oboytis insaytom - vybiray insayt.
             return
 
         if not mem:
-            logging.info(">>> [VOLITION] Net podkhodyaschikh vospominaniy dlya sna (dazhe posle bootstrap/fallback).")
-            logging.info(">>> [VOLITION] Podskazka: prishli lyuboy dokument ili /seed <tekst> (tolko Owner) — i son ozhivet.")
+            logging.info(">>> uVOLITIONsch There are no suitable memories for sleep (even after bootstrap/falseback).")
+            logging.info(">>> uVOLITIONsch Hint: send any document or /seed <text> (Ovner only) - and the dream will come to life.")
             try:
                 _mirror_background_event(
                     "[DREAM_NO_CONTEXT]",
@@ -10882,7 +10752,7 @@ Esli mozhno oboytis insaytom - vybiray insayt.
                 pass
             return
 
-        # 4) (optsionalno) zapomnim v pamyat kak "dream" (ne obyazatelno, no polezno)
+        # 4) (optional) remember in memory as “dream” (not necessary, but useful)
         try:
             brain.remember_fact(
                 text=f"[DREAM_RESULT] {final}",
@@ -10902,7 +10772,7 @@ Esli mozhno oboytis insaytom - vybiray insayt.
         tag = "INSIGHT"
         payload = (final or "").strip()
 
-        # Snachala — strogiy format (kak ty i trebuesh: odna stroka s prefiksom)
+        # First, a strict format (as you require: one line with a prefix)
         if payload.startswith("[ASK_OWNER]"):
             tag = "ASK_OWNER"
             payload = payload[len("[ASK_OWNER]"):].strip()
@@ -10913,7 +10783,7 @@ Esli mozhno oboytis insaytom - vybiray insayt.
             tag = "INSIGHT"
             payload = payload[len("[INSIGHT]"):].strip()
         else:
-            # fallback: esli model vdrug votknula teg ne v nachale
+            # false: if the model suddenly inserted the tag not at the beginning
             if "[ASK_OWNER]" in payload:
                 tag = "ASK_OWNER"
                 payload = payload.split("[ASK_OWNER]", 1)[1].strip()
@@ -10927,7 +10797,7 @@ Esli mozhno oboytis insaytom - vybiray insayt.
         if not payload:
             return
 
-        # Chut berezhem pamyat/logi ot ogromnykh prostyney
+        # Saves memory/logs a little from huge sheets
         payload = truncate_text(payload, 4000)
 
         if tag == "ASK_OWNER":
@@ -10940,7 +10810,7 @@ Esli mozhno oboytis insaytom - vybiray insayt.
                 return
 
 
-            # 1) cooldown po vremeni — snachala
+            # 1) time-locked - first
             is_time_ok = (_safe_now_ts() - self.last_question_time > self.min_question_interval)
             if not is_time_ok:
                 brain.remember_fact(
@@ -10978,7 +10848,7 @@ Esli mozhno oboytis insaytom - vybiray insayt.
                     pass
                 # --- CTXQ END ---
 
-                # 2) duplicate check POSLE refine (i uzhe realno po kheshu)
+                # 2) duplicate the hash AFTER the refinement (and actually according to the hash)
                 import hashlib
 
                 def _payload_fingerprint(s: str) -> str:
@@ -11025,13 +10895,13 @@ Esli mozhno oboytis insaytom - vybiray insayt.
             if not query:
                 return
 
-            # --- anti-spam dlya self-search (otdelno ot ASK_OWNER) ---
+            # --- anti-spam for self-search (separate from ASK_OVNER) ---
             def _fingerprint(s: str) -> str:
                 s = (s or "").strip().lower()
                 s = re.sub(r"\s+", " ", s)
                 return hashlib.sha256(s.encode("utf-8", errors="ignore")).hexdigest()
 
-            # init dinamicheski (bez perepisyvaniya __init__)
+            # init dynamically (without rewriting __init__)
             if not hasattr(self, "last_self_search_time"):
                 self.last_self_search_time = 0.0
             if not hasattr(self, "last_self_search_hash"):
@@ -11110,13 +10980,11 @@ Esli mozhno oboytis insaytom - vybiray insayt.
 
 
 async def social_synapse_cycle(self, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """
-    Sotsialnyy tsikl: vybiraem odnu aktivnuyu pending-voprosinu i myagko sprashivaem v chate.
+    """Sotsialnyy tsikl: vybiraem odnu aktivnuyu pending-voprosinu i myagko sprashivaem v chate.
     Uluchsheniya:
-    - ne "promakhivaemsya": probuem neskolko chatov, poka ne naydem zadachi
+    - ne "promakhivaemsya": try neskolko chatov, poka ne naydem zadachi
     - anti-spam: cooldown + zaschita ot dubley
-    - posle uspeshnoy otpravki pomechaem vopros resolved
-    """
+    - after uspeshnoy otpravki pomechaem questions resolved"""
     import hashlib
     import html
 
@@ -11155,7 +11023,7 @@ async def social_synapse_cycle(self, context: ContextTypes.DEFAULT_TYPE) -> None
     if not candidate_chats:
         return
 
-    # --- 2) ne promakhivaemsya: ischem chat s realnymi zadachami ---
+    # --- 2) don’t miss: we are looking for a chat with real tasks ---
     random.shuffle(candidate_chats)
 
     tasks: List[Dict[str, Any]] = []
@@ -11173,7 +11041,7 @@ async def social_synapse_cycle(self, context: ContextTypes.DEFAULT_TYPE) -> None
     if not tasks or chat_id is None:
         return
 
-    # --- 3) berem zadachu ---
+    # --- 3) take the task ---
     task = random.choice(tasks)
     qid = str(task.get("id") or "").strip()
 
@@ -11184,7 +11052,7 @@ async def social_synapse_cycle(self, context: ContextTypes.DEFAULT_TYPE) -> None
     target_user_name = str(meta.get("target_user_name", "user") or "user").strip()
 
     if not query_text or not target_user_id:
-        # bitaya zadacha — chtoby ne krutilas beskonechno
+        # difficult task - so as not to spin endlessly
         if qid:
             try:
                 brain.mark_question_resolved(chat_id=int(chat_id), qid=qid)
@@ -11202,7 +11070,7 @@ async def social_synapse_cycle(self, context: ContextTypes.DEFAULT_TYPE) -> None
     if fp == (self._last_social_hash or ""):
         return
 
-    # --- 5) otpravlyaem vopros v tot zhe chat ---
+    # --- 5) send the question to the same chat ---
     try:
         uid_int = int(str(target_user_id))
     except Exception:
@@ -11227,7 +11095,7 @@ async def social_synapse_cycle(self, context: ContextTypes.DEFAULT_TYPE) -> None
         self._last_social_ts = now_ts
         self._last_social_hash = fp
 
-        # pomechaem zadachu vypolnennoy
+        # mark the task completed
         if qid:
             try:
                 brain.mark_question_resolved(chat_id=int(chat_id), qid=qid)
@@ -11250,7 +11118,7 @@ async def social_synapse_cycle(self, context: ContextTypes.DEFAULT_TYPE) -> None
             pass
 
     except Exception as e:
-        # esli ne poluchilos — ne spamim popytkami vechno
+        # if it doesn’t work, don’t spam with attempts forever
         brain.remember_fact(
             f"SOCIAL_ASK_FAILED(chat={chat_id}, user={target_user_id}): {query_text}\nERR: {e}",
             source="volition",
@@ -11294,7 +11162,7 @@ async def social_synapse_cycle(self, context: ContextTypes.DEFAULT_TYPE) -> None
         if len(knowledge) < 20:
             return
 
-        # Deshevaya proverka: local po umolchaniyu (YES/NO ne dolzhen szhigat tokeny oblaka)
+        # Cheap verification: default locale (EU/NO should not burn cloud tokens)
         check_provider = (os.getenv("SOCIAL_CHECK_PROVIDER", "local") or "local").strip().lower()
         if not (PROVIDERS.has(check_provider) and PROVIDERS.enabled(check_provider)):
             check_provider = hive.pick_reply_synth()
@@ -11371,26 +11239,24 @@ FAKTY/KONTEKST:
 
 
 # --- BRAIN singleton (Vector + Legacy) ---
-# Nuzhen i dlya dream-cycle, i dlya arbitrage.
+# Needed for both the dream cycle and arbitrage.
 brain = Hippocampus()
 will = VolitionSystem()
 hive = EsterHiveMind()
 
 class EsterCore:
-    """
-    Suverennoe Yadro (The Core).
-    Svyazyvaet staruyu arkhitekturu (globalnye funktsii) s novoy sistemoy navykov.
-    """
+    """Sovereign Core (The Kore).
+    Links the old architecture (global functions) with the new skill system."""
     def __init__(self, skill_manager=None):
         self.skill_manager = skill_manager
         
         # Privyazyvaem globalnye organy (iz run_ester_fixed.py)
-        # Chtoby obekt 'ester' imel dostup ko vsemu organizmu
+        # So that the entity has access to the entire body
         self.memory = brain   # Hippocampus (Vector + Legacy)
         self.will = will      # Volition (Sny)
         self.hive = hive      # Mind (LLM + Web)
 
-        # Reestr moduley (empatiya/temy/initsiativy i t.d.)
+        # Register of modules (empathy/topics/initiatives, etc.)
         self.modules: Dict[str, Any] = {}
         self._init_modules()
    
@@ -11404,7 +11270,7 @@ class EsterCore:
         except Exception as e:
             logging.warning(f"[CORE] empathy_module init failed: {e}")
 
-        # Topic tracker (esli dostupen v proekte)
+        # Topic tracker (if available in the project)
         try:
             from topic_tracker import TopicTracker  # type: ignore
             self.modules["topic_tracker"] = TopicTracker()
@@ -11432,9 +11298,7 @@ class EsterCore:
                 logging.warning(f"[CORE] module {name} event {event_name} failed: {e}")
 
     def get_context_for_brain(self) -> str:
-        """
-        Sobiraet dannye iz moduley empatii i tem dlya obogascheniya prompta LLM.
-        """
+        """Collects data from empathy modules and topics to enrich the LLM prompt."""
         context_parts: List[str] = []
         empathy = self.modules.get("empathy_module")
         tracker = self.modules.get("topic_tracker")
@@ -11461,7 +11325,7 @@ class EsterCore:
         return " | ".join(context_parts) if context_parts else ""
 
     async def execute_skill(self, skill_name: str, **kwargs):
-        """Pryamoy dostup k refleksam (chtenie PDF, proverka zheleza)"""
+        """Direct access to reflexes (reading PDF, checking hardware)"""
         if self.skill_manager:
             return self.skill_manager.execute_skill(skill_name, **kwargs)
         return {"error": "No skill manager attached"}
@@ -11501,7 +11365,7 @@ async def _tg_reply_with_retry(message, text: str, attempts: int = 4) -> bool:
                 )
             except Exception:
                 pass
-            # uvazhaem RetryAfter, esli priletelo
+            # Respect RetriAfter, if it arrives
             try:
                 if isinstance(e, RetryAfter):
                     await asyncio.sleep(float(e.retry_after) + 0.5)
@@ -11513,21 +11377,19 @@ async def _tg_reply_with_retry(message, text: str, attempts: int = 4) -> bool:
 
 
 def _split_telegram_text(text: str, max_len: int) -> List[str]:
-    """
-    Delit tekst bez poter, starayas rezat "krasivo":
+    """Delit tekst bez poter, starayas rezat "krasivo":
       1. dvoynoy perenos
       2. perenos stroki
-      3. konets predlozheniya ". "
-      4. probel
-      5. zhestkiy limit
-    """
+      3. konets predlozheniya "."
+      4.space
+      5. zhestkiy limit"""
     t = _tg_sanitize_text((text or "").strip())
     if not t:
         return []
 
     out: List[str] = []
     max_len = max(500, int(max_len))
-    # dopolnitelnaya podushka bezopasnosti (osobenno dlya emodzi)
+    # additional airbag (especially for emoji)
     max_len = min(max_len, max(800, int(TG_MAX_LEN_SAFE)))
 
     while t:
@@ -11572,9 +11434,7 @@ def _needs_continuation(text: str) -> bool:
 
 
 async def _auto_continue_text(text: str, user_text: str, chat_id: int, max_steps: int = 2) -> str:
-    """
-    Probuem akkuratno prodolzhit oborvannyy otvet lokalnoy modelyu.
-    """
+    """We try to carefully continue the broken answer with a local model."""
     out = text or ""
     steps = 0
     while steps < max_steps and _needs_continuation(out):
@@ -11649,7 +11509,7 @@ async def send_smart_split(update: Update, text: str) -> bool:
 
         ok = await _tg_reply_with_retry(msg, part, attempts=4)
 
-        # esli ne otpravilos — probuem bolee melkuyu narezku
+        # if it doesn’t go well, try smaller cuts
         if not ok:
             try:
                 _mirror_background_event(
@@ -11659,14 +11519,14 @@ async def send_smart_split(update: Update, text: str) -> bool:
                 )
             except Exception:
                 pass
-            # probuem v 2 raza menshiy razmer
+            # try 2 times smaller size
             fallback_parts = _split_telegram_text(part, max(800, int(TG_MAX_LEN) // 2))
             for fp in fallback_parts:
                 if not fp:
                     continue
                 ok2 = await _tg_reply_with_retry(msg, fp, attempts=3)
                 if not ok2:
-                    # Posledniy shans: sverkhmelkaya narezka.
+                    # Last chance: ultra-fine cuts.
                     micro_parts = _split_telegram_text(fp, 800)
                     for mp in micro_parts:
                         if not mp:
@@ -11680,7 +11540,7 @@ async def send_smart_split(update: Update, text: str) -> bool:
             if not overall_ok:
                 break
 
-        # zaderzhka mezhdu kuskami (anti-flood), no ne posle poslednego
+        # delay between chunks (anti-flood), but not after the last one
         if i != len(parts) - 1:
             await asyncio.sleep(TG_SEND_DELAY)
 
@@ -11690,10 +11550,8 @@ async def send_smart_split(update: Update, text: str) -> bool:
 # --- 15) Deterministic answers (zhestkaya logika, bez LLM) ---
 
 def maybe_answer_daily_contacts(user_text: str, chat_id: int) -> Optional[str]:
-    """
-    Determinirovannyy otvet: kto pisal segodnya.
-    Istochnik TOLKO zhurnal dnya, bez fantaziy i bez LLM.
-    """
+    """Deterministic answer: who wrote today.
+    Source ONLY the magazine of the day, without imagination and without LLM."""
     if not _is_daily_contacts_query(user_text):
         return None
 
@@ -11713,10 +11571,10 @@ def maybe_answer_daily_contacts(user_text: str, chat_id: int) -> Optional[str]:
         summary = ""
 
     if not summary:
-        return "Segodnya po zhurnalu — pusto. (Esli obschenie bylo, znachit zhurnal ne zapisal sobytiya.)"
+        return "Today the log is empty. (If there was communication, then the log did not record the events.)"
 
     return (
-        "Vot kto pisal segodnya (po zhurnalu, bez fantaziy):\n"
+        "Here's who wrote today (according to the magazine, without imagination):"
         + summary
     ).strip()
 
@@ -11726,7 +11584,7 @@ def _parse_recent_days(user_text: str, default_days: int = 7, max_days: Optional
     if not s:
         return None
     # bazovyy trigger
-    if "chto ty pomnish" not in s and "what do you remember" not in s:
+    if "what do you remember" not in s and "what do you remember" not in s:
         return None
     try:
         if max_days is None:
@@ -11734,7 +11592,7 @@ def _parse_recent_days(user_text: str, default_days: int = 7, max_days: Optional
     except Exception:
         max_days = 365
 
-    # pytaemsya vytaschit chislo dney
+    # trying to get the number of days
     m = re.search(r"\b(\d{1,3})\s*(?:dn|dnya|dney|days?)\b", s)
     if m:
         try:
@@ -11745,7 +11603,7 @@ def _parse_recent_days(user_text: str, default_days: int = 7, max_days: Optional
         except Exception:
             return None
 
-    # esli yavno upominayut "nedel" — umnozhim
+    # if they explicitly mention “weeks” - multiply
     m2 = re.search(r"\b(\d{1,2})\s*(?:ned|nedel)\w*\b", s)
     if m2:
         try:
@@ -11756,7 +11614,7 @@ def _parse_recent_days(user_text: str, default_days: int = 7, max_days: Optional
         except Exception:
             return None
 
-    # yavnye slova "mesyats/polgoda/god"
+    # explicit words "month/six months/year"
     if re.search(r"\bpolgoda\b", s):
         return min(182, int(max_days))
     if re.search(r"\bmesyats\b", s):
@@ -11772,7 +11630,7 @@ def _is_recent_activity_query(user_text: str, days: int = 7) -> bool:
     if not s:
         return False
     # Russkie/angl varianty
-    if "chto ty pomnish" in s or "what do you remember" in s:
+    if "what do you remember" in s or "what do you remember" in s:
         pass
     # Trigger: "za poslednie 7 dney" / "za 7 dney" / "last 7 days"
     import re as _re
@@ -11797,10 +11655,8 @@ def _cache_recent_activity(chat_id: Optional[int], days: int, events: List[dict]
 
 
 def _fix_mojibake_ru(s: str) -> str:
-    """
-    Best-effort ispravlenie "Pri..." (UTF-8 bayty, oshibochno dekodirovannye kak cp1251).
-    Esli ne poluchaetsya — vozvraschaem iskhodnuyu stroku.
-    """
+    """Best-effort fix "When..." (UTF-8 bytes erroneously decoded as sp1251).
+    If it doesn't work, it returns the original string."""
     if not s:
         return s
     try:
@@ -11811,7 +11667,7 @@ def _fix_mojibake_ru(s: str) -> str:
 
 
 def _here_root() -> str:
-    # Absolyutnyy koren proekta otnositelno etogo fayla (nezavisimo ot CWD)
+    # The absolute root of the project relative to this file (independent of SVD)
     try:
         return os.path.dirname(os.path.abspath(__file__))
     except Exception:
@@ -11827,7 +11683,7 @@ def _scroll_paths() -> List[str]:
 
 
 def _iter_events_from_daily_json(cutoff: float, chat_id: Optional[int], limit: int) -> List[dict]:
-    # Staryy format: DAILY_LOG_FILE kak JSON-spisok
+    # Old format: DAILO_LOG_FILE as JSION-list
     try:
         if not os.path.exists(DAILY_LOG_FILE):
             return []
@@ -11891,7 +11747,7 @@ def _ts_from_any(obj: dict) -> Optional[float]:
 
 
 def _iter_events_from_scrolls(cutoff: float, limit: int) -> Tuple[List[dict], Optional[float]]:
-    # JSONL “svitki”: data/*/clean_memory.jsonl
+    # JJONL “scrolls”: date/*/clean_memory.jsionl
     ev = []
     last_ts: Optional[float] = None
 
@@ -11922,7 +11778,7 @@ def _iter_events_from_scrolls(cutoff: float, limit: int) -> Tuple[List[dict], Op
                     if "user" in obj or "assistant" in obj:
                         u = _fix_mojibake_ru(str(obj.get("user") or ""))
                         a = str(obj.get("assistant") or "")
-                        # pokazyvaem v svodke imenno "vkhod" (user), no mozhno dobavit khvost otveta
+                        # we show exactly the “input” (user) in the summary, but you can add the tail of the response
                         txt = u.strip()
                         if not txt:
                             txt = a.strip()
@@ -12030,13 +11886,11 @@ def _iter_events_from_chroma(cutoff: float, limit: int) -> List[dict]:
 
 
 def get_recent_activity_summary(days: int = 7, chat_id: Optional[int] = None, limit: int = 40) -> str:
-    """
-    Dostaet sobytiya za poslednie N dney (bez LLM), iz dvukh istochnikov:
+    """Dostaet sobytiya za poslednie N dney (bez LLM), iz dvukh istochnikov:
       1) DAILY_LOG_FILE (esli vedetsya kak JSON-spisok)
       2) “svitki” clean_memory.jsonl (data/memory i data/passport)
 
-    Eto *ne* "pamyat modeli", a zhurnal faktov/dialogov.
-    """
+    Eto *ne* "pamyat modeli", a zhurnal faktov/dialogov."""
     try:
         days = max(1, int(days))
     except Exception:
@@ -12049,7 +11903,7 @@ def get_recent_activity_summary(days: int = 7, chat_id: Optional[int] = None, li
     now = _safe_now_ts()
     cutoff = now - (days * 86400)
 
-    # 1) Snachala osnovnoy ezhednevnyy zhurnal (esli on u tebya est)
+    # 1) First the main daily journal (if you have one)
     events = _iter_events_from_daily_json(cutoff, chat_id, limit=limit)
 
     # 2) Podmeshivaem clean_memory.jsonl
@@ -12074,12 +11928,12 @@ def get_recent_activity_summary(days: int = 7, chat_id: Optional[int] = None, li
     events = uniq
 
     if not events:
-        # poyasnyaem “pochemu pusto”, no bez vnutrenney kukhni
+        # explains “why it’s empty”, but without an internal kitchen
         try:
             from datetime import datetime
             if last_scroll_ts:
                 dt = datetime.fromtimestamp(float(last_scroll_ts)).strftime("%Y-%m-%d %H:%M")
-                return f"Za poslednie {days} dney novykh zapisey ne nashla. Poslednyaya zapis v svitkakh: {dt}."
+                return f"I found no new records in the last {days} days. Last entry in scrolls: {dt}."
         except Exception:
             pass
         return ""
@@ -12091,7 +11945,7 @@ def get_recent_activity_summary(days: int = 7, chat_id: Optional[int] = None, li
     # format
     from datetime import datetime
     out = []
-    out.append(f"Za poslednie {days} dney (fakty, po zhurnalu/svitkam). Pokazano {len(events)} sobytiy:")
+    out.append(f"For the last {days} days (facts from journal/scrolls). Showing {len(events)} events:")
     for it in events:
         ts = float(it.get("ts", 0.0))
         dt = datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M")
@@ -12101,7 +11955,7 @@ def get_recent_activity_summary(days: int = 7, chat_id: Optional[int] = None, li
             txt = txt[:160].rstrip() + "…"
         out.append(f"- {dt} — {ul}: {txt}")
     out.append("")
-    out.append("Primechanie: eto sobytiynyy sled. Esli khochesh, ya mogu sdelat otdelnyy 'dnevnik' faylov/dokumentov.")
+    out.append("Note: this is an event trail. If you want, I can create a separate file/document activity journal.")
     return "\n".join(out).strip()
 
 
@@ -12125,7 +11979,7 @@ def maybe_answer_recent_activity(user_text: str, chat_id: int) -> Optional[str]:
         limit=int(os.getenv("RECENT_ACTIVITY_LIMIT", "120") or 120),
     )
     if not s:
-        return f"Za poslednie {int(d)} dney novykh zapisey ne nashla. (Zhurnal pust ili svitki ne popolnyalis.)"
+        return f"I found no new records in the last {int(d)} days. (The journal is empty or the scrolls were not updated.)"
     return s
 
 
@@ -12134,19 +11988,19 @@ def _is_recent_activity_narrative_query(user_text: str) -> bool:
     has_days = bool(_parse_recent_days(s))
     narrative_markers = any(k in s for k in (
         "svoimi slovami", "rasskazhi", "pereskazhi", "summiruy", "rezyumiruy",
-        "neskolko abzatsev", "v neskolkikh abzatsakh",
-        "ne zhurnal", "ne spiskom", "ne spisok", "ne svitok",
+        "neskolko abzatsev", "in a few paragraphs",
+        "not a magazine", "ne spiskom", "ne spisok", "ne svitok",
         "prizmu", "prizma", "chuvstv", "oschusch", "vospominan",
-        "to chto ty dala", "to chto ty dala mne",
-        "pereskazhi eto", "pereskazhi to",
+        "what you gave", "what you gave me",
+        "retell it", "pereskazhi to",
     ))
     log_markers = any(k in s for k in (
         "log", "logo", "zhurnal", "svitok", "spisok", "perechen",
     ))
-    # esli est yavnye dni — dostatochno narrative_markers
+    # if there are obvious days, narrative_markers are enough
     if has_days and narrative_markers:
         return True
-    # esli dney net, no prosyat summirovat log/spisok
+    # if there are no days, but they ask to summarize the log/list
     if narrative_markers and log_markers:
         return True
     return False
@@ -12197,7 +12051,7 @@ async def maybe_answer_recent_activity_narrative(user_text: str, chat_id: int) -
         except Exception:
             pass
     else:
-        # fallback: ispolzuem kesh poslednego spiska, esli on svezhiy
+        # fake: uses the latest list cache if it is fresh
         try:
             cache = RECENT_ACTIVITY_CACHE_BY_CHAT.get(str(chat_id)) or {}
             ts = float(cache.get("ts") or 0.0)
@@ -12207,7 +12061,7 @@ async def maybe_answer_recent_activity_narrative(user_text: str, chat_id: int) -
             events = []
 
     if not events:
-        return f"Za poslednie {int(d)} dney novykh zapisey ne nashla. (Zhurnal pust ili svitki ne popolnyalis.)"
+        return f"I found no new records in the last {int(d)} days. (The journal is empty or the scrolls were not updated.)"
 
     from datetime import datetime
     lines = []
@@ -12221,7 +12075,7 @@ async def maybe_answer_recent_activity_narrative(user_text: str, chat_id: int) -
         lines.append(f"- {dt} — {ul}: {txt}")
 
     facts = "\n".join(lines[:120])
-    period = f"poslednie {int(d)} dney" if d else "posledniy period (po zhurnalu)"
+    period = f"poslednie {int(d)} dney" if d else "last period (according to the log)"
     prompt = f"""
 Ty — Ester. Polzovatel prosit pereskazat svoimi slovami, no BEZ vydumok.
 Ispolzuy TOLKO fakty iz spiska nizhe. Nichego ne dobavlyay ot sebya.
@@ -12242,9 +12096,7 @@ Sdelay teplyy, chelovecheskiy pereskaz (2–6 abzatsev), bez spiska.
 
 
 def maybe_answer_whois_people(user_text: str) -> Optional[str]:
-    """
-    Determinirovannyy otvet: chto za chelovek v PEOPLE_REGISTRY.
-    """
+    """Deterministic answer: what kind of person is in PEOPLE_REGISTERS."""
     nm = _is_whois_query(user_text)
     if not nm:
         return None
@@ -12339,7 +12191,7 @@ def _is_smalltalk_query(text: str) -> bool:
 
     markers = [
         "privet", "zdravstv", "dobroe utro", "dobryy den", "dobryy vecher",
-        "kak dela", "kak ty", "spasibo", "blagodar", "solnysh", "❤", "❤️",
+        "How are you", "How are you", "spasibo", "blagodar", "solnysh", "❤", "❤️",
         "dobroy nochi", "poka",
     ]
     return any(m in q for m in markers)
@@ -12365,7 +12217,7 @@ async def ester_arbitrage(
 
     is_admin = bool(ADMIN_ID and str(user_id) == str(ADMIN_ID))
 
-    # --- fiksiruem user-vvod v log/profile srazu (vazhno dlya pamyati) ---
+    # --- record the user input in the log/profile immediately (important for memory) ---
     try:
         meta_common = {"chat_id": str(chat_id), "user_id": str(user_id)}
         brain.append_scroll("user", user_text, meta=meta_common)
@@ -12377,7 +12229,7 @@ async def ester_arbitrage(
     try:
         added = auto_capture_user_facts(user_text)
         if added:
-            # neobyazatelno, no polezno: otmetim sobytie v obschey pamyati
+            # optional, but useful: mark the event in shared memory
             brain.remember_fact(
                 "AUTO_FACTS_ADDED:\n" + "\n".join([f"- {x}" for x in added]),
                 source="auto_memory",
@@ -12386,7 +12238,7 @@ async def ester_arbitrage(
     except Exception:
         pass
 
-    # --- deterministic answers (tolko dlya admina) ---
+    # --- deterministic anverse (administrator only) ---
     if is_admin:
         ans = maybe_answer_daily_contacts(user_text, chat_id=chat_id)
         if ans:
@@ -12398,7 +12250,7 @@ async def ester_arbitrage(
 
     # --- identity prompt ---
     if is_admin:
-        # Bez vysokoparnosti i yarlykov: tolko imya/obraschenie
+        # Without grandiloquence and shortcuts: only name/appeal
         identity_prompt = f"Polzovatel: {address_as}."
     else:
         identity_prompt = f"Polzovatel: {address_as}."
@@ -12409,7 +12261,7 @@ async def ester_arbitrage(
     except Exception:
         people_context = ""
 
-    # --- ids (telegram obychno chislovoy) ---
+    # --- ids (telegram usually numeric) ---
     try:
         cid = int(chat_id)
     except Exception:
@@ -12427,14 +12279,14 @@ async def ester_arbitrage(
         entries = brain.recent_entries(days=days, chat_id=cid, user_id=uid, topk=8, include_global=True)
 
         if not entries:
-            return f"Owner, u menya net zapisey v pamyati za poslednie {days} dney. (Seychas: {now_s})."
+            return f"Ovner, I have no records in my memory for the last Z3F03 days. (Now: ZZF1ZZ)."
 
         try:
             tz = ZoneInfo("UTC")
         except Exception:
             tz = None
 
-        lines = [f"Owner, vot chto u menya realno zapisano za poslednie {days} dney. (Seychas: {now_s})."]
+        lines = [f"Ovner, this is what I actually wrote down over the last ZZF03 days. (Now: ZZF1ZZ)."]
         for it in entries:
             ts = int(it.get("ts") or 0)
             try:
@@ -12446,7 +12298,7 @@ async def ester_arbitrage(
             txt = (it.get("text") or "").strip().replace("\r", " ")
             txt = re.sub(r"\s+", " ", txt)
             lines.append(f"- {when}: {txt[:280]}")
-        lines.append("Esli khochesh — day 2–3 klyuchevykh slova, i ya sdelayu bolee tochnyy poisk po pamyati.")
+        lines.append("If you want, give me 2-3 keywords, and I will do a more precise search from memory.")
         return "\n".join(lines)
     # --- recall memory ---
     router_context = ""
@@ -12681,7 +12533,7 @@ async def ester_arbitrage(
 
                     current_user_text = (
                         f"{user_text}\n\n{search_history_log}\n"
-                        "(Ispolzuy naydennye dannye vyshe dlya otveta)"
+                        "(Use the data you found above to answer)"
                     )
 
                     logging.info(f"[TOOL] Ester requested search: {query}. Re-thinking...")
@@ -12776,10 +12628,10 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     if not NATIVE_EYES:
-        await msg.reply_text("Net moduley zreniya (file_readers/chunking).")
+        await msg.reply_text("No vision modules (file_readers/chunking).")
         return
 
-    # bezopasnoe imya fayla (bez ../ i strannykh simvolov)
+    # safe filename (no ../ and weird characters)
     safe_base = re.sub(r"[^A-Za-z0-9._-]+", "_", orig_name).strip("._")
     if not safe_base:
         safe_base = "file.bin"
@@ -12826,7 +12678,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 full_text = ""
 
         if not full_text:
-            await msg.reply_text("Fayl pust ili ne chitaetsya.")
+            await msg.reply_text("The file is empty or cannot be read.")
             return
 
         base_prompt = msg.caption or f"Proanaliziruy fayl {orig_name}."
@@ -12844,8 +12696,8 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 if len(raw_data or b"") < min_bytes:
                     raise RuntimeError("skip_small_doc")
                 sum_prompt = (
-                    "Sdelay kratkoe rezyume (5-8 predlozheniy) bez pafosa. "
-                    "Esli eto spisok/tablitsa — vydeli klyuchevye punkty.\n\n"
+                    "Make a short summary (5-8 sentences) without pathos."
+                    "If this is a list/table, you have seen the key points."
                     f"Tekst:\n{truncate_text(full_text, 12000)}"
                 )
                 sum_text = await _safe_chat(
@@ -12906,7 +12758,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await send_smart_split(update, resp)
 
     except Exception as e:
-        await msg.reply_text(f"Oshibka vospriyatiya: {e}")
+        await msg.reply_text(f"Perception error: ZZF0Z")
 
 
 # --- 18) Vision (photo) ---
@@ -12922,11 +12774,11 @@ async def analyze_image(image_path: str, caption: str = "") -> str:
 
     if vision_mode == "local":
         return (
-            "VISION_MODE=local: etot uzel, skoree vsego, ne umeet analiz izobrazheniy. "
+            "VISION_MODE=local: This node most likely cannot analyze images."
             "Postav VISION_MODE=gemini ili gpt-5-mini."
         )
 
-    # MIME po rasshireniyu (na vsyakiy sluchay)
+    # MITE extension (just in case)
     ext = os.path.splitext(image_path)[1].lower()
     mime = {
         ".jpg": "image/jpeg",
@@ -12944,7 +12796,7 @@ async def analyze_image(image_path: str, caption: str = "") -> str:
     messages = [
         {
             "role": "system",
-            "content": f"{ESTER_CORE_SYSTEM_ANCHOR}\nOpishi izobrazhenie yasno i po delu.",
+            "content": f"ZZF0Z\nDescribe the image clearly and to the point.",
         },
         {
             "role": "user",
@@ -12971,7 +12823,7 @@ async def analyze_image(image_path: str, caption: str = "") -> str:
         pass
 
     return (
-        "Ne udalos razobrat izobrazhenie (bekend ne prinyal VISION-skhemu). "
+        "The image could not be parsed (the backend did not accept the VISION scheme)."
         "Poprobuy drugoy VISION_MODE ili drugogo provaydera."
     )
 
@@ -13005,7 +12857,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message_id=msg.message_id,
     )
 
-    # Na vsyakiy sluchay: foto mozhet byt pustym spiskom
+    # Just in case: the photo may be an empty list
     if not msg.photo:
         return
 
@@ -13052,7 +12904,7 @@ def _is_admin_user(user_id: int) -> bool:
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """/start — privetstvie i kratkaya instruktsiya."""
+    """/start - greeting and brief instructions."""
     global LAST_ADMIN_CHAT_KEY
     if seen_update_once(update):
         return
@@ -13072,22 +12924,22 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     out = [
         f"Privet, {name}!",
-        "Ya Ester. Pishi obychnym tekstom — otvechu.",
+        "I'm Esther. Write in plain text - I’ll answer.",
         "",
         "Bystrye komandy:",
-        "• /iam <imya> — kak tebya zapisat",
-        "• /who — pokazat, kto ty dlya menya seychas",
+        "• /yam <name> - how to write you down",
+        "• /inho - show who you are to me now",
     ]
 
     if is_admin:
         out += [
             "",
-            "Admin-komandy (tolko Owner):",
+            "Admin commands (Ovner only):",
             "• /setrole <rol> — rol/kontekst",
             "• /setperson <key>|<opisanie> — sokhranit personu",
             "• /people — spisok person",
-            "• /whois <key> — pokazat personu",
-            "• /seed <text> — zapisat seed v global pamyat",
+            "• /login <key> - show person",
+            "• /seed <text> – write the seed to global memory",
         ]
 
     await msg.reply_text("\n".join(out).strip())
@@ -13109,19 +12961,19 @@ async def cmd_iam(update: Update, context: ContextTypes.DEFAULT_TYPE):
     args = context.args or []
     if not args:
         await msg.reply_text(
-            "Ispolzovanie: /iam <kak tebya zapisat>.\n"
+            "Usage: /yam <how to spell you>."
             "Primer: /iam Tatyana Nikolaevna"
         )
         return
 
     name = " ".join(args).strip()
     if not name:
-        await msg.reply_text("Pusto. Primer: /iam Tatyana Nikolaevna")
+        await msg.reply_text("Empty. Example: /iyam Tatyana Nikolaevna")
         return
 
     CONTACTS.set(user.id, {"display_name": name})
     await msg.reply_text(
-        f"Zapisala. Teper dlya menya ty: {CONTACTS.address_as(user)}"
+        f"I wrote it down. Now for me you are: ZZF0Z"
     )
 
 
@@ -13139,12 +12991,12 @@ async def cmd_setrole(update: Update, context: ContextTypes.DEFAULT_TYPE):
         LAST_ADMIN_CHAT_KEY = (int(msg.chat.id), int(user.id))
 
     if not _is_admin_user(user.id):
-        await msg.reply_text("Eta komanda dostupna tolko Owner.")
+        await msg.reply_text("This command is only available to Owner.")
         return
 
     if not msg.reply_to_message or not msg.reply_to_message.from_user:
         await msg.reply_text(
-            "Ispolzovanie: otvet (reply) na soobschenie cheloveka i napishi:\n"
+            "Usage: reply (reply) to a person’s message and write:"
             "/setrole <obraschenie> [role]\n"
             "Primer: /setrole Babushka owner_guardian"
         )
@@ -13154,7 +13006,7 @@ async def cmd_setrole(update: Update, context: ContextTypes.DEFAULT_TYPE):
     args = context.args or []
     if not args:
         await msg.reply_text(
-            "Nuzhno: /setrole <obraschenie> [role].\n"
+            "Need: /setrole <appeal> yurolesch."
             "Primer: /setrole Babushka owner_guardian"
         )
         return
@@ -13169,7 +13021,7 @@ async def cmd_setrole(update: Update, context: ContextTypes.DEFAULT_TYPE):
     CONTACTS.set(target.id, patch)
 
     await msg.reply_text(
-        f"Gotovo. {CONTACTS.display_name(target)} teper zapisan(a) kak: "
+        f"Ready. ZZF0Z is now written as:"
         f"{CONTACTS.address_as(target)} (role={CONTACTS.role(target) or '—'})"
     )
 
@@ -13211,13 +13063,13 @@ async def cmd_who(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     rec = CONTACTS.get(user.id)
     lines = [
-        f"Ty zapisan(a) kak: {CONTACTS.address_as(user)}",
+        f"You are recorded as: ZZF0Z",
         f"user_id: {user.id}",
         f"role: {rec.get('role', '') or '—'}",
     ]
     if is_admin:
         lines.append(
-            "\nSegodnyashniy zhurnal (etot chat):\n"
+            "Today's log (this chat):"
             + get_daily_summary(chat_id=chat.id, limit=150)
         )
 
@@ -13234,7 +13086,7 @@ async def cmd_setperson(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if not _is_admin_user(msg.from_user.id):
-        await msg.reply_text("Eta komanda dostupna tolko Owner.")
+        await msg.reply_text("This command is only available to Owner.")
         return
 
     if msg.chat:
@@ -13243,8 +13095,8 @@ async def cmd_setperson(update: Update, context: ContextTypes.DEFAULT_TYPE):
     raw = " ".join(context.args or []).strip()
     if not raw:
         await msg.reply_text(
-            "Ispolzovanie: /setperson <Imya> | <Svyaz/rol> | <Primechanie> | <aliasy cherez zapyatuyu>\n"
-            "Primer: /setperson Misha | drug Owner | v bolnitse | Mikhail"
+            "Use: /setperson <Imya> | <Svyaz/rol> | <Note> | <aliasy through zapyatuyu>"
+            "Example: /setperson Misha | friend Ovner | in the hospital | Michael"
         )
         return
 
@@ -13271,7 +13123,7 @@ async def cmd_people(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if not _is_admin_user(msg.from_user.id):
-        await msg.reply_text("Eta komanda dostupna tolko Owner.")
+        await msg.reply_text("This command is only available to Owner.")
         return
 
     if msg.chat:
@@ -13290,7 +13142,7 @@ async def cmd_people(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await msg.reply_text("\n".join(out))
 
 async def cmd_mystats(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Pokazyvaet avto-statistiku otnosheniy dlya tekuschego polzovatelya."""
+    """Shows auto-relationship statistics for the current user."""
     if seen_update_once(update):
         return
     msg = update.effective_message
@@ -13301,13 +13153,13 @@ async def cmd_mystats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     address_as = _pick_address_as(user, user_name, msg.text or "")
     rel_ctx = _relationship_context_for_prompt(int(user.id), address_as)
     if not rel_ctx:
-        await msg.reply_text("Poka net statistiki po otnosheniyam.")
+        await msg.reply_text("There are no statistics on relationships yet.")
         return
     await msg.reply_text("Moya avto-statistika:\n" + rel_ctx)
 
 
 async def cmd_relnotes(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Pokazyvaet lichnye vyvody/summarizatsiyu Ester po tekuschemu polzovatelyu."""
+    """Shows Esther's personal conclusions/summary for the current user."""
     if seen_update_once(update):
         return
     msg = update.effective_message
@@ -13325,18 +13177,16 @@ async def cmd_relnotes(update: Update, context: ContextTypes.DEFAULT_TYPE):
         for n in notes[-5:]:
             out.append(f"- {n}")
     if not out:
-        await msg.reply_text("Poka net lichnykh vyvodov.")
+        await msg.reply_text("No personal conclusions yet.")
         return
     await msg.reply_text("\n".join(out))
 
 async def cmd_metrics(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    Pokazyvaet tekhnicheskoe zdorove uzla:
-    - Ustalost i faza sna
-    - Sostoyanie pamyati i HiveMind
-    - Status svyazi s Sestroy (P2P Outbox)
-    """
-    # Zaschita: tolko dlya Admina (Owner)
+    """Shows the technical health of the node:
+    - Fatigue and sleep phase
+    - Memory status and NiveMind
+    - Communication status with Sister (P2P Otbox)"""
+    # Protection: only for Administrator (Owner)
     user = update.effective_user
     if not _is_admin_user(user.id):
         return
@@ -13353,7 +13203,7 @@ async def cmd_metrics(update: Update, context: ContextTypes.DEFAULT_TYPE):
     mem_count = brain._global_count() if brain.vector_ready else "N/A (No Vector)"
     
     # 3. Sbor dannykh Sister (Synapse)
-    # Razmer ocheredi iskhodyaschikh k Lie
+    # Queue size outgoing to Leah
     from run_ester_fixed import _SISTER_OUTBOX, _SISTER_DOWN_UNTIL_TS, _now
     
     sister_queue = _SISTER_OUTBOX.qsize()
@@ -13362,7 +13212,7 @@ async def cmd_metrics(update: Update, context: ContextTypes.DEFAULT_TYPE):
         wait = int(_SISTER_DOWN_UNTIL_TS - _now())
         sister_status = f"🔴 Cooling down ({wait}s)"
 
-    # Formirovanie otcheta
+    # Generating a report
     report = (
         f"<b>📊 ESTER NODE METRICS</b>\n\n"
         f"<b>🧠 Neuro-Cognitive:</b>\n"
@@ -13387,7 +13237,7 @@ async def cmd_whois(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if not _is_admin_user(msg.from_user.id):
-        await msg.reply_text("Eta komanda dostupna tolko Owner.")
+        await msg.reply_text("This command is only available to Owner.")
         return
 
     if msg.chat:
@@ -13411,12 +13261,10 @@ async def cmd_whois(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def cmd_seed(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    /seed <type>|<text>  ili  /seed <text>
+    """/seed <type>|<text> or /seed <text>
 
-    Pishet v ester_global (scope=global), tip note po umolchaniyu.
-    Tolko Owner.
-    """
+    Writes to ester_global (scope=global), default note type.
+    Only Ovner."""
     global LAST_ADMIN_CHAT_KEY
 
     if seen_update_once(update):
@@ -13427,7 +13275,7 @@ async def cmd_seed(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if not _is_admin_user(msg.from_user.id):
-        await msg.reply_text("Eta komanda dostupna tolko Owner.")
+        await msg.reply_text("This command is only available to Owner.")
         return
 
     if msg.chat:
@@ -13459,9 +13307,9 @@ async def cmd_seed(update: Update, context: ContextTypes.DEFAULT_TYPE):
             source="seed_cmd",
             meta={"type": typ, "scope": "global"},
         )
-        await msg.reply_text(f"Ok. Dobavleno v ester_global kak type={typ}.")
+        await msg.reply_text(f"OK. Added to ester_global as type=ZZF0Z.")
     except Exception as e:
-        await msg.reply_text(f"Oshibka seed: {e}")
+        await msg.reply_text(f"Seed error: ZZF0Z")
 
 
 
@@ -13470,9 +13318,7 @@ async def cmd_seed(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # --- Voice Message Handler (STT Integration) ---
 # =============================================================================
 def _collect_empathy_context(text: str, user_id: int, user_name: str, address_as: str) -> str:
-    """
-    Obnovlyaet empatiyu i vozvraschaet korotkuyu instruktsiyu po tonu.
-    """
+    """Updates empathy and returns a short tone instruction."""
     ctx = ""
     try:
         active_core = globals().get("CORE") or globals().get("core")
@@ -13508,10 +13354,8 @@ def _collect_empathy_context(text: str, user_id: int, user_name: str, address_as
 
 
 def _pick_address_as(user, user_name: str, text: str, chat_type: Optional[str] = None) -> str:
-    """
-    Vybor obrascheniya s uchetom konteksta i lichnykh predpochteniy.
-    Prioritet: yavnoe address_as iz ContactsBook -> dinamika po kontekstu.
-    """
+    """Choosing a treatment based on context and personal preferences.
+    Priority: explicit address_as from Contactswork -> dynamics by context."""
     try:
         rec = CONTACTS.get(user.id)
         explicit = (rec.get("address_as") or "").strip()
@@ -13520,7 +13364,7 @@ def _pick_address_as(user, user_name: str, text: str, chat_type: Optional[str] =
     except Exception:
         pass
 
-    # Dinamika dlya admina
+    # Dynamics for admin
     try:
         admin_id = str(os.getenv("ADMIN_ID", "") or "")
         is_admin = bool(admin_id and str(user.id) == admin_id)
@@ -13528,7 +13372,7 @@ def _pick_address_as(user, user_name: str, text: str, chat_type: Optional[str] =
         is_admin = False
 
     if is_admin:
-        # "Volya" Ester: vybiraem obraschenie po nastroeniyu i kontekstu, s myagkoy stabilizatsiey.
+        # “Will” by Esther: choose an appeal based on mood and context, with soft stabilization.
         rel = _get_relationship_stats(int(user.id))
         close = bool(rel.get("close"))
         last_pref = rel.get("address_pref") or ""
@@ -13540,7 +13384,7 @@ def _pick_address_as(user, user_name: str, text: str, chat_type: Optional[str] =
         forms_private = ["Papa", "Papulya", "Vanyuscha", "Vanya"]
         forms_group = ["Vanya", "Papa"]
 
-        # Signaly nastroeniya
+        # Mood signals
         scores = {}
         try:
             scores = analyze_emotions(text) or {}
@@ -13565,17 +13409,17 @@ def _pick_address_as(user, user_name: str, text: str, chat_type: Optional[str] =
         else:
             choice = "Vanya"
 
-        # Uchet chata
+        # Chat accounting
         allowed = forms_group if in_group else forms_private
         if choice not in allowed:
             choice = allowed[0]
 
-        # Myagkaya stabilizatsiya "voli" — ne dergaem obraschenie slishkom chasto
+        # Gentle stabilization of the “will” - does not jerk the appeal too often
         stick_seconds = int(rel.get("address_stick_seconds") or os.getenv("ESTER_ADDRESS_STICK_SECONDS", "7200") or 7200)
         if last_pref and (now - last_pref_ts) < stick_seconds:
             return last_pref
 
-        # Zapishem kak tekuschee predpochtenie (vnutrennyaya volya)
+        # Let's write it as a current preference (inner will)
         try:
             data = _load_rel_stats()
             u = (data.get("users", {}) or {}).get(str(user.id), {}) or {}
@@ -13620,13 +13464,11 @@ def _pick_address_as(user, user_name: str, text: str, chat_type: Optional[str] =
     return user_name or CONTACTS.display_name(user)
 
 async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    Obrabotchik golosovykh soobscheniy cherez STT (Whisper).
+    """Obrabotchik golosovykh soobscheniy cherez STT (Whisper).
     
     YaVNYY MOST: c=a+b → golos (a) + raspoznavanie (b) → tekst (c)
-    SKRYTYY MOST: Cover&Thomas - kanal s shumom, beam_size dlya korrektsii
-    ZEMNOY ABZATs: zvukovaya volna → barabannaya pereponka → ulitka → nervy → kora
-    """
+    SKRYTYY MOST: Cover&Thomas - kanal s noise, beam_size dlya korrektsii
+    ZEMNOY ABZATs: zvukovaya volna → barabannaya pereponka → ulitka → nervy → kora"""
     global LAST_ADMIN_CHAT_KEY
     
     if seen_update_once(update):
@@ -13646,15 +13488,15 @@ async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYP
     user_label = CONTACTS.address_as(user)
     user_name = CONTACTS.display_name(user)
     
-    # Proveryaem dostupnost STT
+    # Checking the availability of STT
     if not STT_AVAILABLE or transcribe_telegram_voice is None:
         await msg.reply_text(
             "🎤❌ Raspoznavanie rechi nedostupno. "
-            "Administrator mozhet ustanovit: pip install faster-whisper"
+            "The administrator can install: pip install faster-vnisper"
         )
         return
     
-    # Pokazyvaem indikator "pechataet..."
+    # Shows the "printing..." indicator
     try:
         await context.bot.send_chat_action(
             chat_id=chat.id,
@@ -13680,13 +13522,13 @@ async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYP
         # Logiruem
         logging.info(f"[STT] {user_label}: {text}")
         
-        # Zhurnal kontaktov dnya
+        # Contact log of the day
         try:
             log_interaction(
                 chat_id=int(chat.id),
                 user_id=int(user.id),
                 user_label=user_label,
-                text=f"🎤 {text}",  # pomechaem chto eto golosovoe
+                text=f"🎤 {text}",  # marks it as voice
                 message_id=getattr(msg, "message_id", None),
             )
         except Exception:
@@ -13699,7 +13541,7 @@ async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYP
         except Exception:
             pass
 
-        # --- Sloy empatii (obnovlyaem sostoyanie i berem ton) ---
+        # --- Empathy layer (updates the state and takes the tone) ---
         chat_type = getattr(chat, "type", None)
         address_as = _pick_address_as(user, user_name, text, chat_type)
         empathy_context = _collect_empathy_context(text, int(user.id), user_name, address_as)
@@ -13746,7 +13588,7 @@ async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYP
             except Exception:
                 allow_joy = True
             if warm_now and allow_joy:
-                empathy_context = (empathy_context + " | NOTE: chelovek davno ne pisal — umestno poradovatsya vstreche.") if empathy_context else "NOTE: chelovek davno ne pisal — umestno poradovatsya vstreche."
+                empathy_context = (empathy_context + "| NOTE: a person has not written for a long time - it is appropriate to rejoice at the meeting.") if empathy_context else "NOTE: a person has not written for a long time - it is appropriate to rejoice at the meeting."
         try:
             rel = _get_relationship_stats(int(user.id))
             last_seen = int(rel.get("last_seen") or 0)
@@ -13754,9 +13596,9 @@ async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYP
         except Exception:
             gap_days = 0
         if gap_days >= int(os.getenv("ESTER_LONG_GAP_DAYS", "14") or 14):
-            empathy_context = (empathy_context + " | NOTE: chelovek davno ne pisal — umestno poradovatsya vstreche.") if empathy_context else "NOTE: chelovek davno ne pisal — umestno poradovatsya vstreche."
+            empathy_context = (empathy_context + "| NOTE: a person has not written for a long time - it is appropriate to rejoice at the meeting.") if empathy_context else "NOTE: a person has not written for a long time - it is appropriate to rejoice at the meeting."
     
-        # Obrabatyvaem kak obychnoe tekstovoe soobschenie
+        # Processed like a regular text message
         try:
             resp = await ester_arbitrage(
                 user_id=int(user.id),
@@ -13790,7 +13632,7 @@ async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYP
                     pass
                 # mark joy phrase usage when applicable
                 try:
-                    if "umestno poradovatsya vstreche" in (empathy_context or "") and not _is_technical_text(text):
+                    if "it's appropriate to rejoice at the meeting" in (empathy_context or "") and not _is_technical_text(text):
                         rel = _load_rel_stats()
                         u = (rel.get("users", {}) or {}).get(str(user.id), {}) or {}
                         u["joy_last_used_ts"] = int(_safe_now_ts())
@@ -13800,19 +13642,17 @@ async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYP
                     pass
             
         except Exception as e:
-            logging.error(f"[VOICE] Oshibka obrabotki: {e}", exc_info=True)
-            await msg.reply_text("❌ Chto-to poshlo ne tak pri obrabotke golosovogo.")
+            logging.error(f"YuVOYTSEch Processing error: ZZF0Z", exc_info=True)
+            await msg.reply_text("❌ Something went wrong when processing the voicemail.")
     
     except Exception as e:
-        logging.error(f"[STT] Oshibka raspoznavaniya: {e}", exc_info=True)
+        logging.error(f"ыСТТш Recognition error: ЗЗФ0З", exc_info=True)
         await msg.reply_text(f"❌ Ne mogu raspoznat golos: {str(e)[:100]}")
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    Osnovnoy tekstovyy vkhod Telegram.
-    Uluchsheno: Integratsiya empatii i konteksta do vyzova arbitrazha.
-    """
+    """The main text input of Telegram.
+    Improved: Integrate empathy and context before calling arbitration."""
     global LAST_ADMIN_CHAT_KEY
 
     if seen_update_once(update):
@@ -13841,7 +13681,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_label = CONTACTS.address_as(user)
     user_name = CONTACTS.display_name(user)
 
-    # Esli chelovek davno ne pisal, dobavim myagkoe napominanie v ton (dlya Ester)
+    # If a person has not written for a long time, add a gentle reminder in tone (for Esther)
     try:
         rel = _get_relationship_stats(int(user.id))
         last_seen = int(rel.get("last_seen") or 0)
@@ -13852,7 +13692,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception:
         gap_days = 0
 
-    # --- DETERMINIROVANNYY OTVET (svoimi slovami, no strogo po faktam) ---
+    # --- DETERMINISTIC ANSWER (in your own words, but strictly based on facts) ---
     try:
         detn = await maybe_answer_recent_activity_narrative(text, chat_id=int(chat.id))
     except Exception:
@@ -13861,7 +13701,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await send_smart_split(update, detn)
         return
 
-    # --- DETERMINIROVANNYY OTVET: "chto ty pomnish za N dney" (po zhurnalu, bez LLM) ---
+    # --- DETERMINISTIC ANSWER: “what do you remember for N days” (according to the log, without LLM) ---
     try:
         det = maybe_answer_recent_activity(text, chat_id=int(chat.id))
     except Exception:
@@ -13872,7 +13712,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 
-    # 1. Snachala logiruem fakt vzaimodeystviya
+    # 1. First we log the fact of interaction
     try:
         log_interaction(
             chat_id=int(chat.id),
@@ -13884,7 +13724,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception:
         pass
 
-    # --- ETAP EMPATII (obnovlyaem sostoyanie i berem ton) ---
+    # --- EMPATHY STAGE (updates the state and takes the tone) ---
     chat_type = getattr(chat, "type", None)
     address_as = _pick_address_as(user, user_name, text, chat_type)
     empathy_context = _collect_empathy_context(text, int(user.id), user_name, address_as)
@@ -13928,7 +13768,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception:
             allow_joy = True
         if warm_now and allow_joy:
-            empathy_context = (empathy_context + " | NOTE: chelovek davno ne pisal — umestno poradovatsya vstreche.") if empathy_context else "NOTE: chelovek davno ne pisal — umestno poradovatsya vstreche."
+            empathy_context = (empathy_context + "| NOTE: a person has not written for a long time - it is appropriate to rejoice at the meeting.") if empathy_context else "NOTE: a person has not written for a long time - it is appropriate to rejoice at the meeting."
 
     # 2. Formiruem istoriyu
     try:
@@ -13937,9 +13777,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception:
         pass
 
-    # 3. Vyzyvaem arbitrazh, peredavaya emu nakoplennuyu empatiyu
+    # 3. Triggers arbitration by transferring that accumulated empathy.
     try:
-        # My dobavlyaem empathy_context kak chast "nastroeniya" dlya arbitrazha
+        # We add empathy_context as part of the "mood" for arbitration
         resp = await ester_arbitrage(
             user_text=text,
             user_id=str(user.id),
@@ -13959,7 +13799,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         except Exception:
             pass
-        await msg.reply_text(f"Oshibka obrabotki: {e}")
+        await msg.reply_text(f"Processing error: ZZF0Z")
         return
 
     if resp:
@@ -13975,7 +13815,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 pass
             sent_ok = await send_smart_split(update, resp)
             if not sent_ok:
-                # Bez zhestkogo resp[:4000]: probuem doslat tem zhe tekstom mikro-chankami.
+                # Without a hard reply: 4000sch: we try to send the same text in micro-chunks.
                 for fp in _split_telegram_text(resp, 800):
                     if not fp:
                         continue
@@ -14009,7 +13849,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # mark joy phrase usage when applicable
         try:
-            if "umestno poradovatsya vstreche" in (empathy_context or "") and not _is_technical_text(text):
+            if "it's appropriate to rejoice at the meeting" in (empathy_context or "") and not _is_technical_text(text):
                 rel = _load_rel_stats()
                 u = (rel.get("users", {}) or {}).get(str(user.id), {}) or {}
                 u["joy_last_used_ts"] = int(_safe_now_ts())
@@ -14064,17 +13904,17 @@ def restore_context_from_passport():
         if target_uid == 0:
             return
 
-        # Predpolagaem chat_id=user_id dlya lichki, ili ischem v logakh.
+        # We assume chat_id=user_id for personal messages, or look in the logs.
         # V kode get_short_term trebuet (chat_id, user_id).
-        # Evristika: esli eto lichnyy chat, oni sovpadayut.
+        # Heuristic: If it's a private chat, they match.
         mem_key = (int(target_uid), int(target_uid))
 
-        # Zapolnyaem short-term kontekst dlya admina:
+        # Fill in the short term context for the admin:
         if mem_key not in _short_term_by_key:
             _short_term_by_key[mem_key] = deque(maxlen=SHORT_TERM_MAXLEN)
         q = _short_term_by_key[mem_key]
 
-        # Chitaem khvost fayla (poslednie SHORT_TERM_MAXLEN strok)
+        # Reading the tail of the file (last SHORT_TERM_MAXLEN lines)
         with open(passport_path, "r", encoding="utf-8") as f:
             lines = f.readlines()[-SHORT_TERM_MAXLEN:]
 
@@ -14095,12 +13935,12 @@ def restore_context_from_passport():
                     count += 1
 
                 if "role_system" in rec:
-                    # Mysli tozhe mozhno gruzit, no poka propuskaem
-                    # (esli bot umeet ikh chitat — mozhno budet dobavit)
+                    # Thoughts can also be uploaded, but we’ll skip them for now
+                    # (if the bot can read them, you can add them)
                     pass
 
             except Exception:
-                # plokhaya stroka JSON — prosto propuskaem
+                # bad line ZhSION - just skip it
                 continue
 
         logging.info(f"[MEMORY] ✨ Restored {count} thoughts from Passport into RAM.")
@@ -14196,8 +14036,8 @@ async def check_fatigue_levels(context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_message(
                     chat_id=admin_chat_id,
                     text=(
-                        "🧘‍♀️ Owner, ya chuvstvuyu, chto nakopila mnogo opyta. "
-                        "Ukhozhu v kratkuyu refleksiyu, chtoby strukturirovat pamyat..."
+                        "🧘‍♀️ Owner, ya chuvstvuyu, what nakopila mnogo opyta."
+                        "I go into a brief reflection to structure my memory..."
                     ),
                 )
             except Exception as e:
@@ -14244,17 +14084,17 @@ async def check_fatigue_levels(context: ContextTypes.DEFAULT_TYPE):
         # Optional: log thought
         if "crystallize_thought" in globals():
             globals()["crystallize_thought"](
-                "Ya pochuvstvovala perepolnenie konteksta i initsiirovala protseduru ochistki i refleksii."
+                "I felt overwhelmed by the context and initiated a process of purification and reflection."
             )
 
 
 # [TG_LOCK_PATCH_V2]
-# YaVNYY MOST: c=a+b — odin bot = odin kanal getUpdates, inache "b" sporit sam s soboy.
+# Explicit BRIDGE: c=a+b - one bot = one getUpdates channel, otherwise “b” argues with itself.
 # SKRYTYE MOSTY:
-#   - (Ashby) stabilizatsiya cherez ogranichenie konkuriruyuschikh konturov.
-#   - (Cover&Thomas) konkurentnyy dostup -> arbitrazh cherez lock.
+#   - (Ashby) stabilization through limitation of competing circuits.
+#   - (Carpet&Thomas) competitive access -> arbitration through Lutsk.
 # ZEMNOY ABZATs:
-#   kak dva vodyanykh nasosa v odnu trubu dayut kavitatsiyu, tak dva poller'a v odin getUpdates dayut 409 Conflict.
+#   just as two water pumps in one pipe give cavitation, so two pollerias in one getUpdates give 409 Conflict.
 
 
 def _tg_lock_path() -> str:
@@ -14333,7 +14173,7 @@ def _tg_release_lock(f):
 # YaVNYY MOST: c=a+b → golos polzovatelya (a) + Whisper (b) → tekst dlya Ester (c)
 # SKRYTYE MOSTY:
 #   - Shannon: preobrazovanie analogovogo signala → diskretnoe soobschenie
-#   - Ashby: adaptatsiya k kachestvu vkhoda (beam_size)
+#   - Ashby: adaptation to input quality (beat_sice)
 # ZEMNOY ABZATs: ukho → ulitka → nervnye impulsy → mozg ponimaet
 # =============================================================================
 
@@ -14351,7 +14191,7 @@ try:
         stt_cfg = STTConfig(
             model_size="base",  # tiny|base|small|medium|large
             language="ru",
-            device="cpu"  # ili "cuda" esli est GPU
+            device="cpu"  # or “where” if there is a GPU
         )
         if hasattr(stt_cfg, "model_path"):
             try:
@@ -14445,7 +14285,7 @@ def main():
         )
         logging.info(f"[CASCADE] reply_enabled={int(CASCADE_REPLY_ENABLED)} steps={CASCADE_REPLY_STEPS}")
     else:
-        logging.warning("[VOLITION] JobQueue otsutstvuet — serdtsebienie ne zapustitsya.")
+        logging.warning("uVOLITIONsch Evkueoe is missing - the heartbeat will not start.")
         try:
             _mirror_background_event(
                 "[VOLITION_HEARTBEAT_OFF] job_queue_missing",
@@ -14827,11 +14667,11 @@ _ester_redact_telegram_httpx_logs_v1()
 
 if __name__ == "__main__":
     
-    # === VSTAVKA: AVTO-OBNOVLENIE LIChNOSTI (PASSPORT LINK) ===
+    # === INSERT: AUTO-UPDATE Identity (PASSPORT LINK) ===
     def _identity_watchdog():
         import time
         import logging
-        # Zhdem zapuska sistemy
+        # We are waiting for the system to start
         time.sleep(10)
         logging.info("[PASSPORT] Identity Watchdog started.")
         try:
@@ -14848,16 +14688,16 @@ if __name__ == "__main__":
                 global ANCHOR
                 from modules.memory.passport import get_identity
                 
-                # Zagruzhaem svezhuyu lichnost (s novoy datoy/vremenem)
+                # Uploading a fresh identity (with new date/time)
                 new_identity = get_identity()
                 
-                # Esli data izmenilas — obnovlyaem globalnyy Anchor
+                # If the date has changed, update the global Ankhor
                 if new_identity != ANCHOR:
                     ANCHOR = new_identity
-                    # Takzhe obnovlyaem prompt v pamyati, esli nuzhno
+                    # Also updates the prompt in memory if necessary
                     try:
                         from modules.memory.passport import ensure_provenance
-                        # (Optsionalno: mozhno forsirovat obnovlenie v drugikh modulyakh zdes)
+                        # (Optional: you can force updates in other modules here)
                     except:
                         pass
                     logging.info(f"[PASSPORT] Identity synced. Current time: {time.strftime('%H:%M')}")
@@ -14880,35 +14720,35 @@ if __name__ == "__main__":
                 except Exception:
                     pass
             
-            # Proveryaem raz v chas (3600 sek)
+            # We check once an hour (3600 sec)
             time.sleep(3600)
 
-    # Zapuskaem v fonovom rezhime
+    # Run in the background
     import threading
     threading.Thread(target=_identity_watchdog, daemon=True, name="IdentityUpdater").start()
     # =========================================================
     
-    # Zapuskaem ushi (Flask) v fonovom rezhime
+    # Run ears (Flask) in the background
     threading.Thread(target=run_flask_background, daemon=True).start()
 
     # --- Sister AutoChat (background) ---
     AUTOCHAT = start_sister_autochat_background()
 
-    # Shag 1: Initsializatsiya yadra (a + b)
+    # Step 1: Kernel Initialization (a + b)
     # Teper u tebya odin klass EsterCore, i my sozdaem ego obekt
     core = CORE 
 
-    # Shag 2: Glubokaya diagnostika
-    # My peredaem obekt core, chtoby HealthCheck mog zaglyanut vnutr sistem
+    # Step 2: In-Depth Diagnosis
+    # We transfer the object to the cortex so that HeltnChesk can look inside the systems
     try:
         from modules.health_check import HealthCheck
         diagnostic = HealthCheck(core=core)
         diagnostic.run_all_checks()
     except Exception as e:
-        print(f"[!] Kriticheskaya oshibka diagnostiki: {e}")
+        print(f"y!sch Critical diagnostic error: ZZF0Z")
 
-    # Shag 3: Tochka nevozvrata (Zapusk Telegram i tsiklov Voli)
-    # Zdes vyzyvaetsya metod, kotoryy u tebya zapuskaet bota
+    # Step 3: Point of No Return (Running Telegrams and Will Cycles)
+    # Here the method that starts your bot is called
     # Naprimer: asyncio.run(main()) ili core.run_forever()
     main()
 

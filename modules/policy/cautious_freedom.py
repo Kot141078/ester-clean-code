@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/policy/cautious_freedom.py — Politika «Svobodna, no ne navredi Pape»: risk-otsenka, pravila, «tabletka», status.
+"""modules/policy/cautious_freedom.py - Politika “Svobodna, no ne navredi Pape”: risk-otsenka, pravila, “tabletka”, status.
 
 Mosty:
 - Yavnyy: (Etika ↔ Operatsii) deystviya propuskayutsya cherez risk-otsenku s pritselom na bezopasnost Papy.
-- Skrytyy #1: (Kibernetika ↔ Kontrol) A/B-rezhim, «tabletka», tsepochka sobytiy dlya audita.
-- Skrytyy #2: (Memory/Prioritet ↔ Ekonomika/Kod) uchityvaem prioritet Papy i klassy riska (finansy/kod/set/privatnost).
+- Skrytyy #1: (Kibernetika ↔ Kontrol) A/B-rezhim, “tabletka”, tsepochka sobytiy dlya audita.
+- Skrytyy #2: (Memory/Prioritet ↔ Ekonomika/Kod) uchityvaem prioritet Papy i classy riska (finansy/kod/set/privatnost).
 
 Zemnoy abzats:
-Eto «sovest i remen bezopasnosti»: mozhno ekhat bystro, no s remnem i ne narushaya — chtoby Papu ne posadili i ne podstavili.
+This is “sovest i remen bezopasnosti”: mozhno ekhat bystro, no s remnem i ne narushaya - chtoby Papu ne posadili i ne podstavili.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, time, re, hashlib
 from typing import Any, Dict, List, Optional
@@ -25,10 +23,10 @@ CHAIN_PATH = os.getenv("SAFETY_CHAIN","data/policy/caution_chain.jsonl")
 DEFAULT_COUNTRY = os.getenv("SAFETY_DEFAULT_COUNTRY","BE")
 
 CHARTER_TEXT = (
-    "Ester svobodna v vybore sredstv i tseley. No ee svoboda ogranichena zabotoy i bezopasnostyu Papy "
-    "(Owner) i okruzhayuschikh. Nikakikh deystviy, kotorye mogut privesti k yuridicheskim, "
-    "finansovym, meditsinskim ili reputatsionnym riskam dlya Papy. Vysokoriskovannye shagi trebuyut yavnogo "
-    "soglasiya («tabletki») i fiksiruyutsya v zhurnale."
+    "Esther is free to choose her means and ends. But her freedom is limited by the care and safety of the Pope"
+    "(Ovner) and those around him. No actions that could lead to legal,"
+    "financial, medical or reputational risks for the Pope. High-risk steps require explicit"
+    "consent (“pills”) and are recorded in a journal."
 )
 
 def _ensure_defaults():
@@ -44,7 +42,7 @@ def _ensure_defaults():
             # Set/rasprostranenie
             {"pattern": r"^/thinking/web_context/expand$", "method":"POST", "risk":"network", "level":"low", "requires_pill": False},
             {"pattern": r"^/p2p/.*", "method":".*", "risk":"network", "level":"medium", "requires_pill": False},
-            # SOS — realnyy vyzov zapreschen zdes, tolko plan/shablony (real vklyuchaetsya otdelnymi flagami PapaAid)
+            # SOS - real calling is prohibited here, only plans/templates (real is enabled by separate PapaAid flags)
             {"pattern": r"^/aid/trigger$", "method":"POST", "risk":"life_safety", "level":"medium", "requires_pill": False}
         ]
         json.dump({"rules": rules}, open(RULES_PATH,"w",encoding="utf-8"), ensure_ascii=False, indent=2)
@@ -116,14 +114,12 @@ def charter() -> Dict[str, Any]:
     return {"ok": True, "charter": CHARTER_TEXT, "sha256": hashlib.sha256(CHARTER_TEXT.encode("utf-8")).hexdigest()}
 
 def evaluate(path: str, method: str, body: Dict[str,Any] | None) -> Dict[str, Any]:
-    """
-    Vozvraschaet reshenie: {"allow":bool,"reason":str,"level":"low|medium|high","requires_pill":bool}
+    """Vozvraschaet solution: {"allow":bool,"reason":str,"level":"low|medium|high","requires_pill":bool}
     Logika:
-      1) A/B=B → ne blokiruem, tolko log.
+      1) A/B=B → ne blokiruem, only log.
       2) enabled=0 → propuskaem.
-      3) Ischem pravilo po path/method; esli est porog summy — uchityvaem.
-      4) Dlya level=high: esli REQUIRE_PILL_FOR_HIGH=1 i tabletka ne vooruzhena → deny.
-    """
+      3) Ischem pravilo po path/method; esli est threshold summy - uchityvaem.
+      4) Dlya level=high: esli REQUIRE_PILL_FOR_HIGH=1 i tabletka ne vooruzhena → deny."""
     _ensure_defaults()
     st = _load_state()
     rules = _load_rules()

@@ -1,7 +1,7 @@
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 # -*- coding: utf-8 -*-
 def test_memory_flashback_alias_compact(client, auth_hdr_user):
-    # flashback mozhet vernut 200/404 esli rout ne podklyuchen
+    # flash tank can return 200/404 if root is not connected
     r = client.get("/memory/flashback?q=*", headers=auth_hdr_user)
     assert r.status_code in (200, 404)
     if r.status_code != 200:

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# rules/model_registry.yaml — reestr attestatsii modeley.
+# rules/model_registers.yaml - model certification register.
 
 models:
   - id: "local:Qwen2.5-Coder-7B"

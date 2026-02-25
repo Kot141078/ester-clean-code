@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# R2/scripts/r2_ingest_smoke.sh — obertka smouka R2 dlya *nix
-# Mosty: (Yavnyy) Enderton — proveryaemye predikaty; (Skrytye) Ashbi — prostoy regulyator; Cover&Thomas — minimum nablyudeniy.
-# Zemnoy abzats: gonyaet CLI po lokalnym fiksturam file://, bezopasno dlya CI.
+# P2/skripts/p2_ingest_stoke.sh - P2 smoke wrapper for *them
+# Bridges: (Explicit) Enderton - verifiable predicates; (Hidden) Ashby is a simple regulator; Carpet & Thomas - minimum observations.
+# Earthly paragraph: drives CLI through local fixtures file://, safe for SI.
 # c=a+b
 
 set -euo pipefail

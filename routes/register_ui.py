@@ -1,36 +1,34 @@
 # -*- coding: utf-8 -*-
-"""
-routes/register_ui.py - agregator UI-blyuprintov (komplementaren k app._register_routes i register_all.py).
+"""routes/register_ui.py - agregator UI-blyuprintov (komplementaren k app._register_routes i register_all.py).
 
-Modul otvechaet za registratsiyu spetsifichnykh dlya UI marshrutov (blueprints),
+Modul otvechaet za registratsiyu spetsifichnykh dlya UI routes (blueprints),
 garantiruya ikh dobavlenie tolko v tom sluchae, esli oni esche ne suschestvuyut v prilozhenii.
 
-Istoricheskaya spravka:
+Istoricheskaya reference:
 Ranee etot modul sluzhil sloem sovmestimosti dlya ustarevshikh vyzovov v app.py,
-perenapravlyaya vyzov `register_all_ui` na `register_all_routes`. Eto obespechivalo
+perenapravlyaya vyzov `register_all_ui` na `register_all_routes`. This obespechivalo
 odinakovyy rezultat pri raznykh putyakh initsializatsii i vystupalo mostom mezhdu
 arkhitekturoy i sovmestimostyu.
 
 Tekuschaya realizatsiya:
 Teper modul vypolnyaet tochechnuyu registratsiyu UI-marshrutov, proveryaya nalichie
-tochnogo sovpadeniya pravila pered dobavleniem.
+exactly sovpadeniya pravila pered dobavleniem.
 
 Puti, kotorye dobavlyayutsya pri otsutstvii (TOChNOE sovpadenie pravila!):
-  • /chat/telegram        (routes.telegram_feed_ui_routes.bp)
-  • /tg/ctrl/ui           (routes.telegram_control_ui_routes.bp)
-  • /routes_index.html    (routes.routes_index.bp_routes_index)
+  • /chat/telegram (routes.telegram_feed_ui_routes.bp)
+  • /tg/ctrl/ui (routes.telegram_control_ui_routes.bp)
+  • /routes_index.html (routes.routes_index.bp_routes_index)
 
 Mosty:
-- Yavnyy: (UI ↔ Veb-server) bezopasnaya tochechnaya registratsiya UI-marshrutov bez dublirovaniya.
-- Skrytyy #1: (Sovmestimost ↔ Arkhitektura) modul abstragiruet razlichiya putey initsializatsii.
+- Yavnyy: (UI ↔ Web-server) bezopasnaya tochechnaya registratsiya UI-marshrutov bez dublirovaniya.
+- Skrytyy #1: (Sovmestimost ↔ Arkhitektura) modul abstract razlichiya putey initsializatsii.
 - Skrytyy #2: (Logika ↔ Kontrakty) strogaya proverka tochnogo sovpadeniya URL-pravil isklyuchaet lozhnye srabatyvaniya.
 
 Zemnoy abzats:
-Dumay o module kak o «patch-paneli» v stoyke: soedinyaem tolko nuzhnye porty i ne tseplyaemsya za pokhozhie,
-isklyuchaya sluchaynye petli. Registriruem UI, esli v karte marshrutov net tochnogo sovpadeniya - i vse rabotaet prozrachno.
+Dumay o module kak o “patch-paneli” v stoyke: soedinyaem tolko nuzhnye porty i ne tseplyaemsya za pokhozhie,
+isklyuchaya sluchaynye petli. Registriruem UI, esli v karte routes net tochnogo sovpadeniya - i vse rabotaet prozrachno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any
@@ -38,10 +36,8 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def _have_exact_rule(app, rule_exact: str) -> bool:
-    """
-    Proveryaet nalichie tochnogo pravila (URL rule) v prilozhenii.
-    Sravnenie proiskhodit bez ucheta zavershayuschego slesha.
-    """
+    """Checks the presence of the exact rule (URL rule) in the application.
+    The comparison takes place without taking into account the trailing slash."""
     try:
         want = rule_exact.rstrip("/")
         for r in app.url_map.iter_rules():  # type: ignore[attr-defined]
@@ -53,16 +49,14 @@ def _have_exact_rule(app, rule_exact: str) -> bool:
 
 
 def register_all_ui(app) -> None:
-    """
-    Registriruet UI-blyuprinty, esli sootvetstvuyuschie marshruty otsutstvuyut.
-    """
+    """Registers UI blueprints if corresponding routes are missing."""
     # /chat/telegram
     if not _have_exact_rule(app, "/chat/telegram"):
         try:
             from routes.telegram_feed_ui_routes import bp as bp_feed  # type: ignore
             app.register_blueprint(bp_feed)
         except Exception:
-            # Zaschischaem osnovnoy potok - UI neobyazatelnyy.
+            # Protects the main thread - UI is optional.
             pass
 
     # /tg/ctrl/ui
@@ -87,7 +81,7 @@ __all__ = ["register_all_ui"]
 
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
-# zaglushka dlya register_ui: poka net bp/router/register_*_routes
+# stub for register_oh: no power supply/router/register_*_rutes yet
 def register(app):
     return True
 

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/affect_reflect.py — prioritezatsiya refleksii po emotsiyam (affect-aware).
+"""modules/thinking/affect_reflect.py - prioritezatsiya reflection po emotsiyam (affect-aware).
 
 Mosty:
-- Yavnyy: (Emotsii ↔ Refleksiya) zapisi s vysokim affektom poluchayut bolshiy ves dlya «short reflection».
+- Yavnyy: (Emotsii ↔ Refleksiya) zapisi s vysokim affektom poluchayut bolshiy ves dlya “short reflection”.
 - Skrytyy #1: (Memory ↔ Poisk) zabiraem poslednie zapisi cherez flashback/poisk.
 - Skrytyy #2: (Volya ↔ Plan) vydaem spisok prioritetov i (opts.) initsiiruem refleksiyu.
 
 Zemnoy abzats:
-Eto kak «signal trevogi»: esli zapis goryachaya ili emotsionalnaya — snachala dumaem o ney.
+Eto kak “signal alarm”: esli zapis goryachaya ili emotsionalnaya - snachala dumaem o ney.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from typing import Any, Dict, List, Tuple
@@ -33,7 +31,7 @@ def _flashback(limit: int=200)->List[Dict[str,Any]]:
 
 def prioritize(limit: int=200, topk: int=20)->Dict[str,Any]:
     items=_flashback(limit)
-    # ozhidaem polya meta.affect (0..1) ili meta.emotion.score; inache 0.0
+    # expect fields meta.affect (0..1) or meta.emotion.quarrel; otherwise 0.0
     scored=[]
     for it in items:
         meta=it.get("meta") or {}

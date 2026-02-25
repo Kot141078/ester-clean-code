@@ -1,29 +1,27 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/capability_registry.py — inventarizatsiya i reestr vozmozhnostey Ester (routy, deystviya, rasshireniya, flagi).
+"""modules/self/capability_registry.py - inventarizatsiya i reestr vozmozhnostey Ester (routy, deystviya, rashirniya, flagi).
 
 API:
-  • snapshot(app=None) -> dict        # poluchit aktualnuyu kartu vozmozhnostey
-  • register_capability(name, meta)   # yavnaya registratsiya iz novykh moduley (optsionalno)
-  • counters() -> dict                # metriki
+  • snapshot(app=None) -> dict # poluchit aktualnuyu kartu vozmozhnostey
+  • register_capability(name, meta) # yavnaya registratsiya iz novykh moduley (optsionalno)
+  • counters() -> dict # metrics
 
 Mosty:
-- Yavnyy: (Myshlenie ↔ Samopoznanie) predostavlyaem «kartu sebya» dlya voli/planirovschika.
-- Skrytyy #1: (Kibernetika ↔ Kontrol) flagi A/B i primenennye rasshireniya vidny i proveryaemy.
+- Yavnyy: (Myshlenie ↔ Samopoznanie) predostavlyaem “kartu sebya” dlya voli/planirovschika.
+- Skrytyy #1: (Kibernetika ↔ Kontrol) flagi A/B i primenennye rashirniya vidny i proveryaemy.
 - Skrytyy #2: (Infoteoriya ↔ Audit) zapis snapshota v fayl s sha256 i vremenem — osnova vosproizvodimosti.
 
 Zemnoy abzats:
-Eto kak inventarnaya vedomost: chto podklyucheno, kakie rychagi dostupny, kakie moduli zagruzheny — v odnom meste.
+Eto kak inventarnaya vedomost: chto podklyucheno, kakie rychagi dostupny, kakie moduli zagruzheny - v odnom meste.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import hashlib, json, os, time
 from typing import Any, Dict, List, Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-_REG: Dict[str, Dict[str, Any]] = {}  # yavnye registratsii kapabiliti
+_REG: Dict[str, Dict[str, Any]] = {}  # explicit capacity registrations
 _CNT = {"snapshots_total": 0}
 
 def _sha256(obj: Any) -> str:

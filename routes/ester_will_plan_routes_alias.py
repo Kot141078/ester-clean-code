@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ester_will_plan_routes_alias.py
+"""routes/ester_will_plan_routes_alias.py
 
 GET /ester/will/plan
 
-Naznachenie:
+Name:
 - Dat cheloveku i samoy Ester strukturirovannyy plan zadach ot modulya voli.
 - Plan stroitsya na osnove vnutrennikh endpointov:
   /ester/selfcheck, /ester/memory/status, /ester/will/status
 
-Invarianty:
+Invariance:
 - Tolko chtenie, bez zapuska fonovykh deystviy.
-- Ispolzuet app.test_client(), bez vneshnego HTTP.
+- Use app.test_client(), bez vneshnego HTTP.
 
 Mosty:
 - Yavnyy: Volya-planirovschik ↔ selfcheck/memory/will.
@@ -20,8 +19,7 @@ Mosty:
 
 Zemnoy abzats:
 Eto kak pechatnyy naryad-dopusk: spisok rabot po reglamentu,
-no ispolnenie ostaetsya pod kontrolem.
-"""
+no ispolnenie ostaetsya under control."""
 
 from __future__ import annotations
 

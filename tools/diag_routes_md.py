@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-S0/tools/diag_routes_md.py — Markdown-damp marshrutov Flask s podsvetkoy konfliktov.
+"""S0/tools/diag_routes_md.py - Markdown-damp routes Flask s podsvetkoy konfliktov.
 
 Mosty:
 - Yavnyy: Enderton (logika) → marshruty kak predikaty nad (method, path): proveryaemost cherez normalizovannye signatury.
 - Skrytyy #1: Ashbi (kibernetika) → regulyator prosche sistemy: odin prokhod po url_map, minimalnaya slozhnost.
-- Skrytyy #2: Cover & Thomas (infoteoriya) → snizhenie "entropii" konfiguratsii: yavnoe vyyavlenie neodnoznachnostey/dublikatov.
+- Skrytyy #2: Cover & Thomas (infoteoriya) → snizhenie "entropii" configuratsii: yavnoe vyyavlenie neodnoznachnostey/dublikatov.
 
 Zemnoy abzats (inzheneriya):
-Skript importiruet suschestvuyuschiy Flask app (APP_IMPORT=module:attr ili avto-poisk app:app / wsgi_secure:app / wsgi:app),
-sobiraet kartu marshrutov i pishet chelovekochitaemyy Markdown. Ne menyaet rantaym, bezopasen dlya CI.
-A/B-slot: AB_MODE=A (po umolchaniyu) — kratkiy otchet; AB_MODE=B — rasshirennaya diagramma chastoty metodov i JSON-damp.
-Esli vyvod v fayl ne udaetsya — avtokatbek na stdout.
+Skript importiruet suschestvuyuschiy Flask app (APP_IMPORT=module:attr or avto-poisk app:app / wsgi_secure:app / wsgi:app),
+sobiraet kartu routes i pishet chelovekochitaemyy Markdown. Ne menyaet rantaym, bezopasen dlya CI.
+A/B-slot: AB_MODE=A (po umolchaniyu) — kratkiy otchet; AB_MODE=B — extended diagramma frequency metodov i JSON-damp.
+Esli vyvod v fayl ne udaetsya - avtokatbek na stdout.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse
 import importlib
@@ -42,8 +40,8 @@ def _load_app():
             last_err = e
             continue
     raise SystemExit(
-        f"[diag_routes_md] Ne udalos importirovat Flask app. Probovali: {candidates}. "
-        f"Poslednyaya oshibka: {last_err}"
+        f"yudiag_rutes_mdsch Failed to import Flask app. Tried: ZZF0Z."
+        f"Last error: ZZF0Z"
     )
 
 def _rule_signature(path: str) -> str:
@@ -86,7 +84,7 @@ def _render_md(target: str, routes, conflicts, methods_hist, ab_mode: str, verbo
     lines.append(f"# Flask routes report\n")
     lines.append(f"- Target: `{target}`")
     lines.append(f"- Total routes: **{len(routes)}**")
-    lines.append(f"- Potential conflicts: **{len(conflicts)}**\n")
+    lines.append(f"- Potential conflicts: **{len(conflicts)}**")
 
     if conflicts:
         lines.append("## Conflicts\n")
@@ -109,7 +107,7 @@ def _render_md(target: str, routes, conflicts, methods_hist, ab_mode: str, verbo
         lines.append("")
 
     if verbose:
-        # Dopolnitelnyy JSON dlya mashinnoy proverki
+        # Additional JSION for machine verification
         blob = {"routes": routes, "conflicts": conflicts, "methods_hist": methods_hist}
         lines.append("## JSON\n")
         lines.append("```json")
@@ -121,7 +119,7 @@ def _render_md(target: str, routes, conflicts, methods_hist, ab_mode: str, verbo
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Markdown-damp marshrutov Flask")
-    ap.add_argument("--out", default="-", help="Fayl vyvoda ili '-' dlya stdout")
+    ap.add_argument("--out", default="-", help="Output file or b for stdout")
     ap.add_argument("--prefix", default="", help="Filtr po prefiksu puti (naprimer, /api)")
     args = ap.parse_args()
 
@@ -137,9 +135,9 @@ def main() -> int:
         try:
             with open(out_path, "w", encoding="utf-8") as f:
                 f.write(md)
-            print(f"[diag_routes_md] Markdown otchet sokhranen v {out_path} ({len(routes)} marshrutov).")
+            print(f"Yudiag_rutes_mdshch Markdovn the report is saved in ZZF0Z (ZZF1ZZ routes).")
         except Exception as e:  # noqa: BLE001
-            print(f"[diag_routes_md] WARN: ne udalos zapisat fayl ({e}). Pechatayu v stdout.")
+            print(f"yudiag_rutes_mdsch VARN: failed to write file (ZZF0Z). I am typing in stdout.")
             print(md)
     else:
         print(md)

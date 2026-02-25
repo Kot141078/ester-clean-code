@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/devices/drone.py — adaptery dronov.
+"""modules/synergy/devices/drone.py - adaptery drones.
 
 MOSTY:
 - (Yavnyy) Podderzhka acme_uav/neo + generic drone.
 - (Skrytyy #1) Tonkaya normalizatsiya edinits (sek→ms, kg→g, sek→min) s bezopasnymi granitsami.
-- (Skrytyy #2) Profile pozvolyaet prikinut defolty (dalnost/peyload), esli payload chastichno pust.
+- (Skrytyy #2) Profile pozvolyaet prikinut defolty (dalnost/peyload), esli payload partialhno pust.
 
 ZEMNOY ABZATs:
 Raznye proshivki → edinyy vmenyaemyy format dlya orkestratora: zaderzhka, ostavsheesya vremya, gruzopodemnost.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict

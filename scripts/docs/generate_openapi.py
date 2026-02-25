@@ -3,19 +3,17 @@
 ### `scripts/docs/generate_openapi.py`
 
 # -*- coding: utf-8 -*-
-"""
-scripts/docs/generate_openapi.py — vygruzka OpenAPI skhemy iz FastAPI-prilozheniya.
+"""scripts/docs/generate_openapi.py - vygruzka OpenAPI schemy iz FastAPI-prilozheniya.
 
 MOSTY:
-- (Yavnyy) Importiruet asgi.synergy_api_v2.app i sokhranyaet openapi.json na disk.
+- (Yavnyy) Importiruet asgi.synergy_api_v2.app i sokhranyaet openapi.json on disk.
 - (Skrytyy #1) Bez setevogo zapuska, folbek: pytaetsya importirovat asgi.app_main i vzyat app ottuda.
 - (Skrytyy #2) Stavit version/metadata iz app.title/version (esli est).
 
 ZEMNOY ABZATs:
-Garantiruet, chto skhema v repozitorii sootvetstvuet tekuschemu kodu — udobno dlya vneshnikh integratorov i revyu bezopasnosti.
+Garantiruet, chto skhema v repozitorii sootvetstvuet tekuschemu kodu - udobno dlya vneshnikh integratorov i revyu bezopasnosti.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse

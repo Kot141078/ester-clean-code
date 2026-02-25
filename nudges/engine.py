@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-nudges/engine.py — SLA-tsepochki + eskalatsii (NUDGES_ESC_CHAIN) + bazovye pravila.
+"""nudges/engine.py - SLA-tsepochki + eskalatsii (NUDGES_ESC_CHAIN) + bazovye pravila.
 
 MOSTY:
 - (Yavnyy) NUDGES_ESC_CHAIN="manager:0,oncall:15,legal:60" daet uvedomleniya tegam cherez minuty posle dedlayna.
-- (Skrytyy #1) Osnovnaya SLA-tsep (NUDGES_SLA_CHAIN) prodolzhaet rabotat dlya aktorov; eskalatsii — otdelnye due dlya tegov.
+- (Skrytyy #1) Osnovnaya SLA-tsep (NUDGES_SLA_CHAIN) prodolzhaet rabotat dlya aktorov; eskalatsii - otdelnye due dlya tegov.
 - (Skrytyy #2) V otsutstvie ENV berem znacheniya iz config/nudges.yaml (intent_tpl_escalation), bez lomki proshloy logiki.
 
 ZEMNOY ABZATs:
-Snachala berezhno napominaem ispolnitelyu, a esli zadacha «gorit» — akkuratno zovem menedzhera/onkolla v nuzhnyy moment.
+Snachala berezhno napominaem ispolnitelyu, a esli zadacha “gorit” - akkuratno zovem menedzhera/onkolla v nuzhnyy moment.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, time
@@ -28,17 +26,17 @@ _DEFAULT_CFG = {
     "rules": {
         "AssignmentPlanned": {
             "kind": "friend",
-            "intent_tpl": "Napominayu pro zadachu «{summary}». Dedlayn cherez ~{mins} min. Vse ok?",
+            "intent_tpl": "I remind you about the task “ZZF0Z”. Deadline in ~ZZF1ZZ min. Is everything ok?",
             "sla_soon_min": int(os.getenv("NUDGES_SLA_SOON_MIN", "120")),
-            "intent_tpl_escalation": os.getenv("NUDGES_ESC_INTENT", "Prosrochka po «{summary}». Nuzhna pomosch dlya razblokirovki.")
+            "intent_tpl_escalation": os.getenv("NUDGES_ESC_INTENT", "Delay under “ZZF0Z”. Need help to unlock.")
         },
         "OutcomeReported": {
             "kind": "neutral",
-            "intent_tpl": "Spasibo za rezultat po «{summary}». Korotko: {outcome}. Nuzhen post-mortem?",
+            "intent_tpl": "Thank you for the result on “ZZF0Z”. Briefly: ZZF1ZZ. Need a post-mortem?",
         },
         "AssignmentRequested": {
             "kind": "neutral",
-            "intent_tpl": "Prinyal zapros «{summary}». Vernus s planom v blizhayshee vremya.",
+            "intent_tpl": "Accepted the request \"ZZF0Z\". I'll be back with a plan soon.",
         }
     }
 }
@@ -112,7 +110,7 @@ def plan(event: Dict[str, Any]) -> List[Dict[str, Any]]:
 
         if deadline > 0:
             now = time.time()
-            # 1) SLA-tsepochka dlya aktorov
+            # 1) SLA chain for actors
             chain = _sla_chain_minutes()
             if chain:
                 for a in actors:
@@ -126,7 +124,7 @@ def plan(event: Dict[str, Any]) -> List[Dict[str, Any]]:
                         out.append({"due_ts": due, "key": key, "kind": kind, "intent": intent})
                         if len(out) >= max_per: return out
             else:
-                # folbek: odinochnoe napominanie, esli blizko
+                # fullback: single reminder if close
                 soon_min = int(rule.get("sla_soon_min", 120))
                 if (deadline - now) <= soon_min*60:
                     mins = max(1, int((deadline - now)/60.0))
@@ -144,7 +142,7 @@ def plan(event: Dict[str, Any]) -> List[Dict[str, Any]]:
                         "intent_tpl_escalation",
                         os.getenv(
                             "NUDGES_ESC_INTENT",
-                            "Prosrochka po «{summary}». Nuzhna pomosch dlya razblokirovki.",
+                            "Delay under “ZZF0Z”. Need help to unlock.",
                         ),
                     )
                 )
@@ -158,9 +156,9 @@ def plan(event: Dict[str, Any]) -> List[Dict[str, Any]]:
                     if len(out) >= max_per:
                         return out
 
-            # 2) Eskalatsionnaya tsepochka po dedlaynu
+            # 2) Escalation chain based on deadline
             esc_tpl = str(rule.get("intent_tpl_escalation",
-                                   os.getenv("NUDGES_ESC_INTENT","Prosrochka po «{summary}». Nuzhna pomosch dlya razblokirovki.")))
+                                   os.getenv("NUDGES_ESC_INTENT","Delay under “ZZF0Z”. Need help to unlock.")))
             for tag, minutes_after in _esc_chain():
                 key = get_escalation(tag)
                 if not key: continue

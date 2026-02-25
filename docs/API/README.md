@@ -1,7 +1,7 @@
 
 # API dokumentatsiya
 
-## Dostup onlayn (esli zapuscheno FastAPI)
+## Online access (if FastAPI is running)
 - Swagger UI: `GET /docs`
 - Redoc: `GET /redoc`
 - Skhema: `GET /openapi.json`

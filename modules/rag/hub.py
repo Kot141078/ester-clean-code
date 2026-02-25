@@ -24,26 +24,24 @@ def _expand(p: str) -> str:
 
 
 def _fix_common_mispath(raw: str) -> str:
-    """
-    Avto-pravka chastoy oshibki v .env:
-      '%USERPROFILE%.ester'  -> '%USERPROFILE%\\.ester'
-      'C:\\Users\\<user>.ester' -> 'C:\\Users\\<user>\\.ester'
-    """
+    """Avto-pravka chastoy oshibki v.env:
+      '%USERPROFILE%.ester' -> '%USERPROFILE%\\.ester'
+      'C:\\Users\\<user>.ester' -> 'C:\\Users\\<user>\\.ester'"""
     if not raw:
         return raw
     s = raw.replace("/", "\\")
-    # vstavim obratnyy slesh pered ".ester", esli ego net
+    # insert a backslash before ".ester" if there is none
     if s.lower().endswith(".ester") and "\\.ester" not in s.lower():
-        # esli stroka vyglyadit kak '...\\Users\\<name>.ester' — chinim
+        # if the line looks like b...eeUsersee<name>.ester - fix it
         parts = s.split("\\")
         if len(parts) >= 3 and parts[-1].lower().endswith(".ester"):
-            parts[-1] = "." + parts[-1]  # na sluchay redkikh variantov
+            parts[-1] = "." + parts[-1]  # in case of rare variants
         s = s.replace(".ester", "\\.ester")
     return s
 
 
 def _try_mkdir(path_str: str) -> Optional[Path]:
-    """Probuem sozdat katalog; pri otkaze vozvraschaem None (bez isklyucheniy)."""
+    """Let's try to create a directory; in case of refusal, we return to Nona (no exceptions)."""
     try:
         p = Path(path_str)
         p.mkdir(parents=True, exist_ok=True)
@@ -55,13 +53,11 @@ def _try_mkdir(path_str: str) -> Optional[Path]:
 
 
 def _vectors_root() -> Path:
-    """
-    Vybiraem rabochuyu papku dlya vektornogo khranilischa po prioritetu:
+    """Vybiraem rabochuyu papku dlya vektornogo khranilischa po prioritetu:
       1) ESTER_VECTOR_DIR
       2) ESTER_DATA_ROOT\\vstore\\vectors
       3) %USERPROFILE%\\.ester\\vstore\\vectors
-      4) %TEMP%\\ester\\vstore\\vectors  (na krayniy sluchay)
-    """
+      4) %TEMP%\\ester\\vstore\\vectors (na krayniy sluchay)"""
     candidates: List[str] = []
 
     ev = _expand(_fix_common_mispath(_env("ESTER_VECTOR_DIR")))
@@ -83,18 +79,16 @@ def _vectors_root() -> Path:
         if p:
             return p
 
-    # sovsem uzh bezopasnyy otkat — TEMP (vsegda dolzhen suschestvovat)
+    # a completely safe rollback - TEMP (must always exist)
     temp_fallback = Path(tempfile.gettempdir()) / "ester" / "vstore" / "vectors"
     temp_fallback.mkdir(parents=True, exist_ok=True)
     return temp_fallback
 
 
 def _persist_fallback(docs: List[Dict[str, Any]], tag: str) -> Dict[str, Any]:
-    """
-    Faylovyy follbek: pishem JSONL, chtoby nichego ne poteryat dazhe bez vektorki.
+    """Faylovyy follbek: pishem JSONL, chtoby nichego ne poteryat dazhe bez vektorki.
     Zaschischen ot PermissionError — pri problemakh s pravami avtomaticheski
-    otkatyvaetsya v %TEMP%.
-    """
+    otkatyvaetsya v %TEMP%."""
     root = _vectors_root()
     out = root / "rag_corpus.jsonl"
     ing = 0
@@ -111,7 +105,7 @@ def _persist_fallback(docs: List[Dict[str, Any]], tag: str) -> Dict[str, Any]:
 
 
 def _norm_items(items: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Normalizuem vkhod: garantiruem id/text/meta."""
+    """Normalizes the input: we guarantee id/text/meta."""
     norm: List[Dict[str, Any]] = []
     for it in items:
         it = it or {}
@@ -126,13 +120,11 @@ def _norm_items(items: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]]:
 # ------------------------------- hub api -------------------------------
 
 def ingest_texts(items: List[Dict[str, Any]], tag: str = "local_docs") -> Dict[str, Any]:
-    """
-    Unifitsirovannyy vkhod dlya indeksatsii RAG-dokov.
+    """Unifitsirovannyy vkhod dlya indeksatsii RAG-dokov.
     Poryadok popytok:
-      1) modules.rag.rag_sink / sink / hub_impl — esli suschestvuyut
-      2) modules.memory.vector_store_safe_adapter — universalnyy variant
-      3) Faylovyy follbek (~/.ester/vstore/vectors/rag_corpus.jsonl ili %TEMP%)
-    """
+      1) modules.rag.rag_sink/sink/hub_impl - esli suschestvuyut
+      2) modules.memory.vector_store_safe_adapter - universal variant
+      3) Faylovyy follbek (~/.ester/vstore/vectors/rag_corpus.jsonl ili %TEMP%)"""
     docs = _norm_items(items)
 
     # 1) rag_sink / sink / hub_impl
@@ -173,7 +165,7 @@ def ingest_texts(items: List[Dict[str, Any]], tag: str = "local_docs") -> Dict[s
                     ingested = len(docs)
                 return {"ok": True, "ingested": ingested, "via": f"{mod_name}.{fn_name}"}
             except Exception:
-                # probuem sleduyuschiy metod/modul
+                # try the following method/module
                 continue
 
     # 2) vector_store_safe_adapter
@@ -197,11 +189,11 @@ def ingest_texts(items: List[Dict[str, Any]], tag: str = "local_docs") -> Dict[s
     except Exception:
         pass
 
-    # 3) faylovyy follbek — vnutri uzhe ustoychivaya rabota s pravami
+    # 3) file fullback - already stable work with rights inside
     return _persist_fallback(docs, tag)
 
 
-# Sovmestimye aliasy — na sluchay vyzovov iz raznykh mest proekta
+# Compatible aliases - in case of calls from different places in the project
 def ingest(items: List[Dict[str, Any]], tag: str = "local_docs") -> Dict[str, Any]:
     return ingest_texts(items, tag=tag)
 

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mem_retro_linker_routes.py - REST-obertka dlya avto-linkovki pamyati.
+"""routes/mem_retro_linker_routes.py - REST-obertka dlya avto-linkovki pamyati.
 
 Mosty:
 - Yavnyy: (Veb ↔ Avtolinker) ruchka zapuska obrabotki poslednikh zapisey pamyati.
-- Skrytyy #1: (RBAC ↔ JWT) optsionalno trebuet rol operator/admin.
-- Skrytyy #2: (Volya ↔ Plan) ekshen «mem.autolink.tick» vyzyvaet tot zhe kod.
+- Skrytyy #1: (RBAC ↔ JWT) optsionalno trebuet role operator/admin.
+- Skrytyy #2: (Volya ↔ Plan) ekshen “mem.autolink.tick” vyzyvaet tot zhe kod.
 
 Zemnoy abzats:
-Eto «knopka sekretarya»: nazhali - on probezhal po dnevniku i razlozhil nitochki po karte znaniy.
+This is “knopka sekretarya”: nazhali - on probezhal po dnevniku i razlozhil nitochki po karte znaniy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os
@@ -27,7 +25,7 @@ try:
 except Exception:
     _tick=None  # type: ignore
 
-# prostaya RBAC-proverka na osnove JWT (esli vklyucheno)
+# simple RVACh check based on gastrointestinal tract (if enabled)
 def _rbac_ok(role: str)->bool:
     if (os.getenv("RBAC_REQUIRED","true").lower()=="false"): return True
     try:

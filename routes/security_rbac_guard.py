@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-routes/security_rbac_guard.py - before_request-gard RBAC + REST/metriki.
+"""routes/security_rbac_guard.py - before_request-gard RBAC + REST/metriki.
 
-Endpointy:
+Endpoint:
   • GET /security/rbac/config
   • GET /metrics/rbac_guard
 
@@ -12,10 +11,9 @@ Mosty:
 - Skrytyy #2: (UX ↔ Sovmestimost) myagkiy rezhim: po umolchaniyu vyklyuchen (env RBAC_ENFORCE=0).
 
 Zemnoy abzats:
-Eto «schit na vkhode»: kogda nado - vklyuchili i zaschitili kritichnye ruchki. Kogda ne nado - ne meshaem.
+Eto “schit na vkhode”: kogda nado - vklyuchili i zaschitili kritichnye ruchki. Kogda ne nado - ne meshaem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -27,7 +25,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 bp_rbac = Blueprint("rbac_guard", __name__)
 
 
-# Myagkiy import yadra RBAC
+# Soft import of RVACH core
 try:  # pragma: no cover
     from modules.security.rbac import check as rbac_check, rules as rbac_rules, counters as rbac_counters  # type: ignore
     try:
@@ -42,7 +40,7 @@ except Exception:  # pragma: no cover
 
 
 def _rbac_enabled() -> bool:
-    """RBAC vklyuchaetsya cherez RBAC_ENFORCE=1 libo flag iz schetchikov rbac_counters()."""
+    """RVACH is turned on via RVACH_ENFORCE=1 or a flag from the grab_counters() counters."""
     if os.getenv("RBAC_ENFORCE", "0") == "1":
         return True
     try:
@@ -59,7 +57,7 @@ def register(app):  # pragma: no cover
 
     @app.before_request
     def _rbac_before_request():
-        # Esli yadro RBAC nedostupno ili vyklyucheno - ne vmeshivaemsya.
+        # If the RVACH core is unavailable or turned off, it does not interfere.
         if rbac_check is None or not _rbac_enabled():
             return None
 
@@ -101,7 +99,7 @@ def init_app(app):  # pragma: no cover
 
 @bp_rbac.get("/security/rbac/config")
 def cfg():
-    """Tekuschaya konfiguratsiya i priznak vklyuchennosti RBAC."""
+    """Current configuration and sign that the RVACH is enabled."""
     try:
         rules = rbac_rules() if rbac_rules else {}
     except Exception:

@@ -16,7 +16,7 @@
 
 <h2>Live Director</h2>
 <div class="row">
-  Tema: <input id="topic" type="text" value="pokazhi kak polzovatsya notepad">
+  Tema: <input id="topic" type="text" value="show me how to use notepad">
   <button onclick="start()">Generate</button>
   <span id="sid" class="pill">session: —</span>
 </div>
@@ -25,7 +25,7 @@
   <div>
     <h3>Mini-chat</h3>
     <div class="row">
-      <input id="msg" type="text" placeholder="Naprimer: sdelay esche shag s sokhraneniem">
+      <input id="msg" type="text" placeholder="For example: take another step with saving">
       <button onclick="say()">Send</button>
       <button onclick="auto()">Suggest</button>
     </div>
@@ -80,7 +80,7 @@ async function startCoop(){ const mid=document.getElementById('mid').value; COOP
   log(await j('POST','/peer/proxy',{host:PEER,path:'/missions/start',payload:{id:mid}}));
 }
 async function nextCoop(){ const idx=COOP.index;
-  // shag u sebya
+  // step at home
   log(await j('POST','/missions/step',{id:COOP.id,index:idx}));
   // shag u vedomogo
   log(await j('POST','/peer/proxy',{host:PEER,path:'/missions/step',payload:{id:COOP.id,index:idx}}));

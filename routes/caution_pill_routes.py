@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/caution_pill_routes.py - REST: vydacha «pilyuli».
+"""routes/caution_pill_routes.py - REST: vydacha "pilyuli".
 
 Mosty:
 - Yavnyy: (Veb ↔ Ostorozhnost) edinaya tochka vypuska odnorazovykh tokenov.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Odin POST - i u vas v rukakh odnorazovyy klyuch na opasnuyu operatsiyu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import base64
 from flask import Blueprint, jsonify, request

@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-Chat-most dlya determinirovannykh tsitat bez LLM.
+"""Chat-most dlya determinirovannykh tsitat bez LLM.
 
 POST /ester/chat/quote
-Telo:
+Body:
   1) { "pattern": "E2E — ...", "wrap": 1 }
-  2) ili { "message": "Naydi «...». Otvet TOLKO ..." } — pattern berem iz «elochek».
+  2) ili { "message": "Naydi «...». Otvet TOLKO ..." } - pattern berem iz “elochek”.
 
-Otvet:
-  { "ok": true, "answer": "\"...\"" }  ili  { "ok": true, "answer": "NOT_FOUND" }
-"""
+Answer:
+  { "ok": true, "answer": "\"...\"" } or { "ok": true, "answer": "NOT_FOUND" }"""
 import re
 from flask import Blueprint, request, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -25,11 +23,9 @@ def _extract_pattern(msg: str) -> str:
     return m.group(1).strip() if m else ""
 
 def _quote_once(pattern: str, wrap: bool) -> str:
-    """
-    Vyzovem chistyy khelper iz rag_docs_extra_http napryamuyu (bez HTTP/Flask-vyzovov).
-    """
+    """Let's call a clean helper from rag_dox_extra_http directly (without HTTP/Flask calls)."""
     try:
-        # lokalnyy import, chtoby ne sozdavat zhestkikh tsiklicheskikh zavisimostey pri avtoloade
+        # local import to avoid creating strict cyclic dependencies when autoloading
         from modules.rag import rag_docs_extra_http as extra
     except Exception:
         return "NOT_FOUND"

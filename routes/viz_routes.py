@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/viz_routes.py - REST/UI dlya vizualizatsii planov (ASCII).
+"""routes/viz_routes.py - REST/UI dlya vizualizatsii planov (ASCII).
 
 Mosty:
 - Yavnyy: (UI ↔ Visualizer) - otdaem ascii-blok po zagolovku i shagam.
-- Skrytyy 1: (Obyasnimost ↔ Logi) - tekst skhemy legko lozhitsya v fayl/chat/pismo.
-- Skrytyy 2: (Memory ↔ Prezentatsii) - mozhno keshirovat skhemy v otchetakh.
+- Skrytyy 1: (Obyasnimost ↔ Logi) - tekst schemy legko lozhitsya v fayl/chat/pismo.
+- Skrytyy 2: (Memory ↔ Prezentatsii) - mozhno keshirovat skhemia v otchetakh.
 
 Zemnoy abzats:
-Knopka «skhema»: poluchil blok, vstavil v otchet ili otpravil v chat. Nikakikh zavisimostey, vse tekstom.
-"""
+Knopka “skhema”: poluchil blok, vstavil v otchet or otpravil v chat. Nikakikh zavisimostey, vse tekstom."""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request, render_template

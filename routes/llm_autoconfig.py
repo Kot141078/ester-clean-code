@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/llm_autoconfig.py - UI/REST: avtokonfig LLM.
+"""routes/llm_autoconfig.py - UI/REST: avtokonfig LLM.
 
-Marshruty:
-  • GET  /admin/llm/autoconfig              - HTML
-  • GET  /admin/llm/autoconfig/status       - snimki detect/plan/apply/selfcheck + nastroyki
-  • POST /admin/llm/autoconfig/plan         - vypolnit planirovanie seychas
-  • POST /admin/llm/autoconfig/apply        - primenit (AB=B → import v Ollama)
-  • POST /admin/llm/autoconfig/selfcheck    - probnyy chat
-  • POST /admin/llm/autoconfig/save         - sokhranit nastroyki
+Route:
+  • GET /admin/llm/autoconfig - HTML
+  • GET /admin/llm/autoconfig/status - snimki detect/plan/apply/selfcheck + nastroyki
+  • POST /admin/llm/autoconfig/plan - vypolnit planirovanie seychas
+  • POST /admin/llm/autoconfig/apply - primenit (AB=B → import v Ollama)
+  • POST /admin/llm/autoconfig/selfcheck - probnyy chat
+  • POST /admin/llm/autoconfig/save - sokhranit nastroyki
 
 Mosty:
 - Yavnyy (Kibernetika ↔ UX): v odnom ekrane i vidimost, i deystviya.
@@ -16,10 +15,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): formaty JSON te zhe, chto v modulyakh; drop-in.
 
 Zemnoy abzats:
-Panel pusko-naladki: proverit bekendy, uvidet plan importa i prozhat primenit - vse lokalno.
+Panel putko-naladki: proverit bekendy, uvidet plan importa i prozhat primenit - vse lokalno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json, os

@@ -1,25 +1,24 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""trace_logger.py — tonkiy wrapper dlya TraceLogger.
+"""trace_logger.py — thin wrapper dlya TraceLogger.
 
 Zachem:
 - U tebya est DVA fayla: kornevoy trace_logger.py i vstore/trace_logger.py.
 - Import mozhet letet to v odin, to v drugoy (kak s journal/actions_discovery).
 - Poetomu koren dolzhen byt stabilnym: on pytaetsya vzyat kanonicheskiy TraceLogger iz vstore,
-  a esli ne poluchilos — vklyuchaet minimalnyy fallback (best-effort).
+  a esli ne poluchilos - vklyuchaet minimalnyy fallback (best-effort).
 
 FIX konkretnoy oshibki:
-- 'expected an indented block after except' — v starom fayle byl pustoy except (kommentariy vmesto pass).
+- 'expected an indented block after except' - v starom fayle byl empty except (commentariy vmesto pass).
 
 Mosty:
 - Yavnyy: edinyy import TraceLogger → vse moduli pishut v odin format.
 - Skrytye:
   1) Inzheneriya ↔ nadezhnost: wrapper ustranyaet “paket pobedil modul” i khaos dubley.
-  2) Infoteoriya ↔ kontrol: edinyy trace-format oblegchaet agregirovanie/poisk.
+  2) Infoteoriya ↔ control: edinyy trace-format oblegchaet agregirovanie/poisk.
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 
 import json
@@ -30,11 +29,11 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 # ---- Prefer canonical implementation ----
 try:
-    # esli vstore — paket
+    # if in store - package
     from vstore.trace_logger import TraceLogger as TraceLogger  # type: ignore
 except Exception:
     try:
-        # esli lezhit ryadom kak fayl trace_logger.py vnutri vstore (sys.path uzhe vklyuchaet koren)
+        # if it lies nearby as a track_logger.po file inside the store (sys.path already includes the root)
         from trace_logger_vstore import TraceLogger as TraceLogger  # type: ignore
     except Exception:
         # ---- Minimal fallback ----
@@ -63,8 +62,6 @@ except Exception:
 __all__ = ["TraceLogger"]
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Wrapper — kak perekhodnik mezhdu rozetkami raznykh stran. On ne delaet tok “umnee”, on delaet tak,
-chtoby pribor (ves proekt) rabotal stabilno i ne sgoral iz-za nesovpadeniya vilki (dubley moduley).
-"""
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Wrapper - kak perekhodnik mezhdu rozetkami raznykh country. On ne delaet tok “umnee”, on delaet tak,
+chtoby pribor (ves proekt) rabotal stabilno i ne sgoral iz-za nesovpadeniya vilki (dubley modulary)."""

@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Vyborochnyy eksport/import snapshota CRDT po prefiksu id (ili regex).
+"""Vyborochnyy eksport/import snapshota CRDT po prefiksu id (ili regex).
 Primery:
   python -m tools.p2p_snapshot_select export out.json --prefix "doc:"
-  python -m tools.p2p_snapshot_select import in.json
-"""
+  python -m tools.p2p_snapshot_select import in.json"""
 from __future__ import annotations
 
 import json

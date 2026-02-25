@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/cascade.py — kaskadnoe myshlenie Ester:
+"""modules/thinking/cascade.py — kaskadnoe myshlenie Ester:
   Think → Recall → Branch (vetvlenie gipotez) → Plan → Act → Reflect.
 
-Osobennosti:
+Features:
 - Vetvlenie gipotez (N putey) s bystrym ranzhirovaniem, soft-stop po limitam.
 - Integratsiya s pamyatyu i payplaynami (M17), zapis shagov v timeline/events.
 - Anti-petli: zaschita ot beskonechnykh tsiklov; avto-otkat po oshibkam.
 
 A/B-slot:
   ENV ESTER_CASCADE_MODE = "A" | "B"
-  A — kompaktnye shagi; B — bolee razvernutye (bolshe vetvey i proverok).
+  A - kompaktnye steps; B - bolee razvernutye (bolshe vetvey i proverok).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple
 import os, time
@@ -38,25 +36,23 @@ def _rank_branches(goal:str, candidates:List[str])->List[Tuple[str,float]]:
     qv=embed(goal)
     fake=[{"id":f"c{i}","text":c,"vec":embed(c)} for i,c in enumerate(candidates)]
     ranked=vec_search(qv,fake,top_k=len(fake))
-    # vec_search vozvraschaet spisok zapisey po relevantnosti
+    # all_search returns a list of records by relevance
     return [(r["text"], float(i+1)/len(ranked)) for i,r in enumerate(ranked)]
 
 def _branch_hypotheses(goal:str)->List[str]:
     base=[
-        f"nayti suschestvuyuschie resheniya dlya: {goal}",
-        f"sobrat ogranicheniya/resursy dlya: {goal}",
-        f"rasschepit zadachu na podzadachi: {goal}",
-        f"sravnit alternativy dlya: {goal}",
-        f"provesti korotkiy eksperiment dlya: {goal}"
+        f"find existing solutions for: ZZF0Z",
+        f"collect restrictions/resources for: ZZF0Z",
+        f"split the task into subtasks: ЗЗФ0З",
+        f"compare alternatives for: ZZF0Z",
+        f"conduct a short experiment for: ZZF0Z"
     ]
     k = MAX_BRANCHES_B if _mode()=="B" else MAX_BRANCHES_A
     return base[:k]
 
 def run_cascade(goal:str, params:Dict[str,Any]|None=None)->Dict[str,Any]:
-    """
-    Kaskad Think→Recall→Branch→Plan→Act→Reflect.
-    Vozvraschaet strukturirovannyy otchet i pishet sledy v pamyat.
-    """
+    """Kaskad Think→Recall→Branch→Plan→Act→Reflect.
+    Vozvraschaet strukturirovannyy otchet i pishet sledy v pamyat."""
     params=params or {}
     t0=_now()
     steps=[]
@@ -64,7 +60,7 @@ def run_cascade(goal:str, params:Dict[str,Any]|None=None)->Dict[str,Any]:
     record_thought(goal,"start-cascade",True)
 
     # 1) Think
-    steps.append({"stage":"think","msg":f"osmyslyayu tsel: {goal}"})
+    steps.append({"stage":"think","msg":f"comprehending the goal: ZZF0Z"})
     # 2) Recall
     recalled = store.query(goal, top_k=12)
     steps.append({"stage":"recall","count":len(recalled)})
@@ -108,19 +104,19 @@ def run_cascade(goal:str, params:Dict[str,Any]|None=None)->Dict[str,Any]:
     steps.append({"stage":"act","results":acts})
     record_event("act","cascade-execute",True,{"done":len(acts)})
 
-    # 6) Reflect (itog, chto delat dalshe)
-    # prostaya vyzhimka: esli v decision_plan byl choice — otrazim
+    # 6) Reflection (result, what to do next)
+    # simple squeeze: if the decision_plan was sensitive - reflect
     choice=None
     for a in acts:
         r=a.get("result") or {}
         if r.get("mode")=="decision_plan":
             choice=r.get("choice"); break
-    summary=f"Kaskad zavershen. {'Reshenie: '+choice if choice else 'Itog sformirovan.'}"
+    summary=f"The cascade is completed. ZZF0Z"
     steps.append({"stage":"reflect","summary":summary})
     record_thought(goal, summary, True)
     record_event("think","cascade-reflect",True,{"summary":summary})
 
-    # finalnaya zapis v pamyat dlya taymlayna
+    # final memory entry for timeline
     memory_add("dream", f"cascade: {goal}", {"summary":summary,"steps":len(steps)})
 
     t1=_now()

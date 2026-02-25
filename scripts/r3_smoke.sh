@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# R3/scripts/r3_smoke.sh — obertka smouka R3 dlya *nix
-# Mosty: (Yavnyy) Enderton — proveryaemye predikaty; (Skrytyy #1) Cover&Thomas — informativnyy minimum; (Skrytyy #2) Ashbi — prostaya regulyatsiya.
+# Rz/skripts/rz_stoke.sh - smoke Rz wrapper for *them
+# Bridges: (Explicit) Enderton - verifiable predicates; (Hidden #1) Carpet & Thomas - minimal information; (Hidden #2) Ashby - simple regulation.
 # Zemnoy abzats: zapuskaet build → score, ne valit stend pri pustykh dannykh. Podkhodit dlya cron.
 # c=a+b
 

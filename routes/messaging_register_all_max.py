@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/messaging_register_all_max.py - MAX-registrator (vse + avto-patch + konsol).
+"""routes/messaging_register_all_max.py - MAX-registrator (vse + avto-patch + konsol).
 
 MOSTY:
 - (Yavnyy) /messaging/register_all_max podklyuchaet ves stek, vklyuchaya avto-patch /proactive/dispatch i obedinennuyu panel.
@@ -10,8 +9,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Odin vyzov - i u vas vklyucheny TG/WA, proaktivnost, pisma/golos, presety, health/metrics, panel i avto-auditoriya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, current_app
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -32,7 +30,7 @@ def register_all_max():
     from routes.messaging_register_all_plus import register as reg_plus
     reg_plus(current_app)
 
-    # Dobavlyaem avto-patch i konsol
+    # Adding auto-patch and console
     from routes.proactive_dispatch_auto_patch import register as reg_auto
     from routes.messaging_console import register as reg_console
 

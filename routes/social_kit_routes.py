@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/social_kit_routes.py - REST: sborka i spisok export-kit'ov.
+"""routes/social_kit_routes.py - REST: sborka i spisok export-kit'ov.
 
 Mosty:
 - Yavnyy: (Veb ↔ Kit) odna knopka sobiraet komplekt dlya publikatsii.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Volya ↔ Avtomatizatsiya) te zhe funktsii dostupny ekshenami.
 
 Zemnoy abzats:
-Eto kak «upakovat reliz»: vse nuzhnoe - v odnu papku, gotovo k vygruzke.
+Eto kak “upakovat reliz”: vse nuzhnoe - v odnu papku, gotovo k vygruzke.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

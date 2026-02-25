@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/lmstudio_autodetect.py — periodicheskiy zond LM Studio (/v1/models) i obnovlenie kesha.
+"""listeners/lmstudio_autodetect.py - periodicheskiy zond LM Studio (/v1/models) i update kesha.
 
-Povedenie:
+Behavior:
   • Kazhdye LMSTUDIO_PROBE_INTERVAL sekund vyzyvaet bridge.scan_endpoints().
   • V AB=A i AB=B odinakovo (zondirovanie bezopasno, bez generatsiy).
   • Logi lakonichnye.
 
 ENV:
-  LMSTUDIO_ENABLE=1     — vklyuchaet slushatelya
+  LMSTUDIO_ENABLE=1 — vklyuchaet slushatelya
   LMSTUDIO_PROBE_INTERVAL=60
 
 Mosty:
 - Yavnyy (Integratsiya ↔ Kibernetika): podderzhivaem aktualnyy snimok dostupnykh modeley lokalno.
 - Skrytyy 1 (Infoteoriya ↔ Nadezhnost): kesh v JSON — proveryaemo i vosproizvodimo.
-- Skrytyy 2 (Praktika ↔ Sovmestimost): drop-in; ne trebuet nalichiya LM Studio — prosto pishet «net svyazi».
+- Skrytyy 2 (Praktika ↔ Sovmestimost): drop-in; ne trebuet nalichiya LM Studio - prosto pishet “net svyazi”.
 
 Zemnoy abzats:
-Eto «dezhurnyy skaner»: poglyadyvaet, zhiv li LM Studio ryadom, i kakie modeli dostupny — bez shuma.
+This is “dezhurnyy scanner”: poglyadyvaet, zhiv li LM Studio ryadom, i kakie modeli dostupny - bez shuma.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, os, time
 from modules.lmstudio.bridge import scan_endpoints  # type: ignore

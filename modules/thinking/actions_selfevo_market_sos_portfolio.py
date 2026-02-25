@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_selfevo_market_sos_portfolio.py — eksheny «voli» dlya SelfEvo/Portfolio/Gigs/SOS.
+"""modules/thinking/actions_selfevo_market_sos_portfolio.py - eksheny "voli" dlya SelfEvo/Portfolio/Gigs/SOS.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Proekty/Rynok/Bezopasnost) korotkie komandy na vse klyuchevoe.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Planirovschik ↔ Avtonomiya) mozhno zapustit po kronu ili sobytiyam.
 
 Zemnoy abzats:
-Komanda — i kuznitsa sozdaet modul, vitrina obnovlyaetsya, vakansiya razbiraetsya, signal uletaet po provodam.
+Komanda - i kuznitsa sozdaet modul, vitrina obnovlyaetsya, vakansiya razbiraetsya, signal uletaet po provodam.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

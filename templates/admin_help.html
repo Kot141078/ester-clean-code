@@ -31,7 +31,7 @@ c=a+b
     <li><a href="{{ path }}">{{ title }}</a></li>
   {% endfor %}
   {% if not panels or panels|length == 0 %}
-    <li>(Paneley ne obnaruzheno — proverte registratsiyu moduley)</li>
+    <li>(No panels found - check module registration)</li>
   {% endif %}
 </ul>
 
@@ -47,7 +47,7 @@ c=a+b
 
 <p style="margin-top:10px; font-size:90%; color:#666;">
   Podskazka: dlya vklyucheniya zapisi ustanovite peremennuyu okruzheniya <code>AB_MODE=B</code>. Dlya P2P LAN-kataloga ukazhite
-  <code>LAN_DROP_DIR</code>. Aliasy LM Studio opredelyayutsya klyuchami <code>LLM_LOCAL_*</code>.
+  <code>LAN_DROP_DIR</code>. LM Studio aliases are determined by keys <code>LLM_LOCAL_*</code>.
 </p>
 {% endblock %}
 <!-- c=a+b -->

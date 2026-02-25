@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-security/rbac_utils.py — legkiy RBAC-dekorator dlya novykh ruchek.
+"""security/rbac_utils.py - legkiy RBAC-dekorator dlya novykh ruchek.
 
 Trebovanie: v JWT (HS256/RS256) est kleym 'roles' (spisok/stroka) i (optsionalno) 'sub'.
 Klyuch: berem iz ENV JWT_SECRET_KEY | JWT_SECRET; algoritm: HS256 po umolchaniyu, esli net RS*.
 
-Ne lomaet suschestvuyuschie kontrakty — ispolzuetsya tolko v novykh marshrutakh.
+Ne lomaet suschestvuyuschie kontrakty - ispolzuetsya tolko v novykh marshrutakh.
 
 MOSTY:
-- Yavnyy: (Bezopasnost ↔ UX) tonkaya proverka roli 'operator' na deystviyakh s RPA.
-- Skrytyy #1: (Infoteoriya ↔ Riski) suzhaem dostup — menshe variantov opasnykh vkhodov.
-- Skrytyy #2: (Arkhitektura ↔ Psikhologiya) prostoe pravilo «kto mozhet nazhat knopku» snizhaet kognitivnuyu nagruzku.
+- Yavnyy: (Bezopasnost ↔ UX) tonkaya proverka role 'operator' na deystviyakh s RPA.
+- Skrytyy #1: (Infoteoriya ↔ Riski) suzhaem dostup - menshe variantov opasnykh vkhodov.
+- Skrytyy #2: (Arkhitektura ↔ Psikhologiya) prostoe pravilo “kto mozhet nazhat knopku” snizhaet kognitivnuyu nagruzku.
 
 ZEMNOY ABZATs:
 Mini-dekorator bez vneshnikh zavisimostey; pri otsutstvii tokena → 401, pri otsutstvii roli → 403.
-Rabotaet oflayn. Dlya lokalnoy otladki mozhno otklyuchit proverku cherez ENV RPA_RBAC_DISABLE=1.
+Working offline. Dlya lokalnoy otladki mozhno otklyuchit proverku cherez ENV RPA_RBAC_DISABLE=1.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from functools import wraps

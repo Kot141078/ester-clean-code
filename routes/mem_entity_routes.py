@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mem_entity_routes.py - REST: izvlechenie i privyazka suschnostey k pamyati/grafu (paketnyy + tekstovyy rezhim).
-(sovmestimaya s dampom versiya s uluchsheniyami dlya «Ester»).
+"""routes/mem_entity_routes.py - REST: izvlechenie i privyazka suschnostey k pamyati/grafu (paketnyy + tekstovyy rezhim).
+(sovmestimaya s dampom versiya s uluchsheniyami dlya “Ester”).
 
 Mosty:
 - Yavnyy: (Veb ↔ KG) bystraya razmetka teksta i linkovka uzlov v graf pamyati (paketnyy i tekstovyy).
-- Skrytyy #1: (Profile ↔ Audit) modul pishet sobytiya v «profile».
+- Skrytyy #1: (Profile ↔ Audit) modul pishet sobytiya v “profile”.
 - Skrytyy #2: (P2P ↔ Memory) optsionalnaya rassylka sobytiy na piry (UDP-pleyskholder).
 
 Zemnoy abzats:
 Podali tekst - poluchili spisok imen/terminov i ID uzlov; paketnaya obrabotka uskoryaet rabotu.
-Optsionalno sobytiya ukhodyat sosedyam v seti dlya legkoy konsistentnosti.
+Optionalno sobytiya ukhodyat sosedyam v seti dlya legkoy konsistentnosti.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 
 import os
@@ -27,12 +25,12 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 # Konstanty
 P2P_PEERS = [p.strip() for p in (os.getenv("ESTER_P2P_PEERS") or "").split(",") if p.strip()]  # ip:port
-MONITOR_FOLDER = os.getenv("ESTER_MONITOR_FOLDER", "data/incoming")  # papka dlya fonovogo sbora .txt
-SECRET = os.getenv("ESTER_ENTITY_SECRET", "ester-entity-secret")  # dlya buduschego shifrovaniya (neobyaz.)
+MONITOR_FOLDER = os.getenv("ESTER_MONITOR_FOLDER", "data/incoming")  # folder for background collection .txt
+SECRET = os.getenv("ESTER_ENTITY_SECRET", "ester-entity-secret")  # for future encryption (optional)
 
 bp = Blueprint("mem_entity", __name__)
 
-# Myagkiy import yadra
+# Soft kernel import
 try:
     from modules.mem.entity_linker import link_entities as _link, shadow_status as _status  # type: ignore
 except Exception:  # pragma: no cover
@@ -41,7 +39,7 @@ except Exception:  # pragma: no cover
 
 
 def _encrypt_response(result: Dict[str, Any]) -> str:
-    """Pleyskholder «shifrovaniya»: base64(JSON)."""
+    """“Encryption” placeholder: bassier64(ZhSON)."""
     return base64.b64encode(json.dumps(result, ensure_ascii=False).encode("utf-8")).decode("utf-8")
 
 
@@ -62,11 +60,11 @@ def _p2p_sync(event: str, payload: Dict[str, Any]) -> None:
             s.sendto(msg.encode("utf-8"), (host, port))
             s.close()
         except Exception:
-            pass  # nikogda ne ronyaem rabochiy potok
+            pass  # never drops worker thread
 
 
 def _background_collect_texts() -> List[Dict[str, str]]:
-    """Vozvraschaet novye *.txt iz MONITOR_FOLDER i udalyaet ikh (bez vyzova _link)."""
+    """Returns new *.txt from MONITOR_FOLDER and deletes them (without calling _link)."""
     if not os.path.isdir(MONITOR_FOLDER):
         return []
     out: List[Dict[str, str]] = []
@@ -91,7 +89,7 @@ def _background_collect_texts() -> List[Dict[str, str]]:
 
 
 def _affect_boost(entities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Bust suschnostey po affektu (emo-anchor). Bezopasen k otsutstviyu polya value."""
+    """Boost entities by affect (this is anchor). Safe to the absence of a value field."""
     try:
         from modules.affect.priority import score_text  # type: ignore
         for e in entities:
@@ -107,7 +105,7 @@ def _affect_boost(entities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def _log_passport(endpoint: str, data: Dict[str, Any]) -> None:
-    """Log v «profile» pamyati (esli dostupen) + legkaya P2P-sinkhronizatsiya sobytiya."""
+    """Log in memory “profile” (if available) + easy P2P event synchronization."""
     try:
         from modules.mem.passport import append as passport  # type: ignore
         passport("mem_entity_api", {"endpoint": endpoint, "data": data}, "mem://entity/api")
@@ -122,7 +120,7 @@ def api_link():
         return jsonify({"ok": False, "error": "entity_unavailable"}), 500
 
     d: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
-    # Podderzhka oboikh rezhimov: paketnogo i tekstovogo
+    # Supports both modes: batch and text
     items: List[Dict[str, Any]] = list(d.get("items") or [])
     if not items and "text" in d:
         items = [{"id": "api_text", "text": str(d.get("text") or "")}]
@@ -139,7 +137,7 @@ def api_link():
         _log_passport("link_fail", {"n": len(items), "error": str(e)})
         return jsonify({"ok": False, "error": str(e)}), 500
 
-    # Unifikatsiya otveta
+    # Unification of the answer
     if isinstance(rep, dict):
         entities = list(rep.get("entities") or [])
         rep["entities"] = _affect_boost(entities)
@@ -174,13 +172,13 @@ def api_status():
 
 
 def register_routes(app, seen_endpoints=None):
-    """Registratsiya blyuprinta i aliasov."""
+    """Registration of blueprint and aliases."""
     app.register_blueprint(bp)
     app.add_url_rule("/memory/entity/link", view_func=api_link, methods=["POST"])
     app.add_url_rule("/memory/entity/status", view_func=api_status, methods=["GET"])
 
 
-# Unifitsirovannye khuki proekta
+# Unified project hooks
 def register(app):  # pragma: no cover
     app.register_blueprint(bp)
 

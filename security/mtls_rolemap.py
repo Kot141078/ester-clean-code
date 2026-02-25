@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-security/mtls_rolemap.py — chtenie rules/mtls_roles.yaml i sopostavlenie DN → role.
+"""security/mtls_rolemap.py - chtenie rules/mtls_roles.yaml i sopostavlenie DN → role.
 Format YAML:
   map:
     - { dn_regex: "^CN=node-\\d+,OU=core,O=Ester$", role: replicator }
-    - { dn_regex: "^CN=ops-.*", role: ops }
-"""
+    - { dn_regex: "^CN=ops-.*", role: ops }"""
 
 from __future__ import annotations
 

@@ -1,10 +1,10 @@
 # config/privacy_policies.yaml — politika stels/privatnosti (primer)
 # MOSTY:
-# - (Yavnyy) Parametry po umolchaniyu dlya redaktirovaniya i kroulinga.
-# - (Skrytyy #1) Prioritet ENV nad YAML; YAML — kak dokumentatsiya/sid po umolchaniyu.
-# - (Skrytyy #2) Raznye profili: dev/stage/prod (nizhe — prod, kak «tikhiy»).
+# - (Explicit) Default options for editing and crawling.
+# - (Hidden #1) Priority of ENV over YML; YML - as default documentation/seed.
+# - (Hidden #2) Different profiles: dev/experienced/prod (below - prod, as “quiet”).
 # ZEMNOY ABZATs:
-# Odin fayl opisyvaet «gromkost» sistemy. V prode — ostorozhnyy rezhim s uvazheniem k pravilam saytov. c=a+b
+# One file describes the "loudness" of the system. In production there is a cautious regime with respect for the rules of the sites. c=a+b
 
 profile: prod
 

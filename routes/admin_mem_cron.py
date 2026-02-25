@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_mem_cron.py - REST-obertka dlya nochnykh tekhprotsedur pamyati (heal/compact/snapshot/reindex).
+"""routes/admin_mem_cron.py - REST-obertka dlya nochnykh tekhprotsedur pamyati (heal/compact/snapshot/reindex).
 
-Endpointy:
+Endpoint:
   • POST /admin/mem/cron/run {"tasks":["heal","compact","snapshot","reindex"]} → otchet
-  • GET  /metrics/mem_maintenance → Prometheus-tekst
+  • GET /metrics/mem_maintenance → Prometheus-tekst
 
 Mosty:
 - Yavnyy: (Memory ↔ Ekspluatatsiya) Zapuskaem protsedury bez skrytykh fonovykh demonov.
-- Skrytyy #1: (Infoteoriya ↔ Planirovanie) Prostoy otchet prigoden dlya deshevogo dashborda - nizkaya entropiya interfeysa.
+- Skrytyy #1: (Infoteoriya ↔ Planning) Prostoy otchet prigoden dlya deshevogo dashborda - nizkaya entropiya interfeysa.
 - Skrytyy #2: (Kibernetika ↔ Volya) Mozhet vyzyvatsya po raspisaniyu iz RuleHub/planirovschika, povyshaya upravlyaemost.
 
 Zemnoy abzats:
-Eto «vyklyuchatel uborschika»: nazhal - i poshel tsikl obsluzhivaniya pamyati. Tochki kontrolya: otchet JSON i schetchiki Prometheus.
-"""
+This is “vyklyuchatel uborschika”: nazhal - i poshel tsikl obsluzhivaniya pamyati. Tochki kontrolya: otchet JSON i schetchiki Prometheus."""
 from __future__ import annotations
 
 from typing import Any, Dict, List, Tuple
@@ -23,7 +21,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp_mem_maintenance = Blueprint("mem_maintenance", __name__)
 
-# Drop-in import: esli otsutstvuet - otrabatyvaem myagko
+# Drop-in import: if absent, we work it out gently
 try:
     from scheduler.cron_memory_maintenance import run_pipeline, counters  # type: ignore
 except Exception:  # pragma: no cover
@@ -31,23 +29,23 @@ except Exception:  # pragma: no cover
 
 
 def register(app):  # pragma: no cover
-    """Registratsiya blyuprinta (drop-in)."""
+    """Blueprint registration (drop-in)."""
     app.register_blueprint(bp_mem_maintenance)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 
 @bp_mem_maintenance.route("/admin/mem/cron/run", methods=["POST"])
 def api_run():
-    """Zapustit odin ili neskolko etapov obsluzhivaniya pamyati."""
+    """Run one or more memory maintenance steps."""
     if run_pipeline is None:
         return jsonify({"ok": False, "error": "maintenance unavailable"}), 500
     data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
     tasks: List[str] = list(data.get("tasks") or ["heal", "compact", "snapshot"])
-    # Kontrakt ne menyaem: vozvraschaem to, chto vernul payplayn
+    # We do not change the contract: it returns what the pipeline returned
     return jsonify(run_pipeline(tasks))
 
 
@@ -58,7 +56,7 @@ def _prom_headers() -> Tuple[str, int, Dict[str, str]]:
 
 @bp_mem_maintenance.route("/metrics/mem_maintenance", methods=["GET"])
 def metrics():
-    """Schetchiki po tekhprotseduram pamyati v formate Prometheus."""
+    """Counters for memory technical procedures in the Prometneus format."""
     body_lines: List[str] = []
     if counters is None:
         body_lines = [
@@ -75,7 +73,7 @@ def metrics():
         ]
 
     body = "\n".join(body_lines) + "\n"
-    # Vozvraschaem (body, status, headers) - korrektnyy troynoy kortezh dlya Flask
+    # Return (water, status, neaders) - correct triple tuple for Flask
     return body, 200, {"Content-Type": "text/plain; version=0.0.4; charset=utf-8"}
 
 

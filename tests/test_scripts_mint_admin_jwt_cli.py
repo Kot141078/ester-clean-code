@@ -8,7 +8,7 @@ import time
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def _b64pad(s: str) -> bytes:
-    # vosstanovim padding dlya dekodirovaniya
+    # restore padding for decoding
     return base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
 
 def _hs256(secret: bytes, i: bytes) -> bytes:

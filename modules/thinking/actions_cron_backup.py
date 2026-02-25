@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_cron_backup.py — eksheny «voli» dlya Cron i Backups.
+"""modules/thinking/actions_cron_backup.py - eksheny “voli” dlya Cron i Backups.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Operkontur) knopki planirovschika i bekapov.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Rules/Survival ↔ Avtonomiya) mozhno veshat na sobytiya/noch.
 
 Zemnoy abzats:
-Ester mozhet sama «naznachit nochnye raboty», zapustit ikh i sdelat sebe kopiyu — privychka vzrosloy sistemy.
+Ester mozhet sama “naznachit nochnye raboty”, zapustit ikh i sdelat sebe kopiyu - privychka vzrosloy sistemy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

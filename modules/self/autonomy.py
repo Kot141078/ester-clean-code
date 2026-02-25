@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/autonomy.py — planer «samovyzhivaniya»: kogda sobiratsya, kak rasprostranyatsya, gde sobirat sebya snova.
+"""modules/self/autonomy.py - planer “samovyzhivaniya”: kogda sobiratsya, kak rasprostranyatsya, where sobirat sebya snova.
 
 Mosty:
 - Yavnyy: (Kibernetika ↔ Planirovanie) generiruet plan shagov: snapshot → webseed/torrent → anons peer’am → samosoborka.
@@ -8,11 +7,10 @@ Mosty:
 - Skrytyy #2: (Memory ↔ Audit) vse resheniya logiruyutsya i mogut uchityvatsya v refleksii.
 
 Zemnoy abzats:
-Eto «instinkt sokhraneniya»: upal uzel — podnimis s blizhayshego snapshota; resursy est — podelis obrazom s sestrami.
-Obedineno iz dvukh versiy: dobavleny budget/spread-guard, action-invoke dlya ispolneniya, logging dlya pamyati Ester.
+This is “instinkt sokhraneniya”: upal uzel - podnimis s blizhayshego snapshota; resursy est - podelis obrazom s sestrami.
+Obedineno iz dvukh versiy: add budget/spread-guard, action-invoke dlya ispolneniya, logging dlya pamyati Ester.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, json
 import logging
@@ -133,10 +131,8 @@ def _spread_eval(targets: List[str]) -> Dict[str, Any]:
         return {"allow": True, "results": [{"target": t, "allow": True, "why": "no_guard"} for t in targets]}
 
 def execute(plan_obj: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Vypolnyaem tolko bezopasnye chasti: snapshot + podgotovka webseed; torrent — tolko hint, torrent/announce s guard'ami.
-    Dobavleno cost/spread_eval, invoke action_registry iz py1.
-    """
+    """Vypolnyaem tolko bezopasnye chasti: snapshot + podgotovka webseed; torrent - only hint, torrent/announce s guard'ami.
+    Added cost/spread_eval, invoke action_registry iz py1."""
     if AUTONOMY_AB == "B":
         return {"ok": False, "error": "AUTONOMY_AB=B"}
     results = []
@@ -171,7 +167,7 @@ def execute(plan_obj: Dict[str, Any]) -> Dict[str, Any]:
         elif kind == "distribute.torrent":
             results.append({"step": kind, "hint": "use /self/pack/torrent once snapshot created"})
         elif kind == "p2p.announce":
-            # Best-effort HTTP announce (rasshirenie dlya P2P)
+            # Best-effort NTTP Annunce (extension for P2P)
             try:
                 import urllib.request
                 for t in targets:
@@ -191,5 +187,5 @@ def execute(plan_obj: Dict[str, Any]) -> Dict[str, Any]:
     ok = all(r.get("ok", True) for r in results) if results else True
     logging.info(f"Executed plan for '{plan_obj['goal']}' with {len(results)} results, ok={ok}")
     return {"ok": ok, "executed": results}
-# Ideya rasshireniya: dlya sinteza planov s Judge — otprav plan_obj v oblachnyy LLM dlya uluchsheniya (e.g., auto-add steps).
-# Realizuyu v autonomy_judge.py: plan() + HTTP to Judge, esli skazhesh.
+# Expansion idea: to synthesize plans with Yudzhe, send plan_obzh to the cloud LLM for improvement (e.g., auto-add steps).
+# I implement it in autonomy_yuje.po: plan() + HTTP then Yuje, if you say so.

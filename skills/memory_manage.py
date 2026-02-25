@@ -6,9 +6,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def memory_manage_skill(action: str, text: str | None = None, record_id: str | None = None, top_k: int = 5) -> Dict[str, Any]:
-    """
-    Upravlenie pamyatyu: add/query/forget/stats.
-    """
+    """Memory management: add/query/forget/static."""
     action = (action or "").strip().lower()
     try:
         from modules.memory import store  # type: ignore

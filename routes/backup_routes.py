@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/backup_routes.py — Unified backup routes with HMAC and flexible targets. Obedinennaya versiya s uluchsheniyami dlya Ester, vklyuchaya elementy iz backup_routes.py1.
+"""routes/backup_routes.py — Unified backup routes with HMAC and flexible targets. Obedinennaya versiya s uluchsheniyami dlya Ester, vklyuchaya elementy iz backup_routes.py1.
 
 This module provides REST endpoints for creating, verifying, and restoring secure backups.
 It combines a modular Blueprint structure with a robust implementation featuring
@@ -10,26 +9,24 @@ Philosophy:
 "Make a copy, put it in another place" — and sleep more peacefully.
 
 Endpoints:
-  POST /backup/run {roots?}           v†' {"ok":true,"path":".../backup_*.enc","size":N}
-  POST /backup/verify {path?}       v†' {"ok":true,"valid":true,"meta":{...}}
+  POST /backup/run {roots?} v†' {"ok":true,"path":".../backup_*.enc","size":N}
+  POST /backup/verify {path?} v†' {"ok":true,"valid":true,"meta":{...}}
   POST /backup/restore {path?,target?} v†' {"ok":true,"target":"..."}
-  GET /backup/status                  v†' {"ok":true,"latest":"...","size":N} (iz py1)
+  GET /backup/status v†' {"ok":true,"latest":"...","size":N} (iz py1)
   POST /backup/snapshot {dirs?,label?} v†' alias na /run (iz py1)
 
 Backup .enc Format:
   JSON envelope: {"alg":"sha256","ts":..., "hmac":"<hex>", "nonce":"<b64>", "payload_b64":"<b64-zip-xor>"}
 
 Environment Variables:
-  PERSIST_DIR         — The default directory to back up and restore to.
-  BACKUP_DIR          — Directory to store backups (defaults to PERSIST_DIR/backups).
-  BACKUP_HMAC_KEY     — (Required) The secret key for HMAC and XOR operations.
-  BACKUP_HMAC_ALG     — sha256|sha512 (defaults to sha256).
+  PERSIST_DIR — The default directory to back up and restore to.
+  BACKUP_DIR — Directory to store backups (defaults to PERSIST_DIR/backups).
+  BACKUP_HMAC_KEY — (Required) The secret key for HMAC and XOR operations.
+  BACKUP_HMAC_ALG - sha256|sha512 (defaults to sha256).
 - Novyy: (R aspredelennaya pamyat Ester v†" Sinkhronizatsiya) P2P-sinkhronizatsiya bekapov dlya globalnoy seti (s retries/backoff/timeout dlya Vryussel-Donkong).
 - Uluchshenie: (Bezopasnost v†" Avtonomiya) uluchshennoe AES-shifrovanie vmesto XOR.
-- Novoe rasshirenie: (Judge v†" Sintez) alert v oblako dlya analiza integrity, esli verify fails.
-- Novoe: /cloud dlya globalnogo rezerva (zaglushka).
-
-"""
+- New expansion: (Judge v†" Sintez) alert v oblako dlya analiza integrity, if verify fails.
+- Novoe: /cloud dlya globalnogo rezerva (zaglushka)."""
 from __future__ import annotations
 
 import asyncio  # Glya async P2P
@@ -69,7 +66,7 @@ except ImportError:
 # --- Blueprint Definition ---
 bp_bkp = Blueprint("backup", __name__)
 
-# --- Konstanty dlya Ester ---
+# --- Constants for Esther ---
 P2P_PEERS = os.getenv("ESTER_P2P_PEERS", "").split(",")  # Glya sync
 CLOUD_ENDPOINT = os.getenv("CLOUD_ENDPOINT", "https://api.gemini.com/v1/analyze")  # Glya Judge
 CLOUD_API_KEY = os.getenv("CLOUD_API_KEY", "")
@@ -105,7 +102,7 @@ def _alg() -> str:
     return (os.getenv("BACKUP_HMAC_ALG") or "sha256").lower()
 
 
-# --- Uluchshennoe shifrovanie (AES vmesto XOR) ---
+# --- Improved encryption (AES instead of XOP) ---
 def _derive_aes_key(key: bytes) -> bytes:
     """Derives AES key from HMAC key using PBKDF2."""
     kdf = PBKDF2HMAC(
@@ -141,7 +138,7 @@ def _aes_decrypt(enc_data: bytes, key: bytes) -> bytes:
     return decryptor.update(ciphertext) + decryptor.finalize()
 
 
-# --- P2P-sinkhronizatsiya bekapov (uluchshena dlya global latency) ---
+# --- P2P backup synchronization (improved for global latenco) ---
 async def _p2p_sync_backup(backup_path: str) -> bool:
     """Sinkhroniziruet .enc bekap s peers asinkhronno, s retries, backoff i timeout."""
     with open(backup_path, "rb") as f:
@@ -180,9 +177,9 @@ async def _p2p_sync_backup(backup_path: str) -> bool:
     return success
 
 
-# --- Judge-alert dlya integrity ---
+# --- Yudzhe-alert for integrati ---
 def _judge_alert(meta: Dict[str, Any]):
-    """Otpravlyaet alert v oblako esli verify fails."""
+    """Sends an alert to the cloud if the files are verified."""
     if not CLOUD_API_KEY or meta.get("valid", True):
         return
     try:
@@ -234,7 +231,7 @@ def _latest_backup_path() -> str:
 
 
 def _status() -> Dict[str, Any]:
-    """Returns backup status (iz py1, rasshirennyy)."""
+    """Return tank status (from 1, extended)."""
     latest = _latest_backup_path()
     size = os.path.getsize(latest) if latest else 0
     return {"ok": True, "latest": latest, "size": size}
@@ -293,7 +290,7 @@ def backup_snapshot():
     """Snapshot iz py1: alias na /run s dirs/label."""
     data: Dict[str, Any] = request.get_json(silent=True) or {}
     roots = data.get("dirs") or [_persist_dir()]
-    label = data.get("label")  # Ignoriruem, no dlya sovmestimosti
+    label = data.get("label")  # Ignore, but for compatibility
     return backup_run()  # Peredaem v run
 
 
@@ -326,7 +323,7 @@ def backup_verify():
         "size_b64": len(payload_b64),
         "valid": is_valid,
     }
-    _judge_alert(meta)  # Khuk esli not valid
+    _judge_alert(meta)  # Hook if laptop is valid
     return jsonify({"ok": True, "valid": is_valid, "meta": meta})
 
 
@@ -370,7 +367,7 @@ def backup_restore():
 @bp_bkp.route("/cloud", methods=["POST"])
 @jwt_required()
 def backup_cloud():
-    """Novyy: Dlobalnyy rezerv v oblako (zaglushka dlya Drive API)."""
+    """New: Data reserve in the cloud (stub for Drive API)."""
     data: Dict[str, Any] = request.get_json(silent=True) or {}
     path = (data.get("path") or "") or _latest_backup_path()
     # R ealizuy s google-api-python-client

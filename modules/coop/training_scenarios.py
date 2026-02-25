@@ -1,33 +1,31 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/training_scenarios.py — paketnyy «start obucheniya»: golos+sinkhro-kursor+pleybek.
+"""modules/coop/training_scenarios.py - paketnyy “start obucheniya”: golos+sinkhro-kursor+pleybek.
 
-Ideya:
-- Odin vyzov zapuskaet: net_playback peers (esli zadany), sync_cursor.enable(True), playlist ili interactive_playback.
+Ideaya:
+- Odin vyzov zapuskaet: net_playback peers (esli zadany), sync_cursor.enable(True), playlist or interactive_playback.
 - Odin vyzov ostanavlivaet vse: otklyuchaet sync_cursor, shlet stop v net_playback i iplay.
 
 API:
 - start(spec) -> {started: {...}}
-- stop()      -> {stopped: {...}}
+- stop() -> {stopped: {...}}
 
 Format spec:
 {
   "peers": ["ip:port"],
   "mode": "iplay|playlist",
-  "steps": [...],      # dlya iplay
-  "playlist": {...}    # dlya playlist
+  "steps": [...], # dlya iplay
+  "playlist": {...} #dlya playlist
 }
 
 MOSTY:
-- Yavnyy: (Orkestratsiya ↔ UX) vse «poekhalo» odnoy knopkoy.
+- Yavnyy: (Orkestratsiya ↔ UX) vse “poekhalo” odnoy knopkoy.
 - Skrytyy #1: (Infoteoriya ↔ Prostota) menshe ruchnykh pereklyucheniy — menshe oshibok.
 - Skrytyy #2: (Kibernetika ↔ Role) veduschiy legko menyaet temp obucheniya.
 
 ZEMNOY ABZATs:
-Prosto proksiruem k suschestvuyuschim REST-ruchkam moduley net_playback/sync_cursor/iplay/playlist.
+Simply proksiruem k suschestvuyuschim REST-ruchkam modular net_playback/sync_cursor/iplay/playlist.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import http.client, json

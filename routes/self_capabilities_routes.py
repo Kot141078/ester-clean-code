@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_capabilities_routes.py - REST: karta vozmozhnostey, bazovyy self-check i metriki + prostoy UI.
+"""routes/self_capabilities_routes.py - REST: karta vozmozhnostey, bazovyy self-check i metrics + prostoy UI.
 
-Endpointy:
-  • GET  /self/capabilities
-  • GET  /self/health
-  • GET  /metrics/self_capabilities
-  • GET  /admin/self   - HTML-panel operatora (shablon v templates/self_console.html)
+Endpoint:
+  • GET /self/capabilities
+  • GET /self/health
+  • GET /metrics/self_capabilities
+  • GET /admin/self - HTML-panel operatora (template v templates/self_console.html)
 
 Mosty:
 - Yavnyy: (Volya ↔ Samopoznanie) agent i operator vidyat, chem sistema realno raspolagaet.
 - Skrytyy #1: (Inzheneriya ↔ Podderzhka) karta routov pomogaet izbezhat konflikta putey.
-- Skrytyy #2: (Audit ↔ Nadezhnost) metriki snapshotov vidny v Prometheus.
+- Skrytyy #2: (Audit ↔ Nadezhnost) metrics snapshotov vidny v Prometheus.
 
 Zemnoy abzats:
-Eto pribornaya panel: spisok rychagov/knopok i indikator «zdorovya» - mozhno prinimat resheniya.
+This is the pribornaya panel: spisok rychagov/knopok i indicator “zdorovya” - mozhno prinimat resheniya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, platform, sys
@@ -56,7 +54,7 @@ def api_health():
             "SELF_CODE_AB": os.getenv("SELF_CODE_AB","A"),
         }
     }
-    # bystraya proverka klyuchevykh podsistem (best-effort)
+    # quick check of key subsystems (best-effort)
     try:
         import flask  # noqa
         rep["flask_ok"] = True

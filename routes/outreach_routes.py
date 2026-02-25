@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/outreach_routes.py - REST: /outreach/proposal/* (generate/get)
+"""routes/outreach_routes.py - REST: /outreach/proposal/* (generate/get)
 
 Mosty:
 - Yavnyy: (Veb ↔ Outreach) generatsiya MD/HTML i pisma.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Nazhal - i gotovo predlozhenie i chernovik pisma, kotorye mozhno srazu otpravlyat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, send_file
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -31,7 +31,7 @@
       <button onclick="save()">Save</button>
       <button onclick="ping()">Ping</button>
       <pre id="status">—</pre>
-      <small>Vklyuchenie slushatelya: <code>TELEGRAM_ENABLE=1</code> (saydkar).</small>
+      <small>Enabling the listener: <code>TELEGRAM_ENABLE=1</code> (saydkar).</small>
     </div>
     <div>
       <h3>Otpravka fayla</h3>
@@ -98,8 +98,8 @@ async function pickTicket(){
   const p = j?.inbox?.last_ticket || null;
 }
 async function pickPackage(){
-  // uproschenno — polzovatel sam podstavlyaet put; podskazki mozhno dobavit pozzhe
-  alert('Podskazhi put k poslednemu paketu v ~/.ester/packages/out/');
+  // simplified - the user enters the path himself; hints can be added later
+  alert('Tell me the path to the latest package in ~/.ester/packages/from/');
 }
 loadStatus().catch(()=>{});
 </script>

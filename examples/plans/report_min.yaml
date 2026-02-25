@@ -1,6 +1,6 @@
-# Mini-plan generatsii chernovogo otcheta
+# Mini-plan for generating a draft report
 # Mosty:
-# - Yavnyy: (LLM/Plan ↔ UX) — zapuskaetsya cherez /thinking/cascade/execute (kak v admin_cascade.js).
+# - Yavnyy: (LLM/Plan ↔ UX) - zapuskaetsya cherez /thinking/cascade/execute (kak v admin_cascade.js).
 # - Skrytyy #1: (Memory ↔ Plan) — fiksiruet sobytie v profilee.
 # - Skrytyy #2: (Plan ↔ Eksport) — rezultatom stanovyatsya sektsii, gotovye k skleyke v Markdown.
 

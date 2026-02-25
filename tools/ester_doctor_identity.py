@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-ester_doctor_identity.py
+"""ester_doctor_identity.py
 
 EXPLICIT BRIDGE:
-- Cover&Thomas: esli identity "teryaetsya" — kanal upravleniya degradiruet (shum>signal).
+- Cover&Thomas: esli identity "teryaetsya" - kanal upravleniya degradiruet (shum>signal).
 - Enderton (logika): proveryaem invarianty (creator/anchor must appear early).
-- Earth paragraph: profile = "stvol" (reticular formation) — otvechaet za nepreryvnost bodrstvovaniya; esli ego podmenit logami, lichnost "zasypaet".
+- Earth paragraph: profile = "stvol" (reticular formation) - otvechaet za nepreryvnost bodrstvovaniya; esli ego podmenit logami, lichnost "zasypaet".
 
-(skrytye mosty): ashby_variety, talmudic_guard
-"""
+(skrytye mosty): ashby_variety, talmudic_guard"""
 
 from __future__ import annotations
 
@@ -120,7 +118,7 @@ def _ensure_examples() -> List[str]:
                 "# Fill manually, do not commit personal secrets.\n"
                 "- Creator: <name>\n"
                 "- Identity: <who this assistant is>\n"
-                "- Invariants: <never forget constraints>\n"
+                "- Invariants: <never forget constraints>"
             ),
             encoding="utf-8",
         )

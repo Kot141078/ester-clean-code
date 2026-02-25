@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ops_help_routes.py - stranitsa s offlayn-podskazkami po ustanovke OCR-zavisimostey.
+"""routes/ops_help_routes.py - stranitsa s offlayn-podskazkami po ustanovke OCR-zavisimostey.
 
-Routy:
-  GET /ops/ingest/help  -> HTML (templates/ops_ingest_help.html)
+Route:
+  GET /ops/ingest/help -> HTML (templates/ops_ingest_help.html)
 
 Mosty:
 - Yavnyy: (OPS ↔ UI) bystryy dostup k instruktsiyam pryamo iz paneli.
 - Skrytyy #1: (Inzheneriya ↔ Prozrachnost) khranenie spravki v shablonakh, bez vneshnikh zavisimostey.
-- Skrytyy #2: (Sovmestimost ↔ Kontrakty) drop-in blyuprint s register/init_app i aliasom.
+- Skrytyy #2: (Sovmestimost ↔ Kontrakty) drop-in blueprint s register/init_app i aliasom.
 
 Zemnoy abzats:
-Eto «pamyatka na stene» v servernoy: vsegda pod rukoy, dazhe bez interneta.
+Eto “pamyatka na stene” v servernoy: vsegda pod rukoy, dazhe bez interneta.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, render_template
@@ -44,14 +42,14 @@ def ops_ingest_help():
 
 
 def register_ops_help_routes(app, url_prefix: str | None = None) -> None:  # pragma: no cover
-    """Sovmestimaya registratsiya blyuprinta s optsionalnym pereopredeleniem prefiksa."""
+    """Compatible blueprint registration with optional prefix override."""
     if url_prefix is None:
         app.register_blueprint(ops_help_bp)
     else:
         app.register_blueprint(ops_help_bp, url_prefix=url_prefix)
 
 
-# Unifitsirovannye khuki proekta
+# Unified project hooks
 def register(app) -> None:  # pragma: no cover
     app.register_blueprint(ops_help_bp)
 

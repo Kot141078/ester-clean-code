@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-routes/lm_bootstrap.py - UI/REST «Bootstrap LM Studio».
+"""routes/lm_bootstrap.py - UI/REST “Bootstrap LM Studio”.
 
-Marshruty:
-  • GET  /admin/lm_bootstrap                 - HTML
-  • GET  /admin/lm_bootstrap/status          - OS, installyatory, aliases
-  • POST /admin/lm_bootstrap/plan_install    - plan ustanovki
-  • POST /admin/lm_bootstrap/run_install     - zapusk ustanovki (AB=B)
-  • POST /admin/lm_bootstrap/check_endpoint  - {endpoint}
-  • POST /admin/lm_bootstrap/auto_bind       - {alias, endpoint, model}
-  • POST /admin/lm_bootstrap/smoke_chat      - {endpoint, model, prompt?, max_tokens?, temperature?}
+Route:
+  • GET /admin/lm_bootstrap - HTML
+  • GET /admin/lm_bootstrap/status - OS, installyatory, aliases
+  • POST /admin/lm_bootstrap/plan_install - plan ustanovki
+  • POST /admin/lm_bootstrap/run_install - zapusk ustanovki (AB=B)
+  • POST /admin/lm_bootstrap/check_endpoint - {endpoint}
+  • POST /admin/lm_bootstrap/auto_bind - {alias, endpoint, model}
+  • POST /admin/lm_bootstrap/smoke_chat - {endpoint, model, prompt?, max_tokens?, temperature?}
 
 Mosty:
-- Yavnyy (UX ↔ Resursy): edinyy ekran dlya «ustanovit → proverit API → privyazat alias → smoke».
+- Yavnyy (UX ↔ Resursy): edinyy ekran dlya “ustanovit → proverit API → privyazat alias → smoke.”
 - Skrytyy 1 (Infoteoriya ↔ Nadezhnost): plan pered deystviem; minimalnye taymauty i obemy.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): stdlib, drop-in; yadro Ester ne trogaem.
 
 Zemnoy abzats:
-Eto «knopka zapuska»: vse, chto nuzhno dlya LM Studio, sobrano v odnom meste - bez kopaniya v konfigakh.
+This is “knopka zapuska”: vse, chto nuzhno dlya LM Studio, sobrano v odnom meste - bez kopaniya v konfigakh.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-CloudProvider — emulyatsiya oblachnogo provaydera bez vneshnego trafika.
-Metod: generate(prompt, temperature) -> str
-"""
+"""CloudProvider - emulation of a cloud provider without external traffic.
+Method: generate(prompt, temperature) -> page"""
 from __future__ import annotations
 
 import re
@@ -16,7 +14,7 @@ class CloudProvider:
 
     def generate(self, prompt: str, temperature: float = 0.2) -> str:
         p = (prompt or "").strip()
-        # «oblachnyy» otvet chut dlinnee i bolee akkuratnyy
+        # "cloud" answer is a little longer and more accurate
         p = re.sub(r"\s+", " ", p)
         tail = p[-220:]
-# return f"Otvet (cloud): {tail}"
+# return f"Answer (cloud): ZZF0Z"

@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R7/tests/r7_smoke.py — myagkiy smouk nablyudaemosti/SLO.
+"""R7/tests/r7_smoke.py - myagkiy smouk nablyudaemosti/SLO.
 
 Mosty:
 - Yavnyy: Enderton — proveryaem predikaty: metrika zapisana ∧ otchet sgenerirovan.
-- Skrytyy #1: Ashbi — ustoychivost: pri pustykh logakh — otchet s nulevymi semplami, bez padeniy.
-- Skrytyy #2: Cover & Thomas — otchet v Markdown s minimalnym, no dostatochnym «signalom».
+- Skrytyy #1: Ashbi - ustoychivost: pri pustykh logakh - otchet s nulevymi semplami, bez padeniy.
+- Skrytyy #2: Cover & Thomas — otchet v Markdown s minimalnym, no dostatochnym “signalom”.
 
 Zemnoy abzats (inzheneriya):
-Zapuskaet fiktivnuyu komandu cherez obertku, zatem stroit otchet po fiksture SLO-konfiga.
+Zapuskaet fiktivnuyu komandu cherez obertku, zatem stroit otchet po fiksture SLO-configa.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import subprocess, sys
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

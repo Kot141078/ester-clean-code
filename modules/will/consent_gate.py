@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-modules/will/consent_gate.py — edinyy shlyuz soglasiya dlya silnykh deystviy.
+"""modules/will/consent_gate.py - edinyy shlyuz soglasiya dlya silnykh deystviy.
 
 API:
 - check(need:list[str]|None=None, min_level:int=1) -> {allowed:bool, reason:str, snapshot:{}}
-Pravila:
-- paused == True → zapret
-- level < min_level → zapret
+Rules:
+- paused == True → prohibited
+- level < min_level → locked
 - ttl_sec <= 0 → zapret (dlya silnykh deystviy)
 - need ⊆ scope==True → inache zapret
 
 MOSTY:
-- Yavnyy: (Bezopasnost ↔ Ispolnitel) odna tochka resheniya.
-- Skrytyy #1: (Kibernetika ↔ Stabilnost) TTL zaschischaet ot «vechnogo» razresheniya.
+- Yavnyy: (Bezopasnost ↔ Ispolnitel) one tochka resheniya.
+- Skrytyy #1: (Kibernetika ↔ Stabilnost) TTL zaschischaet ot “vechnogo” razresheniya.
 - Skrytyy #2: (Inzheneriya ↔ Sovmestimost) chistaya, bez zavisimostey.
 
 ZEMNOY ABZATs:
 Vstraivaetsya v lyuboy modul: pered deystviem vyzovi check(...).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 from modules.autonomy.state import get as _get_state
@@ -32,7 +30,7 @@ def check(need: List[str] | None = None, min_level: int = 1) -> Dict[str, Any]:
     if int(st.get("level", 0)) < int(min_level):
         return {"allowed": False, "reason": "level_too_low", "snapshot": st}
     if st.get("ttl_sec", 0) <= 0 and (need or []):
-        # esli deystvie «silnoe» (est potrebnosti), TTL obyazatelen
+        # if the action is “strong” (there are needs), TTL is required
         return {"allowed": False, "reason": "ttl_expired", "snapshot": st}
     scope = st.get("scope") or {}
     for cap in (need or []):

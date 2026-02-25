@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/security/pill_guard.py — before_request guard: proverka «pilyuli» (chelovek v konture).
+"""modules/security/pill_guard.py - before_request guard: proverka “pilyuli” (chelovek v konture).
 
 Mosty:
 - Yavnyy: (Politika ↔ Riski) perekhvatyvaem izmenyayuschie zaprosy, trebuem podtverzhdenie po pravilam.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Profile ↔ Audit) sozdaem zayavku srazu pri pervom obraschenii, vozvraschaem 428 s id.
 
 Zemnoy abzats:
-Eto kak «kod iz SMS»: bez deystvuyuschey zayavki s vernym otpechatkom tela zaprosa deystvie ne proydet.
+Eto kak “kod iz SMS”: bez deystvuyuschey zayavki s vernym otpechatkom tela zaprosa deystvie ne proydet.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, re, json, time, hashlib
 from typing import List, Dict, Any
@@ -28,7 +26,7 @@ def _sha256(b: bytes)->str:
 
 def _load_patterns()->List[Dict[str,str]]:
     pats=[]
-    # 1) Yavnyy konfig
+    # 1) Explicit config
     if os.path.isfile(PATF):
         try:
             j=json.load(open(PATF,"r",encoding="utf-8"))
@@ -71,7 +69,7 @@ def register(app):
         if not _need_pill(method, path): return
         body=request.get_data() or b""
         sig=_sha256(body)
-        # Esli prishel validnyy X-Pill — proverim
+        # If you receive a valid S-Pill, we’ll check it.
         token=request.headers.get(HEADER,"").strip()
         if token:
             try:
@@ -83,7 +81,7 @@ def register(app):
                         return  # propuskaem
             except Exception:
                 pass
-        # Inache — sozdaem zayavku i blokiruem 428
+        # Otherwise, creates a request and blocks 428
         try:
             from modules.policy.pillbox import request as _req  # type: ignore
             p=_req(method, path, sig, None, note="auto", src_ip=request.remote_addr or "")

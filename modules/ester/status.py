@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ester/status.py — svodnyy status rezhimov i kaskadnogo myshleniya Ester.
+"""modules/ester/status.py - svodnyy status rezhimov i kaskadnogo myshleniya Ester.
 
 Mosty:
 - Yavnyy: (ENV ↔ HTTP/CLI) — edinyy istochnik pravdy po rezhimam.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Inzheneru nuzhno ponyat, kak seychas dumaet Ester. Odin vyzov get_status()
 vozvraschaet rezhimy kaskada, voli, guard, trace i debug.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -24,7 +22,7 @@ def _env_flag(name: str, default: str = "A") -> str:
 
 
 def get_status() -> Dict[str, Any]:
-    """Vernut strukturirovannyy status klyuchevykh rezhimov Ester."""
+    """Return the structured status of Esther's key modes."""
     return {
         "volition": {
             "ESTER_VOLITION_MODE": _env_flag("ESTER_VOLITION_MODE", "A"),
@@ -47,40 +45,40 @@ def get_status() -> Dict[str, Any]:
 
 
 def get_human_summary() -> str:
-    """Chelovekochitaemoe rezyume rezhimov."""
+    """Human-readable summary of modes."""
     st = get_status()
     parts = []
 
     vm = st["volition"]["ESTER_VOLITION_MODE"]
     if vm == "B":
-        parts.append("volya vklyuchena (impulsy prinimayutsya)")
+        parts.append("the will is turned on (impulses are accepted)")
     else:
-        parts.append("volya v passivnom rezhime")
+        parts.append("will in passive mode")
 
     if st["volition"]["ESTER_WILL_PRIORITY_AB"] == "B":
-        parts.append("prioritety tseley uchityvayutsya")
+        parts.append("Goal priorities are taken into account")
     if st["volition"]["ESTER_WILL_SCHED_AB"] == "B":
         parts.append("planirovschik voli aktiven")
 
     if st["cascade"]["ESTER_CASCADE_CTX_AB"] == "B":
-        parts.append("mnogokontekstnyy kaskad myshleniya vklyuchen")
+        parts.append("multi-contextual thinking cascade enabled")
     if st["cascade"]["ESTER_CASCADE_GUARD_AB"] == "B":
-        parts.append("guard kaskada aktiven (ogranicheniya po shagam/chastote)")
+        parts.append("cascade guard active (step/frequency restrictions)")
 
     tr = st["trace"]["ESTER_TRACE_AB"]
     if tr == "B":
-        parts.append("polnyy treys myshleniya vklyuchen")
+        parts.append("full thinking trace included")
     elif tr == "A":
-        parts.append("kratkiy treys myshleniya vklyuchen pri nalichii adaptera")
+        parts.append("short thinking trace is enabled if adapter is available")
 
     if st["trace"]["ESTER_THINK_DEBUG_AB"] == "B":
-        parts.append("debug-marshruty /ester/thinking-debug/* razresheny")
+        parts.append("debug-routes /ester/thinking-debug/* permissions")
 
     bg_dis = (st["background"]["ESTER_BG_DISABLE"] or "0").lower() in ("1", "true", "yes")
     if bg_dis:
-        parts.append("fonovye moduli otklyucheny")
+        parts.append("background modules are disabled")
     else:
         hb = st["background"]["THINK_HEARTBEAT_SEC"] or "po umolchaniyu"
-        parts.append(f"fonovye myslitelnye tsikly razresheny (interval {hb} sek)")
+        parts.append(f"background thought cycles of permissions (interval ZZF0Z sec)")
 
     return " ; ".join(parts)

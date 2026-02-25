@@ -4,8 +4,8 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 TARGET_FILE = "run_ester_fixed.py"
 
-# --- NOVAYa FUNKTsIYa MOZGA (S ZASchITOY) ---
-# My zamenyaem _safe_chat na versiyu, kotoraya umeet pereklyuchatsya na Local pri oshibkakh.
+# --- New BRAIN Function (With Protection) ---
+# We are replacing _safe_chat with a version that can switch to Local in case of errors.
 NEW_SAFE_CHAT_CODE = '''async def _safe_chat(
     provider: str,
     messages: List[Dict[str, Any]],
@@ -14,18 +14,18 @@ NEW_SAFE_CHAT_CODE = '''async def _safe_chat(
     chat_id: Optional[int] = None,
 ) -> str:
     # --- FALLBACK LOGIC INJECTED BY FIX_V3 ---
-    # Vnutrennyaya funktsiya popytki zaprosa
+    # Internal request attempt function
     async def _try_request(prov_name, msgs, temp, max_tok):
         client = PROVIDERS.client(prov_name)
         cfg = PROVIDERS.cfg(prov_name)
         
-        # Khard-kap tokenov iz konfiga
+        # Khard-kap tokenov iz configa
         hard_cap = int(getattr(cfg, "max_out_tokens", 0) or 0)
         start_max = int(max_tok)
         if hard_cap > 0:
             start_max = min(start_max, hard_cap)
 
-        # Lestnitsa tokenov (Step-down) dlya borby s perepolneniem konteksta
+        # Token ladder (Step-dovn) to combat context overflow
         base_steps = [start_max, 12000, 8192, 8000, 6000, 4000, 2000, 1000, 512, 256, 128]
         token_steps = []
         seen = set()
@@ -47,11 +47,11 @@ NEW_SAFE_CHAT_CODE = '''async def _safe_chat(
                 if txt: return txt
             except Exception as e:
                 last_error = e
-                # Esli oshibka konteksta - probuem menshe tokenov
+                # If there is a context error, try fewer tokens
                 err_str = str(e).lower()
                 if any(x in err_str for x in ["context", "max", "token", "length", "bad request"]):
                     continue
-                # Esli oshibka seti/deneg (429) - vykhodim srazu, chtoby srabotal Fallback
+                # If there is a network/money error (429) - exit immediately so that Falbatsk works
                 raise e
         if last_error: raise last_error
         return ""
@@ -59,27 +59,26 @@ NEW_SAFE_CHAT_CODE = '''async def _safe_chat(
     # 1. Normalizatsiya soobscheniy
     norm_messages = _normalize_messages_for_provider(provider, messages, chat_id=chat_id)
     
-    # 2. Osnovnaya popytka
+    # 2. Main attempt
     try:
         return await _try_request(provider, norm_messages, temperature, max_tokens)
     except Exception as e:
-        # 3. AVARIYNYY REZhIM (FALLBACK)
-        # Esli my esche ne na lokalke - pereklyuchaemsya
+        #3. AVARIYNYY REZhIM (FALLBACK)
+        # If we are not on LAN yet, it switches
         if provider != "local":
             logging.warning(f"⚠️ [BRAIN] Oblako ({provider}) upalo: {e}. Perekhozhu na LOCAL...")
             try:
-                # Probuem lokalnyy mozg
+                # Try it lokalnyy brain
                 return await _try_request("local", norm_messages, temperature, max_tokens)
             except Exception as local_e:
                 logging.error(f"❌ [BRAIN] Lokalnyy mozg tozhe ne otvetil: {local_e}")
                 return ""
         
         logging.error(f"❌ [BRAIN] Oshibka provaydera {provider}: {e}")
-        return ""
-'''
+        return ""'''
 
 def apply_fixes():
-    print(f"🔧 Otkryvayu patsienta: {TARGET_FILE}")
+    print(f"🔧Otkryvayu patsienta: {TARGET_FILE}")
     
     if not os.path.exists(TARGET_FILE):
         print(f"❌ Fayl {TARGET_FILE} ne nayden!")
@@ -89,7 +88,7 @@ def apply_fixes():
         content = f.read()
 
     # ==========================================
-    # OPERATsIYa 1: Ubiystvo "Kukushki" (Time Echo)
+    # Operation 1: Killing the "Cuckoo" (Time Echo)
     # ==========================================
     # Ischem spisok time_triggers = [...]
     # Ispolzuem regex, kotoryy zakhvatyvaet kvadratnye skobki i vse vnutri
@@ -98,33 +97,33 @@ def apply_fixes():
     match_trigger = re.search(trigger_pattern, content, re.DOTALL)
     
     if match_trigger:
-        print("🕰️ Nashel triggery vremeni. Ochischayu...")
-        # Zamenyaem ves spisok na pustoy
+        print("🕰️ Nashel triggery time. Ochischayu...")
+        # Replaces the entire list with an empty one
         content = content.replace(match_trigger.group(0), 'time_triggers = [] # Ochischeno fix_v3 (Disable Time Echo)')
         print("✅ Reaktsiya na slovo 'segodnya' otklyuchena.")
     else:
         print("⚠️ Spisok triggerov ne nayden (vozmozhno, uzhe ochischen).")
 
     # ==========================================
-    # OPERATsIYa 2: Vzhivlenie Fallback (_safe_chat)
+    # Operation 2: Implantation of Falbatsk (_safe_chat)
     # ==========================================
-    # Ischem funktsiyu async def _safe_chat(...): ... do sleduyuschey funktsii async def need_web_search_llm
+    # We are looking for the function asins def _safe_chat(...): ... until the next function asins def none_web_search_llm
     
-    # Regulyarka: ischem ot nachala _safe_chat do nachala sleduyuschey funktsii
+    # Regular: search from the beginning of _safe_chat to the beginning of the next function
     brain_pattern = r'(async\s+def\s+_safe_chat\(.*?\):[\s\S]*?)(?=\nasync\s+def\s+need_web_search_llm)'
     
     match_brain = re.search(brain_pattern, content)
     
     if match_brain:
-        print("🧠 Funktsiya _safe_chat naydena. Zamenyayu na broneboynuyu versiyu...")
+        print("🧠 Funktsiya _safe_chat naydena. Zamenyayu na armorboynuyu versiyu...")
         old_code = match_brain.group(1)
         content = content.replace(old_code, NEW_SAFE_CHAT_CODE)
         print("✅ Zapasnoe serdtse (Fallback -> Local) ustanovleno.")
     else:
         print("❌ Ne udalos nayti granitsy funktsii _safe_chat. Prover fayl vruchnuyu.")
-        # Popytka nayti khotya by nachalo, esli konets ne sovpal
+        # Trying to find at least the beginning if the end does not match
         if "async def _safe_chat" in content:
-            print("   -> Funktsiya suschestvuet, no regulyarka ne sovpala s kontsom.")
+            print("-> The function exists, but the regular sequence does not match the end.")
 
     # Sokhranyaem
     with open(TARGET_FILE, 'w', encoding='utf-8') as f:
@@ -134,4 +133,4 @@ def apply_fixes():
 
 if __name__ == "__main__":
     apply_fixes()
-    input("Nazhmi Enter dlya vykhoda...")
+    input("Press Enter to exit...")

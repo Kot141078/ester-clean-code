@@ -1,18 +1,16 @@
 # scripts/proactive_consume_once.py
 # -*- coding: utf-8 -*-
-"""
-scripts/proactive_consume_once.py — odnorazovaya obrabotka sobytiy Proactive 2.0.
+"""scripts/proactive_consume_once.py — odnorazovaya obrabotka sobytiy Proactive 2.0.
 
-Ispolzovanie (dlya cron/systemd ili ruchnogo zapuska):
+Use (dlya cron/systemd ili ruchnogo zapuska):
   python scripts/proactive_consume_once.py
-  # optsionalno peremennye okruzheniya:
-  #   LIMIT=500
+  #optsionalno peremennye okruzheniya:
+  # LIMIT=500
 
-Povedenie:
+Behavior:
   - beret sokhranennyy offset <PERSIST_DIR>/proactive/offset.json
   - obrabatyvaet sobytiya (automation:run_due, dream:tick, ingest:queue_reingest i dr.)
-  - sokhranyaet novyy offset, pechataet JSON-otchet
-"""
+  - sokhranyaet novyy offset, pechataet JSON-otchet"""
 from __future__ import annotations
 
 import json

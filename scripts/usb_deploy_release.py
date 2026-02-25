@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/usb_deploy_release.py — universalnyy deploy relizov i dampov na/s USB dlya Ester.
+"""scripts/usb_deploy_release.py - universalnyy deploy relizov i dampov na/s USB dlya Ester.
 
 Vyzov:
   python -m scripts.usb_deploy_release --direction to-usb|--from-usb --mount /path/to/mount [--archive file.zip] [--dump file.tar.gz]
 
 Stsenarii:
-  - to-usb: Zapisyvaet reliz v /ESTER/releases/<cid>.zip ili damp v /ESTER/dumps/<file>, dobavlyaet bootstrap-skript.
-  - from-usb: Kopiruet reliz v ~/.ester/releases/<ts>/ ili damp v ~/.ester/inbox/projects/, ispolzuet manifest.json ili avto-poisk.
+  - to-usb: Zapisyvaet reliz v /ESTER/releases/<cid>.zip or damp v /ESTER/dumps/<file>, addavlyaet bootstrap-skript.
+  - from-usb: Kopiruet release v ~/.ester/releases/<ts>/ or damp v ~/.ester/inbox/projects/, ispolzuet manifest.json or avto-poisk.
 
 Mosty:
-- Yavnyy (Kibernetika ↔ Ekspluatatsiya): atomarnyy perenos faylov v obe storony.
-- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): strogiy JSON-otchet s polem strategy.
+- Yavnyy (Kibernetika ↔ Ekspluatatsiya): atomarnyy perenos faylov v obe sidery.
+- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): strict JSON-otchet s polem strategy.
 - Skrytyy 2 (Praktika ↔ Bezopasnost): nikakikh vmeshatelstv v servisy, tolko faylovye operatsii.
 
 Zemnoy abzats:
-Kak zabotlivyy medbrat: akkuratno perekladyvaet pakety v nuzhnye shkafchiki (na USB ili s USB), ostavlyaet zapisku (JSON), nichego ne lomaet.
-"""
+Kak zabotlivyy medbrat: akkuratno perekladyvaet pakety v nuzhnye shkafchiki (na USB or s USB), ostavlyaet zapisku (JSON), nichego ne lomaet."""
 from __future__ import annotations
 
 import argparse
@@ -37,7 +35,7 @@ USB_LABEL = os.getenv("ESTER_USB_LABEL", "ESTER").strip() or "ESTER"
 STATE_DIR = Path(os.getenv("ESTER_STATE_DIR", str(Path.home() / ".ester")))
 
 _BOOTSTRAP_PY = """#!/usr/bin/env python3
-# USB bootstrap — zapuskaetsya vruchnuyu s USB: sobiraet Ester iz dampa na tekuschey mashine.
+# USB bootstrap - launched manually from USB: collects Esther from a dump on the current machine.
 import os, sys, json
 from modules.selfmanage.dump_assembler import assemble_from_archive
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -53,12 +51,11 @@ def main():
     return 0 if res.get("ok") else 2
 
 if __name__ == "__main__":
-    raise SystemExit(main())
-"""
+    raise SystemExit(main())"""
 
 
 def _copy(src: Path, dst: Path) -> Dict:
-    """Kopiruet fayl i vozvraschaet informatsiyu dlya otcheta."""
+    """Copies the file and returns information for the report."""
     try:
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(str(src), str(dst))
@@ -72,7 +69,7 @@ def _copy(src: Path, dst: Path) -> Dict:
 
 
 def _find_release_zip(ester_dir: Path) -> Optional[Path]:
-    """Ischet reliznyy arkhiv po shablonam."""
+    """Searches the release archive using templates."""
     for pat in ("releases/*.zip", "releases/*.tar.gz", "ester_release.tar.gz", "ester_release.zip"):
         for p in ester_dir.glob(pat):
             return p
@@ -109,7 +106,7 @@ def _manifest_pick(ester_dir: Path) -> Tuple[Optional[Path], Optional[Path]]:
 
 
 def _extract_cid_from_archive(arc: Path) -> Optional[str]:
-    """Izvlekaet CID iz arkhiva, esli est manifest.json."""
+    """Retrieves the CID from the archive if there is a manifest.zhsion."""
     try:
         if zipfile.is_zipfile(arc):
             with zipfile.ZipFile(arc, "r") as z:
@@ -122,7 +119,7 @@ def _extract_cid_from_archive(arc: Path) -> Optional[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Osnovnaya logika deploya na/s USB."""
+    """Basic logic of deployment to/from USB."""
     ap = argparse.ArgumentParser(description="Ester USB Deploy Release")
     ap.add_argument(
         "--direction",
@@ -133,17 +130,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--mount",
         default=None,
-        help="Tochka montirovaniya USB (dlya to-usb: esli ne ukazano — avto)",
+        help="USB mount point (for to-usb: if not specified - auto)",
     )
     ap.add_argument(
         "--archive",
         default="",
-        help="Put k arkhivu reliza (esli pusto — probuem manifest/auto)",
+        help="Path to the release archive (if empty, try manifest/auto)",
     )
     ap.add_argument(
         "--dump",
         default="",
-        help="Put k dampu (esli pusto — probuem manifest/auto)",
+        help="Path to dump (if empty, try manifest/auto)",
     )
     args = ap.parse_args(argv)
 
@@ -237,7 +234,7 @@ def main(argv: list[str] | None = None) -> int:
         if dmp and dmp.exists():
             dst = dump_dir / dmp.name
             report["copied"].append(_copy(dmp, dst))
-            # Obnovlyaem manifest.json
+            # Update manifest.jsion
             manifest = _read_manifest(usb_root) or {"items": []}
             manifest["items"].append(
                 {"path": str(dst.relative_to(usb_root.parent)), "kind": "dump"}
@@ -263,7 +260,7 @@ def main(argv: list[str] | None = None) -> int:
                         "ts": ts,
                         "src": str(arch),
                         "dst": str(dst_archive),
-                        "info": "kopiya reliznogo arkhiva; raspakovka/podkhvat — vne etoy komandy",
+                        "info": "a copy of the release archive; unpacking/pickup - outside of this command",
                     },
                     ensure_ascii=False,
                     indent=2,

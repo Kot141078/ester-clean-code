@@ -1,10 +1,8 @@
 # tests/test_config.py
 # -*- coding: utf-8 -*-
-"""
-Testy dlya config.py: proveryaem, chto znacheniya chitayutsya iz ENV i imeyut nuzhnye tipy.
+"""Testy dlya config.py: proveryaem, chto znacheniya chitayutsya iz ENV i imeyut nuzhnye tipy.
 Vazhno: v repozitorii mozhet ne byt zavisimosti python-dotenv — podmenyaem modul 'dotenv'
-pered importom config, chtoby izbezhat ImportError.
-"""
+pered importom config, chtoby izbezhat ImportError."""
 import importlib
 import os
 import sys
@@ -25,7 +23,7 @@ def _install_fake_dotenv():
 def test_config_env_types_and_defaults(monkeypatch):
     _install_fake_dotenv()
 
-    # Znacheniya cherez ENV
+    # Values ​​via ENV
     monkeypatch.setenv("HOST", "127.0.0.1")
     monkeypatch.setenv("PORT", "5050")
     monkeypatch.setenv("DEBUG", "0")
@@ -41,7 +39,7 @@ def test_config_env_types_and_defaults(monkeypatch):
     monkeypatch.setenv("USE_LOCAL_EMBEDDINGS", "0")
     monkeypatch.setenv("TZ_NAME", "UTC")
 
-    # Nekotorye proekty dobavlyayut esche polya; my ne utverzhdaem, prosto proveryaem bazovye.
+    # Some projects add more fields; We don't approve, we just check the basics.
     if "config" in sys.modules:
         del sys.modules["config"]
     conf = importlib.import_module("config")
@@ -57,6 +55,6 @@ def test_config_env_types_and_defaults(monkeypatch):
     assert isinstance(conf.USE_EMBEDDINGS, bool) and conf.USE_EMBEDDINGS is True
     assert isinstance(conf.EMBEDDINGS_API_BASE, str)
     assert isinstance(conf.EMBEDDINGS_MODEL, str)
-    # OPENAI_API_KEY mozhet byt pustym — tolko proveryaem tip
+    # OPEN_API_KEY can be empty - it only checks the type
     assert isinstance(conf.OPENAI_API_KEY, str)
 # assert isinstance(conf.USE_LOCAL_EMBEDDINGS, bool)

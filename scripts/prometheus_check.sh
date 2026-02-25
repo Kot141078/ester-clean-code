@@ -5,13 +5,13 @@ PROM_URL="${PROM_URL:-http://localhost:9090}"
 
 echo "[prom-check] Using ${PROM_URL}"
 
-# Proverim, chto API Prometheus otvechaet
+# Let's check that the Prometneus API responds
 if ! curl -fsS "${PROM_URL}/-/healthy" >/dev/null; then
   echo "[prom-check] ERROR: Prometheus not healthy"
   exit 1
 fi
 
-# Proverim, chto target ester viden i UP.
+# Let's check that the target ester is visible and the UE.
 targets_json="$(curl -fsS "${PROM_URL}/api/v1/targets?state=active")"
 
 # Probuem prostym sposobom bez jq
@@ -19,7 +19,7 @@ echo "${targets_json}" | grep -q '"health":"up"' || {
   echo "[prom-check] WARN: no active target with health=up found (raw check)."
 }
 
-# Proverim metriku up{job="ester"} cherez query
+# Let's check the metric upZF0Z through the mountains
 q="$(python3 - <<'PY'
 import os, sys, urllib.parse, urllib.request, json
 prom = os.environ.get("PROM_URL","http://localhost:9090")

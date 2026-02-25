@@ -1,10 +1,8 @@
 
 # -*- coding: utf-8 -*-
-"""
-ester/routes/app_discover_routes.py — bezopasnaya versiya ruchek discover (namespace-put).
+"""ester/routes/app_discover_routes.py - bezopasnaya versiya ruchek discover (namespace-put).
 Stavit tu zhe semantiku, chto i routes/app_discover_routes.py, no ostaetsya sovmestimoy.
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 import importlib
 from typing import Any, Dict, List, Tuple

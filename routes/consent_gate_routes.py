@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/consent_gate_routes.py - REST/UI dlya «shlyuza soglasiya».
+"""routes/consent_gate_routes.py - REST/UI dlya "shlyuza soglasiya".
 
 Ruchki:
-  POST /consent/grant  {"scope":"full_control","ttl_sec":900}
-  POST /consent/check  {"scope":"full_control"}
+  POST /consent/grant {"scope":"full_control","ttl_sec":900}
+  POST /consent/check {"scope":"full_control"}
   POST /consent/revoke {"scope":"full_control"}
-  GET  /consent/status
-  GET  /admin/consent   (alias vne prefiksa blyuprinta)
-  GET  /consent/admin   (stranitsa v ramkakh blyuprinta)
+  GET /consent/status
+  GET /admin/consent (alias vne prefiksa blyuprinta)
+  GET /consent/admin (stranitsa v ramkakh blyuprinta)
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request, render_template
@@ -80,18 +78,18 @@ def _admin_consent_page():
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta i aliasa /admin/consent."""
+    """Drop-in registration of blueprint and alias /admin/consent."""
     app.register_blueprint(bp)
-    # Dobavlyaem sovmestimyy alias admin-stranitsy
+    # Adding a compatible admin page alias
     try:
         app.add_url_rule("/admin/consent", endpoint="admin_consent", view_func=_admin_consent_page, methods=["GET"])
     except Exception:
-        # Esli marshrut uzhe suschestvuet - molcha ignoriruem
+        # If the route already exists, silently ignore it
         pass
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

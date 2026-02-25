@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/messaging/dev_send.py — lokalnaya otpravka soobscheniy (bez seti po umolchaniyu).
+"""scripts/messaging/dev_send.py - lokalnaya otpravka soobscheniy (bez seti po umolchaniyu).
 
 MOSTY:
 - (Yavnyy) CLI: --to telegram|whatsapp, --chat <id>, --text <msg>.
 - (Skrytyy #1) Esli ENV DEV_DRYRUN=1 — vyvodim sobrannyy payload vmesto setevogo vyzova.
-- (Skrytyy #2) Prigodno dlya smoke-proverki pri pustykh tokenakh.
+- (Skrytyy #2) Prigodno dlya smoke-check pri pustykh tokenakh.
 
 ZEMNOY ABZATs:
-Bystro proverit, «chto by ushlo» v kanal, ne riskuya realno otpravit.
+Bystro proverit, “what by ushlo” v kanal, ne riskuya realno otpravit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse

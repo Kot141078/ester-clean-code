@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/desktop_rpa_vision_routes.py - poisk shablonov po skrinshotu i klik v naydennyy boks.
+"""routes/desktop_rpa_vision_routes.py - poisk shablonov po screenshotu i klik v naydennyy boks.
 
 Ruchki:
   POST /desktop/rpa/find_template {"template_b64":"...", "threshold":0.78}
@@ -12,16 +11,15 @@ Realizatsiya:
 - Dlya click_template → /desktop/rpa/click po tsentru boksa
 
 MOSTY:
-- Yavnyy: (Obraz ↔ Klik) «nashel - nazhal».
+- Yavnyy: (Obraz ↔ Klik) “nashel - nazhal.”
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) oflayn-sovpadenie umenshaet setevye riski.
 - Skrytyy #2: (Kibernetika ↔ Volya) formalizovannyy sensor vstraivaetsya v stsenarii/makrosy.
 
 ZEMNOY ABZATs:
-Ne trebuet izmeneniya agentov Windows/Linux - vsya «optika» na servere Ester.
+Ne trebuet izmeneniya agentov Windows/Linux - vsya “optika” na servere Ester.
 Esli nuzhno bystree - mozhno pozzhe vynesti v agenta.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from typing import Any, Dict

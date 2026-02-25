@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/email_routes.py — REST dlya generatsii i otpravki pisem + HTML predprosmotr.
+"""routes/email_routes.py - REST dlya generatsii i otpravki pisem + HTML predprosmotr.
 
 MOSTY:
 - (Yavnyy) /email/compose → generatsiya (uchet profilya po keys), /email/send → SMTP otpravka, /email/styles → spravka.
-- (Skrytyy #1) Pri generatsii podtyagivaet profil po contact_key→agent_id (roles.store), kak i v soobscheniyakh.
-- (Skrytyy #2) HTML-stranitsa /email/preview.html — bystryy UI bez vneshnikh zavisimostey.
+- (Skrytyy #1) Pri generatsii podtyagivaet profil po contact_key→agent_id (roles.store), how i v soobscheniyakh.
+- (Skrytyy #2) HTML-stranitsa /email/preview.html - bystryy UI bez vneshnikh zavisimostey.
 
 ZEMNOY ABZATs:
-Ester pishet pisma «v temu»: pravilnyy ton dlya advokata/shkolnika/druga, akkuratnaya tema i struktura. I — otpravlyaet.
+Ester pishet pisma “v temu”: pravilnyy ton dlya advokata/shkolnika/druga, akkuratnaya tema i struktura. I - otpravlyaet.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
@@ -51,8 +49,7 @@ async def email_send(payload: Dict[str, Any] = Body(...)):
 async def email_styles():
     return JSONResponse({"ok": True, "styles": ["lawyer","student","friend","business","default"]})
 
-_HTML = """
-<!doctype html><html><head><meta charset="utf-8"><title>Email Compose</title>
+_HTML = """<!doctype html><html><head><meta charset="utf-8"><title>Email Compose</title>
 <style>
 body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:16px;color:#222}
 .card{border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
@@ -72,7 +69,7 @@ small{color:#666}
     <textarea id="intent" rows="3" placeholder="Nuzhen ekspress-analiz dogovora do chetverga."></textarea>
   </label>
   <details><summary>Kontekst (neobyazatelno)</summary>
-    <label>Detali:<br><input id="details" placeholder="dogovor na 4 stranitsy, pravki v razdele 3.2"></label>
+    <label>Details:<br><input id="details" placeholder="dogovor na 4 stranitsy, pravki v razdele 3.2"></label>
     <label>Deystvie (CTA):<br><input id="cta" placeholder="Soobschite, pozhaluysta, smozhete li do 14:00"></label>
     <label>Dedlayn:<br><input id="deadline" placeholder="chetverg 14:00"></label>
   </details>
@@ -80,7 +77,7 @@ small{color:#666}
 </div>
 <div id="draft" class="card" style="display:none">
   <h3>Chernovik</h3>
-  <div><b>Tema:</b> <span id="subj"></span></div>
+  <div><b>Subject:</b> <span id="subj"></span></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
     <div><h4>Tekst</h4><pre id="text" style="white-space:pre-wrap"></pre></div>
     <div><h4>HTML</h4><iframe id="html" style="width:100%;height:240px;border:1px solid #eee;border-radius:8px"></iframe></div>
@@ -116,11 +113,10 @@ async function send(){
   const html = document.getElementById('html').contentWindow.document.body.parentElement.outerHTML;
   const r = await fetch('/email/send',{method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({to, subject, text, html})});
   const d = await r.json();
-  document.getElementById('sendres').textContent = d.ok ? ('OK: '+d.sent+' / fail '+d.failed) : ('Oshibka: '+(d.error||'unknown'));
+  document.getElementById('sendres').textContent = d.ok ? ('OK: '+d.sent+' / fail '+d.failed) : ('Error: '+(d.error||'unknown'));
 }
 </script>
-</body></html>
-"""
+</body></html>"""
 
 @router.get("/email/preview.html", response_class=HTMLResponse)
 async def email_preview():

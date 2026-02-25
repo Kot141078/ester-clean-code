@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_p2p_bloom.py — eksheny «voli» dlya P2P Bloom.
+"""modules/thinking/actions_p2p_bloom.py - eksheny “voli” dlya P2P Bloom.
 
 Mosty:
 - Yavnyy: (Mysli ↔ P2P Dedup) knopki statusa/dobavleniya/proverki/obmena.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Planner/Rules ↔ Avtonomiya) ispolzovat v pravilakh pri P2P-sinkhronizatsii.
 
 Zemnoy abzats:
-Eti komandy pozvolyayut Ester pered lyubym obmenom bystro sprosit: «a uzhe videli eto?» — i ne gonyat dublikaty.
+Eti komandy pozvolyayut Ester pered lyubym obmenom bystro ask: “a uzhe videli eto?” — i ne gonyat dublikaty.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

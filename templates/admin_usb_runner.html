@@ -31,7 +31,7 @@
   <h1>USB Job Runner <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
 
   <section>
-    <h3>Ochered s fleshki</h3>
+    <h3>Queue from a flash drive</h3>
     <div class="row">
       <button onclick="scan()">Skanirovat USB</button>
       <label>Filtr tipov
@@ -50,7 +50,7 @@
   </section>
 
   <section>
-    <h3>Shablony zadach (master)</h3>
+    <h3>Task templates (wizard)</h3>
     <div class="row">
       <select id="tpl" onchange="renderTpl()"></select>
       <span id="tplInfo" class="muted">—</span>
@@ -65,11 +65,11 @@
   </section>
 
   <section>
-    <h3>Proverka svoego JSON</h3>
+    <h3>Checking your ZhSON</h3>
     <textarea id="rawJson" style="width:100%;min-height:120px" placeholder='{"schema":"ester.usb.job/1","uid":"job-raw","type":"copy","args":{"src_rel":"payloads/sample.txt","dest":"~/.ester/imports/sample.txt"}}'></textarea>
     <div class="row" style="margin-top:8px">
       <button onclick="validateRaw()">Proverit</button>
-      <button onclick="createRaw()">Save kak job-fayl</button>
+      <button onclick="createRaw()">Save as a job file</button>
     </div>
     <pre id="rawOut">—</pre>
   </section>
@@ -117,7 +117,7 @@ function fieldHtml(f){
 }
 async function loadTpls(){
   const r = await fetch('/admin/usb_runner/templates'); const j = await r.json().catch(()=>({ok:false}));
-  if(!j.ok){ document.getElementById('tplInfo').textContent = "shablony nedostupny"; return; }
+  if(!j.ok){ document.getElementById('tplInfo').textContent = "templates not available"; return; }
   TPLS = j.items||[];
   const sel = document.getElementById('tpl'); sel.innerHTML="";
   for(const t of TPLS){

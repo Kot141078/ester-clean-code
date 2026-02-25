@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Proactive Pipeline for Ester: suggest/summarize/reflect/classify.
-Pravila berutsya iz proactive_rules.yml (esli est).
-"""
+"""Proactive Pipeline for Esther: suggest/summarize/reflect/classify.
+The rules are taken from proactive_rules.iml (if available)."""
 from __future__ import annotations
 
 import os
@@ -15,12 +13,12 @@ except Exception:  # pragma: no cover
 
 DEFAULT_RULES = {
     "suggest": [
-        "sokhranit vazhnoe v kartochki",
+        "save important things to cards",
         "sdelat napominanie",
         "proverit novye fayly",
     ],
     "summarize": ["dat kratkoe rezyume dialoga"],
-    "reflect": ["svyazat s proshlymi faktami i delami"],
+    "reflect": ["relate to past facts and affairs"],
     "classify": ["opredelit ton i prioritet"],
 }
 

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/resilience_health_routes.py - REST: /resilience/health/check.
+"""routes/resilience_health_routes.py - REST: /resilience/health/check.
 
 Mosty:
 - Yavnyy: (Veb ↔ Nadezhnost) bystryy status zdorovya.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Cron ↔ Samoobsluzhivanie) mozhno stavit na taymer.
 
 Zemnoy abzats:
-Odin vyzov - i ponyatno, «zhivem» li my.
+Odin vyzov - i ponyatno, “zhivem” li my.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

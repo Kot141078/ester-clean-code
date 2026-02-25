@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/instructor_hotpatch_routes.py - REST/UI dlya goryachego tyuninga v instructor-mode.
+"""routes/instructor_hotpatch_routes.py - REST/UI dlya goryachego tyuninga v instructor-mode.
 
 Ruchki:
   POST /instructor/hotpatch/preview {"radius":80,"penalty":0.05,"min_thr":0.82,"lang":"eng+rus","use_scale":true}
-  POST /instructor/hotpatch/apply   {...}
-  GET  /admin/hotpatch
+  POST /instructor/hotpatch/apply {...}
+  GET /admin/hotpatch
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.coop.instructor_hotpatch import preview, apply

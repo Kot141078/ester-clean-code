@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/mm/guard.py — monitoring i myagkaya zaschita dostupa k pamyati (get_mm).
+"""modules/mm/guard.py - monitoring i myagkaya zaschita dostupa k pamyati (get_mm).
 
 Mosty:
-- Yavnyy: (Memory ↔ Audit) schitaet vyzovy get_mm i pozvolyaet pomechat «obkhody».
+- Yavnyy: (Memory ↔ Audit) schitaet vyzovy get_mm i pozvolyaet pomechat “obkhody”.
 - Skrytyy #1: (Linter ↔ Kodovaya baza) skript-skaner mozhet flagat podozreniya.
-- Skrytyy #2: (Politiki ↔ Ostorozhnost) optsionalnyy enforce-blok po maskam moduley.
+- Skrytyy #2: (Politiki ↔ Ostorozhnost) optsionalnyy enforce-blok po maskam modulary.
 
 Zemnoy abzats:
-Schetchik u dveri sklada: kto beret klyuchi ot pamyati i ne pytaetsya li kto-to vlezt cherez chernyy khod.
+Schetchik u dveri sklada: whoever beret klyuchi ot pamyati i ne pytaetsya li whoever vlezt cherez chernyy khod.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, traceback
 from typing import Any, Dict
@@ -28,15 +26,13 @@ def _load(): _ensure(); return json.load(open(DB,"r",encoding="utf-8"))
 def _save(j): json.dump(j, open(DB,"w",encoding="utf-8"), ensure_ascii=False, indent=2)
 
 def patch_get_mm()->bool:
-    """
-    Oborachivaet services.mm_access.get_mm — bez izmeneniya signatur.
-    """
+    """Wraps services.mm_access.get_mm - without changing signatures."""
     try:
         import services.mm_access as mma  # type: ignore
     except Exception:
         return False
 
-    if hasattr(mma, "_ESTER_MM_PATCHED"):  # uzhe patchen
+    if hasattr(mma, "_ESTER_MM_PATCHED"):  # already patched
         return True
 
     orig = getattr(mma, "get_mm", None)
@@ -59,7 +55,7 @@ def patch_get_mm()->bool:
         by[caller]= int(by.get(caller,0))+1
         j["by_module"]=by; _save(j)
 
-        # pri neobkhodimosti mozhno vvesti zaprety (ENFORCE) — po belomu spisku moduley
+        # if necessary, you can introduce bans (ENFORCE) - according to the white list of modules
         # seychas — monitoring bez zapretov
         return orig(*a, **kw)
 
@@ -92,6 +88,6 @@ def bootstrap_patch() -> Dict[str, Any]:
             traceback.print_exc()
     return dict(_BOOTSTRAP)
 
-# Patchim pri importe modulya (myagko) i sokhranyaem status.
+# Patch when importing a module (softly) and saves the status.
 bootstrap_patch()
 # c=a+b

@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-routes/node_info.py — UI/REST: «Profile uzla».
+"""routes/node_info.py - UI/REST: "Profile nodla".
 
-Marshruty:
-  • GET  /admin/node            — HTML-stranitsa «Profile uzla»
-  • GET  /admin/node/status     — JSON-inventar
-  • GET  /admin/node/export     — JSON-profile (skachat)
-  • POST /admin/node/p2p-send   — polozhit profile v outbox Re popytatsya otpravit po P2P (Telegram)
-  • POST /admin/node/usb-write  — zapisat profile na fleshku: ESTER/passport/node_<host>.json
-  • GET  /admin/node/probe      — spisok tomov (dlya vybora fleshki)
+Route:
+  • GET /admin/node - HTML-page “Profile uzla”
+  • GET /admin/node/status - JSON-inventar
+  • GET /admin/node/export - JSON-profile (skachat)
+  • POST /admin/node/p2p-send - polozhit profile v outbox Re popytatsya otpravit po P2P (Telegram)
+  • POST /admin/node/usb-write - zapisat profile na fleshku: ESTER/passport/node_<host>.json
+  • GET /admin/node/probe - spisok tomov (dlya vybora fleshki)
 
 Zemnoy abzats:
-Odin ekran: posmotret «profile», otpravit ego «kurerom» (P2P) ili polozhit na fleshku.
+Odin ekran: posmotret “profile”, otpravit ego “kurerom” (P2P) or polozhit na fleshku.
 
 Mosty:
 - Yavnyy (Nablyudaemost v†" Orkestratsiya): profile kak edinyy artefakt sostoyaniya uzla.
 - Skrytyy 1 (Infoteoriya v†" Prozrachnost): pryamoy JSON, bez magii.
 - Skrytyy 2 (Praktika v†" Sovmestimost): tot zhe envelope Re ta zhe USB-struktura ESTER/.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

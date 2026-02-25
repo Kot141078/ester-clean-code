@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/policy/pillbox.py — ochered podtverzhdeniy («pilyul»): zapros→approve/deny→propusk.
+"""modules/policy/pillbox.py - ochered podtverzhdeniy (“pilyul”): zapros→approve/deny→propusk.
 
 Mosty:
 - Yavnyy: (Chelovek ↔ Sistema) ruchnoe podtverzhdenie pered vneshnim/riskovym deystviem.
-- Skrytyy #1: (RBAC/Politiki ↔ Bezopasnost) sovmestim s JWT-RBAC: dazhe admin mozhet potrebovat «pilyulyu».
+- Skrytyy #1: (RBAC/Politiki ↔ Bezopasnost) sovmestim s JWT-RBAC: dazhe admin mozhet potrebovat “pilyulyu”.
 - Skrytyy #2: (Profile ↔ Audit) kazhdoe sobytie shtampuetsya: kto, chto, kogda, k chemu privyazano.
 
 Zemnoy abzats:
-Eto kak «podtverzhdenie operatsii v banke»: bez koda-zayavki deystvie ne proydet; kod zhivet nedolgo i privyazan k konkretnomu telu zaprosa.
+Eto kak “podtverzhdenie operatsii v banke”: bez koda-zayavki deystvie ne proydet; kod zhivet nedolgo i privyazan k konkretnomu telu zaprosa.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hashlib, threading, uuid
 from typing import Dict, Any, List, Optional

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tests/messaging/test_adapters_offline.py — formirovanie zaprosov bez seti.
+"""tests/messaging/test_adapters_offline.py - formirovanie zaprosov bez seti.
 
 MOSTY:
 - (Yavnyy) Pereopredelyaem setevye funktsii na zaglushki i proveryaem payload/URL.
-- (Skrytyy #1) Proveryaem persona_prefix «assistent».
+- (Skrytyy #1) Proveryaem persona_prefix “assistent”.
 - (Skrytyy #2) Normalizatsiya vkhodyaschikh iz webhook.
 
 ZEMNOY ABZATs:
-Pokryvaem osnovnoe: chto otpravlyaem i kak chitaem. Bez realnykh tokenov/vneshney seti.
+Pokryvaem osnovnoe: what otpravlyaem i kak chitaem. Bez realnykh tokenov/vneshney seti.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

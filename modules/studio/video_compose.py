@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/studio/video_compose.py — komponovka video (FFmpeg): shablony, bern-in SRT, vodyanoy znak.
+"""modules/studio/video_compose.py - komponovka video (FFmpeg): shablony, bern-in SRT, vodyanoy znak.
 
 Mosty:
 - Yavnyy: (Studiya ↔ Video) sobiraet mp4 iz avatara/audiodramy/fonovogo tsveta/kartinok.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Memory ↔ Profile) fiksiruet sborku (parametry/puti) dlya audita/RAG.
 
 Zemnoy abzats:
-Inzhenerno — «skleyschik»: berem gotovye dorozhki (golos/video), privodim k nuzhnomu formatu (9×16/16×9), pri neobkhodimosti prozhigaem subtitry i stavim vodyanoy znak. Na vykhode — rolik, gotovyy k zagruzke.
+Inzhenerno - “skleyschik”: berem gotovye dorozhki (golos/video), privodim k nuzhnomu formatu (9×16/16×9), pri neobkhodimosti prozhigaem subtitry i stavim vodyanoy znak. Na vykhode - rolik, gotovyy k zagruzke.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, re, glob, json, time, shutil, subprocess
 from typing import Any, Dict, List, Tuple
@@ -26,7 +24,7 @@ DEF_FONT=os.getenv("VIDEO_DEFAULT_FONT","Arial")
 def _ensure():
     os.makedirs(OUT_DIR, exist_ok=True)
     os.makedirs(TPL_DIR, exist_ok=True)
-    # bazovye shablony, esli pusto
+    # basic templates if empty
     base=os.path.join(TPL_DIR, "short_vertical_avatar.json")
     if not os.path.isfile(base):
         json.dump({
@@ -34,7 +32,7 @@ def _ensure():
           "aspect":"9x16",
           "use":"last_avatar_or_color",
           "background":"color:black",
-          "bgm":"auto",   # vozmem poslednyuyu muzyku iz studii, esli naydem
+          "bgm":"auto",   # we'll take the latest music from the studio if we find it
           "burn_subs":"auto",
           "watermark":"env"
         }, open(base,"w",encoding="utf-8"), ensure_ascii=False, indent=2)
@@ -74,7 +72,7 @@ def _make_color_video(size: Tuple[int,int], duration_sec: int, dst: str)->bool:
         return False
 
 def _probe_duration(path: str)->float:
-    # grubaya otsenka dlitelnosti v sekundakh (cherez ffprobe, esli dostupno)
+    # rough estimate of duration in seconds (via ffprobe, if available)
     ffprobe = "ffprobe"
     if not shutil.which(ffprobe): return 0.0
     try:
@@ -86,7 +84,7 @@ def _probe_duration(path: str)->float:
         return 0.0
 
 def _apply_subs_filter(filters: List[str], subs: str)->None:
-    # Prozhig SRT/ASS, esli filtr dostupen
+    # Burning CPT/ACC if filter is available
     if subs and os.path.isfile(subs):
         # subs filtr sam opredelit format
         filters.append(f"subtitles='{subs}'")
@@ -95,11 +93,11 @@ def _apply_watermark(inputs: List[str], maps: List[str], filters: List[str])->No
     wm=WATERMARK
     if wm and os.path.isfile(wm):
         inputs.extend(["-i", wm])
-        # Pomestim v pravyy verkhniy ugol s otstupom
+        # Place it in the upper right corner with an indent
         filters.append("[0:v][1:v]overlay=W-w-24:24")
 
 def _compose_cmd(video_src: str, audio_src: str|None, size: Tuple[int,int], subs: str|None, dst: str)->List[str]:
-    # Sobiraem ffmpeg komandu s masshtabom i paddingom do nuzhnogo sootnosheniya
+    # We assemble an ffmpeg command with scale and padding to the desired ratio
     w,h=size
     vf=[]
     # Privedenie k trebuemomu aspektu
@@ -122,7 +120,7 @@ def _compose_cmd(video_src: str, audio_src: str|None, size: Tuple[int,int], subs
     return cmd
 
 def _auto_pick_subs()->str|None:
-    # vzyat posledniy SRT iz studii (drama/kit)
+    # take the latest SRT from the studio (drama/kit)
     return _find_last(["data/studio/drama/*/drama.srt","data/studio/out/*.srt"])
 
 def _auto_pick_bgm()->str|None:
@@ -143,15 +141,13 @@ def list_templates()->List[Dict[str,Any]]:
     return out
 
 def compose(title: str, aspect: str, template: str|None, subs: str|None, audio: str|None, video: str|None, background: str|None, duration_sec: int|None)->Dict[str,Any]:
-    """
-    Libo daem template, libo yavnye puti (video/audio/subs). background mozhet byt "color:black".
-    """
+    """Either we give the template or explicit paths (video/audio/sub). backgground can be "color:black"."""
     _ensure()
     size=_aspect_to_size(aspect or "9x16")
     ts=int(time.time())
     out=os.path.join(OUT_DIR, f"{(title or 'Video').replace(' ','_')}_{aspect or '9x16'}_{ts}.mp4")
 
-    # Raskryt shablon
+    # Expand template
     if template:
         path=os.path.join(TPL_DIR, f"{template}.json")
         if os.path.isfile(path):
@@ -162,7 +158,7 @@ def compose(title: str, aspect: str, template: str|None, subs: str|None, audio: 
         if (t.get("use")=="last_avatar_or_color") and not video:
             video=_auto_pick_avatar()
             if not video and (background or t.get("background","")).startswith("color:"):
-                # sdelaem tsvetnoy fon na nuzhnuyu dlitelnost (po audio, esli est)
+                # make a colored background for the required duration (via audio, if available)
                 d=int(duration_sec or 0)
                 if not d and audio and os.path.isfile(audio): d=int(_probe_duration(audio)) or 10
                 tmp=os.path.join(OUT_DIR, f"bg_{ts}.mp4")
@@ -173,13 +169,13 @@ def compose(title: str, aspect: str, template: str|None, subs: str|None, audio: 
         if (t.get("bgm")=="auto") and not audio:
             audio=_auto_pick_bgm()
         if (t.get("watermark")=="env") and not WATERMARK:
-            # optsionalno ostavim pustym
+            # optionally leave empty
             pass
 
-    # Esli prosyat fon "color:" yavno
+    # If they ask for background "color:" explicitly
     if (background or "").startswith("color:") and not video:
         color=background.split(":",1)[1] if ":" in (background or "") else "black"
-        # tsvet berem cherez lavfi color, no my oborachivaem vyshe — zdes prosto sdelaem v _make_color_video
+        # we take the color through lovey color, but we wrap it higher - here we’ll just do it in _mac_color_video
         d=int(duration_sec or 0)
         if not d and audio and os.path.isfile(audio): d=int(_probe_duration(audio)) or 10
         tmp=os.path.join(OUT_DIR, f"bg_{ts}.mp4")
@@ -188,7 +184,7 @@ def compose(title: str, aspect: str, template: str|None, subs: str|None, audio: 
 
     # sanity
     if not video:
-        # krayniy sluchay — 10s chernogo
+        # extreme case - 10s black
         tmp=os.path.join(OUT_DIR, f"bg_{ts}.mp4")
         _make_color_video(size, int(duration_sec or 10), tmp)
         video=tmp

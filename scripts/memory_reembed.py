@@ -1,26 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-memory_reembed.py — bezopasnyy pere-embedding lokalnoy pamyati Ester.
+"""memory_reembed.py - bezopasnyy pere-embedding lokalnoy pamyati Ester.
 
-Osobennosti:
+Features:
 - "Zheleznyy" adapter stora: chitaet memory/*.json, *.jsonl/ndjson, memory/daily/*.json,
   prinimaet formaty: spisok dict/str, obekt s klyuchami records/items/data, map key->dict/str.
-- Ignoriruet sluzhebnye fayly (extra_routes.json, schema.json) po imeni i/ili strukture.
-- Obnovlyaet tolko te zapisi, u kotorykh net embeddinga ili razmernost otlichaetsya.
+- Ignoreet sluzhebnye fayly (extra_routes.json, schema.json) po imeni i/ili strukture.
+- Obnovlyaet tolko te zapisi, u kotorykh net embeddinga or razmernost otlichaetsya.
 - Podderzhivaet A/B-sloty: AB_MODE=B — tolko saydkary (<file>.reembed.json), originaly ne trogaem.
   AB_MODE=A — delaem bekap i pishem in-place (esli ne ukazan --sidecar).
 - "Sukhoy" progon (--dry-run), limit (--limit), prinuditelnyy pereschet (--force-all).
 - Avto-opredelenie razmernosti embeddinga cherez /v1/embeddings (LM Studio/OpenAI-sovmestimyy API).
-- Otchet v JSON (--report). Minimalnye zavisimosti: tolko standartnaya biblioteka.
+- Report v JSON (--report). Minimal details: only standartnaya biblioteka.
 
-Sreda (env):
-- ESTER_DATA_ROOT / ESTER_DATA_DIR — koren dannykh proekta (po umolchaniyu: ./data).
-- OPENAI_API_BASE, OPENAI_API_KEY — HTTP endpoint i klyuch (LM Studio: klyuch mozhet byt lyubym nepustym).
+Wednesday (env):
+- ESTER_DATA_ROOT / ESTER_DATA_DIR - koren dannykh project (by umolchaniyu: ./data).
+- OPENAI_API_BASE, OPENAI_API_KEY - HTTP endpoint i klyuch (LM Studio: klyuch mozhet byt lyubym nepustym).
 - EMBED_MODEL — identifikator modeli embeddingov (primer: text-embedding-nomic-embed-text-v1.5).
 
 Primery:
     # 0) ping embeddera (sm. tools/embed_ping.ps1)
-    # 1) tolko skan (bez zapisi):
+    #1) scan only (no recording):
     python scripts/memory_reembed.py --scan-only --report .\out_reembed\scan.json
 
     # 2) "sukhoy" progon pervykh 100 zapisey:
@@ -30,15 +29,14 @@ Primery:
     set AB_MODE=A
     python scripts/memory_reembed.py --backup-dir "D:\ester-project\_backup_manual" --report .\out_reembed\report_real.json
 
-    # 4) bezopasnyy slot (AB_MODE=B) — tolko saydkary, originaly ne trogaem:
+    # 4) bezopasnyy slot (AB_MODE=B) — just saydkary, originaly ne trogaem:
     set AB_MODE=B
     python scripts/memory_reembed.py --report .\out_reembed\report_sidecar.json
 
-    # 5) Yavnaya razmernost, esli avto-detekt ne prokhodit:
+    # 5) Explicit dimension, if auto-detection fails:
     python scripts/memory_reembed.py --embed-dim 768 --dry-run
 
-Sovmestimost: drop-in. Ne trebuet pravki importov v drugikh modulyakh.
-"""
+Sovmestimost: drop-in. Ne trebuet pravki importov v drugikh modulyakh."""
 
 from __future__ import annotations
 
@@ -71,7 +69,7 @@ def fatal(msg: str, code: int = 2) -> None:
     sys.stderr.flush()
     sys.exit(code)
 
-# --------- HTTP-klient dlya /v1/embeddings ---------
+# --------- HTTP client for /v1/embeddings ---------
 def _http_post_json(url: str, payload: Dict[str, Any], headers: Dict[str, str], timeout: float = 30.0) -> Dict[str, Any]:
     import urllib.request, urllib.error
     req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
@@ -80,7 +78,7 @@ def _http_post_json(url: str, payload: Dict[str, Any], headers: Dict[str, str], 
             raw = resp.read()
             return json.loads(raw.decode("utf-8", errors="replace"))
     except urllib.error.HTTPError as e:
-        # polezno videt telo oshibki LM Studio
+        # useful to see the body of the error LM Studio
         body = ""
         try:
             body = e.read().decode("utf-8", errors="replace")
@@ -107,7 +105,7 @@ def detect_embed_dim(base: str, api_key: str, model: str) -> int:
             return len(emb)
     except Exception:
         pass
-    fatal("Ne udalos opredelit razmernost embeddinga (prover EMBED_MODEL / LM Studio).")
+    fatal("It was not possible to determine the embedding dimension (check EMBED_MODEL / LM Studio).")
     return 0
 
 def do_embed(base: str, api_key: str, model: str, text: str) -> List[float]:
@@ -123,23 +121,21 @@ def do_embed(base: str, api_key: str, model: str, text: str) -> List[float]:
         raise RuntimeError("Bad embedding payload")
     return emb
 
-# --------- Raspoznavanie i normalizatsiya zapisey pamyati ---------
+# --------- Recognition and normalization of memory records ---------
 TEXT_KEYS = ("text", "content", "body", "message", "note", "value", "data", "desc", "description")
-EMB_KEYS  = ("embedding", "vector", "e", "embedding_v1")  # chitaem/pishem v 'embedding'
+EMB_KEYS  = ("embedding", "vector", "e", "embedding_v1")  # read/write in embedding
 
 def is_service_file(path: str) -> bool:
     name = os.path.basename(path).lower()
     if name in {"schema.json"}:
         return True
-    # extra_routes.json — eto ne stor pamyati, ignoriruem
+    # extra_rutes.zhsion is not a memory store, ignore it
     if name.startswith("extra_routes"):
         return True
     return False
 
 def as_record(obj: Any) -> Optional[Dict[str, Any]]:
-    """
-    Privodit obekt k zapisi pamyati ili vozvraschaet None (ne pokhozhe na zapis).
-    """
+    """Causes an object to write memory or returns None (not like writing)."""
     if isinstance(obj, dict):
         # tekst
         text = None
@@ -147,12 +143,12 @@ def as_record(obj: Any) -> Optional[Dict[str, Any]]:
             if k in obj and isinstance(obj[k], (str, int, float)):
                 text = str(obj[k])
                 break
-        # dopuskaem map vida {"id": {...}} — raspravim na verkhnem urovne vyshe
+        # allow a map of the form {"id": ЗЗФ0З} - straighten at the top level above
         if text is None and "text" not in obj:
-            # esli vyglyadit kak konteyner dlya zapisey, ne schitaem zapisyu
+            # if it looks like a container for records, we do not consider it a record
             if any(k in obj for k in ("records", "items", "data")):
                 return None
-            # esli slovar "ploskiy" i net yavnogo teksta — popytaemsya sobrat iz izvestnykh poley
+            # if the dictionary is “flat” and there is no explicit text, we’ll try to collect it from known fields
             candidates = [obj.get("title"), obj.get("name"), obj.get("summary")]
             candidates = [str(x) for x in candidates if isinstance(x, (str, int, float))]
             if candidates:
@@ -179,7 +175,7 @@ def get_id(rec: Dict[str, Any]) -> str:
     for k in ("id", "uid", "key", "uuid"):
         if k in rec and rec[k]:
             return str(rec[k])
-    # stabilnyy id po kheshu teksta (+soli klyuchevykh poley, esli est)
+    # stable ID based on text hash (+ salts of key fields, if any)
     seed = rec.get("text") or ""
     seed += "|" + str(rec.get("created_at") or rec.get("ts") or "")
     return hashlib.sha256(seed.encode("utf-8")).hexdigest()
@@ -190,12 +186,10 @@ class SourceFile:
     path: str
     style: str  # 'jsonl' | 'array' | 'object-map' | 'object-list'
     container_key: Optional[str] = None  # dlya object-list (records/items/data)
-    data_cache: Any = None              # zagruzhennoe soderzhimoe (dlya zapisi)
+    data_cache: Any = None              # downloaded content (for recording)
 
 class JsonStoreAdapter:
-    """
-    Universalnyy adapter dlya memory/*.json, *.jsonl/ndjson i podkatalogov.
-    """
+    """Universal adapter for memora/*.json, *.jsonl/njson and subdirectories."""
     def __init__(self, memory_dir: str) -> None:
         self.memory_dir = os.path.abspath(memory_dir)
         if not os.path.isdir(self.memory_dir):
@@ -221,11 +215,11 @@ class JsonStoreAdapter:
                 self._sources.append(SourceFile(path=f, style=style, container_key=container_key))
 
         if not self._sources:
-            fatal(f"Ne nayden stor pamyati v {self.memory_dir}. Ozhidalis: records.jsonl/ndjson/json ili katalog records/*.json")
+            fatal(f"The memory store was not found in ZZF0Z. Expected: records.jsonl/njson/jsion or directory records/*.zsionl")
 
     def _probe_style(self, path: str) -> Tuple[Optional[str], Optional[str]]:
         name = os.path.basename(path).lower()
-        # jsonl/ndjson po rasshireniyu
+        # Jsionl/Njson by extension
         if name.endswith(".jsonl") or name.endswith(".ndjson"):
             return "jsonl", None
 
@@ -235,7 +229,7 @@ class JsonStoreAdapter:
                 txt = f.read()
             data = json.loads(txt)
         except Exception:
-            # nevalidnyy JSON — probuem kak jsonl (byvaet rasshirenie .json s NDJSON)
+            # invalid JSION - try as JSIONL (there is an extension .JSION with NJSON)
             try:
                 with io.open(path, "r", encoding="utf-8") as f:
                     f.readline()
@@ -250,7 +244,7 @@ class JsonStoreAdapter:
                 if key in data and isinstance(data[key], list):
                     return "object-list", key
             # map key -> record
-            # esli bolshinstvo znacheniy dict/str — schitaem kartoy
+            # if most of the values ​​are dist/str, we consider it a map
             vals = list(data.values())
             if vals and all(isinstance(v, (dict, str, int, float, list)) for v in vals):
                 return "object-map", None
@@ -258,10 +252,8 @@ class JsonStoreAdapter:
         return None, None
 
     def iter_records(self) -> Iterator[Tuple[SourceFile, int, Dict[str, Any]]]:
-        """
-        Iteriruem po VSEM normalizovannym zapisyam (kak dict).
-        Vozvraschaet (source, index, record).
-        """
+        """We iterate over ALL normalized records (as dist).
+        Returns (source, index, record)."""
         for src in self._sources:
             if src.style == "jsonl":
                 with io.open(src.path, "r", encoding="utf-8") as f:
@@ -280,7 +272,7 @@ class JsonStoreAdapter:
                             continue
                         yield (src, i - 1, rec)
             else:
-                # zagruzim odin raz dlya zapisi v kontse
+                # load once to write at the end
                 if src.data_cache is None:
                     with io.open(src.path, "r", encoding="utf-8") as f:
                         src.data_cache = json.load(f)
@@ -311,19 +303,17 @@ class JsonStoreAdapter:
                             rec = as_record(obj)
                             if rec is None:
                                 continue
-                            # prokinem klyuch kak id po umolchaniyu
+                            # let's set the key as default ID
                             if "id" not in rec and k:
                                 rec = dict(rec)
                                 rec["id"] = k
                             yield (src, i, rec)
 
     def apply_record(self, src: SourceFile, index: int, updated: Dict[str, Any]) -> None:
-        """
-        Primenyaet obnovlenie zapisi (embedding i, pri neobkhodimosti, id/text) k zagruzhennomu keshu src.data_cache.
-        """
+        """Applies a record update (embedding and, if necessary, id/text) to the loaded src.data_quality cache."""
         emb = updated.get("embedding")
         if src.style == "jsonl":
-            # dlya jsonl pishem saydkarom (perezapis jsonl "na meste" — nebezopasna)
+            # for zhsionl writes sidecar (rewriting jsyonl “in place” is unsafe)
             return
 
         if src.style == "array":
@@ -358,8 +348,8 @@ class JsonStoreAdapter:
                     }
 
         elif src.style == "object-map":
-            # indeks i tut ne klyuch, no dostatochno popast v tu zhe pozitsiyu; luchshe pereschitat po id
-            # na zapis my uzhe dobavili id iz klyucha karty — naydem ee i obnovim
+            # The index is not the key here either, but it is enough to get to the same position; It's better to count by ID
+            # We have already added the ID from the map key to the entry - we will find it and update it
             if isinstance(src.data_cache, dict):
                 rec_id = updated.get("id", None)
                 if rec_id and rec_id in src.data_cache and isinstance(src.data_cache[rec_id], dict):
@@ -367,12 +357,10 @@ class JsonStoreAdapter:
                     src.data_cache[rec_id].setdefault("text", updated.get("text", ""))
 
     def save_source(self, src: SourceFile, ab_mode: str, backup_dir: Optional[str], sidecar_only: bool = False) -> Optional[str]:
-        """
-        Sokhranyaet odin iskhodnik:
+        """Sokhranyaet odin iskhodnik:
           - AB_MODE=A i ne sidecar_only: delaem bekap i pishem in-place.
-          - inache: pishem saydkar <file>.reembed.json
-        Vozvraschaet put zapisannogo fayla (ili saydkara).
-        """
+          - inache: pishem saidkar <file>.reembed.json
+        Vozvraschaet put zapisannogo fayla (ili saydkara)."""
         path = os.path.abspath(src.path)
         if ab_mode.upper() == "A" and not sidecar_only and src.style != "jsonl":
             if backup_dir:
@@ -383,14 +371,14 @@ class JsonStoreAdapter:
                     with io.open(bpath, "w", encoding="utf-8") as bf:
                         json.dump(src.data_cache, bf, ensure_ascii=False, indent=2)
                 except Exception as e:
-                    warn(f"Ne udalos zapisat bekap {bpath}: {e}")
-            # osnovnaya zapis
+                    warn(f"Failed to write backup ZZF0Z: ZZF1ZZ")
+            # master record
             try:
                 with io.open(path, "w", encoding="utf-8") as f:
                     json.dump(src.data_cache, f, ensure_ascii=False, indent=2)
                 return path
             except Exception as e:
-                warn(f"Ne udalos zapisat {path}: {e}")
+                warn(f"Failed to write ZZF0Z: ZZF1ZZ")
                 return None
         else:
             # saydkar
@@ -406,22 +394,22 @@ class JsonStoreAdapter:
                     json.dump(payload, f, ensure_ascii=False, indent=2)
                 return sidecar
             except Exception as e:
-                warn(f"Ne udalos zapisat saydkar {sidecar}: {e}")
+                warn(f"Failed to record sidecar ZZF0Z: ZZF1ZZ")
                 return None
 
 # --------- Osnovnaya logika ---------
 def main() -> int:
     parser = argparse.ArgumentParser(description="Re-embed Ester memory with AB-safe flow.")
     parser.add_argument("--data-root", dest="data_root", type=str, default=None, help="Koren dannykh (ESTER_DATA_ROOT/ESTER_DATA_DIR).")
-    parser.add_argument("--memory-dir", dest="memory_dir", type=str, default=None, help="Katalog pamyati (po umolchaniyu: <data-root>/memory).")
+    parser.add_argument("--memory-dir", dest="memory_dir", type=str, default=None, help="Memory directory (default: <date-root>/memory).")
     parser.add_argument("--backup-dir", dest="backup_dir", type=str, default=None, help="Kuda skladyvat bekapy (AB_MODE=A).")
-    parser.add_argument("--report", dest="report", type=str, default=None, help="Put dlya JSON-otcheta.")
-    parser.add_argument("--dry-run", dest="dry_run", action="store_true", help="Nichego ne zapisyvat, tolko schitat i logirovat.")
-    parser.add_argument("--limit", dest="limit", type=int, default=None, help="Maksimum zapisey k obrabotke.")
-    parser.add_argument("--force-all", dest="force_all", action="store_true", help="Pereschitat vse zapisi (dazhe esli est vektor nuzhnoy razmernosti).")
-    parser.add_argument("--embed-dim", dest="embed_dim", type=int, default=None, help="Yavnaya razmernost embeddinga.")
+    parser.add_argument("--report", dest="report", type=str, default=None, help="Path for the JSON report.")
+    parser.add_argument("--dry-run", dest="dry_run", action="store_true", help="Do not record anything, just count and log.")
+    parser.add_argument("--limit", dest="limit", type=int, default=None, help="Maximum records for processing.")
+    parser.add_argument("--force-all", dest="force_all", action="store_true", help="Recalculate all records (even if there is a vector of the required dimension).")
+    parser.add_argument("--embed-dim", dest="embed_dim", type=int, default=None, help="Explicit embedding dimension.")
     parser.add_argument("--sidecar", dest="sidecar", action="store_true", help="Vsegda pisat saydkar vmesto in-place.")
-    parser.add_argument("--scan-only", dest="scan_only", action="store_true", help="Tolko opredelit kandidatov stora i vyyti.")
+    parser.add_argument("--scan-only", dest="scan_only", action="store_true", help="Just identify the store candidates and leave.")
     args = parser.parse_args()
 
     # --- okruzhenie i korni ---
@@ -450,7 +438,7 @@ def main() -> int:
     adapter.discover()
 
     if args.scan_only:
-        # otchet o skane
+        # scan report
         payload = {
             "ok": True,
             "message": f"Naydeno faylov: {len(adapter._sources)}",
@@ -472,7 +460,7 @@ def main() -> int:
     dim = args.embed_dim
     if dim is None:
         if not openai_base:
-            fatal("Ne zadan OPENAI_API_BASE/LMSTUDIO_URL dlya avto-detekta razmernosti (ili ispolzuyte --embed-dim).")
+            fatal("OPENAY_API_BASE/LTSTUDIO_URL is not set for auto-dimension detection (or use --embed-smoke).")
         dim = detect_embed_dim(openai_base, openai_key, embed_model)
     log(f"[info] embed_dim={dim}")
 
@@ -480,7 +468,7 @@ def main() -> int:
     total = 0
     updated = 0
     skipped = 0
-    per_source_changed = set()  # puti istochnikov, kuda vnosili izmeneniya
+    per_source_changed = set()  # source paths where changes were made
     errors: List[str] = []
 
     try:
@@ -516,9 +504,9 @@ def main() -> int:
             per_source_changed.add(src.path)
 
         if args.dry_run:
-            log("[dry-run] Nichego ne zapisano.")
+            log("yudra-runsch Nothing is recorded.")
         else:
-            # sokhranyaem izmenennye istochniki
+            # save changed sources
             for p in sorted(per_source_changed):
                 src = next((s for s in adapter._sources if s.path == p), None)
                 if not src:
@@ -555,7 +543,7 @@ def main() -> int:
         for e in errors[:10]:
             warn(e)
         if len(errors) > 10:
-            warn(f"... i esche {len(errors)-10} oshibok")
+            warn(f"... and more ZZF0Z errors")
     return 0
 
 if __name__ == "__main__":

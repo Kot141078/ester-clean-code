@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/synergy_board_smoke.py — dymovye testy «shakhmatki» i assign v2.
+"""tests/synergy_board_smoke.py - dymovye testy "shakhmatki" i assign v2.
 
 MOSTY:
 - (Yavnyy) Proveryaem, chto UI otdaetsya, JSON-dannye est, overraydy primenyayutsya.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) outcome pishet istoriyu v komandu.
 
 ZEMNOY ABZATs:
-Garantiruet, chto operator mozhet glazami «sobrat» komandu i zafiksirovat reshenie.
+Garantiruet, what operator mozhet glazami “sobrat” komandu i zafiksirovat decision.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Flask
 import pytest

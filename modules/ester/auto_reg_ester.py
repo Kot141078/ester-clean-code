@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ester/auto_reg_ester.py — AUTO-REG dlya statusnykh marshrutov Ester.
+"""modules/ester/auto_reg_ester.py - AUTO-REG dlya statusnykh marshrutov Ester.
 
 Mosty:
-- Yavnyy: (app.py ↔ ester_status_routes_alias) — registriruet /ester/status.
+- Yavnyy: (app.py ↔ ester_status_routes_alias) - register /ester/status.
 - Skrytyy #1: (ENV ↔ Diagnostika) — upravlyaetsya flagom ESTER_STATUS_AB.
 - Skrytyy #2: (Stabilnost ↔ Prozrachnost) — ne vliyaet na osnovnoy API, tolko dobavlyaet read-only.
 
 ENV:
     ESTER_STATUS_AB = "A" | "B"
-    A — po umolchaniyu, ne registriruem status.
-    B — registriruem /ester/status i /ester/modes.
+    A - po umolchaniyu, ne registriruem status.
+    B - register /ester/status i /ester/modes.
 
 Zemnoy abzats:
 Inzhener vklyuchaet ESTER_STATUS_AB=B i vidit rezhimy Ester odnim zaprosom.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -46,5 +44,5 @@ def auto_register(app: Any) -> None:
         if bp is not None:
             app.register_blueprint(bp)
     except Exception:
-        # Status ne dolzhen lomat Ester.
+        # Status should not break Esther.
         return

@@ -92,7 +92,7 @@ def drop_peer(host: str) -> Dict[str, Any]:
 def status() -> Dict[str, Any]:
     return _load()
 
-# Prostoy forvarder: vernet list otvetov peers (lokalnyy otvet ne vypolnyaem zdes — etim zanimaetsya vyzyvayuschaya ruchka)
+# Simple forwarder: will return the peer's response sheet (the local response does not execute here - the calling handle does this)
 import http.client, json as _json
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
@@ -102,7 +102,7 @@ def forward_call(tag: str, path: str, payload: Dict[str, Any]) -> Dict[str, Any]
         return {"ok": True, "skipped": True, "reason": "not_in_whitelist"}
     results = []
     for host in st.get("peers", []):
-        # cherez uzhe imeyuschiysya peer-proksi
+        # through an existing proxy peer
         try:
             conn = http.client.HTTPConnection("127.0.0.1", 8000, timeout=10.0)
             body = _json.dumps({"host": host, "path": path, "payload": payload})

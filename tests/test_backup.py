@@ -7,13 +7,13 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def test_backup_create_and_verify(tmp_path: Path, monkeypatch):
-    # Sozdaem strukturu dannykh dlya bekapa
+    # Creating a data structure for backup
     data_dir = tmp_path / "data" / "vstore"
     data_dir.mkdir(parents=True)
     (data_dir / "vec.bin").write_bytes(b"\x00\x01\x02")
     include_dirs = [str(tmp_path / "data")]
 
-    # Papka dlya bekapov
+    # Backup folder
     out_dir = tmp_path / "backups"
     out_dir.mkdir()
 

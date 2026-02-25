@@ -1,34 +1,32 @@
 # -*- coding: utf-8 -*-
-"""
-usercustomize — ranniy bootstrap dlya offlayn-sborki Ester (polnaya versiya C/paket-07).
+"""usercustomize - ranniy bootstrap dlya offlayn-sborki Ester (polnaya versiya C/paket-07).
 
-Chto delaet (korotko):
-  • builtins.a/b — strakhovka ot NameError.
-  • Guard dubley Blueprint v verify-rezhime (ESTER_VERIFY_ALLOW_DUP_BP=1).
-  • JWT-sovmestimost: dobavlyaet verify_jwt_in_request_optional pri otsutstvii.
-  • ENV-primer (A/B): po umolchaniyu «shirokiy» rezhim A — zamenyaet None na '' DLYa LYuBOGO os.getenv(),
-    rezhim B — tolko suffiksy *_PREFIX/_URL/_BASE/_HOST/_PORT/_DIR/_PATH (pereklyuchatel ESTER_ENV_PRIMER_SLOT=B).
+What do you do (korotko):
+  • builtins.a/b - strakhovka ot NameError.
+  • Guard duplicate Blueprint v verify-rezhime (ESTER_VERIFY_ALLOW_DUP_BP=1).
+  • JWT-sovmestimost: addvlyaet verify_jwt_in_request_optional pri otsutstvii.
+  • ENV-primer (A/B): po umolchaniyu “shirokiy” rezhim A — zamenyaet None na '' DLYa LYuBOGO os.getenv(),
+    rezhim B - tolko suffiksy *_PREFIX/_URL/_BASE/_HOST/_PORT/_DIR/_PATH (pereklyuchatel ESTER_ENV_PRIMER_SLOT=B).
   • Psevdo-paketnyy shim dlya `modules.scheduler` i podmodulya `modules.scheduler.watcher` cherez MetaPathFinder —
-    garantiruet uspeshnyy import «watcher» dazhe pri nalichii odnoimennogo fayla-perekrytiya.
+    garantiruet uspeshnyy import “watcher” dazhe pri nalichii odnoimennogo fayla-perekrytiya.
   • Myagkie patchi pri otsutstvii simvolov:
       - modules.scheduler_engine: start/stop/status/schedule/cancel
       - modules.ingest.common: build_mm_from_env
       - routes.telegram_webhook_routes: register_telegram_webhook
       - security.signing: get_hmac_key/header_signature/key_id
-  • VAZhNO: my NE delaem ranniy `import routes`, chtoby ne provotsirovat «partial init» tsiklov importa.
+  • VAZhNO: my NE delaem ranniy `import routes`, chtoby ne provotsirovat “partial init” tsiklov importa.
 
 MOSTY:
-- Yavnyy: (Importnaya sistema ↔ Routy) — guard blyuprintov + MetaPathFinder dlya scheduler(watcher).
-- Skrytyy #1: (OS-okruzhenie ↔ Konstruktory URL/putey) — ENV-primer ustranyaet `None + None`.
-- Skrytyy #2: (Kontrakty ↔ Simvoly) — dobor ozhidaemykh API bez izmeneniya import-putey.
+- Yavnyy: (Importnaya sistema ↔ Routy) - guard blyuprintov + MetaPathFinder dlya scheduler(watcher).
+- Skrytyy #1: (OS-okruzhenie ↔ Konstruktory URL/putey) - ENV-primer ustranyaet `None + None`.
+- Skrytyy #2: (Kontrakty ↔ Simvoly) - dobor ozhidaemykh API bez izmeneniya import-putey.
 
 ZEMNOY ABZATs:
-Eto «schitok s predokhranitelyami i perekhodnikami»: ubiraem koltsa importa, podkidyvaem nedostayuschie klemmy i
-zaschischaem sborku ot pustykh peremennykh okruzheniya. Bezdiskovaya «ramka» dlya `modules.scheduler.watcher`
+Eto “schitok s predokhranitelyami i perekhodnikami”: ubiraem koltsa importa, podkidyvaem nedostayuschie klemmy i
+zaschischaem sborku ot pustykh peremennykh okruzheniya. Bezdiskovaya "ramka" dlya `modules.scheduler.watcher`
 pozvolyaet adminke gruzitsya nezavisimo ot faylovoy geometrii.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -55,7 +53,7 @@ except Exception:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 1) Guard blyuprintov (tolko v verify-rezhime)
+# 1) Blueprint Guard (only in verification mode)
 # ──────────────────────────────────────────────────────────────────────────────
 def _install_blueprint_guard_fallback() -> None:
     try:
@@ -132,7 +130,7 @@ _install_jwt_optional_verify()
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 3) ENV-primer (A/B-sloty)
-#    A (po umolchaniyu): zamenyaet None na '' dlya LYuBOGO klyucha getenv
+#    A (default): replaces None with b for Any getenv key
 #    B: ogranichennyy nabor suffiksov
 #    Pereklyuchatel: ESTER_ENV_PRIMER_SLOT=A|B  (defolt: A)
 # ──────────────────────────────────────────────────────────────────────────────
@@ -163,7 +161,7 @@ except Exception:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 4) MetaPathFinder dlya psevdopaketa modules.scheduler (+ watcher)
+# 4) MetaPatnFinder for the modules.scheduler pseudo-package (+ watcher)
 #    Reshaet: "No module named 'modules.scheduler.watcher'; 'modules.scheduler' is not a package"
 # ──────────────────────────────────────────────────────────────────────────────
 class _SchedulerShimFinder(importlib.abc.MetaPathFinder, importlib.abc.Loader):
@@ -171,13 +169,13 @@ class _SchedulerShimFinder(importlib.abc.MetaPathFinder, importlib.abc.Loader):
     watcher_name = "modules.scheduler.watcher"
 
     def find_spec(self, fullname, path=None, target=None):  # noqa: D401, ANN001
-        # Esli nastoyaschiy modul/paket uzhe nayden standartnym poiskom — ne vmeshivaemsya
+        # If a real module/package has already been found by a standard search, it does not interfere
         real = importlib.machinery.PathFinder.find_spec(fullname, path)
         if real is not None:
             return None
 
         if fullname == self.pkg_name:
-            # Vozvraschaem spetsifikatsiyu PAKETA
+            # Returning the PACKAGE specification
             spec = importlib.machinery.ModuleSpec(
                 name=fullname,
                 loader=self,
@@ -187,7 +185,7 @@ class _SchedulerShimFinder(importlib.abc.MetaPathFinder, importlib.abc.Loader):
             return spec
 
         if fullname == self.watcher_name:
-            # Vozvraschaem spetsifikatsiyu obychnogo modulya
+            # Returning the specification of a regular module
             return importlib.machinery.ModuleSpec(
                 name=fullname,
                 loader=self,
@@ -202,7 +200,7 @@ class _SchedulerShimFinder(importlib.abc.MetaPathFinder, importlib.abc.Loader):
     # noinspection PyUnusedLocal
     def exec_module(self, module):  # noqa: D401, ANN001
         if module.__name__ == self.pkg_name:
-            # Pomechaem kak paket
+            # Marks as package
             module.__package__ = self.pkg_name
             module.__path__ = []  # type: ignore[attr-defined]
             return
@@ -233,7 +231,7 @@ except Exception:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 5) Myagkie monkey-patch nedostayuschikh simvolov
+# 5) Soft monkey patch missing characters
 # ──────────────────────────────────────────────────────────────────────────────
 
 # 5.1) modules.scheduler_engine: start/stop/status/schedule/cancel
@@ -295,7 +293,7 @@ try:
 
     if not hasattr(_sign, "key_id"):
         def key_id() -> str:
-            # Kompaktnyy identifikator klyucha (pervye 12 hex-simvolov SHA256)
+            # Compact key identifier (first 12 hash characters ША256)
             digest = hashlib.sha256(_sign.get_hmac_key().encode("utf-8")).hexdigest()
             return digest[:12]
         _sign.key_id = key_id  # type: ignore[attr-defined]
@@ -305,8 +303,8 @@ except Exception:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 6) VAZhNO: NET rannego import routes — izbegaem «partial init» tsiklov importa
+# 6) Important: NO early imports - avoid “partial init” import cycles
 # ──────────────────────────────────────────────────────────────────────────────
-# Nichego ne importiruem zdes. Pust eto sdelaet app.py/infrastruktura.
+# We don't import anything here. Let the app/infrastructure do it.
 
 # c=a+b

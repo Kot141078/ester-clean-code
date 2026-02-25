@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/self_assemble_from_dump.py — CLI: samosborka iz dampa/arkhiva i aktivatsiya.
+"""scripts/self_assemble_from_dump.py - CLI: samosborka iz dampa/arkhiva i aktivatsiya.
 
 Primery:
   ESTER_RUN_ROOT=/opt/ester/runroot ESTER_MOVE_TOKEN=yes \\
-    python -m scripts.self_assemble_from_dump --path /media/owner/USB/ESTER/dumps/ester_dump.tar.gz --target-parent /opt/ester/runroot
-"""
+    python -m scripts.self_assemble_from_dump --path /media/owner/USB/ESTER/dumps/ester_dump.tar.gz --target-parent /opt/ester/runroot"""
 
 from __future__ import annotations
 
@@ -25,12 +23,12 @@ def main(argv=None) -> int:
         "--target-parent",
         type=str,
         default=None,
-        help="Koren, gde lezhit runroot/releases (esli ne zadan — ESTER_RUN_ROOT ili cwd)",
+        help="The root where the runroot/relases lies (if not specified - ESTER_RUNO_ROOT or svd)",
     )
     p.add_argument(
         "--no-token",
         action="store_true",
-        help="Ne trebovat ESTER_MOVE_TOKEN (ispolzovat tolko lokalno)",
+        help="Do not require ESTER_MOVE_TOKEN (use only locally)",
     )
     a = p.parse_args(argv)
 

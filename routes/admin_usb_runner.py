@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_usb_runner.py - UI/API dlya Local-only Job Runner + Shablony/Master/Validatsiya.
+"""routes/admin_usb_runner.py - UI/API dlya Local-only Job Runner + Shablony/Master/Validatsiya.
 
-Marshruty (dobavleno):
-  • GET  /admin/usb_runner/templates        - spisok shablonov
-  • POST /admin/usb_runner/preview          - prevyu/validatsiya (iz shablona ili iz job)
-  • POST /admin/usb_runner/create           - zapis job na USB (AB=A → dry)
-  • POST /admin/usb_runner/validate         - validatsiya syrogo JSON-teksta (textarea)
+Marshruty (added):
+  • GET /admin/usb_runner/templates - spisok shablonov
+  • POST /admin/usb_runner/preview - prevyu/validatsiya (iz shablona or iz job)
+  • POST /admin/usb_runner/create - zapis job na USB (AB=A → dry)
+  • POST /admin/usb_runner/validate - validatsiya syrogo JSON-teksta (textarea)
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, secrets, time
 from pathlib import Path

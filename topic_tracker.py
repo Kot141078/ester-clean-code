@@ -10,10 +10,8 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 TOPICS_STATE = os.path.join("state", "topics_context.json")
 
 class TopicTracker:
-    """
-    Uluchshennyy treker konteksta. 
-    Sledit za tem, o chem idet rech, i kak dolgo tema ostaetsya aktualnoy.
-    """
+    """Improved context tracker. 
+    Keep track of what is being discussed and how long the topic remains relevant."""
     def __init__(self):
         self.current_context: Dict[str, Any] = {
             "active_topics": {},  # topic_name: {weight, last_seen, energy}
@@ -36,21 +34,19 @@ class TopicTracker:
             json.dump(self.current_context, f, ensure_ascii=False, indent=2)
 
     def update_topics(self, found_topics: List[str], sentiment: float = 0.0):
-        """
-        Obnovlyaet vesa tem.
-        found_topics: spisok tem, naydennykh v soobschenii.
-        sentiment: emotsionalnyy okras (vliyaet na 'energiyu' temy).
-        """
+        """Updates topic weights.
+        fund_topics: list of topics found in the message.
+        sentiment: emotional coloring (affects the energy of the topic)."""
         now = time.time()
-        decay = 0.95 # Koeffitsient ostyvaniya temy
+        decay = 0.95 # Theme cooldown factor
         
-        # 1. Primenyaem zatukhanie k starym temam
+        # 1. Apply Fade to Old Themes
         for t in list(self.current_context["active_topics"].keys()):
-            # Tema teryaet aktualnost so vremenem
+            # The topic loses relevance over time
             time_passed = (now - self.current_context["active_topics"][t]["last_seen"]) / 60
             self.current_context["active_topics"][t]["energy"] *= (decay ** time_passed)
             
-            # Udalyaem sovsem ostyvshie temy
+            # Deleting completely cold topics
             if self.current_context["active_topics"][t]["energy"] < 0.1:
                 del self.current_context["active_topics"][t]
 
@@ -72,18 +68,18 @@ class TopicTracker:
         self._save_state()
 
     def get_main_topic(self) -> Optional[str]:
-        """Vozvraschaet samuyu 'goryachuyu' temu v dannyy moment."""
+        """Returns the hottest topic at the moment."""
         if not self.current_context["active_topics"]:
             return None
         return max(self.current_context["active_topics"], 
                    key=lambda k: self.current_context["active_topics"][k]["energy"])
 
     def get_context_summary(self) -> str:
-        """Formiruet tekstovoe opisanie tekuschego sostoyaniya uma Ester."""
+        """Generates a text description of Esther's current state of mind."""
         active = [t for t, data in self.current_context["active_topics"].items() if data["energy"] > 0.5]
         if not active:
             return "Fokus rasseyan."
         return f"Fokus na: {', '.join(active)}."
 
-# Ekzemplyar dlya sistemy
+# Instance for system
 tracker = TopicTracker()

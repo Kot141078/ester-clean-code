@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-modules/video/extractors/providers.py — edinyy sloy klassifikatsii URL i polucheniya metadannykh/sabov cherez yt-dlp.
+"""modules/video/extractors/providers.py - edinyy sloy klassifikatsii URL i polucheniya metadannykh/sabov cherez yt-dlp.
 
 Funktsii:
   • classify_url(url:str) -> {"provider": "...", "host": "..."}
-  • yt_info(url:str) -> dict          # metadannye (bez skachivaniya media)
-  • yt_subs(url:str, lang:str|None) -> Optional[str]  # put k .vtt sabam (temp) libo None
+  • yt_info(url:str) -> dict # metadannye (bez skachivaniya media)
+  • yt_subs(url:str, lang:str|None) -> Optional[str] # put k .vtt sabam (temp) libo None
 
 Mosty:
 - Yavnyy: (Inzheneriya ↔ Video) odna tochka integratsii dlya vsekh onlayn-provayderov.
 - Skrytyy #1: (Infoteoriya ↔ Masshtab) maksimalno ispolzuem vstroennye parsery yt-dlp (mnogo saytov bez koda).
-- Skrytyy #2: (Kibernetika ↔ Volya) universalnyy sloy pozvolyaet pravilam myshleniya ne zaviset ot konkretnogo sayta.
+- Skrytyy #2: (Kibernetika ↔ Volya) universalnyy layer pozvolyaet pravilam myshleniya ne zaviset ot konkretnogo sayta.
 
 Zemnoy abzats:
-Eto «universalnyy perekhodnik»: nevazhno, YouTube/Vimeo/RuTube — na vykhode odinakovaya shina dannykh.
+This is “universalnyy perekhodnik”: nevazhno, YouTube/Vimeo/RuTube - na vykhode odinakovaya shina dannykh.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -73,7 +71,7 @@ def yt_subs(url: str, lang: Optional[str]) -> Optional[str]:
     out_dir = os.path.join(DATA_DIR, "tmp_subs")
     os.makedirs(out_dir, exist_ok=True)
     args = [YTDLP, "--no-warnings", "--skip-download", "--sub-format", "vtt", "-o", os.path.join(out_dir, "%(id)s.%(ext)s")]
-    # snachala avto-saby, potom obychnye
+    # first auto-subs, then regular ones
     for auto_flag in (["--write-auto-sub"], ["--write-subs"]):
         cmd = [*args, *auto_flag]
         if lang:

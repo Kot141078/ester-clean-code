@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-Vremennyy khotfiks: esli import providers.registry padaet SyntaxError-om,
-podmenyaem modul na minimalnyy shim c nuzhnym API (select/status),
+"""Vremennyy khotfiks: esli import providers.registry padaet SyntaxError-om,
+podmenyaem modul na minimalnyy shim with nuzhnym API (select/status),
 chtoby /providers/select ne valilsya 500-koy. Kontrakty ne lomaem.
-Ubrat fayl posle pochinki providers/registry.py.
-"""
+Ubrat fayl after pochinki providers/registry.py."""
 
 import sys
 import types
@@ -16,7 +14,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def init_app(app: Flask) -> None:  # vyzyvaetsya rantaymom ESTER/hooks/*
     try:
-        # Probuem obychnyy import: esli fayl validen — dalshe nichego ne delaem.
+        # We try regular import: if the file is valid, we do nothing further.
         import providers.registry as real  # type: ignore
         getattr(real, "__dict__", None)   # forsiruem zagruzku
         return
@@ -49,5 +47,5 @@ def init_app(app: Flask) -> None:  # vyzyvaetsya rantaymom ESTER/hooks/*
         mod.ProviderRegistry = ProviderRegistry  # type: ignore[attr-defined]
         sys.modules["providers.registry"] = mod  # podmena do refaktora
     except Exception:
-        # Lyubye drugie oshibki importov ignorim — ne meshaem ostalnomu startu
+        # Ignore any other import errors - does not interfere with the rest of the start
         pass

@@ -39,13 +39,11 @@ try:
 except ImportError:
     ebooklib = None
 
-# Regulyarka dlya opredeleniya yazyka
+# Regular rule for determining the language
 _LANG_RX = re.compile(r"[A-Yaa-yaEe]")
 
 def detect_and_read(filename: str, raw_data: bytes) -> tuple[list, str]:
-    """
-    Glavnaya tochka vkhoda.
-    """
+    """Main entry point."""
     ext = os.path.splitext(filename)[1].lower()
     
     if ext == ".pdf":
@@ -144,14 +142,14 @@ def _read_json(raw: bytes):
 def _read_fb2(raw: bytes):
     text = ""
     try:
-        # FB2 - eto XML. Probuem parsit standartnym ElementTree
-        # Snachala dekodiruem, FB2 chasto v utf-8 ili windows-1251
+        # FB2 is CML. Let's try to parse with the standard ElementTree
+        # First we decode, FB2 is often in UTF-8 or Windows-1251
         try:
             xml_content = raw.decode("utf-8")
         except:
             xml_content = raw.decode("windows-1251", errors="ignore")
             
-        # Ubiraem namespace, esli on meshaet (prostaya ochistka)
+        # We remove the space if it gets in the way (simple cleaning)
         xml_content = re.sub(r' xmlns="[^"]+"', '', xml_content, count=1)
         
         root = ET.fromstring(xml_content)
@@ -159,7 +157,7 @@ def _read_fb2(raw: bytes):
         # Izvlekaem tekst iz body
         body = root.find("body")
         if body is None:
-            # Esli body ne nayden napryamuyu, ischem rekursivno
+            # If water is not found directly, we search recursively
             body = root.find(".//body")
             
         if body is not None:
@@ -181,9 +179,9 @@ def _read_epub(raw: bytes):
     if not ebooklib:
         return [{"text": "[ERROR: ebooklib not installed. pip install EbookLib]"}], ""
     try:
-        # EbookLib trebuet fayl na diske, no my mozhem obmanut cherez BytesIO?
-        # K sozhaleniyu, EbookLib plokho rabotaet s BytesIO napryamuyu.
-        # Poetomu sokhranim vo vremennyy fayl
+        # EbookLib requires a file on disk, but can we cheat through Bitsio?
+        # Unfortunately, EbookLib does not work well with BeatIO directly.
+        # Therefore, save it to a temporary file
         import tempfile
         with tempfile.NamedTemporaryFile(delete=False, suffix=".epub") as tmp:
             tmp.write(raw)
@@ -193,7 +191,7 @@ def _read_epub(raw: bytes):
         
         for item in book.get_items():
             if item.get_type() == ebooklib.ITEM_DOCUMENT:
-                # Eto HTML, nuzhno chistit tegi. Prostoy regex
+                # This is NTML, you need to clean the tags. Simple regex
                 html_content = item.get_content().decode("utf-8", errors="ignore")
                 clean_text = re.sub('<[^<]+?>', '', html_content)
                 text += clean_text + "\n"

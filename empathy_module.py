@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-empathy_module.py — modul empatii i myagkogo “sotsialnogo upravleniya tonom” dlya Ester.
+"""empathy_module.py - modul empatii i myagkogo “sotsialnogo upravleniya tonom” dlya Ester.
 
 Prichina oshibki iz loga:
   name 'Any' is not defined
 V originale ispolzovalsya tip Any, no on ne byl importirovan iz typing.
 
-Chto sdelano:
+What was done:
   - Pochinka importa Any i bolshoy refaktoring: modul teper samodostatochnyy i NE padaet,
     dazhe esli otsutstvuyut vneshnie zavisimosti (Chroma/vektornyy stor/LLM-analizator).
-  - Ubrany dubliruyuschiesya funktsii (dvoynoy _is_whois_query, dvoynoy load_from_db vne klassa).
-  - Dobavlen prostoy lokalnyy analiz tona (bez numpy), s vozmozhnostyu podklyuchit “umnyy” analizator.
-  - Memory empatii: best-effort, libo RAM-slovar, libo vneshniy collection (esli proekt ego daet).
-  - Dobavleny udobnye khuki: observe(), get_user_state(), should_be_gentle().
+  - Ubrany dubliruyuschiesya funktsii (dvoynoy _is_whois_query, dvoynoy load_from_db vne class).
+  - Add prostoy lokalnyy analiz tona (bez numpy), s vozmozhnostyu podklyuchit “umnyy” analizator.
+  - Memory empatii: best-effort, libo RAM-slovar, libo vneshniy collection (esli project ego daet).
+  - Add udobnye khuki: observe(), get_user_state(), should_be_gentle().
 
-Mosty (trebovanie):
+Mosty (demand):
   - Yavnyy most: ton/emotsii → zhurnal sobytiy (journal.record_event) kak L4‑sled (audit trail).
   - Skrytye mosty:
       (1) Infoteoriya ↔ privatnost: sokhranyaem fingerprint teksta (korotkiy hash), a ne syroy tekst (esli redact vklyuchen).
@@ -22,8 +21,7 @@ Mosty (trebovanie):
 
 ZEMNOY ABZATs: v kontse fayla.
 
-# c=a+b
-"""
+# c=a+b"""
 
 from __future__ import annotations
 
@@ -44,31 +42,31 @@ try:
 except Exception:
     _ee_analyze_emotions = None
 
-# -------------------- Konfiguratsiya cherez env --------------------
+# -------------------- Configuration via ENV --------------------
 NODE_IDENTITY = os.getenv("NODE_IDENTITY", "node-unknown").strip() or "node-unknown"
 
-# Vklyuchit “obogaschennuyu” pamyat (obrezka istorii, dopolnitelnye polya)
+# Enable “enriched” memory (history trimming, additional fields)
 EMPATHY_V2_ENABLED = os.getenv("EMPATHY_V2_ENABLED", "1").strip() != "0"
 
-# Maksimalnaya dlina istorii na polzovatelya (0 = ne khranit, no analizirovat mozhno)
+# Maximum history length per user (0 = does not store, but can be analyzed)
 try:
     EMPATHY_HISTORY_MAX = int(os.getenv("EMPATHY_HISTORY_MAX", "80").strip())
 except Exception:
     EMPATHY_HISTORY_MAX = 80
 
-# Kak silno “smyagchat” otvety po umolchaniyu (1..10)
+# How much to soften the default responses (1..10)
 try:
     EMPATHY_DEFAULT_LEVEL = int(os.getenv("EMPATHY_DEFAULT_LEVEL", "5").strip())
 except Exception:
     EMPATHY_DEFAULT_LEVEL = 5
 
-# Redaktirovanie: ne khranit syroy tekst v pamyati empatii (privacy-by-default)
+# Edit: does not store raw text in empathy memory (privations-would-default)
 EMPATHY_REDACT = os.getenv("EMPATHY_REDACT", "1").strip() != "0"
 
 # Ne predlagat podpiski/plany po umolchaniyu (v originale byla vstavka pro podpisku)
 EMPATHY_ALLOW_UPSELL = os.getenv("EMPATHY_ALLOW_UPSELL", "0").strip() == "1"
 
-# Prinuditelnyy “slot” otveta: A=tolko fakty, B=chelovecheskoe obyasnenie
+# Forced answer slot: A=just facts, B=human explanation
 EMPATHY_FORCE_SLOT = os.getenv("EMPATHY_FORCE_SLOT", "").strip().upper()  # "A"/"B"/""
 
 
@@ -78,19 +76,18 @@ _EMPATHY_RAM_DB: Dict[str, str] = {}
 
 
 def _writer_enabled() -> bool:
-    """Esli proekt zapreschaet zapis (naprimer, read-only rezhim), mozhno otklyuchit."""
+    """If the project prohibits recording (for example, read-only mode), you can disable it."""
     return os.getenv("ESTER_WRITER_ENABLED", "1").strip() != "0"
 
 
 def get_empathy_collection() -> Any:
-    """Best-effort: vernut backend dlya khraneniya.
+    """Best-effort: return backend dlya khraneniya.
 
     Podderzhka:
       - dict (RAM-rezhim)
       - obekt s .get/.upsert/.add/.delete (Chroma-like)
 
-    Nikogda ne brosaet isklyuchenie.
-    """
+    Nikogda ne brosaet isklyuchenie."""
     for mod_name, attr in [
         ("modules.memory.empathy_store", "get_empathy_collection"),
         ("modules.memory.store", "get_empathy_collection"),
@@ -137,8 +134,8 @@ _NEG = {
 }
 _POS = {"spasibo", "klass", "otlichno", "super", "khorosho", "molodets", "kruto", "👍", "🙂", "😁", "😄"}
 _ANX = {"strashno", "trevozhno", "opasno", "panika", "voln", "perezhiva", "somnevayus"}
-_URG = {"srochno", "seychas", "nemedlenno", "pryamo seychas", "bystro"}
-_INTEREST = {"interesno", "ideya", "vopros", "pochemu", "kak", "chto esli", "vozmozhno"}
+_URG = {"srochno", "seychas", "nemedlenno", "right now", "bystro"}
+_INTEREST = {"interesno", "ideya", "vopros", "pochemu", "kak", "what if", "vozmozhno"}
 _WARM = {"pozhaluysta", "mozhesh", "davay", "pomogi", "druzheski", "spokoyno"}
 
 _RE_PUNCT = re.compile(r"[!?.]{2,}")
@@ -249,8 +246,7 @@ def _sanitize_record_for_storage(rec: Dict[str, Any]) -> Dict[str, Any]:
 class EmpathyModule:
     """Empatiya: analiz → vybor stilya → pamyat.
 
-    Nichego ne trebuet izvne: esli proekt daet storage/zhurnal — ispolzuem, inache tikhiy fallback.
-    """
+    Nichego ne trebuet izvne: esli proekt daet storage/zhurnal - ispolzuem, inache tikhiy fallback."""
 
     def __init__(
         self,
@@ -267,7 +263,7 @@ class EmpathyModule:
         self.load_from_db()
 
     def analyze_user_message(self, message: str) -> Dict[str, Any]:
-        """Analiziruet ton soobscheniya i vybiraet 'prefix' i stil."""
+        """Analyzes the tone of the message and selects the prefix and style."""
         message = _norm_text(message)
         try:
             analysis = self.analyzer(message) or {}
@@ -296,28 +292,28 @@ class EmpathyModule:
         if EMPATHY_ALLOW_UPSELL and ("podpisk" in low or "plan" in low):
             return {
                 "response_style": "myagkiy",
-                "prefix": "Esli interesno — mogu predlozhit variant po planu, no bez speshki: snachala reshim zadachu. ",
+                "prefix": "If you are interested, I can offer an option according to the plan, but without haste: first we will solve the problem.",
                 "analysis": analysis,
             }
 
         if "razdrazh" in tone or "negativ" in tone or (analysis.get("flags") or {}).get("negative"):
             return {
                 "response_style": "empatiya",
-                "prefix": "Ponyal. Eto realno mozhet besit. Davay spokoyno razlozhim po shagam i dobem. ",
+                "prefix": "Understood. This can really be annoying. Let's calmly break it down step by step and finish it off.",
                 "analysis": analysis,
             }
 
         if "trevozh" in tone or (analysis.get("flags") or {}).get("anxious"):
             return {
                 "response_style": "podderzhka",
-                "prefix": "Ok, vizhu trevogu. Davay snachala snimem neopredelennost: chto izvestno, chto net, i kakoy sleduyuschiy shag. ",
+                "prefix": "Ok, I see the concern. Let's first remove the uncertainty: what is known, what is not, and what the next step is.",
                 "analysis": analysis,
             }
 
         return {"response_style": "standart", "prefix": "", "analysis": analysis}
 
     def generate_friendly_response(self, base_response: str, analysis_pack: Dict[str, Any]) -> str:
-        """Dobavlyaet k otvetu prefix i legkiy yumor (esli umestno)."""
+        """Adds a prefix and light humor (if appropriate) to the answer."""
         prefix = analysis_pack.get("prefix", "") or ""
         style = (analysis_pack.get("response_style") or "").lower()
 
@@ -334,8 +330,8 @@ class EmpathyModule:
 
     def suggest_improvement(self) -> str:
         if self.empathy_level >= 7:
-            return "Esli khochesh — skazhi, chto uluchshit v stile/formate. Bez davleniya."
-        return "Esli budet zhelanie — mozhno skazat, chto uluchshit."
+            return "If you want, tell me what to improve in style/format. No pressure."
+        return "If there is a desire, we can say what to improve."
 
     def save_to_db(self) -> None:
         """Persist empathy history (best-effort)."""
@@ -396,7 +392,7 @@ class EmpathyModule:
         self.user_history = _trim_history(self.user_history)
 
     def observe(self, user_text: str, bot_text: Optional[str] = None, *, slot: str = "B") -> Dict[str, Any]:
-        """Udobnyy khuk: analiziruet soobschenie, optsionalno pishet v zhurnal sobytiy."""
+        """Convenient hook: analyzes the message, optionally writes to the event log."""
         pack = self.analyze_user_message(user_text)
         pack["slot"] = slot
 
@@ -456,10 +452,8 @@ class EmpathyModule:
         return self.observe(text, slot="B")
 
     def get_reply_tone(self, address_as: Optional[str] = None) -> str:
-        """
-        Korotkaya instruktsiya po tonu dlya prompta.
-        Ne zapreschaet «imya/laskovost», a reguliruet umestnost.
-        """
+        """A short tone instruction for the prompt.
+        It does not prohibit “name/endearment”, but regulates appropriateness."""
         st = self.get_user_state()
         tone = (st.get("tone") or "neytralnyy").strip()
         try:
@@ -483,36 +477,36 @@ class EmpathyModule:
         if interest >= 0.60:
             parts.append("vovlekay i poyasnyay")
         if address_as:
-            parts.append(f"obraschenie: {address_as} (umerenno, esli umestno)")
+            parts.append(f"treatment: ZZF0Z (moderate, if appropriate)")
 
-        # Ne zapreschaem frazy polnostyu — tolko po umestnosti.
-        parts.append("frazy pro 'sistemy/gotovnost' — tolko po zaprosu")
+        # We do not ban phrases completely - only when appropriate.
+        parts.append("phrases about systems/readiness - only upon request")
         return " | ".join(parts)
 
 
 # -------------------- Detektory intentov --------------------
 def is_daily_contacts_query(text: str) -> bool:
-    """Detektor zaprosov k zhurnalu kontaktov za den."""
+    """Detector of requests to the daily contact log."""
     low = (text or "").strip().lower()
     if not low:
         return False
 
     patterns = [
         "s kem ty govorila segodnya",
-        "s kem ty obschalas segodnya",
+        "who did you talk to today",
         "kto pisal segodnya",
         "kto tebe pisal segodnya",
         "kto segodnya pisal",
         "s kem ty razgovarivala segodnya",
-        "s kem ty obschalas krome menya",
+        "who did you talk to besides me",
         "krome menya s kem",
         "kto krome menya",
-        "pokazhi zhurnal dnya",
-        "pokazhi kto pisal",
+        "show your daily log",
+        "show who wrote",
         "kto byl segodnya",
         "spisok kontaktov segodnya",
-        "aktivnost za segodnya",
-        "kto zakhodil segodnya",
+        "activity for today",
+        "who came today",
     ]
 
     if any(p in low for p in patterns):
@@ -528,8 +522,7 @@ def is_daily_contacts_query(text: str) -> bool:
 def is_whois_query(text: str) -> Optional[str]:
     """Encoding-safe detector for queries like 'kto takoy <Imya>'.
 
-    VAZhNO: regex soderzhit kirillitsu tolko cherez \\uXXXX, chtoby ne stradat ot polomannoy kodirovki iskhodnikov.
-    """
+    VAZhNO: regex soderzhit kirillitsu tolko cherez \\uXXXX, chtoby ne stradat ot polomannoy kodirovki iskhodnikov."""
     try:
         s = (text or "").strip()
         if not s:
@@ -571,12 +564,10 @@ __all__ = [
 ]
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Empatiya — eto ne “sladost”, a sistema dempfirovaniya: kak amortizator v podveske.
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Empatiya - eto ne “sladost”, a sistema dampirovaniya: kak amortizator v podveske.
 Ona ne delaet mashinu bystree, ona delaet ee upravlyaemoy na yamakh.
 Inzhenerno:
-- ton/trevoga/srochnost — eto vkhodnye signaly regulyatora;
+- ton/trevoga/srochnost - eto vkhodnye signaly regulyatora;
 - esli ikh ne fiksirovat, sistema nachinaet “raskachivatsya” (perespam, povtornye obyasneniya, razdrazhenie).
-Poetomu my khranim korotkiy fingerprint i metriki — kak datchiki vibratsii, a ne polnyy razgovor.
-"""
+Poetomu my khranim korotkiy fingerprint i metriki - kak datchiki vibratsii, a ne polnyy razgovor."""

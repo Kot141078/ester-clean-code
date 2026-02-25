@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_replicate_routes.py - REST: snapshoty, torrent, deploy/otkat, planer avtonomii, zagruzchik.
+"""routes/self_replicate_routes.py - REST: snapshoty, torrent, deploy/otkat, planer avtonomii, zagruzchik.
 
 Mosty:
 - Yavnyy: (Volya ↔ Vyzhivanie) prostye ruchki: upakovat, otdat, sobrat, otkatitsya.
 - Skrytyy #1: (Set ↔ Zakonnost) torrent dostupen tolko kak optsionalnyy shag; po umolchaniyu - HTTP webseed.
-- Skrytyy #2: (Bezopasnost ↔ Kontrol) approve/rollback podchinyayutsya globalnym pravilam (high-risk → «tabletka»).
+- Skrytyy #2: (Bezopasnost ↔ Kontrol) approve/rollback podchinyayutsya globalnym pravilam (high-risk → “tabletka”).
 
 Zemnoy abzats:
-Eto «nabor instrumentov vyzhivaniya»: upakovat sebya, podelitsya legalno, sobrat snova, a esli chto - otkatitsya.
+This is “nabor instrumentov vyzhivaniya”: upakovat sebya, podelitsya legalno, sobrat snova, and esli chto - otkatitsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, request, send_from_directory

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/telegram_send_routes.py - unifitsirovannaya otpravka v Telegram.
+"""routes/telegram_send_routes.py - unifitsirovannaya otpravka v Telegram.
 
 MOSTY:
 - (Yavnyy) /tg/send - obschiy kontrakt: libo raw text, libo semantic (audience/intent/content) cherez obschiy stilevoy dvizhok.
-- (Skrytyy #1) A/B bezopasnyy katbek: bez tokena ili pri oshibke seti → dry echo.
+- (Skrytyy #1) A/B bezopasnyy katbek: bez tokena or pri oshibke seti → dry echo.
 - (Skrytyy #2) Edinoobrazie s WA: odinakovye polya zaprosa, chtoby proaktivnyy most rabotal simmetrichno.
 
 ZEMNOY ABZATs:
 Delaet Telegram ravnopravnym interfeysom naryadu s WA, bez lomki uzhe suschestvuyuschikh chastey.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from typing import Any, Dict

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/dashboard_routes.py - REST/HTML: /app/dashboard (mini-panel upravleniya).
+"""routes/dashboard_routes.py - REST/HTML: /app/dashboard (mini-panel upravleniya).
 
 Mosty:
 - Yavnyy: (Veb ↔ Operatsii) HTML-svodka klyuchevykh statusov/schetchikov.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Kak pribornaya panel v avto: skorosti ne pribavlyaet, no daet uverennost - vse vidno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, Response
 import json, urllib.request, os

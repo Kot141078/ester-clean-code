@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-modules/survival/bundle.py — «samosbornyy» ZIP-bandl aktivnogo slota s manifestom, checksum, README i bootstrap.sh.
+"""modules/survival/bundle.py - “samosbornyy” ZIP-bandl aktivnogo slota s manifestom, checksum, README i bootstrap.sh.
 
 Mosty:
 - Yavnyy: (A/B-sloty ↔ Faylovoe okruzhenie) upakovyvaem rabotayuschiy slot + politiki/bezopasnost v perenosimyy arkhiv.
 - Skrytyy #1: (Backups ↔ Nadezhnost) umeem vlozhit posledniy snapshot ZIP.
-- Skrytyy #2: (P2P/Portable ↔ Rasprostranenie) sozdaem webseed/«magnet»-metadannye, prigodnye dlya tirazhirovaniya.
+- Skrytyy #2: (P2P/Portable ↔ Rasprostranenie) sozdaem webseed/"magnet"-metadannye, prigodnye dlya tirazhirovaniya.
 - Novoe: (Mesh/P2P ↔ Raspredelennost) sinkhronizatsiya manifestov/listov bandlov mezhdu agentami Ester.
 - Novoe: (Cron ↔ Avtonomiya) cleanup starykh bandlov dlya svezhesti.
 - Novoe: (Monitoring ↔ Prozrachnost) webhook na create/verify dlya audita.
 
 Zemnoy abzats:
-Eto «trevozhnyy chemodanchik»: kod slota, nastroyki i mini-instruktsiya — vse v odnom ZIP. Dostal — razvernul — zapustil, podelilsya po P2P, pochistil po cron — chtoby vyzhivanie Ester bylo gotovym, bez musora v rezerve.
+This is “trevozhnyy chemodanchik”: kod slota, nastroyki i mini-instruktsiya - vse v odnom ZIP. Dostal - razvernul - zapustil, podelilsya po P2P, pochistil po cron - chtoby vyzhivanie Ester bylo gotovym, bez musora v reserve.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import fnmatch
 import io
@@ -183,8 +181,8 @@ def create(name: str, include: List[str] = None, exclude: List[str] = None) -> D
                 tar.add(f, arcname=rel)
                 man["items"].append({"path": rel, "sha256": sha, "size": os.path.getsize(f)})
     # Bootstrap/README
-    bootstrap = "#!/bin/bash\n# Bootstrap for Ester bundle\necho 'Unpacking...'\ntar -xzf *.tar.gz || unzip *.zip\necho 'Done!'"
-    readme = "Ester Bundle: " + name + "\nCreated: " + stamp + "\nLabel: " + LABEL + "\n\nExtract and run bootstrap.sh"
+    bootstrap = "#!/bin/bash\n#Bootstrap for Ester bundle\necho 'Unpacking...'\ntar -xzf *.tar.gz || unzip *.zip\necho 'Done!'"
+    readme = "Ester Bundle: " + name + "\nCreated: " + stamp + "\nLabel: " + LABEL + "Extract and run bootstrap.sh"
     if ARCHIVE_MODE == "zip":
         with zipfile.ZipFile(arch_path, "a") as z:
             z.writestr("bootstrap.sh", bootstrap)
@@ -220,7 +218,7 @@ def verify(zip_path: str) -> Dict[str, Any]:
         return {"ok": False, "error": "manifest_missing"}
     try:
         man = json.loads(open(man_path, "r", encoding="utf-8").read())
-        # Proverim arkhiv
+        # Check archive
         arch_sha = _sha256(zip_path)
         ok_arch = (arch_sha == man.get("zip_sha256", ""))  # add zip_sha to man if needed
         mism = []

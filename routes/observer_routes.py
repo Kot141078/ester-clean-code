@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
-"""
-routes/observer_routes.py - REST/UI dlya «rezhima nablyudatelya».
+"""routes/observer_routes.py - REST/UI dlya "rezhima nablyudatelya".
 
 Ruchki:
-  POST /observer/build   {"n_ctx":200,"n_err":300}
-  POST /observer/enable  {"enabled":true}
-  GET  /observer/status
-  GET  /admin/observer
+  POST /observer/build {"n_ctx":200,"n_err":300}
+  POST /observer/enable {"enabled":true}
+  GET /observer/status
+  GET /admin/observer
 
 Mosty:
 - Yavnyy: (UI ↔ Nablyudatel) ruchki build/enable/status zamykayut tsikl upravleniya overleem.
-- Skrytyy #1: (Infoteoriya ↔ Nadezhnost) kontrol parametrov okna (n_ctx/n_err) snizhaet shum signalov.
+- Skrytyy #1: (Infoteoriya ↔ Nadezhnost) kontrol parametrov okna (n_ctx/n_err) snizhaet noise signalov.
 - Skrytyy #2: (Kibernetika ↔ Kontrol) enable/status formalizuyut predikaty dopuska i obratnuyu svyaz.
 
 Zemnoy abzats:
-Dumay o rezhime nablyudatelya kak o «chernom yaschike»: build podgotavlivaet «lenty», enable vklyuchaet zapis,
-status pokazyvaet zdorove i parametry; admin-stranitsa - panel operatora.
+Dumay o rezhime nablyudatelya kak o “chernom yaschike”: build podgotavlivaet “lenty”, enable vklyuchaet zapis,
+status pokazyvaet zdorove i parameter; admin-stranitsa - panel operatora.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict
 from flask import Blueprint, jsonify, request, render_template
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Myagkiy import yadra, chtoby ne padat, esli modul otsutstvuet
+# Soft kernel import to avoid crashing if module is missing
 try:
     from modules.overlay.observer_mode import build_overlay, enable, status  # type: ignore
 except Exception:  # pragma: no cover
@@ -78,12 +76,12 @@ def admin():
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta (kontrakt proekta)."""
+    """Drop-in registration of blueprint (project contract)."""
     app.register_blueprint(bp)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

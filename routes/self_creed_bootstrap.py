@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_creed_bootstrap.py - avtozapis poslaniya v pamyat pri starte (idempotentno, s A/B-flagom).
+"""routes/self_creed_bootstrap.py - avtozapis poslaniya v pamyat pri starte (idempotentno, s A/B-flagom).
 
-Povedenie:
-  • Pri registratsii blyuprinta, esli CORE_CREED_AUTO=1 i CORE_CREED_AB!='B' - myagko vyzyvaem affirm_to_memory().
+Behavior:
+  • When registratsii blyuprinta, esli CORE_CREED_AUTO=1 i CORE_CREED_AB!='B' - myagko vyzyvaem affirm_to_memory().
   • Otchet dostupen po GET /self/creed/boot_result.
 
 Mosty:
-- Yavnyy: (Kibernetika ↔ Volya) sistema sama podtverzhdaet bazovuyu «tsennost» pri starte.
+- Yavnyy: (Kibernetika ↔ Volya) sistema sama podtverzhdaet bazovuyu “tsennost” pri starte.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) idempotentnost i profile isklyuchayut dubli.
 - Skrytyy #2: (UX ↔ Prozrachnost) rezultat initsializatsii viden cherez REST, bez logov servera.
 
 Zemnoy abzats:
-Po-chelovecheski - eto «prikrutit tablichku odin raz i proverit», a ne derzhat na knopke kazhdyy zapusk.
+Po-chelovecheski - eto “prikrutit tablichku odin raz i proverit”, a ne derzhat na knopke kazhdyy zapusk.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify

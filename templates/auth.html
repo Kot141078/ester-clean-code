@@ -29,9 +29,9 @@
   <div class="wrap">
     <div class="card">
       <h1>Vypusk JWT</h1>
-      <p class="muted">Vvedi imya polzovatelya (naprimer, «Owner») i sgeneriruy token. Esli imya perechisleno v <span class="badge">ADMIN_USERNAMES</span>, roli budut <span class="badge ok">admin,user</span>.</p>
+      <p class="muted">Enter a username (for example, “Ovner”) and generate a token. If the name is listed in <span class="badge">ADMIN_USERNAMES</span>, roli budut <span class="badge ok">admin,user</span>.</p>
 
-      <label for="user">Imya polzovatelya</label>
+      <label for="user">Username</label>
       <input id="user" placeholder="Owner" value="Owner"/>
 
       <label for="role">Role (optsionalno)</label>
@@ -53,12 +53,12 @@
     <div class="card" style="margin-top:16px">
       <h2>Token</h2>
       <textarea id="tok" placeholder="— tut poyavitsya JWT —" spellcheck="false"></textarea>
-      <p class="muted">Token avtomaticheski sokhranen v <code>localStorage("jwt")</code> i budet primenyatsya na stranitsakh UI.</p>
+      <p class="muted">The token is automatically saved in <code>localStorage("jwt")</code> and will be used on OH pages.</p>
       <p class="muted">Primer zagolovka: <code>Authorization: Bearer &lt;token&gt;</code></p>
     </div>
 
     <div class="card" style="margin-top:16px">
-      <h2>Otvet servera</h2>
+      <h2>Server response</h2>
       <pre id="log" style="white-space:pre-wrap;max-height:280px;overflow:auto"></pre>
     </div>
   </div>
@@ -87,7 +87,7 @@
       const r = await jfetch("/auth/me");
       $("#log").textContent = (r.json?JSON.stringify(r.json,null,2):r.raw);
     });
-    // pokazat tekuschiy token
+    // show current token
     const tok = getJwt(); if (tok) $("#tok").value = tok;
   </script>
 </body>

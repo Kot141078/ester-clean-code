@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/crawl/policy.py — lokalnye pravila kroulinga: user-agent, zaderzhki, litsenzii, allow/deny po domenam.
+"""modules/crawl/policy.py - lokalnye pravila kroulinga: user-agent, zaderzhki, litsenzii, allow/deny po domenam.
 
 Mosty:
 - Yavnyy: (Krouling ↔ Zakonnost) tsentralizovannaya politika dlya vsekh buduschikh kraulerov.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Kibernetika ↔ Limity) zaderzhki i denay-listy predotvraschayut blokirovki/iski.
 
 Zemnoy abzats:
-Bumazhnaya «instruktsiya po vezhlivomu sboru»: kto my, s kakoy chastotoy khodim i kuda ne lezem.
+Bumazhnaya “instruktsiya po vezhlivomu sboru”: who is mine, s kakoy chastotoy khodim i kuda ne lezem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, time, urllib.parse as urlp
 from typing import Any, Dict

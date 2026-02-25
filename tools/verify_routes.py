@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-Rasshirennyy prosmotr marshrutov:
-- pechataet kartu URL -> endpoint
-- pomechaet aliasy (odin endpoint na neskolko URL)
-- podsvechivaet auto-suffix (guarded) endpoint'y vida *_2, *_3 ...
-Zapusk (vnutri konteksta prilozheniya):
+"""Extended route inspector:
+- prints URL -> endpoint map
+- marks aliases (one endpoint on multiple URLs)
+- highlights auto-suffix (guarded) endpoints like *_2, *_3 ...
+Run (inside application context):
   python -c "import app; from tools.verify_routes import dump; dump(app.app)"
 """
 from __future__ import annotations

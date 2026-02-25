@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/garage/portfolio.py — sborka portfolio-sayta iz proektov garazha i ledzhera.
+"""modules/garage/portfolio.py - sborka portfolio-sayta iz proektov garazha i ledzhera.
 
 Mosty:
 - Yavnyy: (Garazh/Ledzher ↔ Vitrina) staticheskiy sayt s kartochkami rabot i grafom balansa.
 - Skrytyy #1: (Profile ↔ Prozrachnost) zapis o sborke v profile.
-- Skrytyy #2: (RAG ↔ Kontent) kratkoe summary popadaet v poiskovuyu bazu fallback.
+- Skrytyy #2: (RAG ↔ Kontent) short summary popadaet v poiskovuyu bazu fallback.
 
 Zemnoy abzats:
-Eto «vitrina masterskoy»: raboty, dokhody, ssylki — chtoby odnim vzglyadom ponyat, chem my silny.
+This is “vitrina masterskoy”: raboty, dokhody, ssylki - chtoby odnim vzglyadom ponyat, chem my silny.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict, List

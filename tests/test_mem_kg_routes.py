@@ -39,7 +39,7 @@ def test_hypothesis_get_post(client, auth_hdr_user):
         "/mem/hypothesis",
         headers=auth_hdr_user,
         json={
-            "text": "Ideya: snabdit replikatsiyu CRDT-kontrolem",
+            "text": "Idea: provide replication with MDG control",
             "tags": ["idea", "replication"],
         },
     )

@@ -34,7 +34,7 @@
   -->
   <div class="wrap">
     <h1>Report Console</h1>
-    <p class="muted">Rabotaet poverkh suschestvuyuschikh API: <code>/thinking/act</code>, <code>/thinking/cascade/*</code>. JWT — obschiy, kak v adminke.</p>
+    <p class="muted">Works on top of existing APIs: <code>/thinking/act</code>, <code>/thinking/cascade/*</code>. ZhVT - general, as in the admin panel.</p>
 
     <div class="card">
       <h3>JWT</h3>
@@ -46,7 +46,7 @@
       <div class="grid" style="margin-top:12px;">
         <div class="card">
           <h4>Okruzhenie</h4>
-          <button id="btnEnv">Proverit okruzhenie</button>
+          <button id="btnEnv">Check environment</button>
           <pre id="state" class="muted">{}</pre>
         </div>
         <div class="card">
@@ -59,12 +59,12 @@
     <div class="grid" style="margin-top:16px;">
       <div class="card">
         <h3>Iskhodnye dannye</h3>
-        <input id="title" placeholder="Nazvanie otcheta (napr. Eko-otchet: Q4)">
+        <input id="title" placeholder="Title of the report (e.g. Eco-report: Kch)">
         <input id="goal" placeholder="Tsel (napr. snizit CO₂e na 30% za 12 mes)">
         <div class="row">
           <button id="btnList">Spisok cheklistov</button>
           <select id="checklistId"></select>
-          <button id="btnGet">Pokazat cheklist</button>
+          <button id="btnGet">Show checklist</button>
         </div>
         <button id="btnBrief">Sobrat brif (iz Sustainability Kit)</button>
       </div>
@@ -79,9 +79,9 @@
 
     <div class="grid" style="margin-top:16px;">
       <div class="card">
-        <h3>Sborka otcheta</h3>
+        <h3>Report assembly</h3>
         <div class="row">
-          <button id="btnMD">Sobrat MD-otchet</button>
+          <button id="btnMD">Collect MD report</button>
           <button id="btnHTML">Sobrat HTML</button>
           <button id="btnSave">Save fayly</button>
         </div>

@@ -54,7 +54,7 @@
       message: text,
       sid: state.sid,
     };
-    // tolko esli yavno vybran provayder, krome auto
+    // only if a provider other than auto is explicitly selected
     if (state.provider && state.provider !== 'auto') body.mode = state.provider;
 
     const r = await fetch('/chat/message', {
@@ -64,7 +64,7 @@
     });
 
     if (r.status === 204) {
-      return { ok: false, answer: '(pustoy otvet, 204)' };
+      return { ok: false, answer: '(empty answer, 204)' };
     }
 
     const data = await r.json().catch(() => ({}));
@@ -86,7 +86,7 @@
       elInput().value = '';
       addBubble(text, 'you');
       const res = await sendMessage(text);
-      addBubble(res.answer || '(net otveta)', 'ai');
+      addBubble(res.answer || '(no answer)', 'ai');
     }
 
     elSend().addEventListener('click', handleSend);
@@ -100,7 +100,7 @@
     loadHistory();
   }
 
-  // zapusk kogda DOM gotov
+  // launch when the HOUSE is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', wire);
   } else {

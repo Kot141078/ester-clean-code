@@ -22,7 +22,7 @@
   </style>
   </head>
 <body>
-  <h1>Gibridnaya ochered <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
+  <h1>Hybrid queue <span class="chip">AB_MODE: <b id="ab">{{ ab }}</b></span></h1>
 
   <section class="grid">
     <div>
@@ -43,13 +43,13 @@
         </label>
       </div>
       <textarea id="args" style="width:100%;min-height:110px" placeholder='{"project_dir":"/path/on/remote","publish":true}'></textarea>
-      <details style="margin-top:6px"><summary>Tseli (mozhno pusto — podstavim podskazku)</summary>
+      <details style="margin-top:6px"><summary>Goals (can be empty - add a hint)</summary>
         <pre class="muted">Primer:
 {"lan":{"node":"node-123"},"tg":{"chat_id":123456789}}</pre>
       </details>
       <textarea id="targets" style="width:100%;min-height:70px" placeholder='{}'></textarea>
       <div class="row" style="margin-top:6px">
-        <button onclick="suggest()">Poluchit podskazku</button>
+        <button onclick="suggest()">Get a hint</button>
         <button onclick="enqueueSuggest()">Postavit po podskazke</button>
         <button onclick="enqueue()">Postavit</button>
       </div>
@@ -57,7 +57,7 @@
     </div>
 
     <div>
-      <h3>Tekuschee sostoyanie</h3>
+      <h3>Current Status</h3>
       <button onclick="refresh()">Obnovit</button>
       <div id="tbl">—</div>
     </div>
@@ -65,19 +65,19 @@
 
   <section class="grid">
     <div>
-      <h3>LAN-otvety</h3>
+      <h3>LAN responses</h3>
       <button onclick="loadReceipts()">Obnovit</button>
       <pre id="receipts">—</pre>
     </div>
     <div>
-      <h3>Prinyat kvitantsiyu</h3>
+      <h3>Accept receipt</h3>
       <textarea id="receipt" style="width:100%;min-height:140px" placeholder='{"schema":"ester.lan.reply/1","uid":"...","state":"done","details":{"took_sec":12},"sender":{"node_id":"node-abc"},"ts":1700000000,"sig":"..."}'></textarea>
       <div class="row" style="margin-top:6px">
-        <input id="uid" placeholder="ili UID zadachi" style="flex:1"/>
+        <input id="uid" placeholder="or task UID" style="flex:1"/>
         <button onclick="applyReceipt()">Prinyat</button>
       </div>
       <pre id="apply">—</pre>
-      <small class="muted">Esli zadan i JSON, i UID — ispolzuetsya JSON.</small>
+      <small class="muted">If both JSiON and UID are specified, the JSiON is used.</small>
     </div>
   </section>
 
@@ -110,7 +110,7 @@ async function refresh(){
 async function enqueue(){
   let args={}, targets={};
   try{ args = JSON.parse(document.getElementById('args').value||'{}'); }catch(e){ alert('args: plokhoy JSON'); return; }
-  try{ targets = JSON.parse(document.getElementById('targets').value||'{}'); }catch(e){ alert('targets: plokhoy JSON'); return; }
+  try{ targets = JSON.parse(document.getElementById('targets').value||'{}'); }catch(e){ alert('Targets: bad JSION'); return; }
   const body={type: document.getElementById('type').value, args, targets, policy: document.getElementById('policy').value};
   const r = await fetch('/admin/hybrid/enqueue',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   const j = await r.json().catch(()=>({ok:false}));
@@ -120,7 +120,7 @@ async function enqueue(){
 async function enqueueSuggest(){
   let args={}, targets={};
   try{ args = JSON.parse(document.getElementById('args').value||'{}'); }catch(e){ alert('args: plokhoy JSON'); return; }
-  try{ targets = JSON.parse(document.getElementById('targets').value||'{}'); }catch(e){ alert('targets: plokhoy JSON'); return; }
+  try{ targets = JSON.parse(document.getElementById('targets').value||'{}'); }catch(e){ alert('Targets: bad JSION'); return; }
   const body={type: document.getElementById('type').value, args, targets};
   const r = await fetch('/admin/hybrid/enqueue_suggest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   const j = await r.json().catch(()=>({ok:false}));
@@ -141,7 +141,7 @@ async function nudge(uid){
   await refresh();
 }
 
-// --- LAN-otvety ---
+// --- LAN replies ---
 async function loadReceipts(){
   const r = await fetch('/admin/hybrid/lan_receipts'); const j = await r.json().catch(()=>({ok:false}));
   document.getElementById('receipts').textContent = JSON.stringify(j, null, 2);
@@ -151,7 +151,7 @@ async function applyReceipt(){
   let obj=null;
   const txt = document.getElementById('receipt').value.trim();
   if(txt){
-    try{ obj = JSON.parse(txt); }catch(e){ alert('Plokhoy JSON kvitantsii'); return; }
+    try{ obj = JSON.parse(txt); }catch(e){ alert('Bad receipt receipt'); return; }
   }
   const uid = document.getElementById('uid').value.trim() || undefined;
   const r = await fetch('/admin/hybrid/lan_apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj?{receipt:obj}:{uid})});

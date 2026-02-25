@@ -14,7 +14,7 @@ PLAN_HUMAN = """\
 run_id: test_run_graph_human_01
 branch_id: main
 context_init:
-  spec: "Minimalnyy plan s human.review."
+  spec: "Minimal plan s human.review."
   items:
     - {file: "one.md"}
 
@@ -26,10 +26,9 @@ nodes:
 
   - id: human_check
     type: human.review
-    message: "Prover rezultat dlya {{ctx.item.file}}. Otvet: OK/popravki."
-    out: "approval"
-    depends: ["fork"]
-"""
+    message: "Check result dlya {{ctx.item.file}}. Answer: OK/popravki."
+    out: "approved"
+    depends: ["fork"]"""
 
 
 def _wait_until(cond, timeout=5.0, step=0.05):
@@ -45,7 +44,7 @@ def test_graph_routes_human_flow():
     with tempfile.TemporaryDirectory() as tmp:
         os.environ["DAG_RUN_ROOT"] = os.path.join(tmp, "runs")
         os.environ["DAG_BRANCH_ROOT"] = os.path.join(tmp, "branches")
-        # Sozdaem testovoe prilozhenie Flask i podklyuchaem bp_graph
+        # Create a Flask test application and connect bp_graph
         app = Flask(__name__)
         app.register_blueprint(bp_graph)
 
@@ -58,7 +57,7 @@ def test_graph_routes_human_flow():
         assert data.get("ok") is True
         run_id = data["run_id"]
 
-        # Zhdem, poka poyavitsya zadacha na human.review vo inflight
+        # We are waiting for the task to appear on human.review in inflyzhnt
         def has_inflight():
             st = load_state(run_id)
             return bool(st and st.get("inflight"))
@@ -71,7 +70,7 @@ def test_graph_routes_human_flow():
         assert len(inflight) == 1
         task_id = list(inflight.keys())[0]
 
-        # Otvechaem kak «chelovek»
+        # We answer as a “person”
         resp2 = client.post(
             "/graph/human_complete",
             json={"run_id": run_id, "task_id": task_id, "result": "OK"},
@@ -79,13 +78,13 @@ def test_graph_routes_human_flow():
         assert resp2.status_code == 200
         assert resp2.get_json().get("ok") is True
 
-        # Zhdem zaversheniya zapuska
+        # We are waiting for the launch to complete
         def finished():
             st = load_state(run_id)
             return bool(st and st.get("finished"))
 
         assert _wait_until(finished, timeout=5.0)
 
-        # Proveryaem, chto v docherney vetke zapisalsya rezultat
+        # We check that the result is written in the child branch
         child_ctx = load_context(run_id, "main#01")
         assert child_ctx.get("approval") == "OK"

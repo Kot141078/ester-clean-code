@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-Personal↔Global Bridge — agregator «lichnaya pamyat + vneshnie znaniya» s doveritelnym prioritetom.
+"""Personal↔Global Bridge - agregator “lichnaya pamyat + vneshnie znaniya” s trustelnym prioritetom.
 
 Mosty:
-- Yavnyy: (Lichnaya pamyat ↔ Globalnye korpusa) — edinaya tochka zaprosa s ranzhirovaniem i folbekom offlayn.
-- Skrytyy 1: (Doverie ↔ Vydacha) — Trust/Emotion povyshayut personalnye zapisi pri sortirovke.
+- Yavnyy: (Lichnaya pamyat ↔ Globalnye korpusa) - edinaya tochka zaprosa s ranzhirovaniem i folbekom offlayn.
+- Skrytyy 1: (Doverie ↔ Vydacha) - Trust/Emotion povyshayut personalnye zapisi pri sortirovke.
 - Skrytyy 2: (KG ↔ Ontologiya) — normalizatsiya terminov i svyazyvanie s uzlami KG dlya obyasnimosti.
 
 Zemnoy abzats:
-Odin vopros — dva karmana: v pervom — vashi zametki, vo vtorom — obschie znaniya.
-Skladyvaem rezultaty i podnimaem naverkh to, chemu my bolshe doveryaem (i chto vam blizhe).
-"""
+Odin vopros - dva karmana: v pervom - vashi zametki, vo vtorom - obschie znaniya.
+Skladyvaem rezultaty i podnimaem naverkh to, chemu my bolshe doveryaem (i chto vam blizhe)."""
 from __future__ import annotations
 
 import os, json, math, hashlib
@@ -54,10 +52,8 @@ def _sim(a: List[float], b: List[float]) -> float:
     return sum(x*y for x,y in zip(a,b))
 
 def query(q: str, topk: int = 5) -> Dict[str, Any]:
-    """
-    Edinyy zapros: vydaet smeshannyy spisok {source: personal|global|kg, text, score}.
-    Slot B — dobavlyaet KG-rezultaty i bolee agressivnoe smeshivanie.
-    """
+    """Single request: returns a mixed list of ZZF0Z.
+    Slot B - adds CG results and more aggressive mixing."""
     q = (q or "").strip()
     if not q:
         return {"ok": False, "error": "empty_query"}

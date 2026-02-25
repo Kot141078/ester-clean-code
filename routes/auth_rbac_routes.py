@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/auth_rbac_routes.py - REST: pokazat tekuschie roli/subekt (dlya UI/diagnostiki).
+"""routes/auth_rbac_routes.py - REST: pokazat tekuschie roli/subekt (dlya UI/diagnostiki).
 
 Mosty:
-- Yavnyy: (Veb ↔ RBAC) daet UI bystryy sposob ponyat «kto ya dlya sistemy?».
-- Skrytyy #1: (Politiki ↔ Inspektsiya) pomogaet pri otladke prav.
+- Yavnyy: (Veb ↔ RBAC) daet UI bystryy sposob ponyat “who ya dlya sistemy?”
+- Skrytyy #1: (Politiki ↔ Inspektsiya) help pri otladke prav.
 - Skrytyy #2: (Memory ↔ Profile) pri neobkhodimosti rasshiryaetsya logirovaniem.
 
 Zemnoy abzats:
 Eto kak posmotret propusk na svet: vidno imya i spisok dopuskov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

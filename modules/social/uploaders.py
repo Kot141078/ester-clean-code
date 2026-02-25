@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/social/uploaders.py — publikatsiya kit’ov: manual (instruktsii) i api (pri nalichii klyuchey), zhurnal.
+"""modules/social/uploaders.py - publikatsiya kit'ov: manual (instruktsii) i api (pri nalichii klyuchey), zhurnal.
 
 Mosty:
-- Yavnyy: (Kit ↔ Publikatsiya) pytaetsya otpravit cherez API ili generiruet manual-instruktsii.
+- Yavnyy: (Kit ↔ Publikatsiya) pytaetsya otpravit cherez API or generate manual-instruktsii.
 - Skrytyy #1: (Zhurnal ↔ Uchet) zapisyvaet fakt publikatsii i id/ssylku.
 - Skrytyy #2: (RBAC ↔ Ostorozhnost) predpolagaetsya vyzov cherez zaschischennye ruchki.
 
 Zemnoy abzats:
-Kak «kurer»: esli est propusk — zanosit pryamo v zdanie; esli net — ostavlyaet akkuratnyy paket i podrobnuyu zapisku, kuda nesti.
+Kak “kurer”: esli est propusk - zanosit pryamo v zdanie; esli net - ostavlyaet akkuratnyy paket i podrobnuyu zapisku, where nesti.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, glob, urllib.request, urllib.error
 from typing import Any, Dict
@@ -62,14 +60,14 @@ def _api_try(url: str, method: str="POST", headers: Dict[str,str]|None=None, bod
         return {"ok": False, "code": 0, "error": str(e)}
 
 def _upload_youtube(kdir: str)->Dict[str,Any]:
-    # Realnye api trebuyut OAuth; podderzhim «manual» polnostyu i «api»-pleyskholder.
+    # Real APIs require OAuth; We will support the “manual” completely and the “api” placeholder.
     meta=_read_meta(kdir)
     if MODE!="api" or not YT:
         rec={"ok": True, "mode":"manual", "note":"Use YouTube Studio as per upload_instructions.md"}
         _ledger_add({"ts": int(time.time()), "platform":"youtube", "title": meta.get("title",""), "mode":"manual", "dir": kdir})
         _passport("social_upload", {"platform":"youtube","mode":"manual","dir":kdir})
         return rec
-    # Psevdo-zapros (provalitsya v offline), no my fallback-im
+    # Pseudo-request (fail offline), but we fake it
     rep=_api_try("https://www.googleapis.com/youtube/v3/videos?part=snippet&key="+YT, "POST", {"Content-Type":"application/json"}, {"snippet":{"title":meta.get("title","")}})
     if not rep.get("ok"):
         _ledger_add({"ts": int(time.time()), "platform":"youtube", "title": meta.get("title",""), "mode":"api-fallback", "dir": kdir, "error": rep.get("error","")})

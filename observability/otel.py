@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-observability.otel — initsializatsiya OpenTelemetry (treysy/metriki) s no-op folbekom.
+"""observability.otel - initsializatsiya OpenTelemetry (treysy/metriki) s no-op folbekom.
 
 MOSTY:
 - Yavnyy: init_otel()/instrument_flask_app()/record_metric() — edinaya tochka podklyucheniya telemetrii.
@@ -8,10 +7,9 @@ MOSTY:
 - Skrytyy #2: (REST ↔ Metriki) — record_metric() pozvolyaet pisat metriki iz lyubykh routov bez pryamoy zavisimosti.
 
 ZEMNOY ABZATs:
-Eto «schetchik na valu»: esli OTEL est — otdaem signaly naruzhu; net — tikho schitaem vkholostuyu.
-Nikakoy seti ne trebuetsya po umolchaniyu, konfig eksporterov — cherez ENV.
-# c=a+b
-"""
+Eto “schetchik na valu”: esli OTEL est - otdaem signaly naruzhu; net - tikho schitaem vkholostuyu.
+Nikakoy seti ne trebuetsya po umolchaniyu, konfig eksporterov - cherez ENV.
+# c=a+b"""
 from __future__ import annotations
 
 from contextlib import contextmanager
@@ -30,10 +28,8 @@ def _env_bool(name: str, default: bool = True) -> bool:
     return v in ("1", "true", "on", "yes", "y", "t")
 
 def init_otel(service_name: Optional[str] = None) -> bool:
-    """
-    Initsializiruet provaydery treysinga/metrik pri nalichii SDK.
-    Vozvraschaet True pri polnotsennom rezhime, inache False (no-op).
-    """
+    """Initializes tracing/metric providers if SDK is available.
+    Returns Three in full mode, otherwise False (but-op)."""
     global _OTEL_READY, _TRACER, _METER
     if _OTEL_READY:
         return True
@@ -79,9 +75,7 @@ def init_otel(service_name: Optional[str] = None) -> bool:
     return True
 
 def instrument_flask_app(app: Any) -> bool:
-    """
-    Bezopasnoe podklyuchenie avtoperekhvata Flask (esli ustanovlen paket-instrumentator).
-    """
+    """Secure connection of Flask auto-interception (if the toolkit is installed)."""
     global _INSTRUMENTED
     if _INSTRUMENTED:
         return True
@@ -106,9 +100,7 @@ def get_meter() -> Any:
     return _METER
 
 def record_metric(name: str, value: float, attributes: Optional[Dict[str, Any]] = None) -> None:
-    """
-    Unifitsirovannaya zapis chislovoy metriki (Histogram). V no-op rezhime — tikho vozvraschaet.
-    """
+    """Unified recording of numerical metrics (Histogram). In no-op mode, it returns quietly."""
     m = get_meter()
     try:
         h = _HISTOS.get(name)
@@ -117,7 +109,7 @@ def record_metric(name: str, value: float, attributes: Optional[Dict[str, Any]] 
             _HISTOS[name] = h
         h.record(float(value), attributes=attributes or {})  # type: ignore[no-untyped-call]
     except Exception:
-        # v no-op i pri otsutstvii SDK prosto ne delaem nichego
+        # in no-op and in the absence of SDK we simply do nothing
         pass
 
 

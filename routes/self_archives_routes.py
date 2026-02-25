@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_archives_routes.py - P2P-obmen sobstvennymi arkhivami (CID) s unifitsirovannoy HMAC-autentifikatsiey.
+"""routes/self_archives_routes.py - P2P-obmen sobstvennymi arkhivami (CID) s unifitsirovannoy HMAC-autentifikatsiey.
 
 Mosty:
   • (P2P-guard ↔ Arkhivy) edinyy mekhanizm podpisi umenshaet raskhozhdeniya v zaschite raznykh zon.
@@ -8,10 +7,9 @@ Skrytye mosty:
   • (Manifest ↔ Arkhiv) marshruty /manifest i /archive ispolzuyut odnu i tu zhe verifikatsiyu.  :contentReference[oaicite:11]{index=11}
   • (Testy ↔ Servis) sovmestim s test_p2p_sign_script i curl-generatsiey iz scripts/p2p_sign.py.  :contentReference[oaicite:12]{index=12} :contentReference[oaicite:13]{index=13}
 
-Zemnoy abzats: «ruchka sklada» - vydaet manifest/arkhiv tolko tem, kto predyavil pravilnuyu nakladnuyu (podpis), pri etom starye nakladnye esche chitayutsya.
+Zemnoy abzats: “ruchka sklada” - vydaet manifest/arkhiv tolko tem, kto predyavil pravilnuyu nakladnuyu (podpis), pri etom starye nakladnye esche chitayutsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request, send_file

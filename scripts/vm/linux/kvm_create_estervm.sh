@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # scripts/vm/linux/kvm_create_estervm.sh
-# Sozdanie VM pod KVM/QEMU (libvirt). Trebuetsya: qemu-kvm, libvirt-daemon, virt-install, virsh.
+# Creation of a VM for KVT/KETU (livwirth). Required: gemu-kvm, livvirt-daemon, virtual-install, virsh.
 # Primer:
 #   sudo bash kvm_create_estervm.sh --name EsterVM --disk /var/lib/libvirt/images/EsterVM.qcow2 --mem 6144 --vcpus 4 --iso /isos/Win11.iso
 

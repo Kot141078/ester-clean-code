@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/node_registry_agent.py — agent avto-registratsii uzla.
+"""listeners/node_registry_agent.py - agent avto-registratsii uzla.
 
-Povedenie:
+Behavior:
   • Kazhdye REGISTRY_TICK_SEC sobiraet capabilities -> sokhranyaet v REGISTRY_DIR/nodes/<id>.json.
-  • Esli naydena portable-USB i REGISTRY_USB_EXPORT=1 — eksportiruet na USB/ESTER/nodes/.
+  • Esli naydena portable-USB i REGISTRY_USB_EXPORT=1 - eksportiruet na USB/ESTER/nodes/.
   • (Opts.) REGISTRY_UDP_ENABLE=1 — shlet UDP-mayak s node_id i kratkoy metainfoy (best-effort).
 
 Mosty:
-- Yavnyy (Inventarizatsiya ↔ Rasprostranenie): uzel sam soobschaet «kto ya i chto umeyu».
+- Yavnyy (Inventarizatsiya ↔ Rasprostranenie): uzel sam soobschaet “who ya i chto umeyu.”
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): periodicheskie slepki s ts, offlayn-sovmestimost cherez USB.
-- Skrytyy 2 (Praktika ↔ Sovmestimost): stdlib, AB-predokhranitel, set — tolko lokalnaya/opts.
+- Skrytyy 2 (Praktika ↔ Sovmestimost): stdlib, AB-predokhranitel, set - tolko lokalnaya/opts.
 
 Zemnoy abzats:
 Kak tablichka na dveri tsekha: regulyarno obnovlyaemaya, plyus kopiya prikolota k perenosnomu schitu (USB).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, os, socket, time
 from pathlib import Path

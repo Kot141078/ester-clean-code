@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8"/>
-  <title>Ester — Fleshka: sborka i proverka</title>
+  <title>Esther - Flash drive: assembly and testing</title>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <style>
     body{font-family:system-ui,Arial,sans-serif;margin:0;padding:16px;background:#0b0f14;color:#e6eef7}
@@ -36,7 +36,7 @@
 
   <section id="secBuild">
     <div class="row">
-      <button onclick="load()">Obnovit toma</button>
+      <button onclick="load()">Update volumes</button>
       <label>Tom:
         <select id="mount"></select>
       </label>
@@ -54,7 +54,7 @@
       <label><input type="checkbox" id="with_release" checked> Vklyuchit reliz</label>
       <label>Damp (opts. put): <input id="dump" class="mono" placeholder="/path/dump.tar.gz"/></label>
       <label><input type="checkbox" id="dry"> Dry-run (bez zapisi)</label>
-       <label><input type="checkbox" id="state" checked/> Vklyuchit tekuschee sostoyanie (~/.ester)</label>
+       <label><input type="checkbox" id="state" checked/> Enable current state (~/.ester)</label>
       <button onclick="make()">Sobrat</button>
     </div>
     <h3>Otchet</h3>
@@ -63,13 +63,13 @@
 
   <section id="secVerify" class="hide">
     <div class="row">
-      <button onclick="load()">Obnovit toma</button>
+      <button onclick="load()">Update volumes</button>
       <label>Tom:
         <select id="mount2"></select>
       </label>
-      <button onclick="verify()">Proverit fleshku</button>
+      <button onclick="verify()">Check flash drive</button>
     </div>
-    <h3>Rezultat proverki</h3>
+    <h3>Check result</h3>
     <pre id="outVerify" class="mono">—</pre>
   </section>
 

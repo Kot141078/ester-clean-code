@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_admin.py — eksheny «voli» dlya Invoker i MM Guard.
+"""modules/thinking/actions_admin.py - eksheny “voli” dlya Invoker i MM Guard.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Adminka) daet korotkie komandy dlya otobrazheniya reestra i audita pamyati.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (UI ↔ Prozrachnost) legko vyvodit v interfeyse.
 
 Zemnoy abzats:
-Para komand dlya «posmotret spisok knopok» i «chto u nas s dostupom k pamyati».
+Para komand dlya “posmotret spisok knopok” i “what u nas s dostupom k pamyati”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

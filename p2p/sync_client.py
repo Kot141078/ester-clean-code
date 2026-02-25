@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-p2p.sync_client — minimalnye khelpery sinkhronizatsii.
-# c=a+b
-"""
+"""p2p.sync_client - minimalnye khelpery sinkhronizatsii.
+# c=a+b"""
 from __future__ import annotations
 from typing import List, Dict, Any, Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

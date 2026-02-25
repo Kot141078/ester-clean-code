@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_usb_catalog.py - UI/API dlya Mini-Catalog na USB.
+"""routes/admin_usb_catalog.py - UI/API dlya Mini-Catalog na USB.
 
-Marshruty:
-  • GET  /admin/usb_catalog              - stranitsa
-  • GET  /admin/usb_catalog/status       - chtenie kataloga i whitelist
-  • POST /admin/usb_catalog/preview      - {selection:[uid], overrides:{uid:dest}} → plan
-  • POST /admin/usb_catalog/import       - primenit plan (AB=A → dry)
+Route:
+  • GET /admin/usb_catalog - stranitsa
+  • GET /admin/usb_catalog/status - chtenie kataloga i whitelist
+  • POST /admin/usb_catalog/preview - {selection:[uid], overrides:{uid:dest}} → plan
+  • POST /admin/usb_catalog/import - primenit plan (AB=A → dry)
 
 Mosty:
-- Yavnyy (UX ↔ Import): ot vybora elementov do otcheta o kopirovanii i alias'akh LM Studio.
+- Yavnyy (UX ↔ Import): from vybora elementov do otcheta o kopirovanii i alias'akh LM Studio.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): yavnyy plan s putyami i whitelist.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): offlayn, stdlib, AB-predokhranitel, yadro Ester ne trogaem.
 
 Zemnoy abzats:
-Eto «opis i razgruzka chemodana»: pokazyvaem, chto i kuda poydet, i po knopke perenosim.
+Eto “opis i razgruzka chemodana”: pokazyvaem, chto i kuda poydet, i po knopke perenosim.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from pathlib import Path

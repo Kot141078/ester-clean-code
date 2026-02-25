@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mesh_quorum_routes.py - REST: predlozhit, golosovat, status.
+"""routes/mesh_quorum_routes.py - REST: predlozhit, golosovat, status.
 
 Mosty:
 - Yavnyy: (Veb ↔ Kvorum) prozrachnoe upravlenie resheniyami.
 - Skrytyy #1: (CautionNet ↔ Spread) pomogaem bezopasnoy seti resheniy.
-- Skrytyy #2: (Panel ↔ Operator) viden progress golosov.
+- Skrytyy #2: (Panel ↔ Operator) visible progress golosov.
 
 Zemnoy abzats:
-Pered riskom - sprosili sester; nabrali golosa - idem.
+Pered riskom - asked sister; nabrali golosa - idem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

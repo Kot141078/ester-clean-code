@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_registry.py - panel kataloga uzlov: svoya kartochka, spisok, deystviya.
+"""routes/admin_registry.py - panel kataloga uzlov: svoya kartochka, spisok, deystviya.
 
-Marshruty:
-  • GET  /admin/registry                 - HTML
-  • GET  /admin/registry/status          - {"self":cap,"nodes":[...]}
-  • POST /admin/registry/publish_now     - sobrat+sokhranit+eksport
-  • POST /admin/registry/import_usb      - prinuditelnyy import s USB
+Route:
+  • GET /admin/registry - HTML
+  • GET /admin/registry/status - {"self":cap,"nodes":[...]}
+  • POST /admin/registry/publish_now - sobrat+sokhranit+eksport
+  • POST /admin/registry/import_usb - prinuditelnyy import s USB
   • POST /admin/registry/suggest_targets - {job_type,args} -> targets dlya gibridnoy ocheredi
 
 Mosty:
@@ -15,10 +14,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): offlayn, stdlib; my ne menyaem yadro Ester.
 
 Zemnoy abzats:
-Eto «schit ucheta»: vidno, kto v seti i chto umeet, odnoy knopkoy - «obnovit tablichku» i podskazka gde sobirat.
+Eto “schit ucheta”: vidno, kto v seti i chto umeet, odnoy knopkoy - “obnovit tablichku” i podskazka gde sobirat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from pathlib import Path

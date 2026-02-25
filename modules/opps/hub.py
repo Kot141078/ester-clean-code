@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/opps/hub.py — khab vozmozhnostey (vakansii/zakazy): khranit, importirovat, menyat status.
+"""modules/opps/hub.py - khab vozmozhnostey (vakansii/zakazy): khranit, importirovat, menyat status.
 
 Mosty:
-- Yavnyy: (Garazh/Portfolio ↔ Outreach) Unified istochnik pravdy po «zakazam».
+- Yavnyy: (Garazh/Portfolio ↔ Outreach) Unified istochnik pravdy po “zakazam”.
 - Skrytyy #1: (Profile ↔ Prozrachnost) dobavleniya/izmeneniya shtampuyutsya.
-- Skrytyy #2: (Invoice/Finance ↔ Kontur) statusy «won→invoiced→paid» stykuyutsya so schetami.
+- Skrytyy #2: (Invoice/Finance ↔ Kontur) statusy “won→invoiced→paid” stykuyutsya so schetami.
 
 Zemnoy abzats:
-Kak CRM-bloknot: zametil zadachu — zapisal; doshel do predlozheniya — zafiksiroval; vyigral — perevel v finansy.
+Kak CRM-bloknot: zametil zadachu — zapisal; doshel do predlozheniya - zafiksiroval; vyigral - perevel v finance.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hashlib, re, html
 from typing import Dict, Any, List
@@ -70,7 +68,7 @@ def list_all(status: str|None=None)->dict:
     items=_read_all()
     if status:
         items=[x for x in items if x.get("status")==status]
-    # kompaktnaya agregatsiya — poslednie po id
+    # compact aggregation - latest ID
     seen=set(); uniq=[]
     for it in reversed(items):
         if it["id"] in seen: continue
@@ -97,7 +95,7 @@ def _fetch(url: str)->str:
         return ""
 
 def _extract(text: str)->dict:
-    # ochen grubo: taytl, byudzhet, valyutu, emeyly
+    # very rude: title, budget, currency, emails
     title=""
     m=re.search(r"<title>(.*?)</title>", text, flags=re.I|re.S)
     if m: title=html.unescape(m.group(1)).strip()

@@ -7,14 +7,14 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 def test_ingest_submit_path_and_poll(client, auth_header, app, tmp_path):
     # Podgotovim fayl
     src = tmp_path / "doc.txt"
-    src.write_text("Zagolovok\n\nEto testovoe soderzhimoe.\n" * 10, encoding="utf-8")
+    src.write_text("Heading\n\nThis is test content." * 10, encoding="utf-8")
 
     # Otpravim po puti
     r = client.post("/ingest/submit", json={"path": str(src), "user": "Tester"}, headers=auth_header)
     assert r.status_code == 200
     job_id = r.get_json()["job_id"]
 
-    # Opros statusa, zhdem zaversheniya
+    # Status poll, waiting for completion
     done = None
     t0 = time.time()
     while time.time() - t0 < 6.0:
@@ -25,7 +25,7 @@ def test_ingest_submit_path_and_poll(client, auth_header, app, tmp_path):
             done = job
             break
         time.sleep(0.1)
-    assert done, "Zadacha inzhesta ne zavershilas vovremya"
+    assert done, "The ingest task did not complete on time"
     assert done["status"] == "done", f"ingest error: {done.get('error')}"
     assert done["stats"]["vstore_added"] >= 1
 
@@ -34,7 +34,7 @@ def test_ingest_submit_upload(client, auth_header):
     data = {
         "user": (None, "Owner"),
         "collection": (None, "tests"),
-        "file": ("note.txt", "Tekstovyy fayl dlya zagruzki.\nStroka 2.".encode("utf-8"), "text/plain"),
+        "file": ("note.txt", "Text file to download.\nLine 2.".encode("utf-8"), "text/plain"),
     }
     r = client.post("/ingest/submit", data=data, headers=auth_header, content_type="multipart/form-data")
     assert r.status_code == 200

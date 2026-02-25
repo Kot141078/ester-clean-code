@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/self_copy.py — CLI: sobrat arkhiv samosokhraneniya i (optsionalno) aktivirovat reliz.
+"""scripts/self_copy.py - CLI: sobrat arkhiv samosokhraneniya i (optsionalno) aktivirovat reliz.
 Dopolneno: zapis reliza v KG + optsionalnaya otpravka arkhiva na vybrannye targety.
 
 Primery:
   # 1) Sobrat arkhiv iz tekuschego repo i PERSIST_DIR
   PERSIST_DIR=./data python -m scripts.self_copy build --policy-allow "/opt/ester" --policy-allow "/srv/ester"
 
-  # 2) Pereklyuchitsya na reliz (nuzhno ESTER_MOVE_TOKEN i allowlist)
+  # 2) Switch to release (you need ESTER_MOVE_TOKEN and an allowlist)
   ESTER_MOVE_TOKEN=yes python -m scripts.self_copy activate --cid <CID> --target-parent "/srv/ester"
 
   # 3) Sobrat i srazu razoslat na targety
-  python -m scripts.self_copy build --push --targets t_local t_s3
-"""
+  python -m scripts.self_copy build --push --targets t_local t_s3"""
 
 from __future__ import annotations
 
@@ -31,7 +29,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def _repo_root() -> str:
-    # berem rabochuyu direktoriyu protsessa kak koren repozitoriya
+    # take the working directory of the process as the root of the repository
     return os.path.abspath(os.getcwd())
 
 
@@ -64,7 +62,7 @@ def cmd_build(a) -> int:
     if not res.get("ok"):
         return 2
 
-    # Zapishem reliz v KG i mesto khraneniya (lokalnyy arkhivnyy put)
+    # Let's record the release in the CG and the storage location (local archive path)
     cid = res["cid"]
     try:
         rr = ReleaseRegistry()
@@ -73,7 +71,7 @@ def cmd_build(a) -> int:
     except Exception:
         pass
 
-    # Po zhelaniyu — pushim na targety
+    # If desired, we push to targets
     if a.push:
         targets = _enabled_targets(a.targets)
         arc = res["path"]
@@ -103,7 +101,7 @@ def cmd_activate(a) -> int:
         return 2
     res = execute(plan)
     print(json.dumps(res, ensure_ascii=False, indent=2))
-    # KG zapis aktivatsii
+    # KG activation record
     try:
         ReleaseRegistry().record_activation(a.cid)
     except Exception:
@@ -121,11 +119,11 @@ def main(argv=None) -> int:
     p = argparse.ArgumentParser(description="Ester self-copy tools")
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    p_b = sub.add_parser("build", help="Sobrat arkhiv samosokhraneniya")
+    p_b = sub.add_parser("build", help="Collect self-preservation archive")
     p_b.add_argument(
         "--policy-allow",
         action="append",
-        help="Razreshit perenos v etot koren (mozhno neskolko)",
+        help="Allow transfer to this root (several are possible)",
     )
     p_b.add_argument(
         "--require-token",
@@ -157,7 +155,7 @@ def main(argv=None) -> int:
     p_a.set_defaults(func=cmd_activate)
 
     p_r = sub.add_parser(
-        "rollback", help="Otkatit posledniy switch current->previous"
+        "rollback", help="Roll back the last switch current->previous"
     )
     p_r.set_defaults(func=cmd_rollback)
 

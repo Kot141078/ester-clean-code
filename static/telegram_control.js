@@ -27,7 +27,7 @@
 
   // Actions
   async function loadMe() {
-    status("zapros getMe…");
+    status("getTe request...");
     const r = await jfetch("/tg/ctrl/me");
     appendLog("GET /tg/ctrl/me →", r.status, r.json || r.raw);
     status(r.ok ? "OK /me" : "ERR /me", r.ok ? "ok" : "err");
@@ -44,7 +44,7 @@
       description: ($("#desc").value || "Assistant").trim(),
       short_description: ($("#sdesc").value || "Assistant").trim()
     };
-    status("sokhranenie profilya…");
+    status("saving profile...");
     const r = await jfetch("/tg/ctrl/bot/profile", { method: "POST", body: JSON.stringify(body) });
     appendLog("POST /tg/ctrl/bot/profile →", r.status, r.json || r.raw);
     status(r.ok ? "OK profil" : "ERR profil", r.ok ? "ok" : "err");
@@ -76,7 +76,7 @@
 
   // Boot
   if (!jwt()) {
-    status("Nuzhen JWT (admin/ops)", "warn");
+    status("Need ZhVT (admin/ops)", "warn");
   } else {
     status("JWT nayden", "ok");
     loadMe();

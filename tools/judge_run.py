@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-CLI — Judge: sobrat otvety i vydat finalku.
+"""CLI - Judge: sobrat otvety i vydat finalku.
 
 Most (yavnyy):
 - (CLI ↔ UI) Ekvivalent odnoy knopki v adminke, udoben dlya skriptov.
@@ -10,11 +9,10 @@ Mosty (skrytye):
 - (Infoteoriya ↔ Ekonomika) Unifikatsiya struktury otvetov umenshaet trenie mezhdu uzlami.
 
 Zemnoy abzats:
-Zapuskaet «sudyu»: v A — moki, v B — lokalnye LM Studio po alias iz recommend.env.
-Finalka vybiraetsya majority/median. Logi pishutsya v ESTER/state/judge/* (tolko v B).
+Zapuskaet "sudyu": v A - moki, v B - lokalnye LM Studio po alias iz recommend.env.
+Finalka vybiraetsya majority/median. Logi pishutsya v ESTER/state/judge/* (only v B).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -29,7 +27,7 @@ AB_MODE = (os.getenv("AB_MODE") or "A").strip().upper()
 def main():
     ap = argparse.ArgumentParser(description="Judge aggregator (A/B).")
     ap.add_argument("--prompt", required=True, help="Polzovatelskiy prompt")
-    ap.add_argument("--mode", choices=[MODE_LOCAL, MODE_FULL, MODE_FLEX], default=MODE_LOCAL, help="Rezhim zaprosa")
+    ap.add_argument("--mode", choices=[MODE_LOCAL, MODE_FULL, MODE_FLEX], default=MODE_LOCAL, help="Request mode")
     ap.add_argument("--timeout", type=float, default=6.0, help="Taymaut na odin endpoint")
     args = ap.parse_args()
 

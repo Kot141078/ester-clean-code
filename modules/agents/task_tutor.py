@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-modules/agents/task_tutor.py — Demo-rezhim «Pokazhi kak sdelat X».
+"""modules/agents/task_tutor.py - Demo-rezhim “Pokazhi kak sdelat X”.
 
-Chto umeet:
+What does it mean:
 - Generatsiya stsenariya iz namereniya (intent) cherez gotovye kirpichi DesktopAgent + Vision++.
 - Validatsiya stsenariya: proverka yakorey/teksta/whitelist, dry-run safety otsenki.
 - Proigryvanie: step-by-step "show/do/try" (A-rezhim: pokazat, B-rezhim: vypolnit), pauza/prodolzhit.
-- Logirovanie: taymlayn shagov, snapshoty (esli vklyuchen M27), «profile» stsenariya (M23).
+- Logirovanie: taymlayn shagov, snapshoty (esli vklyuchen M27), “profile” stsenariya (M23).
 
 MOSTY:
-- Yavnyy: (Zrenie/Agenty ↔ Obuchenie) — poshagovye instruktsii prevraschayutsya v interaktivnyy pokaz.
-- Skrytyy #1: (Infoteoriya ↔ Ekonomiya) — shagi atomarny, stsenarii pereispolzuemye.
-- Skrytyy #2: (Kibernetika ↔ Bezopasnost) — safety na kazhdom shage, rezhim A/B, stop-kran.
+- Yavnyy: (Zrenie/Agenty ↔ Obuchenie) - poshagovye instruktsii prevraschayutsya v interaktivnyy pokaz.
+- Skrytyy #1: (Infoteoriya ↔ Ekonomiya) - shagi atomarny, stsenarii pereispolzuemye.
+- Skrytyy #2: (Kibernetika ↔ Bezopasnost) - safety na kazhdom shage, rezhim A/B, stop-kran.
 
 ZEMNOY ABZATs:
-Inzhenerno — eto «pleer stsenariev»: spisok shagov s parametrami, kotorye mozhno
-prognat kak sukhuyu demonstratsiyu ili «vzhivuyu» s soblyudeniem pravil. Prakticheski —
-Ester ne prosto obyasnit, a pryamo «pokazhet» na rabochem stole, chto i gde nazhat.
+Inzhenerno - eto “pleer stsenariev”: spisok shagov s parametrami, kotorye mozhno
+prognat kak sukhuyu demonstratsiyu ili “vzhivuyu” s soblyudeniem pravil. Practically
+Ester ne prosto obyasnit, a pryamo “pokazhet” na rabochem stole, chto i gde nazhat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Optional, Tuple
 import os, json, time, threading, uuid
@@ -29,7 +27,7 @@ from modules.memory.events import record_event
 from modules.thinking import action_safety as AS
 from modules.knowledge import cite as CIT
 from modules.agents.desktop_agent import DesktopAgent
-from modules.agents import desktop_vision_plus as DVPP  # opts. dlya annotatsiy (M27)
+from modules.agents import desktop_vision_plus as DVPP  # opt. for annotations (M27)
 from modules.agents import desktop_vision as DV
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
@@ -76,7 +74,7 @@ def create_from_intent(title:str, intent:str)->Dict[str,Any]:
     if ("notepad" in intent_l) or ("bloknot" in intent_l):
         steps.append({"agent":"desktop","kind":"open_app","meta":{"app":"notepad"}})
     if ("write" in intent_l) or ("type" in intent_l) or ("napish" in intent_l):
-        # vytsepim kavychki kak tekst
+        # extract quotes as text
         txt="Privet!"
         q=intent.find("'")
         if q!=-1:
@@ -115,12 +113,10 @@ def save(scn:Dict[str,Any])->Dict[str,Any]:
     return {"ok":True,"scenario":scn}
 
 def validate(sid:str)->Dict[str,Any]:
-    """
-    Proveryaem:
+    """Check it out:
       - korrektnost shagov i izvestnykh 'kind'
       - predvaritelnaya safety-otsenka kazhdogo shaga (dry-run)
-      - nalichie yakorey/teksta dlya click_* (esli vstrechayutsya)
-    """
+      - nalichie yakorey/teksta dlya click_* (esli vstrechayutsya)"""
     g=get(sid); 
     if not g.get("ok"): return g
     scn=g["scenario"]; report=[]
@@ -148,11 +144,9 @@ def _annotate_if_possible(title:str, img_path:str, note:str)->Optional[str]:
         return None
 
 def play(sid:str, mode:str|None=None)->Dict[str,Any]:
-    """
-    Progon stsenariya:
-      MODE A: tolko dry-run + podsvetka/annotatsii (esli dostupny), bez commit.
-      MODE B: commit kazhdogo shaga, esli safety ne deny (needs_user_consent — schitaem soglasie).
-    """
+    """Progon stsenariya:
+      MODE A: only dry-run + podsvetka/annotatsii (esli dostupny), bez commit.
+      MODE B: commit kazhdogo shaga, esli safety ne deny (needs_user_consent — schitaem soglasie)."""
     g=get(sid); 
     if not g.get("ok"): return g
     scn=g["scenario"]; mode=(mode or scn.get("mode") or MODE).upper()
@@ -169,11 +163,11 @@ def play(sid:str, mode:str|None=None)->Dict[str,Any]:
             timeline.append({"i":i,"stage":"commit","ok":ok_step})
             ok_all = ok_all and ok_step
         else:
-            # v rezhime A popytaemsya dobavit vizualnye podskazki (esli est kadr)
+            # in mode A we will try to add visual cues (if there is a frame)
             img="/tmp/ester_screenshot.png"
             hint=_annotate_if_possible(st.get("kind",""), img, "step")
             if hint: timeline.append({"i":i,"stage":"hint","annot":hint})
-    # profile otveta/stsenariya (M23)
+    # response/script profile (M23)
     passport=CIT.answer_passport(f"[tutor] {scn['title']}", {"confidence": 1.0 if ok_all else 0.7, "factors": {}})
     memory_add("summary", f"[tutor:play] {scn['title']}", {"mode":mode,"ok":ok_all,"timeline":timeline})
     record_event("tutor","play",ok_all,{"id":scn["id"],"mode":mode})

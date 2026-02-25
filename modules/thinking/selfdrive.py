@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/selfdrive.py — edinyy avtonomnyy tsikl:
+"""modules/thinking/selfdrive.py - edinyy avtonomnyy tsikl:
   goal → Think/Plan → Safety(assess/simulate/decide) → Act(cascade/pipeline) → Reflect → (optional retry) → log.
 
-Naznachenie:
+Name:
 - Prevratit mysli Ester v deystviya s obyazatelnym safety-barerom.
-- Podderzhat «dlinnye tseli» (missii) s ponyatnymi ostanovkami i perezapuskami.
+- Podderzhat “dlinnye tseli” (missii) s ponyatnymi ostanovkami i perezapuskami.
 - Davat obyasnimyy zhurnal: pochemu poshli/ne poshli, i chto budet dalshe.
 
 MOSTY:
 - Yavnyy: (Mysl ↔ Deystvie) — safety mezhdu planom i aktom.
 - Skrytyy #1: (Infoteoriya ↔ Byudzhet) — stoimost/risk ogranichivayut aktivnost.
-- Skrytyy #2: (Kibernetika ↔ Ustoychivost) — avtopovtory pri «near», ostanov pri riske.
+- Skrytyy #2: (Kibernetika ↔ Ustoychivost) - avtopovtory pri “near”, ostanov pri riske.
 
 ZEMNOY ABZATs:
-Inzhenerno — dispetcher shaga/pauzy/povtora s zhurnalom i byudzhetami. Prakticheski — «avtopilot deystviy»: dumaem, otsenivaem, delaem, podvodim itog, povtoryaem esli est smysl.
+Inzhenerno - dispetcher shaga/pauzy/povtora s zhurnalom i byudzhetami. Prakticheski - “avtopilot deystviy”: dumaem, otsenivaem, delaem, podvodim itog, povtoryaem esli est smysl.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Optional
 import os, time, threading
@@ -27,7 +25,7 @@ from modules.memory.events import record_event
 from modules.thinking import cascade as CAS
 from modules.thinking import pipelines as TP
 from modules.thinking import action_safety as AS
-from modules.thinking import missions as MS  # optsionalno: esli aktivny missii
+from modules.thinking import missions as MS  # optional: if missions are active
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 _STATE = {
@@ -35,7 +33,7 @@ _STATE = {
     "running": False,
     "last_run_ts": 0,
     "last_result": None,
-    "log": []  # koltsevoy bufer poslednikh 100 zapisey
+    "log": []  # ring buffer of last 100 entries
 }
 _LOCK = threading.Lock()
 _THREAD: Optional[threading.Thread] = None
@@ -99,7 +97,7 @@ def _plan(goal: str, params: Dict[str, Any]) -> Dict[str, Any]:
     # minimalnyy plan — cherez pipelines decision_plan + analyze_text
     spec = TP.make_spec("decision_plan", goal, {"objective": goal, "options": [goal, "issledovat", "otlozhit"]})
     out1 = TP.run_pipeline(spec)
-    # Vtoroy shag — analiz formulirovki tseli
+    # The second step is to analyze the goal statement
     out2 = TP.run_pipeline(TP.make_spec("analyze_text", goal, {"text": goal}))
     return {
         "ok": bool(out1.get("ok", True)),
@@ -108,7 +106,7 @@ def _plan(goal: str, params: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 def _act(goal: str, params: Dict[str, Any]) -> Dict[str, Any]:
-    # deystvie delaem kaskadom (on vnutri vyzyvaet pipelines)
+    # the action cascades (it causes pipeliness inside)
     return CAS.run_cascade(goal, {"params": params})
 
 def run_once(goal: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
@@ -129,12 +127,12 @@ def run_once(goal: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
         pass
 
     # 1) Think/Plan
-    steps.append({"stage": "think", "msg": f"osmyslyayu tsel: {goal}"})
+    steps.append({"stage": "think", "msg": f"comprehending the goal: ZZF0Z"})
     p = _plan(goal, params)
     steps.append({"stage": "plan", "plan": p})
 
-    # 2) Safety (otsenka + simulyatsiya + reshenie)
-    # Budem otsenivat abstraktnoe deystvie «execute_goal» s metadannymi po planu
+    # 2) Safet (assessment + simulation + solution)
+    # We will evaluate the abstract action “esesote_goal” with metadata according to plan
     meta = {
         "steps": 2,
         "requires_admin": bool(params.get("requires_admin")),
@@ -150,7 +148,7 @@ def run_once(goal: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
     steps.append({"stage": "safety_decide", "decision": dec})
 
     if dec.get("decision") == "deny":
-        result = {"ok": False, "summary": "SelfDrive ostanovlen: risk/byudzhet ne pozvolyaet.", "steps": steps}
+        result = {"ok": False, "summary": "SelfDrive installed: risk/budget does not allow.", "steps": steps}
         _reflect(result)
         _STATE.update({"last_run_ts": int(time.time()), "last_result": result})
         _log({"ts": int(time.time()), "goal": goal, "result": "deny"})
@@ -165,9 +163,9 @@ def run_once(goal: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
         return result
 
     if dec.get("decision") == "needs_user_consent":
-        # fiksiruem zapros soglasiya v pamyati — UI mozhet podkhvatit
-        memory_add("event", f"selfdrive: trebuetsya soglasie na deystvie '{goal}'", {"decision": dec})
-        result = {"ok": False, "summary": "Nuzhno soglasie polzovatelya.", "steps": steps}
+        # we record the consent request in memory - the UI can pick up
+        memory_add("event", f"selfdrive: consent is required for the action ъЗЗФ0ЗЗь", {"decision": dec})
+        result = {"ok": False, "summary": "User consent is required.", "steps": steps}
         _reflect(result)
         _STATE.update({"last_run_ts": int(time.time()), "last_result": result})
         _log({"ts": int(time.time()), "goal": goal, "result": "consent"})
@@ -186,8 +184,8 @@ def run_once(goal: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
     act_out = _act(goal, params)
     steps.append({"stage": "act", "out": {"summary": act_out.get("summary"), "ok": act_out.get("ok", True)}})
 
-    # prostaya evristika near-popytki: esli safety p_success < 0.6 i rezultat ok, ne trogaem;
-    # esli p_success v diapazone [0.35..0.6) i rezultat «ok», zavershaem; esli act ok==False i est «near» v simulyatsii — povtoryaem do RETRY_LIMIT
+    # a simple heuristic for a near attempt: if safety n_success < 0.6 and the result is ok, don’t touch it;
+    # if n_success is in the range 0.35..0.6) and the result is “ok”, we complete; if the act is ok==False and is “near” in the simulation - repeat until RETRO_LIMIT
     p_succ = float(sim.get("p_success", 0.0))
     hist = sim.get("hist", {})
     while (not act_out.get("ok", True)) and (hist.get("near", 0) > hist.get("success", 0)) and (retries < _retry_limit()):
@@ -197,7 +195,7 @@ def run_once(goal: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
         steps.append({"stage": "act_retry", "retry": retries, "ok": act_out.get("ok", True)})
 
     # 4) Reflect
-    final_summary = act_out.get("summary") or ("SelfDrive zavershen." if act_out.get("ok", True) else "SelfDrive zavershen s oshibkoy.")
+    final_summary = act_out.get("summary") or ("SelfDrive zavershen." if act_out.get("ok", True) else "SelfDrive completed with an error.")
     result = {"ok": act_out.get("ok", True), "summary": final_summary, "steps": steps, "retries": retries}
     _reflect(result)
 
@@ -219,9 +217,9 @@ def _loop():
         if not _enabled_env():
             time.sleep(1); continue
         try:
-            # esli est missii i oni vklyucheny — podkhvatyvaem blizhayshuyu k tikanyu
+            # if there are missions and they are turned on, it picks up the one closest to poking
             if MS.status().get("enabled"):
-                # missii sami tikayut; zdes — «podstrakhovka»: vozmem blizhayshuyu queued dlya samoprogona
+                # missions themselves tick; here is a “safety net”: let’s take the nearest cued for self-running
                 lst = MS.list_().get("items", [])
                 queued = [m for m in lst if m.get("status") in ("queued",) and m.get("next_ts", 0) <= int(time.time())]
                 if queued:

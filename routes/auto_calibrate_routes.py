@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/auto_calibrate_routes.py - REST/UI dlya avtokalibrovki.
+"""routes/auto_calibrate_routes.py - REST/UI dlya avtokalibrovki.
 
 Ruchki:
-  POST /calibrate/quick    {}
-  POST /calibrate/manual   {"px_per_cm":37.8}
-  GET  /calibrate/status
-  GET  /calibrate/admin    - HTML
-  GET  /admin/calibrate    - HTML (alias dlya sovmestimosti)
+  POST /calibrate/quick {}
+  POST /calibrate/manual {"px_per_cm":37.8}
+  GET /calibrate/status
+  GET /calibrate/admin - HTML
+  GET /admin/calibrate - HTML (alias dlya sovmestimosti)
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request, render_template
@@ -63,18 +61,18 @@ def _admin_calibrate_page():
 
 
 def register(app):
-    """Drop-in registratsiya blyuprinta i aliasa /admin/calibrate."""
+    """Drop-in registration of blueprint and alias /admin/calibrate."""
     app.register_blueprint(bp)
-    # Dobavlyaem sovmestimyy alias admin-stranitsy
+    # Adding a compatible admin page alias
     try:
         app.add_url_rule("/admin/calibrate", endpoint="admin_calibrate", view_func=_admin_calibrate_page, methods=["GET"])
     except Exception:
-        # Esli marshrut uzhe suschestvuet - molcha ignoriruem
+        # If the route already exists, silently ignore it
         pass
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

@@ -1,38 +1,37 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""proactive_doc_analyzer.py — samodostatochnyy analiz dokumentov (proaktivno) + sokhranenie v pamyat.
+"""proactive_doc_analyzer.py - samodostatochnyy analiz dokumentov (proaktivno) + sokhranenie v pamyat.
 
 Problema iz loga:
   No module named 'file_ingest'
 
-Reshenie:
-- Dobavlen shim `file_ingest.py` (sm. ryadom) s funktsiey ingest_file().
-- Zdes import file_ingest best-effort: esli net — fallback na vnutrenniy ingest_text.
+Resolution:
+- Add shim `file_ingest.py` (sm. ryadom) s funktsiey ingest_file().
+- Zdes import file_ingest best-effort: esli net - fallback na vnutrenniy ingest_text.
 
-Dizayn:
-- Best-effort zavisimosti: chromadb / cryptography / dotenv / EmotionalAnalyzer / MemoryManager.
+Design:
+- Best-effort dependency: chromadb / cryptography / dotenv / EmotionalAnalyzer / MemoryManager.
 - AB_MODE:
     A = realno sokhranyaem (v chroma + structured memory)
     B = tolko plan/otchet (bez sokhraneniya)
-- Perevod: optsionalno (googletrans esli est, inache identity). Mozhno podklyuchit LLM-perevodchik cherez env.
+- Translation: optsionalno (googletrans esli est, inache identity). Mozhno podklyuchit LLM-perevodchik cherez env.
 
 ENV:
 - ESTER_BASE_URL (ne obyazatelen zdes, no polezen esli podklyuchish translate endpoint)
-- ESTER_TRANSLATE_ENDPOINT (esli zadan — POST {text, dest} -> {text}
+- ESTER_TRANSLATE_ENDPOINT (esli zadan - POST {text, dest} -> {text}
 - PERSIST_DIR (dlya chroma persistence)
 - ENCRYPTION_KEY (Fernet key, url-safe base64) — esli net, generitsya epemernyy klyuch (warn)
-- DOC_ANALYZER_COLLECTION (imya kollektsii chroma)
+- DOC_ANALYZER_COLLECTION (name kollektsii chroma)
 - AB_MODE=A|B
 
 Mosty:
 - Yavnyy most: ingest → (translate) → emotion → anchor → store (chroma + structured memory).
 - Skrytye mosty:
-  1) Infoteoriya ↔ praktichnost: fingerprint+anchors — eto “szhatie” smysla bez khraneniya lishnego shuma.
-  2) Kibernetika ↔ bezopasnost: AB_MODE=B kak circuit-breaker — nablyudaem/planiruem, no ne menyaem pamyat.
+  1) Infoteoriya ↔ praktichnost: fingerprint+anchors - eto “szhatie” smysla bez khraneniya lishnego shuma.
+  2) Kibernetika ↔ bezopasnost: AB_MODE=B kak circuit-breaker - nablyudaem/planiruem, no ne menyaem pamyat.
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 import argparse
 import hashlib
@@ -173,11 +172,11 @@ def _get_translator() -> Any:
 def _translate(translator: Any, text: str, dest: str) -> str:
     if not text:
         return ""
-    # 1) project endpoint (esli zadan)
+    # 1) endpoint project (if specified)
     via = _translate_via_endpoint(text, dest)
     if via:
         return via
-    # 2) googletrans (esli est)
+    # 2) googletrans (if available)
     try:
         res = translator.translate(text, dest=dest)  # type: ignore
         if isinstance(res, str):
@@ -345,11 +344,11 @@ class ProactiveDocAnalyzer:
 
 def main(argv: Optional[List[str]] = None) -> int:
     ap = argparse.ArgumentParser(description="Proactive document analyzer (self-contained)")
-    ap.add_argument("input", help="Put k faylu ili tekst (esli --text)")
-    ap.add_argument("--text", action="store_true", help="Vkhod — eto tekst, a ne put")
-    ap.add_argument("--lang", default="ru", help="Tselevoy yazyk")
-    ap.add_argument("--chunk", type=int, default=1200, help="Razmer chanka (simvoly)")
-    ap.add_argument("--max", type=int, default=200_000, help="Limit simvolov na vkhod")
+    ap.add_argument("input", help="File path or text (if --text)")
+    ap.add_argument("--text", action="store_true", help="Login is text, not drinking")
+    ap.add_argument("--lang", default="ru", help="Target language")
+    ap.add_argument("--chunk", type=int, default=1200, help="Chunk size (characters)")
+    ap.add_argument("--max", type=int, default=200_000, help="Character limit per entry")
     ap.add_argument("--no-encrypt", action="store_true", help="Ne shifrovat")
 
     args = ap.parse_args(argv)
@@ -370,9 +369,7 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
 Esli net “file_ingest”, eto kak esli net medsestry na prieme: vrach vse ravno mozhet osmotret patsienta —
-prosto medlennee i grubee (chitaem fayl sami i rezhem na kuski). Glavnyy printsip: kontur ne dolzhen padat
-iz‑za otsutstviya odnogo assistenta; on dolzhen degradirovat i prodolzhat rabotu.
-"""
+prosto medlennee i grubee (chitaem fayl sami i rezhem na kuski). Main printsip: kontur ne dolzhen padat
+iz‑za otsutstviya odnogo assistenta; on dolzhen degradirovat i prodolzhat rabotu."""

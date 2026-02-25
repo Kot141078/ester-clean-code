@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Kornevoy paket `modules` (obnovlenie): korrektnyy alias dlya scheduler, chtoby
+"""Kornevoy paket `modules` (update): korrektnyy alias dlya scheduler, chtoby
 'modules.scheduler' byl PAKETOM, esli na diske est odnoimennaya papka.
 
 MOSTY:
@@ -9,10 +8,9 @@ MOSTY:
 - Skrytyy #2: (Diagnostika) bazovye obekty events_bus/telegram_feed_store.
 
 ZEMNOY ABZATs:
-«Schitok» ne podmenyaet tseluyu liniyu, esli na ney uzhe ustanovlen modulnyy blok (papka).
+“Schitok” ne podmenyaet tseluyu liniyu, esli na ney uzhe ustanovlen modulnyy blok (papka).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import sys, time, importlib, importlib.util, types
 from typing import Any, Dict
@@ -142,17 +140,17 @@ class _TelegramFeedStore:
 
 telegram_feed_store = _TelegramFeedStore()
 
-# ====== Korrektnyy alias dlya modules.scheduler ======
-# Esli na diske EST podpaket 'modules.scheduler' — NE podmenyaem ego engine-modulem.
+# ====== Correct alias for modules.scheduler ======
+# If there is a subpackage on the disk called modules.scheduler, it does NOT replace it with an engine module.
 _spec = importlib.util.find_spec("modules.scheduler")
 if _spec is None:
     try:
         import modules.scheduler_engine as _sched  # type: ignore
-        sys.modules.setdefault("modules.scheduler", _sched)  # alias tolko pri otsutstvii podpaketa
+        sys.modules.setdefault("modules.scheduler", _sched)  # alias only if there is no subpackage
     except Exception:
         pass
 
-# ====== Dinamicheskie zaglushki dlya gluboko vlozhennykh podpaketov (kak ranshe) ======
+# ====== Dynamic stubs for deeply nested subpackages (as before) ======
 import importlib.machinery, importlib.abc
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 def _make_stub(fullname: str) -> types.ModuleType:

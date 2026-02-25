@@ -1,6 +1,6 @@
-# S0/scripts/smoke_matrix.ps1 — Sbor matritsy statusov (Markdown) dlya Windows PowerShell
-# Mosty: (Yavnyy) Enderton — predikaty statusov; (Skrytyy #1) Ashbi — prostoy regulyator; (Skrytyy #2) Dzheynes — nablyudeniya dlya pravdopodobiya «zdorovya».
-# Zemnoy abzats: formiruet matrix.md bez vliyaniya na rantaym.
+# С0/skripts/stoke_matrix.ps1 — Collection of status matrix (Markdovn) for Windows PowerShell
+# Bridges: (Explicit) Enderton - status predicates; (Hidden #1) Ashby is a simple regulator; (Hidden #2) Janes - observations for the credibility of "health".
+# Earthly paragraph: forms matrix.md without affecting runtime.
 # c=a+b
 
 if (-not $env:BASE_URL) { $env:BASE_URL = "http://127.0.0.1:8080" }

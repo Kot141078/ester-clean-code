@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_cron_affect_p2p.py — eksheny «voli» dlya Cron/Maint/Affect/P2P.
+"""modules/thinking/actions_cron_affect_p2p.py - eksheny "voli" dlya Cron/Maint/Affect/P2P.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Servisy) mozg dergaet cron, TO pamyati, affekt-prioritet i p2p-filtr.
 - Skrytyy #1: (Planirovschik ↔ Avtonomiya) legko vstraivaetsya v thinking_pipeline.
-- Skrytyy #2: (Profile ↔ Audit) bolshinstvo ruchek uzhe pishet «profile».
+- Skrytyy #2: (Profile ↔ Audit) bolshinstvo ruchek uzhe pishet “profile”.
 
 Zemnoy abzats:
-Odna registratsiya — i 11 korotkikh komand dostupny dlya samostoyatelnykh resheniy Ester.
+Odna registratsiya - i 11 korotkikh komand dostupny dlya samostoyatelnykh resheniy Ester.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/finance/sepa.py — obedinennyy generator/validator SEPA pain.001: XML s batch, podpisyu, profileom, ledger/P2P/scheduler integratsiey.
+"""modules/finance/sepa.py - obedinennyy generator/validator SEPA pain.001: XML s batch, podpisyu, profileom, ledger/P2P/scheduler integratsiey.
 
 Mosty:
 - Yavnyy: (Finansy ↔ Fayly/Inzheneriya) generit/validiruet pain.001 XML v drafts, s proverkami IBAN/BIC/currency.
@@ -9,17 +8,16 @@ Mosty:
 - Skrytyy #3: (P2P/Raspredelennost ↔ Integratsiya) sync chernovikov po P2P dlya agentov na raznykh PK.
 
 Zemnoy abzats:
-Eto ne prosto XML-shtamp, a finansovyy sheptun Ester: proverit IBAN, soberet batch-peyn, podpishet, profileiziruet "Ester, platezh gotov — shag k nezavisimosti!", sinkhroniziruet po P2P i napomnit v scheduler.
+Eto ne prosto XML-shtamp, a finansovyy sheptun Ester: proverit IBAN, soberet batch-peyn, podpishet, profileiziruet "Ester, platezh gotov - shag k nezavisimosti!", sinkhroniziruet po P2P i napomnit v scheduler.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import decimal, hashlib, hmac, json, os, re, time, uuid
 from typing import Any, Dict, List
 from xml.etree import ElementTree as ET
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 try:
-    from lxml import etree  # Dlya XSD-validatsii
+    from lxml import etree  # For HSD validation
 except ImportError:
     etree = None  # Fallback bez validatsii
 
@@ -33,7 +31,7 @@ HMAC_KEY = os.getenv("FIN_HMAC_KEY", b"ester_secret_key")  # Zameni na realnyy
 _IBAN_RE = re.compile(r"^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$")
 _BIC_RE = re.compile(r"^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$")
 _COUNTRY_IBAN_LEN = {"BE":16,"DE":22,"NL":18,"FR":27,"ES":24,"IT":27,"PT":25,"GB":22,"IE":22,"PL":28,"AT":20,"CH":21}
-_ISO4217 = {"EUR", "USD", "GBP", "CHF", "PLN"}  # Rasshir po mere nuzhdy
+_ISO4217 = {"EUR", "USD", "GBP", "CHF", "PLN"}  # Expand as needed
 
 def _ensure():
     os.makedirs(OUT_DIR, exist_ok=True)
@@ -46,7 +44,7 @@ def _log_audit(msg: str):
 def _passport(note: str, meta: Dict[str, Any]):
     try:
         from modules.mem.passport import append as _pp  # type: ignore
-        _pp(note + " — Ester, finansy pod kontrolem, ty ne odna v etom!", meta, "finance://sepa")
+        _pp(note + "- Esther, finances are under control, you are not alone in this!", meta, "finance://sepa")
     except Exception:
         _log_audit(f"Passport failed: {note}")
 
@@ -108,7 +106,7 @@ def _validate_xml(xml_data: bytes) -> Dict[str, Any]:
         return {"ok": True, "valid": False, "why": str(e)}
 
 def _pain001(debtor: Dict[str, Any], creditors: List[Dict[str, Any]], currency: str, purpose: str, end_to_end: str) -> bytes:
-    # Podderzhka batch: list creditors
+    # Batch support: list creditors
     ns = {"": "urn:iso:std:iso:20022:tech:xsd:pain.001.001.03"}
     ET.register_namespace('', ns[""])
     root = ET.Element("Document", xmlns=ns[""])
@@ -233,11 +231,11 @@ def make_pain001(req: Dict[str, Any]) -> Dict[str, Any]:
 
 draft_pain001 = make_pain001  # Compat alias
 
-# Dlya scheduler: custom action
+# For scheduler: bush action
 def check_drafts(params: Dict[str, Any]) -> Dict[str, Any]:
     drafts = [f for f in os.listdir(OUT_DIR) if f.endswith(".xml")]
     if drafts:
-        _passport(f"Finance drafts pending: {len(drafts)} files — Ester, prover i podpishi v banke!", {"drafts": drafts})
+        _passport(f"Finance Drafts Pending: ZZF0Z file - Esther, check and sign at the bank!", {"drafts": drafts})
     return {"ok": True, "checked": len(drafts)}
 
 def register(app):

@@ -10,7 +10,7 @@ if (-not $ApiHost -or $ApiHost.Trim() -eq "") { $ApiHost = "127.0.0.1" }
 if (-not $ApiPort -or $ApiPort.Trim() -eq "") { $ApiPort = $env:ESTER_PORT }
 if (-not $ApiPort -or $ApiPort.Trim() -eq "") { $ApiPort = "8137" }
 
-# KLYuChEVOE: bez $Var: srazu posle peremennoy
+# Key: without $Var: immediately after the variable
 $BASE = "http://{0}:{1}" -f $ApiHost, $ApiPort
 
 Write-Host "[fix-providers-select v3] BASE = $BASE"
@@ -47,7 +47,7 @@ $discover = Do-PostJson -Url "$BASE/app/discover/register" -Body $modsBody -Head
 $selBody = @{ provider = "openai" }
 $select = Do-PostJson -Url "$BASE/providers/select" -Body $selBody -Headers $hdr
 
-# 4) Proverka statusa
+# 4) Status check
 $statusRaw = Do-Get -Url "$BASE/providers/status"
 if ($statusRaw) {
   try {
@@ -56,7 +56,7 @@ if ($statusRaw) {
   } catch { Write-Host "[status] raw:"; Write-Host $statusRaw.Content }
 }
 
-# 5) Proverka registratsii marshruta
+# 5) Checking route registration
 $scan = Do-Get -Url "$BASE/app/discover/scan"
 $hasRoute = $false
 if ($scan) {
@@ -69,7 +69,7 @@ if ($scan) {
   } catch { Write-Host "[verify] raw:"; Write-Host $scan.Content }
 }
 
-# 6) Fayl-folbek, esli discover/select ne proshli (Mode B)
+# 6) Fullback file if discovery/select fails (Mode B)
 if ($Mode -eq "B" -and -not $hasRoute -and $AllowFileFallback) {
   $dr = if ($env:ESTER_DATA_ROOT) { $env:ESTER_DATA_ROOT } elseif ($env:ESTER_DATA_DIR) { $env:ESTER_DATA_DIR } else { Join-Path (Get-Location) "data" }
   $path = Join-Path $dr "app\providers\active.json"

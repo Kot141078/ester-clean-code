@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
-"""
-modules/context_question_engine.py — Kontekstnyy dvizhok voprosov (CTXQ)
+"""modules/context_question_engine.py — Kontekstnyy dvizhok voprosov (CTXQ)
 
 YaVNYY MOST:
-  c = a + b  (chelovek + protsedury) → vopros kak «myagkiy interfeys» mezhdu zhivym opytom i mashinnym planom.
+  c = a + b (chelovek + protsedury) → vopros kak “myagkiy interfeys” mezhdu zhivym opytom i mashinnym planom.
 
 SKRYTYE MOSTY:
   - Ashby (requisite variety): neskolko istochnikov signalov (dialog, sobytiya, vremya sutok) dayut raznoobrazie,
-    a prioritizatsiya/kuldauny — stabilizatsiyu.
-  - Cover & Thomas (infoteoriya): kontekst — eto kanal s ogranichennoy propusknoy sposobnostyu;
-    poetomu my «szhimaem» istoriyu do tem/sobytiy i derzhim zhestkie limity na obem vkhoda.
-  - Dkhammapada (pravilnaya rech): vopros dolzhen byt umestnym, myagkim i ne razduvat um «pustym shumom».
+    a prioritizatsiya/kuldauny - stabilizatsiyu.
+  - Cover & Thomas (infoteoriya): kontekst - eto kanal s ogranichennoy propusknoy sposobnostyu;
+    poetomu my “szhimaem” istoriyu do tem/sobytiy i derzhim zhestkie limity na obem vkhoda.
+  - Dkhammapada (pravilnaya rech): vopros dolzhen byt umestnym, myagkim i ne razduvat um “pustym noise.”
 
 ZEMNOY ABZATs (anatomiya/inzheneriya):
-  Etot modul — kak dykhatelnyy tsentr v prodolgovatom mozge: on ne «dumaet za koru», no zadaet ritm.
-  Esli ritm sbit (povtoryaem voprosy, slishkom dlinnye prompty, «peregruzka»), nachinaetsya «odyshka»
+  Etot modul - kak dykhatelnyy tsentr v prodolgovatom mozge: on ne “dumaet za koru”, no zadaet ritm.
+  Esli ritm sbit (povtoryaem voprosy, slishkom dlinnye prompty, “peregruzka”), nachinaetsya “odyshka”
   — otvety rvutsya. CTXQ derzhit chastotu i obem, chtoby sistema ne ukhodila v aritmiyu konteksta.
 
-Naznachenie:
+Name:
   - Bystro (evristiki) analizirovat istoriyu dialoga (JSONL scroll), vydelyat temy/sobytiya
   - Adaptirovat formulirovku k vremeni sutok (utro/den/vecher/noch)
   - Prioritizirovat sobytiya (daty, vazhnye povody)
   - Davat bezopasnyy A/B rezhim: A=tolko fakty/evristiki, B=optsionalno (esli sverkhu dayut LLM-funktsiyu),
     s avto-otkatom k A pri lyubom sboe.
 
-Trebovaniya: tolko stdlib.
-"""
+Trebovaniya: only stdlib."""
 
 from __future__ import annotations
 
@@ -64,7 +62,7 @@ _MONTHS_RU = {
 
 
 def _now_local() -> datetime:
-    # Closed-box: opiraemsya na lokalnoe vremya mashiny.
+    # Closed box: we rely on the local time of the machine.
     return datetime.now()
 
 
@@ -274,7 +272,7 @@ class TimeAdapter:
             return ""
         if tod == "evening":
             return "Dobryy vecher. "
-        return "Noch — vremya tishiny. "
+        return "Night is a time of silence."
 
 
 class QuestionGenerator:
@@ -306,31 +304,31 @@ class QuestionGenerator:
         if e.kind == "birthday":
             days = e.payload.get("days_left")
             if days == 0:
-                return pref + f"{user_name}, s dnem rozhdeniya! Kak khochesh provesti etot den? Est li chto-to, chto mne vazhno uchest?"
+                return pref + f"ZZF0Z, happy birthday! How do you want to spend this day? Is there anything that is important for me to consider?"
             if isinstance(days, int) and days <= 7:
-                return pref + f"{user_name}, u tebya skoro den rozhdeniya (cherez {days} dn.). Khochesh zaranee nametit, chto dlya tebya vazhno v etot period?"
-            return pref + f"{user_name}, napomni, pozhaluysta, kak ty khochesh otmechat svoy den rozhdeniya (v spokoynom ili v aktivnom rezhime)?"
+                return pref + f"ZZF0Z, your birthday is coming soon (in ZZF1ZZ days). Do you want to outline in advance what is important to you during this period?"
+            return pref + f"ZZF0Z, please remind me how you want to celebrate your birthday (in a calm or active mode)?"
 
         if e.kind == "legal":
             if tod in ("evening", "night"):
-                return pref + f"{user_name}, khochesh spokoyno podvesti itog po yuridicheskoy istorii za segodnya: chto prodvinulos, a chto trevozhit?"
-            return pref + f"{user_name}, po delu s rabotodatelem/DUCHESSE: kakoy sleduyuschiy shag dlya tebya seychas samyy vazhnyy?"
+                return pref + f"ZZF0Z, would you like to calmly summarize the legal history for today: what has progressed and what is worrying?"
+            return pref + f"ZZF0Z, regarding the case with the employer/DICHESSE: what is the most important next step for you now?"
 
         if e.kind == "stability":
-            return pref + f"{user_name}, vizhu priznaki peregruza/konflikta v sisteme. Chto seychas vazhnee: stabilnost (menshe shumnykh protsessov) ili skorost eksperimentov?"
+            return pref + f"ZZF0Z, I see signs of overload/conflict in the system. What is more important now: stability (less noisy processes) or speed of experiments?"
 
-        return pref + f"{user_name}, chto seychas dlya tebya samoe prioritetnoe?"
+        return pref + f"ZZF0Z, what is your top priority right now?"
 
     def _question_for_topics(self, topics: List[Topic], tod: str, user_name: str) -> str:
         pref = self.time_adapter.style_prefix(tod)
         top = topics[0].name if topics else ""
         if tod == "morning":
-            return pref + (f"{user_name}, kakie plany na den po teme «{top}»? Chto dolzhno byt sdelano obyazatelno?" if top else f"{user_name}, kakie 1–2 zadachi segodnya samye vazhnye?")
+            return pref + (f"ZZF0Z, what are your plans for the day on the topic “ZZF1ZZ”? What must be done?" if top else f"ZZF0Z, what 1-2 tasks are the most important today?")
         if tod == "day":
-            return pref + (f"{user_name}, po teme «{top}» — chto seychas bolshe vsego meshaet ili trebuet resheniya?" if top else f"{user_name}, na chem seychas fokus: proekt, byt ili vosstanovlenie?")
+            return pref + (f"ZZF0Z, on the topic “ZZF1ZZ” - what is now most hindering or requires a solution?" if top else f"ZZF0Z, what is the focus now: project, to-be or restoration?")
         if tod == "evening":
-            return pref + (f"{user_name}, kak proshel den po teme «{top}»? Chto poluchilos, a chto luchshe perenesti?" if top else f"{user_name}, khochesh korotko razobrat den: chto dat pamyati, a chto otpustit?")
-        return pref + (f"{user_name}, pered snom: est odna vesch po «{top}», kotoruyu stoit ostavit kak anchor na zavtra?" if top else f"{user_name}, noch. Khochesh tishiny ili odin korotkiy vopros po delu?")
+            return pref + (f"ZZF0Z, how was your day on the topic “ZZF1ZZ”? What worked, and what is better to move?" if top else f"ZZF0Z, would you like to briefly review the day: what to give to memory, and what to let go?")
+        return pref + (f"ZZF0Z, before bed: is there one thing from “ZZF1ZZ” that should be left as an anchor for tomorrow?" if top else f"ZZF0Z, night. Do you want silence or one short question to the point?")
 
     def generate(self, now: datetime, user_name: str, topics: List[Topic], events: List[Event], known: Dict[str, Any]) -> Suggestion:
         tod = _time_of_day(now)
@@ -344,13 +342,11 @@ class QuestionGenerator:
 
 
 class ContextQuestionEngine:
-    """
-    Fasad.
+    """Facade.
 
     A/B:
-      - ESTER_CTXQ_SLOT=A (default): tolko evristiki
-      - ESTER_CTXQ_SLOT=B: esli peredana llm_fn, poprobuem B, inache avto-otkat k A
-    """
+      - ESTER_KTHK_SLOT=A (default): heuristics only
+      - ESTER_KTHK_SLOT=B: if llm_fn is transferred, let's try B, otherwise auto-rollback to A"""
     def __init__(
         self,
         project_root: str,

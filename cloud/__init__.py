@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-S3/MinIO adapter dlya bekapov.
+"""S3/MinIO adapter dlya bekapov.
 Trebuetsya: boto3
-Konfiguratsiya cherez ENV:
+Configuratsiya through ENV:
   BACKUP_S3_ENDPOINT, BACKUP_S3_REGION, BACKUP_S3_BUCKET,
-  BACKUP_S3_ACCESS_KEY, BACKUP_S3_SECRET_KEY, BACKUP_S3_PATH_STYLE=1/0
-"""
+  BACKUP_S3_ACCESS_KEY, BACKUP_S3_SECRET_KEY, BACKUP_S3_PATH_STYLE=1/0"""
 from __future__ import annotations
 
 import os

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/repair_vectorstores.py — proverka i legkiy remont vektornykh storadzhey.
-Deystviya:
+"""scripts/repair_vectorstores.py — proverka i legkiy remont vektornykh storadzhey.
+Action:
   - Proveryaet nalichie kollektsii v VectorStore
   - Pri neobkhodimosti sozdaet pustuyu kollektsiyu
   - Pechataet bazovuyu statistiku (chislo vektorov/dokov)
@@ -9,8 +8,7 @@ Deystviya:
 Zapusk:
   python scripts/repair_vectorstores.py
 ENV:
-  PERSIST_DIR, COLLECTION_NAME, USE_EMBEDDINGS, EMBEDDINGS_*
-"""
+  PERSIST_DIR, COLLECTION_NAME, USE_EMBEDDINGS, EMBEDDINGS_*"""
 from __future__ import annotations
 
 import json
@@ -73,7 +71,7 @@ def main() -> int:
     try:
         st = vs.stats()  # type: ignore[attr-defined]
     except Exception:
-        # sozdadim pustuyu kollektsiyu cherez tryuk: upsert nulevogo elementa (kotoryy ne sokhranitsya)
+        # let's create an empty collection using the trick: upsert the zero element (which will not be saved)
         try:
             vs.ensure_collection()  # type: ignore[attr-defined]
             st = vs.stats()  # type: ignore[attr-defined]

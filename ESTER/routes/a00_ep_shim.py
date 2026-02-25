@@ -16,7 +16,7 @@ def _wrap_class(cls):
 
     def safe_add_url_rule(self, rule: str, endpoint: str | None = None,
                           view_func: Any | None = None, **options: Any) -> Any:
-        # 1) ne padaem, esli net view_func
+        # 1) does not crash if there is no view_function
         if view_func is None:
             return None
         # 2) unikaliziruem endpoint pri LYuBOY kollizii

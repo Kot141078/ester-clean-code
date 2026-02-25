@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-serve_no_reload.py — zapusk veb-prilozheniya bez autoreload (Windows/Linux), bezopasno i predskazuemo.
+"""serve_no_reload.py - zapusk web-prilozheniya bez autoreload (Windows/Linux), bezopasno i predskazuemo.
 
 Zachem:
-- autoreload udoben v deve, no v «zhivoy» srede (i pod planirovschikami/sluzhbami) on chasto sozdaet
+- autoreload udoben v deve, no v “zhivoy” srede (i pod planirovschikami/sluzhbami) on often sozdaet
   dvoynye protsessy, dubliruet fonovye tiki i lomaet blokirovki/porty.
 
 Mosty:
-- Yavnyy (Kibernetika ↔ Operatsii): odin protsess = odin regulyator, bez «samoklonov».
-- Skrytyy 1 (Logika ↔ Nadezhnost): esli net tela bloka if — eto ne «oshibka stilya», eto formalnaya
+- Yavnyy (Kibernetika ↔ Operatsii): odin protsess = odin regulyator, bez “samoklonov”.
+- Skrytyy 1 (Logika ↔ Nadezhnost): esli net tela bloka if — eto ne “oshibka stilya”, eto formalnaya
   nekorrektnost programmy (Enderton).
-- Skrytyy 2 (Infoteoriya ↔ Inzheneriya): autoreload uvelichivaet shum (lishnie restarty/konnekty),
+- Skrytyy 2 (Infoteoriya ↔ Inzheneriya): autoreload uvelichivaet noise (lishnie restarty/konnekty),
   ukhudshaya signal v logakh i metrikakh.
 
 Zemnoy abzats:
-Eto kak rubilnik v schite: v prode ty ne khochesh, chtoby «samo vklyuchalos i samo vyklyuchalos» ot
-kakoy-to melkoy vibratsii. Odin protsess bez autoreload — menshe drozhaniya sistemy i menshe
+Eto kak rubilnik v schite: v prode ty ne khochesh, chtoby “samo vklyuchalos i samo vyklyuchalos” ot
+kakoy-to melkoy vibratsii. Odin protsess bez autoreload - menshe drozhaniya sistemy i menshe
 povodov lovit fantomnye bagi.
 
-# c=a+b
-"""
+# c=a+b"""
 
 from __future__ import annotations
 
@@ -42,7 +40,7 @@ def _env_int(name: str, default: int) -> int:
 
 
 def _run_flask(app: Any, host: str, port: int) -> int:
-    # Flask/Werkzeug: use_reloader=False garantiruet otsutstvie vtorogo protsessa.
+    # Flask/Werkzeug: use_reloader=False ensures that there is no second process.
     debug = os.getenv("FLASK_DEBUG", "0") == "1"
     app.run(host=host, port=port, debug=debug, use_reloader=False)
     return 0
@@ -71,7 +69,7 @@ def main() -> int:
     if hasattr(app, "run") and callable(getattr(app, "run")):
         return _run_flask(app, host, port)
 
-    # Inache schitaem, chto eto ASGI-prilozhenie
+    # Otherwise, we assume that this is an ASGI application
     return _run_asgi(app, host, port)
 
 

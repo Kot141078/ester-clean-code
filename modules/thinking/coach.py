@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/coach.py — kouch-sloy dlya myslitelnykh i deyatelnostnykh tsiklov.
+"""modules/thinking/coach.py ​​- kouch-sloy dlya myslitelnykh i deyatelnostnykh tsiklov.
 
 Funktsii:
-  diagnose(window=200) -> dict     # gde zastrevaem: think/plan/safety/act/reflect
+  diagnose(window=200) -> dict # where zastrevaem: think/plan/safety/act/reflect
   suggest_micro_goals(k=5) -> dict # spisok korotkikh shagov, ukladyvayuschikhsya v byudzhet
-  commit_micro_goal(text) -> dict  # zafiksirovat mikro-tsel i postavit ee v missii (low)
-  retro(window=400) -> dict        # retrospektiva: chto srabotalo/ne srabotalo
-  status() -> dict                 # sostoyanie koucha
+  commit_micro_goal(text) -> dict # zafiksirovat mikro-tsel i postavit ee v missii (low)
+  retro(window=400) -> dict # retrospektiva: what srabotalo/ne srabotalo
+  status() -> dict # sostoyanie koucha
 
 MOSTY:
-- Yavnyy: (Mysl ↔ Meta-myshlenie) — diagnostika, podskazka, retro.
-- Skrytyy #1: (Infoteoriya ↔ Ekonomiya) — mikro-tseli minimiziruyut entropiyu/stoimost perekhoda.
+- Yavnyy: (Mysl ↔ Meta-myshlenie) - diagnostika, podskazka, retro.
+- Skrytyy #1: (Infoteoriya ↔ Ekonomiya) - mikro-tseli minimiziruyut entropiyu/stoimost perekhoda.
 - Skrytyy #2: (Kibernetika ↔ Obuchenie) — petlya uluchsheniy po metrikam uspekhov kaskadov.
 
 ZEMNOY ABZATs:
-Inzhenerno — eto nadstroyka-«navigator»: smotrit na logi, ukazyvaet uzkoe mesto,
-predlagaet malenkiy sleduyuschiy shag i posle — chestno razbiraet rezultat.
+Inzhenerno - eto nadstroyka-“navigator”: smotrit na logi, ukazyvaet uzkoe mesto,
+predlagaet malenkiy sleduyuschiy shag i posle - chestno razbiraet result.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple
 import os, json, time, re
@@ -59,9 +57,7 @@ def _success_from_event(r:Dict[str,Any])->int:
     return 1
 
 def diagnose(window:int=200)->Dict[str,Any]:
-    """
-    Nakhodit «uzkie mesta» po chastote neudach/stopov na stadiyakh petli.
-    """
+    """Finds bottlenecks based on the frequency of failures/stops at loop stages."""
     recs=_recent_records(window)
     by_stage=Counter()
     fail_stage=Counter()
@@ -95,60 +91,60 @@ def _load_playbooks()->List[Dict[str,Any]]:
     # defoltnyy nabor (bez fayla)
     return [
         {"when":"safety", "tips":[
-            "Snizit masshtab shaga (umenshit scale).",
-            "Razdelit deystvie na podshagi bez prav admina.",
-            "Snachala zapusti simulyatsiyu na sandbox-datasete."
+            "Reduce the step scale (reduce the rock).",
+            "Divide the action into substeps without admin rights.",
+            "First, run the simulation on a sandbox dataset."
         ]},
         {"when":"plan", "tips":[
-            "Utochni tsel odnim predlozheniem: chto kriteriy gotovnosti?",
+            "Clarify the goal in one sentence: what are the criteria for readiness?",
             "Sravni 2–3 alternativy cherez decision_plan.",
             "Sformiruy opornye terminy (analyze_text) i prover kontekst."
         ]},
         {"when":"act", "tips":[
-            "Sdelay «sukhoy progon» bez izmeneniy (dry-run).",
-            "Ogranich shagi do 2–3, prover effekty i otkat.",
-            "Logiruy kazhdoe deystvie v timeline dlya retro."
+            "Do a “dry run” without changes (dry run).",
+            "Limit steps to 2-3, check effects and rollback.",
+            "Log every action in timeline for retro."
         ]},
         {"when":"reflect", "tips":[
-            "Zapishi po punktu: chto srabotalo / ne srabotalo / chemu nauchilis.",
-            "Vydeli odnu metriku na sleduyuschiy tsikl (naprimer, p_success↑)."
+            "Write down one item at a time: what worked / didn’t work / what you learned.",
+            "Vydeli odnu metriku na sleduyuschiy tsikl (for example, p_success↑)."
         ]},
         {"when":"think", "tips":[
-            "Sformuliruy zadachu kak vopros i kak tsel.",
-            "Prover, net li gotovykh shablonov v pipelines."
+            "Formulate the task as a question and as a goal.",
+            "Check if there are ready-made templates in Pipeline."
         ]}
     ]
 
 def suggest_micro_goals(k:int=5)->Dict[str,Any]:
     diag = (_STATE.get("last_diag") or diagnose()).get("diagnosis", [])
     focus = diag[0]["stage"] if diag else "plan"
-    # bazovye mikro-tseli, bezopasnye po byudzhetu
+    # basic micro-goals that are budget-friendly
     candidates = {
         "plan": [
             "Sformulirovat kriteriy gotovnosti (Definition of Done).",
-            "Sobrat 3 alternativy i otsenit cherez decision_plan.",
-            "Izvlech klyuchevye terminy zadachi (analyze_text)."
+            "Collect 3 alternatives and evaluate through decision_plan.",
+            "Extract key terms of the task (analysis_text)."
         ],
         "safety": [
-            "Snizit scale v metadannykh deystviya do 0.5.",
-            "Razbit deystvie na podshagi bez prav administratora.",
+            "Reduce the scaling in the action metadata to 0.5.",
+            "Break the action into substeps without administrator rights.",
             "Prognat simulate(trials=100) i zapisat p_success."
         ],
         "act": [
             "Sdelat dry-run kaskada bez izmeneniy sistemy.",
-            "Ogranichit kaskad do 2 shagov i zafiksirovat rezultat.",
-            "Dobavit zapis otkata pered deystviem."
+            "Limit the cascade to 2 steps and record the result.",
+            "Add a rollback entry before the action."
         ],
         "reflect":[
-            "Opisat 3 vyvoda i odnu gipotezu dlya proverki zavtra.",
-            "Save svodku [selfdrive] s klyuchevymi terminami."
+            "Describe 3 conclusions and one hypothesis to test tomorrow.",
+            "Save a summary of your SelfDrive with key terms."
         ],
         "think":[
             "Pereformulirovat tsel v odnu stroku.",
-            "Sverit formulirovku s predyduschimi tselyami (poisk po pamyati)."
+            "Check the wording with previous goals (memory search)."
         ],
         "other":[
-            "Obnovit QA pamyati i pereschitat embeddingi (M12)."
+            "Update KA memory and recalculate embeddings (M12)."
         ]
     }
     tips=[]
@@ -164,7 +160,7 @@ def suggest_micro_goals(k:int=5)->Dict[str,Any]:
     return out
 
 def commit_micro_goal(text:str)->Dict[str,Any]:
-    # sozdaem low-priority missiyu bez raspisaniya
+    # create a catch-priority mission without a schedule
     r=MS.create(goal=text, priority="low", schedule="", template="pipeline",
                 params={"name":"analyze_text","text":text})
     memory_add("goal", f"micro-goal: {text}", {"mission_id": r["mission"]["id"]})
@@ -172,10 +168,8 @@ def commit_micro_goal(text:str)->Dict[str,Any]:
     return {"ok":True,"mission":r["mission"]}
 
 def retro(window:int=400)->Dict[str,Any]:
-    """
-    Prostoy retro-analiz: gde chasche uspekhi, gde provaly, p_success (po simulyatsiyam),
-    kakie tipy zapisey preobladayut do/posle «act».
-    """
+    """Simple retro-analysis: where are successes most often, where are failures, success (based on simulations),
+    what types of records predominate before/after “act”."""
     recs=_recent_records(window)
     by_stage=Counter()
     succ=Counter()
@@ -195,7 +189,7 @@ def retro(window:int=400)->Dict[str,Any]:
     out={"ok":True,"summary":summary,"report":report}
     _STATE["last_retro"]=out
     record_event("coach","retro",True,{"bottleneck":bottleneck.get("stage")})
-    # sokhranit v pamyat
+    # save to memory
     memory_add("summary", f"[coach:retro] {summary}", {"report":report})
     return out
 

@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-tests/test_decay_gc_pin.py — proverka pin/GC pravil dlya KG.
+"""tests/test_decay_gc_pin.py — proverka pin/GC pravil dlya KG.
 
-Proveryaem:
-  • Rebra s pin (props.pin/props.pinned/tags soderzhit 'pin'/'no_gc'/'keep' ili id nachinaetsya s 'pin::') — ne udalyayutsya GC.
-  • Osirotevshie uzly bez pin starshe poroga — udalyayutsya.
-  • policy="replace" import sokhranyaet invarianty (uzly/rebra iz kept-naborov).
-"""
+Check it out:
+  • Rebra s pin (props.pin/props.pinned/tags soderzhit 'pin'/'no_gc'/'keep' ili id nachinaetsya s 'pin::') - ne udalyayutsya GC.
+  • Osirotevshie uzly bez pin starshe poroga - udalyayutsya.
+  • policy="replace" import sokhranyaet invarianty (uzly/rib iz kept-naborov)."""
 
 from __future__ import annotations
 
@@ -18,12 +16,12 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def test_gc_pin_and_orphans(tmp_path, monkeypatch):
-    # Nastroim PERSIST_DIR na vremennuyu papku
+    # Set PERSIST_HOLES to temporary folder
     import os
 
     monkeypatch.setenv("PERSIST_DIR", str(tmp_path))
 
-    kg = KGStore()  # initsializiruetsya chistym
+    kg = KGStore()  # initialized clean
     now = time.time()
 
     # Uzly
@@ -41,7 +39,7 @@ def test_gc_pin_and_orphans(tmp_path, monkeypatch):
         ]
     )
 
-    # Rebra: odno normalnoe, odno «skoro udalit», odno pinned cherez props, i odno k pin::D
+    # Ribs: one normal, one “to be removed soon”, one pined through props, and one to pin::D
     kg.upsert_edges(
         [
             {
@@ -81,7 +79,7 @@ def test_gc_pin_and_orphans(tmp_path, monkeypatch):
 
     gc = DecayGC(kg)
     rules = DecayRules(
-        half_life_s=1.0,  # bystro «raspadaetsya», chtoby garantirovanno upalo nizhe poroga
+        half_life_s=1.0,  # quickly “disintegrates” to ensure it falls below the threshold
         min_weight=0.0,
         gc_edge_min_age_s=0.0,
         gc_edge_weight_threshold=0.05,
@@ -89,22 +87,22 @@ def test_gc_pin_and_orphans(tmp_path, monkeypatch):
     )
     rep = gc.apply(rules)
 
-    # Proveryaem: rebro (A->C) so slabym vesom dolzhno byt udaleno
+    # We check: the edge (A->C) with a weak weight must be removed
     e_ac = kg.query_edges(src="A", dst="C", rel="rel", limit=5)
     assert len(e_ac) == 0
 
-    # Rebro pinned (B->C) dolzhno ostatsya
+    # The pined edge (B->C) should remain
     e_bc = kg.query_edges(src="B", dst="C", rel="rel", limit=5)
     assert len(e_bc) == 1
 
-    # Rebro k pin::D — ostaetsya, a uzel pin::D — ne udalyaetsya
+    # The edge to pin::D remains, but the node pin::D is not deleted
     e_ad = kg.query_edges(src="A", dst="pin::D", rel="rel", limit=5)
     assert len(e_ad) == 1
     ns = kg.query_nodes(q="D", limit=10)
     assert any(n["id"] == "pin::D" for n in ns)
 
-    # Uzel C stal osirotevshim (esli vse svyazi k nemu udaleny i net vkhodyaschikh) — dolzhen byt udalen
-    # U nas ostalos B->C pinned, znachit C ne osirotevshiy i dolzhen ostatsya
+    # Node C has become orphaned (if all connections to it are deleted and there are no incoming ones) - must be deleted
+    # We have B->C pined left, which means C is not orphaned and must remain
     all_nodes = kg.export_all()["nodes"]
     ids = {n["id"] for n in all_nodes}
 # assert "C" in ids

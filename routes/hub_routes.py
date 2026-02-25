@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/hub_routes.py - REST/HTML: /app/hub (mini-CRM panel vozmozhnostey i predlozheniy).
-Obedinennaya versiya s uluchsheniyami dlya «Ester» (summary, P2P-sinkhronizatsiya, oblachnyy alert).
+"""routes/hub_routes.py - REST/HTML: /app/hub (mini-CRM panel vozmozhnostey i predlozheniy).
+Obedinennaya versiya s uluchsheniyami dlya “Ester” (summary, P2P-sinkhronizatsiya, oblachnyy alert).
 
 Mosty:
 - Yavnyy: (UI ↔ Opps/Outreach/Pay) edinaya stranitsa obzora i bystrykh deystviy.
 - Skrytyy #1: (Portfolio ↔ Navigatsiya) knopki vedut na portfolio i predlozheniya bez poiskov po menyu.
-- Skrytyy #2: (Passport ↔ Prozrachnost) klyuchevye sobytiya logiruyutsya v «profile» pamyati.
+- Skrytyy #2: (Passport ↔ Prozrachnost) klyuchevye sobytiya logiruyutsya v “profile” pamyati.
 - Skrytyy #3: (Mesh/P2P ↔ Nadezhnost) asinkhronnaya sinkhronizatsiya statusov mezhdu uzlami s backoff/timeout.
 - Skrytyy #4: (Security ↔ Fragmentatsiya) JSON shifruetsya v _post_json (base64-placeholder) kak minimalnaya zaschita kanala.
 
 Zemnoy abzats:
-Eto «pult»: na odnom ekrane vidno sostoyanie podsistem (capmap/backup/cron/…),
+This is “pult”: na odnom ekrane vidno sostoyanie podsistem (capmap/backup/cron/…),
 mozhno zapustit nochnoy tsikl, svyazat STT, obnovit portfolio, a statusy sinkhroniziruyutsya
-mezhdu agentami seti. Oblako poluchaet trevogu, esli uzly degradiruyut.
+mezhdu agentsami seti. Oblako poluchaet trevogu, esli uzly degradiruyut.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 
 import os
@@ -76,7 +74,7 @@ def _post_json(path: str, payload: Dict[str, Any] | None, timeout: int = 60) -> 
         with urllib.request.urlopen(req, timeout=timeout) as r:
             rep_raw = json.loads(r.read().decode("utf-8"))
             rep = _decrypt_json(rep_raw.get("enc", "")) if isinstance(rep_raw, dict) else {}
-            # Esli otvet ne upakovan, poprobuem «kak est»
+            # If the answer is not packaged, let's try “as is”
             if not rep and isinstance(rep_raw, dict):
                 rep = rep_raw
             return True, rep
@@ -85,7 +83,7 @@ def _post_json(path: str, payload: Dict[str, Any] | None, timeout: int = 60) -> 
 
 
 async def _p2p_sync_hub(hub_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Asinkhronnaya P2P-sinkhronizatsiya: otpravlyaem lokalnyy summary, prinimaem udalennyy i merzhim."""
+    """Asynchronous P2P synchronization: we send a local summary, receive a remote summary and merge."""
     updated = dict(hub_data)
     if not P2P_PEERS:
         return updated
@@ -105,7 +103,7 @@ async def _p2p_sync_hub(hub_data: Dict[str, Any]) -> Dict[str, Any]:
                 remote_enc = text.split(":", 1)[1] if ":" in text else ""
                 remote = _decrypt_json(remote_enc)
                 if isinstance(remote, dict):
-                    # Myagkiy merzh: dict poverkh dict (obnovlyaem polya 2-go urovnya)
+                    # Soft merge: dist on top of dist (updating 2nd level fields)
                     for k, v in remote.items():
                         if isinstance(v, dict) and isinstance(updated.get(k), dict):
                             updated[k].update(v)  # type: ignore[union-attr]
@@ -132,7 +130,7 @@ async def _p2p_sync_hub(hub_data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _judge_alert(metrics: Dict[str, Any]) -> None:
-    """Otpravlyaet alert v oblako, esli chislo not-ok prevyshaet porog."""
+    """Sends an alert to the cloud if the number of notes exceeds a threshold."""
     try:
         failures = sum(1 for v in metrics.values() if isinstance(v, dict) and v.get("ok") is False)
         if not CLOUD_API_KEY or failures <= FAILURES_ALERT_THRESHOLD:
@@ -161,7 +159,7 @@ def _judge_alert(metrics: Dict[str, Any]) -> None:
 # ---- API ----
 @bp.route("/app/hub/summary", methods=["GET"])
 def api_summary():
-    """Sobiraem statusy klyuchevykh podsistem v edinuyu JSON-strukturu i sinkhroniziruem po P2P."""
+    """We collect the statuses of key subsystems into a single ZhSON-structure and synchronize via P2P."""
     keys: Dict[str, Tuple[str, Dict[str, Any] | None, str]] = {
         "capmap": ("/self/capmap", None, "GET"),
         "ab": ("/runtime/ab/status", None, "GET"),
@@ -180,7 +178,7 @@ def api_summary():
         ok, rep = (_get_json(path) if method == "GET" else _post_json(path, payload))
         out[k] = rep if ok else {"ok": False, "error": rep.get("error", "fail"), "path": path}
 
-    # Sinkhronizatsiya po P2P i vozmozhnyy alert
+    # P2P synchronization and possible alert
     out = asyncio.run(_p2p_sync_hub(out))
     _judge_alert(out)
 
@@ -189,16 +187,16 @@ def api_summary():
 
 @bp.route("/app/hub/cloud", methods=["GET"])
 def api_cloud():
-    """Zaglushka: «otpravka» summary v oblako/drayv/dashbord."""
+    """Stub: “sending” totals to the cloud/drive/dashboard."""
     summary = api_summary().get_json(silent=True) or {}
-    # Zdes mogla byt integratsiya s Firebase/Drive/Sheets/etc.
+    # There could be integration with Firevase/Drive/Sheets/etc.
     print(f"[hub/cloud] summary bytes={{len(json.dumps(summary, ensure_ascii=False).encode('utf-8'))}}")
     return jsonify({"ok": True, "cloud_synced": True})
 
 
 @bp.route("/app/hub", methods=["GET"])
 def app_hub():
-    """Prostaya HTML-panel so statusami i bystrymi deystviyami."""
+    """A simple HTML panel with statuses and quick actions."""
     title = os.getenv("APP_TITLE", "Ester Control Panel")
     html = "<!doctype html><meta charset='utf-8'/>" \
            "<title>" + title + " - JobHub</title>" \
@@ -259,12 +257,12 @@ def app_hub():
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta."""
+    """Drop-in registration of blueprint."""
     app.register_blueprint(bp)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

@@ -1,9 +1,7 @@
 
 # -*- coding: utf-8 -*-
-"""
-tools/check_discover_runtime.py — proverka zagruzki sitecustomize i aliasov discover.
-c=a+b
-"""
+"""tools/chesk_discover_rintite.po - checks the loading of sitecostomize and discovery aliases.
+c=a+b"""
 from __future__ import annotations
 import sys, os, json
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

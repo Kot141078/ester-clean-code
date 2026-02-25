@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/judge_ab_suggest.py — pechat podskazok A/B dlya Judge (JSON).
+"""scripts/judge_ab_suggest.py - pechat podskazok A/B dlya Judge (JSON).
 
 Primery:
   python -m scripts.judge_ab_suggest
@@ -12,10 +11,9 @@ Mosty:
 - Skrytyy 2 (Bayes ↔ Bezopasnost): slotB traktuem kak eksperiment.
 
 Zemnoy abzats:
-Instrument dlya avtomaticheskoy sborki «kandidatov» slotov na lyubom uzle bez UI/brauzera.
+Instrument dlya avtomaticheskoy sborki “kandidatov” slotov na lyubom uzle bez UI/brauzera.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse

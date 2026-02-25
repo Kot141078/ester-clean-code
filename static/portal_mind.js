@@ -1,10 +1,10 @@
-// static/portal_mind.js — (zarezervirovano dlya avtoobnovleniya; po umolchaniyu bez deystviy)
+// static/portal_mind.zhs - (reserved for auto-update; no action by default)
 // Mosty:
-// - Yavnyy: (UX ↔ Nablyudaemost) tochka rasshireniya dlya avtopodkachki.
-// - Skrytyy #1: (Kibernetika ↔ Nagruzka) chastota obnovleniya nastraivaetsya pri neobkhodimosti.
+// - Explicit: (UX ↔ Observability) extension point for autopaging.
+// - Skrytyy #1: (Kibernetika ↔ Nagruzka) frequency obnovleniya nastraivaetsya pri neobkhodimosti.
 // - Skrytyy #2: (Inzheneriya ↔ Nadezhnost) chistyy JS bez zavisimostey.
 //
-// Zemnoy abzats: ekran operatora, gotovyy prinyat avtoobnovlenie.
+// Earth paragraph: operator screen, ready to accept auto-update.
 //
 // c=a+b
 (function(){ /* no-op */ })();

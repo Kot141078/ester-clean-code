@@ -1,18 +1,16 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.llm — shlyuz LLM c myagkim folbekom brokera.
+"""modules.llm - shlyuz LLM with myagkim folbekom brokera.
 Mosty:
 - Yavnyy: pri importe dobavlyaem nedostayuschie funktsii v modules.llm.broker (chat/complete/embeddings/ping).
 - Skrytyy #1: (DX ↔ Offlayn) — ispolzuem LM Studio cherez autoconfig_settings, esli osnovnoy broker molchit.
 - Skrytyy #2: (A/B ↔ Otkat) — ENV `ESTER_LLM_FALLBACK` i `ESTER_LLM_AB`.
 
 Zemnoy abzats:
-Kod zovet `modules.llm.broker.chat(...)`, a broker mozhet byt «tonkim» ili slomannym. My myagko podmenyaem tolko
-otsutstvuyuschie simvoly — bez pravok tvoego broker.py.
-# c=a+b
-"""
+Kod zovet `modules.llm.broker.chat(...)`, a broker mozhet byt “tonkim” or slomannym. My myagko podmenyaem tolko
+otsutstvuyuschie simvoly - bez pravok tvoego broker.py.
+# c=a+b"""
 import os, json, urllib.request, urllib.error
 from importlib import import_module
 from typing import Any, Dict, List
@@ -82,13 +80,13 @@ def _install_broker_fallback():
     try:
         broker = import_module("modules.llm.broker")
     except Exception:
-        # esli dazhe broker ne importiruetsya — sozdadim minimalnyy «psevdomodul»
+        # even if the broker is not imported, we will create a minimal “pseudo-module”
         import types
         broker = types.ModuleType("broker")
         import sys
         sys.modules["modules.llm.broker"] = broker  # type: ignore
 
-    # Patchim tolko otsutstvuyuschie funktsii
+    # Patch only missing features
     if not hasattr(broker, "chat"):
         setattr(broker, "chat", _fallback_chat)
     if not hasattr(broker, "complete"):

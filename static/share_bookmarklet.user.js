@@ -2,7 +2,7 @@
 // @name         Ester Share Bridge — Capture Selection
 // @namespace    https://ester.local/
 // @version      1.0
-// @description  Otpravka tekuschey stranitsy/vydeleniya v Ester Share Bridge (/share/capture)
+// @description Send current page/selection to Esther Shar Bridge (/ball/capture)
 // @match        *://*/*
 // @grant        GM_xmlhttpRequest
 // @run-at       context-menu
@@ -11,13 +11,13 @@
 (function() {
   'use strict';
 
-  // Nastroyka: bazovyy adres Bridge (mozhno pereopredelit v localStorage.esterBridge)
+  // Setting: Bridge base address (can be overridden in localStorage.esterbridge)
   const BRIDGE = (localStorage.getItem('esterBridge') || 'http://127.0.0.1:18081').replace(/\/+$/, '');
   const title = document.title || 'untitled';
   const url = location.href || '';
   const sel = window.getSelection ? ('' + window.getSelection()) : '';
 
-  // Esli est vydelenie — otpravim kak text; inache poprobuem zabrat <article> ili ves body kak HTML
+  // If there is a selection, we will send it as text; otherwise it will try to pick up <article> or the weight of water as HTML
   const hasSel = sel && sel.trim().length > 0;
   let payload = {
     url, title,
@@ -39,12 +39,12 @@
           onload: function(resp) {
             try {
               const j = JSON.parse(resp.responseText || '{}');
-              alert('Ester Share: sokhraneno (' + (j.count || 1) + ')');
+              alert('Esther Share: saved (' + (j.count || 1) + ')');
             } catch (e) {
-              alert('Ester Share: sokhraneno (raw), kod ' + resp.status);
+              alert('Esther Share: saved (rav), code' + resp.status);
             }
           },
-          onerror: function() { alert('Ester Share: ne udalos otpravit'); }
+          onerror: function() { alert('Esther Share: failed to send'); }
         });
       } else {
         fetch(BRIDGE + '/share/capture', {
@@ -52,15 +52,15 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(bodyObj)
         }).then(r => r.json()).then(j => {
-          alert('Ester Share: sokhraneno (' + (j.count || 1) + ')');
-        }).catch(() => alert('Ester Share: ne udalos otpravit'));
+          alert('Esther Share: saved (' + (j.count || 1) + ')');
+        }).catch(() => alert('Esther Share: failed to send'));
       }
     } catch (e) {
-      alert('Ester Share: oshibka ' + e);
+      alert('Esther Share: mistake' + e);
     }
   };
 
-  // Esli stranitsa ogromnaya (>5MB HTML), otpravim tolko selection/text
+  // If the page is huge (>5MB HTML), send only selection/text
   const htmlSize = payload.html ? new Blob([payload.html]).size : 0;
   if (!hasSel && htmlSize > 5 * 1024 * 1024) {
     payload.html = '';

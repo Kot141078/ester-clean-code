@@ -1,6 +1,6 @@
 # Ester — Portable/LAN HUB (integratsionnyy indeks)
 
-Etot dokument — korotkaya karta po okruzheniyu i marshrutam ekspluatatsionnogo sloya (USB/LAN), yadro myshleniya/pamyati/voli **ne menyaem**.
+This document is a short map of the environment and routes of the operational layer (USB/LAN), the core of thinking/memory/will **cannot be changed**.
 
 ## ENV (bezopasnye defolty)
 
@@ -126,7 +126,7 @@ c=a+b
 
 ---
 
-## Shagi proverki (podrobno)
+## Verification steps (details)
 
 1) Ubedis, chto `LAN_CATALOG_ENABLE=1`, `USB_CATALOG_ENABLE=1`, `USB_RUNNER_ENABLE=1`, `ONECLICK_ENABLE=1`.  
 2) Pereydi na `/admin/portable` — vverkhu **HUB** dolzhen podtyanut `/admin/portable/summary` i pokazat schetchiki.  

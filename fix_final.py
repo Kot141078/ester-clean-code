@@ -3,7 +3,7 @@ import os
 
 TARGET = "run_ester_fixed.py"
 
-# Blok vsekh vozmozhnykh "poteryashek" na osnove tvoego .env i koda
+# Block of all possible “losses” based on your .env and code
 MISSING_BLOCK = """
 # --- FINAL RESTORED CONFIG ---
 SLEEP_THRESHOLD_SEC = 20  # Volition sleep cycle
@@ -22,19 +22,19 @@ def fix_final_vars():
     with open(TARGET, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # Proveryaem glavnogo vinovnika
+    # Let's check the main culprit
     if "SLEEP_THRESHOLD_SEC =" in content:
         print("✅ SLEEP_THRESHOLD_SEC already present.")
         return
 
-    # Vstavlyaem posle import os (ili v nachalo, esli ne naydem)
+    # Paste it after the OS import (or at the beginning, if we don’t find it)
     if "import os" in content:
         new_content = content.replace("import os", "import os\n" + MISSING_BLOCK, 1)
         with open(TARGET, "w", encoding="utf-8") as f:
             f.write(new_content)
         print(f"✅ Final config block injected into {TARGET}")
     else:
-        # Fallback: vstavlyaem v samoe nachalo
+        # Falbatsk: insert at the very beginning
         new_content = MISSING_BLOCK + "\n" + content
         with open(TARGET, "w", encoding="utf-8") as f:
             f.write(new_content)

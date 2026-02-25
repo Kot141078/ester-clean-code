@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-routes/sources_routes.py - REST-most dlya podachi stimulov myshleniya v shinu.
+"""routes/sources_routes.py - REST-most dlya podachi stimulov myshleniya v shinu.
 
 Endpoynty (JWT):
-  POST /sources/dialog        {"source":"ui|api|ext","user":"...", "text":"..."}
-  POST /sources/telegram      {"user":"...", "chat":"...", "text":"..."}        # esli khochesh pryamoy push iz tg-pollera
-  POST /sources/file_read     {"path":"...", "sha256":"...", "size":123}        # signal ob obrabotannom fayle
-  POST /sources/web_discovery {"query":"...", "url":"...", "title":"..."}       # uchityvaetsya tolko pri ALLOW_WEB=1
-  POST /sources/heartbeat     - ruchnoy tik «podumat seychas»
-  GET  /sources/status        - counters + env flagi
+  POST /sources/dialog {"source":"ui|api|ext","user":"...", "text":"..."}
+  POST /sources/telegram {"user":"...", "chat":"...", "text":"..."} # esli khochesh pryamoy push iz tg-pollera
+  POST /sources/file_read {"path":"...", "sha256":"...", "size":123} # signal ob obrabotannom fayle
+  POST /sources/web_discovery {"query":"...", "url":"...", "title":"..."} # uchityvaetsya tolko pri ALLOW_WEB=1
+  POST /sources/heartbeat - ruchnoy tik “podumat seychas”
+  GET /sources/status - counters + env flagi
 
 Vzaimodeystvie:
   • Publikuet sobytiya v modules.events_bus: dialog.message / telegram.message / ingest.file / web.discovery.
-  • Vorker modules.always_thinker podpisan na eti sobytiya i initsiiruet reflect_once.
+  • Worker modules.always_thinker podpisan na eti sobytiya i initsiiruet reflect_once.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -83,14 +81,14 @@ def register_sources_routes(app, url_prefix: str = "/sources"):
     @app.post(f"{url_prefix}/heartbeat")
     @jwt_required()
     def heartbeat():
-        # razovaya obrabotka ocheredi + myagkaya refleksiya (cherez vorker)
+        # one-time queue processing + soft reflection (via worker)
         rep = consume_once(limit=int((request.get_json(silent=True) or {}).get("limit") or 200))
         return jsonify(rep)
 
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
 def register(app):
-    # vyzyvaem suschestvuyuschiy register_sources_routes(app) (url_prefix beretsya po umolchaniyu vnutri funktsii)
+    # calls an existing registry_sources_rutes(app) (url_prefix is ​​taken by default inside the function)
     return register_sources_routes(app)
 
 # === /AUTOSHIM ===

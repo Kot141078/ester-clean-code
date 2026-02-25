@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-example_cosmos_integration.py — demonstratsiya integratsii Cosmos (optsionalno).
-Esli Cosmos ne ustanovlen — vozvraschaem ponyatnoe soobschenie, ne padaya pri importe.
-"""
+"""example_cosmos_integration.py — demonstratsiya integratsii Cosmos (optsionalno).
+Esli Cosmos ne ustanovlen - vozvraschaem ponyatnoe soobschenie, ne padaya pri importe."""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -31,12 +29,12 @@ def simulate_human_ai_interaction(user_input: str, emotional_state: Dict[str, An
     sim_video = wfm.generate_video(sim_input)
 
     return (
-        f"Ya chuvstvuyu tvoyu {emotion_score.get('emotion')}. "
+        f"I feel your ZZF0Z."
         f"V simulyatsii: {sim_video.description}"
     )
 
 
 if __name__ == "__main__":
-    user_query = "Ya ustal, pomogi s zadachey po dronam."
+    user_query = "I'm tired, help me with the drone task."
     current_emotional_state = {"fatigue": 0.7}
     print(simulate_human_ai_interaction(user_query, current_emotional_state))

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/whatsapp_control_routes.py - Sluzhebnye kontroly WA i predprosmotr stilya.
+"""routes/whatsapp_control_routes.py - Sluzhebnye kontroly WA i predprosmotr stilya.
 
 Mosty:
-- (Yavnyy) Predprosmotr stilya - prozrachnoe reshenie «chto imenno pisat».
+- (Yavnyy) Predprosmotr stilya - prozrachnoe decision “what exactly is pisat”.
 - (Skrytyy #1) Enderton - predikaty na osnove audience/intent.
 - (Skrytyy #2) Shennon - minimalnyy vvod → vosproizvodimyy vyvod (templeyty + evristiki).
 
 Zemnoy abzats:
 Daet bezopasnyy UI/API dlya predvaritelnoy proverki togona, prezhde chem vklyuchat rassylki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, request, jsonify
 from modules.persona_style import choose_style, render_message

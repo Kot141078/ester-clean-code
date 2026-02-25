@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tests/selfmanage/test_health.py — proverki health-prob.
+"""tests/selfmanage/test_health.py - proverki health-prob.
 
 MOSTY:
-- (Yavnyy) DB i internal statusy formiruyutsya kak ok; http-proba — warn pri otsutstvii putey.
-- (Skrytyy #1) summary() agregiruet v overall.
+- (Yavnyy) DB i internal statusy formiruyutsya kak ok; http-proba - warn pri otsutstvii putey.
+- (Skrytyy #1) summary() aggregate v overall.
 - (Skrytyy #2) Rabotaet v izolyatsii tmp SQLite.
 
 ZEMNOY ABZATs:
 Garantiruet, chto samoproverki ne padayut i dayut konsistentnyy otchet.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules.security.provenance — fiksatsiya i proverka proiskhozhdeniya sobytiy + reestry + shina sobytiy.
+"""modules.security.provenance - fiksatsiya i proverka proiskhozhdeniya sobytiy + reestry + shina sobytiy.
 
 MOSTY:
 - Yavnyy: (routes.* ↔ Security) record_event(), verify_event(), _load_registries(), forward_to_bus().
@@ -8,13 +7,12 @@ MOSTY:
 - Skrytyy #2: (Klyuchi ↔ Bezopasnost) HMAC cherez ENV.
 
 ZEMNOY ABZATs:
-Prostaya «chernaya korobka»: zapisyvaet sobytie, umeet ego proverit i protolknut v lokalnuyu shinu (ndjson).
+Prostaya “chernaya korobka”: zapisyvaet sobytie, umeet ego proverit i protolknut v lokalnuyu shinu (ndjson).
 
 Anti-ekho / bezopasnaya samo-redaktura:
 - A/B-slot ne nuzhen: operatsii lokalnye.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hmac, hashlib
 from typing import Dict, Any
@@ -45,7 +43,7 @@ def verify_event(payload: Dict[str, Any], sig: str) -> Dict[str, Any]:
     return {"ok": ok}
 
 def _load_registries() -> Dict[str, Any]:
-    """Vozvraschaet strukturu reestrov (esli fayla net — pustuyu)."""
+    """Returns the registry structure (if there is no file, empty)."""
     if not os.path.isfile(_REG):
         return {}
     try:
@@ -55,10 +53,8 @@ def _load_registries() -> Dict[str, Any]:
         return {}
 
 def forward_to_bus(event: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Otpravka sobytiya v lokalnuyu «shinu» (ndjson), bez seti.
-    Kontrakt: forward_to_bus({"type": "...", ...}) -> {"ok": True, "ts": ..., "path": BUS}
-    """
+    """Sending an event to the local “bus” (njson), without a network.
+    Contract: forward_to_bus(ZZF0Z) -> ZZF1ZZ"""
     ts = int(time.time())
     rec = {"ts": ts, "event": event}
     with open(_BUS, "a", encoding="utf-8") as f:

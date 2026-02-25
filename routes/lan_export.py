@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-routes/lan_export.py - endpointy eksporta mini-kataloga uzla v LAN.
+"""routes/lan_export.py - endpointy eksporta mini-cataloga uzla v LAN.
 
-Marshruty:
-  • GET /_lan/ping            - minimalnaya proverka dostupnosti
-  • GET /lan/catalog_export   - ester.lan.catalog/1 (chto u uzla est lokalno)
+Route:
+  • GET /_lan/ping - minimalnaya proverka dostupnosti
+  • GET /lan/catalog_export - ester.lan.catalog/1 (what u uzla est lokalno)
 
 Zemnoy abzats:
-Eto «okontse na sklad»: mozhno postuchatsya (ping) i poluchit opis dostupnogo.
+Eto “okontse na sklad”: mozhno postuchatsya (ping) i poluchit opis dostupnogo.
 
 Mosty:
 - Yavnyy (Eksport ↔ Sosedi): prostoy HTTP JSON dlya LAN-sinkhronizatsii.
-- Skrytyy 1 (Infoteoriya): format unifitsirovan s USB-katalogom.
-- Skrytyy 2 (Praktika): stdlib/Flask, offlayn.
+- Skrytyy 1 (Infoteoriya): format unifitsirovan s USB-catalogom.
+- Skrytyy 2 (Praktika): stdlib/Flask, offflayn.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.lan_catalog.exporter import build_local_catalog  # type: ignore

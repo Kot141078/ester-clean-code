@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/sync_keyboard.py — sinkhronizatsiya klaviatury leader→followers.
+"""modules/coop/sync_keyboard.py — sinkhronizatsiya klaviatury leader→followers.
 
-Format paketa:
+Format package:
 {"type":"hotkey","seq":"CTRL+S"} | {"type":"text","value":"hello"}
 
 Podderzhka:
 - hotkey → /desktop/window/hotkey
-- text   → /desktop/window/type_text (esli otsutstvuet — otpravlyaem po simvolu cherez hotkey s modifikatorom? zdes ostavlyaem tolko hotkey)
+- text → /desktop/window/type_text (esli otsutstvuet — otpravlyaem po simvolu cherez hotkey s modifikatorom? zdes ostavlyaem tolko hotkey)
 
 MOSTY:
-- Yavnyy: (Orkestratsiya ↔ Motorika) odin zhest — mnogo mashin.
-- Skrytyy #1: (Infoteoriya ↔ Bezopasnost) integratsiya so «shlyuzom soglasiya».
+- Yavnyy: (Orkestratsiya ↔ Motorika) odin zhest - mnogo mashin.
+- Skrytyy #1: (Infoteoriya ↔ Bezopasnost) integratsiya so “shlyuzom soglasiya.”
 - Skrytyy #2: (Kibernetika ↔ Kontrol) yavnyy start/stop, spisok peers.
 
 ZEMNOY ABZATs:
 HTTP-prosloyka: lider ot UI shlet sobytiya → rassylaem /peer/proxy na vedomye.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import http.client, json, os
@@ -65,14 +63,14 @@ def leader_text(value: str) -> Dict[str, Any]:
 
 def follower_ingest(pkt: Dict[str, Any]) -> Dict[str, Any]:
     t = (pkt.get("type") or "").lower()
-    # proverka shlyuza soglasiya
+    # consent gate check
     g = _post_local("/consent/check", {"scope": "full_control"})
     if not g.get("ok") or not g.get("allowed"):
         return {"ok": False, "need_consent": True}
     if t == "hotkey":
         return _post_local("/desktop/window/hotkey", {"seq": pkt.get("seq","")})
     if t == "text":
-        # bazovyy fallback — posimvolnyy vvod (esli v sisteme est otdelnyy endpoint, adapter podstavit ego)
+        # basic falsification - character-by-character input (if the system has a separate endpoint, substitute the adapter for it)
         val = str(pkt.get("value",""))
         ok_all = True
         for ch in val:

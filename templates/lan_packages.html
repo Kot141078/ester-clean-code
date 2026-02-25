@@ -30,7 +30,7 @@
 
   <section class="grid">
     <div>
-      <h3>Lokalnyy indeks (to, chto vidyat sosedi)</h3>
+      <h3>Local index (what neighbors see)</h3>
       <button onclick="loadLocal()">Obnovit</button>
       <pre id="local">—</pre>
     </div>
@@ -98,7 +98,7 @@ async function getIndex(){
     renderRemoteList(j);
     document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
   }catch(e){
-    document.getElementById('remoteList').textContent='Oshibka zaprosa indeksa.';
+    document.getElementById('remoteList').textContent='Index request failed.';
   }
 }
 async function fetchZip(withImport){

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-Alias-registratsiya dlya mem_kg_routes s zaschitoy ot konfliktov endpoint.
+"""Alias-registratsiya dlya mem_kg_routes s zaschitoy ot konfliktov endpoint.
 
 Mosty:
-- Yavnyy: (Alias ↔ Realnye routy) — probuem ester.routes.mem_kg_routes i routes.mem_kg_routes.
+- Yavnyy: (Alias ↔ Realnye routey) - probuem ester.routes.mem_kg_routes i routes.mem_kg_routes.
 - Skrytyy #1: (Registratsiya ↔ Ostorozhnost) — guard podavlyaet dubli endpoint i otsutstvie view_func.
 - Skrytyy #2: (Kontrakty ↔ Sovmestimost) — soblyudaem drop-in: snachala reg(app), inache blueprint.
 
 Zemnoy abzats:
-Kak «razvetvitel na DIN-reyku»: stavim bez perepayki, ne meshaya suschestvuyuschim liniyam.
+Kak “razvetvitel na DIN-reyku”: stavim bez perepayki, ne meshaya suschestvuyuschim liniyam.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint
 from .register_guard_alias import import_route_module, with_guard_if_B

@@ -1,5 +1,5 @@
 # scripts\desktop\windows\setup_ester_user.ps1
-# Naznachenie: podgotovka polzovatelya "ester", katalogov, logov, A/B-slotov i bazovoy konfiguratsii.
+# Purpose: preparation of the "esther" user, directories, logs, A/V slots and basic configuration.
 # Bezopasnye defolty, bez prav admina u ester.
 
 param(

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/board_roles_routes.py - borda roley: lyudi, yarlyki, vektor; proverka affinnosti.
+"""routes/board_roles_routes.py - borda roles: lyudi, yarlyki, vektor; proverka affinnosti.
 
 MOSTY:
-- (Yavnyy) /board/roles.json → spisok profiley (obrezannyy vektor), /board/roles.html → prosmotr i bystraya proverka pary.
+- (Yavnyy) /board/roles.json → spisok profiley (obrezannyy vektor), /board/roles.html → view bystraya proverka pary.
 - (Skrytyy #1) Affiniti pary berem iz roles.edges.get_edge() (zatukhanie uzhe uchteno).
 - (Skrytyy #2) HTML bez zavisimostey - udobno pod air-gap.
 
 ZEMNOY ABZATs:
-Kto u nas «veteran», kto «skorostnik», kto «peregovorschik», i kakova «pritertost» mezhdu dvumya - vse pod rukoy.
+Kto u nas “veteran”, kto “skorostnik”, kto “peregovorschik”, i kakova “pritertost” mezhdu dvumya - vse pod rukoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -25,7 +23,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 router = APIRouter()
 
 def _short_vec(v: Dict[str,float]) -> Dict[str,float]:
-    # pokazhem tolko klyuchevye osi
+    # we will show only the key axes
     keys = ["experience","reaction","calm","comm","lead","tech","law","med","creative","stamina","availability"]
     return {k: round(float(v.get(k,0.0)),2) for k in keys if k in v}
 
@@ -43,8 +41,7 @@ async def board_roles_json(limit: int = 300):
         })
     return JSONResponse({"ok": True, "people": out})
 
-_HTML = """
-<!doctype html><html><head><meta charset="utf-8"><title>Roles Board</title>
+_HTML = """<!doctype html><html><head><meta charset="utf-8"><title>Roles Board</title>
 <style>
 body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:16px;color:#222}
 .card{border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
@@ -57,7 +54,7 @@ label{margin-right:8px}
   <div>
     <label>A: <input id="a" placeholder="agent_id A"></label>
     <label>B: <input id="b" placeholder="agent_id B"></label>
-    <button onclick="check()">Proverit affinnost</button>
+    <button onclick="check()">Check affinnost</button>
     <span id="aff"></span>
   </div>
 </div>
@@ -79,11 +76,10 @@ async function check(){
   if(!a||!b){return}
   const r=await fetch('/board/roles/pair_affinity?a='+encodeURIComponent(a)+'&b='+encodeURIComponent(b));
   const d=await r.json();
-  document.getElementById('aff').innerHTML='Affinnost: <b>'+d.weight.toFixed(3)+'</b> (obnovleno: '+(d.updated_ts||0)+')';
+  document.getElementById('aff').innerHTML='Affinnost: <b>'+d.weight.toFixed(3)+'</b> (updated: '+(d.updated_ts||0)+')';
 }
 load(); setInterval(load, 15000);
-</script></body></html>
-"""
+</script></body></html>"""
 
 @router.get("/board/roles.html", response_class=HTMLResponse)
 async def board_roles_html():

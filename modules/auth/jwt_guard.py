@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-modules/auth/jwt_guard.py
+"""modules/auth/jwt_guard.py
 
 Yavnaya obertka dlya zaschity routov:
 - esli JWT dostupen i initsializirovan -> primenyaet jwt_required()
 - esli JWT nedostupen/ne initsializirovan:
     * ESTER_LAB_MODE=1 -> loud warning + propusk (safe-disable)
-    * obychnyy rezhim   -> 503 JWT_UNAVAILABLE (fail-closed)
-"""
+    * obychnyy rezhim -> 503 JWT_UNAVAILABLE (fail-closed)"""
 from __future__ import annotations
 
 import os
@@ -48,9 +46,7 @@ def _warn(msg: str) -> None:
 
 
 def require_jwt_or_503() -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-    """
-    Dekorator dlya zaschischennykh ruchek.
-    """
+    """Decorator for protected handles."""
 
     def deco(fn: Callable[..., Any]) -> Callable[..., Any]:
         guarded_fn = _jwt_required()(fn) if _jwt_required is not None else None

@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/usb_zt_smoke.py — bezopasnyy smoke dlya Zero-Touch bez pobochek.
+"""scripts/usb_zt_smoke.py - bezopasnyy smoke dlya Zero-Touch bez pobochek.
 
 Mosty:
 - Yavnyy (Enderton ↔ Praktika): proveryaemye shagi → predikaty istinnosti.
-- Skrytyy 1 (Ashbi ↔ Ustoychivost): ne pishem na disk — tolko nablyudaem.
+- Skrytyy 1 (Ashbi ↔ Ustoychivost): ne pishem na disk - tolko nablyudaem.
 - Skrytyy 2 (Cover&Thomas ↔ Signaly): vyvodim kompaktnyy JSON — udobno chitat glazami i parsit.
 
 Zemnoy abzats:
-Zapusti — uvidish, kakie fleshki vidny i kak by proshla podgotovka, ne trogaya faylovuyu sistemu.
-# c=a+b
-"""
+Zapusti - uvidish, kakie fleshki vidny i kak by proshla podgotovka, ne trogaya faylovuyu sistemu.
+# c=a+b"""
 from __future__ import annotations
 
 import json

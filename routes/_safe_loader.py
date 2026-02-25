@@ -25,13 +25,11 @@ def _import_module_from_path(path: Path, mod_name: str) -> ModuleType:
     return m
 
 def _try_register(app, mod: ModuleType, taken_bp_names: set, report: Dict[str, Any]) -> bool:
-    """
-    Strategiya registratsii:
-      1) esli est Blueprint v atributakh ('bp' ili 'blueprint') — registriruem,
-         no esli imya Blueprint uzhe zanyato — propuskaem (karantin duplicate_bp).
-      2) inache esli est funktsiya register(app) — vyzyvaem ee.
-      3) inache — no_entry.
-    """
+    """Strategy registratsii:
+      1) esli est Blueprint v atributakh ('bp' ili 'blueprint') - register,
+         no esli imya Blueprint uzhe zanyato - propuskaem (quarantine duplicate_bp).
+      2) inache esli est funktsiya register(app) - vyzyvaem ee.
+      3) inache - no_entry."""
     bp = None
     for attr in ("bp", "blueprint"):
         candidate = getattr(mod, attr, None)
@@ -71,7 +69,7 @@ def boot_register_all(app) -> Dict[str, Any]:
         "root": str(root),
     }
 
-    # Minimalnye vstroennye (zdorove i koren), chtoby vsegda byl 200
+    # Minimum built-in (health and root) so that it is always 200
     try:
         from .health_routes import bp as health_bp
         app.register_blueprint(health_bp)
@@ -88,7 +86,7 @@ def boot_register_all(app) -> Dict[str, Any]:
 
     taken_bp_names = set(bp.name for bp in app.blueprints.values())
 
-    # Perebor vsekh *.py v routes/, isklyuchaya sluzhebnye
+    # Enumeration of all *.in Rutes/, excluding service ones
     if routes_dir.exists():
         for p in sorted(routes_dir.glob("*.py")):
             if p.name in ("__init__.py", "_safe_loader.py", "health_routes.py", "root_minimal.py"):
@@ -98,16 +96,16 @@ def boot_register_all(app) -> Dict[str, Any]:
             if not _parse_ok(p):
                 report["skipped"]["syntax"].append(p.name)
                 continue
-            # 2) popytka importa
+            # 2) attempt to import
             try:
                 mod = _import_module_from_path(p, mod_name)
             except Exception as e:
                 report["skipped"]["import"].append(f"{p.name}: {repr(e)}")
                 continue
-            # 3) popytka registratsii
+            # 3) registration attempt
             _try_register(app, mod, taken_bp_names, report)
 
-    # Sokhranyaem otchet na disk
+    # Save the report to disk
     try:
         import json
         (root / "ester_boot_report.json").write_text(

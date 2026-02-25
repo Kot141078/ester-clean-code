@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
 # bootstrap/jwt_setup.py
-"""
-bootstrap/jwt_setup.py — idempotentnaya nastroyka JWT dlya Flask-prilozheniya.
+"""bootstrap/jwt_setup.py - idempotentnaya nastroyka JWT dlya Flask-prilozheniya.
 
-Naznachenie:
-  • Bezopasno initsializirovat flask_jwt_extended.JWTManager(app), esli on esche ne initsializirovan.
-  • Ustanovit algoritm/sekrety iz okruzheniya (HS256 po umolchaniyu); sovmestimo s konfigom iz app.py.
+Name:
+  • Safely initsializirovanat flask_jwt_extended.JWTManager(app), esli on esche ne initsializirovan.
+  • Ustanovit algoritm/sekrety iz okruzheniya (HS256 po umolchaniyu); sovmestimo s configom iz app.py.
   • Predostavit edinyy ensure_jwt(app), kotoryy mozhno smelo vyzyvat neskolko raz.
 
 Sovmestimost:
   • Esli RS256 vybran cherez peremennye, klyuchi chitayutsya iz JWT_PRIVATE_KEY_PATH/JWT_PUBLIC_KEY_PATH.
-  • Esli biblioteka nedostupna — funktsiya myagko zavershaetsya (nikakikh import-oshibok naruzhu).
+  • Esli biblioteka nedostupna - funktsiya myagko zavershaetsya (nikakikh import-oshibok naruzhu).
 
 Zemnoy abzats (inzheneriya):
-Odin vyklyuchatel dlya «shin» autentifikatsii — isklyuchaet raskhozhdeniya mezhdu modulyami, gde nuzhna JWT-podpis.
+Odin vyklyuchatel dlya "shin" autentifikatsii - isklyuchaet raskhozhdeniya mezhdu modulyami, where nuzhna JWT-podpis.
 
 Mosty:
 - Yavnyy (Kibernetika ↔ Arkhitektura): edinyy regulyator JWT-podsistemy.
-- Skrytyy 1 (Infoteoriya ↔ Interfeysy): povtornyy vyzov ne povyshaet «shum» i ne lomaet uzhe nastroennoe.
+- Skrytyy 1 (Infoteoriya ↔ Interfeysy): povtornyy vyzov ne povyshaet “shum” i ne lomaet uzhe nastroennoe.
 - Skrytyy 2 (Anatomiya ↔ PO): kak gormonalnaya regulyatsiya — odna nastroyka deystvuet na ves organizm.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -49,7 +47,7 @@ def _jwt_enabled(app) -> bool:
     cfg_enabled = app.config.get("JWT_ENABLED")
     if cfg_enabled is not None:
         return _truthy(cfg_enabled) if isinstance(cfg_enabled, str) else bool(cfg_enabled)
-    # Yavno zadannyy algoritm schitaem priznakom vklyuchennogo JWT.
+    # An explicitly defined algorithm considers it to be a sign that the gastrointestinal tract is turned on.
     if str(os.getenv("JWT_ALG", "")).strip():
         return True
     if str(app.config.get("JWT_ALGORITHM", "")).strip():

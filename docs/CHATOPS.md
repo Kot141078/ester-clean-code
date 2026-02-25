@@ -1,6 +1,6 @@
 # ChatOps
 
-## Komandy (cherez bastion/runner)
+## Teams (via Bastion/Runner)
 - `/rollout status` → `chatops_rollouts.sh status`
 - `/rollout abort` → `chatops_rollouts.sh abort`
 - `/rollout promote` → `chatops_rollouts.sh promote`

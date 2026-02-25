@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-modules/agents/game_mate_agent.py — «Igrovoy naparnik» (lokalnaya model vzaimodeystviya).
+"""modules/agents/game_mate_agent.py - “Igrovoy naparnik” (lokalnaya model vzaimodeystviya).
 
 Podderzhka:
-  - prostye poshagovye igry (tic-tac-toe, 2048-like) — raschet khoda, zapis v pamyat.
-  - rezhim «sovetchika»: vydaet plan i khod, vvod ostaetsya u polzovatelya/inogo protsessa.
+  - prostye poshagovye game (tic-tac-toe, 2048-like) - raschet khoda, zapis v pamyat.
+  - rezhim “sovetchika”: vydaet plan i khod, vvod ostaetsya u polzovatelya/inogo protsessa.
 
 Operatsii (kind):
-  - ttt_suggest  meta: {"board":[...], "me":"X|O"}   # krestiki-noliki
-  - move_note    meta: {"game":"name","move":"..."}
+  - ttt_suggest meta: {"board":[...], "me":"X|O"} # krestiki-noliki
+  - move_note meta: {"game":"name","move":"..."}
 
 MOSTY:
-- Yavnyy: (Mysl ↔ Deystvie) — khod = deystvie, prokhodit cherez safety (nizkiy risk).
+- Yavnyy: (Mysl ↔ Deystvie) - khod = deystvie, prokhodit cherez safety (low risk).
 - Skrytyy #1: (Memory ↔ Obuchenie) — khranit khody kak opyt.
-- Skrytyy #2: (Kibernetika ↔ Strategiya) — petlya: predlozhenie → otklik → retro.
+- Skrytyy #2: (Kibernetika ↔ Strategy) - petlya: predlozhenie → otklik → retro.
 
 ZEMNOY ABZATs:
-Inzhenerno — malenkiy mozg dlya igr, bez privyazki k konkretnym klientam.
-Prakticheski — Ester «podskazyvaet i igraet ryadom» bezopasnym sposobom.
+Inzhenerno - malenkiy mozg dlya igr, bez privyazki k konkretnym klientam.
+Prakticheski - Ester “podskazyvaet i igraet ryadom” bezopasnym sposobom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple
 from modules.agents.base_agent import AgentBase, Action

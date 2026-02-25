@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/backup_and_clone.py - UI/REST: bekap/vosstanovlenie nastroek + «fleshka-replika».
+"""routes/backup_and_clone.py - UI/REST: bekap/vosstanovlenie nastroek + “fleshka-replika”.
 
-Marshruty:
-  • GET  /admin/backup/legacy               - HTML
-  • GET  /admin/backup/legacy/status        - predprosmotr bandla i spisok tomov
-  • POST /admin/backup/legacy/export        - otdat JSON-bandl
-  • POST /admin/backup/legacy/import        - prinyat JSON-bandl i primenit (merge|overwrite)
-  • GET  /admin/backup/legacy/probe         - spisok semnykh tomov
-  • POST /admin/backup/legacy/clone         - sozdat ESTER/ strukturu na vybrannom tome
-  • POST /admin/backup/legacy/trust         - dobavit tom v whitelist Zero-Click
+Route:
+  • GET /admin/backup/legacy - HTML
+  • GET /admin/backup/legacy/status - predprosmotr bandla i spisok tomov
+  • POST /admin/backup/legacy/export - otdat JSON-bandl
+  • POST /admin/backup/legacy/import - prinyat JSON-bandl i primenit (merge|overwrite)
+  • GET /admin/backup/legacy/probe - spisok semnykh tomov
+  • POST /admin/backup/legacy/clone - sozdat ESTER/ strukturu na vybrannom tome
+  • POST /admin/backup/legacy/trust - add tom v whitelist Zero-Click
 
 Mosty:
 - Yavnyy (Ekspluatatsiya ↔ Bezopasnost): perenos whitelist/P2P bez ruchnoy rutiny.
@@ -17,10 +16,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): struktura ESTER/ sovmestima s Zero-Click/deploem.
 
 Zemnoy abzats:
-Odin ekran: «Snyat/Nalozhit nastroyki» i «Sobrat fleshku-repliku» - bez voprosov k polzovatelyu i bez syurprizov.
+Odin ekran: “Snyat/Nalozhit nastroyki” i “Sobrat fleshku-repliku” - bez voprosov k polzovatelyu i bez syurprizov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

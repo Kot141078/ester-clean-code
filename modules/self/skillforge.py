@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/skillforge.py — «kuznitsa navykov»: bezopasnyy chernovik faylov + stat-proverki + vypusk v staging.
+"""modules/self/skillforge.py - “kuznitsa navykov”: bezopasnyy chernovik faylov + stat-proverki + vypusk v staging.
 
 Mosty:
-- Yavnyy: (Samorazvitie ↔ Bezopasnost) vse novye fayly cherez karantin i testy.
+- Yavnyy: (Samorazvitie ↔ Bezopasnost) vse novye fayly cherez quarantine i testy.
 - Skrytyy #1: (Infoteoriya ↔ Audit) khranenie sha i otchetov testa v papke karantina.
 - Skrytyy #2: (Kibernetika ↔ Distsiplina) vypusk tolko v razreshennye katalogi i cherez stage→approve.
 
 Zemnoy abzats:
-Kak masterskaya: chertili — proverili — vynesli v predbannik — dalshe uzhe ofitsialnyy put.
+Kak masterskaya: chertili - proverili - vynesli v predbannik - dalshe uzhe ofitsialnyy put.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import base64, json, os, re
 from typing import Any, Dict
@@ -25,9 +23,7 @@ def _allowed_path(path: str) -> bool:
     return any(norm.startswith(d+"/") or norm==d for d in ALLOW)
 
 def draft(path: str, rfc: str, kind: str, content_b64: str | None = None) -> Dict[str, Any]:
-    """
-    Sozdaet chernovik v karantine. Esli content_b64 otsutstvuet — generiruem shablon.
-    """
+    """Creates a draft in quarantine. If content_b64 is missing, we generate a template."""
     if not _allowed_path(path):
         return {"ok": False, "error":"path_not_allowed"}
     if content_b64 is None:
@@ -72,9 +68,7 @@ def _make_template(path: str, kind: str, rfc: str) -> str:
     return f"// {path} - template\n"
 
 def test(qid: str) -> Dict[str, Any]:
-    """
-    Stat-proverka: dekod, dlya .py — ast.parse, zapret opasnykh tokenov; dlya route — nalichie register().
-    """
+    """Become-check: decode, for .po - ast.parse, prohibition of dangerous tokens; for route - the presence of register()."""
     try:
         from modules.quarantine.storage import QUAR_DIR  # type: ignore
     except Exception:
@@ -114,7 +108,7 @@ def apply(qid: str, reason: str = "") -> Dict[str, Any]:
         return {"ok": False, "error":"quarantine_unavailable"}
     rep = rescan(qid)
     if not rep.get("ok",False): return rep
-    # esli test ne proyden — ne vypuskaem
+    # If the test is not passed, we will not release
     try:
         from modules.quarantine.storage import QUAR_DIR  # type: ignore
         t = json.load(open(os.path.join(os.path.join(QUAR_DIR,qid),"test.json"),"r",encoding="utf-8"))

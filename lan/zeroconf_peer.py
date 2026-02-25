@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Prostoy LAN-peer: obyavlyaet Ester po mDNS i slushaet sosedey.
-Publikuem _ester._tcp.local na zadannom portu, sobiraem peer-list i pechataem JSON-slepki raz v 10s.
-"""
+Publikuem _ester._tcp.local na zadannom portu, sobiraem peer-list i pechataem JSON-slepki raz v 10s."""
 from __future__ import annotations
 
 import json

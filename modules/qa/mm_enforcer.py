@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/qa/mm_enforcer.py — skan iskhodnikov na «obkhod» fabriki pamyati (get_mm).
+"""modules/qa/mm_enforcer.py - skan iskhodnikov na “obkhod” fabriki pamyati (get_mm).
 
 Mosty:
 - Yavnyy: (Kachestvo ↔ Kontrakt) lovim pryamye initsializatsii SM/VS bez fabriki.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Nepreryvka ↔ Distsiplina) mozhno zapuskat po cron/nightly.
 
 Zemnoy abzats:
-Esli kto-to podklyuchil pamyat «napryamuyu» — uznaem i popravim.
+Esli kto-to podklyuchil pamyat “napryamuyu” - uznaem i popravim.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, re, json, time
 from typing import Any, Dict, List
@@ -44,7 +42,7 @@ def scan() -> Dict[str,Any]:
                 continue
             for pat in PATTERNS:
                 for m in re.finditer(pat, text):
-                    # esli ryadom vidim get_mm() — schitaem dopustimym
+                    # if we see het_mm() nearby, we consider it acceptable
                     window = text[max(0,m.start()-200):m.end()+200]
                     if "get_mm(" in window: 
                         continue

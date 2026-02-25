@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/p2p_consensus_routes.py - REST/UI dlya lokalnogo P2P-konsensusa.
+"""routes/p2p_consensus_routes.py - REST/UI dlya lokalnogo P2P-consensusa.
 
 MOSTY:
-- Yavnyy: (UI ↔ Konsensus) - propose/vote/get/list/verify pod edinym prefiksom.
+- Yavnyy: (UI ↔ Consensus) - propose/vote/get/list/verify pod edinym prefiksom.
 - Skrytyy #1: (Kriptografiya ↔ UX) - struktura dlya podpisey/proverok bez prinuzhdeniya k implementatsii.
 - Skrytyy #2: (Nadezhnost ↔ Offlayn) - myagkie zaglushki pri otsutstvii modules.p2p_consensus.
 
 ZEMNOY ABZATs:
-Prostoy «kvorum po mestu»: neskolko uzlov podtverzhdayut fakt bez vneshney seti. Udobno offlayn.
-# c=a+b
-"""
+Prostoy “kvorum po mestu”: neskolko uzlov podtverzhdayut fakt bez vneshney seti. Conveniently offline.
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, request, jsonify, render_template
@@ -19,7 +17,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp = Blueprint("p2p_consensus_routes", __name__, url_prefix="/p2p_consensus")
 
-# Popytka importa realnoy logiki; esli net - myagkie zaglushki
+# Trying to import real logic; if not - soft plugs
 try:
     from modules.p2p_consensus import propose, vote, get, list_ids, verify  # type: ignore
 except Exception:
@@ -62,7 +60,7 @@ def verify_():
 
 @bp.get("/admin")
 def admin():
-    # Esli shablona net - otdaem prostuyu HTML-stranitsu s ssylkami na ruchki
+    # If there is no template, we provide a simple HTML page with links to handles
     try:
         return render_template("admin_p2p.html")
     except Exception:

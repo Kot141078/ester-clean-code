@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/auto_backup.py — avtonomnyy sistemnyy bekap + mayak + sobytie.
+"""scripts/auto_backup.py - avtonomnyy sistemnyy bekap + mayak + sobytie.
 
-Ispolzovanie (systemd timer vyzyvaet bez argumentov):
+Use (systemd timer vyzyvaet bez argumentov):
     python -m scripts.auto_backup
 
-ENV (optsionalno):
-- PERSIST_DIR, BACKUP_DIR — kak v config_backup.py
-- BACKUP_BEACON_KIND      — vid sobytiya (po umolchaniyu "backup.run"/"backup.done"/"backup.fail")
-"""
+ENV (optional):
+- PERSIST_DIR, BACKUP_DIR - kak v config_backup.py
+- BACKUP_BEACON_KIND — vid sobytiya (po umolchaniyu "backup.run"/"backup.done"/"backup.fail")"""
 
 from __future__ import annotations
 
@@ -57,7 +55,7 @@ def main() -> int:
         err = {"error": str(e), "traceback": traceback.format_exc().splitlines()[-10:]}
         events_bus.append(kind_fail, err, meta=_meta(kind_fail, "fail"))
         try:
-            # Log na vsyakiy sluchay v STDERR JSON
+            # Log just in case in STUDER YSON
             sys.stderr.write(json.dumps({"ok": False, **err}, ensure_ascii=False) + "\n")
         except Exception:
             pass

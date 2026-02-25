@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/video_ingest_ui_routes.py — prostaya admin-stranitsa /admin/video: ruchnoy zapusk analiza video.
+"""routes/video_ingest_ui_routes.py - prostaya admin-stranitsa /admin/video: ruchnoy zapusk analiza video.
 
 Mosty:
-- Yavnyy: (UX v†" Konveyer) Zivoy pult nad REST: vvod, knopka, rezultat — bez obkhodnykh putey.
+- Yavnyy: (UX v†" Konveyer) Zivoy remote nad REST: vvod, knopka, rezultat - bez obkhodnykh putey.
 - Skrytyy #1: (Logika v†" Memory) Polzovatel vidit JSON Re put dampa, mozhet sopostavit s kartochkami pamyati.
-- Skrytyy #2: (Inzheneriya v†" Ekspluatatsiya) JS otdelnym faylom — legko rasshirit bez troganiya servernoy storony.
+- Skrytyy #2: (Inzheneriya v†" Ekspluatatsiya) JS otdelnym faylom — legko rasshirit bez troganiya servernoy side.
 
 Zemnoy abzats:
-Eto kak operatorskiy terminal nad liniey: odna panel, odna knopka «Zapusk», ryadom — okno protokola.
+This is how operator terminal nad liney: one panel, one button “Zapusk”, ryadom - okno protokola.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, render_template

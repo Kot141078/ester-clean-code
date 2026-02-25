@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-security/rbac_middleware.py — RBAC dlya /admin/* i optsionalno /export/*, /board/*.
-Rezhimy autentifikatsii: Basic (user/pass ili sha256-kheshi) i Token (Bearer/X-Admin-Token). Vstroennyy rate limit.
+"""security/rbac_middleware.py - RBAC dlya /admin/* i optsionalno /export/*, /board/*.
+Rezhimy autentifikatsii: Basic (user/pass or sha256-kheshi) i Token (Bearer/X-Admin-Token). Vstrennyy rate limit.
 
 MOSTY:
-- (Yavnyy) RBACMiddleware(app, ...) — edinaya prosloyka bez izmeneniya suschestvuyuschikh routov.
+- (Yavnyy) RBACMiddleware(app, ...) - edinaya prosloyka bez izmeneniya suschestvuyuschikh routov.
 - (Skrytyy #1) Gibkaya matritsa: viewer/operator/admin po prefiksam i metodam (sm. _required_role()).
 - (Skrytyy #2) Rate limit per-IP dlya zaschischennoy zony; podderzhka X-Forwarded-For.
 
 ZEMNOY ABZATs:
-Privatnye paneli i eksporty zaschischeny: roli, login/parol ili token, zaschita ot «zaliva» zaprosami — i vse bez perepisyvaniya koda.
+Privatnye paneli i eksporty zaschischeny: roli, login/parol or token, zaschita ot “zaliva” zaprosami - i vse bez perepisyvaniya koda.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import base64, os, time
@@ -34,7 +32,7 @@ def _get_client_ip(req: Request) -> str:
     return req.client.host if req.client else "0.0.0.0"
 
 def _required_role(path: str, method: str) -> Optional[str]:
-    # Yavnye pravila
+    # Explicit rules
     if path == "/admin/control.html":
         return "viewer"
     if path.startswith("/admin/runtime/env"):
@@ -135,7 +133,7 @@ class RBACMiddleware(BaseHTTPMiddleware):
             return None
         user, pwd = userpass.split(":",1)
 
-        # Kheshi imeyut prioritet
+        # Hashes have priority
         if os.getenv("ADMIN_BASIC_HASH") and verify_basic_hash(user, pwd, os.getenv("ADMIN_BASIC_HASH")):
             return "admin"
         if os.getenv("OPERATOR_BASIC_HASH") and verify_basic_hash(user, pwd, os.getenv("OPERATOR_BASIC_HASH")):

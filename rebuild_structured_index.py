@@ -34,7 +34,7 @@ def _rebuild(path: str) -> None:
     sm = StructuredMemory(path)
     fixed = sm.heal()
 
-    # Polnaya peresborka indeksa ryadom s pamyatyu (kollektsiya obychno 'structured_mem')
+    # Complete rebuild of the index next to memory (the collection is usually structured)
     sm.vstore.docs = {}
     count = 0
     for user, entries in (sm.memory or {}).items():
@@ -63,12 +63,12 @@ def main():
     g.add_argument("--path", help="Polnyy put k ester_memory.json")
     g.add_argument(
         "--dir",
-        help="Direktoriya, gde lezhit pamyat (skript sam naydet ester_memory*.json)",
+        help="Directory where the memory is located (the script itself will find ester_memory*.zhsion)",
     )
     g.add_argument(
         "--auto",
         action="store_true",
-        help="Vzyat direktoriyu iz config.PERSIST_DIR i iskat tam fayl pamyati",
+        help="Take the directory from config.PERSIST_HOLES and look for the memory file there",
     )
 
     args = ap.parse_args()
@@ -87,12 +87,12 @@ def main():
             d = os.path.abspath(PERSIST_DIR)
             mem_path = _find_memory_file(d) or os.path.join(d, "ester_memory.json")
         except Exception as e:
-            print(f"[!] Ne udalos prochitat config.PERSIST_DIR: {e}")
+            print(f"y!sch Failed to read config.PERSIST_DIR: ZZF0Z")
             sys.exit(2)
 
     if not mem_path:
         print(
-            "[!] Ne nashli fayl pamyati. Ukazhi --path ili --dir, libo ispolzuy --auto pri korrektnom PERSIST_DIR."
+            "y!sh The memory file was not found. Specify --path or --dir, or use --auto if PERSIST_DIR is correct."
         )
         sys.exit(2)
 

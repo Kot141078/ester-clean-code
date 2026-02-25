@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/semantics_routes.py - REST/UI dlya ontologicheskogo kesha.
+"""routes/semantics_routes.py - REST/UI dlya ontologicheskogo kesha.
 
 Mosty:
 - Yavnyy: (UI ↔ Ontologiya) - CRUD terminov i reconcile teksta.
@@ -8,9 +7,8 @@ Mosty:
 - Skrytyy 2: (Dannye ↔ Spravochnik) - ontologiya khranitsya ryadom s sostoyaniem i ne lomaet suschestvuyuschie parsery.
 
 Zemnoy abzats:
-Forma, gde mozhno dobavit termin, sinonimy i na letu «primirit» lyuboy tekst so slovarem.
-Udobno pered rassylkami i otchetami, chtoby terminologiya ne «plavala».
-"""
+Forma, where mozhno dobavit termin, sinonimy i na letu “primirit” lyuboy tekst so slovarem.
+Udobno pered rassylkami i otchetami, chtoby terminologiya ne “plavala”."""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request, render_template
@@ -51,7 +49,7 @@ def rec():
 
 @bp.get("/admin")
 def admin():
-    # prostoy self-contained HTML bez otdelnogo shablona
+    # simple self-contained HTML without a separate template
     return render_template("admin_semantics.html")
 
 def register(app):

@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-modules/mem/affect_priority.py — prioritezatsiya pamyati s uchetom affekta.
+"""modules/mem/affect_priority.py - prioritezatsiya pamyati s uchetom affectta.
 
 Mosty:
 - Yavnyy: (Emotsii ↔ Vspominanie) vysokiy affekt podnimaet shans kratkoy refleksii i vsplytiya v otvetakh.
 - Skrytyy #1: (Profile ↔ Prozrachnost) pishem svodku o raspredelenii affektov i otsechenii.
-- Skrytyy #2: (RAG ↔ Kachestvo) top-zapisi mozhno dokleivat k prompt kak «kontekst nastroeniya».
+- Skrytyy #2: (RAG ↔ Kachestvo) top-zapisi mozhno dokleivat k prompt kak “kontekst nastroeniya”.
 - Novoe: (Mesh/P2P ↔ Raspredelennost) sinkhronizatsiya vesov affekta mezhdu agentami Ester.
 - Novoe: (Cron ↔ Avtonomiya) avto-obnovlenie i chistka vesov dlya svezhesti.
 - Novoe: (Monitoring ↔ Prozrachnost) webhook na high-affekt sobytiya dlya audita.
 
 Zemnoy abzats:
-Eto kak «zakladka» na emotsionalno vazhnoy stranitse, no s setyu: takie mesta nakhodish bystree, delishsya po P2P, obnovlyaesh po cron — i pamyat Ester vsegda zhiva, bez zabytykh chuvstv.
+Eto kak "zakladka" na emotsionalno vazhnoy stranitse, no s setyu: takie mesta nakhodish bystree, delishsya po P2P, obnovlyaesh po cron - i pamyat Ester vsegda zhiva, bez zabytykh chuvstv.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, math, statistics
 from typing import Any, Dict, List
@@ -142,7 +140,7 @@ def prioritize(items: List[Dict[str, Any]], top_k: int = 20) -> Dict[str, Any]:
     cron_update()
     now = time.time()
     if items:
-        # On-fly dlya spiska
+        # He-fly for the list
         scored = [( _score(it, now), it) for it in items or []]
         scored.sort(key=lambda x: x[0], reverse=True)
         top = [dict(it[1], _score=round(it[0], 6)) for it in scored[:max(1, int(top_k))]]

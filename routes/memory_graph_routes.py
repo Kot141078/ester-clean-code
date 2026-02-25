@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/memory_graph_routes.py - REST/UI dlya grafa pamyati.
+"""routes/memory_graph_routes.py - REST/UI dlya grafa pamyati.
 
 Ruchki:
   GET /memory_graph/data
   GET /memory_graph/search?q=...
   GET /admin/memory_graph
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.memory.graph import build_graph, filter_graph

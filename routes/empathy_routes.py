@@ -68,11 +68,11 @@ class _EmpathyModule:
         if any(m in lower for m in negative_markers):
             tone = "negative"
             style = "empathetic"
-            prefix = "Ponimayu, chto eto nepriyatno. Davay spokoyno razberem i ispravim. "
+            prefix = "I understand that this is unpleasant. Let's calmly take it apart and fix it."
         elif any(m in lower for m in positive_markers):
             tone = "positive"
             style = "warm"
-            prefix = "Spasibo za obratnuyu svyaz. "
+            prefix = "Thanks for your feedback."
 
         result = {
             "tone": tone,
@@ -93,7 +93,7 @@ class _EmpathyModule:
         return f"{prefix}{base}{suffix}".strip()
 
     def suggest_improvement(self) -> str:
-        return "Esli khochesh, mogu predlozhit bolee myagkiy i korotkiy variant otveta."
+        return "If you want, I can offer a softer and shorter answer."
 
 
 _modules_by_user: Dict[str, _EmpathyModule] = {}

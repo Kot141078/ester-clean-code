@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_rag.py — eksheny dlya RAG i kvot ingest.
+"""modules/thinking/actions_rag.py - eksheny dlya RAG i kvot ingest.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Poisk/Kvoty) mozg mozhet sam vyzyvat gibridnyy poisk i proveryat baket.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (RAG ↔ KG) mozhno podavat teksty, sformirovannye iz KG/pamyati.
 
 Zemnoy abzats:
-V stsenariyakh mysli teper est kirpichiki «poisk» i «proverka topliva».
+V stsenariyakh mysli teper est kirpichiki “poisk” i “check topliva”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-modules/admin/demo_installer.py — odin klik, chtoby vklyuchit «rezhim demonstratsii».
+"""modules/admin/demo_installer.py - odin klik, chtoby vklyuchit “rezhim demonstratsii”.
 
 Delaet:
 - Ustanavlivaet presety vorkflou/igrovykh profiley i miks.
 - Vklyuchaet Content-Guard (min_fps, require_visible).
-- Sozdaet prostoy pleylist vnimaniya «demo».
-- Optsionalno zapuskaet missiyu/pleylist.
+- Sozdaet prostoy pleylist vnimaniya “demo”.
+- Optionalno zapuskaet missiyu/pleylist.
 
 MOSTY:
 - Yavnyy: (Podgotovka ↔ Pokaz) odna knopka sobiraet rabochuyu stsenu.
 - Skrytyy #1: (Infoteoriya ↔ UX) determinirovannyy nabor deystviy snizhaet entropiyu startovoy sessii.
-- Skrytyy #2: (Kibernetika ↔ Volya) Ester sama «rezhissiruet» demo posle tvoego soglasiya.
+- Skrytyy #2: (Kibernetika ↔ Volya) Ester sama “rezhissiruet” demo posle tvoego soglasiya.
 
 ZEMNOY ABZATs:
 Tolko lokalnye REST-vyzovy i JSON-fayly. Nikakikh vneshnikh zavisimostey.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import http.client, json
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -47,7 +45,7 @@ def quick_install() -> dict:
     res["mix"] = _post("/profiles/mix/create", {"name":"mix_demo","layers":["Editor_notepad","FPS_basic"]})
     # Content-Guard
     res["guard"] = _post("/guard/set", {"min_fps": 20, "require_visible": True, "manual_pause": False})
-    # pleylist vnimaniya (korotkiy)
+    # attention playlist (short)
     playlist = {
       "name":"demo",
       "items":[

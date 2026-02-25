@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-routes/rag_doc_routes.py — vspomogatelnye ruchki dlya prosmotra syrykh dokumentov RAG.
+"""routes/rag_doc_routes.py - vspomogatelnye ruchki dlya prosmotra syrykh dokumentov RAG.
 
 MOSTY:
 - Yavnyy: (Veb ↔ Memory) GET /rag/hybrid/doc vozvraschaet srez teksta po id iz docs.jsonl ili po pryamomu puti.
-- Skrytyy №1: (Indeks ↔ FS) pri promakhe po indeksu pytaemsya doindeksirovat docs.jsonl i esche raz nayti id.
-- Skrytyy №2: (FS ↔ Baypas) esli id pokhozh na put i fayl suschestvuet — chitaem fayl napryamuyu, keshiruya ego v protsesse.
+- Skrytyy No. 1: (Indeks ↔ FS) pri promakhe po indeksu pytaemsya doindeksirovat docs.jsonl i esche raz nayti id.
+- Skrytyy No. 2: (FS ↔ Baypas) esli id ​​pokhozh na put i fayl suschestvuet - chitaem fayl napryamuyu, keshiruya ego v protsesse.
 
 ZEMNOY ABZATs (inzheneriya/anatomiya):
-Eto «endoskop» v syruyu dokumentnuyu pamyat. Kak tekhnik: mozhno rukami proverit, chto RAG realno chitaet te fayly,
-kotorye lezhat na diske, bez uchastiya modeley i «magii» poverkh.
-Format indeksa: JSONL, po stroke na dokument vida {"id": "...", "text": "...", "meta": {...}}.
-# c = a + b
-"""
+Eto "endoskop" v syruyu dokumentnuyu pamyat. Kak tekhnik: mozhno rukami proverit, chto RAG realno chitaet te fayly,
+kotorye lezhat na diske, bez uchastiya modeley i “magii” poverkh.
+Format index: JSONL, po stroke na document vida {"id": "...", "text": "...", "meta": {...}}.
+# c = a + b"""
 
 import os
 import json
@@ -34,7 +32,7 @@ _DOCS: Dict[str, Tuple[str, Dict[str, Any]]] = {}   # original_id -> (text, meta
 _NORM_INDEX: Dict[str, str] = {}                    # norm_key -> original_id
 _LOADED: bool = False
 
-# Upravlyayuschie simvoly (vklyuchaya \r \n \t \x00)
+# Control characters (including er en et ex00)
 _WS_RE = re.compile(r"[\u0000-\u001F\u007F]+")
 
 
@@ -54,9 +52,7 @@ def _norm_key(s: str) -> str:
 
 
 def _clean_id_param(raw: Optional[str]) -> str:
-    """
-    strip → unquote → vykinut upravlyayuschie → snyat kavychki → normpath/normcase
-    """
+    """strip → unquote → vykinut upravlyayuschie → snyat kavychki → normpath/normcase"""
     if raw is None:
         return ""
     s = str(raw).strip()
@@ -160,7 +156,7 @@ def _lookup_by_id_any_form(id_param: str) -> Optional[Tuple[str, Dict[str, Any],
     _ensure_loaded()
     key = _norm_key(id_param)
 
-    # 1) po normalizovannomu klyuchu
+    # 1) by normalized key
     with _DOCS_LOCK:
         oid = _NORM_INDEX.get(key)
         if oid:
@@ -178,7 +174,7 @@ def _lookup_by_id_any_form(id_param: str) -> Optional[Tuple[str, Dict[str, Any],
                 text, meta = _DOCS[oid]
                 return text, meta, oid
 
-    # 3) pryamoe chtenie fayla po puti (baypas indeksa)
+    # 3) direct reading of the file along the path (index bypass)
     for p in (id_param, os.path.abspath(id_param)):
         try:
             if os.path.exists(p) and os.path.isfile(p):
@@ -212,20 +208,18 @@ def _i(name: str, default: int) -> int:
         return default
 
 
-# ------------------ Publichnye marshruty ------------------
+# ------------------ Public routes ------------------
 
 @bp.get("/rag/hybrid/doc")
 def get_doc_slice():
-    """
-    GET /rag/hybrid/doc
-      ?id=...                # obyazatelnyy: id iz docs.jsonl ILI pryamoy put k faylu
-      &start=0               # rezhim SREZA
+    """GET /rag/hybrid/doc
+      ?id=... # obyazatelnyy: id iz docs.jsonl ILI pryamoy put k faylu
+      &start=0 # rezhim SREZA
       &max_chars=2000
-      &q=...                 # rezhim «OKNO» vokrug frazy
+      &q=... # rezhim “OKNO” vokrug frazy
       &window_before=200
       &window_after=400
-      &include_meta=1
-    """
+      &include_meta=1"""
     raw_id = request.args.get("id")
     id_param = _clean_id_param(raw_id)
     if not id_param:
@@ -253,8 +247,8 @@ def get_doc_slice():
         src = text
         idx = src.lower().find(q.lower())
         if idx < 0:
-            # PATCh: ne shlem 404, chtoby PowerShell/iwr ne padali.
-            # Vozvraschaem 200 + ok:false i diagnosticheskie polya.
+            # Patch: no helmet 404 so that PowerShell/Ivr don't fall.
+            # We return 200 + ok: false and diagnostic fields.
             return jsonify({
                 "ok": False,
                 "error": "q not found",

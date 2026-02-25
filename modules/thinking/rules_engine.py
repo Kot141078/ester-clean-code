@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/rules_engine.py — dvizhok pravil «voli»: sobytiya/patterny → eksheny.
+"""modules/thinking/rules_engine.py - dvizhok pravil “voli”: sobytiya/patterny → eksheny.
 
 Mosty:
-- Yavnyy: (Sobytiya ↔ Eksheny) edinyy sloy: «esli … to …» dlya vnutrennikh protsessov.
+- Yavnyy: (Sobytiya ↔ Eksheny) edinyy sloy: “esli... to...” dlya vnutrennikh protsessov.
 - Skrytyy #1: (Profile ↔ Audit) vypolnenie pravil shtampuetsya, udobno razbirat posledstviya.
-- Skrytyy #2: (Cron/Watch ↔ Avtonomiya) pravila mozhno dergat po raspisaniyu i ot skanera papok.
+- Skrytyy #2: (Cron/Watch ↔ Avtonomiya) pravila mozhno dergat po raspisaniyu i ot scanera papok.
 
 Zemnoy abzats:
-Eto «rele»: nashla povod — zamknula tsep — vypolnila nuzhnye deystviya. Bez demonov, po knopke ili po kronu.
+This is “rele”: nashla povod - zamknula tsep - vypolnila nuzhnye deystviya. Bez demonov, po knopke or po kronu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, fnmatch
 from typing import Any, Dict, List
@@ -45,7 +43,7 @@ def _passport(note: str, meta: Dict[str,Any]):
         pass
 
 def _action_call(name: str, args: Dict[str,Any])->Dict[str,Any]:
-    # vyzov cherez HTTP k uzhe suschestvuyuschim ruchkam (universalno)
+    # call via HTTP to existing handles (universal)
     try:
         import urllib.request, json as _j
         route_map={

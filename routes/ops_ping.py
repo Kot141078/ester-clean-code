@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ops_ping.py — prostye sluzhebnye endpointy operatsionnogo urovnya.
+"""routes/ops_ping.py — prostye sluzhebnye endpointy operatsionnogo urovnya.
 
-Marshruty:
-  • GET  /ops/ping — {"ok": true, "node_id": "...", "ts": ...}
-  • POST /ops/echo — {"ok": true, "received": <json>}
+Route:
+  • GET /ops/ping - {"ok": true, "node_id": "...", "ts": ...}
+  • POST /ops/echo - {"ok": true, "received": <json>}
 
 Mosty:
-- Yavnyy (Kibernetika v†" Svyaz): bazovye refleksy «zhiv?» Re «slyshu/povtoryayu».
-- Skrytyy 1 (Infoteoriya v†" Nadezhnost): minimum poley v†' maksimum primenimosti (LAN test/skleyka).
+- Yavnyy (Kibernetika v†" Svyaz): bazovye refleksy “zhiv?” Re "slyshu/povtoryayu".
+- Skrytyy 1 (Infoteoriya v†" Nadezhnost): minimum poley v†' maximum primenimosti (LAN test/skleyka).
 - Skrytyy 2 (Praktika v†" Vezopasnost): zagolovok X-Ester-Cluster mozhet ispolzovatsya dlya filtratsii (esli nuzhen).
 
 Zemnoy abzats:
-Eto «kardiogramma i povtorenie frazy»: proverit, chto uzel zhiv i chto my mozhem dostavit JSON «kak est».
+Eto “kardiogramma i povtorenie frazy”: proverit, chto uzel zhiv i chto my mozhem dostavit JSON “kak est”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import time

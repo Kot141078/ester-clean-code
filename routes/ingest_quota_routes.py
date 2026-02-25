@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ingest_quota_routes.py - REST: status/spisanie/penalize dlya ingest-baketov.
+"""routes/ingest_quota_routes.py - REST: status/spisanie/penalize dlya ingest-baketov.
 
 Mosty:
 - Yavnyy: (Veb ↔ Kvoty) tsentralizovannyy kontrol nagruzki.
-- Skrytyy #1: (MediaMind ↔ Spravedlivost) media.watch/ingest mogut proveryat kvoty.
+- Skrytyy #1: (MediaMind ↔ Spravedlivost) media.watch/ingest can proveryat kvoty.
 - Skrytyy #2: (Planirovschik ↔ Metriki) udoben dlya grafikov.
 
 Zemnoy abzats:
-Smotrim, u kogo skolko «topliva», i vydaem po norme.
+Smotrim, u kogo skolko “topliva”, i vydaem po norme.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

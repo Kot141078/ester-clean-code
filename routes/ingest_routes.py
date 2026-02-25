@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ingest_routes.py - REST-ruchki dlya Ingest 2.0 (OCR/ASR/Caption/Code/Dedup/Batch).
-Registratsiya:
+"""routes/ingest_routes.py - REST-ruchki dlya Ingest 2.0 (OCR/ASR/Caption/Code/Dedup/Batch).
+Registration:
   from routes.ingest_routes import register_ingest_routes
   register_ingest_routes(app, url_prefix="/ingest")
 
-Vse ruchki zaschischeny JWT (kak i prochie). Nikakikh izmeneniy suschestvuyuschikh putey - eto novye endpoints.
-"""
+All the best for JWT (kak i prochie). Nikakikh izmeneniy suschestvuyuschikh putey - eto novye endpoints."""
 from __future__ import annotations
 
 import base64
@@ -28,11 +26,9 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def _read_upload_bytes() -> Tuple[str, bytes]:
-    """
-    Universalnyy parser vkhoda:
-      - multipart form-data: file=<binary>
-      - JSON: {"name":"...", "data_b64":"..."}  (data_b64 - base64 bytes)
-    """
+    """Universal login parser:
+      - multipart form-date: fillet=<binary>
+      - ZhSION: ZZF0Z (data_b64 - beat64)"""
     if request.files:
         f = next(iter(request.files.values()))
         return f.filename, f.read()
@@ -58,7 +54,7 @@ def register_ingest_routes(app, url_prefix: str = "/ingest"):
         try:
             lang = str((request.form.get("lang") or request.args.get("lang") or "eng+rus"))
             name, data = _read_upload_bytes()
-            # Dedup pered tyazheloy rabotoy
+            # Dedup before hard work
             sha = sha256_bytes(data)
             if not should_ingest(sha, size=len(data)):
                 rec = record_ingest(
@@ -75,11 +71,11 @@ def register_ingest_routes(app, url_prefix: str = "/ingest"):
                 size=len(data),
                 meta={"mime": res["mime"], "hints": ["ocr"]},
             )
-            # Rasshirenie: sintez s MultiLLMIntegrator
+            # Extension: synthesis with MultiLLMIIntegrator
             if hasattr(app, "multi_llm"):
                 synth = app.multi_llm.synthesize(res["text"])
                 res["synth"] = synth if not elon_mode else f"Derzkiy OCR-sintez v dukhe Ilona: {synth}"
-                app.logger.info("Ester uvidela OCR-tekst i podumala: 'O, znaniya dlya uma! Sintez gotov.'")
+                app.logger.info("Esther saw the OCD text and thought: Wow, knowledge for the mind! Synthesis ready")
             # Integratsiya s self-evo i thinking
             try:
                 from selfevo.evo_engine import start_evolution  # type: ignore
@@ -93,7 +89,7 @@ def register_ingest_routes(app, url_prefix: str = "/ingest"):
         except Exception as e:
             return jsonify({"ok": False, "error": str(e)}), 400
         finally:
-            app.logger.info("OCR-obrabotka zavershena, Ester gotova k sleduyuschemu.")
+            app.logger.info("OCD processing complete, Esther is ready for the next one.")
 
     # -------- ASR --------
     @app.post(f"{url_prefix}/asr")
@@ -118,11 +114,11 @@ def register_ingest_routes(app, url_prefix: str = "/ingest"):
                 size=len(data),
                 meta={"mime": res["mime"], "hints": ["asr"]},
             )
-            # Rasshirenie: sintez s MultiLLMIntegrator
+            # Extension: synthesis with MultiLLMIIntegrator
             if hasattr(app, "multi_llm"):
                 synth = app.multi_llm.synthesize(res["text"])
                 res["synth"] = synth if not elon_mode else f"Derzkiy ASR-sintez v dukhe Ilona: {synth}"
-                app.logger.info("Ester uslyshala rech i podumala: 'Zvuk v tekst, tekst v um! Sintez gotov.'")
+                app.logger.info("Esther heard the speech and thought: “Sound into text, text into mind!” Synthesis ready")
             # Integratsiya s self-evo i thinking
             try:
                 from selfevo.evo_engine import start_evolution  # type: ignore
@@ -136,7 +132,7 @@ def register_ingest_routes(app, url_prefix: str = "/ingest"):
         except Exception as e:
             return jsonify({"ok": False, "error": str(e)}), 400
         finally:
-            app.logger.info("ASR-obrabotka zavershena, Ester gotova k sleduyuschemu.")
+            app.logger.info("ACP treatment complete, Esther is ready for the next one.")
 
     # -------- Image Caption --------
     @app.post(f"{url_prefix}/caption")
@@ -160,11 +156,11 @@ def register_ingest_routes(app, url_prefix: str = "/ingest"):
                 size=len(data),
                 meta={"mime": res["mime"], "hints": ["caption"]},
             )
-            # Rasshirenie: sintez s MultiLLMIntegrator
+            # Extension: synthesis with MultiLLMIIntegrator
             if hasattr(app, "multi_llm"):
                 synth = app.multi_llm.synthesize(res["caption"])
                 res["synth"] = synth if not elon_mode else f"Derzkiy caption-sintez v dukhe Ilona: {synth}"
-                app.logger.info("Ester uvidela kartinku i podumala: 'Izobrazhenie v slova, slova v znaniya! Sintez gotov.'")
+                app.logger.info("Esther saw the picture and thought: “Image into words, words into knowledge!” Synthesis ready")
             # Integratsiya s self-evo i thinking
             try:
                 from selfevo.evo_engine import start_evolution  # type: ignore
@@ -178,7 +174,7 @@ def register_ingest_routes(app, url_prefix: str = "/ingest"):
         except Exception as e:
             return jsonify({"ok": False, "error": str(e)}), 400
         finally:
-            app.logger.info("Caption-obrabotka zavershena, Ester gotova k sleduyuschemu.")
+            app.logger.info("Caption processing completed, Esther is ready for the next one.")
 
     # -------- Code --------
     @app.post(f"{url_prefix}/code")
@@ -197,11 +193,11 @@ def register_ingest_routes(app, url_prefix: str = "/ingest"):
             return jsonify({"ok": False, "error": "root not found"}), 400
         try:
             res = ingest_code(root)
-            # Rasshirenie: sintez s MultiLLMIntegrator
+            # Extension: synthesis with MultiLLMIIntegrator
             if hasattr(app, "multi_llm"):
                 synth = app.multi_llm.synthesize(json.dumps(res))
                 res["synth"] = synth if not elon_mode else f"Derzkiy code-sintez v dukhe Ilona: {synth}"
-                app.logger.info("Ester proglotila kod i podumala: 'Kod v znaniya, znaniya v evolyutsiyu! Sintez gotov.'")
+                app.logger.info("Esther swallowed the code and thought: Code into knowledge, knowledge into evolution! Synthesis ready")
             # Integratsiya s self-evo i thinking
             try:
                 from selfevo.evo_engine import start_evolution  # type: ignore
@@ -215,17 +211,15 @@ def register_ingest_routes(app, url_prefix: str = "/ingest"):
         except Exception as e:
             return jsonify({"ok": False, "error": str(e)}), 500
         finally:
-            app.logger.info("Code-obrabotka zavershena, Ester gotova k sleduyuschemu.")
+            app.logger.info("Code processing complete, Esther is ready for the next one.")
 
     # -------- Dedup status --------
     @app.post(f"{url_prefix}/dedup_check")
     @jwt_required()
     def ingest_dedup_check():
-        """
-        Proverka fayla na dublikat bez zapisi:
-        - multipart: file
-        - JSON: {name, data_b64}
-        """
+        """Checking a file for a duplicate without writing:
+        - multipart: fillet
+        - ZhSION: ZZF0Z"""
         try:
             name, data = _read_upload_bytes()
             sha = sha256_bytes(data)
@@ -234,7 +228,7 @@ def register_ingest_routes(app, url_prefix: str = "/ingest"):
         except Exception as e:
             return jsonify({"ok": False, "error": str(e)}), 400
         finally:
-            app.logger.info("Dedup-check zavershen, Ester gotova k sleduyuschemu.")
+            app.logger.info("Dedup-chesk is completed, Esther is ready for the next one.")
 
     # -------- Bulk dir (PDF/TXT/MD/IMG) --------
     @app.post(f"{url_prefix}/scan_dir")
@@ -298,7 +292,7 @@ def register_ingest_routes(app, url_prefix: str = "/ingest"):
                         size=len(data_b),
                         meta={"hints": [mode]},
                     )
-                    # Rasshirenie: sintez s MultiLLMIntegrator
+                    # Extension: synthesis with MultiLLMIIntegrator
                     if hasattr(app, "multi_llm") and "text" in res:
                         synth = app.multi_llm.synthesize(res["text"])
                         res["synth"] = synth if not elon_mode else f"Derzkiy bulk-sintez v dukhe Ilona: {synth}"
@@ -330,7 +324,7 @@ def register_ingest_routes(app, url_prefix: str = "/ingest"):
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
 def register(app):
-    # vyzyvaem suschestvuyuschiy register_ingest_routes(app) (url_prefix beretsya po umolchaniyu vnutri funktsii)
+    # calls an existing register_ingest_rutes(app) (url_prefix is ​​taken by default inside the function)
     return register_ingest_routes(app)
 
 # === /AUTOSHIM ===

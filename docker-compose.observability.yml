@@ -2,10 +2,10 @@ version: "3.9"
 
 # Lokalnyy stek nablyudaemosti: Prometheus + Grafana + OTel Collector.
 # Scrape tseli:
-#  - Ester (http://host.docker.internal:5000/metrics/prom) — dlya lokalnogo dev-servera
+#  - Esther (http://nost.docker.internal:5000/matrix/prom) - for the local dev server
 # Porty:
 #  - Prometheus: 9090
-#  - Grafana:    3000  (login/parol: admin / admin, mozhno pereopredelit cherez ENV)
+#  - Grafana: 3000 (login/password: admin / admin, can be overridden via ENV)
 #  - OTLP:       4317 (gRPC), 4318 (HTTP)
 
 services:

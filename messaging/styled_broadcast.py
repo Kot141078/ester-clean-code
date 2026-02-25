@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/styled_broadcast.py — obertka nad messaging.broadcast s gruppovym stilem.
+"""messaging/styled_broadcast.py - obertka nad messaging.broadcast s gruppovym stilem.
 
 MOSTY:
 - (Yavnyy) send_styled_broadcast(keys, intent, adapt_kind=None) → ispolzuet styler i vyzyvaet iskhodnyy send_broadcast().
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Esli styler ne mozhet postroit profil — peredaet iskhodnyy intent.
 
 ZEMNOY ABZATs:
-Dazhe v obschem chate odno i to zhe soobschenie zvuchit «pod auditoriyu», ostavayas odnim tekstom dlya vsey gruppy.
+Dazhe v obschem chat odno i to zhe soobschenie zvuchit “pod auditoriyu”, ostavayas odnim tekstom dlya vsey gruppy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import List, Optional

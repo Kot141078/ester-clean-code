@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ester/self_mod_schema.py
+"""modules/ester/self_mod_schema.py
 
 Skhema i validatsiya predlozheniy samoizmeneniya Ester.
 
-Naznachenie:
-- Opisat dopustimyy format "predlozheniy izmeneniy" ot Ester ili operatora.
-- Garantirovat:
-  - tolko novye fayly ili bezopasnye alternativy,
+Name:
+- Opisat dopustimyy format "predlozheniy izmeneniy" ot Ester or operatora.
+-Garantirovat:
+  - tolko novye fayly or bezopasnye alternativy,
   - zapret kriticheskikh putey,
-  - otsutstvie skrytykh sayd-effektov.
+  - otsutstvie skrytykh said-effektov.
 
 Mosty:
 - Yavnyy: self_mod_schema ↔ self_mod_executor.
 - Skrytyy #1: self_mod_schema ↔ self_identity (uchet invariantov).
-- Skrytyy #2: self_mod_schema ↔ will_planner (predlozheniya ot voli v formate schema).
+- Skrytyy #2: self_mod_schema ↔ will_planner (predlozheniya ot voli v formatted schema).
 
 Zemnoy abzats:
-Eto kak tekhzadanie i chek-list pered modernizatsiey stanka:
-bez nego nikto ne beret v ruki bolgarku vozle nesuschey balki.
-"""
+This is how tekhzadanie i chek-list pered modernizatsiey stanka:
+bez nego nikto ne beret v ruki bolgarku vozle nesuschey balki."""
 
 from __future__ import annotations
 
@@ -47,13 +45,13 @@ FORBIDDEN_PREFIXES = [
     "..\\",
 ]
 
-# Zhestkiy zapret pravok etikh faylov/zon (yadro i UI).
+# Strict ban on editing these files/zones (kernel and UI).
 FORBIDDEN_EXACT = {
     "modules/thinking/cascade.py",
     "templates/portal.html",
 }
 
-# Razreshennye bazovye direktorii dlya novykh faylov.
+# Allowed base directories for new files.
 ALLOWED_ROOTS = (
     "modules/ester/",
     "modules/will/",
@@ -117,8 +115,7 @@ def check_fs_conflicts(root_dir: str, proposal: Proposal) -> List[str]:
 
     Politika:
     - Po umolchaniyu razreshaem tolko sozdanie novykh faylov.
-    - Esli fayl uzhe suschestvuet — schitaem eto konfliktom.
-    """
+    - Esli fayl uzhe suschestvuet - schitaem eto konfliktom."""
     errors: List[str] = []
     for ch in proposal.changes:
         target = os.path.join(root_dir, ch.path)

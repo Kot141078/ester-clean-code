@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_code.py — eksheny «voli» vokrug izmeneniy koda.
+"""modules/thinking/actions_code.py - eksheny “voli” vokrug izmeneniy koda.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Kod) mozg mozhet sformirovat dry-run i podgotovit guarded_apply.
-- Skrytyy #1: (Ostorozhnost ↔ HTTP) samo primenenie — tolko cherez zaschischennuyu ruchku.
+- Skrytyy #1: (Ostorozhnost ↔ HTTP) same primenenie — tolko cherez zaschischennuyu ruchku.
 - Skrytyy #2: (LLM ↔ Podskazki) optsionalno prosim LLM szhat plan izmeneniy.
 
 Zemnoy abzats:
-Inzhenernyy assistent vnutri Ester: «posmotri, chto pomenyaem» i «gotovo k primeneniyu, zhdu klyuch».
+Inzhenernyy assistent vnutri Ester: “look, chto pomenyaem” i “gotovo k primeneniyu, zhdu klyuch.”
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -28,7 +26,7 @@ def _reg():
     register("self.guard.dry", {"changes":"list"}, {"ok":"bool","plan":"list"}, 8, a_dry)
 
     def a_apply(args: Dict[str,Any]):
-        # Primenenie dolzhno idti cherez HTTP s «pilyuley», vozvraschaem podskazku
+        # The application must go through HTTP with a “pill”, we return the hint
         return {"ok": True, "hint":"use /self/codegen/guarded_apply with ?pill=...", "changes": args.get("changes"), "tests": args.get("tests"), "note": args.get("note","")}
     register("self.guard.apply", {"changes":"list","tests":"list","note":"str"}, {"ok":"bool"}, 3, a_apply)
 

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-middleware/integrity_guard.py — okhrannik tselostnosti: trebuet korrektnuyu podpis .sig.json pri registratsii moduley (v A-rezhime).
+"""middleware/integrity_guard.py - okhrannik tselostnosti: trebuet korrektnuyu podpis .sig.json pri registratsii moduley (v A-rezhime).
 
 Mosty:
 - Yavnyy: (Bezopasnost ↔ Rasshiryaemost) ne podklyuchaem modul, esli net podpisi.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Kibernetika ↔ A/B) myagkiy rezhim B (log) — ne blokiruet.
 
 Zemnoy abzats:
-«Bez pechati — ne pustim v sistemu»: zaschita ot podsovyvaemykh faylov.
+“Bez pechati - ne pustim v sistemu”: zaschita ot podsovyvaemykh faylov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, re
 from typing import Any, Dict
@@ -41,7 +39,7 @@ def _verify_sig_file(py_module_path: str) -> Dict[str,Any]:
 def guard():
     if not ENFORCE and AB!="A":
         return None
-    # proveryaem tolko /app/discover/register
+    # we check only /app/discover/register
     if request.path != "/app/discover/register" or request.method != "POST":
         return None
     d = request.get_json(silent=True) or {}

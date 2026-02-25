@@ -1,19 +1,17 @@
 
 # -*- coding: utf-8 -*-
-"""
-sitecustomize.py — robust runtime shim for Ester (autoloaded by Python).
+"""sitecustomize.py - robust runtime shim for Ester (autoloaded by Python).
 Mosty:
-- Yavnyy: Staryy discover ↔ routy (aliasy scan_modules/get_status).
+- Yavnyy: Staryy discover ↔ routey (aliasy scan_modules/get_status).
 - Skrytyy #1: jupytext(...) → flask.jsonify(...).
 - Skrytyy #2: ENV-most LMSTUDIO_BASE_URL ← LMSTUDIO_URL.
 Zemnoy abzats: kladem etot fayl tak, chtoby on garantirovanno podkhvatyvalsya dazhe esli start idet iz tools/.
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 import os, sys, importlib, types
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Marker, chtoby mozhno bylo proverit zagruzku
+# A marker so you can check the download
 os.environ.setdefault("ESTER_SITE_HOOK", "1")
 
 # --- jupytext → jsonify ---
@@ -37,7 +35,7 @@ except Exception:
 if not os.getenv("LMSTUDIO_BASE_URL") and os.getenv("LMSTUDIO_URL"):
     os.environ["LMSTUDIO_BASE_URL"] = os.environ["LMSTUDIO_URL"]
 
-# --- Patch discover (neskolko vozmozhnykh putey) ---
+# --- Patch discovery (several possible paths) ---
 _TARGETS = [
     "modules.app.discover",
     "ester.modules.app.discover",
@@ -55,12 +53,12 @@ def _patch_discover_module(m: types.ModuleType) -> None:
     except Exception:
         pass
 
-# 1) Patch uzhe zagruzhennykh
+# 1) Patch already downloaded
 for name, mod in list(sys.modules.items()):
     if name in _TARGETS and isinstance(mod, types.ModuleType):
         _patch_discover_module(mod)
 
-# 2) Poprobovat importirovat i propatchit, esli dostupno
+# 2) Try to import and patch, if available
 for name in list(_TARGETS):
     try:
         m = importlib.import_module(name)
@@ -68,7 +66,7 @@ for name in list(_TARGETS):
     except Exception:
         pass
 
-# 3) Ustanovit import-khuk, chtoby patch primenyalsya pri buduschikh importakh
+# 3) Install an import hook so that the patch is applied to future imports
 try:
     import importlib.abc, importlib.util  # type: ignore
     class _DiscoverFinder(importlib.abc.MetaPathFinder):  # type: ignore

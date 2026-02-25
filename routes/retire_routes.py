@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/retire_routes.py - REST/UI dlya dolgosrochnogo planirovschika.
+"""routes/retire_routes.py - REST/UI dlya dolgosrochnogo planirovschika.
 
 Ruchki:
-  GET  /retire/probe
-  GET  /retire/profile
-  POST /retire/save_profile   { ...polya... }
-  POST /retire/simulate       {"months":120}
-  GET  /retire/month_plan
-  POST /retire/month_run      {"mode":"A|B"}
-  GET  /retire/report
-  GET  /admin/retire
+  GET /retire/probe
+  GET /retire/profile
+  POST /retire/save_profile { ...polya... }
+  POST /retire/simulate {"months":120}
+  GET /retire/month_plan
+  POST /retire/month_run {"mode":"A|B"}
+  GET /retire/report
+  GET /admin/retire
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.retire import planner as RP

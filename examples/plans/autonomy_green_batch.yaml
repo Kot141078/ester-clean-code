@@ -1,4 +1,4 @@
-# Avtonomiya: paket tseley (primer YAML-plana s uzlami)
+# Autonomy: package of goals (example of a YML plan with nodes)
 # Mosty:
 # - Yavnyy: (LLM/Plan ↔ UX) — zapuskaetsya temi zhe ruchkami /thinking/cascade/execute.
 # - Skrytyy #1: (Memory ↔ Plan) — fiksiruem start v profilee (vidno v konsoli aktivnosti).

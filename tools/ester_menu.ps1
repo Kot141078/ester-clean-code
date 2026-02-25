@@ -4,7 +4,7 @@ param(
   [string]$ProjectRoot = "D:\ester-project"
 )
 
-# UTF-8 dlya vyvoda v konsol
+# UTF-8 for console output
 try {
   [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
   [Console]::InputEncoding  = New-Object System.Text.UTF8Encoding($false)

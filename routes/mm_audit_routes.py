@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mm_audit_routes.py - REST: audit obkhodov get_mm().
+"""routes/mm_audit_routes.py - REST: audit obkhodov get_mm().
 
 Mosty:
 - Yavnyy: (Veb ↔ Linter) zapuskaem skan i smotrim posledniy otchet.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (RBAC ↔ Kontrol) skan - dlya operator/admin, otchet - vsem.
 
 Zemnoy abzats:
-Knopka «proverit fabriku pamyati»: bystro ponimaem, gde kod obkhodit obschiy put.
+Knopka “check fabriku pamyati”: bystro ponimaem, where kod obkhodit obschiy put.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os

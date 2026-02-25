@@ -23,7 +23,7 @@
       endpoint = '/ingest/video/file';
       body.path = path;
     } else {
-      out.textContent = 'Nuzhno ukazat URL ili put.';
+      out.textContent = 'You must specify a URL or path.';
       btn.disabled = false;
       return;
     }

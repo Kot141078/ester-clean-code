@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-bin/messaging_webhooks.py — CLI dlya upravleniya Telegram webhook (set/delete).
+"""bin/messaging_webhooks.py - CLI dlya upravleniya Telegram webhook (set/delete).
 
 MOSTY:
 - (Yavnyy) Pryamye vyzovy Telegram Bot API: setWebhook/deleteWebhook s optional secret_token.
@@ -8,11 +7,10 @@ MOSTY:
 - (Skrytyy #2) Validatsiya URL i zagolovkov, akkuratnye kody vykhoda.
 
 ZEMNOY ABZATs:
-Odin instrument dlya bezopasnoy ustanovki vebkhuka v TG. Dlya WhatsApp vebkhuk zadaetsya v Meta App → Webhooks (UI),
+Odin instrument dlya bezopasnoy ustanovki vebkhuka v TG. Dlya WhatsApp webkhuk zadaetsya v Meta App → Webhooks (UI),
 poetomu zdes vyvodyatsya podskazki/proverki, a ne pryamye vyzovy Graph API.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, sys, json, argparse, urllib.parse, urllib.request
 

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/creator_routes.py - REST: /creator/* (script/storyboard/compose)
+"""routes/creator_routes.py - REST: /creator/* (script/storyboard/compose)
 
 Mosty:
 - Yavnyy: (Veb ↔ Creator) knopki generatsii stsenariya/storiborda/sborki.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Uploader ↔ Metadannye) prigodno dlya posleduyuschey publikatsii.
 
 Zemnoy abzats:
-Neskolko POST - i u vas na diske gotovyy rolik. Minimum zavisimostey, maksimum polzy.
+Neskolko POST - i u vas na diske gotovyy rolik. Minimum zavisimostey, maximum polzy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

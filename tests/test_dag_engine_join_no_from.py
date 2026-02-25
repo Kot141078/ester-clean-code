@@ -45,15 +45,14 @@ nodes:
     depends: ["analyze"]
 
   - id: gather_all
-    type: join
+    type:join
     out: "joined_all"
     select:
       file: "{{item.file}}"
       final: "{{ctx.final_branch}}"
     mode: list
     await_nodes: ["finalize"]
-    depends: ["finalize"]
-"""
+    depends: ["finalize"]"""
 
 
 def test_join_without_from_collects_all_children():

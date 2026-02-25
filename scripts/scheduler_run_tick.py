@@ -1,10 +1,9 @@
 # scripts/scheduler_run_tick.py
 # -*- coding: utf-8 -*-
-"""
-scripts/scheduler_run_tick.py — edinichnyy tik planirovschika.
-Zapusk: python scripts/scheduler_run_tick.py
+"""scripts/scheduler_run_tick.py - single scheduler tick run.
+Run: python scripts/scheduler_run_tick.py
 ENV:
-  NOW_TS   — optsionalno, float-metka vremeni dlya prinuditelnogo «seychas»
+  NOW_TS - optional float timestamp to force "now"
 """
 from __future__ import annotations
 
@@ -20,7 +19,7 @@ def main() -> int:
     now_env = os.getenv("NOW_TS")
     now_ts = float(now_env) if now_env else None
     try:
-        # mayak pered zapuskom (best-effort)
+        # beacon before launch (best-effort)
         try:
             events_bus.append("scheduler:runner_invoked", {"now_ts": now_ts})
         except Exception:

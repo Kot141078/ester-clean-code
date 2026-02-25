@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/self_save_everywhere.py — otpravit poslednie relizy na vse nastroennye targety.
+"""scripts/self_save_everywhere.py - otpravit poslednie relizy na vse nastroennye targety.
 
 Po umolchaniyu berem vse arkhivy v PERSIST_DIR/self/archives/*.zip i shlem na enabled-targety.
 Mozhno ukazat konkretnyy fayl ili CID.
@@ -8,8 +7,7 @@ Mozhno ukazat konkretnyy fayl ili CID.
 Primery:
   python -m scripts.self_save_everywhere
   python -m scripts.self_save_everywhere --cid <CID>
-  python -m scripts.self_save_everywhere --path /path/to/archive.zip --targets t_1 t_2
-"""
+  python -m scripts.self_save_everywhere --path /path/to/archive.zip --targets t_1 t_2"""
 
 from __future__ import annotations
 

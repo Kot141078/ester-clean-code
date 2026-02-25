@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/events_secure_routes.py - bezopasnaya publikatsiya sobytiy s verifikatsiey podpisi.
+"""routes/events_secure_routes.py - bezopasnaya publikatsiya sobytiy s verifikatsiey podpisi.
 
 Podklyuchi v app.py:
 
     from routes.events_secure_routes import bp_events_secure, register, init_app
     app.register_blueprint(bp_events_secure)
 
-Endpointy:
-  POST /events.secure/publish   - prinimaet podpisannoe sobytie, validiruet, forvardit v obychnyy /events/publish
-  GET  /events.secure/trust     - pokazat tekuschiy trust/caps (bez privatnykh klyuchey)
-  POST /events.secure/register  - (optsionalno) zaregistrirovat novogo agenta (kid,pubkey,role)
+Endpoint:
+  POST /events.secure/publish - prinimaet podpisannoe sobytie, validiruet, forvardit v obychnyy /events/publish
+  GET /events.secure/trust - pokazat tekuschiy trust/caps (bez privatnykh klyuchey)
+  POST /events.secure/register - (optsionalno) zaregistrirovat novogo agenta (kid,pubkey,role)
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -23,7 +21,7 @@ from typing import Any, Dict
 
 from flask import Blueprint, jsonify, request
 
-# Kontrakty moduley ne menyaem - myagkiy import
+# We do not change module contracts - soft import
 from modules.security.provenance import _load_registries, forward_to_bus, verify_event  # type: ignore
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
@@ -35,7 +33,7 @@ TRUST_PATH = Path("rules/trust_registry.yaml")
 
 @bp_events_secure.post("/publish")
 def publish_secure():
-    """Prinyat podpisannoe sobytie, proverit podpis/rol i otpravit v obychnuyu shinu sobytiy."""
+    """Accept the signed event, verify the signature/role and send to the regular event bus."""
     try:
         ev: Dict[str, Any] = request.get_json(force=True, silent=False)  # ozhidaem JSON
     except Exception:
@@ -57,9 +55,9 @@ def publish_secure():
 
 @bp_events_secure.get("/trust")
 def get_trust_caps():
-    """Otdat publichnye svedeniya iz reestrov doveriya (bez privatnykh klyuchey/sekretov)."""
+    """Give away public information from trust registries (without private keys/secrets)."""
     trust, caps = _load_registries()
-    # Ne raskryvaem privatnye dannye; tolko bezopasnye polya
+    # We do not disclose private data; only safe fields
     return jsonify(
         {
             "ok": True,
@@ -79,10 +77,8 @@ def get_trust_caps():
 
 @bp_events_secure.post("/register")
 def register_agent():
-    """
-    Prostaya registratsiya agenta: {agent_id, kid, pubkey_base64, role}
-    Dlya prodakshena dobav mTLS/admin-token - zdes demonstratsionnyy variant.
-    """
+    """Simple agent registration: ZZF0Z
+    For production, add mTLS/admin token - here is a demo version."""
     try:
         data = request.get_json(force=True, silent=False)
     except Exception:
@@ -126,12 +122,12 @@ def register_agent():
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta (kontrakt proekta)."""
+    """Drop-in registration of blueprint (project contract)."""
     app.register_blueprint(bp_events_secure)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

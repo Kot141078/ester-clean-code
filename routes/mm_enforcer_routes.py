@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mm_enforcer_routes.py - REST dlya MM-enforcer.
+"""routes/mm_enforcer_routes.py - REST dlya MM-enforcer.
 
 Mosty:
 - Yavnyy: (Veb ↔ Kod) ruchka skanirovaniya i chtenie otcheta.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Operatsii ↔ Nochnaya uborka) udobno dergat iz /cron/run.
 
 Zemnoy abzats:
-Knopka «proverit fabriku pamyati» - i otchet gotov.
+Knopka “check the fabriku pamyati” - i otchet gotov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

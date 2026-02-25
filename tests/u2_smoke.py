@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-U2/tests/u2_smoke.py — myagkiy smouk Cortex-orkestratora.
+"""U2/tests/u2_smoke.py - myagkiy smouk Cortex-orkestratora.
 
 Mosty:
 - Yavnyy: Enderton — proveryaemye predikaty: plan sformirovan ∧ vypolneny khotya by nekotorye shagi.
@@ -12,8 +11,7 @@ Zemnoy abzats (inzheneriya):
 Gonyaem u2_cortex s politikoy po umolchaniyu; dopuskaem otsutstvie vneshnikh servisov.
 Ozhidaem poyavlenie `data/cortex/state.json` i/ili obnovlenie portala/obs.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, subprocess, sys
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

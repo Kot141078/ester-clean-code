@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/extension_watcher.py — nablyudatel za rasshireniyami:
-skaniruet incoming → proveryaet → safe → drafts/enabled, risky → quarantine, vedet zhurnal, podderzhivaet «tabletku».
+"""modules/self/extension_watcher.py — nablyudatel za rashirniyami:
+skaniruet incoming → proveryaet → safe → drafts/enabled, risky → quarantine, vedet zhurnal, podderzhivaet “tabletku”.
 
 Mosty:
 - Yavnyy: (Inzheneriya ↔ Volya) Ester sama nakhodit novye moduli i prinimaet reshenie, ostavayas pod predokhranitelyami.
-- Skrytyy #1: (Bezopasnost ↔ Audit) karantin + append-only zhurnal + podpisi (opts.) → mozhno dokazat, chto ne «podsunuli».
-- Skrytyy #2: (Kibernetika ↔ Kontrol) «tabletka» — korotkiy operatorskiy overrayd dlya pogranichnykh sluchaev.
+- Skrytyy #1: (Bezopasnost ↔ Audit) quarantine + append-only zhurnal + podpisi (opts.) → mozhno dokazat, chto ne “podsunuli”.
+- Skrytyy #2: (Kibernetika ↔ Kontrol) “tabletka” — korotkiy operatorkiy overrayd dlya pogranichnykh sluchaev.
 
 Zemnoy abzats:
-Eto kak «priemka na sklad»: vse novoe prokhodit proverku, somnitelnoe — v karantin, bezopasnoe — v rabotu, vse pod zapis.
+Eto kak “priemka na sklad”: vse novoe prokhodit proverku, somnitelnoe - v quarantine, bezopasnoe - v rabotu, vse pod zapis.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import ast
@@ -74,7 +72,7 @@ def _append_chain(event: Dict[str, Any]) -> Dict[str, Any]:
         f.write(json.dumps(e, ensure_ascii=False) + "\n")
     return e
 
-# --- «tabletka»: odnorazovyy/vremennyy overrayd politik ---
+# --- "tablet": one-time/temporary override policy ---
 
 PILL_FILE = "data/self/ext_watch_pill.json"
 
@@ -101,7 +99,7 @@ def pill_disarm() -> Dict[str, Any]:
     _append_chain({"event":"pill_disarm"})
     return {"ok": True, **_pill_state()}
 
-# --- Proverki moduley ---
+# --- Module checks ---
 
 DANG_CALLS = {
     ("os","system"),
@@ -137,8 +135,8 @@ def _danger_calls_check(tree: ast.AST) -> List[str]:
     return hits
 
 def _signature_ok(path_py: str, content: str) -> Optional[bool]:
-    """Proverka Ed25519 podpisi dlya sha256(content).
-    Ischem .sig ryadom: <file.py>.sig (base64). Berem lyuboy publichnyy klyuch iz TRUST_PUBKEYS_DIR."""
+    """Checking D25519 signature for sha256 (content).
+    We are looking for .whitefish nearby: <fillet.by>.whitefish (bassier64). We take any public key from TRUST_POBCASE_DIR."""
     sig_path = path_py + ".sig"
     if not os.path.isfile(sig_path):
         return None  # net podpisi
@@ -146,7 +144,7 @@ def _signature_ok(path_py: str, content: str) -> Optional[bool]:
         import nacl.signing  # type: ignore
         import nacl.exceptions  # type: ignore
     except Exception:
-        return None  # net PyNaCl — ne mozhem verifitsirovat
+        return None  # no PiNaCl - cannot verify
     sig_b64 = open(sig_path, "r", encoding="utf-8").read().strip()
     try:
         sig = base64.b64decode(sig_b64)
@@ -180,8 +178,8 @@ def analyze_content(name: str, content: str) -> Dict[str, Any]:
         return {"ok": False, "reason": f"syntax:{e}"}
     denies = _deny_imports_check(tree)
     dangers = _danger_calls_check(tree)
-    sig_ok = None  # None=net, True/False=rezultat proverki
-    # signatura proveryaetsya pozzhe, kogda uznaem put
+    sig_ok = None  # None=no, Three/False=check result
+    # the signature is checked later when we find out the path
     score = 0
     if denies: score += 2
     if dangers: score += 2
@@ -192,7 +190,7 @@ def _write(path: str, content: str):
     with open(path, "w", encoding="utf-8") as f:
         f.write(content if content.endswith("\n") else content + "\n")
 
-# --- Dvizhok skanirovaniya ---
+# --- Scanning engine ---
 
 def _list_py(dirpath: str) -> List[str]:
     try:
@@ -201,10 +199,8 @@ def _list_py(dirpath: str) -> List[str]:
         return []
 
 def scan(auto: bool = False) -> Dict[str, Any]:
-    """
-    Skaniruet incoming → prinimaet resheniya.
-    Vozvraschaet: {"ok":True,"checked":[...],"applied":[...],"quarantined":[...],"drafted":[...]}
-    """
+    """Skaniruet incoming → prinimaet resheniya.
+    Vozvraschaet: {"ok":True,"checked":[...],"applied":[...],"quarantined":[...],"drafted":[...]}"""
     _ensure_dirs()
     if AB == "B":
         return {"ok": False, "error": "EXT_WATCH_AB=B"}
@@ -219,7 +215,7 @@ def scan(auto: bool = False) -> Dict[str, Any]:
             continue
 
         rep = analyze_content(fn, content)
-        # dopolnit signaturu (esli fayl .sig est)
+        # add signature (if there is a .sig file)
         sig = _signature_ok(p, content)
         rep["sig_ok"] = sig
 
@@ -243,14 +239,14 @@ def scan(auto: bool = False) -> Dict[str, Any]:
                 decision = "safe-pill"
                 reason.append("pill")
 
-        # primenyaem reshenie
+        # apply the solution
         if decision.startswith("safe"):
             # zapishem v drafts i, esli razresheno, proverim/vklyuchim
             draft_path = os.path.join(DRAFTS, fn)
             _write(draft_path, content)
             drafted.append(fn)
 
-            # progon cherez pesochnitsu
+            # sandbox run
             try:
                 from modules.self.code_sandbox import check as _check, apply as _apply  # type: ignore
                 chk = _check(fn.replace(".py",""))
@@ -278,7 +274,7 @@ def scan(auto: bool = False) -> Dict[str, Any]:
         # zhurnal
         _append_chain({"event":"scan_decision","name":fn,"decision":decision,"reason":reason,"sig":sig})
 
-        # udalyaem iz incoming
+        # remove from incoming
         try:
             os.remove(p)
         except Exception:
@@ -296,14 +292,14 @@ def approve(name: str) -> Dict[str, Any]:
     if not os.path.isfile(src):
         return {"ok": False, "error": "not in quarantine"}
     content = open(src, "r", encoding="utf-8").read()
-    # uvazhim politiku: esli REQ_SIG=1 i net podpisi — trebuem «tabletku»
+    # respects the policy: if REG_SIG=1 and there is no signature, it requires a “tablet”
     must_pill = REQ_SIG and (_signature_ok(src, content) is not True)
     if must_pill and not _pill_state().get("armed"):
         return {"ok": False, "error": "signature-required; pill not armed"}
     # v drafts
     draft_path = os.path.join(DRAFTS, name)
     _write(draft_path, content)
-    # pesochnitsa -> apply (esli razresheno)
+    # sandbox -> appli (if allowed)
     from modules.self.code_sandbox import check as _check, apply as _apply  # type: ignore
     chk = _check(name.replace(".py",""))
     if not chk.get("ok"):

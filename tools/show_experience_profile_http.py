@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-tools/show_experience_profile_http.py
+"""tools/show_experience_profile_http.py
 
 Utilita dlya prosmotra profilya opyta Ester cherez HTTP-endpoint
 /memory/experience/profile.
 
-Osobennosti:
+Features:
 - Nikakikh zavisimostey krome standartnoy biblioteki.
-- BASE_URL beretsya iz peremennoy okruzheniya ili ukazannoy vruchnuyu.
-- Bezopasno obrabatyvaet setevye/HTTP-oshibki.
-- Format vyvoda druzhelyuben dlya ruchnoy diagnostiki i CI.
-"""
+- BASE_URL beretsya iz peremennoy okruzheniya or ukazannoy vruchnuyu.
+- Safe obrabatyvaet setevye/HTTP-oshibki.
+- Format vyvoda druzhelyuben dlya ruchnoy diagnostiki i CI."""
 
 from __future__ import annotations
 
@@ -71,27 +69,27 @@ def print_human(profile_resp: Dict[str, Any]) -> None:
 
     print(json.dumps(profile_resp, ensure_ascii=False, indent=2))
 
-    # Kratkaya svodka nizhe JSON — udobno glazami smotret.
+    # A brief summary below ZhSION - it’s easy to look at with your eyes.
     print("\n--- summary ---")
 
     if not ok:
         err = profile_resp.get("error") or profile.get("error")
         if err == "experience_profile_not_implemented":
-            print("Profile opyta poka ne realizovan v backend. "
-                  "Alias rabotaet, no modul experience ne daet dannykh.")
+            print("The experience profile is not yet implemented in the backend."
+                  "The alias works, but the experiment module does not provide data.")
         elif err == "no_insights":
-            print("Profile est, no esche net insaytov: nuzhen khotya by odin uspeshnyy nochnoy tsikl.")
+            print("There is a profile, but no insights yet: you need at least one successful night cycle.")
         elif err:
-            print(f"Oshibka profilya opyta: {err}")
+            print(f"Experience Profile Error: ZZF0Z")
         else:
-            print("ok == False, detaley oshibki net.")
+            print("ok == False, no error details.")
     else:
         total = profile.get("total_insights")
         top_terms = profile.get("top_terms") or []
         print(f"Profile opyta aktiven. Insaytov: {total}.")
         if top_terms:
             head = ", ".join(map(str, top_terms[:10]))
-            print(f"Klyuchevye terminy: {head}")
+            print(f"Key terms: ZZF0Z")
 
 
 def main() -> int:

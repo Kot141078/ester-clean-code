@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/social/campaign.py — uchet kampaniy i avto-planirovanie iz assetov studii.
+"""modules/social/campaign.py - uchet kampaniy i avto-planirovanie iz assetov studii.
 
 Mosty:
 - Yavnyy: (Kampaniya ↔ Assety) khranenie kartochek i bystryy plan po platformam.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Kak belaya doska menedzhera: nazvanie, tsel, kakie roliki kuda i kogda.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, glob
 from typing import Any, Dict, List
@@ -50,7 +48,7 @@ def plan(cid: str, sources: Dict[str,str], platforms: List[str], tags: List[str]
     j=_load(); c=j["campaigns"].get(cid)
     if not c: return {"ok": False, "error":"not_found"}
     out_dir=(sources or {}).get("studio_out","data/studio/out")
-    # nakhodim poslednie video
+    # find the latest videos
     vids=sorted(glob.glob(os.path.join(out_dir,"*.mp4")))
     auds=sorted(glob.glob(os.path.join(out_dir,"*.wav")))
     asses=sorted(glob.glob(os.path.join(out_dir,"*.ass")))

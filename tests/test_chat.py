@@ -5,7 +5,7 @@ def test_chat_message_happy_path(client, auth_hdr_user):
         "/chat/message",
         json={
             "mode": "local",
-            "query": "Privet! Kak dela?",
+            "query": "Hello! How are you?",
             "use_rag": False,
             "temperature": 0.0,
         },

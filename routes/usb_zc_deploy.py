@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-routes/usb_zc_deploy.py - UI/REST dlya Zero-Click USB Deploy.
+"""routes/usb_zc_deploy.py - UI/REST dlya Zero-Click USB Deploy.
 
-Marshruty:
-  • GET  /admin/usb/zc-deploy            - HTML
-  • GET  /admin/usb/zc-deploy/status     - sostoyanie slotov/shtampov/nastroek
-  • GET  /admin/usb/zc-deploy/probe      - spisok tomov
-  • POST /admin/usb/zc-deploy/plan       - plan po mount
-  • POST /admin/usb/zc-deploy/apply      - primenit po mount
-  • POST /admin/usb/zc-deploy/save       - sokhranit nastroyki (enable/interval/base_dir/health_cmd)
+Route:
+  • GET /admin/usb/zc-deploy - HTML
+  • GET /admin/usb/zc-deploy/status - sostoyanie slotov/shtampov/nastroek
+  • GET /admin/usb/zc-deploy/probe - spisok tomov
+  • POST /admin/usb/zc-deploy/plan - plan po mount
+  • POST /admin/usb/zc-deploy/apply - primenit po mount
+  • POST /admin/usb/zc-deploy/save - sokhranit nastroyki (enable/interval/base_dir/health_cmd)
 
 Mosty:
-- Yavnyy (Kibernetika ↔ UX): odin ekran dlya bezopasnogo «perelivaniya» relizov s doverennoy fleshki.
+- Yavnyy (Kibernetika ↔ UX): odin ekran dlya bezopasnogo “perelivaniya” relizov s trustennoy fleshki.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): pokazyvaem sloty, tekuschuyu versiyu i shtampy.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): dry-run v A i realnoe primenenie v B.
 
 Zemnoy abzats:
-Zdes - knopki «Plan» i «Primenit»; sleva fleshka, sprava sloty. Spokoyno i bez syurprizov.
+Zdes - knopki “Plan” i “Primenit”; sleva fleshka, sprava sloty. Spokoyno i bez syurprizov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json, os

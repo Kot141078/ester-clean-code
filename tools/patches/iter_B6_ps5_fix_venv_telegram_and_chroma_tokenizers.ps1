@@ -12,10 +12,10 @@ function Write-Err($m){ Write-Host $m -ForegroundColor Red }
 
 # ==============================
 # Ester patch B6 (PS5-safe)
-# Explicit bridge: c=a+b -> (a) tvoy venv kak "telo" + (b) strogie piny zavisimostey => (c) predskazuemyy zapusk
-# Hidden bridges: Ashby (snizhaem "raznoobrazie" zavisimostey do upravlyaemogo), Cover&Thomas (kanal bez "shumov" konfliktov),
-# Gray’s (shov bez nekroza: akkuratnaya fiksatsiya versiy vmesto khaotichnykh apgreydov)
-# Earth (inzheneriya/anatomiya): eto kak podobrat sovmestimye rezby/shagi v soedinenii — inache "sorvet rezbu" (dependency resolver)
+# Explicit bridge: c=a+b -> (a) your venv as a “body” + (c) strict dependency pins => (c) predictable launch
+# Hidden bridges: Ashby (reduces the “diversity” of dependencies to manageable), Carpet&Thomas (a channel without the “noise” of conflicts),
+# Gry's (seam without necrosis: neat fixation of the version instead of chaotic upgrades)
+# Erth (engineering/anatomy): this is how to select compatible threads/steps in a connection - otherwise it will “break the thread” (dependency resolver)
 # ==============================
 
 $req = Join-Path $ProjectRoot "requirements.txt"

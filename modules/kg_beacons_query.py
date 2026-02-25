@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules.kg_beacons_query — fasad po «mayakam».
+"""modules.kg_beacons_query - fasad po "mayakam".
 
 MOSTY:
 - Yavnyy: status(), search(), list_beacons(), beacons_stats().
@@ -10,8 +9,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Dazhe bez BD mozhno otrisovat spisok/statku i ne padat na importe.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import os

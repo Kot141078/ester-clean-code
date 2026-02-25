@@ -1,30 +1,30 @@
-# Ester: kontur pamyati, sna i opyta (svodka)
+# Esther: the circuit of memory, sleep and experience (summary)
 
 MOSTY:
 - Yavnyy: (Zhurnal → Son → Refleksiya → Opyt → Myshlenie).
 - Skrytyy #1: (Tekhnicheskie sobytiya → Chelovecheski chitaemye insayty).
-- Skrytyy #2: (Vektornaya/strukturnaya pamyat → kompaktnyy kontekst dlya LLM).
+- Hidden #2: (Vector/structural memory → compact context for LLM).
 
 ZEMNOY ABZATs:
-Dlya inzhenera eto pipeline: vkhodnye sobytiya pishutsya v pamyat,
-nochnoy tsikl ikh chistit, szhimaet i agregiruet, a sloy myshleniya poluchaet
-gotovyy kontekst bez ruchnykh «kodovykh fraz».
+For an engineer, this is pipeline: input events are written to memory,
+the night cycle cleans them, compresses and aggregates, and the thinking layer receives
+ready-made context without manual “passphrases”.
 
 ## 1. Potok dannykh
 
 1. **Dnem**
    - Sobytiya/zhurnal → `modules.memory.events` / `journal` / prochie istochniki.
-   - Zapis cherez suschestvuyuschie API/alias, nichego novogo ne navyazano.
+   - Recording via existing API/alias, nothing new is imposed.
 
 2. **Nochyu**
    - `/memory/sleep/run_now` → `modules.memory.sleep_alias` → `modules.memory.daily_cycle.run_cycle()`
    - V `daily_cycle`:
-     - `summary_day` — svodka dnya (esli est zapisi).
+     - yosumary_dayo - summary of the day (if there are records).
      - `memory_qa` — optsionalnyy QC (B-slot/flag).
      - `memory_policies` — optsionalnoe primenenie politik.
      - `memory_backup` — optsionalnyy bekap.
      - `daily_reflection` — insayty na osnove svodki.
-     - `experience_sync` — optsionalnoe obnovlenie anchors iz insaytov.
+     - Yoeksperienze_sinkyo - optional update of anchor from insights.
 
 3. **Opyt**
    - `modules.memory.experience`:
@@ -34,9 +34,9 @@ gotovyy kontekst bez ruchnykh «kodovykh fraz».
 4. **Myshlenie**
    - `modules.thinking.experience_context_adapter.get_experience_context()`:
      - Stroit kompaktnyy blok:
-       - klyuchevye motivy (top_terms),
+       - key motives (top_terms),
        - neskolko insaytov.
-     - Gotov dlya vklyucheniya v system prompt/kontekst.
+     - Ready for inclusion in prompt/context systems.
 
 ## 2. ENV-flagi
 
@@ -50,7 +50,7 @@ gotovyy kontekst bez ruchnykh «kodovykh fraz».
 
 - Opyt:
   - `ESTER_MEMORY_EXPERIENCE_AB=A|B`
-  - `ESTER_MEMORY_EXPERIENCE_WRITE=1` — razreshit anchors.
+  - ёESTER_MEMORY_EXPERIENCE_VRITE=1е - allow anchor.
 
 - Thinking-adapter:
   - `ESTER_THINKING_EXPERIENCE=1|0`
@@ -72,11 +72,11 @@ else:
 ```
 
 Ester sama:
-- kopit sobytiya,
-- vo sne svorachivaet ikh v summary/insights,
+- buy events,
+- in his sleep he rolls them up into summaries/insignts,
 - formiruet sloy opyta,
-- podaet ego v myshlenie cherez adapter.
-Polzovatel prosto govorit po-chelovecheski.
+- feeds it into thinking through an adapter.
+The user just speaks like a human being.
 
 ## 4. Diagnostika
 
@@ -87,4 +87,4 @@ python tools/show_memory_stack_status.py
 Vyvod:
 - status sna,
 - profil opyta,
-- prevyu konteksta dlya myshleniya.
+- preview of the context for thinking.

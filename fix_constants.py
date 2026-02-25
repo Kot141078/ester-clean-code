@@ -33,7 +33,7 @@ def fix_constants():
     with open(TARGET, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # Spisok peremennykh dlya proverki
+    # List of variables to check
     vars_to_check = ["TIMEOUT_CAP", "MAX_WEB_CHARS", "DEDUP_MAXLEN"]
     
     missing_found = False
@@ -46,13 +46,13 @@ def fix_constants():
         print("✅ All constants seem present. No changes needed.")
         return
 
-    # Vstavlyaem blok posle importov (ischem import os)
+    # We insert the block after the imports (we are looking for OS imports)
     if "import os" in content:
-        # Vstavlyaem POSLE import os, chtoby navernyaka
+        # We insert AFTER the import of the OS, to be sure
         new_content = content.replace("import os", "import os\n" + RESTORE_BLOCK, 1)
         
-        # Esli DEDUP_MAXLEN uzhe byl dobavlen proshlym fiksom, on prosto pereopredelitsya (ne strashno),
-        # ili mozhno vychistit dubli, no Python eto prostit.
+        # If DEDUP_MAXLEN was already added by the previous fix, it will simply be redefined (no big deal),
+        # or you can clean out the duplicates, but Pothon will forgive this.
         
         with open(TARGET, "w", encoding="utf-8") as f:
             f.write(new_content)

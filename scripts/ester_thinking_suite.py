@@ -1,16 +1,14 @@
-"""
-Kompleksnaya proverka Ester-thinking sloya.
+"""Kompleksnaya proverka Ester-thinking layer.
 
 Zapusk:
   python -m scripts.ester_thinking_suite
-  python -m scripts.ester_thinking_suite http   # dobavit HTTP-proverku /ester/thinking/quality_once
+  python -m scripts.ester_thinking_suite http # dobavit HTTP-proverku /ester/thinking/quality_once
 
 Skript ne menyaet sostoyanie sistemy:
 - chitaem manifest cherez modules.ester.thinking_manifest
 - zapuskaem lokalnyy kaskad cherez cascade_closed
 - schitaem kachestvo cherez thinking_quality.analyze_cascade
-- optsionalno (rezhim http) dergaem uzhe suschestvuyuschiy /ester/thinking/quality_once
-"""
+- optsionalno (rezhim http) dergaem uzhe suschestvuyuschiy /ester/thinking/quality_once"""
 
 from __future__ import annotations
 
@@ -54,10 +52,9 @@ def run_manifest_probe() -> Dict[str, Any]:
 
 
 def run_http_quality_probe() -> Dict[str, Any]:
-    """Proba uzhe podnyatogo HTTP-sloya cherez /ester/thinking/quality_once.
+    """Sample of the already raised HTTP layer via /ester/thinking/kalita_once.
 
-    Ispolzuem tolko standartnuyu biblioteku, bez storonnikh zavisimostey.
-    """
+    We use only the standard library, without third-party dependencies."""
     import urllib.request
     import urllib.error
 

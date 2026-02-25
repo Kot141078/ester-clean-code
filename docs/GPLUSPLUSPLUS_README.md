@@ -1,13 +1,13 @@
 # G+++ Guide
 
-## Chto vklyuchili
+## What's included
 - **Golden paths**: `/ops/probe/golden` → web-provider v Argo Rollouts Analysis.
-- **Recording Rules**: deshevye metriki p95/p99 i error-rate dlya bystrykh zaprosov analayzera.
+- **Recording Rules**: cheap p95/p99 metrics and error rates for quick analyzer queries.
 - **Auto-Failover**: Alertmanager → DR Webhook → vneshnie annotatsii dlya external-dns (ves secondary=100).
 - **Mirror-traffic**: Istio VirtualService `mirrorPercentage` → teplyy progrev kanareyki.
 
-## Kak vklyuchit
-1. Obnovi prilozhenie: zaregistriruy blueprint `bp_probe` v `app.py`:
+## How to enable
+1. Update the application: register blueprint ёbp_probeyo in ёap.pyyo:
    ```python
    from routes.probe_routes import bp_probe
    app.register_blueprint(bp_probe)
@@ -19,7 +19,7 @@
    recordingRules:
      enabled: true
    ```
-3. Esli ispolzuesh Istio mirror:
+3. If you use Istio mirror:
    ```yaml
    istio:
      enabled: true
@@ -40,7 +40,7 @@
    ```
    V Alertmanager receiver — webhook c zagolovkom `X-Auth-Token: <SECRET>`.
 
-## Smoke / Proverki
+## Stock / Checks
 - `GET /ops/probe/golden` → `{value: 1}` pri zelenom sostoyanii.
 - Argo: `kubectl argo rollouts get rollout ester -n ester` — v `analysis.templates` est `*-golden` (dobavlen k SLO).
 - DR:
@@ -50,10 +50,10 @@
        --data @scripts/alert_test_payload.json \
        http://<dr-webhook-svc>:8080/alert
   ```
-  Dolzhen propatchitsya `Service/Ingress` annotatsiyami external-dns (ves/identifikator).
+  eService/Ingresso must be patched with external-dns annotations (all/identifier).
 
 ## Primechaniya po sovmestimosti
 - Port berem iz `.Values.port`, servis — iz `.Values.service.port`.
-- Kanareechnyy servis `{{ fullname }}-canary` uzhe sozdaetsya chartom i ispolzuetsya v Rollout/VirtualService.
+- The canary service е{ЗЗФ0З}-canary is already created by the chart and used in Rollout/VirtualService.
 
-_Ester ostaetsya «pamyat + myshlenie + set». Eto — broneplastina dlya prod-kontura._
+_Esther remains “memory + thinking + network”. This is an armor plate for the food circuit._

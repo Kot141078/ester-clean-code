@@ -17,7 +17,7 @@ def force_fix():
     new_lines = []
     skip = False
     
-    # ETALONNYY BLOK (Base indent = 12 probelov, tak kak eto vnutri if tag == "SELF_SEARCH":)
+    # REFERENCE BLOCK (Base indent = 12 spaces, since this is inside yf tag == "SELF_SEARCH":)
     clean_block = [
         "            # --- SELF_SEARCH throttle (runtime) ---\n",
         "            # Logic: Throttle excessive self-searches to prevent loop spam.\n",

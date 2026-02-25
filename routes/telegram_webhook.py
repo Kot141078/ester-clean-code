@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/telegram_webhook.py - priem apdeytov Telegram i prokladka v RoleDiscovery.
+"""routes/telegram_webhook.py - priem apdeytov Telegram i prokladka v RoleDiscovery.
 
 MOSTY:
 - (Yavnyy) /webhooks/telegram - prinimaet apdeyty, proveryaet sekret-v zagolovke, prokidyvaet v roles.store.upsert_observation().
@@ -10,8 +9,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Lyuboe chelovecheskoe soobschenie uchit Ester - bez lishnikh voprosov i form.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

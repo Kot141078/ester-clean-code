@@ -1,5 +1,5 @@
 # scripts\desktop\windows\schedule_tick_task.ps1
-# Sozdaet planovuyu zadachu Windows, vypolnyayuschuyu tik kazhduyu minutu.
+# Creates a Windows scheduled task that executes a tick every minute.
 # Trebuet put k python.exe dostupnyy v PATH ili ukazhi polnyy put v $PythonExe.
 
 param(

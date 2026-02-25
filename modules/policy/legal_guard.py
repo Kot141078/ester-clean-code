@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/policy/legal_guard.py — legalnyy storozh: proverka zadach po JSON-pravilam.
+"""modules/policy/legal_guard.py - legalnyy storozh: proverka zadach po JSON-pravilam.
 
 Mosty:
-- Yavnyy: (Plan ↔ Politika) bystryy otvet «mozhno/nelzya/vnimatelno» s prichinami.
+- Yavnyy: (Plan ↔ Politika) bystryy otvet “mozhno/nelzya/vnimatelno” s prichinami.
 - Skrytyy #1: (RBAC/Pilyuli ↔ Ostorozhnost) integriruetsya s sistemoy riskov.
 - Skrytyy #2: (Profile ↔ Audit) rezultaty mozhno zhurnalirovat.
 
 Zemnoy abzats:
-Kak vnutrenniy yurist: na vkhod plan deystviya, na vykhod — svetofor i korotkaya pamyatka, chto imenno opasno.
+Kak vnutrenniy yurist: na vkhod plan deystviya, na vykhod - svetofor i korotkaya pamyatka, chto imenno opasno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from typing import Any, Dict
@@ -21,15 +19,15 @@ RULES_PATH=os.getenv("LEGAL_RULES","data/policy/legal_rules.json")
 
 _DEFAULT_RULES={
   "deny": [
-    {"kind":"financial_transfer", "rule":"no_self_discovery_accounts", "reason":"Nelzya samostoyatelno iskat chuzhie scheta/identifikatory."},
-    {"kind":"surveillance", "rule":"no_tracking_people", "reason":"Nelzya otslezhivat lyudey, ikh mestopolozhenie ili scheta."}
+    {"kind":"financial_transfer", "rule":"no_self_discovery_accounts", "reason":"You cannot search for other people's accounts/identifiers on your own."},
+    {"kind":"surveillance", "rule":"no_tracking_people", "reason":"You can't track people, their locations, or their accounts."}
   ],
   "warn": [
-    {"kind":"web_scrape", "rule":"respect_robots_and_tos", "reason":"Proverit robots.txt/ToS/kvoty; sobirat tolko razreshennoe."},
-    {"kind":"content_publish", "rule":"copyright_check", "reason":"Proverit avtorskie prava i litsenzii na iskhodniki."}
+    {"kind":"web_scrape", "rule":"respect_robots_and_tos", "reason":"Check robots.txt/tos/quotas; collect only what is permitted."},
+    {"kind":"content_publish", "rule":"copyright_check", "reason":"Check copyrights and licenses for sources."}
   ],
   "allow": [
-    {"kind":"subtitle_extract", "rule":"public_or_user_owned", "reason":"S publichnykh istochnikov ili po zaprosu polzovatelya."}
+    {"kind":"subtitle_extract", "rule":"public_or_user_owned", "reason":"From public sources or upon user request."}
   ]
 }
 

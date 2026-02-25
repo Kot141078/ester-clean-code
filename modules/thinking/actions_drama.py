@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_drama.py — eksheny «voli» dlya TTS i audiodramy.
+"""modules/thinking/actions_drama.py - eksheny “voli” dlya TTS i audiodramy.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Studiya) korotkie komandy dlya sinteza i sborki roley.
-- Skrytyy #1: (Plan ↔ Avtomatizatsiya) mozhno stavit na sobytiynyy payplayn (napr., «est glava — ozvuch»).
+- Skrytyy #1: (Plan ↔ Avtomatizatsiya) mozhno stavit na sobytiynyy payplayn (napr., “est glava - ozvuch”).
 - Skrytyy #2: (Monetizatsiya ↔ Sotsdeploy) rezultat legko otpravit v SocialDeploy.
 
 Zemnoy abzats:
-Mozg daet prikaz «ozvuchit» ili «postavit pesu» — i konveyer delaet ostalnoe.
+Mozg daet prikaz “ozvuchit” ili “postavit pesu” - i konveyer delaet ostalnoe.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

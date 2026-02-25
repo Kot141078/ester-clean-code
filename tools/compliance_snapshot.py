@@ -1,34 +1,32 @@
 # -*- coding: utf-8 -*-
-"""
-tools/compliance_snapshot.py — CLI: sdelat snapshot i/ili sravnit dva.
+"""tools/compliance_snapshot.py - CLI: sdelat snapshot i/ili compare dva.
 
 Primery:
   # sokhranit snapshot (AB=A → dry, AB=B → zapis)
   python tools/compliance_snapshot.py --make
 
-  # pokazat spisok
+  #pokazat spisok
   python tools/compliance_snapshot.py --list
 
   # sravnit poslednie dva snapshota (USB prioritetno)
   python tools/compliance_snapshot.py --diff
 
-  # sravnit konkretnye puti
+  # compare konkretnye puti
   python tools/compliance_snapshot.py --diff --a /path/to/old.json --b /path/to/new.json
 
 Kody vykhoda:
-  0 — uspeshnoe vypolnenie (dazhe pri dry ili otsutstvii USB dlya --list/--diff s ukazaniem putey)
-  1 — oshibka (naprimer, net USB i ne zadano putey dlya diff)
+  0 — uspeshnoe vypolnenie (dazhe pri dry or otsutstvii USB dlya --list/--diff s ukazaniem putey)
+  1 - oshibka (for example, net USB i ne zadano putey dlya diff)
 
 Mosty:
 - Yavnyy (DevOps ↔ Ekspluatatsiya): te zhe operatsii, chto v UI, dostupny dlya skriptov/CI.
-- Skrytyy 1 (Infoteoriya): stabilnyy JSON na stdout.
-- Skrytyy 2 (Praktika): stdlib, offlayn; zapis tolko v AB=B.
+- Skrytyy 1 (Infoteoriya): stabilnyy JSON on stdout.
+- Skrytyy 2 (Praktika): stdlib, offflayn; zapis tolko v AB=B.
 
 Zemnoy abzats:
-Eto «knopka na pulte»: mozhno avtomatizirovat snimok/sravnenie v nochnykh reviziyakh bez UI.
+This is “knopka na pulte”: mozhno avtomatizirovat snimok/sravnenie v nochnykh reviziyakh bez UI.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, sys
 from modules.compliance.snapshot import list_snapshots, save_snapshot, load_snapshot, diff_snapshots  # type: ignore
@@ -36,8 +34,8 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Ester compliance snapshots")
-    ap.add_argument("--make", action="store_true", help="Sdelat snapshot")
-    ap.add_argument("--list", action="store_true", help="Pokazat spisok snapshotov")
+    ap.add_argument("--make", action="store_true", help="Take a snapshot")
+    ap.add_argument("--list", action="store_true", help="Show list of snapshots")
     ap.add_argument("--diff", action="store_true", help="Sravnit dva snapshota")
     ap.add_argument("--a", help="Put k staromu snapshotu", default=None)
     ap.add_argument("--b", help="Put k novomu snapshotu", default=None)

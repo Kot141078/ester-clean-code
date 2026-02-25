@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/lan_reply.py - HTTP priemnik LAN-kvitantsiy.
+"""routes/lan_reply.py - HTTP priemnik LAN-kvitantsiy.
 
-Marshruty:
-  • POST /lan/reply     - telo: JSON kvitantsii; HMAC mozhno v zagolovke X-Signature (hex) ili v pole "sig"
+Route:
+  • POST /lan/reply - body: JSON kvitantsii; HMAC mozhno v zagolovke X-Signature (hex) or v pole "sig"
 
-Otvet:
+Answer:
   {"ok":true, "saved":true, "applied":true|false, "overlay":true|false}
 
 Mosty:
 - Yavnyy (HTTP ↔ Podtverzhdenie): prostoy REST-vkhod dlya LAN-otvetov.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): vozvraschaem, smogli li primenit k ocheredi.
-- Skrytyy 2 (Praktika ↔ Sovmestimost): pri otsutstvii sekreta rabotaem v doveritelnom LAN.
+- Skrytyy 2 (Praktika ↔ Sovmestimost): pri otsutstvii sekreta rabotaem v trustitelnom LAN.
 
 Zemnoy abzats:
 Kak priemnaya okoshka: prinyal talon, postavil pechat i razlozhil po papkam.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, request

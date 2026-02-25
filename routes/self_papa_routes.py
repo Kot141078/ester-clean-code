@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_papa_routes.py - REST dlya profilea/otpechatkov/zapisi v pamyat i lokatora Papy.
+"""routes/self_papa_routes.py - REST dlya profilea/otpechatkov/zapisi v pamyat i lokatora Papy.
 
 Mosty:
 - Yavnyy: (Memory ↔ Samoidentifikatsiya) vydaem profile i kladem ego v pamyat.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Prioritet ↔ Kontrol) sluzhit istochnikom pravdy dlya drugikh moduley.
 
 Zemnoy abzats:
-Eto «lichnaya kartochka Papy» i «poiskovik svoikh». Bez lishnego shuma - rovno to, chto nuzhno.
+This is “lichnaya kartochka Papy” and “poiskovik svoikh”. Bez lishnego shuma - rovno to, chto nuzhno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

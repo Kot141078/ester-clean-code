@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/workbench/code_ops.py — bezopasnaya masterskaya koda (skeffolding/zapis/listing).
+"""modules/workbench/code_ops.py - bezopasnaya masterskaya koda (skeffolding/zapis/listing).
 
 Mosty:
 - Yavnyy: (Volya ↔ Kod) Ester sozdaet novye fayly i moduli pod kontrolem pravil.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Bezopasnost ↔ RBAC) zapis dostupna tolko admin, s bekapom i kheshom.
 
 Zemnoy abzats:
-Eto kak «garazh s instrumentami»: shablony, akkuratnaya zapis s rezervnoy kopiey i spisok togo, chem uzhe vladeem.
+This is how “garazh s instruments”: shablony, akkuratnaya zapis s rezervnoy kopiey i spisok togo, chem uzhe vladeem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, json, hashlib
 from typing import Any, Dict, List
@@ -31,7 +29,7 @@ def _hash(b: bytes)->str:
 
 ROUTE_TEMPLATE = """# -*- coding: utf-8 -*-
 \"\"\"
-{name}.py — shablonnyy route.
+{name}.py - shablonnyy route.
 
 Mosty:
 - Yavnyy: (Veb ↔ Modul) bazovyy endpoint s markerami kachestva.
@@ -39,7 +37,7 @@ Mosty:
 - Skrytyy #2: (AutoDiscover ↔ Rasshirenie) etomu faylu ne nuzhno pravit app.py.
 
 Zemnoy abzats:
-Startovaya tochka: prostoy endpoint dlya proverki tsepochki «skeffolding→registratsiya→vyzov».
+Startovaya tochka: prostoy endpoint dlya proverki tsepochki “skeffolding→registratsiya→vyzov.”
 
 # c=a+b
 \"\"\"
@@ -54,16 +52,15 @@ def register(app):
 @bp.route("/sample/hello", methods=["GET"])
 def sample_hello():
     return jsonify({{"ok": True, "hello": "{short}"}})
-# c=a+b
-"""
+# c=a+b"""
 
 MODULE_TEMPLATE = '''# -*- coding: utf-8 -*-
 """
-{ name }.py — shablonnyy modul.
+{ name }.py - shablonnyy modul.
 
 Mosty:
 - Yavnyy: (Modul ↔ Ostalnoy kod) minimalnaya zagotovka.
-- Skrytyy #1: (Profile ↔ Memory) mesto pod log.
+- Skrytyy #1: (Profile ↔ Memory) place pod log.
 - Skrytyy #2: (AutoDiscover ↔ Rasshirenie) komponuetsya svobodno.
 
 Zemnoy abzats:
@@ -76,8 +73,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def ping()->dict:
     return {"ok": True, "pong": "{ short }"}
-# c=a+b
-'''
+# c=a+b'''
 
 def scaffold(kind: str, package: str, name: str)->Dict[str,Any]:
     """
@@ -92,7 +88,7 @@ def scaffold(kind: str, package: str, name: str)->Dict[str,Any]:
     short = name.strip().replace(".","_")
     body = (ROUTE_TEMPLATE if kind=="route" else MODULE_TEMPLATE).format(name=package, short=short)
     if os.path.exists(path):
-        # ne peretirat — pishem ryadom .new
+        # do not overwrite - write next to .nev
         path_new = path + ".new"
         open(path_new, "w", encoding="utf-8").write(body)
         return {"ok": True, "path": path_new, "note":"exists, wrote .new"}
@@ -100,9 +96,7 @@ def scaffold(kind: str, package: str, name: str)->Dict[str,Any]:
     return {"ok": True, "path": path}
 
 def write_file(path: str, content: str, mode: str="overwrite")->Dict[str,Any]:
-    """
-    Bezopasnaya zapis: cherez staging + bekap pri overwrite.
-    """
+    """Safe recording: through internship + backup in case of overwrite."""
     _ensure()
     if ".." in path or not any(path.replace("\\","/").startswith(p.replace(".","/")) for p in [a[:-1] for a in ALLOW]):
         return {"ok": False, "error":"path_not_allowed"}

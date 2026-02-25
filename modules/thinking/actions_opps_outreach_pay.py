@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_opps_outreach_pay.py — eksheny «voli»: Opps/Outreach/Pay.
+"""modules/thinking/actions_opps_outreach_pay.py - eksheny "voli": Opps/Outreach/Pay.
 
 Mosty:
 - Yavnyy: (Mysli ↔ CRM/Outreach/Pay) edinye knopki dlya poiska raboty, generatsii predlozheniy i rekvizitov.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Garage/Portfolio ↔ Sinergiya) predlozheniya ssylayutsya na vitrinu.
 
 Zemnoy abzats:
-Eti komandy prevraschayut «zametil shans» → «otkliknulsya» → «poluchil oplatu» v odin potok bez ruchnoy rutiny.
+Eti komandy prevraschayut “zametil shans” → “otkliknulsya” → “poluchil oplatu” v odin potok bez ruchnoy rutiny.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

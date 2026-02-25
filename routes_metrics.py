@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-/metrics (uptime/CPU/RSS/predlozheniya/pravila, plyus meta-memory s update(days=14)).
-"""
+"""/matrix (optime/CNC/RSS/offers/rules, plus meta-memory with update(days=14))."""
 import time
 
 import psutil

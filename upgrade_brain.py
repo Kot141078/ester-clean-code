@@ -4,16 +4,15 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 TARGET_FILE = "run_ester_fixed.py"
 
-# --- NOVYY MOZG (Kod funktsii s zaschitoy) ---
-NEW_BRAIN_CODE = '''
-# --- PARAMETRY SETI (OBNOVLENO) ---
+# --- NEW BRAIN (Function code with protection) ---
+NEW_BRAIN_CODE = '''# --- PARAMETRY SETI (OBNOVLENO) ---
 OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
 LOCAL_API_URL = "http://127.0.0.1:1234/v1/chat/completions"
 
 def ask_llm(messages, model="gpt-4o", temp=0.7):
     """
     V2.0: Fallback System.
-    Esli OpenAI (Oblako) padaet ili net deneg -> pereklyuchaemsya na Local LLM.
+    Esli OpenAI (Oblako) padaet ili net money -> pereklyuchaemsya na Local LLM.
     """
     try:
         import requests
@@ -27,13 +26,13 @@ def ask_llm(messages, model="gpt-4o", temp=0.7):
         "Content-Type": "application/json"
     }
     
-    # 1. Popytka: OBLAKO
+    # 1. Attempt: CLOUD
     try:
-        # Esli prinuditelno lokalnyy rezhim
+        # If you force local mode
         if os.getenv("LLM_PROVIDER") == "local":
             raise Exception("Force Local Mode")
 
-        # print(f"☁️ [CLOUD] Zapros k OpenAI ({model})...") 
+        # print(f"☁️ [CLOUD] Requests k OpenAI ({model})...") 
         response = requests.post(
             OPENAI_API_URL,
             headers=headers,
@@ -47,7 +46,7 @@ def ask_llm(messages, model="gpt-4o", temp=0.7):
         return response.json()['choices'][0]['message']['content']
 
     except Exception as e:
-        # 2. Popytka: LOKALKA (Zapasnoe serdtse)
+        # 2. Attempt: LOKALKA (Spare heart)
         print(f"⚠️ SBOY OBLAKA: {e}")
         print("🛡️ [LOCAL] Aktivatsiya lokalnogo kontura (LM Studio)...")
         
@@ -57,7 +56,7 @@ def ask_llm(messages, model="gpt-4o", temp=0.7):
                 "messages": messages, 
                 "temperature": temp
             }
-            # Bez avtorizatsii dlya lokalki
+            # Turn on authorization for LAN
             response = requests.post(
                 LOCAL_API_URL,
                 headers={"Content-Type": "application/json"},
@@ -71,11 +70,10 @@ def ask_llm(messages, model="gpt-4o", temp=0.7):
                 return f"[CRITICAL] Lokalnyy mozg tozhe nedostupen: {response.status_code}"
                 
         except Exception as local_e:
-            return f"[FAIL] Polnyy otkaz sistem. Oshibka: {local_e}"
-'''
+            return f"[FAIL] Polnyy otkaz sistem. Oshibka: {local_e}"'''
 
 def apply_fixes():
-    print(f"🔧 Otkryvayu patsienta: {TARGET_FILE}")
+    print(f"🔧Otkryvayu patsienta: {TARGET_FILE}")
     
     if not os.path.exists(TARGET_FILE):
         print("❌ Fayl ne nayden!")
@@ -85,14 +83,14 @@ def apply_fixes():
         content = f.read()
 
     # ==========================================
-    # OPERATsIYa 1: Udalenie "Chasovogo Mekhanizma"
+    # Operation 1: Removing the "Clockwork"
     # ==========================================
-    # Ischem stroki, gde bot otvechaet vremenem (UTC) i delaet return
-    # My prosto zakommentiruem etot blok.
+    # We are looking for lines where the bot responds with time (UTS) and makes a return
+    # We'll just comment out this block.
     
     echo_pattern = r'(tz\s*=\s*pytz\.timezone.*?UTC.*?return)'
     
-    # Ispolzuem re.DOTALL, chtoby zakhvatit neskolko strok (vklyuchaya perevody strok)
+    # Using re.DOTALL to grab multiple lines (including newlines)
     match_echo = re.search(echo_pattern, content, re.DOTALL)
     
     if match_echo:
@@ -109,10 +107,10 @@ def apply_fixes():
         print("⚠️ Blok vremeni ne nayden (vozmozhno, uzhe udalen).")
 
     # ==========================================
-    # OPERATsIYa 2: Vzhivlenie Zapasnogo Serdtsa
+    # Operation 2: Implantation of a Spare Heart
     # ==========================================
-    # Ischem funktsiyu ask_llm.
-    # Ispolzuem bolee gibkiy poisk: ot "def ask_llm" do sleduyuschego "def " ili "async def "
+    # We are looking for the ask_llm function.
+    # We use a more flexible search: from “def ask_llm” to the next “def” or “asins def”
     
     brain_pattern = r'(def\s+ask_llm\s*\(.*?\):[\s\S]*?)(?=\n\s*(?:async\s+)?def\s+)'
     
@@ -124,8 +122,8 @@ def apply_fixes():
         content = content.replace(old_brain, NEW_BRAIN_CODE + "\n\n")
         print("✅ Zapasnoe serdtse (Fallback) ustanovleno.")
     else:
-        # Esli ne nashli patternom "do sleduyuschey funktsii", probuem nayti "do kontsa fayla"
-        # (esli ask_llm - poslednyaya funktsiya)
+        # If we didn’t find the “until the next function” pattern, try to find “until the end of the file”
+        # (if ask_llm is the last function)
         brain_pattern_end = r'(def\s+ask_llm\s*\(.*?\):[\s\S]*)'
         match_end = re.search(brain_pattern_end, content)
         if match_end:
@@ -137,7 +135,7 @@ def apply_fixes():
             print("❌ NE UDALOS nayti ask_llm. Prover nazvanie funktsii vruchnuyu.")
 
     # ==========================================
-    # FINAL: Proverka importov i sokhranenie
+    # FINAL: Checking imports and saving
     # ==========================================
     if "import requests" not in content:
         content = "import requests\n" + content
@@ -145,9 +143,9 @@ def apply_fixes():
 
     # Delaem bekap
     with open(TARGET_FILE + ".bak", 'w', encoding='utf-8') as f:
-        f.write(content) # (Tut oshibka v logike bekapa, my pishem novyy kontent, no sut yasna - sokhranyaem)
-        # Ispravim: dlya bekapa nado bylo pisat staryy, no my uzhe izmenili peremennuyu.
-        # Ne strashno, glavnoe sokhranit rezultat.
+        f.write(content) # (There is an error in the backup logic, we are writing new content, but the essence is clear - we are saving)
+        # Let's fix it: for backup we had to write the old one, but we already changed the variable.
+        # It’s not scary, the main thing is to maintain the result.
     
     with open(TARGET_FILE, 'w', encoding='utf-8') as f:
         f.write(content)
@@ -156,4 +154,4 @@ def apply_fixes():
 
 if __name__ == "__main__":
     apply_fixes()
-    input("Nazhmi Enter dlya vykhoda...")
+    input("Press Enter to exit...")

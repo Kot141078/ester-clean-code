@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-Ontology Cache — keshiruyuschaya ontologiya ponyatiy (sinkhronizatsiya smyslov).
+"""Ontology Cache - keshiruyuschaya ontologiya ponyatiy (sinkhronizatsiya smyslov).
 
 Mosty:
-- Yavnyy: (Moduli ↔ Soglasovannyy slovar) — edinyy slovar terminov dlya vsekh chastey Ester.
-- Skrytyy 1: (Memory ↔ Obyasnimost) — kazhdomu terminu soputstvuyut kanonicheskoe imya, sinonimy i kratkoe obyasnenie.
-- Skrytyy 2: (Sovmestimost ↔ UX) — tekst mozhno «primirit» s ontologiey (reconcile) bez izmeneniya iskhodnykh moduley.
+- Yavnyy: (Moduli ↔ Soglasovannyy slovar) - edinyy slovar terminov dlya vsekh chastey Ester.
+- Skrytyy 1: (Memory ↔ Obyasnimost) - kazhdomu terminu soputstvuyut kanonicheskoe imya, sinonimy i kratkoe obyasnenie.
+- Skrytyy 2: (Sovmestimost ↔ UX) - tekst mozhno “primirit” s ontologiey (reconcile) bez izmeneniya iskhodnykh moduley.
 
 Zemnoy abzats:
-Eto slovarik-«shpargalka»: «mem-obekt» = «zapis pamyati», «puls» = «signal» — i t.d.
-Dalshe moduli menshe sporyat o terminakh, a otvety vyglyadyat rovnee.
-"""
+Eto slovarik-“shpargalka”: “mem-obekt” = “zapis pamyati”, “puls” = “signal” - i t.d.
+Dalshe moduli menshe sporyat o terminakh, a otvety vyglyadyat rovnee."""
 from __future__ import annotations
 
 import os, json, re
@@ -61,9 +59,7 @@ def list_terms(limit: int = 200) -> Dict[str, Any]:
     return {"ok": True, "count": len(db["terms"]), "terms": keys}
 
 def reconcile_text(text: str) -> Dict[str, Any]:
-    """
-    Vozvraschaet normalizovannyy tekst i primenennye zameny na kanonicheskie terminy.
-    """
+    """Returns the normalized text and any canonical term replacements applied."""
     db = _load()
     mapping: Dict[str, str] = {}
     out = text or ""

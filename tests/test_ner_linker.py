@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-tests/test_ner_linker.py — bazovaya proverka NER-linkovschika.
+"""tests/test_ner_linker.py - bazovaya proverka NER-linkovschika.
 
-Proveryaem:
+Check it out:
   • extract_entities() vozvraschaet khotya by odnu suschnost dlya tipichnogo teksta.
   • upsert_entities() otrabatyvaet (libo napryamuyu, libo v fallback-ochered).
 
@@ -14,8 +13,7 @@ Mosty:
 Zemnoy abzats:
 Eto proverka, chto shtempelevschik ne spit: vidit imena/mesta i zanosit ikh v zhurnal.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/jwt_keys_gen.py — generatsiya pary klyuchey dlya RS256 i sekreta dlya HS256.
-Vyvodit fayly:
+"""scripts/jwt_keys_gen.py - generatsiya pary klyuchey dlya RS256 i sekreta dlya HS256.
+Vyvodit faly:
   - jwt_rs256_private.pem
   - jwt_rs256_public.pem
   - jwt_hs256.secret
-Ne menyaet kanon — prosto utilita.
-"""
+Ne menyaet kanon - simply utilita."""
 from __future__ import annotations
 
 import os

@@ -1,12 +1,12 @@
-# config/rulehub_presets.yaml — presety pravil myshleniya (read-only, drop-in).
-# Obnovleno: dobavlen preset affect_aware_reflection.
+# config/rulenov_presets.yaml - presets of thinking rules (read-only, drop-in).
+# Updated: added preset affect_avare_reflection.
 #
 # Mosty:
 # - Yavnyy: (Myshlenie ↔ Memory) refleksiya s uchetom affekta povyshaet tsennost otbora.
 # - Skrytyy #1: (Infoteoriya ↔ Kachestvo) signaly emotsiy vliyayut na chastotu i ves zapisi.
-# - Skrytyy #2: (Kibernetika ↔ Planirovanie) cron-integratsiya + kvoty RuleHub.
+# - Skrytyy #2: (Kibernetika ↔ Planning) cron-integratsiya + kvoty RuleHub.
 #
-# Zemnoy abzats: «vazhnye emotsii — v pervuyu ochered na polku».
+# Earthly paragraph: “important emotions go on the shelf first.”
 
 presets:
   - id: video_autosearch_on_topic
@@ -30,7 +30,7 @@ presets:
     tags: ['video','proactive']
     rule:
       name: "proactive_video_subs_hourly"
-      when: {"kind":"cron","spec":"0 * * * *"}  # kazhdyy chas
+      when: {"kind":"cron","spec":"0 * * * *"}  # every hour
       actions: [{"kind":"http_post","url":"/proactive/video/run","json":{"mode":"subs"}},{"kind":"summarize","hint":"video"}]
 
   - id: affect_aware_reflection
@@ -38,7 +38,7 @@ presets:
     tags: ['memory','reflect','affect']
     rule:
       name: "affect_aware_reflection"
-      when: {"kind":"cron","spec":"*/30 * * * *"}  # kazhdye 30 minut legkaya proverka
+      when: {"kind":"cron","spec":"*/30 * * * *"}  # every 30 minutes easy check
       actions: [
         {"kind":"search","hint":"events_with_affect>=0.7","limit":20},
         {"kind":"summarize","hint":"affect-priority"},

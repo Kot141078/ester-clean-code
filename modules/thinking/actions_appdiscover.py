@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_appdiscover.py — eksheny dlya «voli» vokrug AppDiscover+.
+"""modules/thinking/actions_appdiscover.py - eksheny dlya "voli" vokrug AppDiscover+.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Prilozhenie) volya mozhet sama initsiirovat scan/register.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Resilience ↔ Audit) registriruem sha/ts v reestre — legko otkatit cherez Forge.
 
 Zemnoy abzats:
-Mozg prosit: «posmotri, chto novogo», «podklyuchi vot eto» — i ruki delayut.
+Brain prosit: “look, what novogo”, “podklyuchi vot eto” - i ruki delayut.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -34,8 +32,8 @@ def _reg():
 
     def a_register(args: Dict[str,Any]):
         from modules.app.discover import register_modules
-        # registrirovat v deystviyakh bez Flask nelzya — ruchka HTTP zanimaetsya vyzovom register(app)
-        # zdes vozvraschaem podskazku vyzyvat HTTP-ruchku
+        # It is impossible to register in actions without Flask - the NTTP handle is responsible for calling the register(app)
+        # here we return a hint to call the HTTP handle
         mods=list(args.get("modules") or [])
         return {"ok": True, "hint":"use /app/discover/register HTTP", "modules": mods}
     register("app.discover.register", {"modules":"list"}, {"ok":"bool"}, 1, a_register)

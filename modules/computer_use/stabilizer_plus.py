@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-modules/computer_use/stabilizer_plus.py — Stabilizer++: ozhidanie 'network idle' i zatukhaniya CSS-animatsiy.
+"""modules/computer_use/stabilizer_plus.py — Stabilizer++: ozhidanie 'network idle' i zatukhaniya CSS-animatsiy.
 
 MOSTY:
-- Yavnyy: (Deystviya ↔ Stabilnost) — posle klikov/vvoda zhdem setevoe «zatishe» i okonchanie animatsiy.
-- Skrytyy №1: (Frontend ↔ Nadezhnost) — menshe gonki sostoyaniy: DOM menyaetsya rezhe «na letu».
-- Skrytyy №2: (Polzovatel ↔ Ponimanie) — parametry prozrachny: millisekundy vidny v logakh shaga.
+- Yavnyy: (Deystviya ↔ Stabilnost) - posle klikov/vvoda zhdem setevoe “zatishe” i okonchanie animatsiy.
+- Skrytyy No. 1: (Frontend ↔ Nadezhnost) - menshe gonki sostoyaniy: DOM menyaetsya rezhe “na letu”.
+- Skrytyy No. 2: (Polzovatel ↔ Ponimanie) - parameter prozrachny: millisekundy vidny v logakh shaga.
 
 ZEMNOY ABZATs:
-Eto «vydokh posle dvizheniya»: nazhali knopku — podozhdali, poka stranitsa dogovorit poslednie zaprosy i perestanet shevelitsya, i tolko potom prodolzhaem.
+Eto “vydokh posle dvizheniya”: nazhali knopku - podozhdali, poka stranitsa dogovorit poslednie zaprosy i perestanet shevelitsya, i tolko potom prodolzhaem.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 from typing import Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 async def wait_network_idle(page, timeout_ms: int = 1500) -> bool:
-    """Zhdem sostoyanie 'networkidle' (esli dvizhok ego podderzhivaet). Vozvraschaet True, esli otzhidanie proshlo uspeshno."""
+    """We are waiting for the state of the network (if the engine supports it). Returns Three if the waiting was successful."""
     if timeout_ms <= 0:
         return False
     try:
@@ -27,10 +25,8 @@ async def wait_network_idle(page, timeout_ms: int = 1500) -> bool:
         return False
 
 async def wait_animations(page, timeout_ms: int = 800) -> bool:
-    """
-    Zhdem zatukhaniya aktivnykh animatsiy: oprashivaem window.getAnimations().
-    Zadacha — dozhdatsya, kogda ikh ne ostanetsya ili vyydet timeout.
-    """
+    """We are waiting for the active animations to fade out: we poll Windows.getAnimations().
+    The task is to wait until there are no more of them left or the timeout goes out."""
     if timeout_ms <= 0:
         return False
     waited = 0

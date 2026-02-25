@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-observability/redaction.py — redaktsiya PII i «nizkiy profil» logov.
+"""observability/redaction.py - redaktsiya PII i “nizkiy profil” logov.
 
 MOSTY:
 - (Yavnyy) redact_text/redact_dict + RedactFilter dlya loggera: skryvaem email/telefony/IP/UUID/karty/tokeny.
@@ -8,9 +7,8 @@ MOSTY:
 - (Skrytyy #2) Dekorator @redact_outputs dlya obertki funktsiy/khendlerov (safety-by-default bez lomki kontraktov).
 
 ZEMNOY ABZATs:
-Pishem v logi to, chto pomogaet obsluzhivat sistemu, no ne vydaet privatnye dannye polzovateley i kontaktov.
-# Podklyuchenie — odnoy strokoy: attach_redaction_to_logger(logger). c=a+b
-"""
+Write to, chto help obsluzhivat sistemu, no ne vydaet privatnye dannye polzovateley i kontaktov.
+# Connection - in one line: attach_edit_to_logger(logger). c=a+b"""
 from __future__ import annotations
 
 import json
@@ -63,7 +61,7 @@ def redact_text(text: str) -> str:
     return t
 
 def redact_dict(obj: Any) -> Any:
-    """Rekursivnaya redaktsiya vsekh strokovykh znacheniy v strukturakh."""
+    """Recursive editing of all string values ​​in structures."""
     if isinstance(obj, dict):
         return {k: redact_dict(v) for k, v in obj.items()}
     if isinstance(obj, list):
@@ -73,14 +71,14 @@ def redact_dict(obj: Any) -> Any:
     return obj
 
 class RedactFilter(logging.Filter):
-    """Filtr dlya loggera: primenyaet redact_text k message i polyam record.__dict__."""
+    """Filter for logger: applies edit_text to message and record.__dist__ fields."""
 
     def filter(self, record: logging.LogRecord) -> bool:
         try:
             msg = record.getMessage()
             # Perepakuem message (ostavlyaya formatirovanie logging)
             record.msg = redact_text(msg)
-            # Poprobuem redaktirovat extras, esli tam dict/json
+            # Let's try to edit the extras, if there is a dist/jsion
             for k, v in list(record.__dict__.items()):
                 if isinstance(v, str):
                     record.__dict__[k] = redact_text(v)
@@ -91,14 +89,14 @@ class RedactFilter(logging.Filter):
         return True
 
 def attach_redaction_to_logger(logger: logging.Logger) -> None:
-    """Podklyuchit RedactFilter k lyubomu loggeru odin raz."""
+    """Connect EditFilter to any logger once."""
     for f in logger.filters:
         if isinstance(f, RedactFilter):
             return
     logger.addFilter(RedactFilter())
 
 def redact_outputs(fn):
-    """Dekorator: primenyaet redact_dict k rezultatu funktsii (esli eto dict/list/str)."""
+    """Decorator: Applies edit_dist to the function result (if it is dist/sheet/page)."""
     def _wrap(*args, **kwargs):
         res = fn(*args, **kwargs)
         return redact_dict(res)

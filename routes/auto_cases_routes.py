@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/auto_cases_routes.py - REST dlya avtogeneratsii UI-testov.
+"""rutes/auto_cases_rutes.po - REST for auto-generation of UI tests.
 
-Ruchki:
-  POST /auto/tests/mine    {"timeout_ms":2000}
-  POST /auto/tests/install {"timeout_ms":2000}
+Handles:
+  POST /auto/tests/mine ZZF0Z
+  POST /auto/TESC/install ZZF1ZZ
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.test.auto_cases import mine, install

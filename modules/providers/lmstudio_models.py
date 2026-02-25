@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Avtovybor modeli LM Studio iz /v1/models.
+"""Avtovybor modeli LM Studio iz /v1/models.
 
 MOSTY:
 - (Yavnyy) pick_default_model(base) → str — luchshaya dostupnaya model.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Rabotaet i s massivami id vida "org/model" i prosto "model".
 
 ZEMNOY ABZATs:
-Eto «pereklyuchatel nasadok»: esli polzovatel ne ukazal bit, berem samuyu podkhodyaschuyu nasadku.
+Eto “pereklyuchatel nasadok”: esli polzovatel ne ukazal bit, berem samuyu podkhodyaschuyu nasadku.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from typing import List, Optional, Dict, Any
@@ -32,7 +30,7 @@ def _normalize(mid: str) -> str:
     return mid.split("/")[-1].strip().lower()
 
 def _rank(models: List[str]) -> List[str]:
-    # Prostaya evristika predpochteniy
+    # A simple preference heuristic
     prefs = [
         "qwq", "qwen3", "qwen2.5-vl", "qwen2.5-72b", "qwen2.5-32b", "qwen3-coder-30b",
         "qwen2.5-14b", "qwen2.5-7b", "deepseek-v2", "gpt-oss-20b",
@@ -46,7 +44,7 @@ def _rank(models: List[str]) -> List[str]:
             if p in ml:
                 score = i
                 break
-        # predpochtem «instruct/chat»
+        # will prefer “instruction/chat”
         if "instruct" in ml or "chat" in ml:
             score -= 0.3
         scored.append((score, m))
@@ -109,7 +107,7 @@ def list_models() -> List[str]:
 
 
 def get_preferred_model() -> Optional[str]:
-    """Vozvraschaet predpochitaemuyu model (env > runtime pin)."""
+    """Returns the preferred model (env > rintite pin)."""
     for k in ("ESTER_LMSTUDIO_MODEL", "LMSTUDIO_MODEL"):
         v = (os.getenv(k) or "").strip()
         if v:
@@ -118,7 +116,7 @@ def get_preferred_model() -> Optional[str]:
 
 
 def set_preferred_model(model: str) -> bool:
-    """Sokhranyaet predpochtenie v data/runtime/model.txt."""
+    """Stores preference in date/rint/model.txt."""
     model = (model or "").strip()
     if not model:
         return False

@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-modules/vision/error_heatmap.py — teplokarta oshibok raspoznavaniya.
+"""modules/vision/error_heatmap.py - teplokarta oshibok raspoznavaniya.
 
-Istochniki:
+Sources:
 - /attention/journal/list — sobytiya: 'safe_step_fail', 'ocr_fail', 'template_fail'
-  (ozhidayutsya polya detail.box {left,top,width,height} ili detail.point {x,y} — esli net, sobytie propuskaem).
+  (ozhidayutsya polya detail.box {left,top,width,height} or detail.point {x,y} - esli net, sobytie propuskaem).
 - /desktop/metrics/info — razmery ekrana dlya rendera.
 
 Vykhod:
-- data/vision/error/heatmap.png  (base64 po zaprosu)
+- data/vision/error/heatmap.png (base64 on request)
 - data/vision/error/heatmap.json (statistika)
 
 MOSTY:
 - Yavnyy: (Memory ↔ Diagnostika) kontsentratsiya promakhov na ekrane.
 - Skrytyy #1: (Infoteoriya ↔ Uluchshenie) dannye dlya tyuninga triggerov (nizhe — mass_tuner).
-- Skrytyy #2: (Kibernetika ↔ Kontrol) pomogaet razmeschat podskazki/kursor vne «krasnykh zon».
+- Skrytyy #2: (Kibernetika ↔ Kontrol) help razmeschat podskazki/kursor vne “krasnykh zon”.
 
 ZEMNOY ABZATs:
-Chistyy offlayn-render RGBA (kak v kontekstnoy karte), tolko istochniki — oshibki.
+Chistyy offlayn-render RGBA (kak v kontekstnoy karte), tolko istochniki - oshibki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, base64, math, zlib, struct
 from typing import Dict, Any, List
@@ -73,7 +71,7 @@ def _png(w: int, h: int, pts: List[Dict[str,int]], radius: int = 42) -> bytes:
         row=bytearray([0])
         for x in range(w):
             v = field[y*w+x]/mx if mx>0 else 0.0
-            # krasno-fioletovaya gamma dlya oshibok
+            # red-violet color for errors
             r = int(255*v); g = int(50*v); b = int(120*v); a = int(220*v)
             row += bytes([r,g,b,a])
         rows.append(bytes(row))

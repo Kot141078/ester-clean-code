@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/export_routes.py - CSV-eksporty (bezopasnye, bystrye).
+"""routes/export_routes.py - CSV-eksporty (bezopasnye, bystrye).
 
 MOSTY:
 - (Yavnyy) /export/outbox.csv, /export/mail_outbox.csv, /export/roles_edges.csv.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Potokovaya vydacha (generator) - ne kladet pamyat.
 
 ZEMNOY ABZATs:
-Nuzhno «uvezti» logi dostavki, pisma ili graf sygrannosti - odnim klikom v CSV.
+Nuzhno "uvezti" logi dostavki, pisma ili graf sygrannosti - odnim klikom v CSV.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import csv, io, os, sqlite3
@@ -53,7 +51,7 @@ async def export_mail_outbox():
 @router.get("/export/roles_edges.csv")
 async def export_roles_edges():
     with _conn() as c:
-        # tablitsa sozdaetsya v roles.edges pri pervom vyzove; esli ee net - vernem pustuyu
+        # the table is created in Roles.Edges on the first call; if it doesn't exist, it will return empty
         exists = c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='roles_edges'").fetchone()
         if not exists:
             return _stream_csv([], ["a","b","weight","updated_ts","context_json"])

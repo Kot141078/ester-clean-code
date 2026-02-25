@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-P2P Knowledge Sync — CRDT LWW-Set + merkli-kheshi dlya obmena znaniyami mezhdu uzlami.
+"""P2P Knowledge Sync - CRDT LWW-Set + merkli-kheshi dlya obmena znaniyami mezhdu uzlami.
 
 Mosty:
-- Yavnyy: (P2P ↔ Memory) — LWW-nabor (last-write-wins) khranit elementy znaniy s versiyami i «myagkimi» tombstone.
+- Yavnyy: (P2P ↔ Memory) — LWW-nabor (last-write-wins) khranit elementy znaniy s versiyami i “myagkimi” tombstone.
 - Skrytyy 1: (Doverie/Emotsii ↔ Import) — pri merzhe uchityvaem Trust/Emotion dlya prioriteta lokalnogo/udalennogo.
-- Skrytyy 2: (KG/Ontologiya ↔ Normalizatsiya) — teksty normalizuyutsya cherez Ontology Cache i mogut linkovatsya k KG.
+- Skrytyy 2: (KG/Ontologiya ↔ Normalizatsiya) - teksty normalizuyutsya cherez Ontology Cache i can linkovatsya k KG.
 
 Zemnoy abzats:
-Eto «papka dlya obmena»: kazhdyy fayl imeet vremya poslednego izmeneniya. Esli prishla bolee svezhaya versiya — berem ee.
-Chtoby bystro ponimat razlichiya mezhdu papkami, schitaem merkli-koren po soderzhimomu.
-"""
+This is “papka dlya obmena”: kazhdyy fayl imeet vremya poslednego izmeneniya. Esli prishla bolee svezhaya versiya - berem ee.
+Chtoby bystro ponimat razlichiya mezhdu papkami, schitaem merkli-koren po soderzhimomu."""
 from __future__ import annotations
 
 import os, json, time, hashlib, hmac
@@ -72,11 +70,9 @@ def summary(limit: int = 20) -> Dict[str, Any]:
     return {"ok": True, "count": len(items), "root": _merkle_root(items), "tail_ids": ids}
 
 def merge_items(incoming: List[Dict[str, Any]], author: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Merzh vkhodyaschikh elementov formata {"id":..., "value":{...}, "ts":?, "tomb":?}.
-    Esli ts ne zadan — stavim tekuschee vremya na vkhode.
-    Slot B — podkruchivaet ts v polzu bolee doverennogo istochnika (esli eto *nash* id).
-    """
+    """Merzh vkhodyaschikh elementov formata {"id":..., "value":{...}, "ts":?, "tomb":?}.
+    Esli ts ne zadan - stavim tekuschee vremya na vkhode.
+    Slot B — podkruchivaet ts v polzu bolee doverennogo istochnika (esli eto *nash* id)."""
     with ab_switch("P2P_SYNC") as slot:
         db = _load()
         applied = 0
@@ -88,10 +84,10 @@ def merge_items(incoming: List[Dict[str, Any]], author: Optional[str] = None) ->
                 tomb = bool(rec.get("tomb", False))
                 ts = float(rec.get("ts") or time.time())
                 val = rec.get("value") or {}
-                # normalizatsiya tekstovykh poley
+                # normalization of text fields
                 if isinstance(val, dict) and "text" in val and isinstance(val["text"], str):
                     val["text"] = reconcile_text(val["text"]).get("normalized") or val["text"]
-                # popravka vesa v B: esli nash lokalnyy fakt ochen doverennyy/s vysokim affektom — slegka podvinem ts vverkh
+                # weight adjustment in B: if our local fact is very trusted / with high affect, we will slightly move the vehicle up
                 if slot == "B":
                     trust = float((trust_get(rid).get("item") or {}).get("score", 0.0))
                     affect = float((emo_get(rid).get("item") or {}).get("affect", 0.0))
@@ -107,9 +103,7 @@ def merge_items(incoming: List[Dict[str, Any]], author: Optional[str] = None) ->
         return {"ok": True, "applied": applied, "root": _merkle_root(db["items"]), "slot": slot}
 
 def pull_since(root_hash: str, max_items: int = 200) -> Dict[str, Any]:
-    """
-    Prostoy «pull»: esli koren sovpal — nichego ne otdaem; inache otdaem khvost poslednikh max_items zapisey.
-    """
+    """A simple “bullet”: if the root matches, it doesn’t give anything back; otherwise we give the tail of the last max_items records."""
     db = _load()
     cur_root = _merkle_root(db["items"])
     if root_hash and root_hash == cur_root:

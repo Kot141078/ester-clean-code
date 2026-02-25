@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
-"""
-routes/probe_routes.py - sinteticheskie proverki «zolotykh putey» v odnom HTTP-vyzove.
+"""routes/probe_routes.py - sinteticheskie proverki "zolotykh putey" v odnom HTTP-vyzove.
 Ispolzuetsya dlya Argo Rollouts (web metrics provider) i dlya ruchnykh proverok.
 
-Marshruty:
-  GET /ops/probe/golden  -> { ok: bool, value: 1|0, checks: {...} }
-  GET /ops/probe/llm     -> { ok: bool, value: float (dolya uspekhov), details: [...] }
+Route:
+  GET /ops/probe/golden -> { ok: bool, value: 1|0, checks: {...} }
+  GET /ops/probe/llm -> { ok: bool, value: float (dolya uspekhov), details: [...] }
 
 Uspekh - value > 0 (ili ==1) dlya web-provaydera Rollouts.
 
 Drop-in: ne menyaet suschestvuyuschie importy i fayly. Dlya aktivatsii dobav registratsiyu
-blueprint v meste initsializatsii prilozheniya:
+blueprint v place initsializatsii prilozheniya:
     from routes.probe_routes import bp_probe
     app.register_blueprint(bp_probe)
 
 Mosty:
-- Yavnyy: (DevOps ↔ Prilozhenie) eksportiruem metriki dostupnosti «zolotykh putey» cherez prostoy REST.
-- Skrytyy #1: (Infoteoriya ↔ Shum) agregiruem binarnye iskhody v dolyu uspekhov, sglazhivaya shum.
+- Yavnyy: (DevOps ↔ Prilozhenie) eksportiruem metriki dostupnosti “zolotykh putey” cherez prostoy REST.
+- Skrytyy #1: (Infoteoriya ↔ Shum) agregiruem binarnye iskhody v dolyu uspekhov, sglazhivaya noise.
 - Skrytyy #2: (Kibernetika ↔ Obratnaya svyaz) HTTP-kody 200/503 napryamuyu zamykayut kontur avtodeploya.
-- Skrytyy #3: (Memory/Logi ↔ Prozrachnost) detali proverok mozhno pisat v obschiy «profile».
+- Skrytyy #3: (Memory/Logi ↔ Prozrachnost) details proverok mozhno pisat v obschiy “profile”.
 
 Zemnoy abzats:
-Dumay ob etom module kak o «stetoskope» dlya servisa: paru udarov - i slyshno, gde slaboe mesto.
+Dumay ob etom module kak o “stetoskope” dlya servisa: paru udarov - i slyshno, where weak place.
 Proveryaem liveness/ready, OpenAPI, provayderov i korotkiy graf - bystryy diagnoz bez lishney krovi.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -45,7 +43,7 @@ HDRS = {"Authorization": f"Bearer {JWT}"} if JWT else {}
 
 
 def _check(path: str, exp: List[int] = [200]) -> Dict[str, Any]:
-    """GET-zapros k BASE_URL+path (ili k absolyutnomu URL), ozhidanie koda iz exp."""
+    """GET request to BASE_URL+path (or absolute URL), waiting for code from exp."""
     url = f"{BASE_URL}{path}" if path.startswith("/") else path
     t0 = time.time()
     try:
@@ -68,7 +66,7 @@ def _check(path: str, exp: List[int] = [200]) -> Dict[str, Any]:
 
 @bp_probe.get("/ops/probe/golden")
 def probe_golden():
-    """Mini-nabor «zolotykh putey»: zhivost, speka, provaydery, korotkiy graf."""
+    """Mini-set of “golden paths”: liveliness, spec, providers, short graph."""
     checks = [
         _check("/live"),
         _check("/ready", [200, 503]),
@@ -85,7 +83,7 @@ def probe_golden():
 
 @bp_probe.get("/ops/probe/llm")
 def probe_llm():
-    """Legkaya proverka LLM-tsepochki: status provayderov + echo (esli est)."""
+    """Easy check of the LLM chain: status of providers + echo (if any)."""
     subs = []
     subs.append(_check("/providers/status"))
     subs.append(_check("/chat/echo?text=ping", [200, 404]))
@@ -97,7 +95,7 @@ def probe_llm():
     )
 
 
-# Unifitsirovannye khuki proekta (po konventsii)
+# Unified project hooks (by convention)
 def register(app):  # pragma: no cover
     app.register_blueprint(bp_probe)
 

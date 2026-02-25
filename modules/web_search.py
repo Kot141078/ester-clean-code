@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-modules/web_search.py — mnogoistochnikovyy veb-poisk (Google CSE / SerpAPI / Bing / DuckDuckGo HTML-fallback).
+"""modules/web_search.py ​​- mnogoistochnikovyy web-poisk (Google CSE / SerpAPI / Bing / DuckDuckGo HTML-fallback).
 
 Zemnoy abzats (inzheneriya):
-Eto «vkhod v mir ssylok»: po tekstovomu zaprosu vozvraschaem spisok {title,url,snippet,source}.
-Esli klyuchey net — rabotaem cherez legkiy HTML-fallback DuckDuckGo. Nikakikh izmeneniy
+Eto “vkhod v mir ssylok”: po tekstovomu zaprosu vozvraschaem spisok {title,url,snippet,source}.
+Esli klyuchey net - rabotaem cherez legkiy HTML-fallback DuckDuckGo. Nikakikh change
 suschestvuyuschikh marshrutov/kontraktov — modul vyzyvaetsya iz thinking-payplayna, net-mostov
-ili utilitami.
+or utilities.
 
 Mosty:
-- Yavnyy: Poisk ↔ Ingest — rezultatom yavlyayutsya URL, kotorye mozhno srazu otpravit v /ingest (detect_and_read/url).
-- Skrytyy 1: Infoteoriya ↔ RAG — naydennye dokumenty vkhodyat v pamyat, uluchshayut pokrytie dlya posleduyuschikh zaprosov.
+- Yavnyy: Poisk ↔ Ingest - rezultatom yavlyayutsya URL, kotorye mozhno srazu otpravit v /ingest (detect_and_read/url).
+- Skrytyy 1: Infoteoriya ↔ RAG - naydennye dokumenty vkhodyat v pamyat, uluchshayut pokrytie dlya posleduyuschikh zaprosov.
 - Skrytyy 2: Bezopasnost ↔ Politiki — A/B-slot i deny-spisok domenov predotvraschayut utechki/riskovannye istochniki.
 
 A/B-slot (bezopasnaya samo-redaktura):
-- SEARCH_AB = "A" (po umolchaniyu): vklyucheny provaydery, est bezopasnyy HTML-fallback;
-- SEARCH_AB = "B": vozvrat pustogo spiska (signal «poisk vyklyuchen»), avtokatbek — peremennaya okruzheniya.
+- SEARCH_AB = "A" (by umolchaniyu): vklyucheny provaydery, est bezopasnyy HTML-fallback;
+- SEARCH_AB = "B": vozvrat pustogo spiska (signal "poisk vyklyuchen"), avtokatbek — peremennaya okruzheniya.
 
-# c = a + b
-"""
+# c = a + b"""
 
 from __future__ import annotations
 
@@ -179,13 +177,11 @@ def _search_bing(q: str, topk: int) -> List[Dict[str, str]]:
 
 
 def _search_ddg_html(q: str, topk: int) -> List[Dict[str, str]]:
-    """
-    Legkiy HTML-scrape DuckDuckGo — fallback bez klyuchey.
+    """Legkiy HTML-scrape DuckDuckGo — fallback bez klyuchey.
 
     Zdes delaem maksimalno terpimyy regeksp: ischem lyuboy <a>, u kotorogo
-    v spiske klassov est slovo "result__a". Tak on perezhivaet dobavlenie
-    novykh klassov (js-result-title-link i pr.).
-    """
+    v spiske klassov est slovo "result__a". So on perezhivaet added
+    novykh klassov (js-result-title-link i pr.)."""
     params = {"q": q, "kl": "wt-wt"}  # world-wide
     url = DDG_HTML_ENDPOINT + "?" + urlencode(params)
     html_text = _http_text(url, timeout=SEARCH_TIMEOUT)
@@ -221,12 +217,11 @@ def _search_ddg_html(q: str, topk: int) -> List[Dict[str, str]]:
     return items
 
 
-# --- Publichnaya funktsiya ---
+# --- Public function ---
 
 
 def search_web(query: str, topk: int = 5) -> List[Dict[str, str]]:
-    """
-    Unifitsirovannyy veb-poisk.
+    """Unifitsirovannyy web-search.
     Vozvraschaet spisok obektov {title,url,snippet,source}.
 
     Poryadok provayderov:
@@ -235,8 +230,7 @@ def search_web(query: str, topk: int = 5) -> List[Dict[str, str]]:
 
     A/B:
       - A (default): ispolzuem dostupnye provaydery/folbek.
-      - B: vozvraschaem [] (poisk otklyuchen).
-    """
+      - B: vozvraschaem [] (poisk otklyuchen)."""
     q = (query or "").strip()
     if not q:
         return []
@@ -248,7 +242,7 @@ def search_web(query: str, topk: int = 5) -> List[Dict[str, str]]:
     topk_int = max(1, min(topk_int, SEARCH_TOPK_MAX))
 
     if SEARCH_AB == "B":
-        # Polnoe otklyuchenie poiska — bezopasnyy rezhim.
+        # Disabling search completely - safe mode.
         return []
 
     prov = SEARCH_PROVIDER
@@ -264,7 +258,7 @@ def search_web(query: str, topk: int = 5) -> List[Dict[str, str]]:
             return []
         return []
 
-    # Yavnyy provayder
+    # Explicit provider
     if prov == "google":
         r = _try(_search_google_cse, "google")
         return r

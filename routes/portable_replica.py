@@ -1,29 +1,27 @@
 # -*- coding: utf-8 -*-
-"""
-routes/portable_replica.py - UI/REST «Otdat/Zabrat» portable + P2P endpoints.
+"""routes/portable_replica.py - UI/REST “Otdat/Zabrat” portable + P2P endpoints.
 
-Lokalnye:
-  • GET  /admin/portable/replica
-  • GET  /admin/portable/replica/status
+Local:
+  • GET /admin/portable/replica
+  • GET /admin/portable/replica/status
   • POST /admin/portable/replica/index
   • POST /admin/portable/replica/offer
   • POST /admin/portable/replica/pull
   • POST /admin/portable/replica/activate
 
 P2P:
-  • GET  /lan/portable/manifest
-  • GET  /lan/portable/block/<sha>
+  • GET /lan/portable/manifest
+  • GET /lan/portable/block/<sha>
 
 Mosty:
-- Yavnyy (Kibernetika ↔ UX): knopki «Otdat/Zabrat» i monitoring progressa.
+- Yavnyy (Kibernetika ↔ UX): knopki “Otdat/Zabrat” i monitoring progress.
 - Skrytyy 1 (Infoteoriya ↔ Nadezhnost): token/lokalnaya set + khesh-kontrol i CAS.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): ne trogaem yadro; aktivatsiya sovmestima so slotovoy skhemoy.
 
 Zemnoy abzats:
 Odin ekran: indeksirovat svoy current, vystavit manifest, zabrat u soseda i pri zhelanii akkuratno vklyuchit novuyu versiyu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json, os, re
@@ -95,7 +93,7 @@ def api_activate():
 @bp_pr.get("/lan/portable/manifest")
 def p2p_manifest():
     s = load_sync_settings()
-    # prostaya zaschita: po umolchaniyu razreshaem tolko iz lokalnoy seti; pri zadannom tokene - trebuem ego.
+    # simple protection: by default, allows only from the local network; for a given token - requires it.
     if s.get("token"):
         if request.headers.get("X-Ester-Token","") != s["token"]:
             return abort(401)

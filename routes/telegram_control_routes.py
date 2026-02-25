@@ -1,32 +1,30 @@
 # -*- coding: utf-8 -*-
 # routes/telegram_control_routes.py
-"""
-routes/telegram_control_routes.py — JSON-API upravleniya profilem Telegram-bota.
+"""routes/telegram_control_routes.py - JSON-API upravleniya profilem Telegram-bota.
 
 Prefiks: /tg/ctrl/api
-Marshruty:
-  • GET  /tg/ctrl/api/get_me         — Informatsiya o bote + tekuschie komandy (JWT: user/admin)
-  • POST /tg/ctrl/api/set_profile    — Ustanovit name / short_description / description (JWT: admin)
-  • POST /tg/ctrl/api/set_commands   — Ustanovit komandy (JWT: admin)
+Route:
+  • GET /tg/ctrl/api/get_me – Informatsiya o bote + tekuschie komandy (JWT: user/admin)
+  • POST /tg/ctrl/api/set_profile - Ustanovit name / short_description / description (JWT: admin)
+  • POST /tg/ctrl/api/set_commands - Ustanovit komandy (JWT: admin)
 
-Zavisimosti:
+Dependency:
   • services.telegram_client.TelegramClient
 
 Sovmestimost (drop-in):
   • Puti sovpadayut s temi, chto dergaet shablon templates/telegram_control_ui.html.
-  • R egistratsiya blyuprinta vypolnyaetsya v register_all.py (sm. blok s /tg/ctrl).
+  •Registratsiya blyuprinta vypolnyaetsya v register_all.py (see block s /tg/ctrl).
 
 Zemnoy abzats (inzheneriya):
-Chistoe razdelenie obyazannostey: UI — v odnom module, JSON-API — v drugom. Eto snizhaet svyaznost,
+Clear razdelenie obyazannostey: UI - v odnom module, JSON-API - v drugom. This is svyaznost,
 uproschaet otladku i isklyuchaet dvoynuyu registratsiyu marshrutov.
 
 Mosty:
 - Yavnyy (Kibernetika v†" Arkhitektura): operator v†' kontroller v†' bot (obratnaya svyaz cherez get_me).
 - Skrytyy 1 (Infoteoriya v†" Interfeysy): strogiy JSON-kontrakt po Bot API umenshaet entropiyu integratsii.
-- Skrytyy 2 (Anatomiya v†" PO): «rechevoy tsentr» (imya/opisaniya/komandy) upravlyaetsya soznatelno Re atomarno.
+- Skrytyy 2 (Anatomiya v†" PO): "rechevoy tsentr" (imya/opisaniya/komandy) upravlyaetsya soznatelno Re atomically.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -56,7 +54,7 @@ def _has_role(jwt_claims: dict, allowed: set[str]) -> bool:
 
 if jwt_required:
     @bp.get("/get_me")
-    @jwt_required(optional=True)  # chitat mozhet i user
+    @jwt_required(optional=True)  # even the user can read
     def api_get_me():
         try:
             api = TelegramClient()
@@ -114,7 +112,7 @@ if jwt_required:
         if not isinstance(commands, list):
             return jsonify({"ok": False, "error": "commands must be list"}), 400
 
-        # Validatsiya prostaya
+        # Validation is simple
         clean: List[Dict[str, str]] = []
         for item in commands:
             if not isinstance(item, dict):
@@ -135,7 +133,7 @@ if jwt_required:
             return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
 
 else:
-    # Bez JWT — obyasnyaem prichinu
+    # Without gastrointestinal tract - explains the reason
     @bp.get("/get_me")  # type: ignore[misc]
     def api_get_me_nojwt():
         return jsonify({"ok": False, "error": "jwt_required_unavailable"}), 503
@@ -149,7 +147,7 @@ else:
         return jsonify({"ok": False, "error": "jwt_required_unavailable"}), 503
 
 def register_telegram_control_routes(app) -> None:
-    """Sovmestimyy imenovannyy registrator dlya starykh vyzovov."""
+    """Compatible named logger for legacy calls."""
     if bp.name not in getattr(app, "blueprints", {}):
         app.register_blueprint(bp)
 

@@ -80,7 +80,7 @@ c=a+b
   }
 
   async function planQ(){
-    const goal = 'Podgotovit otchet (mini-plan)';
+    const goal = 'Prepare a report (mini-plan)';
     const r = await fetchJSON('/thinking/act', {method:'POST', body: JSON.stringify({name:'report.plan.quick', args:{goal}})});
     E('plan').value = pjson(r.plan || {});
   }

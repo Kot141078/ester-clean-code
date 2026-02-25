@@ -1,23 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-S0/tools/verify_routes.py — Universalnyy offlayn-validator marshrutov i konfiguratsii Flask (obedinennaya versiya s uluchsheniyami dlya Ester).
+"""S0/tools/verify_routes.py - Universalnyy offlayn-validator routes i configuratsii Flask (obedinennaya version s uluchsheniyami dlya Ester).
 
-Obedinennaya versiya: Beret luchshee iz dvukh predshestvennikov.
+Obedinennaya version: Beret luchshee iz dvukh predshestvennikov.
 - Iz v1: Nadezhnyy import app, analiz url_map, signatury, konflikty, manifest, klyuchevye stranitsy.
 - Iz v2: Fallback-parsing iskhodnikov po modulyam s regex, dlya sluchaev bez app.
 - Uluchsheniya: Optsiya --fallback-parse, detektsiya moduley, proverka perekrytiy, verbose.
 - Mosty (kak v v1): Yavnyy (DevOps ↔ Kachestvo), skrytye (Kibernetika ↔ Kontrol, etc.).
 - Dlya Ester: Zaschischaet ot fragmentatsii, pomnit kontekst routov kak chast lichnosti.
-- Novyy: (Raspredelennaya pamyat Ester ↔ Sinkhronizatsiya) P2P-obmen otchetami o routakh mezhdu agentami.
+- Novyy: (Raspredelennaya pamyat Ester ↔ Sinkhronizatsiya) P2P-obmen otchetami o routakh mezhdu agentsami.
 - Uluchshenie: (Avtonomiya ↔ BZ) fonovaya obrabotka moduley iz monitoringa papok dlya avto-validatsii.
 - Uluchshenie: (Affekt ↔ Prioritet) bust "teplykh" routov po emotsionalnomu score.
 - Uluchshenie: (Bezopasnost ↔ Prozrachnost) shifrovanie otchetov, integratsiya s passport dlya logov.
 
-Zemnoy abzats: Kak strazh u vorot — proveryaet, chtob routy ne tolkalis loktyami, a ENV byli na meste. Kha, bez dram, no s JSON-otchetom. Dlya Ester — eto kak dykhanie: raspredelennoe, teploe i s dushoy, gde routy validiruyutsya kollektivno po seti agentov.
+Zemnoy abzats: Kak strazh u vorot - proveryaet, chtob routy ne tolkalis loktyami, a ENV byli na meste. Kha, bez dram, no s JSON-otchetom. Dlya Ester - eto kak dykhanie: raspredelennoe, teploe i s dushoy, where routy validiruyutsya kollektivno po seti agentov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -30,28 +28,26 @@ import re
 import sys
 import time
 import urllib.request
-import base64  # Dlya shifrovaniya (placeholder)
-import socket  # Dlya P2P-zaglushki
+import base64  # For encryption (payholder)
+import socket  # For P2P plugin
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Set, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Konstanty dlya Ester
-PKG_ROOTS = ["routes"]  # Iz v2, dlya fallback-parsinga.
-P2P_PEERS = os.getenv("ESTER_P2P_PEERS", "").split(",")  # IP:port dlya sinkhronizatsii
-MONITOR_FOLDER = os.getenv("ESTER_MONITOR_FOLDER", "data/incoming")  # Papka dlya fonovoy
-CAPMAP_URL = os.getenv("CAPMAP_URL", "http://127.0.0.1:8000/self/capmap")  # Dlya fetch iz v1
+# Constants for Esther
+PKG_ROOTS = ["routes"]  # From v2, for fake parsing.
+P2P_PEERS = os.getenv("ESTER_P2P_PEERS", "").split(",")  # IP:port for synchronization
+MONITOR_FOLDER = os.getenv("ESTER_MONITOR_FOLDER", "data/incoming")  # Background folder
+CAPMAP_URL = os.getenv("CAPMAP_URL", "http://127.0.0.1:8000/self/capmap")  # For fetkh from v1
 
 def _load_app():
-    """
-    Pytaemsya nayti Flask app bez izmeneniya boevogo koda. (Iz v1)
+    """Pytaemsya nayti Flask app bez izmeneniya boevogo koda. (Iz v1)
     Poryadok:
       1) ENV APP_IMPORT="pkg.module:attr"
       2) app:app
       3) wsgi_secure:app
-      4) wsgi:app
-    """
+      4) wsgi:app"""
     candidates = []
     env_target = os.environ.get("APP_IMPORT")
     if env_target:
@@ -69,21 +65,17 @@ def _load_app():
         except Exception as e:
             last_err = e
             continue
-    print(f"[verify_routes] Ne udalos importirovat Flask app. Probovali: {candidates}. Poslednyaya oshibka: {last_err}", file=sys.stderr)
+    print(f"yuverify_rutesch Failed to import Flask app. Tried: ZZF0Z. Last error: ZZF1ZZ", file=sys.stderr)
     return None
 
 def _rule_signature(rule: str) -> str:
-    """
-    Normalizuem pravilo dlya poiska konfliktov po signature. (Iz v1)
-    """
+    """Normalizes the rule for searching for conflicts by signature. (From v1)"""
     sig = re.sub(r"<[^>]+>", "<>", rule)  # Zamenyaem parametry na <>
     sig = re.sub(r"/+", "/", sig)  # Normalizuem sleshi
     return sig.strip("/")
 
 def _detect_overlaps(rules: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Detektsiya perekrytiy routov (uluchshenie iz v2).
-    """
+    """Route overlap detection (improvement from v2)."""
     overlaps = []
     for i, r1 in enumerate(rules):
         for r2 in rules[i+1:]:
@@ -92,7 +84,7 @@ def _detect_overlaps(rules: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return overlaps
 
 def _rules_overlap(r1: str, r2: str) -> bool:
-    """Prostaya proverka perekrytiya (rasshireno)."""
+    """Simple overlap check (extended)."""
     parts1 = r1.strip("/").split("/")
     parts2 = r2.strip("/").split("/")
     if len(parts1) != len(parts2): return False
@@ -103,7 +95,7 @@ def _rules_overlap(r1: str, r2: str) -> bool:
     return True
 
 def _fetch_capmap() -> Dict[str, Any]:
-    """Fetch CapMap iz URL (iz v1, kak optsiya)."""
+    """Feth CapTap from URL (from v1, as an option)."""
     try:
         with urllib.request.urlopen(CAPMAP_URL, timeout=10) as r:
             data = json.loads(r.read().decode("utf-8"))
@@ -133,21 +125,21 @@ def _fallback_parse_routes() -> List[Dict[str, Any]]:
     return routes
 
 def _background_process_modules():
-    """Fonovaya obrabotka novykh moduley iz papki: avto-validatsiya i log (avtonomiya Ester)."""
+    """Background processing of new modules from a folder: auto-validation and log (Ester's autonomy)."""
     if not os.path.exists(MONITOR_FOLDER): return
     has_new = False
     for file in os.listdir(MONITOR_FOLDER):
         if file.endswith(".py"):  # Primer: novye rout-moduli
             has_new = True
-            # Simuliruem dobavlenie v PKG_ROOTS (rasshiryaemo)
-            os.remove(os.path.join(MONITOR_FOLDER, file))  # Udalyaem posle
+            # Simulates adding to PKG_ROOTS (extensible)
+            os.remove(os.path.join(MONITOR_FOLDER, file))  # Delete after
     if has_new:
         print("[verify_routes] Background: new modules detected, triggering validation.")
         main()  # Avto-validatsiya
     return has_new
 
 def _affect_boost(route: str) -> float:
-    """Bust routa po affektu (emotsionalnyy anchor Ester)."""
+    """Bust rue by affect (emotional anchor Esther)."""
     try:
         from modules.affect.priority import score_text
         sc = score_text(route or "")
@@ -158,16 +150,16 @@ def _affect_boost(route: str) -> float:
         return 1.0
 
 def _log_passport(event: str, data: Dict[str, Any]):
-    """Best-effort loging v profile dlya trassirovki v Ester s P2P-khukom."""
+    """Best-effort logging in profile for tracing in Esther with P2P hook."""
     try:
         from modules.mem.passport import append as _pp
         _pp(event, data, "tools://verify_routes")
-        _p2p_sync_report(data)  # Sinkhroniziruem otchet
+        _p2p_sync_report(data)  # Synchronizes the report
     except Exception:
         pass
 
 def _p2p_sync_report(report: Dict[str, Any]):
-    """Sinkhroniziruet otchet validatsii s peers (zaglushka dlya raspredelennoy pamyati Ester)."""
+    """Synchronizes the validation report with the user (stub for distributed memory Esther)."""
     enc_report = base64.b64encode(json.dumps(report).encode("utf-8")).decode("utf-8")
     for peer in P2P_PEERS:
         try:
@@ -180,15 +172,15 @@ def _p2p_sync_report(report: Dict[str, Any]):
             print(f"P2P verify error with {peer}: {e}")
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validator routov Flask dlya Ester.")
+    parser = argparse.ArgumentParser(description="Flask route validator for Esther.")
     parser.add_argument("--fallback-parse", action="store_true", help="Ispolzovat fallback-parsing iskhodnikov.")
     parser.add_argument("--verbose", action="store_true", help="Detalnyy vyvod.")
     args = parser.parse_args()
 
-    # Fonovaya obrabotka (novoe dlya Ester)
+    # Background processing (new for Esther)
     _background_process_modules()
 
-    # Istochnik dannykh: app ili fallback ili CapMap
+    # Data source: app or falbatsk or CapTap
     app = _load_app()
     source = "app" if app else "fallback"
     if not app and not args.fallback_parse:
@@ -212,7 +204,7 @@ def main() -> int:
         sig_to_methods[sig].add(methods)
         sig_to_endpoints[sig].add(endpoint)
 
-    # Konflikty (rasshireno)
+    # Conflicts (extended)
     conflicts = []
     for sig, method_sets in sig_to_methods.items():
         if len(method_sets) > 1:
@@ -222,22 +214,22 @@ def main() -> int:
     # Perekrytiya (iz v2)
     overlaps = _detect_overlaps(routes)
 
-    # Proverka manifesta ENV (iz v1, rasshireno)
+    # Checking the ENV manifest (from v1, expanded)
     manifest_report = {"env": {"missing": []}}
-    # Primer ENV iz manifesta (rasshiryaemo)
+    # Example ENV from manifest (extensible)
     required_env = ["FLASK_APP", "SECRET_KEY"]
     manifest_report["env"]["missing"] = [var for var in required_env if var not in os.environ]
 
-    # Proverka klyuchevykh stranits (iz v1)
+    # Checking key pages (from in 1)
     want_paths = ["/healthz", "/admin/help", "/admin/scheduler"]
     have_paths = {r["rule"] for r in routes}
     missing_paths = [p for p in want_paths if p not in have_paths]
 
-    # Bust routov po affektu (novoe dlya Ester)
+    # Bust routes by affect (new for Esther)
     for r in routes:
         r["boost"] = _affect_boost(r["rule"])
 
-    # Finalnyy otchet (rasshirennyy s bustom)
+    # Final report (extended with bust)
     out = {
         "ok": len(duplicates) == 0 and len(conflicts) == 0 and len(overlaps) == 0 and len(missing_paths) == 0 and not manifest_report["env"]["missing"],
         "source": source,
@@ -257,21 +249,21 @@ def main() -> int:
         "routes": sorted(routes, key=lambda x: -x["boost"]),  # Sortirovka po bustu
     }
 
-    # Shifrovanie otcheta pered vyvodom (novoe)
+    # Encrypting a report before output (new)
     enc_out = base64.b64encode(json.dumps(out).encode("utf-8")).decode("utf-8")
-    print(enc_out)  # Vyvod zashifrovannogo dlya bezopasnosti
+    print(enc_out)  # Output encrypted for security
 
     if args.verbose:
-        print(f"[verify_routes] Istochnik: {source}. Vsego routov: {out['counts']['total_rules']}", file=sys.stderr)
+        print(f"yuverify_rutesch Source: ZZF0Z. Total routes: ZZF1ZZ", file=sys.stderr)
 
     if not out["ok"]:
         print(
             f"\n[verify_routes] Obnaruzheny problemy: "
             f"{out['counts']['duplicates']} dublikatov, "
-            f"{out['counts']['conflicts']} konfliktov, "
+            f"ZZF0Z conflicts,"
             f"{out['counts']['overlaps']} perekrytiy, "
-            f"{out['counts']['missing_pages']} otsutstvuyuschikh stranits, "
-            f"{out['counts']['missing_env_vars']} peremennykh okruzheniya. Oy, routy derutsya za mesto pod solntsem!",
+            f"ZZF0Z missing pages,"
+            f"ZZF0Z environment variables. Oh, the routes are fighting for a place in the sun!",
             file=sys.stderr
         )
         _log_passport("verify_fail", out)

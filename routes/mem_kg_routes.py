@@ -1,29 +1,27 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mem_kg_routes.py — pamyat (/memory + /mem) i graf znaniy (/mem/kg, /mem/hypothesis).
+"""routes/mem_kg_routes.py - pamyat (/memory + /mem) i graf znaniy (/mem/kg, /mem/hypothesis).
 Drop-in: modul registriruetsya iz wsgi_secure.py i podnimaet svyazannye routy.
 
 Vklyuchaet:
   /memory/flashback (GET)
-  /memory/alias     (POST)
-  /memory/compact   (POST)
+  /memory/alias (POST)
+  /memory/compact (POST)
   A takzhe aliasy na /mem/flashback, /mem/alias, /mem/compact
 
 Graf znaniy:
-  /mem/kg/upsert  (POST)
-  /mem/kg/query   (GET)
-  /mem/kg/export  (GET)
-  /mem/kg/import  (POST)
+  /mem/kg/upsert (POST)
+  /mem/kg/query (GET)
+  /mem/kg/export (GET)
+  /mem/kg/import (POST)
 
-Gipotezy/idei:
-  /mem/hypothesis (GET, POST) — integratsiya s idea.py (kak istochnikom idey) + khranenie.
+Hypothesis/ideas:
+  /mem/hypothesis (GET, POST) - integratsiya s idea.py (kak istochnikom idey) + khranenie.
 
 Khranenie:
-  - StructuredMemory — kak v ostalnykh modulyakh
-  - KG: PERSIST_DIR/kg/graph.json  (nodes[], edges[])
+  - StructuredMemory - kak v ostalnykh modulyakh
+  - KG: PERSIST_DIR/kg/graph.json (nodes[], edges[])
   - Alias map: PERSIST_DIR/structured_mem/alias.json
-  - Hypothesis stash: PERSIST_DIR/hypothesis.jsonl
-"""
+  - Hypothesis stash: PERSIST_DIR/hypothesis.jsonl"""
 from __future__ import annotations
 
 import json
@@ -38,7 +36,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 _ALIAS_MEM: Dict[str, str] = {}
 _KG_SCOPE: str = ""
 
-# -------- pamyat / menedzher --------
+# -------- memory/manager --------
 
 
 def _persist_dir() -> str:
@@ -239,7 +237,7 @@ def _hypo_append(obj: Dict[str, Any]) -> None:
 
 
 def _mm():
-    """Lenivyy singleton menedzhera pamyati."""
+    """Lazy memory manager singleton."""
     global _MM
     try:
         return _MM
@@ -278,8 +276,8 @@ def _hs():
 
 
 def _register_memory_routes(app, base: str = "/memory"):
-    """Registriruet /<base>/{flashback,alias,compact}. Dlya aliasov zovem dvazhdy."""
-    # unikalnyy prefiks endpoint-ov, chtoby ne peresekalis pri povtornoy registratsii
+    """Registers /<base>/ZZF0Z. For aliases we call twice."""
+    # a unique prefix of endpoints so that they do not overlap when re-registering
     ep_prefix = (base or "/").strip("/").replace("/", "_") or "root"
     ep_ns = f"memkg_{ep_prefix}"
 
@@ -430,13 +428,11 @@ def _register_hypothesis_routes(app):
         return jsonify({"ok": True, "saved": True})
 
 
-def register_mem_kg_routes(app, url_prefix: str = "/memory"):  # url_prefix sokhranyaem dlya signatury sovmestimosti
-    """
-    Glavnaya tochka vkhoda: registriruet:
-      /memory/* i aliasy /mem/*
-      /mem/kg/*, /mem/hypothesis
-    """
-    # Idempotentnost: esli klyuchevoy KG-marshrut uzhe est, povtorno ne registriruem.
+def register_mem_kg_routes(app, url_prefix: str = "/memory"):  # URL_prefix is ​​saved for compatibility signature
+    """Main entry point: registers:
+      /memory/* and aliases /topics/*
+      /tem/kg/*, /tem/hopotnesis"""
+    # Idempotency: if the key CG route already exists, we do not register it again.
     if any(r.rule == "/mem/kg/upsert" for r in app.url_map.iter_rules()):
         return
     # Memory pod /memory/*
@@ -450,6 +446,6 @@ def register_mem_kg_routes(app, url_prefix: str = "/memory"):  # url_prefix sokh
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
 def register(app):
-    # Vyzyvaem suschestvuyuschiy register_mem_kg_routes(app) (url_prefix beretsya po umolchaniyu vnutri funktsii)
+    # Calls an existing register_topics_kg_rutes(app) (url_prefix is ​​taken by default inside the function)
     return register_mem_kg_routes(app)
 # === /AUTOSHIM ===

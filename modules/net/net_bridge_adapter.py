@@ -3,7 +3,7 @@ from typing import Dict, Any
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 log = logging.getLogger(__name__)
 
-# Importiruem provayder (kotoryy my obnovili vyshe)
+# Import the provider (which we updated above)
 try:
     from modules.providers import google_cse_adapter
 except ImportError:

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-modules/listeners/lan_jobs_runner.py — fonovyy ranner lokalnoy ocheredi LAN‑zadach (pull/offer).
+"""modules/listeners/lan_jobs_runner.py - fonovyy runner lokalnoy ocheredi LAN‑zadach (pull/offer).
 
 Problemy iskhodnika:
 - sloman blok `if __name__ == "__main__":` → SyntaxError: expected an indented block. fileciteturn13file0
@@ -11,21 +10,21 @@ Problemy iskhodnika:
 - tselevaya papka pull byla obschey (peretirat dannye raznykh peer).
 - slabaya nablyudaemost: net took_ms, net akkuratnogo otcheta, net jitter dlya intervala.
 
-Chto sdelano:
-- vosstanovleny otstupy i __main__.
+What was done:
+- restore otstupy i __main__.
 - AB dlya rannera neymspeysnyy:
     ESTER_LAN_JOBS_AB_MODE → LAN_JOBS_AB_MODE → AB_MODE (fallback).
 - batch/drain: za tik mozhno vypolnit N zadach (po umolchaniyu 1), chtoby ochered ne “zalipala”.
 - pull kladet v otdelnuyu papku na peer: base_dir/replica/from_peer/<peer_safe>/
-- otchet out rasshiren: took_ms, bytes_in/bytes_out, mode, action.
+- report out expandedn: took_ms, bytes_in/bytes_out, mode, action.
 - jitter k sleep, chtoby neskolko rannerov ne “schelkali” sinkhronno.
 - vsya markirovka zaversheniya best‑effort: dazhe esli mark_done slomalsya, ranner zhivet dalshe.
 
-ENV (optsionalno):
+ENV (optional):
 - LAN_JOBS_INTERVAL=15
 - LAN_JOBS_MAX_PER_TICK=1
-- LAN_JOBS_JITTER=0.10                 (dolya, 0..0.5)
-- ESTER_LAN_JOBS_AB_MODE=A|B           (ili LAN_JOBS_AB_MODE; fallback AB_MODE)
+- LAN_JOBS_JITTER=0.10 (dolya, 0..0.5)
+- ESTER_LAN_JOBS_AB_MODE=A|B (or LAN_JOBS_AB_MODE; fallback AB_MODE)
 - LAN_JOBS_PULL_TARGET_SUBDIR=replica/from_peer
 
 MOSTY:
@@ -35,8 +34,7 @@ MOSTY:
 
 ZEMNOY ABZATs:
 Eto “motorchik konveyera”: vazhno, chtoby on ne ostanavlivalsya iz‑za odnoy krivoy zadachi i ne putal yaschiki raznykh postavschikov
-(poetomu otdelnye papki po peer i best‑effort zavershenie).
-"""
+(poetomu otdelnye papki po peer i best‑effort zavershenie)."""
 
 import argparse
 import logging
@@ -123,10 +121,8 @@ class LanJobsRunner:
         self.cfg = cfg or RunnerConfig.from_env()
 
     def run_batch(self, ab_override: Optional[str] = None) -> int:
-        """
-        Vypolnyaet do cfg.max_per_tick zadach (esli est).
-        Vozvraschaet chislo vypolnennykh (vklyuchaya dry-run).
-        """
+        """Executes up to sfg.max_per_tisk tasks (if any).
+        Returns the number of completed (including dry runes)."""
         ab = (ab_override or _ab_mode()).strip().upper()
         done = 0
         for _ in range(self.cfg.max_per_tick):
@@ -225,7 +221,7 @@ class LanJobsRunner:
         fetched = int(rep.get("fetched", 0) or 0)
         block_sz = max(1, int(s.get("block_mb", 4))) * 1024 * 1024
 
-        # esli portable_sync vernul bytes — ispolzuem ego, inache otsenivaem
+        # if portable_sync is returned, beat it - we use it, otherwise it evaluates
         bytes_in = int(rep.get("bytes_in", 0) or rep.get("bytes", 0) or (fetched * block_sz))
 
         return ok, {
@@ -247,15 +243,15 @@ class LanJobsRunner:
 
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(description="Ester LAN jobs runner")
-    ap.add_argument("--loop", action="store_true", help="Rabotat v beskonechnom tsikle.")
+    ap.add_argument("--loop", action="store_true", help="Run in an endless loop.")
     ap.add_argument("--interval", type=int, default=0, help="Interval mezhdu tikami, sek (overrides ENV).")
-    ap.add_argument("--max-per-tick", type=int, default=0, help="Skolko zadach maksimum za tik (overrides ENV).")
-    ap.add_argument("--drain", action="store_true", help="Vykachat ochered do pustoty i vyyti (ignoriruet --interval).")
-    ap.add_argument("--ab", type=str, default="", help="Pereopredelit AB rezhim dlya etogo protsessa: A|B.")
-    ap.add_argument("--log-level", type=str, default="", help="DEBUG|INFO|WARNING|ERROR (esli zapuskaetsya kak skript).")
+    ap.add_argument("--max-per-tick", type=int, default=0, help="How many tasks maximum per tick (overrides ENV).")
+    ap.add_argument("--drain", action="store_true", help="Drain the queue until empty and exit (ignores --interval).")
+    ap.add_argument("--ab", type=str, default="", help="Override AB mode for this process: A|B.")
+    ap.add_argument("--log-level", type=str, default="", help="DEBUG|INFO|WARNING|ERROR (if run as a script).")
     args = ap.parse_args(argv)
 
-    # lokalnyy bazovyy logger (tolko esli zapuskaem napryamuyu)
+    # local base logger (only if launched directly)
     lvl = (args.log_level or os.getenv("LAN_JOBS_LOG_LEVEL") or "").strip().upper()
     if lvl in ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"):
         logging.basicConfig(level=getattr(logging, lvl))

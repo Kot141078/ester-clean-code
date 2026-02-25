@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_integrations.py - admin-ruchki dlya self-check integratsiy.
+"""routes/admin_integrations.py - admin-ruchki dlya self-check integrations.
 
 MOSTY:
 - (Yavnyy) GET /admin/integrations/check - vozvraschaet otchet quick_check().
-- (Skrytyy #1) Ne trebuet vneshnego interneta; offlayn validator ENV i faylov.
+- (Skrytyy #1) Ne trebuet vneshnego interneta; offflayn validator ENV i faylov.
 - (Skrytyy #2) Prednaznachen dlya portala/nablyudaemosti, ne lomaet RBAC/JWT politiku.
 
 ZEMNOY ABZATs:
-Kak indikator pitaniya: srazu vidno, podklyucheny li «provoda» k Telegram/WhatsApp i t.d.
+How to indicate pitaniya: srazu vidno, podklyucheny li “provoda” k Telegram/WhatsApp etc.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/media/probe.py — bezopasnaya «proba» video/audio (lokalno/onlayn).
+"""modules/media/probe.py - bezopasnaya “proba” video/audio (lokalno/onlayn).
 
 Mosty:
 - Yavnyy: (Inzheneriya ↔ Media) vynimaem dlitelnost/kodeki/saby, ne kachaya lishnego.
 - Skrytyy #1: (Ekonomika ↔ Ingest Quotas) proveryaem baket pered tyazhelymi shagami.
-- Skrytyy #2: (Memory/KG ↔ RAG) vozvraschaem passport-atributy dlya dalneyshego indeksa.
+- Skrytyy #2: (Memory/KG ↔ RAG) vozvraschaem passport-atributy dlya dalneyshego index.
 
 Zemnoy abzats:
-Kak tekhnik s fonarikom: bystro posmotret «chto tam» v rolike i stoit li ego glotat.
+Kak tekhnik s fonarikom: bystro posmotret “what is there” v rolike i stoit li ego glotat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, re, subprocess, shutil, hashlib, time
 from typing import Any, Dict

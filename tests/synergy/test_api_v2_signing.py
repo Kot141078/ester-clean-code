@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/synergy/test_api_v2_signing.py — proverka HMAC-podpisi i idempotentnosti API v2.
+"""tests/synergy/test_api_v2_signing.py - proverka HMAC-podpisi i idempotentnosti API v2.
 
 MOSTY:
 - (Yavnyy) Podnimaem FastAPI-prilozhenie napryamuyu i shlem podpisannye zaprosy.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Proveryaem problem+json dlya sluchaya otsutstviya podpisi.
 
 ZEMNOY ABZATs:
-Esli eti testy zelenye — integratoram dostatochno znat sekret i algoritm, ostalnoe predskazuemo.
+Esli eti testy zelenye - integratoram dostatochno znat sekret i algoritm, ostalnoe predskazuemo.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import hashlib

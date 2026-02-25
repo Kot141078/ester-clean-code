@@ -114,7 +114,7 @@ quarantine release requires a lab protocol, not verbal confirmation.
 
 ## Earth Paragraph
 
-Eto kak snyat plombu na schitovoy: nelzya prosto skazat “ya posmotrel, vse norm”.
-Nuzhen akt proverki (evidence packet) s nomerom i kontrolnoy summoy.
-Potom lyuboy audit sverit: chto imenno bylo provereno i na kakom osnovanii dali dostup obratno.
+It’s like removing a seal on a panel board: you can’t just say “I looked, everything is fine.”
+You need a verification report (evidenka package) with a number and checksum.
+Then check any audit: what exactly was checked and on what basis access was given back.
 

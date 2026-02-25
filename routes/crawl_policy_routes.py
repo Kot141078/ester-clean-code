@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/crawl_policy_routes.py - REST dlya lokalnoy politiki kroulinga.
+"""routes/crawl_policy_routes.py - REST dlya lokalnoy politiki kroulinga.
 
 Mosty:
 - Yavnyy: (Veb ↔ Krouling) bystraya proverka pered zagruzkoy.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Avtonomiya ↔ Vezhlivost) uvazhenie zaderzhek/litsenziy.
 
 Zemnoy abzats:
-Sprosili - «mozhno/nelzya» i kak akkuratno - i poshli.
+Asked - “mozhno/nelzya” i kak akkuratno - i poshli.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -15,16 +15,16 @@ bp = Blueprint('routes_root', __name__)
 
 @bp.route('/')
 def index():
-    """Glavnaya tochka vkhoda."""
-    # Esli est UI (static/index.html), otdaem ego
+    """Main entry point."""
+    # If there is a UI (static/index.html), give it away
     if os.path.exists("static/index.html"):
         return send_from_directory("static", "index.html")
-    # Inache redirekt na dokumentatsiyu
+    # Otherwise, redirect to documentation
     return redirect("/docs")
 
 @bp.route('/health')
 def health():
-    """Proverka zdorovya dlya Docker/Monitor."""
+    """Health check for Docker/Monitor."""
     return jsonify({
         "status": "ok", 
         "mode": os.getenv("ESTER_MODE", "judge"),
@@ -33,12 +33,12 @@ def health():
 
 @bp.route('/favicon.ico')
 def favicon():
-    """Zaglushka dlya ikonki."""
+    """Icon placeholder."""
     return "", 204
 
 @bp.route('/openapi.json')
 def openapi():
-    """Otdacha OpenAPI spetsifikatsii."""
+    """Delivery of the OpenAPI specification."""
     path = os.getenv("OPENAPI_PATH", "openapi.yaml")
     
     if os.path.exists(path):

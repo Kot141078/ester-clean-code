@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/test_hypothesis_store.py — bazovye proverki HypothesisStore (add/list/feedback).
-"""
+"""tests/test_hypothesis_store.py — bazovye proverki HypothesisStore (add/list/feedback)."""
 
 from __future__ import annotations
 
@@ -16,7 +14,7 @@ def test_add_list_feedback(tmp_path, monkeypatch):
 
     hs = HypothesisStore()
     hid = hs.add(
-        text="Ideya: proverit OCR dlya PDF",
+        text="Idea: check OCD for PDF",
         topic="topic::ocr",
         tags=["dreams"],
         score=0.7,
@@ -26,7 +24,7 @@ def test_add_list_feedback(tmp_path, monkeypatch):
     items = hs.list(topic="topic::ocr", limit=10)
     assert items and items[0]["text"].startswith("Ideya:")
 
-    # pometim kak ispolzovannuyu, podnimem score
+    # mark as used, start a fight
     res = hs.feedback(hid, used=True, delta_score=+0.2)
     assert res["ok"] is True
     assert res["item"]["used"] is True

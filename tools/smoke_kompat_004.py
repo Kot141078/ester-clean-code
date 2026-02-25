@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-tools/smoke_kompat_004.py — proverka sitecustomize‑shvov bez syntax stubs, s lokalnym path‑bootstrap.
-# c=a+b
-"""
+"""tools/stock_company_004.po - checking sitecostomize-seams without syntax-stubs, with local path-bootstrap.
+# c=a+b"""
 from __future__ import annotations
 import json, sys
 from pathlib import Path
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Lokalnyy bootstrap k kornyu proekta (../ ot tools/)
+# Local bootstrap to the project root (../ from tools/)
 _root = str(Path(__file__).resolve().parents[1])
 if _root not in sys.path:
     sys.path.insert(0, _root)

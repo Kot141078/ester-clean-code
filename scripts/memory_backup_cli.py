@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/memory_backup_cli.py — CLI dlya bekapov pamyati Ester.
+"""scripts/memory_backup_cli.py - CLI dlya bekapov pamyati Ester.
 
 Primery:
   python scripts/memory_backup_cli.py create "pre-upgrade"
@@ -9,8 +8,7 @@ Primery:
   python scripts/memory_backup_cli.py restore bk-... replace
   python scripts/memory_backup_cli.py purge 20 90
 
-# c=a+b
-"""
+# c=a+b"""
 import sys
 from modules.memory import backups
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

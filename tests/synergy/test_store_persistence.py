@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/synergy/test_store_persistence.py — integratsionnyy test persistentnosti i khesh-tsepochki.
+"""tests/synergy/test_store_persistence.py - integratsionnyy test persistentnosti i khesh-tsepochki.
 
 MOSTY:
 - (Yavnyy) Prokladyvaem polnyy put: zapros → plan → upsert → verifikatsiya tsepochki → rekonstruktsiya po sobytiyu.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Pokryvaem i util-khuki (hook_assign_*).
 
 ZEMNOY ABZATs:
-Test garantiruet, chto sobytiya pishutsya, plan sokhranyaetsya, a tsepochka audita «lomaetsya» pri vmeshatelstve — znachit, zaschischaet.
+Test garantiruet, what sobytiya pishutsya, plan sokhranyaetsya, a tsepochka audita “lomaetsya” pri vmeshatelstve - znachit, zaschischaet.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -46,7 +44,7 @@ def test_events_plan_and_verify_chain():
     res = assign_v2("Recon A", overrides={"operator":"human.pilot"}, request_id="RID-1")
     plan_ev = s.hook_assign_result("Recon A", res, request_id="RID-1")
 
-    # Proverka aktualnogo plana
+    # Checking the current plan
     snap = s.get_latest_plan("Recon A")
     assert snap and snap["assigned"] == res["assigned"]
 
@@ -54,7 +52,7 @@ def test_events_plan_and_verify_chain():
     vr = s.verify_chain()
     assert vr.ok is True
 
-    # Rekonstruktsiya po sobytiyam
+    # Reconstruction by events
     rebuilt = s.rebuild_plan_from_events("Recon A")
     assert rebuilt["assigned"] == res["assigned"]
 
@@ -63,7 +61,7 @@ def test_tamper_detected(tmp_path):
     s = AssignmentStore.default()
     res = assign_v2("Recon A", overrides={"operator":"human.pilot"}, request_id="RID-2")
     s.hook_assign_result("Recon A", res, request_id="RID-2")
-    # Lomaem hash u poslednego sobytiya napryamuyu
+    # We break ours at the last event directly
     path = os.getenv("SYNERGY_DB_PATH")
     conn = sqlite3.connect(path)
     conn.execute("UPDATE events SET hash='BAD' WHERE id=(SELECT MAX(id) FROM events)")

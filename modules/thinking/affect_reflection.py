@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/affect_reflection.py — prioritezatsiya refleksii s uchetom emotsiy i davnosti.
+"""modules/thinking/affect_reflection.py - prioritezatsiya reflection s uchetom emotsiy i davnosti.
 
 API:
-  • score_item(item:dict) -> float  # 0..1
-  • enqueue(item:dict) -> dict      # dobavlyaet v lokalnuyu ochered s prioritetom
-  • pop(n:int=1) -> list[dict]      # beret n luchshikh
+  • score_item(item:dict) -> float # 0..1
+  • enqueue(item:dict) -> dict # addavlyaet v lokalnuyu ochered s prioritetom
+  • pop(n:int=1) -> list[dict] # beret n luchshikh
 
 Signaly:
   • meta.affect: {valence[-1..1], arousal[0..1]}
@@ -13,15 +12,14 @@ Signaly:
   • importance: meta.importance (0..1)
 
 Mosty:
-- Yavnyy: (Memory ↔ Myshlenie) vazhnye i «emotsionalnye» zapisi refleksiruyutsya chasche i ranshe.
-- Skrytyy #1: (Infoteoriya ↔ Planirovanie) prioritet uchityvaet davnost, izbegaya starvation.
+- Yavnyy: (Memory ↔ Myshlenie) vazhnye i “emotsionalnye” zapisi refleksiruyutsya chasche i ranshe.
+- Skrytyy #1: (Infoteoriya ↔ Planning) prioritet uchityvaet davnost, izbegaya starvation.
 - Skrytyy #2: (UX ↔ Obyasnimost) score vozvraschaetsya naruzhu — vidno, pochemu zapis vzyali pervoy.
 
 Zemnoy abzats:
-Eto «ochered s prioritetom»: silnye po smyslu/emotsiyam zapisi idut na obdumyvanie v pervuyu ochered.
+Eto “ochered s prioritetom”: strong po smyslu/emotsiyam zapisi idut na obdumyvanie v pervuyu ochered.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import heapq
@@ -47,7 +45,7 @@ def score_item(item: Dict[str, Any]) -> float:
     val_n = 0.5 + 0.5 * _clip(val, -1.0, 1.0)     # [-1..1]→[0..1]
     aro_n = _clip(aro, 0.0, 1.0)
     imp_n = _clip(imp, 0.0, 1.0)
-    recency = 1.0 / (1.0 + age / 3600.0)          # posledniy chas ≈ vysokiy ves
+    recency = 1.0 / (1.0 + age / 3600.0)          # last hour ≈ high weight
     score = 0.40 * aro_n + 0.25 * val_n + 0.25 * imp_n + 0.10 * recency
     return _clip(score, 0.0, 1.0)
 

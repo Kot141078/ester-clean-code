@@ -1,10 +1,8 @@
 # tests/test_dod_fallback.py
 # -*- coding: utf-8 -*-
-"""
-Proveryaem fallback-put parse_coverage_xml(), kogda na korne net agregatov
-(line-rate/branch-rate/lines-valid/branches-valid = 0 ili otsutstvuyut),
-i metriki berutsya iz <class line-rate/branch-rate>.
-"""
+"""Proveryaem fallback-put parse_coverage_xml(), kogda na korne net agregatov
+(line-rate/branch-rate/lines-valid/branches-valid = 0 or otsutstvuyut),
+i metrics berutsya iz <class line-rate/branch-rate>."""
 import importlib
 import tempfile
 from pathlib import Path

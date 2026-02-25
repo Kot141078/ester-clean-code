@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mentor_routes.py - rezhim «Nastavnik»: plan shagov, podsvetka i ispolnenie.
+"""routes/mentor_routes.py - rezhim “Nastavnik”: plan shagov, podsvetka i ispolnenie.
 
 Ruchki:
-  POST /mentor/plan   {"text":"pokazhi kak polzovatsya notepad"} -> {ok, name, steps}
+  POST /mentor/plan {"text":"pokazhi kak polzovatsya notepad"} -> {ok, name, steps}
   POST /mentor/overlay {"step":{"type":"click","template_b64":...,"ocr":"OK","title":"Nazhmi OK"}} -> {ok, overlay_b64, box?}
-  POST /mentor/exec   {"step":{...}} -> {ok}
+  POST /mentor/exec {"step":{...}} -> {ok}
 
-Igrovye okna:
-  GET  /mentor/game/priorities
+Igrovye window:
+  GET /mentor/game/priorities
   POST /mentor/game/priorities {"items":[{"title":"Diablo","priority":10}]}
   POST /mentor/game/focus
 
-Zavisimosti: /desktop/rpa/screen, /desktop/rpa/click, /desktop/rpa/type, vision.template_match, window ops.
+Dependency: /desktop/rpa/screen, /desktop/rpa/click, /desktop/rpa/type, vision.template_match, window ops.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from typing import Any, Dict
@@ -62,7 +60,7 @@ def mentor_overlay():
         return jsonify({"ok": False, "error": "screen_failed"}), 500
     png = screen["png_b64"]
 
-    # esli est shablon - naydem i narisuem ramku
+    # if there is a template, we will find and draw a frame
     tb64 = (step.get("template_b64") or "").strip()
     if tb64:
         res = tmpl_find(png, tb64, float(step.get("threshold") or 0.78))
@@ -73,7 +71,7 @@ def mentor_overlay():
         else:
             return jsonify({"ok": False, "error": "template_not_found", "score": res.get("score",0.0)}), 404
 
-    # inache - prosto strelka ot tsentra v uslovnuyu tochku (zaglushka)
+    # otherwise - just an arrow from the center to a conditional point (stub)
     ov = draw_arrow(png, (40, 40), (200, 120), step.get("title") or "Shag")
     return jsonify({"ok": True, "overlay_b64": ov})
 
@@ -88,12 +86,12 @@ def mentor_exec():
         if act.get("type") == "rpa.open":
             return jsonify(_post("/desktop/rpa/open", {"app": act.get("app")})), 200
         if act.get("type") == "window.focus":
-            # u nas uzhe est universalnaya ruchka po title
+            # we already have a universal title handle
             return jsonify(_post("/desktop/window/focus", {"title": act.get("title")})), 200
         return jsonify({"ok": True})
     # click
     if t == "click":
-        # esli zaranee nashli box - tsentr; inache poprobuem po template
+        # if you found a boxing center in advance; otherwise we'll try using the template
         if step.get("box"):
             b = step["box"]; cx, cy = b["left"]+b["width"]//2, b["top"]+b["height"]//2
             return jsonify(_post("/desktop/rpa/click", {"x": cx, "y": cy})), 200

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/p2p_routes.py - REST: P2P bloom-filtr (status/add/export/merge/reset/from_passport).
+"""routes/p2p_routes.py - REST: P2P bloom-filtr (status/add/export/merge/reset/from_passport).
 
 Mosty:
-- Yavnyy: (Veb ↔ P2P) kompaktnyy obmen «chto uzhe videl».
+- Yavnyy: (Veb ↔ P2P) kompaktnyy obmen “what uzhe videl.”
 - Skrytyy #1: (Profile ↔ Audit) operatsii filtra shtampuyutsya.
 - Skrytyy #2: (Discover/Cron ↔ Avtonomiya) legko vstraivaetsya v nochnye protsedury i avto-registratsiyu.
 
 Zemnoy abzats:
-Legkiy protokol «ne povtoryatsya»: vmesto spiskov id gonyaem paru soten bayt s bitami.
+Legkiy protokol “ne povtoryatsya”: vmesto spiskov id gonyaem paru soten bayt s bitami.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

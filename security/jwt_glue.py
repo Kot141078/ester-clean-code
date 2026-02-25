@@ -11,15 +11,13 @@ __all__ = [
 ]
 
 def select_ab_slot() -> str:
-    """A/B-slot iz okruzheniya; po umolchaniyu 'A'."""
+    """A/B slot from the environment; by default bAb."""
     ab = os.environ.get("ESTER_JWT_BOOTSTRAP_AB", "A").strip().upper()
     return "A" if ab not in ("A","B") else ab
 
 def get_secret() -> str:
-    """
-    Edinaya tochka: esli A → JWT_SECRET_KEY_A ili fallback JWT_SECRET_KEY,
-                 esli B → JWT_SECRET_KEY_B ili fallback JWT_SECRET_KEY.
-    """
+    """Edinaya tochka: esli A → JWT_SECRET_KEY_A or fallback JWT_SECRET_KEY,
+                 esli B → JWT_SECRET_KEY_B or fallback JWT_SECRET_KEY."""
     ab = select_ab_slot()
     base = os.environ.get("JWT_SECRET_KEY") or os.environ.get("ESTER_JWT_SECRET") or ""
     if ab == "A":
@@ -40,7 +38,7 @@ def mint(
     hours: int = 12,
     extra: t.Optional[dict] = None,
 ) -> str:
-    """Podpisat token tem zhe sekretom/algoritmom, chto i verify-storona ozhidaet."""
+    """Sign the token with the same secret/algorithm that the verifiers expect."""
     n = int(time.time())
     claims = {
         "sub": sub,
@@ -56,7 +54,7 @@ def mint(
     return tok if isinstance(tok, str) else tok.decode()
 
 def decode(token: str) -> dict:
-    """Proverit podpis i vernut payload (esli ne validno — isklyuchenie)."""
+    """Check the signature and return the payload (if it is not valid, there is an exception)."""
     return jwt.decode(
         token,
         get_secret(),
@@ -66,7 +64,7 @@ def decode(token: str) -> dict:
     )
 
 def status() -> dict:
-    """Telemetriya bez sekreta (dlya /auth/glue/status)."""
+    """Telemetry without secret (for /outn/glue/status)."""
     return {
         "ab": select_ab_slot(),
         "alg": get_algorithm(),

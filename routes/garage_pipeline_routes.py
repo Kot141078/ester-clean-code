@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-routes/garage_pipeline_routes.py - REST-kontur Garage/Workbench
+"""routes/garage_pipeline_routes.py - REST-kontur Garage/Workbench
 (konveyer: poisk → skoring → generatsiya → autrich → billing → otchet)
 
 Mosty (yavnyy):
@@ -12,12 +11,11 @@ Skrytye mosty:
   • (Billing ↔ UI/Otchety) - invoysy i otchety kladutsya v faylovuyu ierarkhiyu + dostupny po REST.
 
 Zemnoy abzats:
-Eto «panel stanka»: knopki Start/Skan/Otchet, kotorye dergayut nastoyaschie mekhanizmy konveyera.
+Eto “panel stanka”: knopki Start/Skan/Otchet, kotorye dergayut nastoyaschie mekhanizmy konveyera.
 
-ENV (optsionalno): sm. modules/garage/pipeline.py
+ENV (optional): sm. modules/garage/pipeline.py
 
-# c=a+b
-"""
+# c=a+b"""
 from datetime import date
 from typing import Any, Dict
 
@@ -45,12 +43,10 @@ def api_scan_jobs():
 @garage_pipeline_bp.post("/run")
 @jwt_required(optional=True)
 def api_run_pipeline():
-    """
-    JSON-parametry (lyuboy iz variantov):
-      - {"job": {...}}  - syroe opisanie brifa
+    """JSON-parameter (lyuboy iz variantov):
+      - {"job": {...}} - syroe opisanie brifa
       - {"job_id": "<id>"} - iz rezultatov /jobs/scan
-      - {"auto": true} - vzyat luchshiy po skoru
-    """
+      - {"auto": true} - vzyat luchshiy po skoru"""
     data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
     result = run_pipeline(data)
     code = 200 if result.get("ok") else 500
@@ -73,7 +69,7 @@ def api_daily_report():
     rpt = daily_report(d)
     if fmt == "json":
         return jsonify(rpt)
-    # Prostoy CSV (tolko verkhniy uroven svodki)
+    # Simple DSV (top summary level only)
     lines = ["metric,value"]
     for k, v in rpt.get("summary", {}).items():
         lines.append(f"{k},{v}")
@@ -81,7 +77,7 @@ def api_daily_report():
 
 
 def register_garage_pipeline_routes(app) -> None:
-    """Standartnaya registratsiya blyuprinta (podkhvatyvaetsya obschim reestrom routov)."""
+    """Standard blueprint registration (picked up by the general route registry)."""
     app.register_blueprint(garage_pipeline_bp)
 
 

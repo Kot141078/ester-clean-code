@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/capabilities_routes.py - REST: spisok vozmozhnostey i deklaratsii.
+"""routes/capabilities_routes.py - REST: spisok vozmozhnostey i deklaratsii.
 
 Mosty:
-- Yavnyy: (Veb ↔ Samosoznanie) bystryy spisok «chto dostupno».
+- Yavnyy: (Veb ↔ Samosoznanie) bystryy spisok “what dostupno.”
 - Skrytyy #1: (Plan ↔ Volya) na osnove spiska stroyatsya stsenarii.
 - Skrytyy #2: (Panel ↔ UX) mozhno pokazat polzovatelyu bez lezviya v kod.
 
 Zemnoy abzats:
-Spravochnik dostupnykh rychagov.
+Reference book dostupnykh rychagov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

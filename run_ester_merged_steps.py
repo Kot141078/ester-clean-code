@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 # ============================================================
 # BRIDGES:
-#  - Yavnyy: c=a+b (chelovek + protsedury) kak kanal (Cover&Thomas) -> etot ranner
+#  - Explicit: c=a+b (person + procedures) as a channel (Carpet&Thomas) -> this runner
 #    balansiruet propusknuyu sposobnost konteksta (truncate_context / split) i
-#    zakon trebuemogo raznoobraziya (Ashby) v VolitionSystem.
+#    law of required diversity (Ashba) in Volitionsystem.
 #
-# ZEMNOY ABZATs (inzheneriya/anatomiya):
-#  - «Hippocampus» zdes — ne poetika, a skhema: kratkosrochnyy «scroll»
-#    perekachivaetsya v dolgovremennoe khranilische (Chroma) kak konsolidatsiya
-#    pamyati v gippokampe. Peregruzish — lovish sudorogu VRAM/tokenov,
+# EARTH Paragraph (engineering/anatomy):
+#  - “Hippocampus” here is not poetics, but a scheme: short-term “scroll”
+#    pumped into long-term storage (Chroma) as consolidation
+#    memory in the hippocampus. If you overload, you get a cramp of GATE/tokens,
 #    poetomu stoyat klapany: truncate_context i send_smart_split.
 # ============================================================
-_ashby_variety_hint = 'requisite_variety'  # (skrytyy most)
-_jaynes_prior_hint = 0.5                  # (skrytyy most)
+_ashby_variety_hint = 'requisite_variety'  # (hidden bridge)
+_jaynes_prior_hint = 0.5                  # (hidden bridge)
 
 import base64
 import io
@@ -90,15 +90,15 @@ NODE_IDENTITY = os.getenv("ESTER_NODE_ID", "ester_node_primary")
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 
 # --- 5. SELECTOR: STEPPED SYSTEM (CLOUD/LOCAL) ---
-# VAZhNO: klyuchi mogut lezhat v .env VSEGDA, no ispolzuyutsya tolko tem provayderom,
+# Important: the keys can ALWAYS be stored in .env, but are used only by the provider
 # kotoryy realno vybran (ili dostupen v "stupenyakh").
 #
 # Upravlenie:
 #   AI_MODE=local|gemini|gpt4|auto|judge|steps
-#   RUNNER_PROVIDER_STEPS=local,gemini,gpt4   (dlya auto/judge/steps)
+#   RUNNER_PROVIDER_STEPS=local,gemini,gpt4 (dlya auto/judge/steps)
 #
-# Esli AI_MODE ne zadan, podkhvatyvaem vashu "yadrovuyu" nastroyku:
-#   ESTER_DEFAULT_MODE / PROVIDER_DEFAULT (chasto eto 'judge').
+# If AI_MODE is not specified, it picks up your "sound" setting:
+#   ESTER_DEFAULT_MODE / PROVIDER_DEFAULT (often this is yuje).
 
 def _env(name: str, default: str = "") -> str:
     v = os.getenv(name)
@@ -119,7 +119,7 @@ def _env_float(name: str, default: float) -> float:
 def _derive_gemini_openai_base(gemini_api_base: str) -> str:
     # Varianty:
     #  - "https://generativelanguage.googleapis.com" -> ".../v1beta/openai/"
-    #  - uzhe zadano ".../v1beta/openai/" -> ostavlyaem
+    #  - already set ".../v1beta/openay/" -> leave
     b = (gemini_api_base or "").strip().rstrip("/")
     if "/v1beta/openai" in b:
         return b + "/"
@@ -144,7 +144,7 @@ def _detect_effective_ai_mode() -> str:
     if ai_mode:
         return ai_mode
 
-    # 2) Podkhvatyvaem rezhim iz vashey "yadrovoy" konfiguratsii (judge i t.p.)
+    # 2) Picks up the mode from your “core” configuration (UJE, etc.)
     core_mode = (_env("ESTER_DEFAULT_MODE", "") or _env("PROVIDER_DEFAULT", "") or "local").lower().strip()
     if core_mode in ("judge", "auto", "steps"):
         return "auto"
@@ -156,11 +156,11 @@ def _detect_effective_ai_mode() -> str:
 AI_MODE = _detect_effective_ai_mode()
 
 # Taymauty: u vas v .env zadrany do 6 chasov, poetomu berem minimum iz runner-taymauta i LLM_TIMEOUT,
-# chtoby ne "podvesit" bota navechno.
+# so as not to “hang” the bot forever.
 DEFAULT_TIMEOUT = min(_env_float("LLM_TIMEOUT", 120.0), 600.0)
 DEFAULT_TIMEOUT = max(30.0, DEFAULT_TIMEOUT)
 
-# Konfigi provayderov (klyuchi mogut byt pustymi — togda provayder budet propuschen v stupenyakh)
+# Provider configs (keys can be empty - then the provider will be skipped in the steps)
 cfg_local = ProviderConfig(
     name="local",
     base_url=_env("LMSTUDIO_BASE_URL", "http://127.0.0.1:1234/v1"),
@@ -205,7 +205,7 @@ def _effective_steps(ai_mode: str) -> list:
     # auto / judge / steps
     raw = _env("RUNNER_PROVIDER_STEPS", "")
     steps = _parse_steps(raw) if raw else ["local", "gemini", "gpt4"]
-    # filtr: tolko izvestnye provaydery
+    # filter: only known providers
     steps = [s for s in steps if s in _PROVIDERS]
     return steps if steps else ["local"]
 
@@ -223,11 +223,9 @@ def _message_requires_vision(messages) -> bool:
     return False
 
 class _ArbiterClientProxy:
-    """
-    Proksi poverkh AsyncOpenAI s "stupenyami":
-      - local -> gemini -> gpt4 (ili kak zadano RUNNER_PROVIDER_STEPS)
-    Vozvraschaet realnyy OpenAI-sovmestimyy response ot pervogo zhivogo provaydera.
-    """
+    """Proksi poverkh AsyncOpenAI s "stupenyami":
+      - local -> gemini -> gpt4 (or kak zadano RUNNER_PROVIDER_STEPS)
+    Vozvraschaet realnyy OpenAI-sovmestimyy response ot pervogo zhivogo provaydera."""
     def __init__(self):
         self.steps = _effective_steps(AI_MODE)
         self.clients = {}
@@ -235,7 +233,7 @@ class _ArbiterClientProxy:
             cfg = _PROVIDERS.get(name)
             if not cfg:
                 continue
-            # esli dlya oblaka net klyucha — propuskaem
+            # if there is no key for the cloud, skip it
             if name in ("gemini", "gpt4") and not cfg.api_key:
                 continue
             self.clients[name] = cfg.make_client()
@@ -252,7 +250,7 @@ class _ArbiterClientProxy:
                     cli = self.outer.clients.get(pname)
                     if not cfg or not cli:
                         continue
-                    # local chasche vsego bez vision — esli nuzhno vision, local propuskaem
+                    # local is most often without vision - if vision is needed, we skip local
                     if need_vision and pname == "local":
                         continue
                     try:
@@ -271,8 +269,8 @@ class _ArbiterClientProxy:
 
 arbiter_client = _ArbiterClientProxy()
 
-# Dlya sovmestimosti so starym kodom ostavlyaem peremennuyu LM_MODEL,
-# no ona teper ne vybiraet model napryamuyu: model beretsya iz konfigov provayderov.
+# For compatibility with the old code, we leave the LM_MODEL variable,
+# but now it does not select the model directly: the model is taken from the provider configs.
 LM_MODEL = "__AUTO__"
 
 
@@ -325,11 +323,11 @@ def log_interaction(user_name: str, text: str):
     except Exception as e: pass
 
 def get_daily_summary() -> str:
-    if not os.path.exists(DAILY_LOG_FILE): return "Segodnya esche nikogo ne bylo."
+    if not os.path.exists(DAILY_LOG_FILE): return "There hasn't been anyone yet today."
     try:
         with open(DAILY_LOG_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        if not data: return "Segodnya tishina."
+        if not data: return "Today there is silence."
         summary = []
         seen = set()
         for entry in reversed(data):
@@ -450,7 +448,7 @@ brain = Hippocampus()
 short_term = brain.load_scroll(100)
 
 # --- 9. PREDOKhRANITEL (ANTI-HALLUCINATION) ---
-# [FIX] Uvelichen limit do 32000, chtoby Ester ne rezala sebya po privychke
+# uFIKSsch The limit has been increased to 32000 so that Esther does not cut herself out of habit
 def truncate_context(text: str, max_chars=32000) -> str:
     if not text: return ""
     if len(text) <= max_chars: return text
@@ -472,7 +470,7 @@ def get_web_evidence(query: str, max_results=3) -> str:
 
 # --- 11. VISION ADAPTER (FIXED) ---
 async def analyze_image(image_path: str, user_prompt: str = "") -> str:
-    """Otpravlyaet izobrazhenie v Vision-model (Local ili Cloud)."""
+    """Sends the image to the Vision model (Local or Cloud)."""
     if not user_prompt:
         user_prompt = "Describe this image in detail."
     
@@ -483,7 +481,7 @@ async def analyze_image(image_path: str, user_prompt: str = "") -> str:
         with open(image_path, "rb") as image_file:
             base64_image = base64.b64encode(image_file.read()).decode('utf-8')
 
-        # Formiruem zapros
+        # Forming a request
         response = await arbiter_client.chat.completions.create(
             model=LM_MODEL, 
             messages=[
@@ -517,7 +515,7 @@ class VolitionSystem:
         self.last_interaction = time.time()
         if self.state == "DREAMING":
             self.state = "AWAKE"
-            print(">>> [VOLITION] Vnimanie na sobesednika.")
+            print(">>> uVOLITIONsch Attention to the interlocutor.")
 
     async def life_tick(self, context: ContextTypes.DEFAULT_TYPE):
         if self.is_thinking: return
@@ -525,7 +523,7 @@ class VolitionSystem:
         
         if self.state == "AWAKE" and idle_time > self.sleep_threshold:
             self.state = "DREAMING"
-            print(">>> [VOLITION] Ukhozhu v myslitelnyy protsess...")
+            print(">>> uVOLITIONsch I'm going into the thought process...")
             
         if self.state == "DREAMING":
             self.is_thinking = True
@@ -583,14 +581,14 @@ ZADAChA:
         knowledge = brain.recall(query_text, n=3) 
         if not knowledge: return 
 
-        check_prompt = f"SYSTEM: SOCIAL_CHECK. Vopros: {query_text}. Dannye: {truncate_context(knowledge, 1000)}. Est otvet? YES/NO."
+        check_prompt = f"SYSTEM: SOCIAL_CHESK. Question: ZZF0Z. Data: ZZF1ZZ. Do you have an answer? EU/NO."
         try:
             check = await arbiter_client.chat.completions.create(
                 model=LM_MODEL, messages=[{"role": "system", "content": check_prompt}], max_tokens=5
             )
             if "YES" in check.choices[0].message.content.upper():
-                print(f">>> [SOCIAL] Otvet nayden!")
-                answer_prompt = f"Napishi otvet na vopros: {query_text}. Fakty: {truncate_context(knowledge, 2000)}"
+                print(f">>> YUSOCIALSHCH The answer has been found!")
+                answer_prompt = f"Write the answer to the question: ZZF0Z. Facts: ZZF1ZZ"
                 msg_resp = await arbiter_client.chat.completions.create(
                     model=LM_MODEL, messages=[{"role": "system", "content": answer_prompt}], temperature=0.8
                 )
@@ -626,7 +624,7 @@ async def ester_arbitrage(user_text: str, user_id: str, user_name: str, file_con
     is_master = False
     if ADMIN_ID and str(user_id) == str(ADMIN_ID):
         is_master = True
-        identity_prompt = f"Polzovatel: OWNER (Tvoy Owner, Papa). Lyubi ego, bud umnoy i nezhnoy."
+        identity_prompt = f"User: OVNER (Your Ovner, Dad). Love him, be smart and gentle."
     else:
         identity_prompt = f"Polzovatel: {user_name}. Bud vezhliva, no pomni: tvoy Owner — Owner."
 
@@ -652,7 +650,7 @@ async def ester_arbitrage(user_text: str, user_id: str, user_name: str, file_con
     facts_str = ""
     if user_facts:
         facts_list = "\n".join([f"- {f}" for f in user_facts])
-        facts_str = f"\n\n[VAZhNYE FAKTY O POLZOVATELE (POMNI ETO)]:\n{facts_list}"
+        facts_str = f"IMPORTANT FACTS ABOUT THE USER (REMEMBER THIS):\nZZF0Z"
     
     daily_report = get_daily_summary() 
 
@@ -740,7 +738,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
             full_text = "\n\n".join([s.get('text', '') for s in sections])
 
         if not full_text:
-             await update.message.reply_text("Fayl pust ili ne chitaetsya.")
+             await update.message.reply_text("The file is empty or cannot be read.")
              return
 
         chunks = chunking.chunk_document(doc.file_name, sections if sections else [{'text': full_text}])
@@ -751,7 +749,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 count += 1
         
         base_prompt = update.message.caption or f"Proanaliziruy soderzhimoe knigi {doc.file_name}."
-        user_prompt = f"{base_prompt}\n\n(SISTEMNOE PRIMEChANIE: Polnyy tekst fayla uzhe v kontekste [FAYL].)"
+        user_prompt = f"ZZF0Z\n\n(SYSTEM Note: The full text of the file is already in the context of yufailsch.)"
 
         resp = await ester_arbitrage(
             user_prompt, 
@@ -764,7 +762,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if resp: await send_smart_split(update, resp)
 
     except Exception as e:
-        await update.message.reply_text(f"Oshibka vospriyatiya: {e}")
+        await update.message.reply_text(f"Perception error: ZZF0Z")
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     will.touch()
@@ -780,7 +778,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     user_caption = update.message.caption or ""
     
-    # [FIX] Teper funktsiya analyze_image tochno suschestvuet
+    # uFIKSsch Now the analysis_image function definitely exists
     vision_result = await analyze_image(permanent_path, user_prompt=user_caption)
     
     brain.remember_fact(f"Visual Memory: User {user_name} sent photo. Analysis: {vision_result}", source="vision")
@@ -802,7 +800,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             fact_content = user_text.split(":", 1)[1].strip()
             if fact_content:
                 save_user_fact(fact_content)
-                await update.message.reply_text(f"💾 Zapisala v dolgovremennuyu pamyat: «{fact_content}»")
+                await update.message.reply_text(f"💾 Zapisala v dolgovremennuyu pamyat: “{fact_content}”")
                 user_text += " [SYSTEM: Fact saved to memory]"
         except Exception as e: print(f"[MEMORY TRIGGER ERROR] {e}")
 
@@ -817,7 +815,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     will.touch()
-    await update.message.reply_text(f"Ester onlayn. Lichnost aktivna. Rezhim: {AI_MODE.upper()}")
+    await update.message.reply_text(f"Esther online. The personality is active. Mode: ZZF0Z")
 
 def main():
     if not TELEGRAM_TOKEN: 

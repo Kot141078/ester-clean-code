@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/audio/drama.py — audio-drama po rolyam: razmetka, TTS-komanda, svedenie, SRT/VTT.
+"""modules/audio/drama.py - audio-drama po rolyam: razmetka, TTS-komanda, svedenie, SRT/VTT.
 
 Mosty:
 - Yavnyy: (TTS ↔ FFmpeg) gibkaya obvyazka pod lyubuyu lokalnuyu TTS-komandu.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Media/RAG ↔ Navigatsiya) teksty i taymingi mozhno klast v RAG.
 
 Zemnoy abzats:
-Eto kak radio-spektakl: roli, repliki, golosa. Nuzhna tolko TTS-komanda — ostalnoe sdelaem sami.
+This is how radio-spektakl: roli, repliki, golosa. Nuzhna tolko TTS-komanda - ostalnoe sdelaem sami.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, re, json, time, subprocess, shlex
 from typing import Dict, Any, List
@@ -47,14 +45,14 @@ def prepare(script: str, cast: Dict[str,str])->Dict[str,Any]:
 def _tts_to(path_wav: str, text: str, voice: str)->bool:
     os.makedirs(os.path.dirname(path_wav), exist_ok=True)
     if TTS:
-        # ozhidaem, chto komanda chitaet text iz stdin i pishet WAV v path_wav
+        # We expect that the command reads the text from stdin and writes VAV to path_vav
         cmd=f"{TTS} --voice {shlex.quote(voice)} -o {shlex.quote(path_wav)}"
         try:
             p=subprocess.run(cmd, input=text.encode("utf-8"), shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=21600)
             return p.returncode==0 and os.path.isfile(path_wav)
         except Exception:
             return False
-    # zaglushka: 1.5s tishiny
+    # stub: 1.5s silence
     subprocess.run([FFMPEG,"-y","-f","lavfi","-i","anullsrc=r=48000:cl=mono","-t","1.5",path_wav], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     return os.path.isfile(path_wav)
 
@@ -65,7 +63,7 @@ def render(lines: List[Dict[str,Any]], out_dir: str)->Dict[str,Any]:
         wav=os.path.join(out_dir, f"line_{k:03d}.wav")
         ok=_tts_to(wav, ln.get("text",""), ln.get("voice","default"))
         if not ok: return {"ok": False, "error": "tts_failed", "line": k}
-        # grubaya otsenka dlitelnosti (prochitaem ashumer)
+        # rough estimate of duration (let's read the ashumer)
         dur=1.5
         parts.append(wav)
         # SRT

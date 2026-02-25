@@ -9,7 +9,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def entry_fingerprint(item_id: str, e) -> bytes:
-    """Rovno takoy zhe list, kak v routes/p2p_crdt_routes._entry_fingerprint."""
+    """Exactly the same sheet as in rutes/p2p_tsrdt_rutes._entry_fingerprint."""
     payload_digest = _digest(
         json.dumps(e.item.payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     )
@@ -32,7 +32,7 @@ def local_leaf_hashes(crdt) -> Dict[str, str]:
 def diff_by_leaves(
     local: Dict[str, str], remote_ids: List[str], remote_leaf_level: List[str]
 ) -> List[str]:
-    """Sravnivaet lokalnye i udalennye listya. Vozvraschaet spisok id, gde kheshi razlichayutsya ili id net lokalno."""
+    """Compares local and remote leaves. Returns a list of ids where the hashes are different or there is no id locally."""
     need: List[str] = []
     for iid, rh in zip(remote_ids, remote_leaf_level):
         lh = local.get(iid)

@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-routes/whatsapp_send_routes.py - Otpravka soobscheniy v WhatsApp Cloud API.
+"""routes/whatsapp_send_routes.py - Otpravka soobscheniy v WhatsApp Cloud API.
 
 Mosty:
 - (Yavnyy) Otpravka cherez Meta Graph API v16+ (unifitsirovannyy POST messages).
-- (Skrytyy #1) Cover & Thomas - «minimalnyy signal» razlichaet dry/real: side-effect kapsulirovan.
+- (Skrytyy #1) Cover & Thomas - “minimal signal” razlichaet dry/real: side-effect capsulirovan.
 - (Skrytyy #2) Regulyatsiya A/B (env MSG_STYLE_AB) - bystryy otkat stilya bez regressiy.
 
 Zemnoy abzats:
 Daet API `/wa/send` dlya universalnoy otpravki i lokalnogo dry-run bez interneta.
-Variant A (po umolchaniyu) - «bezopasnaya» otpravka: esli token pustoy → tolko dry-run.
+Variant A (po umolchaniyu) - “bezopasnaya” otpravka: esli token empty → tolko dry-run.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 import json
@@ -31,22 +29,20 @@ WHATSAPP_TIMEOUT = float(os.environ.get("WHATSAPP_TIMEOUT", "6.0"))
 
 @bp.route("/wa/send", methods=["POST"])
 def wa_send():
-    """
-    Unifitsirovannaya otpravka:
+    """Unifitsirovannaya otpravka:
     body: { to: str, text?: str, audience?: str, intent?: str, content?: str, meta?: {} }
-    query: dry_run=1 - prinuditelno ne khodit v vneshniy API.
-    """
+    query: dry_run=1 - prinuditelno ne khodit v vneshniy API."""
     j = request.get_json(force=True, silent=True) or {}
     to = (j.get("to") or "").strip()
     text = j.get("text")
     audience = j.get("audience")  # lawyer|student|friend|business|neutral|...
     intent = j.get("intent")      # letter|reminder|update|apology|request|...
-    content = j.get("content")    # syroy smysl/fakty, esli text ne zadan
+    content = j.get("content")    # raw meaning/facts if text is not given
 
     if not to or (not text and not content):
         return jsonify({"ok": False, "error": "to_or_text_missing"}), 400
 
-    # Esli zadana «semantika», to formiruem tekst cherez dvizhok stilya.
+    # If “semantics” is specified, it generates text through the style engine.
     if not text:
         text = render_message(audience=audience or "neutral",
                               intent=intent or "update",

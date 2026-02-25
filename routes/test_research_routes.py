@@ -8,11 +8,11 @@ def test_research_search_ok(client, auth_hdr_user):
         "/research/search",
         headers=auth_hdr_user,
         json={
-            "query": "replikatsiya pamyati",
+            "query": "memory replication",
             "labels": ["replikatsiya", "ingest"],
         },
     )
-    # rout mozhet byt ne podklyuchen — dopustim 404
+    # The root may not be connected - let's say 404
     assert r.status_code in (200, 404)
     if r.status_code != 200:
         return
@@ -24,12 +24,12 @@ def test_research_search_ok(client, auth_hdr_user):
 
 def test_research_search_400(client, auth_hdr_user):
     r = client.post("/research/search", headers=auth_hdr_user, json={"query": ""})
-    # esli rout ne podklyuchen — 404; inache 400
+    # if the root is not connected - 404; otherwise 400
 # assert r.status_code in (400, 404)
 
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
-# zaglushka dlya test_research_routes: poka net bp/router/register_*_routes
+# stub for test_research_rutes: no power supply/router/register_*_rutes yet
 def register(app):
     return True
 

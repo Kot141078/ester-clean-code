@@ -1,46 +1,44 @@
 # -*- coding: utf-8 -*-
-"""
-routes/autonomy_routes.py - Edinyy REST-interfeys dlya upravleniya avtonomiey, planirovaniya i ispolneniya.
+"""routes/autonomy_routes.py - Edinyy REST-interfeys dlya upravleniya avtonomiey, planirovaniya i ispolneniya.
 
 Mosty:
 - Yavnyy: (Veb ↔ Avtonomiya) tseli → plan → ispolnenie.
 - Skrytyy #1: (Ekonomika/Set ↔ Politiki) kontrol byudzhetov i porogov na urovne policy.*.
 - Skrytyy #2: (Integratsiya ↔ Deystviya) rabotaet poverkh action_registry i guard'ov.
 
-Endpointy (JWT):
-  POST /autonomy/start           - zapustit fonovogo vorkera
-  POST /autonomy/stop            - ostanovit vorkera
-  POST /autonomy/tick            - odin tsikl obrabotki sobytiy (limit?)
-  POST /autonomy/install         - postavit RRULE dlya autonomy:tick
-  GET  /autonomy/status          - status (policy.*)
-  POST /autonomy/level           - uroven svobody (0..3) dlya policy.LEVEL
-  GET  /autonomy/ledger?limit=N  - khvost zhurnala resheniy
-  POST /autonomy/plan            - sformirovat plan na osnove tseli/byudzheta/tseley
-  POST /autonomy/act             - vypolnit plan
+Endpoint (JWT):
+  POST /autonomy/start - zapustit fonovogo vorkera
+  POST /autonomy/stop - ostanovit vorkera
+  POST /autonomy/tick - odin tsikl obrabotki sobytiy (limit?)
+  POST /autonomy/install - postavit RRULE dlya autonomy:tick
+  GET /autonomy/status - status (policy.*)
+  POST /autonomy/level - uroven svobody (0..3) dlya policy.LEVEL
+  GET /autonomy/ledger?limit=N - khvost zhurnala resolution
+  POST /autonomy/plan - sformirovat plan na osnove tseli/byudzheta/tseley
+  POST /autonomy/act - vypolnit plan
   --- state API ---
-  POST /autonomy/scope           - ogranichit zony (rpa_ui/network/files/dialog/game) + ttl
-  POST /autonomy/pause           - pauza on/off
-  POST /autonomy/revoke          - otozvat vse razresheniya
-  POST /autonomy/check           - proverit soglasie/uroven (will.consent_gate)
-  GET  /autonomy/state           - sostoyanie iz modules.autonomy.state.get()
-"""
+  POST /autonomy/scope - ogranichit zony (rpa_ui/network/files/dialog/game) + ttl
+  POST /autonomy/pause - pauza on/off
+  POST /autonomy/revoke - otozvat vse razresheniya
+  POST /autonomy/check - proverit soglasie/uroven (will.consent_gate)
+  GET /autonomy/state - sostoyanie iz modules.autonomy.state.get()"""
 from __future__ import annotations
 
 import os
 from flask import Blueprint, jsonify, request, render_template
 from flask_jwt_extended import jwt_required  # type: ignore
 
-# Importy dlya upravleniya zhiznennym tsiklom i politikami
+# Imports for lifecycle management and policies
 from modules.scheduler_engine import create_task  # type: ignore
 from modules.autonomy_bridge import start_background, stop_background, consume_once  # type: ignore
 from modules import decision_policy as policy  # type: ignore
 
-# Importy dlya state-API
+# Imports for state API
 from modules.autonomy.state import set_level as state_set_level, set_scope, pause, revoke, get as state_get  # type: ignore
 from modules.will.consent_gate import check as will_check  # type: ignore
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Importy dlya planirovaniya/ispolneniya (myagkaya zavisimost)
+# Imports for planning/execution (soft dependency)
 try:
     from modules.self.autonomy import plan as _plan, act as _act  # type: ignore
 except Exception:  # pragma: no cover
@@ -53,7 +51,7 @@ bp = Blueprint("autonomy_routes", __name__, url_prefix="/autonomy")
 @bp.post("/start")
 @jwt_required()
 def autonomy_start():
-    """Zapuskaet fonovogo vorkera avtonomii."""
+    """Starts the autonomy background worker."""
     ok = start_background()
     return jsonify({"ok": bool(ok)})
 
@@ -72,7 +70,7 @@ def autonomy_stop():
 @bp.post("/tick")
 @jwt_required()
 def autonomy_tick():
-    """Zapuskaet odin tsikl obrabotki sobytiy (consume_once)."""
+    """Runs one event loop (consume_once)."""
     try:
         limit = int((request.get_json(silent=True) or {}).get("limit") or 200)
     except (TypeError, ValueError):
@@ -87,7 +85,7 @@ def autonomy_tick():
 @bp.post("/install")
 @jwt_required()
 def autonomy_install():
-    """Ustanavlivaet periodicheskuyu zadachu dlya vyzova tick po RRULE."""
+    """Sets up a periodic task to call tick on GRULE."""
     try:
         rrule = "RRULE:FREQ=MINUTELY;INTERVAL=1"
         payload = {"kind": "autonomy:tick", "payload": {"source": "autonomy_routes"}}
@@ -101,7 +99,7 @@ def autonomy_install():
 @bp.get("/status")
 @jwt_required()
 def autonomy_status():
-    """Vozvraschaet tekuschie policy-nastroyki avtonomii (uroven, porogi, tikhie chasy)."""
+    """Returns the current police autonomy settings (level, thresholds, quiet hours)."""
     return jsonify(
         {
             "ok": True,
@@ -142,7 +140,7 @@ def autonomy_level():
 @bp.get("/ledger")
 @jwt_required()
 def autonomy_ledger():
-    """Khvost zhurnala resheniy avtonomii (policy.read_ledger_tail)."""
+    """Tail of autonomy decision log (police.ed_ledger_tail)."""
     try:
         limit = int(request.args.get("limit") or 100)
     except (TypeError, ValueError):
@@ -155,7 +153,7 @@ def autonomy_ledger():
 @bp.post("/plan")
 @jwt_required()
 def api_plan():
-    """Prinimaet tsel/byudzhet/targets i vozvraschaet plan deystviy."""
+    """Accepts a goal/budget/target and returns an action plan."""
     if _plan is None:
         return jsonify({"ok": False, "error": "autonomy planning unavailable"}), 503
     d = request.get_json(force=True, silent=True) or {}
@@ -222,12 +220,12 @@ def admin():
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta (kontrakt proekta)."""
+    """Drop-in registration of blueprint (project contract)."""
     app.register_blueprint(bp)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

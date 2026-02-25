@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/p2p_filter_routes.py - REST dlya Filtra Bluma P2P: add/check/status/stats/import/export/sync.
+"""routes/p2p_filter_routes.py - REST dlya Filtra Bluma P2P: add/check/status/stats/import/export/sync.
 
 Mosty:
 - Yavnyy: (Veb ↔ P2P) obmenivatsya sostoyaniem filtra dlya bystroy sinkhronizatsii uzlov i predotvrascheniya dubley.
@@ -9,11 +8,10 @@ Mosty:
 - Skrytyy #3: (Profile ↔ Audit) sostoyanie filtra udobno dlya sbora metrik setevogo vzaimodeystviya.
 
 Zemnoy abzats:
-Eto kak obschaya «kartoteka otmetok»: prezhde chem otpravit chto-to v set, sprashivaem filtr - ne videli li uzhe takoy ID.
-Mozhno obmenivatsya nalichiem dannykh (kak «otmetkami» o prochitannykh knigakh), ne raskryvaya ikh i ne sozdavaya lishniy shum.
+Eto kak obschaya “kartoteka otmetok”: prezhde chem otpravit chto-to v set, sprashivaem filtr - ne videli li uzhe takoy ID.
+Mozhno obmenivatsya nalichiem dannykh (kak “otmetkami” o prochitannykh knigakh), ne raskryvaya ikh i ne sozdavaya lishniy noise.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -30,11 +28,11 @@ def register(app):  # pragma: no cover
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 
-# Myagkiy import yadra Bloom-filtra
+# Soft import of the Bloom filter core
 try:
     from modules.p2p.bloom import (  # type: ignore
         add as _add,
@@ -50,7 +48,7 @@ except Exception:  # pragma: no cover
 
 @bp.route("/p2p/filter/status", methods=["GET"])
 def api_status():
-    """Vozvraschaet tekuschiy status P2P filtra (prostaya proverka dostupnosti)."""
+    """Returns the current status of the P2P filter (simple availability check)."""
     if _status is None:
         return jsonify({"ok": False, "error": "p2p_unavailable"}), 500
     try:
@@ -64,7 +62,7 @@ def api_status():
 
 @bp.route("/p2p/filter/stats", methods=["GET"])
 def api_stats():
-    """Vozvraschaet detalnuyu statistiku po P2P filtru."""
+    """Returns detailed statistics on the P2P filter."""
     if _stats is None:
         return jsonify({"ok": False, "error": "p2p_unavailable"}), 500
     try:
@@ -76,7 +74,7 @@ def api_stats():
 
 @bp.route("/p2p/filter/check", methods=["POST"])
 def api_check():
-    """Proveryaet, kakie iz peredannykh ID uzhe est v filtre."""
+    """Checks which of the passed IDs are already in the filter."""
     if _check is None:
         return jsonify({"ok": False, "error": "p2p_unavailable"}), 500
     d: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
@@ -106,7 +104,7 @@ def api_add():
 
 @bp.route("/p2p/filter/export_state", methods=["GET"])
 def api_export_state():
-    """Eksportiruet polnoe sostoyanie filtra (m, k, bits) dlya bystroy sinkhronizatsii."""
+    """Exports the full filter state (m, k, bic) for quick synchronization."""
     if _export is None:
         return jsonify({"ok": False, "error": "p2p_unavailable"}), 500
     try:
@@ -117,7 +115,7 @@ def api_export_state():
 
 @bp.route("/p2p/filter/import_state", methods=["POST"])
 def api_import_state():
-    """Importiruet i ustanavlivaet polnoe sostoyanie filtra iz peredannykh dannykh."""
+    """Imports and sets the complete filter state from the passed data."""
     if _import is None:
         return jsonify({"ok": False, "error": "p2p_unavailable"}), 500
     d: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
@@ -135,11 +133,9 @@ def api_import_state():
 
 @bp.route("/p2p/filter/sync_ids", methods=["POST"])
 def api_sync_ids():
-    """
-    Kompleksnaya sinkhronizatsiya: partner prisylaet svoi ID.
+    """Kompleksnaya sinkhronizatsiya: partner prisylaet svoi ID.
     Funktsiya proveryaet, kakie iz nikh novye, dobavlyaet vse v lokalnyy filtr
-    i vozvraschaet detalnyy otchet o sostoyanii do i posle.
-    """
+    i vozvraschaet detalnyy otchet o sostoyanii do i after."""
     if _add is None or _check is None:
         return jsonify({"ok": False, "error": "p2p_unavailable"}), 500
 

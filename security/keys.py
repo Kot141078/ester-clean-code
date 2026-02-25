@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-security/keys.py — upravlenie P2P-klyuchami HMAC (rotatsiya, kid).
+"""security/keys.py - upravlenie P2P-klyuchami HMAC (rotatsiya, kid).
 
 MOSTY:
 - (Yavnyy) Podderzhka P2P_HMAC_KEYS="kid1:key1,kid2:key2" i naslediya P2P_HMAC_KEY (kid=default).
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Vozvrat spiska aktivnykh kid dlya otladki/metrik (bez utechki samikh klyuchey).
 
 ZEMNOY ABZATs:
-Pozvolyaet krutit klyuchi bez ostanovki servisa: novyy pomechaem kak `main`, staryy — kak `prev` i derzhim do istecheniya TTL.
+Pozvolyaet krutit klyuchi bez ostanovki servisa: novyy pomechaem kak `main`, staryy - kak `prev` i derzhim do istecheniya TTL.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from typing import Dict, Optional, Tuple
@@ -46,7 +44,7 @@ def get_key(kid: Optional[str]) -> Optional[str]:
         return None
     if kid and kid in keys:
         return keys[kid]
-    # Net kid — po umolchaniyu probuem vse (dlya sovmestimosti)
+    # No kid - by default we try everything (for compatibility)
     return None
 
 def list_kids() -> Tuple[str, ...]:
@@ -56,7 +54,7 @@ def primary_kid() -> Optional[str]:
     keys = load_keys()
     if not keys:
         return None
-    # evristika: esli est 'main' — vernut ego; inache pervyy po poryadku env
+    # heuristic: if there is a ymain, return it; otherwise first in order env
     if "main" in keys:
         return "main"
     return next(iter(keys.keys()))

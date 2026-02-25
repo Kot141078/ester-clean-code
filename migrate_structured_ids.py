@@ -11,9 +11,9 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 # Importiruem nashi moduli
 try:
     from structured_memory import StructuredMemory
-    from vector_store import VectorStore # chtoby garantirovanno sozdat kollektsiyu ryadom
+    from vector_store import VectorStore # to be sure to create a collection nearby
 except ImportError:
-    # Zaglushka dlya avtonomnogo zapuska, esli moduli ne naydeny v path
+    # Stub for standalone launch if modules are not found in path
     StructuredMemory = None
     VectorStore = None
 
@@ -29,7 +29,7 @@ def _exists_nonempty(p: str) -> bool:
 def _candidates_from_config() -> List[str]:
     paths: List[str] = []
     try:
-        # popytka vzyat PERSIST_DIR iz config i sobrat standartnye imena
+        # an attempt to take PERSIST_HOLES from the config and collect standard names
         from config import EsterConfig
         cfg = EsterConfig()
         base_mem = cfg.PATHS.get("memory", "data/memory")
@@ -56,18 +56,18 @@ def _scan_repo_for_names(
 
 def _reindex_all(sm: StructuredMemory) -> int:
     count = 0
-    # pereindeksatsiya pishetsya v sm.vstore (on lezhit v toy zhe papke, chto i JSON pamyati)
+    # reindexing is written in the sm.store (it is in the same folder as the JSON memory)
     for user, entries in sm.memory.items():
         if not isinstance(entries, list):
             continue
         for e in entries:
             if not isinstance(e, dict):
                 continue
-            # dialogovaya zapis — eto ta, u kotoroy est khotya by query ili answer
+            # a dialogue entry is one that has at least cuers or answer
             if ("query" in e) or ("answer" in e):
                 doc_id = e.get("id")
                 if not doc_id:
-                    # heal dolzhen byl prostavit id
+                    # Heal should have put down the ID
                     continue
                 text = f"{(e.get('query') or '').strip()}\n{(e.get('answer') or '').strip()}"
                 meta = {
@@ -84,7 +84,7 @@ def _reindex_all(sm: StructuredMemory) -> int:
 # ---------- main ----------
 def main():
     if StructuredMemory is None:
-        print("Oshibka: Moduli structured_memory ili vector_store ne naydeny.")
+        print("Error: Structured_memory or vector_store modules not found.")
         sys.exit(1)
 
     ap = argparse.ArgumentParser(
@@ -92,7 +92,7 @@ def main():
     )
     ap.add_argument(
         "--path",
-        help="Put k JSON pamyati (naprimer D:\\ester-project\\data\\ester_memory.json). Esli ne ukazan — popytaemsya opredelit avtomaticheski.",
+        help="Path to memory JSION (for example D:eester-projectedataeestr_memory.Jsion). If not specified, we will try to determine it automatically.",
         default=None,
     )
     args = ap.parse_args()
@@ -103,7 +103,7 @@ def main():
     else:
         candidates.extend(_candidates_from_config())
         candidates.extend(_scan_repo_for_names(os.getcwd()))
-        # unikaliziruem, sokhranyaya poryadok
+        # unique while maintaining order
         seen = set()
         uniq = []
         for p in candidates:
@@ -114,7 +114,7 @@ def main():
 
     if not candidates:
         print(
-            "Ne udalos nayti fayl pamyati. Ukazhi yavnyy put: python migrate_structured_ids.py --path D:\\\\...\\\\ester_memory.json"
+            "The memory file could not be found. Provide an explicit path: pothon migrate_structured_ids.po --path D:uh...eeestier_memory.zsion"
         )
         sys.exit(2)
 
@@ -126,20 +126,20 @@ def main():
             continue
 
         try:
-            sm = StructuredMemory(path)  # vazhno: tot zhe put, gde lezhit JSON
-            # lechim strukturu (prostavit id, esli ne bylo; privedet tipy)
+            sm = StructuredMemory(path)  # important: the same path where ZhSON lies
+            # we treat the structure (put down the ID if it doesn’t exist; will list the types)
             fixed = sm.heal()
             reindexed = _reindex_all(sm)
             sm._save()
             print(f"   └── Heal fixed: {fixed}, reindexed: {reindexed}")
             processed_any = True
         except Exception as e:
-            logging.exception("Oshibka migratsii", exc_info=e)
+            logging.exception("Migration Error", exc_info=e)
             print(f"   └── Oshibka: {e}")
 
     if not processed_any:
         print(
-            "Ne udalos obrabotat ni odin fayl. Prover put i soderzhimoe (Length > 0)."
+            "No files could be processed. Check the path and contents (Langth > 0)."
         )
         sys.exit(1)
 

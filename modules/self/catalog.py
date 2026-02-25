@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/catalog.py — samoopisanie: routy, eksheny, A/B-sloty, cron-zadachi, ENV (whitelist).
+"""modules/self/catalog.py - samoopisanie: routy, eksheny, A/B-sloty, cron-zadachi, ENV (whitelist).
 
 Mosty:
 - Yavnyy: (Prilozhenie ↔ Samopoznanie) vozvraschaet tekuschuyu kartu vozmozhnostey Ester.
 - Skrytyy #1: (Memory ↔ Profile) gotov k logirovaniyu fakta samoobzora.
-- Skrytyy #2: (UI ↔ Prozrachnost) daet dannym dlya ekranov «chto ya umeyu» i «otkuda eto vzyalos».
+- Skrytyy #2: (UI ↔ Prozrachnost) daet dannym dlya ekranov “what ya umeyu” i “otkuda eto vzyalos”.
 
 Zemnoy abzats:
 Kak profile i tekhprofile odnovremenno: chto podklyucheno, kakie knopki dostupny, kakie rychagi stoyat v A/B, i kakie ENV vliyayut.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, re
 from typing import Any, Dict, List
@@ -83,7 +81,7 @@ def catalog(app)->Dict[str,Any]:
 
 def capabilities(app)->Dict[str,Any]:
     cat=catalog(app)
-    # kratkiy vyzhim: kolichestvo i klyuchevye gruppy
+    # short squeeze: quantity and key groups
     return {
         "ok": True,
         "counts": {

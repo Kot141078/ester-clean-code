@@ -27,14 +27,12 @@ def _iter_files(root: str, pattern: Optional[str]) -> List[str]:
 
 
 def file_search_skill(query: str, root: str | None = None, pattern: str | None = None, max_results: int = 20) -> Dict[str, Any]:
-    """
-    Poisk teksta v faylakh.
+    """Search teksta v faylakh.
     args:
-      query: stroka dlya poiska
+      query: string dlya poiska
       root: direktoriya (po umolchaniyu cwd)
-      pattern: glob dlya faylov (naprimer, *.py)
-      max_results: maksimum sovpadeniy
-    """
+      pattern: glob dlya faylov (for example, *.py)
+      max_results: maximum sovpadeniy"""
     q = (query or "").strip()
     if not q:
         return {"status": "error", "error": "query required"}

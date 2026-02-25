@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-modules/planner/forge.py — generator planov deystviy agenta (bez vypolneniya).
+"""modules/planner/forge.py - generator planov deystviy agenta (bez vypolneniya).
 
-Naznachenie:
-- Prevratit tsel (stroka) i «sensory» (okna/zhurnal) v determinirovannuyu ochered shagov.
-- Shagi — chistye slovari (JSON), ispolnyaemye pozzhe runner'om (iteratsiya A4).
+Name:
+- Prevratit tsel (stroka) i “sensory” (okna/zhurnal) v determinirovannuyu ochered shagov.
+- Shagi - chistye slovari (JSON), ispolnyaemye pozzhe runner'om (iteratsiya A4).
 
 Skhema shaga:
   {
@@ -25,11 +24,10 @@ MOSTY:
 - Skrytyy #2: (Kibernetika ↔ Bezopasnost) pomechaem shagi safety=... dlya posleduyuschey filtratsii.
 
 ZEMNOY ABZATs:
-Poka bez vypolneniya i bez pobochnykh effektov. Ochered — v pamyati protsessa.
-Shablony namereniy — prostye evristiki i klyuchevye slova (rus/angl).
+Bye bye vypolneniya i bez pobochnykh effektov. Ochered - v pamyati protsessa.
+Shablony namereniy - prostye evristiki i klyuchevye slova (rus/angl).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import re, time, threading
@@ -63,7 +61,7 @@ def _goal_notepad_save(goal: str) -> List[Dict[str, Any]]:
         {"op":"type","args":{"text":"notepad"},"meta":{"hint":"Type notepad","safety":"safe"}},
         {"op":"hotkey","args":{"keys":"ENTER"},"meta":{"hint":"Launch Notepad","safety":"safe"}},
         {"op":"ensure_focus","args":{"app_like":"Notepad"},"meta":{"hint":"Focus Notepad","safety":"safe"}},
-        {"op":"type","args":{"text":"Ester pokazyvaet shagi. Privet!"},"meta":{"hint":"Type sample text","safety":"safe"}},
+        {"op":"type","args":{"text":"Esther shows the steps. Hello!"},"meta":{"hint":"Type sample text","safety":"safe"}},
         {"op":"hotkey","args":{"keys":"CTRL+S"},"meta":{"hint":"Save dialog","safety":"safe"}},
         {"op":"save_as","args":{"path":"%USERPROFILE%\\Desktop\\demo_ester.txt"},"meta":{"hint":"Set path","safety":"safe"}},
         {"op":"hotkey","args":{"keys":"ENTER"},"meta":{"hint":"Confirm save","safety":"safe"}},
@@ -84,7 +82,7 @@ def _goal_textedit_save(goal: str) -> List[Dict[str, Any]]:
     ]
 
 def _goal_open_browser(goal: str) -> List[Dict[str, Any]]:
-    # Universalno: otkryt brauzer i nuzhnyy URL (esli nayden v goal)
+    # Universal: open the browser and the desired URL (if found in Goal)
     m = re.search(r"(https?://[^\s]+)", goal, flags=re.I)
     url = m.group(1) if m else "https://example.com"
     return [
@@ -94,7 +92,7 @@ def _goal_open_browser(goal: str) -> List[Dict[str, Any]]:
     ]
 
 def _goal_generic_search(goal: str) -> List[Dict[str, Any]]:
-    # Generalizovannyy «pokaz»: otkryt poisk OS, nabrat tekst
+    # Generalized “show”: OS search is open, type text
     return [
         {"op":"hotkey","args":{"keys":"WIN+S"},"meta":{"hint":"OS search","safety":"safe"}},
         {"op":"type","args":{"text":goal},"meta":{"hint":"Type query","safety":"safe"}},
@@ -120,14 +118,14 @@ def plan(goal: str, sense: Dict[str, Any]) -> List[Dict[str, Any]]:
     else:
         chain = _goal_generic_search(g)
 
-    # Obschie uluchsheniya plana, opirayas na sense
-    # 1) Esli zhurnal soderzhit nedavniy fail — stavim korotkuyu zaderzhku pered sleduyuschim deystviem
+    # General plan improvements based on sense
+    # 1) If the log contains a recent file, set a short delay before the next action
     jtail = (sense.get("journal") or {}).get("items") or []
     recent_fail = any((it.get("event","").lower() in ("template_fail","ocr_fail","safe_step_fail")) for it in jtail[-10:])
     if recent_fail:
         chain.insert(0, {"op":"sleep","args":{"ms":300},"meta":{"hint":"Stabilize after fail","safety":"safe"}})
 
-    # 2) Esli ekran pust-zaglushka, dobavim ensure_focus posle otkrytiya
+    # 2) If the screen is empty - a stub, add sensor_focus after opening
     if (sense.get("screen") or {}).get("source") == "fallback_blank":
         chain.append({"op":"ensure_focus","args":{"app_like":"active"},"meta":{"hint":"Focus active window","safety":"safe"}})
 

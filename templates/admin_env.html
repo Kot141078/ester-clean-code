@@ -89,12 +89,12 @@ async function previewDiff(){
   document.getElementById('diff').innerHTML = diffView(j.diff);
 }
 async function applyActive(){
-  // Pered zapisyu pereschitaem paroy vyzovov: poluchim diff i soberem vars iz iskhodnogo teksta
+  // Before recording, let’s recalculate with a couple of calls: get the diff and collect the vars from the source text
   const text = document.getElementById('envtext').value||"";
   const pr = await jget('/admin/env/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
   const vars = {};
-  // Iz iskhodnogo teksta berem vse klyuchi -> znacheniya (server rasparsit analogichno)
-  // Chtoby ne tyanut parser v klient, prosto poprosim server zapisat poluchivshiysya nabor:
+  // From the source text we take all the keys -> values ​​(parse the server in the same way)
+  // In order not to pull the parser into the client, we simply ask the server to write down the resulting set:
   const j = await jget('/admin/env/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({vars: (pr.ok && pr.diff ? Object.fromEntries((pr.diff.new||[]).map(x=>[x.key,x.proposed]).concat((pr.diff.changed||[]).map(x=>[x.key,x.proposed]))) : {})})});
   document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
   document.getElementById('res').textContent = j.ok ? "OK" : "ERR";

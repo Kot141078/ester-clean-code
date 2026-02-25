@@ -1,7 +1,6 @@
 
 # -*- coding: utf-8 -*-
-"""
-modules.act — sovmestimost dlya runner.run_plan (fiks rekursii).
+"""modules.act - sovmestimost dlya runner.run_plan (fiks rekursii).
 Mosty:
 - Yavnyy: pri importe paketa obespechivaem nalichie funktsii run_plan v modules.act.runner.
 - Skrytyy #1: (DX ↔ Nadezhnost) — tselevaya funktsiya vybiraetsya odin raz i keshiruetsya (nikakoy rekursii).
@@ -9,9 +8,8 @@ Mosty:
 
 Zemnoy abzats:
 Ranshe folbek iskal 'run_plan' sredi kandidatov i mog vyzvat sam sebya → rekursiya.
-Teper my isklyuchaem 'run_plan' i fiksiruem ssylku na realnuyu funktsiyu odin raz.
-# c=a+b
-"""
+Now my isklyuchaem 'run_plan' i fiksiruem ssylku na realnuyu funktsiyu odin raz.
+# c=a+b"""
 from __future__ import annotations
 from importlib import import_module
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -24,7 +22,7 @@ def _install_run_plan_fallback():
     if hasattr(runner, "run_plan"):
         return True
 
-    # Vybiraem tselevuyu funktsiyu ODIN RAZ, isklyuchaya run_plan (chtoby ne vyzvat sebya)
+    # Select the target function ONCE, excluding run_plan (so as not to call yourself)
     target = None
     for name in ("run", "execute_plan", "execute", "main"):
         fn = getattr(runner, name, None)
@@ -45,7 +43,7 @@ def _install_run_plan_fallback():
                         "reason_code": "run_plan_target_signature_mismatch",
                         "how_to_enable": "Expose runner.run/execute_plan/execute/main with a compatible signature.",
                     }
-        # no target — yavnyy capability-denial
+        # no target - yavnyy capability-denial
         title = getattr(plan, "name", None) if plan is not None else None
         return {
             "ok": False,

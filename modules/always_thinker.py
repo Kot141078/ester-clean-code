@@ -1,32 +1,30 @@
 # -*- coding: utf-8 -*-
-"""
-modules/always_thinker.py — fonovyy myslitel Ester.
+"""modules/always_thinker.py - fonovyy myslitel Ester.
 
 Mosty:
-- Yavnyy: (CLI / scripts.thinkd_run ↔ Myshlenie) — tochka vkhoda dlya fonovogo myshleniya.
-- Yavnyy: (volition_registry / will_scheduler_adapter ↔ cascade_closed) — ispolnyaet volevye impulsy.
+- Yavnyy: (CLI / scripts.thinkd_run ↔ Myshlenie) - tochka vkhoda dlya fonovogo myshleniya.
+- Yavnyy: (volition_registry / will_scheduler_adapter ↔ cascade_closed) - ispolnyaet volevye impulsy.
 - Yavnyy: (thought_trace_adapter ↔ Memory/Log) — formiruet chelovekochitaemyy treys.
 - Skrytyy #1: (Prioritety ↔ Resursy) — planirovschik voli vybiraet vazhnye tseli.
 - Skrytyy #2: (Kaskady ↔ Guard/Trace) — soblyudaet limity i ostavlyaet ponyatnyy sled.
 
 Rezhimy:
 - ESTER_VOLITION_MODE:
-    A — volya vyklyuchena.
-    B — impulsy prinimayutsya.
+    A - volya vyklyuchena.
+    B - impulsy prinimayutsya.
 - ESTER_WILL_SCHED_AB:
-    A — prostoy rezhim: berem sleduyuschiy impuls iz volition_registry i zapuskaem odin kaskad.
-    B — rasshirennyy: will_scheduler_adapter.process_next()
-         (prioritety, mnogokontekst, guard), s bezopasnym otkatom.
+    A - prostoy rezhim: berem sleduyuschiy impuls iz volition_registry i zapuskaem odin kaskad.
+    B - expandednnyy: will_scheduler_adapter.process_next()
+         (priority, mnogokontekst, guard), s bezopasnym otkatom.
 - ESTER_TRACE_AB:
-    A — dobavlyaet kratkiy trace_text pri nalichii adaptera.
-    B — dobavlyaet polnyy trace (struktura + tekst).
+    A - add kratkiy trace_text for nalichii adaptera.
+    B - add polnyy trace (struktura + tekst).
 
 Zemnoy abzats:
     from modules import always_thinker
     always_thinker.start_background(interval_sec=15.0)
     # Demon chitaet impulsy i dumaet kaskadno, s ponyatnym sledom.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -85,9 +83,7 @@ def _volition_on() -> bool:
 
 
 def _use_scheduler() -> bool:
-    """
-    Proveryaem, mozhno li ispolzovat rasshirennyy planirovschik voli.
-    """
+    """Let's check if the extended will planner can be used."""
     mode = (os.environ.get("ESTER_WILL_SCHED_AB", "A") or "A").strip().upper()
     return (
         mode == "B"
@@ -101,13 +97,11 @@ def _trace_mode() -> str:
 
 
 def _attach_trace_if_enabled(result: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Myagko dobavlyaet treys k rezultatu, esli vklyuchen ESTER_TRACE_AB i dostupen thought_trace_adapter.
+    """Myagko dobavlyaet treys k rezultatu, esli vklyuchen ESTER_TRACE_AB i dostupen thought_trace_adapter.
 
-    Ne menyaet kontrakt:
-    - v rezhime A dobavlyaet tolko 'trace_text' (esli est);
-    - v rezhime B dobavlyaet polnuyu strukturu 'trace'.
-    """
+    Nemenyaet kontrakt:
+    - v rezhime A add tolko 'trace_text' (esli est);
+    - v rezhime B addavlyaet polnuyu strukturu 'trace'."""
     mode = _trace_mode()
     if mode not in ("A", "B"):
         return result
@@ -129,19 +123,17 @@ def _attach_trace_if_enabled(result: Dict[str, Any]) -> Dict[str, Any]:
             if txt:
                 result.setdefault("trace_text", txt)
     except Exception:
-        # Treys nikogda ne dolzhen lomat osnovnoy potok.
+        # The trace should never break the main thread.
         pass
 
     return result
 
 
 def _process_once_simple() -> Dict[str, Any]:
-    """
-    Prostoy rezhim:
-    - beret sleduyuschiy impuls iz volition_registry;
-    - zapuskaet cascade_closed.run_cascade;
-    - optsionalno dobavlyaet treys.
-    """
+    """Easy mode:
+    - takes the next impulse from the Volition_Register;
+    - launches cascade_closed.run_cascade;
+    - optionally adds a trace."""
     if not _volition_on():
         return {"ok": True, "processed": False, "note": "volition disabled"}
 
@@ -152,7 +144,7 @@ def _process_once_simple() -> Dict[str, Any]:
     if not imp:
         return {"ok": True, "processed": False, "note": "no impulse"}
 
-    goal = imp.get("goal") or "(neizvestnaya tsel)"
+    goal = imp.get("goal") or "(unknown target)"
 
     if not (cascade_closed and hasattr(cascade_closed, "run_cascade")):
         return {"ok": False, "processed": False, "goal": goal, "error": "cascade_closed not available"}
@@ -189,12 +181,10 @@ def _process_once_simple() -> Dict[str, Any]:
 
 
 def _process_once_scheduled() -> Dict[str, Any]:
-    """
-    Rasshirennyy rezhim:
-    - ispolzuet will_scheduler_adapter.process_next();
-    - optsionalno dobavlyaet treys;
-    - pri oshibke — otkat na prostoy rezhim.
-    """
+    """Advanced Mode:
+    - uses will_scheduler_adapter.process_next();
+    - optionally adds a trace;
+    - in case of an error, rollback to simple mode."""
     if not _volition_on():
         return {"ok": True, "processed": False, "skipped": True, "reason": "volition disabled"}
 
@@ -241,14 +231,12 @@ def _process_once_scheduled() -> Dict[str, Any]:
 
 
 def _worker_loop(interval_sec: float) -> None:
-    """
-    Tsikl fonovogo myslitelya.
+    """Tsikl fonovogo myslitelya.
 
     Logika:
-    - Esli vklyuchen rasshirennyy planirovschik — ispolzuem ego.
-    - Inache — prostoy rezhim volition_registry + cascade_closed.
-    - Lyubye oshibki logiruyutsya i ne ronyayut protsess.
-    """
+    - Esli vklyuchen rashirennyy planirovschik — ispolzuem ego.
+    - Inache - prostoy rezhim volition_registry + cascade_closed.
+    - Lyubye oshibki logiruyutsya i ne ronyayut protsess."""
     while not _stop_flag.is_set():
         try:
             if _use_scheduler():
@@ -270,14 +258,12 @@ def _worker_loop(interval_sec: float) -> None:
 
 
 def start_background(interval_sec: float = 5.0) -> Dict[str, Any]:
-    """
-    Zapustit fonovogo myslitelya.
+    """Zapustit fonovogo myslitelya.
 
     Drop-in:
-    - ispolzuetsya scripts/thinkd.py ili scripts/thinkd_run.py;
+    - ispolzuetsya scripts/thinkd.py or scripts/thinkd_run.py;
     - uchityvaet A/B-flagi dlya voli, planirovschika i treysa;
-    - ne menyaet vneshnie HTTP/JSON kontrakty.
-    """
+    - ne menyaet vneshnie HTTP/JSON kontrakty."""
     global _thread
     if _thread and _thread.is_alive():
         return {"ok": False, "running": True, "note": "already running"}
@@ -296,13 +282,11 @@ def start_background(interval_sec: float = 5.0) -> Dict[str, Any]:
 
 
 def consume_once() -> Dict[str, Any]:
-    """
-    Obrabotat odin shag myshleniya (ruchnoy smoke-test).
+    """Obrabotat odin shag myshleniya (ruchnoy smoke-test).
 
-    - Esli vklyuchen rasshirennyy planirovschik — ispolzuetsya on.
-    - Inache — prostoy rezhim.
-    - V oboikh sluchayakh myagko dobavlyaet treys, esli vklyuchen.
-    """
+    - Esli vklyuchen rashirennyy planirovschik — ispolzuetsya on.
+    - Inache - prostoy rezhim.
+    - V oboikh sluchayakh myagko dobavlyaet treys, esli vklyuchen."""
     try:
         if _use_scheduler():
             return _process_once_scheduled()
@@ -313,7 +297,7 @@ def consume_once() -> Dict[str, Any]:
 
 
 def stop_background() -> Dict[str, Any]:
-    """Zaprosit ostanovku fonovogo myslitelya."""
+    """Request background thinker to stop."""
     _stop_flag.set()
     try:
         _mirror_background_event(

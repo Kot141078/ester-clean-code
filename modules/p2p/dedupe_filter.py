@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/p2p/dedupe_filter.py — Bloom-filtr dlya P2P-anonsov (otsev dubley).
+"""modules/p2p/dedupe_filter.py - Bloom-filtr dlya P2P-anonsov (otsev dubley).
 
 Mosty:
 - Yavnyy: (Set ↔ Uzel) khranim otpechatki uzhe vidennykh dokumentov/anonsov.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Garazh/Ingest ↔ Proizvoditelnost) menshe gonyaem set i bystree skhodimsya.
 
 Zemnoy abzats:
-Eto «setchataya shumovka»: odin raz uvideli id — bolshe ne taschim ego snova, ekonomim trafik i vremya.
+Eto “setchataya shumovka”: odin raz uvideli id - bolshe ne taschim ego snova, ekonomim trafik i vremya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, hashlib, math
 from typing import Any, Dict, List
@@ -39,7 +37,7 @@ def _hashes(s: str, m: int, k: int)->List[int]:
 
 def _get_bits(j)->bytearray:
     b64=j.get("bits","")
-    # prostoe khranenie — kak stroka '0'/'1' (dlya prozrachnosti), bez base64
+    # simple storage - as a string b0b/b1b (for transparency), without basier64
     if not b64: return bytearray(b"0"*j.get("m",M),)
     return bytearray(b64.encode("ascii"))
 

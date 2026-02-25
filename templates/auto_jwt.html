@@ -27,11 +27,11 @@
   <div class="wrap">
     <div class="card">
       <h1>Avtovypusk JWT</h1>
-      <p class="muted">Vvedi imya — token sgeneriruetsya avtomaticheski. Dlya Owner roli budut admin,user (sm. <span class="badge">ADMIN_USERNAMES</span>).</p>
-      <label for="user">Imya polzovatelya</label>
+      <p class="muted">Enter a name - a token will be generated automatically. For Ovner the roles will be admin, user (see. <span class="badge">ADMIN_USERNAMES</span>).</p>
+      <label for="user">Username</label>
       <input id="user" placeholder="Owner" value="Owner" autocomplete="name" autofocus/>
       <div class="row" style="margin-top:8px">
-        <a class="badge" href="/auth/ui">JWT (ruchnoy rezhim)</a>
+        <a class="badge" href="/auth/ui">GVT (manual mode)</a>
         <a class="badge" href="/chat/telegram">Lenta Telegram</a>
         <a class="badge" href="/routes_index.html">Marshruty</a>
       </div>
@@ -40,7 +40,7 @@
     <div class="card" style="margin-top:16px">
       <h2>Token</h2>
       <textarea id="tok" placeholder="— avto-JWT poyavitsya zdes —" spellcheck="false"></textarea>
-      <p class="muted">Token sokhranen v <code>localStorage("jwt")</code>. On budet podkhvachen UI lenty/kontrolya avtomaticheski.</p>
+      <p class="muted">Token sokhranen v <code>localStorage("jwt")</code>. It will be picked up by the ribbon/control UI automatically.</p>
       <pre id="log" style="white-space:pre-wrap;max-height:240px;overflow:auto"></pre>
     </div>
   </div>
@@ -68,12 +68,12 @@
       clearTimeout(timer);
       const val = ($("#user").value||"").trim();
       if (!val) return;
-      timer = setTimeout(()=>issue(val), 400); // avtogeneratsiya cherez 400 ms «tishiny»
+      timer = setTimeout(()=>issue(val), 400); // auto-generation after 400 ms of “silence”
     });
     $("#user").addEventListener("keydown", (e)=>{
       if (e.key === "Enter") { e.preventDefault(); issue(($("#user").value||"").trim()); }
     });
-    // pokazat tekuschiy token
+    // show current token
     const tok = getJwt(); if (tok) $("#tok").value = tok;
   </script>
 </body>

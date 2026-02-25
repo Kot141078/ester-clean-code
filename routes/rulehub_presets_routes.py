@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-routes/rulehub_presets_routes.py — presety pravil myshleniya (read-only).
+"""routes/rulehub_presets_routes.py - presety pravil myshleniya (read-only).
 
-Endpointy:
-  • GET /thinking/presets           — spisok presetov (id, title, tags)
-  • GET /thinking/presets/get?id=…  — sam preset (JSON)
+Endpoint:
+  • GET /thinking/presets — spisok presetov (id, title, tags)
+  • GET /thinking/presets/get?id=… – sam preset (JSON)
 
 Mosty:
-- Yavnyy: (Myshlenie v†" UX) gotovye «kartochki pravil» dlya bystroy integratsii v dvizhok mysley.
+- Yavnyy: (Myshlenie v†" UX) gotovye "kartochki pravil" dlya bystroy integratsii v dvizhok mysley.
 - Skrytyy #1: (Infoteoriya v†" Gistsiplina) edinyy istochnik istin dlya tipovykh pravil.
 - Skrytyy #2: (Inzheneriya v†" Sovmestimost) drop-in: tolko chtenie YAML bez izmeneniy kontraktov.
 
 Zemnoy abzats:
-Eto «katalog zagotovok» — otkryl, vybral nuzhnuyu, vstavil v svoy rule set.
+This is “katalog zagotovok” - otkryl, vybral nuzhnuyu, vstavil v svoy rule set.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -63,13 +61,13 @@ def _parse_yaml_presets(path: str) -> List[Dict[str, Any]]:
                     inner = v[v.find("[")+1:-1].strip() if "[" in v and v.endswith("]") else ""
                     cur[k] = [x.strip().strip("'").strip('"') for x in inner.split(",")] if inner else []
                 elif k == "rule":
-                    # Nachinaetsya vlozhennyy blok YAML v†' schityvaem kak JSON-tekst po otstupam
+                    # The nested YML block begins and is read as JSON-text by indentation
                     cur["rule"] = {}
                 else:
                     # polya rule.* v odnu glubinu
                     if "rule" not in cur:
                         cur["rule"] = {}
-                    # Prostoe znachenie/slovar
+                    # Simple meaning/dictionary
                     val = v.strip().strip("'").strip('"')
                     if val.startswith("{") and val.endswith("}"):
                         try:
@@ -80,7 +78,7 @@ def _parse_yaml_presets(path: str) -> List[Dict[str, Any]]:
                         cur["rule"][k] = val
     if cur:
         presets.append(cur)
-    # Normalizuem rule.when / rule.actions (esli byli serializovany kak stroki)
+    # Normalizes rule.ven / rule.actions (if serialized as strings)
     for p in presets:
         rule = p.get("rule") or {}
         for fld in ("when",):

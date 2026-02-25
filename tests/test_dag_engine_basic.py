@@ -37,7 +37,7 @@ nodes:
 
   - id: analyze
     type: llm.generate
-    prompt: "Dlya {{ctx.item.file}}. {{ctx.prompt_stub}} Sformuliruy 3–5 predlozheniy."
+    prompt: "Dlya {{ctx.item.file}}. {{ctx.prompt_stub}} Formuliruy 3–5 predlozheniy."
     out: "analysis"
     depends: ["fork"]
 
@@ -48,7 +48,7 @@ nodes:
     depends: ["analyze"]
 
   - id: gather_text
-    type: join
+    type:join
     from: "fork"
     out: "consolidated_text"
     select:
@@ -57,8 +57,7 @@ nodes:
     mode: text
     separator: "\\n---\\n"
     await_nodes: ["polish"]
-    depends: ["polish"]
-"""
+    depends: ["polish"]"""
 
 
 def test_dag_engine_fanout_join_text():
@@ -66,7 +65,7 @@ def test_dag_engine_fanout_join_text():
     with tempfile.TemporaryDirectory() as tmp:
         os.environ["DAG_RUN_ROOT"] = os.path.join(tmp, "runs")
         os.environ["DAG_BRANCH_ROOT"] = os.path.join(tmp, "branches")
-        # Otklyuchaem vneshnie LLM vyzovy -> ispolzuem evristiku
+        # Disable external LLM calls -> use heuristics
         os.environ["LLM_API_BASE"] = ""
         os.environ["LLM_MODEL"] = "gpt-4o-mini"
 
@@ -75,7 +74,7 @@ def test_dag_engine_fanout_join_text():
         # Sinkhronnyy progon
         run_loop(eng, poll_interval=0.05)
 
-        # Proveryaem sostoyanie
+        # Checking the condition
         st = load_state(eng.run_id)
         assert st.get("finished") is True
         # Itogovyy kontekst osnovnoy vetki
@@ -83,6 +82,6 @@ def test_dag_engine_fanout_join_text():
         assert "consolidated_text" in ctx
         out = ctx["consolidated_text"]
         assert isinstance(out, str)
-        # Oba fayla dolzhny byt upomyanuty v skleennom tekste
+        # Both files must be mentioned in the merged text
         assert "doc_1.txt" in out
         assert "doc_2.txt" in out

@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ester_selfmod_routes_alias.py
+"""routes/ester_selfmod_routes_alias.py
 
 Marshruty upravleniya bezopasnym samoizmeneniem Ester.
 
 POST /ester/selfmod/propose
-- Prinimaet predlozhenie izmeneniy (JSON).
+- Accept predlozhenie izmeneniy (JSON).
 - Delegiruet v modules.ester.self_mod_executor.apply(...).
 - Ne trebuet vneshnikh klyuchey, rabotaet lokalno.
 
 GET /ester/selfmod/status
 - Pokazyvaet tekuschiy rezhim A/B i politiku soglasiya.
 
-Invarianty:
+Invariance:
 - Ne zapuskaet izmeneniya bez ESTER_SELF_MOD_AB=B i soglasiya.
 - Ne menyaet suschestvuyuschie kriticheskie fayly.
 - Net fonovykh demonov.
@@ -24,8 +23,7 @@ Mosty:
 
 Zemnoy abzats:
 Kak pult “Razreshit avtoobnovlenie chertezhey”: poka flazhok ne v B,
-nichego ne perepishetsya bez tvoego i ee pryamogo soglasiya.
-"""
+nichego ne perepishetsya bez tvoego i ee pryamogo soglasiya."""
 
 from __future__ import annotations
 

@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-Prostoy nagruzochnyy test dlya poiska i vektorki.
-Ispolzovanie: python load_test.py
-"""
+"""A simple load test for search and vectors.
+Usage: pothon load_test.po"""
 import concurrent.futures
 import time
 
-# Ubedis, chto fayly research_agent.py i vector_store.py lezhat ryadom
+# Make sure that the research_agent.po and vector_store.po files are nearby
 from research_agent import ResearchAgent
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Esli vector_store net, mozhno zakommentirovat import i funktsiyu test_vector_search
+# If there is no vector_store, you can comment out the import and the test_vector_search function
 try:
     from vector_store import VectorStore
 except ImportError:
@@ -18,9 +16,9 @@ except ImportError:
 
 
 def test_search():
-    """Test obychnogo poiska agenta."""
+    """Test of regular agent search."""
     agent = ResearchAgent()
-    # Vyzov metoda search, kotoryy my tolko chto pochinili
+    # Calling the search method we just fixed
     agent.search("test query")
 
 
@@ -34,7 +32,7 @@ def test_vector_search():
 
 
 def load_test(func, num_threads=50):
-    """Zapusk funktsii v num_threads potokakh dlya proverki stabilnosti."""
+    """Run the function on nythreads threads to check stability."""
     if func is None:
         return
 
@@ -42,9 +40,9 @@ def load_test(func, num_threads=50):
     start = time.time()
     
     with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-        # Zapuskaem zadachi
+        # Launching tasks
         futures = [executor.submit(func) for _ in range(num_threads)]
-        # Zhdem zaversheniya vsekh
+        # We are waiting for everyone to complete
         concurrent.futures.wait(futures)
         
     end = time.time()
@@ -55,5 +53,5 @@ if __name__ == "__main__":
     # 1. Test agenta
     load_test(test_search)
     
-    # 2. Test vektorki (raskommentiruy, esli nuzhen i est modul)
+    # 2. Vector test (uncomment if you need and have a module)
     # load_test(test_vector_search)

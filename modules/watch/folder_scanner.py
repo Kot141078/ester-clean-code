@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/watch/folder_scanner.py — oflayn-skaner papok: novye/izmenennye fayly → kontekst pravil.
+"""modules/watch/folder_scanner.py - oflayn-scanner papok: new/izmenennye fayly → kontekst pravil.
 
 Mosty:
 - Yavnyy: (FS ↔ Volya) nakhodit izmenennye fayly i formiruet context dlya pravil.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (RAG/Media ↔ Integratsiya) cherez pravila vyzyvayutsya ingest/pamyat/poisk.
 
 Zemnoy abzats:
-Eto «pochtovyy yaschik»: nakidyvaesh tuda fayly — skaner otmechaet novoe i zapuskaet nuzhnye deystviya.
+Eto "pochtovyy yaschik": nakidyvaesh tuda fayly - scanner otmechaet novoe i zapuskaet nuzhnye deystviya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hashlib, fnmatch
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -33,7 +31,7 @@ def _sha256_file(path: str, size_limit: int=20_000_000)->str:
     h=hashlib.sha256()
     try:
         with open(path,"rb") as f:
-            # chitaem do 20Mb dlya bystrogo khesha (dlya video dostatochno)
+            # read up to 20MB for a fast hash (enough for video)
             left=size_limit
             while left>0:
                 chunk=f.read(min(8192, left))

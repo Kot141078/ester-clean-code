@@ -3,7 +3,7 @@
 import os, pathlib
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 def main():
-    # vklyuchaem RAG ingest dlya testa tekuschego protsessa
+    # enable RAG ingest to test the current process
     os.environ["ESTER_RAG_INGEST"] = "1"
     from modules.rag import hub
     hub.reset()

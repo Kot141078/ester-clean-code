@@ -1,13 +1,13 @@
 # packaging/systemd/ester-judge-overlay-watcher.service
-# Yunit storozha overlay-fayla Judge.
+# Yuje overlay file guard unit.
 
 # Mosty:
-# - Yavnyy (Ekspluatatsiya ↔ Orkestratsiya): podderzhivaet «zhivoy» kontur primeneniya podskazok.
-# - Skrytyy 1 (Bezopasnost ↔ Praktika): komanda perezagruzki zadaetsya snaruzhi (ENV) i mozhet byt pustoy.
+# - Yavnyy (Ekspluatatsiya ↔ Orkestratsiya): podderzhivaet “zhivoy” kontur primeneniya podskazok.
+# - Skrytyy 1 (Bezopasnost ↔ Praktika): komanda perezagruzki zadaetsya snaruzhi (ENV) i mozhet byt empty.
 # - Skrytyy 2 (Infoteoriya ↔ Nadezhnost): prostaya pull-model — menshe tochek otkaza.
 
 # Zemnoy abzats:
-# Demon chitaet ~/.ester/judge_slots.json i pri izmenenii vyzyvaet komandu perezapuska Judge (esli zadana).
+# The daemon reads ~/.ester/yuje_slots.jsion and when changed, calls the Yuje restart command (if given).
 
 [Unit]
 Description=Ester Judge Overlay Watcher

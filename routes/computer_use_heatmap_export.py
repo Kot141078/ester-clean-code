@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/computer_use_heatmap_export.py - REST-eksport predlozheniy yakorey iz heatmap.
+"""routes/computer_use_heatmap_export.py - REST-eksport predlozheniy yakorey iz heatmap.
 
 MOSTY:
 - Yavnyy: (CLI/UI ↔ Anchors Suggestions) - odnoy knopkoy formiruem nabor predlozheniy.
-- Skrytyy №1: (Analitika ↔ Protsedury) - opiraemsya na realnye logi za okno vremeni.
-- Skrytyy №2: (Bezopasnost ↔ Sovmestimost) - pishem v suggestions, ne trogaem boevuyu bazu yakorey.
+- Skrytyy No. 1: (Analitika ↔ Protsedury) - opiraemsya na realnye logi za okno vremeni.
+- Skrytyy No. 2: (Bezopasnost ↔ Sovmestimost) - pishem v suggestions, ne trogaem boevuyu bazu yakorey.
 
 ZEMNOY ABZATs:
-Eto «generator yarlykov»: chastye tseli prevraschayutsya v kandidatov-yakorya, kotorye mozhno obsudit i prinyat vruchnuyu.
+This is “generator yarlykov”: chastye tseli prevraschayutsya v kandidatov-yakorya, kotorye mozhno obsudit i prinyat vruchnuyu.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, request, jsonify
 from modules.computer_use.anchors_suggest import export as export_anchors

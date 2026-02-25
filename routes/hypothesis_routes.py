@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/hypothesis_routes.py - REST-endpointy dlya HypothesisStore («sny», idei).
+"""routes/hypothesis_routes.py - REST-endpointy dlya HypothesisStore("sny", idei).
 
-Marshruty:
-  POST /hypothesis/add           - dobavit gipotezu
-  GET  /hypothesis/list          - poluchit spisok gipotez (po teme/limitu)
-  POST /hypothesis/feedback      - otmetit ispolzovanie/podpravit score
+Route:
+  POST /hypothesis/add - add gipotezu
+  GET /hypothesis/list - poluchit spisok gipotez (po topic/limitu)
+  POST /hypothesis/feedback - otmetit ispolzovanie/podpravit score
 
 Sovmestimost:
   • Flask Blueprint s register_hypothesis_routes(app)
-  • Ne trogaet suschestvuyuschie puti/routy; avtonomnyy blyuprint.
-"""
+  • Ne trogaet suschestvuyuschie puti/routy; autonomnyy blueprint."""
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -26,16 +24,9 @@ _hs = HypothesisStore()
 
 @hypothesis_bp.post("/add")
 def hypothesis_add():
-    """
-    Telo JSON:
-      {
-        "text": "ideya...",
-        "topic": "topic::memory",
-        "tags": ["dreams","cluster"] | "dreams, cluster",
-        "score": 0.6
-      }
-    Otvet: {"ok": True, "id": "..."}
-    """
+    """JSION body:
+      ZZF0Z
+    Answer: ZZF1ZZ"""
     try:
         data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
         text = str(data.get("text") or "").strip()
@@ -90,11 +81,11 @@ def hypothesis_feedback():
 
 
 def register_hypothesis_routes(app) -> None:  # pragma: no cover
-    """Sovmestimaya registratsiya blyuprinta (kontrakt proekta)."""
+    """Compatible blueprint registration (project contract)."""
     app.register_blueprint(hypothesis_bp)
 
 
-# Unifitsirovannye khuki po konventsii proekta
+# Unified knooks according to the project convention
 def register(app):  # pragma: no cover
     app.register_blueprint(hypothesis_bp)
 

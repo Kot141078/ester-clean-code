@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/coach_routes.py - REST/UI dlya kouchinga myshleniya.
+"""routes/coach_routes.py - REST/UI dlya kouchinga myshleniya.
 
 Ruchki:
-  GET  /thinking/coach/status
-  POST /thinking/coach/diagnose      {"window":200}
-  POST /thinking/coach/suggest       {"k":5}
-  POST /thinking/coach/commit_goal   {"text":"..."}
-  POST /thinking/coach/retro         {"window":400}
-  GET  /admin/coach
+  GET /thinking/coach/status
+  POST /thinking/coach/diagnosis {"window":200}
+  POST /thinking/coach/suggest {"k":5}
+  POST /thinking/coach/commit_goal {"text":"..."}
+  POST /thinking/coach/retro {"window":400}
+  GET /admin/coach
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.thinking import coach as CO

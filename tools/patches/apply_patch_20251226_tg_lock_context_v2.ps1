@@ -71,9 +71,9 @@ def _patch_chat_api(text: str) -> str:
 
     helper_lines = """
 # [CTX_OVERLOAD_PATCH_V2]
-# YaVNYY MOST: c=a+b — kogda "b" (model) molchit, "a" (interfeys) obyazan govorit chestno.
-# SKRYTYE MOSTY: (Ashby) raznoobrazie oshibok -> klassifikatsiya; (Cover&Thomas) limit kanala -> yavnoe soobschenie o perepolnenii.
-# ZEMNOY ABZATs: kak u myshts est predel nagruzki (i posle — sudoroga), tak u konteksta est predel tokenov.
+# Explicit BRIDGE: c=a+b - when “b” (model) is silent, “a” (interface) is obliged to speak honestly.
+# HIDDEN BRIDGES: (Ashby) variety of errors -> classification; (Carpet&Thomas) channel limit -> explicit overflow message.
+# EARTHLY Paragraph: just as muscles have a limit of load (and then cramp), so the context has a limit of tokens.
 
 def _fallback_message(err):
     slot = os.getenv("ESTER_CHATAPI_OVERLOAD_SLOT", "B").strip().upper()
@@ -106,7 +106,7 @@ def _fallback_message(err):
     new_lines = lines[:insert_at] + [""] + helper_lines + [""] + lines[insert_at:]
     new_text = "\n".join(new_lines) + "\n"
 
-    # tochechnaya zamena staroy zaglushki
+    # spot replacement of old plug
     new_text = new_text.replace(
         '        answer = "Izvini, proizoshla peregruzka konteksta. Povtori vopros."',
         "        answer = _fallback_message(err)",
@@ -125,9 +125,9 @@ def _patch_run_ester_fixed(text: str) -> str:
 
     helper = """
 # [TG_LOCK_PATCH_V2]
-# YaVNYY MOST: c=a+b — odin bot = odin kanal getUpdates, inache "b" sporit sam s soboy.
-# SKRYTYE MOSTY: (Ashby) stabilizatsiya cherez ogranichenie konkuriruyuschikh konturov; (Cover&Thomas) konkurentnyy dostup -> arbitrazh cherez lock.
-# ZEMNOY ABZATs: kak dva vodyanykh nasosa v odnu trubu dayut kavitatsiyu, tak dva poller'a v odin getUpdates dayut 409 Conflict.
+# Explicit BRIDGE: c=a+b - one bot = one getUpdates channel, otherwise “b” argues with itself.
+# HIDDEN BRIDGES: (Ashby) stabilization through limitation of competing circuits; (Kover&Thomas) competitive access -> arbitration through Lutsk.
+# EARTHLY Paragraph: just as two water pumps in one pipe give cavitation, so two pollerias in one getUpdates give 409 Conflict.
 
 def _tg_lock_path() -> str:
     p = (os.getenv("ESTER_TG_LOCK_PATH") or "").strip()
@@ -197,7 +197,7 @@ def _tg_release_lock(f):
 
     new_text = text[:idx] + helper + text[idx:]
 
-    # oborachivaem run_polling v lock (chtoby ne lovit 409 Conflict)
+    # wrap run_polling in gloss (so as not to catch 409 Conflict)
     new_text = new_text.replace(
         "    app.run_polling(drop_pending_updates=True)",
         "    _tg_lock_f = _tg_try_acquire_lock()\n"
@@ -214,7 +214,7 @@ def _tg_release_lock(f):
 
 
 def _patch_messaging_telegram_adapter(text: str) -> str:
-    # vyklyuchaem avtozapusk Telegram po umolchaniyu (chtoby app/autoload ne podnimali getUpdates sami)
+    # turn off Telegram autostart by default (so that app/autoload does not raise getUpdates themselves)
     new = text
     new = new.replace('_env_flag("ESTER_TELEGRAM_ENABLED", "1")', '_env_flag("ESTER_TELEGRAM_ENABLED", "0")')
     new = new.replace('_env_flag("ESTER_TELEGRAM_ADAPTER_AUTOSTART", "1")', '_env_flag("ESTER_TELEGRAM_ADAPTER_AUTOSTART", "0")')
@@ -228,7 +228,7 @@ def _apply(root_dir: Path) -> Optional[Path]:
         ("messaging/telegram_adapter.py", _patch_messaging_telegram_adapter),
     ]
 
-    # optsionalno: esli takie fayly est — poprobuem tozhe popravit defaults
+    # optional: if there are such files, we’ll also try to fix the defaults
     optional: List[Tuple[str, Callable[[str], str]]] = [
         ("bridges/telegram_adapter.py", _patch_messaging_telegram_adapter),
         ("services/telegram_adapter.py", _patch_messaging_telegram_adapter),
@@ -270,7 +270,7 @@ def _apply(root_dir: Path) -> Optional[Path]:
             patched_any = True
 
     if not patched_any:
-        # nichego ne menyali — chisto
+        # nothing changed - clean
         try:
             shutil.rmtree(backup_root)
         except Exception:

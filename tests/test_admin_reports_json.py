@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-tests/test_admin_reports_json.py — smoke-test agregatora otchetov /admin/reports/json.
-Test nezavisimo registriruet blyuprint v prilozhenii testovogo klienta.
-"""
+"""tesc/test_admin_reports_zhsion.po - stock test of the report aggregator /admin/reports/zhsion.
+The test independently registers the blueprint in the test client application."""
 
 from __future__ import annotations
 
@@ -14,7 +12,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def test_admin_reports_json(client, admin_jwt, monkeypatch, tmp_path):
-    # Izoliruem PERSIST_DIR i sozdadim fiktivnye otchety
+    # Let's isolate PERSIST_HOLES and create dummy reports
     base = tmp_path / "data"
     monkeypatch.setenv("PERSIST_DIR", str(base))
     (base / "dreams").mkdir(parents=True, exist_ok=True)
@@ -34,7 +32,7 @@ def test_admin_reports_json(client, admin_jwt, monkeypatch, tmp_path):
         encoding="utf-8",
     )
 
-    # Zaregistriruem blyuprint na tekuschem prilozhenii test-klienta
+    # Let's register the blueprint on the current test client application
     app = client.application
     register_admin_reports_routes(app)
 

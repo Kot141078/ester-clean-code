@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/studio_drama_routes.py - REST: TTS odnoy frazy i sborka audiodramy.
+"""routes/studio_drama_routes.py - REST: TTS odnoy frazy i sborka audiodramy.
 
 Mosty:
 - Yavnyy: (Veb ↔ Studiya) prostye ruchki dlya sinteza i mnogorolevoy sborki.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Sotsdeploy ↔ Integratsiya) vykhod mozhno otdat v SocialDeploy dlya publikatsii.
 
 Zemnoy abzats:
-Knopki «ozvuchit» i «sobrat dramu» - chtoby tvorit bez lishnikh shagov.
+Knopki “ozvuchit” i “sobrat dramu” - chtoby tvorit bez lishnikh shagov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

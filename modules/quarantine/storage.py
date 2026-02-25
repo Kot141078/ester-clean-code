@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/quarantine/storage.py — karantin artefaktov: priem, khranenie, analiz, vypusk v staging.
+"""modules/quarantine/storage.py - karantin artefaktov: priem, khranenie, analiz, vypusk v staging.
 
 Mosty:
-- Yavnyy: (Bezopasnost ↔ Kod) vse vkhodyaschee snachala v karantin, potom — cherez skan/reshenie — v staging.
+- Yavnyy: (Bezopasnost ↔ Kod) vse vkhodyaschee snachala v quarantine, potom — cherez skan/reshenie — v staging.
 - Skrytyy #1: (Infoteoriya ↔ Audit) id=ts+sha, otchety scan.json, meta i iskhodnik s sha256.
 - Skrytyy #2: (Kibernetika ↔ Vyzhivanie) sovmestim s samodeploem: vypusk idet cherez deployer.stage.
 
 Zemnoy abzats:
-Eto «predbannik»: neznakomyy fayl snachala proveryaem i tolko potom zanosim v dom.
+This is “predbannik”: neznakomyy fayl snachala proveryaem i tolko potom zanosim v dom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import base64, hashlib, json, os, time
 from typing import Any, Dict, Tuple
@@ -54,9 +52,7 @@ def rescan(qid: str) -> Dict[str, Any]:
     return {"ok": True, "id": qid, "scan": rep}
 
 def release_to_staging(qid: str, dest_path: str, reason: str = "") -> Dict[str, Any]:
-    """
-    Vypuskaem artefakt v staging (cherez deployer.stage). V A/B=B — ne vypuskaem (tolko log).
-    """
+    """We release the artifact into internship (via deployer.intern). In A/B=B - we do not release (only log)."""
     if QUAR_AB == "B":
         return {"ok": False, "error":"QUAR_AB=B"}
     base = os.path.join(QUAR_DIR, qid)

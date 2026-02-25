@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/cautious_freedom_routes.py - REST: status/nastroyka politiki, «tabletka», khartiya.
+"""routes/cautious_freedom_routes.py - REST: status/nastroyka politiki, "tabletka", khartiya.
 
 Mosty:
 - Yavnyy: (Volya ↔ Kontrol) operator upravlyaet urovnem ostorozhnosti bez pravok suschestvuyuschikh marshrutov.
 - Skrytyy #1: (UX ↔ Prozrachnost) vse vidno i nastraivaetsya v odnom meste.
-- Skrytyy #2: (Memory ↔ Etos) khesh «khartii» - neizmenyaemaya otsylka k iznachalnomu smyslu.
+- Skrytyy #2: (Memory ↔ Etos) khesh “khartii” - neizmenyaemaya otsylka k iznachalnomu smyslu.
 
 Zemnoy abzats:
-Eto schit i regulyator: naskolko «tugo» krutit ostorozhnost i na skolko minut vydavat «propusk».
+Eto schit i regulyator: naskolko “tugo” krutit ostorozhnost i na skolko minut vydavat “propusk”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from flask import Blueprint, jsonify, request, render_template

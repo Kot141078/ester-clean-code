@@ -1,20 +1,18 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.compat.route_guard — optsionalnaya zaschita routov (FastAPI/Flask).
-Vklyuchaetsya ENV: ESTER_ROUTE_GUARD=1. Bezopasnyy A/B-slot.
+"""modules.compat.route_guard - optsionalnaya zaschita routov (FastAPI/Flask).
+Vklyuchaetsya ENV: ESTER_ROUTE_GUARD=1. Safe A/B-slot.
 
 Mosty:
-- Yavnyy: predotvraschaem povtornuyu registratsiyu odinakovykh (method,path).
-- Skrytyy #1: (DX ↔ Nablyudaemost) — pechataem preduprezhdenie pri duble.
-- Skrytyy #2: (Bezopasnost ↔ Stabilnost) — ne brosaem isklyucheniya, prosto ignoriruem dubl.
+- Yavnyy: predotvraschaem povtornuyu registratsiyu odinakovykh (method, path).
+- Skrytyy #1: (DX ↔ Nablyudaemost) — pechataem preduprezhdenie pri double.
+- Skrytyy #2: (Bezopasnost ↔ Stabilnost) — ne brosaem isklyucheniya, just ignore dubl.
 
 Zemnoy abzats:
-V bolshom proekte odna i ta zhe ruchka mozhet registrirovatsya iz raznykh mest.
-Etot patch ne daet ey slomat server kolliziyami — berezhno propuskaem tolko pervoe obyavlenie.
-# c=a+b
-"""
+V bolshom proekte odna i ta zhe ruchka mozhet registrirovatsya iz raznykh place.
+This patch ne daet ey slomat server kolliziyami - berezhno propuskaem tolko pervoe obyavlenie.
+# c=a+b"""
 import os
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 if os.getenv("ESTER_ROUTE_GUARD","0") not in {"0","","false","False"}:

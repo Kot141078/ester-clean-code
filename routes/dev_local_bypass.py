@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/dev_local_bypass.py - lokalnyy «admin-propusk» dlya razrabotki.
+"""routes/dev_local_bypass.py - lokalnyy “admin-propusk” dlya razrabotki.
 
 Mosty:
 - Yavnyy: (Ekspluatatsiya ↔ Bezopasnost) - bezopasnyy obkhod tolko na 127.0.0.1.
@@ -9,10 +8,9 @@ Mosty:
 
 Zemnoy abzats:
 Esli zapros s 127.0.0.1 i LOCAL_DEV_BYPASS=1 - stavim g.is_admin=True i g.user_roles=['admin']
-PERED lyubymi guard'ami. Togda auth_rbac uvidit «admin» i perestanet otdavat 403.
+PERED lyubymi guard'ami. Togda auth_rbac uvidit "admin" i perestanet otdavat 403.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

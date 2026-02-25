@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/hud_alerts_routes.py - REST/UI dlya HUD-alertov.
+"""routes/hud_alerts_routes.py - REST/UI dlya HUD-alertov.
 
 Ruchki:
   POST /hud_alerts/config {"p90_ms":800,"fail_rate":0.15,"allow_audio":true}
   POST /hud_alerts/enable {"enabled":true}
-  POST /hud_alerts/build  {"n":200}
-  GET  /hud_alerts/status
-  GET  /admin/hud_alerts
+  POST /hud_alerts/build {"n":200}
+  GET /hud_alerts/status
+  GET /admin/hud_alerts
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -90,12 +88,12 @@ def admin():
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta (kontrakt proekta)."""
+    """Drop-in registration of blueprint (project contract)."""
     app.register_blueprint(bp)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

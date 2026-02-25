@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-routes/lmstudio_bridge.py - UI/REST «LM Studio bridge».
+"""routes/lmstudio_bridge.py - UI/REST “LM Studio bridge”.
 
-Marshruty:
-  • GET  /admin/lmstudio                 - HTML
-  • GET  /admin/lmstudio/status          - nastroyki + kesh + resursy
-  • POST /admin/lmstudio/scan            - pereskan endpointov
-  • POST /admin/lmstudio/benchmark       - zamer na modeli
-  • POST /admin/lmstudio/bind            - privyazat alias→endpoint+model
-  • POST /admin/lmstudio/unbind          - snyat privyazku
-  • GET  /admin/lmstudio/resources       - spisok privyazok
+Route:
+  • GET /admin/lmstudio - HTML
+  • GET /admin/lmstudio/status - nastroyki + kesh + resursy
+  • POST /admin/lmstudio/scan - pereskan endpointov
+  • POST /admin/lmstudio/benchmark - zamer na modeli
+  • POST /admin/lmstudio/bind - privyazat alias→endpoint+model
+  • POST /admin/lmstudio/unbind - snyat privyazku
+  • GET /admin/lmstudio/resources - spisok privyazok
 
 Mosty:
 - Yavnyy (Integratsiya ↔ UX): odin ekran → skan, bench, privyazka.
-- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): kesh i metriki v JSON, AB-aware bench.
+- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): kesh i metrics v JSON, AB-aware bench.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): nichego ne trogaem v yadre; prosto otkryvaem port k lokalnomu LM Studio.
 
 Zemnoy abzats:
-Eto «panel adaptera»: podklyuchil LM Studio - uvidel modeli - zakrepil nuzhnuyu pod ponyatnym alias.
+This is “panel adaptera”: podklyuchil LM Studio - uvidel modeli - zakrepil nuzhnuyu pod ponyatnym alias.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

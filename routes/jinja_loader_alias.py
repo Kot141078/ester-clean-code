@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/jinja_loader_alias.py — dobavlyaet vtoroy put shablonov (naprimer, D:\ester-project\templates)
+"""routes/jinja_loader_alias.py - add vtoroy put shablonov (for example, D:\ester-project\templates)
 
 Mosty:
 - Yavnyy: (Flask ↔ UI) podklyuchaem vtoroy poiskovyy put dlya shablonov.
@@ -8,11 +7,10 @@ Mosty:
 - Skrytyy #2: (Inzheneriya ↔ Windows/Python) rabotaem s absolyutnymi putyami i ChoiceLoader.
 
 Zemnoy abzats (inzheneriya):
-Jinja ischet HTML po «poiskovym putyam». Esli prilozhenie startuet iz paketa, root_path ukhodit v podkatalog,
+Jinja ischet HTML po "poiskovym putyam". Esli prilozhenie startuet iz paketa, root_path ukhodit v podkatalog,
 i shablony na verkhnem urovne ne vidny. My prosto dobavlyaem etot verkhneurovnevyy put v poiskovyy spisok.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, current_app, jsonify

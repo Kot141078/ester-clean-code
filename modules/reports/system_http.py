@@ -1,17 +1,15 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.reports.system_http — system.md svodka (podklyuchenie vruchnuyu).
+"""modules.reports.system_http - system.md svodka (podklyuchenie vruchnuyu).
 Mosty:
 - Yavnyy: register_fastapi/register_flask pod prefiksom `/compat/reports` (ENV `ESTER_REPORTS_PREFIX`), url `/system.md`.
-- Skrytyy #1: (Potoki ↔ Prozrachnost) — berem dannye iz media.watchers / media.progress.
-- Skrytyy #2: (DX ↔ Integratsii) — markdown‑otvet, udobno dlya renderinga pryamo v brauzere.
+- Skrytyy #1: (Potoki ↔ Prozrachnost) - berem dannye iz media.watchers / media.progress.
+- Skrytyy #2: (DX ↔ Integratsii) - markdown‑otvet, udobno dlya renderinga pryamo v brauzere.
 
 Zemnoy abzats:
-Kak itogovoe obsledovanie: dykhanie (potoki), puls (schetchiki), temperatura (poslednie sobytiya) — v odnom fayle.
-# c=a+b
-"""
+Kak itogovoe obsledovanie: dykhanie (potoki), pulse (schetchiki), temperatura (poslednie sobytiya) - v odnom fayle.
+# c=a+b"""
 import os
 from typing import Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

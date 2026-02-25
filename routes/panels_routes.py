@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/panels_routes.py - edinaya HTML-panel Ops dlya upravleniya novymi vozmozhnostyami.
+"""routes/panels_routes.py - edinaya HTML-panel Ops dlya upravleniya novymi vozmozhnostyami.
 
 Mosty:
 - Yavnyy: (UX ↔ Operatsii) odna tochka vkhoda dlya health/guarded-apply/rollback/media/quorum/release/backup.
-- Skrytyy #1: (Kibernetika ↔ Kontrol) operator i «volya» vidyat odni i te zhe rychagi.
-- Skrytyy #2: (Bezopasnost ↔ Trust) chuvstvitelnye deystviya ostayutsya za «pilyuley»/RBAC.
+- Skrytyy #1: (Kibernetika ↔ Kontrol) operator i “volya” vidyat odni i te zhe rychagi.
+- Skrytyy #2: (Bezopasnost ↔ Trust) chuvstvitelnye deystviya ostayutsya za “pilyuley”/RBAC.
 
 Zemnoy abzats:
 Otkryl stranitsu - vidish zdorove, mozhesh akkuratno primenit pravku ili otkatit, dernut mediatik i t. p.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, send_from_directory, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -23,7 +21,7 @@ def register(app):
 
 @bp_panels.route("/panel/ops", methods=["GET"])
 def panel_ops():
-    # Otdaem staticheskuyu HTML-stranitsu paneli
+    # We provide a static HTML page to the panel
     return send_from_directory("static/panels", "ops.html")
 
 @bp_panels.route("/panel/ping", methods=["GET"])

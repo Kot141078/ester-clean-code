@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-U1/tools/u1_advisor.py — sovetnik/orkestrator: iz «zabot» → daydzhest → pravila → portal → sovet.
+"""U1/tools/u1_advisor.py - sovetnik/orkestrator: iz “zabot” → daydzhest → pravila → portal → sovet.
 
 Mosty:
-- Yavnyy: Enderton — lineynaya kompozitsiya predikatov: temy → plan → daydzhest → pravila → HTML/sovet.
+- Yavnyy: Enderton — lineynaya kompozitsiya predikatov: temy → plan → daydzhest → pravila → HTML/advice.
 - Skrytyy #1: Ashbi — regulyator prosche: odnoprokhodnyy stsenariy, bez fonovykh demonov, myagkie otkazy.
 - Skrytyy #2: Cover & Thomas — minimalnye, no informativnye artefakty: JSON/MD/HTML i advice.md.
 
 Zemnoy abzats (inzheneriya):
 Chitaet kontekst zabot iz fayla/STDIN ili iz pamyati, izvlekaet temy, optsionalno triggerit ingenst po konfigu,
-stroit indeks, sobiraet daydzhest (R5), primenyaet pravila (R6), renderit portal, pishet sovet (advice.md).
-B-rezhim dopolnitelno formiruet blok «Rekomendatsii» i sokhranyaet ego v outbox/telegram_advice.txt (bez otpravki).
+construction indexes, sobiraet daydzhest (R5), primenyaet pravila (R6), renderit portal, pishet council (advice.md).
+B-rezhim dopolnitelno formiruet blok “Rekomendatsii” i sokhranyaet ego v outbox/telegram_advice.txt (bez otpravki).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, os, sys
 from typing import Dict, Any, List
@@ -22,7 +20,7 @@ from typing import Dict, Any, List
 from services.advisor.topic_extractor import extract_topics  # type: ignore
 from services.advisor.planner import build_plan_from_topics  # type: ignore
 
-# R2/R3/R5/R6 — ispolzuem ikh publichnye funktsii
+# Р2/Рз/Р5/Рб - we use their public functions
 from services.reco.scorer_a import reco_build  # type: ignore
 from services.portal.digest_builder import build_digest, write_digest_files  # type: ignore
 from services.portal.rules import apply_rules_to_digest  # type: ignore
@@ -45,7 +43,7 @@ def _maybe_trigger_ingest(cfg_path: str | None) -> None:
     if not cfg_path:
         return
     try:
-        # Importiruem i zapuskaem napryamuyu
+        # Import and run directly
         from tools.r2_trigger import _load_config as load_cfg  # type: ignore
         from tools.r2_trigger import main as _  # type: ignore
         from services.ingest.rss_ingestor import ingest_rss  # type: ignore
@@ -78,13 +76,13 @@ def _write_advice(md_path: str, topics: List[str], digest: Dict[str, Any]) -> No
         for i, it in enumerate(items[:take], 1):
             lines.append(f"{i}. {it.get('summary')}  — _tags: {', '.join(it.get('tags') or [])}_")
         lines.append("")
-    # legkie rekomendatsii v B-rezhime
+    # easy recommendations in B-mode
     if (os.getenv("U1_MODE") or "A").strip().upper() == "B":
         try:
             lines.append("## Rekomendatsii\n")
-            lines.append("- Podpishite/obnovite istochniki RSS, blizkie k temam vyshe (pravki v `U1_INGEST_CONFIG`).")
-            lines.append("- Vklyuchite `R4_MODE=B` s lokalnym LM Studio dlya luchshego pereranzhirovaniya.")
-            lines.append("- Proverte otchet `obs_report.md` po SLO klyuchevykh shagov (R7).")
+            lines.append("- Sign/update RCC sources close to the topics above (edits in ёУ1_ИНГЭСТ_CONFIGIO).")
+            lines.append("- Enable eRch_MODE=Byo with local LM Studio for better reranking.")
+            lines.append("- Check the report yoobs_report.mdieu on the SLO of key steps (P7).")
         except Exception:
             pass
     os.makedirs(os.path.dirname(md_path), exist_ok=True)
@@ -96,7 +94,7 @@ def _maybe_outbox_telegram(md_path: str) -> None:
         return
     if os.getenv("U1_NOTIFY_TELEGRAM","0") != "1":
         return
-    # Bez realnoy seti: kladem fayl, kotoryy smozhet zabrat suschestvuyuschiy bot/obrabotchik
+    # Without a real network: we put a file that can be picked up by an existing processor
     outdir = os.path.join(os.getenv("PERSIST_DIR") or "data", "outbox")
     os.makedirs(outdir, exist_ok=True)
     outpath = os.path.join(outdir, "telegram_advice.txt")
@@ -108,7 +106,7 @@ def _maybe_outbox_telegram(md_path: str) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Ester Advisor: concerns → topics → digest → portal")
-    ap.add_argument("--context", help="Fayl s opisaniem zabot (esli ne zadano — chitaem iz STDIN i pamyati)", default=None)
+    ap.add_argument("--context", help="File with a description of concerns (if not specified, read from STDIN and memory)", default=None)
     ap.add_argument("--top", type=int, default=6, help="Maks. chislo tem")
     ap.add_argument("--ingest-config", default=os.getenv("U1_INGEST_CONFIG") or "", help="JSON-konfig ingensta (R2)")
     ap.add_argument("--rules", default=os.getenv("U1_RULES") or "", help="JSON-pravila (R6)")
@@ -118,7 +116,7 @@ def main() -> int:
     ctx = _read_text(args.context)
     topics = extract_topics(ctx, top=args.top)
 
-    # 1) (opts.) trigger ingensta — podtyanut svezhie zapisi
+    # 1) (optional) ingenst trigger - pull up recent records
     _maybe_trigger_ingest(args.ingest_config if args.ingest_config else None)
 
     # 2) Indeks
@@ -136,7 +134,7 @@ def main() -> int:
 
     # 5) Save JSON/MD i portal
     out = write_digest_files(digest)
-    from tools.r5_portal_render import main as _  # noqa: F401 (grubaya zavisimost isklyuchena)
+    from tools.r5_portal_render import main as _  # leg: F401 (gross dependence excluded)
     # Renderim
     from tools.r5_portal_render import render_html as __unused  # dummy to avoid circular import
     os.system(f"{sys.executable} tools/r5_portal_render.py --out portal/index.html")

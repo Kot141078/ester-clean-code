@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-modules/will/unified_guard_adapter.py
-(soderzhimoe sm. v osnovnom otvete; eta kopiya identichna)
-"""
+"""modules/villa/unified_guard_adapter.po
+(see main answer for content; this copy is identical)"""
 from __future__ import annotations
 
 import os

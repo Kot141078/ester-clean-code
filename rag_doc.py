@@ -8,7 +8,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 bp = Blueprint("rag_doc", __name__)
 
 class DocEngine:
-    """Uluchshennyy dvizhok raboty s dokumentami Ester"""
+    """Improved engine for working with Esther documents"""
     def __init__(self):
         self._lock = threading.Lock()
         self._docs: Dict[str, Dict[str, Any]] = {}
@@ -40,7 +40,7 @@ class DocEngine:
                         self._loaded = True
                         break
                     except Exception as e:
-                        print(f"Oshibka RAG: {e}")
+                        print(f"Error RAG: ZZF0Z")
 
     def get_smart_chunk(self, doc_id: str, start: int, size: int) -> Dict[str, Any]:
         doc = self._docs.get(doc_id) or self._docs.get(os.path.normpath(doc_id))
@@ -48,7 +48,7 @@ class DocEngine:
             return {"ok": False, "error": "not_found"}
 
         text = doc.get("text", "")
-        # Uluchshenie: pytaemsya ne rvat predlozhenie
+        # Improvement: trying not to tear up the offer
         end = min(start + size, len(text))
         if end < len(text):
             next_space = text.find(' ', end)

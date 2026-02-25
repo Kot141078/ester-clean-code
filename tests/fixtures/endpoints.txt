@@ -1,9 +1,9 @@
-# S0/tests/fixtures/endpoints.txt — spisok putey dlya matritsy statusov
+# C0/tesc/fixtures/endpoints.tht - list of paths for the status matrix
 # Mosty:
-# - Yavnyy: Enderton — predikaty (metod, put) kak proveryaemaya spetsifikatsiya testa.
-# - Skrytyy #1: Ashbi — minimalnyy «regulyator»: dostatochno neskolkikh tselevykh putey.
-# - Skrytyy #2: Cover & Thomas — snizhenie «entropii» nabora proverok: tolko samoe vazhnoe.
-# Zemnoy abzats: fayl-spisok dlya bystrogo redaktirovaniya bez izmeneniya koda utility.
+# - Explicit: Enderton - predicates (method, path) as verifiable test specification.
+# - Hidden #1: Ashby is a minimal “regulator”: a few target paths are enough.
+# - Hidden #2: Carpet & Thomas - reducing the "entropy" of the check set: only the most important.
+# Earth paragraph: a list file for quick editing without changing the utility code.
 # c=a+b
 
 /live

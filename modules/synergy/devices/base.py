@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/devices/base.py — bazovyy interfeys adapterov.
+"""modules/synergy/devices/base.py - bazovyy interfeys adapterov.
 
 MOSTY:
 - (Yavnyy) Edinyy protokol adapterov: can_handle(...) i to_canonical(...).
-- (Skrytyy #1) Reestr plaginov s prioritetom (registratsiya poryadka = prioritet).
-- (Skrytyy #2) Besstoronnost: adaptery ne delayut set/IO; tolko chistaya normalizatsiya.
+- (Skrytyy #1) Register plaginov s prioritetom (registratsiya poryadka = prioritet).
+- (Skrytyy #2) Besstoronnost: adaptery ne delayut set/IO; just chistaya normalizatsiya.
 
 ZEMNOY ABZATs:
-Lyuboy novyy vendor podklyuchaetsya odnoy realizatsiey klassa — bez pravok ostalnogo koda.
+Lyuboy novyy vendor podklyuchaetsya odnoy realizatsiey class - bez pravok ostalnogo koda.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional

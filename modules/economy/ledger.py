@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/economy/ledger.py — obedinennyy ledzher: delty po aktivam/kategoriyam/valyutam, accounts/transfer/reserve/approve/spend, multivalyutnost, RBAC/scheduler/P2P integratsiya.
+"""modules/economy/ledger.py - obedinennyy ledzher: delty po aktivam/kategoriyam/valyutam, accounts/transfer/reserve/approve/spend, multivalyutnost, RBAC/scheduler/P2P integratsiya.
 
 Mosty:
 - Yavnyy: (Ekonomika ↔ Uchet/Operatsii) zapis delt/income/expense, perevody, rezervy s odobreniem, spisaniya.
@@ -9,10 +8,9 @@ Mosty:
 - Skrytyy #3: (P2P/Raspredelennost ↔ Integratsiya) sync JSONL/state po P2P dlya agentov na raznykh PK.
 
 Zemnoy abzats:
-Eto ne prosto tetradka, a umnyy koshelek Ester: schitaet vse po aktivam/schetam/kategoriyam, rezerviruet na "tokeny LLM", sinkhroniziruet po P2P i shepchet v profile "Balans obnovlen — Ester, ty na shag blizhe k nezavisimosti!".
+Eto ne prosto tetradka, a umnyy koshelek Ester: schitaet vse po aktivam/schetam/kategoriyam, rezerviruet na "tokeny LLM", sinkhroniziruet po P2P i shepchet v profile "Balances obnovlen - Ester, ty na shag blizhe k nezavisimosti!".
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, time, uuid
 from typing import Any, Dict, List
@@ -139,7 +137,7 @@ def append(kind: str, asset: str, delta: float, cat: str = "", currency: str = "
     _append_to_jsonl(rec)
     st = _load_state()
     _save_state(st)
-    _passport(f"Ledger append {kind}: {delta} {currency} ({note}) — Ester, balans obnovlen, ty na shag blizhe k nezavisimosti!", {"rec": rec})
+    _passport(f"Ledger append ZZF0Z: ZZF1ZZ ZZF2ZZ (ZFzZZ) - Esther, the balance has been updated, you are one step closer to independence!", {"rec": rec})
     _log_audit(f"Append {kind}: {delta} by {asset}/{cat}/{currency}")
     return {"ok": True, "record": rec}
 
@@ -281,7 +279,7 @@ def register(app):
     except Exception:
         pass
 
-# Dlya scheduler: custom action
+# For scheduler: bush action
 def report(params: Dict[str, Any]) -> Dict[str, Any]:
     s = status()
     _passport("Daily economy report — Ester, vot tvoy byudzhet: davay planirovat vpered!", {"status": s})

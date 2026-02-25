@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_awareness_routes.py - REST: samoosoznanie (inventar i graf).
+"""routes/self_awareness_routes.py - REST: samoosoznanie (inventar i graf).
 
 Mosty:
 - Yavnyy: (Veb ↔ Samopoznanie) bystryy dostup k inventaryu i grafu zavisimostey.
 - Skrytyy #1: (Audit ↔ DevOps) prigodno dlya proverki tselostnosti i poiska podmen.
-- Skrytyy #2: (Kibernetika ↔ Planirovanie) osnova dlya avtogeneratsii deystviy.
+- Skrytyy #2: (Kibernetika ↔ Planning) osnova dlya avtogeneratsii deystviy.
 
 Zemnoy abzats:
-Odin zapros - i vidno, chem my yavlyaemsya i kak ustroeny.
+Odin zapros - i see, chem my yavlyaemsya i kak ustroeny.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

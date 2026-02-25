@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/finance/ledger.py — finansovyy ledzher (dokhody/raskhody, agregaty).
+"""modules/finance/ledger.py - financeovyy ledzher (dokhody/raskhody, agregaty).
 
 Mosty:
 - Yavnyy: (Garazh/Marketpleysy ↔ Uchet) fiksiruem istochniki dokhodov (Patreon/YouTube/frilans) i traty.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (LegalGuard ↔ Ostorozhnost) pered vneshnimi platezhami mozhno proveryat politiku.
 
 Zemnoy abzats:
-Eto «tetrad bukhgaltera»: kazhdaya kopeyka uchityvaetsya — otkuda prishla i kuda ushla — s bystrym itogom po kategoriyam.
+This is “tetrad bukhgaltera”: kazhdaya kopeyka uchityvaetsya - otkuda prishla i kuda ushla - s bystrym itogom po kategoriyam.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict, List

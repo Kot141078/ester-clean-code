@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/bootstrap_env.py — lokalnyy «sborschik okruzheniya».
+"""scripts/bootstrap_env.py - lokalnyy "sborschik okruzheniya".
 
 MOSTY:
 - (Yavnyy) Proveryaet klyuchevye katalogi/fayly, sozdaet nedostayuschie (data/*, logs/*, state/*).
 - (Skrytyy #1) Pechataet otchet po kritichnym ENV i podsvechivaet pustye.
-- (Skrytyy #2) Ne tyanet seti/pakety — offlayn-gotovyy shag dlya Portable/Closed-Box.
+- (Skrytyy #2) Ne tyanet seti/pakety - offlayn-gotovyy shag dlya Portable/Closed-Box.
 
 ZEMNOY ABZATs:
 Kak pered startom avto: proverili maslo/davlenie/dvorniki — mozhno ekhat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,10 +1,8 @@
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 # -*- coding: utf-8 -*-
-"""
-tools/verify_imports.py — bystryy smoke dlya kritichnykh importov.
-Zapusk:  python -m tools.verify_imports
-# c=a+b
-"""
+"""tools/verify_imports.po - quick smoke for critical imports.
+Run: pothon -m tools.verify_imports
+# c=a+b"""
 def _try(it):
     name, fn = it
     try:

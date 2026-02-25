@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/mesh/capabilities.py — obyavlenie sposobnostey uzla i utility Mesh.
+"""modules/mesh/capabilities.py - obyavlenie sposobnostey uzla i utility Mesh.
 
 Mosty:
 - Yavnyy: (Sestry ↔ Raspredelennye zadachi) ukazyvaet, chto etot uzel umeet (CPU/GPU/instrumenty).
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Backpressure/RBAC ↔ Set) pri pull/submit uchityvayutsya limity i roli.
 
 Zemnoy abzats:
-Kak tablichka na masterskoy: «kakie stanki est, skolko ruk, chto mozhno delat» — eto pomogaet chestno delit rabotu.
+Kak tablichka na masterskoy: “kakie stanki est, skolko ruk, chto mozhno delat” - eto pomogaet chestno delit rabotu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, platform, shutil, socket
 from typing import Any, Dict, List

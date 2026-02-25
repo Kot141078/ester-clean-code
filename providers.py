@@ -20,14 +20,14 @@ class ProviderError(Exception):
 
 class ProviderRegistry:
     def __init__(self):
-        # Aktivnyy rezhim: local | cloud | judge
+        # Active mode: local | cloud | Yuje
         self._mode = os.getenv("DEFAULT_MODE", "judge")
         # Konfiguratsii endpointov
         self.local_url = os.getenv("LOCAL_LLM_URL", "http://127.0.0.1:1234/v1/chat/completions")
         self.cloud_url = os.getenv("CLOUD_LLM_URL", "https://api.openai.com/v1/chat/completions")
         self.cloud_model = os.getenv("CLOUD_LLM_MODEL", "gpt-4o-mini")
         self.cloud_api_key = os.getenv("OPENAI_API_KEY", "")
-        # Judge — kto sinteziruet finalnyy otvet (cloud po umolchaniyu)
+        # Yuje - who synthesizes the final answer (default cloud)
         self.judge_model = os.getenv("JUDGE_MODEL", self.cloud_model)
         self.judge_url = os.getenv("JUDGE_URL", self.cloud_url)
 
@@ -89,9 +89,9 @@ class ProviderRegistry:
             return f"[cloud-fallback] {prompt}"
 
     def _req_judge(self, prompt: str, candidates: List[str], temperature: float = 0.2) -> str:
-        # Judge poluchaet spisok alternativ i formiruet finalnyy otvet
+        # Yuce receives a list of alternatives and generates the final answer
         merged = "\n\n".join(f"[CANDIDATE {i+1}]\n{c}" for i, c in enumerate(candidates))
-        judge_prompt = f"Sinteziruy luchshiy otvet iz kandidatov. Vzves plyusy/minusy i day edinyy itog.\n\nVopros: {prompt}\n\nKandidaty:\n{merged}"
+        judge_prompt = f"Synthesize the best answer from the candidates. Weigh the pros/cons and give a single result.\n\nQuestion: ZZF0Z\n\nCandidates:\nZZF1ZZ"
         return self._req_cloud(judge_prompt, model=self.judge_model, temperature=temperature)
 
     def generate(self, prompt: str, temperature: float = 0.3) -> str:
@@ -100,7 +100,7 @@ class ProviderRegistry:
             return self._req_local(prompt, temperature=temperature)
         elif mode == "cloud":
             return self._req_cloud(prompt, temperature=temperature)
-        # judge: parallelnyy zapros v local+cloud s sintezom
+        # Yudzhe: parallel query in local+cloud with synthesis
         local = self._req_local(prompt, temperature=temperature)
         cloud = self._req_cloud(prompt, temperature=temperature)
 # return self._req_judge(prompt, [local, cloud], temperature=0.2)

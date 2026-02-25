@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R8/tools/r8_secret_scan.py — grubaya offlayn-proverka na sekrety i risk-patterny.
+"""R8/tools/r8_secret_scan.py - grubaya offlayn-proverka na sekrety i risk-patterny.
 
 Mosty:
-- Yavnyy: Enderton — pravila kak predikaty (regex po strokam, spiski isklyucheniy) → determinirovannyy otchet.
+- Yavnyy: Enderton - pravila kak predikaty (regex po strokam, spiski isklyucheniy) → determinirovannyy otchet.
 - Skrytyy #1: Ashbi — konservativnyy regulyator: myagkie preduprezhdeniya, nichego ne lomaet.
-- Skrytyy #2: Cover & Thomas — pinaem maksimum «signala» (vozmozhnye utechki), minimum «shuma» (ignor binari/bolshie fayly).
+- Skrytyy #2: Cover & Thomas — pinaem maximum “signala” (vozmozhnye utechki), minimum “shuma” (ignor binari/bolshie fayly).
 
 Zemnoy abzats (inzheneriya):
 Skaniruet rabochuyu direktoriyu, propuskaya .git, venv, kartinki/arkhivy; ischet patterny `SECRET=`, `API_KEY`, `Bearer ...`,
 `BEGIN PRIVATE KEY`, `telegram`, `password`. Vydaet Markdown-otchet, iskhodniki ne menyaet.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, os, re, hashlib
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -64,12 +62,12 @@ def main() -> int:
     if not findings:
         lines.append("Naydeno: 0 potentsialnykh problem.\n")
     else:
-        lines.append(f"Naydeno: {len(findings)} potentsialnykh mest. **Prover vruchnuyu**.\n")
+        lines.append(f"Found: ZZF0Z potential sites. **Check manually**.")
         lines.append("| File | Line | Pattern | SnipID |")
         lines.append("|------|------|---------|--------|")
         for p, i, patt, h in findings:
             lines.append(f"| `{p}` | {i} | `{patt}` | `{h}` |")
-        lines.append("\n_Primechanie: SnipID — sha1 ot stroki (dlya navigatsii bez utechki teksta)._")
+        lines.append("_Note: SNIPID - sha1 from the line (for navigation without text leakage)._")
 
     with open(args.out, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# S0/tests/fixtures/curl_webhook.sh — ruchnoy POST v Telegram webhook (curl)
-# Mosty: (Yavnyy) Enderton — proveryaemyy predikat «sekret zagolovka prinyat»; (Skrytye) Ashbi — minimalnyy regulyator; Dzheynes — nablyudenie povyshaet pravdopodobie «put rabotaet».
-# Zemnoy abzats: pomogaet rukami proverit marshrut bez podnyatogo bota; JSON fikstura beretsya iz tests/fixtures/tg_update.json.
+# C0/tesc/fixtures/curl_webhook.sh - manual POST in Telegram webhook (curl)
+# Mosty: (Yavnyy) Enderton — proveryaemyy predikat “sekret zagolovka prinyat”; (Skrytye) Ashbi — minimalnyy regulyator; Dzheynes - nablyudenie povyshaet pravdopodobie “put rabotaet.”
+# Ground paragraph: helps you check the route with your hands without a raised bot; JSION fixture is taken from test/fixtures/tg_update.zsion.
 # c=a+b
 
 set -euo pipefail

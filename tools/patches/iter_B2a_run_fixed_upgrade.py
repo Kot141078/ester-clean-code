@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-ITER B2a — run_ester_fixed.py functional upgrade
+"""ITER B2a — run_ester_fixed.py functional upgrade
 Paketnoe vnedrenie patchey 1–10 + json-svitok dialogov (memory trace)
 
 MOSTY:
 - Yavnyy: run_ester_fixed.py ↔ Telegram ↔ Ester → pamyat i volya.
-- Skrytyy #1: JSON-svitok ↔ vektornaya pamyat — karta dlya vosstanovleniya.
-- Skrytyy #2: Casscade ↔ Volition — okno vnimaniya rasshireno do 500.
+- Skrytyy #1: JSON-svitok ↔ vektornaya pamyat - karta dlya vosstanovleniya.
+- Skrytyy #2: Casscade ↔ Volition - okno vnimaniya expandedno do 500.
 
 ZEMNOY ABZATs:
 Eto kak podklyuchit EKG i chernyy yaschik k serdtsu sistemy: teper ona ne prosto
-«dumaet», a pomnit, kogda i s kem govorila — do sekundy, bez utechek i snov bez goloda.
-"""
+“dumaet”, a pomnit, kogda i s kem govorila - do sekundy, bez utechek i snov bez goloda."""
 
 import re
 import os

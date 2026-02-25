@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/cascade_guard_adapter.py — zaschita ot zatsiklivaniya kaskada.
+"""modules/thinking/cascade_guard_adapter.py - zaschita ot zatsiklivaniya kaskada.
 
 Mosty:
-- Yavnyy: (Zapusk kaskadov ↔ Ogranicheniya) — vvodit proverku pered zapuskom slozhnykh kaskadov.
+- Yavnyy: (Zapusk kaskadov ↔ Ogranicheniya) - vvodit proverku pered zapuskom slozhnykh kaskadov.
 - Skrytyy #1: (Volya ↔ Resursnost) — ne daet odnoy tseli szhech CPU beskonechnymi perezapuskami.
-- Skrytyy #2: (Kaskad ↔ Prozrachnost) — fiksiruet prichinu propuska v strukture otveta.
+- Skrytyy #2: (Kaskad ↔ Prozrachnost) — fiksiruet prichinu propuska v structure otveta.
 
 A/B-slot:
     ESTER_CASCADE_GUARD_AB = "A" | "B"
-    A — vyklyucheno (sovmestimost).
-    B — vklyuchaet proverku chastoty i kolichestva zapuskov per-goal.
+    A - vyklyucheno (sovmestimost).
+    B - vklyuchaet proverku chastoty i kolichestva zapuskov per-goal.
 
 Zemnoy abzats:
     from modules.thinking import cascade_guard_adapter as cga
     from modules.thinking import cascade_closed
     res = cga.wrap_run(cascade_closed.run_cascade, "slozhnaya tsel")
     print(res["summary"] if res.get("ok") else res["reason"])
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -63,12 +61,10 @@ def wrap_run(
     goal: str,
     params: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
-    """
-    Bezopasnyy zapusk kaskada s uchetom guard.
+    """Bezopasnyy zapusk kaskada s uchetom guard.
 
-    - V rezhime A: prosto vyzyvaet func(goal, params).
-    - V rezhime B: proveryaet chastotu zapuskov i mozhet vernut otkaz s reason.
-    """
+    - V rezhime A: simply vyzyvaet func(goal, params).
+    - V rezhime B: proveryaet often zapuskov i mozhet vernut otkaz s reason."""
     if _GUARD_MODE != "B":
         return func(goal, params or {})
 

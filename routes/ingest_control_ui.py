@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ingest_control_ui.py - prostaya admin-stranitsa upravleniya inzhestom/indeksami/snapshotami.
+"""routes/ingest_control_ui.py - prostaya admin-stranitsa upravleniya inzhestom/indeksami/snapshotami.
 
 Marshruty (Blueprint "ingest_admin"):
-  GET  /admin/ingest       → HTML-panel
-  GET  /admin/ingest/ping  → health (json)
+  GET /admin/ingest → HTML-panel
+  GET /admin/ingest/ping → health (json)
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, Response, jsonify, render_template
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

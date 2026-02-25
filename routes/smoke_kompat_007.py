@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-tools/smoke_kompat_007.py — proverka shim-a endpoint-ov (universalnyy zapusk)
-# c=a+b
-"""
+"""tools/stock_company_007.po - checking shim endpoints (universal launch)
+# c=a+b"""
 from __future__ import annotations
 import json, os, sys, pathlib
 _THIS = pathlib.Path(__file__).resolve()

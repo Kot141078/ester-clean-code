@@ -463,7 +463,7 @@ def _fmt_provider_lines(block: Dict[str, Dict[str, Any]]) -> str:
         out.append(
             f"- {provider}: calls={int(stats.get('calls', 0))}, "
             f"tokens={int(stats.get('total_tokens', 0))} "
-            f"(in={int(stats.get('prompt_tokens', 0))}, out={int(stats.get('completion_tokens', 0))}), "
+            f"(in={int(stats.get('prompt_tokens', 0))}, out={int(stats.get('completion_tokens', 0))}),"
             f"cost={_fmt_money_usd(float(stats.get('cost_usd', 0.0)))}"
         )
     return "\n".join(out)

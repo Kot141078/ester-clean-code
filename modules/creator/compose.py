@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/creator/compose.py — sborka video iz kartinok i (opts.) audio, cherez ffmpeg.
+"""modules/creator/compose.py - sborka video iz kartinok i (opts.) audio, cherez ffmpeg.
 
 Mosty:
 - Yavnyy: (FS ↔ Media) prevraschaem massiv izobrazheniy v mp4.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Uploader ↔ Metadannye) na vykhode fayl gotov k publikatsii.
 
 Zemnoy abzats:
-Kak montazhnyy pult: kinul kartinki — poluchil rolik. Khotite — podlozhim dorozhku.
+Kak montazhnyy pult: kinul kartinki - poluchil rolik. Khotite - podlozhim dorozhku.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, glob, subprocess, shlex, time
 from typing import List, Dict, Any
@@ -42,10 +40,10 @@ def _collect_images(paths: List[str])->List[str]:
         dst=os.path.join(BASE,"tmp",f"img_{i:04d}.png")
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         if src.lower().endswith(".png"): 
-            # prosto skopiruem
+            # just copy it
             open(dst,"wb").write(open(src,"rb").read())
         else:
-            # konversiya cherez ffmpeg
+            # conversion via ffmpeg
             subprocess.run([FFMPEG,"-y","-i",src,dst], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         out.append(dst)
     return out

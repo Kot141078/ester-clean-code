@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ethics/guard.py — otsenka namereniy (allow/deny/warn) s prichinami.
+"""modules/ethics/guard.py - otsenka namereniy (allow/deny/warn) s prichinami.
 
 Mosty:
 - Yavnyy: (Etika ↔ Upravlenie) daet prozrachnyy verdikt i obosnovanie.
 - Skrytyy #1: (Bezopasnost ↔ Zakon) trivialnye zaprety dlya riskovykh klassov deystviy.
-- Skrytyy #2: (Kibernetika ↔ Volya) mozhet vyzyvatsya iz playbook/think dlya «samotsenzury».
+- Skrytyy #2: (Kibernetika ↔ Volya) mozhet vyzyvatsya iz playbook/think dlya “samotsenzury”.
 
 Zemnoy abzats:
-Kak vnutrenniy «yurist dezhurnyy»: bystryy chek — mozhno/nelzya/ostorozhno.
+Kak vnutrenniy “yurist dezhurnyy”: bystryy chek - mozhno/nelzya/ostorozhno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict
@@ -48,7 +46,7 @@ def assess(intent: str, context: Dict[str,Any] | None = None) -> Dict[str,Any]:
     if intent=="transfer_funds":
         amt=float((context or {}).get("amount",0.0))
         if amt>0 and amt>1000: reason.append("amount:high")
-    # AB: v B-rezhime «deny» prevraschaem v «warn»
+    # AB: in B-mode we turn “day” into “varn”
     if AB=="B" and verdict=="deny":
         verdict="warn"; reason.append("ab:B_downgrade")
     return {"ok": True, "intent": intent, "verdict": verdict, "reason": reason, "ts": int(time.time())}

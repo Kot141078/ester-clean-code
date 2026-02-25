@@ -9,7 +9,7 @@ def test_add_remove_win_by_ts():
     b = LwwSet("B")
     d1 = a.add(Item("x", {"v": 1}))
     d2 = b.remove("x")
-    # iskusstvenno delaem bolee «pozdnyuyu» operatsiyu
+    # artificially perform a “later” operation
     b.clock = max(b.clock, d1.ts + 1)
     d3 = b.remove("x")
     a.merge(b)

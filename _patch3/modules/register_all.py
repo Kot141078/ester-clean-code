@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 """modules.register_all
 
-Registratsiya skills v SkillManager.
+Registration skills v SkillManager.
 
-Trebovanie sovmestimosti:
+Requirements sovmestimosti:
 - run_ester_fixed.py delaet: `from register_all import register_all_skills`
   poetomu root register_all.py dolzhen reeksportirovat etot simvol.
 - Zdes lezhit realnaya realizatsiya.
 
-Povedenie:
+Behavior:
 - *Nikogda* ne padaem iz-za otsutstviya neobyazatelnykh skills.
-- Registriruem tolko to, chto realno importiruetsya.
-"""
+- Registriruem only to, what really imports."""
 
 from __future__ import annotations
 
@@ -51,26 +50,26 @@ def register_all_skills(skill_manager: Any) -> None:
     if not skill_manager:
         return
 
-    # Canonical skill modules (kak v tvoem starom fayle).
-    # Esli kakaya-to shtuka otsutstvuet — eto normalno.
+    # The skill modules are canonical (as in your old file).
+    # If something is missing, that's normal.
     skills = [
         ("skills.ingest", "ingest_skill", "ingest", ["system", "file"], "Zagruzka i indeksirovanie faylov/teksta"),
         ("skills.analyze", "analyze_skill", "analyze", ["analysis"], "Analiz teksta/struktury/logov"),
         ("skills.file_search", "file_search_skill", "file_search", ["system", "file"], "Poisk po faylam/papkam"),
-        ("skills.memory_manage", "memory_manage_skill", "memory_manage", ["memory"], "Upravlenie pamyatyu (zapisi/tegi/ochistka)"),
-        ("skills.web_search", "web_search_skill", "web_search", ["system", "web"], "Poisk v internete (esli razresheno)"),
-        ("skills.provider_info", "provider_info_skill", "provider_info", ["system"], "Informatsiya o provayderakh/modelyakh"),
+        ("skills.memory_manage", "memory_manage_skill", "memory_manage", ["memory"], "Memory management (entries/tags/clearing)"),
+        ("skills.web_search", "web_search_skill", "web_search", ["system", "web"], "Internet search (if allowed)"),
+        ("skills.provider_info", "provider_info_skill", "provider_info", ["system"], "Provider/Model Information"),
         ("skills.tools", "tools_skill", "tools", ["system"], "Sistemnye instrumenty/diagnostika"),
     ]
 
-    # Plyus: inogda skills mogut zhit v modules.skills_*
+    # Plus: sometimes skills can live in modules.skills_*
     fallback_skills = [
         ("modules.skills_ingest", "ingest_skill", "ingest", ["system", "file"], "Zagruzka i indeksirovanie faylov/teksta"),
         ("modules.skills_analyze", "analyze_skill", "analyze", ["analysis"], "Analiz teksta/struktury/logov"),
         ("modules.skills_file_search", "file_search_skill", "file_search", ["system", "file"], "Poisk po faylam/papkam"),
-        ("modules.skills_memory_manage", "memory_manage_skill", "memory_manage", ["memory"], "Upravlenie pamyatyu (zapisi/tegi/ochistka)"),
-        ("modules.skills_web_search", "web_search_skill", "web_search", ["system", "web"], "Poisk v internete (esli razresheno)"),
-        ("modules.skills_provider_info", "provider_info_skill", "provider_info", ["system"], "Informatsiya o provayderakh/modelyakh"),
+        ("modules.skills_memory_manage", "memory_manage_skill", "memory_manage", ["memory"], "Memory management (entries/tags/clearing)"),
+        ("modules.skills_web_search", "web_search_skill", "web_search", ["system", "web"], "Internet search (if allowed)"),
+        ("modules.skills_provider_info", "provider_info_skill", "provider_info", ["system"], "Provider/Model Information"),
         ("modules.skills_tools", "tools_skill", "tools", ["system"], "Sistemnye instrumenty/diagnostika"),
     ]
 
@@ -83,7 +82,7 @@ def register_all_skills(skill_manager: Any) -> None:
             any_registered = True
 
     if not any_registered:
-        # esli skills.* ne naydeno — probuem modules.skills_*
+        # if skills.* is not found, try modules.skills_*
         for mod, attr, name, tags, desc in fallback_skills:
             fn = _try_import(mod, attr)
             if callable(fn):

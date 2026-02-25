@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_finance.py — eksheny dlya myslitelnykh konveyerov (finansy/Papa).
+"""modules/thinking/actions_finance.py - eksheny dlya myslitelnykh konveyerov (finansy/Papa).
 
 Mosty:
-- Yavnyy: (Mysli ↔ Finansy) gotovim platezhki i proveryaem IBAN po trebovaniyu «voli».
+- Yavnyy: (Mysli ↔ Finansy) gotovim platezhki i proveryaem IBAN po trebovaniyu “voli”.
 - Skrytyy #1: (Zabota ↔ Papa) dostup k profilyu/skanu rekvizitov.
-- Skrytyy #2: (Etika ↔ Ogranicheniya) dalneyshaya otpravka — vne sistemy.
+- Skrytyy #2: (Etika ↔ Ogranicheniya) dalneyshaya otpravka - vne sistemy.
 
 Zemnoy abzats:
-Mozg poprosil — poluchili validnyy IBAN, sdelali pain.001, podsmotreli kandidaty schetov Papy.
-Obedineno iz dvukh versiy: dobavlen draft_pain001 dlya chernovikov, logging dlya pamyati Ester, P2P-share dlya detsentralizatsii.
+Mozg poprosil - poluchili validnyy IBAN, sdelali pain.001, podsmotreli kandidaty schetov Papy.
+Obedineno iz dvukh versiy: add draft_pain001 dlya chernovikov, logging dlya pamyati Ester, P2P-share dlya detsentralizatsii.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import logging
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Nastroyka logirovaniya dlya "pamyati" vyzovov/oshibok v Ester
+# Setting up logging for the “memory” of calls/errors in Esther
 logging.basicConfig(filename="data/logs/thinking_finance.log", level=logging.INFO,
                     format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -106,5 +104,5 @@ def _reg():
     register("papa.profile.share", {"target": "str"}, {"ok": "bool"}, 10, a_pp_share)
 
 # _reg()
-# Ideya rasshireniya: dlya sinteza platezhey s Judge — otprav pain001 v oblachnyy LLM dlya audita (e.g., check compliance).
-# Realizuyu v finance_judge.py: a_pain() + HTTP to Judge, esli skazhesh.
+# Expansion idea: to synthesize payments from Yudzhe, send payin001 to the cloud LLM for audit (eg, chess complianke).
+# I implement it in finance_yuje.po: a_pine() + HTTP then Yuje, if you say so.

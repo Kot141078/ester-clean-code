@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/usb_hotask.py — avto-reaktsiya na vstavku fleshki: auto/ask odin vopros.
+"""listeners/usb_hotask.py - avto-reaktsiya na vstavku fleshki: auto/ask odin vopros.
 
-Povedenie:
+Behavior:
   • Kazhdye USB_HOTASK_POLL_SEC: ischet novye tochki montirovaniya.
-  • Reshaet action: "update" (esli est ESTER/portable/self) ili "build".
+  • Resolve action: "update" (esli est ESTER/portable/self) or "build".
   • MODE=auto — zapuskaet build_on_usb srazu; MODE=ask — kladet pending i (opts.) shlet uvedomlenie v Telegram.
-  • Cooldown zaschischaet ot povtorov dlya odnoy fleshki.
+  • Cool down zaschischaet ot povtorov dlya odnoy fleshki.
 
 ENV:
   USB_HOTASK_MODE=auto|ask
@@ -14,15 +13,14 @@ ENV:
   USB_HOTASK_TG_NOTIFY=0
 
 Mosty:
-- Yavnyy (Ekspluatatsiya ↔ Portable): minimalnyy friction pri perenose kopii.
+- Yavnyy (Ekspluatatsiya ↔ Portable): minimalnyy friction when perenose kopii.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): logi JSON, edinaya ochered pending.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): stdlib, dry-rezhim, Telegram-notis po zhelaniyu.
 
 Zemnoy abzats:
-Eto «dezhurnyy u vorot»: vidit novuyu fleshku, zadaet odin vopros (ili deystvuet sam) i vse delaet bez suety.
+Eto “dezhurnyy u vorot”: vidit novuyu fleshku, zadaet odin vopros (ili deystvuet sam) i vse delaet bez suety.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, os, time
 from pathlib import Path

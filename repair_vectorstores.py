@@ -43,7 +43,7 @@ def main():
             print(f"[fix] {store}  <=  {os.path.basename(bak)}")
             shutil.copy2(bak, store)
             repaired += 1
-    print(f"\nChecked: {checked}, repaired: {repaired}")
+    print(f"Checked: {checked}, repaired: {repaired}")
 
 
 if __name__ == "__main__":

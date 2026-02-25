@@ -56,12 +56,12 @@ def fake_get_chat_id(self, user: str):
     return 999999999
 
 
-# 2) Schitaem, chto seychas «okno utra»
+# 2) We consider that now is the “morning window”
 def fake_now_in_morning_window(self):
     return True
 
 
-# 3) Podmenyaem otpravku v Telegram na pechat
+# 3) Replaces sending to Telegram with printing
 def fake_tg_send(token: str, chat_id: int, text: str):
     print("\n=== [DRY-RUN] Telegram message would be ===")
     print(f"token: {token[:5]}... (masked)")

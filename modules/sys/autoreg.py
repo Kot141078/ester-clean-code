@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/sys/autoreg.py — avto-skan i registratsiya novykh moduley (routes/*.py) s proverkoy doveriya.
+"""modules/sys/autoreg.py - avto-skan i registratsiya novykh moduley (routes/*.py) s proverkoy doveriya.
 
 Mosty:
 - Yavnyy: (Skaner ↔ Flask) ischem fayly s funktsiey register(app) i podklyuchaem ikh.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Volya ↔ Planirovschik) mozhno zapuskat taymerom/sobytiem i v dry-run (AB-slot).
 
 Zemnoy abzats:
-Kak master-sborschik: nashel novye detali, sveril katalozhnyy nomer (khesh), prikrutil k sisteme.
+Kak master-sborschik: nashel novye details, sveril katalozhnyy number (khesh), prikrutil k sisteme.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, glob, importlib.util, inspect
 from typing import Any, Dict, List
@@ -47,9 +45,7 @@ def _try_import(path: str):
         return None
 
 def tick(app, scan_patterns: List[str]|None=None)->Dict[str,Any]:
-    """
-    Vozvraschaet otchet: chto nashli, chto zaregistrirovali, chto otklonili.
-    """
+    """Returns a report: what was found, what was registered, what was rejected."""
     from modules.sys.codetrust import is_trusted, quarantine  # type: ignore
     pats=scan_patterns or [x for x in SCNV.split(",") if x.strip()]
     files=_iter_files(pats)
@@ -78,7 +74,7 @@ def tick(app, scan_patterns: List[str]|None=None)->Dict[str,Any]:
             except Exception as e:
                 rejected.append({"path": path, "reason": f"register_fail:{e}"})
         else:
-            # dry-run: prosto otmetim «videl»
+            # dry-run: just mark “seen”
             pass
         j["seen"][path]=True
     _save(j)

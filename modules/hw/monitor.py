@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/hw/monitor.py — minimalnyy monitor zheleza: CPU/RAM/disk/temperatury (esli dostupny).
+"""modules/hw/monitor.py - minimalnyy monitor zheleza: CPU/RAM/disk/temperatury (esli dostupny).
 
 Mosty:
 - Yavnyy: (Zhelezo ↔ Nadezhnost) rannie priznaki peregreva/perepolneniya.
 - Skrytyy #1: (Kibernetika ↔ Degradatsiya) mozhno podklyuchat k degradatsii v read-only.
-- Skrytyy #2: (Nablyudaemost ↔ DR) signal do togo, kak «vzorvetsya».
+- Skrytyy #2: (Nablyudaemost ↔ DR) signal do togo, like “vzorvetsya”.
 
 Zemnoy abzats:
-Smotrim «strelochki»: esli zharko/tesno — tormozim zaranee.
+Smotrim "strelochki": esli zharko/tesno - tormozim zaranee.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import shutil, os
 from typing import Any, Dict

@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.rag.http_answer — HTTP ruchka dlya RAG answers.
-Registriruet POST `/compat/rag/answer` (FastAPI/Flask).
-# c=a+b
-"""
+"""modules.rag.http_answer - HTTP ruchka dlya RAG answers.
+Register POST `/compat/rag/answer` (FastAPI/Flask).
+# c=a+b"""
 import os, json
 from typing import Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

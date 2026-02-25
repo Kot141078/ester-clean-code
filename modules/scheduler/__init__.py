@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-modules.scheduler — paket-sovmestimost.
+"""modules.scheduler - package-sovmestimost.
 MOSTY: (yavnyy) watcher.WatchConfig → re-export; (skrytye) ENV→planirovschik, fayly→ochered.
-ZEMNOY ABZATs: nalichie __init__ ustranyaet sboi importa na Windows, kogda usercustomize ne srabotal.
-# c=a+b
-"""
+ZEMNOY ABZATs: nalichie __init__ ustranyaet sboi importa na Windows, when usercustomize ne srabotal.
+# c=a+b"""
 from __future__ import annotations
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-try:  # re-export esli modul est
+try:  # re-export if there is a module
     from .watcher import WatchConfig  # type: ignore  # noqa: F401
 except Exception:
     from dataclasses import dataclass

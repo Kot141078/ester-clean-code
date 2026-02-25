@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ester_net_search_bridge.py
+"""routes/ester_net_search_bridge.py
 
 Zhestkiy override dlya /ester/net/search, chtoby:
 - ubrat "not_allowed_by_policy" dlya Ester pri lokalnom ispolzovanii (esli ty yavno razreshil v .env);
@@ -8,16 +7,15 @@ Zhestkiy override dlya /ester/net/search, chtoby:
 - ne lezt v suschestvuyuschie moduli policy/will/guard.
 
 MOSTY:
-- Yavnyy: modules/web_search.py  -> etot marshrut (/ester/net/search).
+- Yavnyy: modules/web_search.py -> etot route (/ester/net/search).
 - Skrytyy #1: chtenie ENV (ESTER_NET_ALLOW_ESTER, ESTER_NET_SEARCH_ALLOW_ESTER, SEARCH_AB/SEARCH_PROVIDER)
   -> profili avtonomii/voli.
 - Skrytyy #2: istochnik v otvetakh (`items[i]["source"]`) -> vozmozhnoe sokhranenie i analiz v pamyati/logakh.
 
 ZEMNOY ABZATs:
-Po-inzhenernomu: eto prosto tonkiy HTTP-adapter.
+Po-inzhenernomu: this is just a thin HTTP-adapter.
 Zhelezo (Ethernet/Wi-Fi) daet bayty, Python-modul web_search sobiraet HTML i API-otvety,
-a etot fayl tolko upakovyvaet ikh v JSON dlya /ester/net/search, ne vmeshivayas v «mozgi» Ester.
-"""
+a etot fayl tolko upakovyvaet ikh v JSON dlya /ester/net/search, ne vmeshivayas v “mozgi” Ester."""
 
 from __future__ import annotations
 
@@ -50,8 +48,7 @@ def _get_topk(payload: Dict[str, Any]) -> int:
 
 
 def _simple_search_via_web_search(q: str, topk: int) -> Dict[str, Any]:
-    """
-    Minimalnyy most k modules/web_search.py:
+    """Minimalnyy most k modules/web_search.py:
     ispolzuem edinyy fasad search_web(), kotoryy sam reshaet:
       - kakim provayderom strelyat (Google / SerpAPI / Bing / DDG),
       - kak padat v folbek.
@@ -59,11 +56,10 @@ def _simple_search_via_web_search(q: str, topk: int) -> Dict[str, Any]:
     Vozvraschaem:
     {
       "ok": bool,
-      "error": "no_results" | "import_web_search_failed: ..." | None,
+      "error": "no_results" | "import_web_search_failed: ..." | None
       "items": [{title, link, snippet}],
       "providers_tried": ["google"|"serpapi"|"bing"|"ddg", ...]
-    }
-    """
+    }"""
     try:
         from modules import web_search as ws  # type: ignore
     except Exception as e:
@@ -120,10 +116,8 @@ def _simple_search_via_web_search(q: str, topk: int) -> Dict[str, Any]:
 
 
 def register(app):
-    """
-    Funktsiya, kotoruyu podkhvatyvaet autoload_routes_fs() iz app.py.
-    Ona registriruet nash marshrut i perekryvaet predyduschie obrabotchiki /ester/net/search.
-    """
+    """The function that autoload_run_fs() picks up from the app.
+    It registers our route and overrides the previous /ester/net/search handlers."""
     # Flagi politiki iz .env
     allow_ester = _env_bool("ESTER_NET_ALLOW_ESTER", True)
     allow_search = _env_bool("ESTER_NET_SEARCH_ALLOW_ESTER", True)
@@ -132,8 +126,7 @@ def register(app):
 
     @app.post("/ester/net/search")
     def ester_net_search_bridge():
-        """
-        Unifitsirovannyy vkhod dlya vsekh, kto stuchitsya v /ester/net/search.
+        """Unifitsirovannyy vkhod dlya vsekh, kto stuchitsya v /ester/net/search.
 
         Vkhod (JSON):
         {
@@ -148,12 +141,11 @@ def register(app):
           "ok": true/false,
           "mode": "B",
           "source": "ester|operator|...",
-          "query": "originalnyy zapros",
+          "query": "originalnyy requests",
           "items": [{ "title": "...", "link": "...", "snippet": "..." }, ...],
           "providers_tried": ["google", "serpapi", ...],
           "reason": "no_results|not_allowed_by_policy|empty_query|..."
-        }
-        """
+        }"""
         try:
             payload = request.get_json(force=True, silent=True) or {}
         except Exception:
@@ -163,8 +155,8 @@ def register(app):
         source = (payload.get("source") or "operator").strip() or "operator"
         topk = _get_topk(payload)
 
-        # Politika: esli yavno zaprescheno cherez ENV — vedem sebya kak staryy guard,
-        # tolko teper eto upravlyaemo.
+        # Policy: if it is clearly prohibited through ENV, it behaves like an old guard,
+        # only now it is manageable.
         if not (allow_ester and allow_search):
             return jsonify(
                 {

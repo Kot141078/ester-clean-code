@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-tests/security/test_rbac_matrix_ci.py — proverka vklyucheniya i raboty RBAC-«matritsy».
+"""tests/security/test_rbac_matrix_ci.py - proverka vklyucheniya i work RBAC-“matritsy”.
 
-Ideya:
-  - /routes — nakhodim kritichnye ruchki (/ops/*, /providers/select, /ingest/*)
-  - Bez tokena -> 401/403
+Ideaya:
+  - /routes - nakhodim kritichnye ruchki (/ops/*, /providers/select, /ingest/*)
+  - Without token -> 401/403
   - Token s "user" -> 403
   - Token s "admin" -> NE 401/403 (dopuskaetsya 2xx/4xx v ramkakh biznes-logiki)
 
-JWT: HS256, sekret beretsya iz ENV JWT_SECRET / ESTER_JWT_SECRET.
-"""
+JWT: HS256, secret beretsya iz ENV JWT_SECRET / ESTER_JWT_SECRET."""
 from __future__ import annotations
 
 import os

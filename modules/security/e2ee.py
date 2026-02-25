@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-security.e2ee — prostaya obertka E2EE. Ispolzuet cryptography.Fernet, esli dostupna; inache — XOR.
+"""security.e2ee - prostaya obertka E2EE. Use cryptography.Fernet, esli dostupna; inache - XOR.
 
 MOSTY:
 - (Yavnyy) routes.* ↔ e2ee.encrypt/decrypt
@@ -8,9 +7,8 @@ MOSTY:
 - (Skrytyy #2) Bezopasnost ↔ Praktika: myagkaya degradatsiya bez cryptography.
 
 ZEMNOY ABZATs:
-Dlya rezervnykh kopiy i P2P: odno API, kotoroe «gorit» dazhe bez vneshnikh paketov v offlayne.
-# c=a+b
-"""
+Dlya rezervnykh kopiy i P2P: one API, kotoroe “gorit” dazhe bez vneshnikh paketov v offlayne.
+# c=a+b"""
 from __future__ import annotations
 import base64, hashlib, os
 from typing import Tuple

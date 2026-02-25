@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes.jwt_bootstrap
+"""routes.jwt_bootstrap
 
 Minimalnyy butstrap JWT dlya zaschischennykh ruchek (napr. /providers/select),
 chtoby ubrat 500 KeyError: 'JWT_TOKEN_LOCATION' i ne trogat suschestvuyuschiy app.py.
@@ -9,10 +8,9 @@ Podklyuchaetsya kak obychnyy Blueprint i initsializiruet Flask-JWT-Extended.
 A/B-slot: ESTER_JWT_BOOTSTRAP_AB (A|B). Pri oshibke bezopasno logiruem i ne lomaem server.
 YaVNYY MOST: UI/portal → (Authorization: Bearer) → /providers/* (JWT guard) → provaydery.
 SKRYTYE MOSTY: (1) localStorage.jwt ↔ zagolovok Authorization; (2) env → app.config.
-Zemnoy abzats: predstavte elektricheskiy zhgut pod kapotom — my prosto «schelknuli» kolodku
+Zemnoy abzats: predstavte elektricheskiy zhgut pod kapotom - my prosto “schelknuli” kolodku
 pitaniya na blok okhrany (JWT), chtoby starye knopki na paneli snova zamykali tsep.
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 
 import os
@@ -68,10 +66,10 @@ def _on_register(setup_state):
             info = _init_jwt(app)
             app.logger.info("JWT bootstrap(A): %s", info)
         else:
-            app.logger.info("JWT bootstrap(B): propuscheno po AB-pereklyuchatelyu")
+            app.logger.info("ZhVT bootstrap(B): skipped via AB switch")
     except Exception as e:  # strakhovka
         try:
-            app.logger.exception("JWT bootstrap: fatal %r — propuskayu", e)
+            app.logger.exception("ZhVT bootstrap: fatal ZZF0Z - skipping", e)
         except Exception:
             pass
 

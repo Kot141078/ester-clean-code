@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_slots_capmap.py — eksheny «voli» dlya A/B-slotov i CapMap.
+"""modules/thinking/actions_slots_capmap.py - eksheny “voli” dlya A/B-slotov i CapMap.
 
 Mosty:
-- Yavnyy: (Mysli ↔ Runtime/Self) knopki «proverit/pereklyuchit» i «posmotret kartu».
+- Yavnyy: (Mysli ↔ Runtime/Self) knopki “check/pereklyuchit” i “posmotret kartu”.
 - Skrytyy #1: (Profile ↔ Prozrachnost) upravlyayuschie deystviya vidny.
 - Skrytyy #2: (Rules/Cron ↔ Avtonomiya) legko vstroit v planirovschik.
 
 Zemnoy abzats:
-Servisnye knopki: «zdorov li ya?», «chto u menya est?», «gotov li slot B k vypusku?».
+Servisnye knopki: “zdorov li ya?”, “what u menya est?”, “gotov li slot B k vypusku?”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

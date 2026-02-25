@@ -21,7 +21,7 @@ def test_merkle_leaf_diff_detects_payload_change():
     b.add(Item("x", {"v": 2}))  # tot zhe id, drugoy payload
     la = local_leaf_hashes(a)
     lb = local_leaf_hashes(b)
-    # Emulyatsiya udalennogo otveta: uporyadochennye ids i listya
+    # Remote response emulation: ordered ids and leaves
     ids = sorted(["x"])
     remote_level0 = [lb[i] for i in ids]
     need = diff_by_leaves(la, ids, remote_level0)

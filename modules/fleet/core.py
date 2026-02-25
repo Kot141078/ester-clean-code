@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/fleet/core.py — flot sester: registratsiya uzlov, ochered zadach, naznachenie, otchety.
+"""modules/fleet/core.py - fleet sister: registratsiya uzlov, ochered zadach, naznachenie, otchety.
 
 Mosty:
 - Yavnyy: (Raspredelenie ↔ Proizvoditelnost) vybiraem menee zagruzhennyy podkhodyaschiy uzel po tegam.
 - Skrytyy #1: (Ostorozhnost ↔ Stoimost) postanovka/ispolnenie prokhodyat cherez CostFence.
-- Skrytyy #2: (Zhurnal ↔ Memory) klyuchevye sobytiya kladem v pamyat «s profileom».
+- Skrytyy #2: (Zhurnal ↔ Memory) klyuchevye sobytiya kladem v pamyat “s profileom”.
 
 Zemnoy abzats:
-Kak dispetcher taksi: znaet svobodnye mashiny, otdaet poezdki samym podkhodyaschim i sledit za otchetami.
+Kak dispetcher taksi: know svobodnye mashiny, otdaet poezdki samym podkhodyaschim i sledit za otchetami.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hmac, hashlib, random
 from typing import Any, Dict, List
@@ -75,7 +73,7 @@ def submit_task(spec: Dict[str,Any])->Dict[str,Any]:
     tid=f"T{int(time.time())}{int(time.time()*1000)%1000:03d}{random.randint(1000,9999)}"
     rec={"id": tid, "spec": spec, "state": "queued", "node": None, "created": int(time.time()), "updated": int(time.time()), "result": None}
     t["tasks"][tid]=rec; _save_tasks(t)
-    _mm_log("Flot: zadacha postavlena", {"task": tid, "kind": spec.get("kind","")})
+    _mm_log("Fleet: task set", {"task": tid, "kind": spec.get("kind","")})
     return {"ok": True, "id": tid}
 
 def status(tid: str)->Dict[str,Any]:
@@ -84,14 +82,14 @@ def status(tid: str)->Dict[str,Any]:
 
 def assign_tick()->Dict[str,Any]:
     if AB!="A":
-        return {"ok": True, "note":"AB=B (nablyudenie), naznachenie vyklyucheno", "done":0}
+        return {"ok": True, "note":"AB=B (monitoring), assignment disabled", "done":0}
     nodes=_load_nodes()["nodes"]
     tasks=_load_tasks()
     q=[x for x in tasks["tasks"].values() if x.get("state")=="queued"]
     done=0; skipped=[]
     for rec in q:
         tags=set((rec.get("spec") or {}).get("tags") or [])
-        # vybrat zhivye podkhodyaschie uzly
+        # select live suitable nodes
         cand=[]
         now=int(time.time())
         for nid, n in nodes.items():
@@ -108,7 +106,7 @@ def assign_tick()->Dict[str,Any]:
         rec["node"]=best; rec["state"]="assigned"; rec["updated"]=int(time.time())
         done+=1
     _save_tasks(tasks)
-    if done: _mm_log("Flot: naznacheny zadachi", {"count": done})
+    if done: _mm_log("Fleet: tasks assigned", {"count": done})
     return {"ok": True, "done": done, "skipped": skipped}
 
 def worker_pull(node_id: str)->List[Dict[str,Any]]:
@@ -126,6 +124,6 @@ def worker_report(node_id: str, tid: str, ok: bool, result: Dict[str,Any])->Dict
     rec["state"]="done" if ok else "failed"
     rec["result"]=result; rec["updated"]=int(time.time())
     _save_tasks(t)
-    _mm_log("Flot: otchet po zadache", {"task": tid, "ok": ok})
+    _mm_log("Fleet: mission report", {"task": tid, "ok": ok})
     return {"ok": True}
 # c=a+b

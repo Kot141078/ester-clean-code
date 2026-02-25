@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/bootstrap_routes.py - REST: bootstrap-kombo (merge policy, refresh discover).
+"""routes/bootstrap_routes.py - REST: bootstrap-combo (merge policy, refresh discover).
 
 Mosty:
 - Yavnyy: (Operatsii ↔ Udobstvo) odna knopka dlya privedeniya sredy v poryadok.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Avtonomiya ↔ Planer) udobno vyzyvat iz cron/planirovschika.
 
 Zemnoy abzats:
-Nazhal «privesti v poryadok» - pravila sshilis, sistema osmotrelas.
+Nazhal “privesti v poryadok” - pravila sshilis, sistema osmotrelas.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

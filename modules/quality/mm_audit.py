@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/quality/mm_audit.py — audit obkhodov fabriki pamyati (get_mm) cherez offlayn-skan iskhodnikov.
+"""modules/quality/mm_audit.py - audit obkhodov fabriki pamyati (get_mm) cherez offlayn-skan iskhodnikov.
 
 Mosty:
 - Yavnyy: (Kod ↔ Kachestvo) ischem potentsialnye pryamye initsializatsii/obkhody i fiksiruem otchet.
-- Skrytyy #1: (Memory ↔ Profile) sokhranyaem «profile» skana, chtoby videt regressii.
-- Skrytyy #2: (Mysli ↔ Avtomatizatsiya) vyzyvatsya «voley» po raspisaniyu.
+- Skrytyy #1: (Memory ↔ Profile) sokhranyaem “profile” skana, chtoby videt regressii.
+- Skrytyy #2: (Mysli ↔ Avtomatizatsiya) vyzyvatsya “voley” po raspisaniyu.
 
 Zemnoy abzats:
-Eto «linter so zdravym smyslom»: podsvechivaet mesta, gde mogli oboyti obschiy vkhod k pamyati.
+This is “linter so zdravym smyslom”: podsvechivaet place, where mogli oboyti obschiy vkhod k pamyati.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, glob, re
 from typing import Any, Dict, List
@@ -23,7 +21,7 @@ SCAN = os.getenv("MM_AUDIT_SCAN","modules/**/*.py,routes/**/*.py,services/**/*.p
 PATTERNS = [
     (r"\bMemoryManager\s*\(", "direct_MemoryManager_ctor"),
     (r"\bVectorStore\s*\(",   "direct_VectorStore_ctor"),
-    (r"\bget_mm\s*\(",        "factory_get_mm_call"),  # dlya statistiki
+    (r"\bget_mm\s*\(",        "factory_get_mm_call"),  # for statistics
     (r"from\s+services\.mm_access\s+import\s+get_mm", "factory_import")
 ]
 

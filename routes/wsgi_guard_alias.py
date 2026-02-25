@@ -29,7 +29,7 @@ def _safe_empty(start_response: Callable, status: str = "204 No Content") -> Ite
     return [b""]
 
 def register(app):
-    # Veshaem guard tolko kogda yavno vklyuchen B-slot
+    # We hang up the guard only when the B-slot is explicitly enabled
     if AB != "B":
         _log("wsgi_guard_alias: skipped (AB!=B)")
         return
@@ -41,20 +41,20 @@ def register(app):
         try:
             return original_wsgi(environ, start_response)
         except BaseException as e:
-            # Tolko dlya aliasov i favikonki prevraschaem 500 v bezopasnyy otvet
+            # Only for aliases and favicons we turn 500 into a safe answer
             if path.startswith("/_alias/portal/health"):
                 _log(f"guarded catch @ {path}: {e.__class__.__name__}: {e}")
                 return _safe_json_start(start_response, 200, {"ok": False, "guard": "alias", "error": str(e)})
             if path.startswith("/_alias/portal"):
                 _log(f"guarded catch @ {path}: {e.__class__.__name__}: {e}")
-                # Prostaya HTML-zaglushka, chtoby stranitsa ne padala
+                # A simple HTML placeholder to prevent the page from crashing
                 html = "<!doctype html><meta charset='utf-8'><title>Ester Portal (guard)</title><h1>Ester Portal</h1><p>Guarded fallback - original handler failed.</p>"
                 start_response("200 OK", [("Content-Type", "text/html; charset=utf-8"), ("X-Ester-Guard", "wsgi_alias")])
                 return [html.encode("utf-8")]
             if "favicon" in path or path.endswith("/_alias/favicon.ico"):
                 _log(f"guarded catch @ {path}: {e.__class__.__name__}: {e}")
                 return _safe_empty(start_response, "204 No Content")
-            # Inache - obychnoe povedenie
+            # Otherwise - normal behavior
             raise
 
     app.wsgi_app = guarded_wsgi

@@ -26,7 +26,7 @@ def test_merge_and_repair_consistency(monkeypatch, tmp_path):
     monkeypatch.setenv("PERSIST_DIR", str(tmp_path))
 
     kg = KGStore()
-    # chistoe sostoyanie
+    # pure state
     kg.import_graph({"nodes": [], "edges": []}, policy="replace")
 
     now = time.time()
@@ -59,12 +59,12 @@ def test_merge_and_repair_consistency(monkeypatch, tmp_path):
     edges = kg.query_edges(rel="rel", src="A", dst="B", limit=10)
     assert (
         len(edges) == 1
-    ), "Dolzhen byt odin logicheskiy kray po (src,rel,dst)."
+    ), "There must be one logical edge by (srk,rel,dst)."
     e = edges[0]
     assert (
         abs(float(e["weight"]) - 0.9) < 1e-8
-    ), "Ves dolzhen byt maksimumom."
-    # LWW: props obedinyayutsya, prioritet u svezhikh poley (mtime novee)
+    ), "Weight should be maximum."
+    # LVV: props are merged, priority is given to fresh fields (check newer ones)
     assert e["props"].get("w") == 2
 
     # repair() ne lomaet invarianty

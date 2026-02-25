@@ -10,10 +10,8 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 class CardsMemory:
-    """
-    Kartochki znaniy po polzovatelyam. Format fayla: JSON {"users": {user: [cards...]}}
-    Kartochka: {id, text, tags[], weight, pinned, mtime}
-    """
+    """User knowledge cards. File format: JSION {"users": ZZF0Z}
+    Card: ZZF1ZZ"""
 
     def __init__(self, path: Optional[str] = None):
         base = os.getenv("PERSIST_DIR") or os.path.abspath(os.path.join(os.getcwd(), "data"))

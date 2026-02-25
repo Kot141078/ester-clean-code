@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/synergy_assign_advisor.py - soft-sovetnik naznacheniy (bez lomki orkestratora).
+"""routes/synergy_assign_advisor.py - soft-sovetnik naznacheniy (bez lomki orkestratora).
 
 MOSTY:
 - (Yavnyy) POST /synergy/assign/advice → ranzhirovanie kandidatov pod zadachu + komandnyy bonus (affinnost).
-- (Skrytyy #1) Ispolzuet roles.store.rank_for_task(...) i roles.edges.team_affinity(...) - chistyy add-on.
-- (Skrytyy #2) Vozvraschaet explain 'why' (yarlyki/skory); udobno podsvetit v treyse bordy.
+- (Skrytyy #1) Use roles.store.rank_for_task(...) i roles.edges.team_affinity(...) - chistyy add-on.
+- (Skrytyy #2) Vozvraschaet explain 'why' (yarlyki/skory); convenient podsvetit v treyse bordy.
 
 ZEMNOY ABZATs:
-Ester predlagaet - operator reshaet. Sovety uchityvayut i «kto luchshe podkhodit», i «kto pritersya s komandoy».
+Ester predlagaet - operator decide. Sovety uchityvayut i “kto luchshe podkhodit”, i “kto pritersya s komandoy”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -26,14 +24,12 @@ router = APIRouter()
 
 @router.post("/synergy/assign/advice")
 async def synergy_assign_advice(payload: Dict[str, Any] = Body(...)):
-    """
-    Vkhod:
-      - task_text (str) - opisanie zadachi (ili dims).
+    """Vkhod:
+      - task_text (str) - description of tasks (or dims).
       - dims (dict[str,float]) - pozhelaniya po vektoram (optsionalno).
-      - candidates (list[str]) - ogranichenie po agentam (optsionalno).
+      - candidates (list[str]) - limited by agentam (optsionalno).
       - team (list[str]) - te, kto uzhe v sostave (optsionalno, dlya affinnosti).
-      - top_n (int) - skolko sovetov vernut.
-    """
+      - top_n (int) - skolko sovetov vernut."""
     task_text = str(payload.get("task_text") or "")
     dims = payload.get("dims") or {}
     candidates = [str(x) for x in (payload.get("candidates") or [])]

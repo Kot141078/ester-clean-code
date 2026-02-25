@@ -10,11 +10,9 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 class PeerReplicator:
-    """
-    Legkiy replikator:
-      - beret spisok pirov iz REPLICATION_PEERS (cherez zapyatuyu) ili iz self.peers
-      - imeet metody status() i pull_once()
-    """
+    """Lightweight Replicator:
+      - takes a list of peers from REPLICATION_PERS (separated by commas) or from self.peers
+      - has methods status() and pull_end()"""
 
     def __init__(
         self,
@@ -50,7 +48,7 @@ class PeerReplicator:
                 url = peer.rstrip("/") + "/replication/snapshot"
                 headers = {"X-REPL-TOKEN": token} if token else {}
                 r = requests.get(url, headers=headers, timeout=15)
-                # primenyaem lokalno cherez /replication/apply
+                # apply locally via /replication/appli
                 sig = r.headers.get("X-Signature", "")
                 if not sig or not r.content:
                     reports[peer] = {"ok": False, "error": "no snapshot or signature"}

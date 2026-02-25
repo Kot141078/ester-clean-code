@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/action_invoker.py — bezopasnyy invoker ekshenov s WIP/taymautom i auditom.
+"""modules/thinking/action_invoker.py - bezopasnyy invoker ekshenov s WIP/taymautom i auditom.
 
 Mosty:
 - Yavnyy: (Reestr deystviy ↔ Ispolnitel) tsentralizovannyy vyzov ekshenov s kontrolem parametrov i vremeni.
-- Skrytyy #1: (Memory ↔ Profile) uspeshnye vyzovy mozhno zhurnalirovat «profileom».
+- Skrytyy #1: (Memory ↔ Profile) uspeshnye vyzovy mozhno zhurnalirovat “profileom”.
 - Skrytyy #2: (RBAC/Politiki ↔ Ostorozhnost) syuda legko vstavit dop.proverki (quota/roles).
 
 Zemnoy abzats:
-Kak «dispetcher v tsekhe»: puskaet zadachi po odnoy dveri, sledit za peregruzkoy i rubit po taymautu — chtoby tsekh ne vstal.
+Kak “dispetcher v tsekhe”: puskaet zadachi po odnoy dveri, sledit za peregruzkoy i rubit po taymautu - chtoby tsekh ne vstal.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, threading
 from typing import Any, Dict, Tuple
@@ -65,11 +63,9 @@ def _list_actions()->Dict[str,Any]:
     return {"ok": True, "items": []}
 
 def _get_runner(name: str):
-    """
-    Pytaemsya poluchit ispolnyaemuyu funktsiyu ekshena iz reestra.
+    """Pytaemsya poluchit ispolnyaemuyu funktsiyu ekshena iz reestra.
     Ozhidaemyy kontrakt reestra: list_actions() -> items[] s polem "name" i "runner".
-    Esli runner net — akkuratno padaem.
-    """
+    Esli runner net - akkuratno padaem."""
     rep=_list_actions()
     for it in rep.get("items",[]):
         if it.get("name")==name:
@@ -78,11 +74,11 @@ def _get_runner(name: str):
 
 def _validate_schema(item: Dict[str,Any], args: Dict[str,Any])->Tuple[bool,str]:
     schema = item.get("schema_in") or {}
-    # Prosteyshaya proverka: klyuchi i tipy (str|number|bool|object|list)
+    # The simplest check: keys and types (page|number|pain|object|sheet)
     typemap={"str":str,"number":(int,float),"bool":bool,"object":dict,"list":list}
     for k, t in (schema.items() if isinstance(schema, dict) else []):
         if k not in args: 
-            # dopuskaem neobyazatelnye polya — strogiy rezhim mozhno vklyuchit pozzhe
+            # allow optional fields - strict mode can be enabled later
             continue
         want = typemap.get(str(t))
         if want and not isinstance(args[k], want):

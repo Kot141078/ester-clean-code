@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ops/consent.py — «pilyuli» soglasiya: vydacha, verifikatsiya, otzyv (one-time tokens s TTL).
+"""modules/ops/consent.py - “pilyuli” soglasiya: vydacha, verifikatsiya, otzyv (one-time tokens TTL).
 
 Mosty:
 - Yavnyy: (Soglasie ↔ Risk) opasnye deystviya trebuyut yavnoy otmetki soglasiya.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Kibernetika ↔ UX) gibkost: privyazka k patternu/metodu, vozmozhnost otzyva.
 
 Zemnoy abzats:
-Odnorazovyy zheton: «tochno uveren?» — vydal, ispolzoval, pogasil.
+Odnorazovyy zheton: “Are you sure?” - vydal, ispolzoval, pogasil.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, re, time, secrets
 from typing import Any, Dict, Tuple
@@ -81,7 +79,7 @@ def revoke(token: str) -> Dict[str,Any]:
 
 def list_tokens() -> Dict[str,Any]:
     db=_db()
-    # skryvaem fakticheskie tokeny — tolko meta (krome otladochnogo rezhima)
+    # hide actual tokens - meta only (except debug mode)
     items=[]
     for t, meta in (db.get("tokens") or {}).items():
         items.append({"hint": t[:6]+"…", **{k:meta[k] for k in meta if k!="pattern"}, "pattern": meta.get("pattern")})

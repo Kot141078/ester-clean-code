@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-Most mezhdu voley Ester i selfmod.
+"""Most mezhdu voley Ester i selfmod.
 
-Endpointy:
-    GET  /ester/selfmod/will_plan
+Endpoint:
+    GET /ester/selfmod/will_plan
     POST /ester/selfmod/propose_guarded
 
-Naznachenie:
+Name:
 - Davat svodnyy vid (will + selfmod) dlya verkhnego sloya.
-- Prinimat formalnye zaprosy na patchi:
-    * source="ester"  — kandidat na samoizmenenie (cherez strogiy guard).
-    * lyubye drugie    — prokidyvaem k /ester/selfmod/propose kak est (operator).
+- Prinimat formalnye request na patchi:
+    * source="ester" - kandidat na samoizmenenie (cherez strogiy guard).
+    * any others - forward to /ester/selfmod/propose as is (operator).
 
-Bezopasnost:
-- Rezhim A: Ester nikogda ne pishet. Tolko introspect.
+Safety:
+- Rezhim A: Ester nikogda ne pishet. Just introspect.
 - Rezhim B: Ester mozhet pisat tolko v belyy spisok putey i tolko esli
-  ESTER_SELFMOD_ALLOW_ESTER=1.
-"""
+  ESTER_SELFMOD_ALLOW_ESTER=1."""
 
 import os
 import json
@@ -38,7 +36,7 @@ ALLOW_ESTER = (os.getenv("ESTER_SELFMOD_ALLOW_ESTER", "0") or "0").strip().lower
     "on",
 )
 
-# Kuda Ester mozhet pisat sama
+# Where Esther can write herself
 SAFE_ESTER_PREFIXES = (
     "modules/ester/",
 )
@@ -108,11 +106,9 @@ def _is_safe_ester_path(path: str) -> bool:
 
 
 def _normalize_changes(body: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """
-    Podderzhivaem dva formata:
-    1) changes: [ {path, content}, ... ]
-    2) path + (content | patch.content) — oborachivaem v changes[1].
-    """
+    """Supports two formats:
+    1) hanges: yu ZZF0Z, ... sch
+    2) path + (content | patch.content) - wrap in hangesyu1sch."""
     if "changes" in body and isinstance(body["changes"], list):
         out = []
         for ch in body["changes"]:
@@ -156,7 +152,7 @@ def ester_selfmod_will_plan():
 
 @bp_ester_selfmod_will.route("/ester/selfmod/propose_guarded", methods=["POST"])
 def ester_selfmod_propose_guarded():
-    # Bazovyy karkas otveta
+    # Basic answer framework
     guard_info: List[Dict[str, Any]] = []
 
     try:
@@ -204,7 +200,7 @@ def ester_selfmod_propose_guarded():
                 }
             )
 
-        # Rezhim A — tolko introspect, ne pishem na disk
+        # Mode A - introspection only, does not write to disk
         if SELFMOD_MODE == "A":
             g["note"] = "introspect_only_mode_A"
             guard_info.append(g)
@@ -221,7 +217,7 @@ def ester_selfmod_propose_guarded():
                 }
             )
 
-        # Rezhim B + Ester razreshena — proveryaem izmeneniya
+        # Mode B + Ester is allowed - checking the changes
         if not changes:
             g["note"] = "no_valid_changes"
             guard_info.append(g)
@@ -290,7 +286,7 @@ def ester_selfmod_propose_guarded():
             }
         )
 
-    # === VETKA: operator / vneshniy istochnik ===
+    # === BRANCH: operator / external source ===
     g = {
         "mode": SELFMOD_MODE,
         "source": source,

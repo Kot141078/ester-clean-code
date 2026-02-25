@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-ShortTermMemory — kratkosrochnaya pamyat (na sessiyu).
+"""ShortTermMemory - kratkosrochnaya pamyat (na sessiyu).
 ENV:
-  SHORT_TERM_TTL_SEC (po umolchaniyu 3600)
-  SHORT_TERM_MAX_ENTRIES (po umolchaniyu 20)
-Realizatsiya bez vneshnikh zavisimostey (in-memory) s ochistkoy po TTL.
-"""
+  SHORT_TERM_TTL_SEC (by default 3600)
+  SHORT_TERM_MAX_ENTRIES (by default 20)
+Realizatsiya bez vneshnikh zavisimostey (in-memory) s ochistkoy po TTL."""
 from __future__ import annotations
 
 import os

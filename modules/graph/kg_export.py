@@ -1,17 +1,15 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.graph.kg_export — eksport snapshota KG.
+"""modules.graph.kg_export - eksport snapshota KG.
 Mosty:
 - Yavnyy: snapshot() vozvraschaet {"entities": [...], "edges": [...] } iz memory.kg_store ili iz in-proc folbeka kg_nodes.
-- Skrytyy #1: (DX ↔ Sovmestimost) — probuem neskolko API: export_snapshot/dump/list_entities;list_relations.
-- Skrytyy #2: (Inzheneriya ↔ Prozrachnost) — pomechaem istochnik dannykh v otvete (source).
+- Skrytyy #1: (DX ↔ Sovmestimost) — try neskolko API: export_snapshot/dump/list_entities;list_relations.
+- Skrytyy #2: (Inzheneriya ↔ Prozrachnost) - pomechaem istochnik dannykh v otvete (source).
 
 Zemnoy abzats:
-Snapshot — eto «srez tkaney»: bystro uvidet sostav i svyazi, ne vskryvaya ves organizm.
-# c=a+b
-"""
+Snapshot - eto “srez tkaney”: bystro uvidet sostav i svyazi, ne vskryvaya ves organizm.
+# c=a+b"""
 from typing import Dict, Any, List, Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
@@ -48,12 +46,12 @@ def _from_fallback() -> Dict[str, Any]:
         from modules.graph import kg_nodes as kg
     except Exception:
         return {"ok": True, "entities": [], "edges": [], "source": "kg_nodes:missing"}
-    # suschnosti: cherez query(None)
+    # essence: through the mountains (None)
     try:
         ents = kg.query(None).get("items", [])  # type: ignore
     except Exception:
         ents = []
-    # rebra: esli est skrytoe pole _FALLBACK
+    # edges: if there is a hidden field _FALBATSK
     try:
         edges = getattr(kg, "_FALLBACK", {}).get("edges", [])  # type: ignore
         if not isinstance(edges, list):

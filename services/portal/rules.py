@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-R6/services/portal/rules.py — primenenie pravil k daydzhestu: filtry, limity, anti-ekho, diversifikatsiya.
+"""R6/services/portal/rules.py - primenenie pravil k daydzhestu: filtry, limity, anti-ekho, diversifikatsiya.
 
 Mosty:
 - Yavnyy: Enderton — pravila kak proveryaemye predikaty nad (user, tags, text), kompozitsiya daet determinirovannuyu vydachu.
@@ -9,10 +8,9 @@ Mosty:
 
 Zemnoy abzats (inzheneriya):
 Zagruzhaem JSON-pravila, k kazhdomu razdelu primenyaem: allow/deny po tegam/polzovatelyam, regex-blokirovki,
-dedup, limity per_tag/per_user, zatem (opts.) MMR i usechenie top_per_section. Vse na stdlib.
+dedup, limity per_tag/per_user, zatem (opts.) MMR i usechenie top_per_section. All na stdlib.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import os
@@ -67,7 +65,7 @@ def _enforce_caps(items: List[dict], per_tag: Dict[str, int], per_user: Dict[str
     for it in items:
         usr = str(it.get("user") or "")
         tags = list(it.get("tags") or [])
-        # proverim limity: esli khotya by po odnomu tegu prevysheno — propuskaem
+        # Let's check the limits: if at least one tag is exceeded, we skip it
         skip = False
         for t in tags:
             cap = int(per_tag.get(t, 1_000_000))
@@ -142,7 +140,7 @@ def apply_rules_to_digest(digest: Dict, rules: Dict) -> Tuple[Dict, Dict]:
         if top_per and len(final_items) > top_per:
             final_items = final_items[:top_per]
 
-        # 6) Mezhsektsionnyy anti-ekho (tolko v B)
+        # 6) Intersectional anti-echo (only in B)
         if mode == "B" and cross:
             keep: List[dict] = []
             for it in final_items:

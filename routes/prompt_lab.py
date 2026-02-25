@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/prompt_lab.py - UI/REST PromptLab: shablony, prevyu, zapusk setki, diff, vybor luchshego, eksport.
+"""routes/prompt_lab.py - UI/REST PromptLab: shablony, prevyu, zapusk setki, diff, vybor luchshego, eksport.
 
-Marshruty:
-  • GET  /admin/promptlab                    - HTML
-  • GET  /admin/promptlab/status             - spisok shablonov/sessiy
-  • POST /admin/promptlab/save_template      - {name, template, vars, id?}
-  • POST /admin/promptlab/preview            - {template, vars} → expand_grid (pervye 20)
-  • POST /admin/promptlab/run                - {name?, tpl_id?, template?, vars, selector:{alias|req}, max_tokens?, temperature?}
-  • POST /admin/promptlab/diff               - {session_id, a_id, b_id}
-  • POST /admin/promptlab/mark_best          - {session_id, best_id}
-  • POST /admin/promptlab/export             - {session_id, mount}
+Route:
+  • GET /admin/promptlab - HTML
+  • GET /admin/promptlab/status - spisok shablonov/sessiy
+  • POST /admin/promptlab/save_template - {name, template, vars, id?}
+  • POST /admin/promptlab/preview - {template, vars} → expand_grid (pervye 20)
+  • POST /admin/promptlab/run - {name?, tpl_id?, template?, vars, selector:{alias|req}, max_tokens?, temperature?}
+  • POST /admin/promptlab/diff - {session_id, a_id, b_id}
+  • POST /admin/promptlab/mark_best - {session_id, best_id}
+  • POST /admin/promptlab/export - {session_id, mount}
 
 Mosty:
 - Yavnyy (UX ↔ Orkestratsiya): ves tsikl A→B: podstanovki → zapusk → sravnenie → vybor → eksport.
@@ -18,10 +17,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): uvazhenie AB-rezhima; yadro Ester ne trogaem.
 
 Zemnoy abzats:
-Eto «mikrolaboratoriya promptov»: udobno proveryat formulirovki, bystro sravnivat otvety i sokhranyat luchshiy rezultat.
+This is “mikrolaboratoriya promptov”: udobno proveryat formulirovki, bystro sravnivat otvety i sokhranyat luchshiy result.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time
 from flask import Blueprint, jsonify, render_template, request
@@ -70,7 +68,7 @@ def api_run():
     name = str(body.get("name") or "session")
     tpl = str(body.get("template") or "")
     if not tpl and body.get("tpl_id"):
-        # razreshim zapusk po sokhranennomu shablonu
+        # allow launch based on a saved template
         tpls = list_templates().get("items", [])
         for it in tpls:
             if it.get("id") == body.get("tpl_id"):
@@ -88,7 +86,7 @@ def api_run():
     rep = run_grid(tpl, vars_spec, selector, max_tokens=max_tokens, temperature=temperature)
     if rep.get("dry"):
         return jsonify({"ok": True, "ab": AB, "result": rep})
-    # sokhranit sessiyu
+    # save session
     sess = {
         "id": None,
         "name": name,

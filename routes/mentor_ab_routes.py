@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mentor_ab_routes.py - pult A/B «Nastavnika».
+"""routes/mentor_ab_routes.py - remote A/B “Nastavnika”.
 
 Ruchki:
-  GET  /mentor/ab/status
+  GET /mentor/ab/status
   POST /mentor/ab/switch {"slot":"A"|"B"}
-  POST /mentor/ab/auto   {"sec":60}
+  POST /mentor/ab/auto {"sec":60}
   POST /mentor/ab/cancel_auto
 
 UI: /admin/mentorab - prostaya stranitsa upravleniya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.thinking.mentor_ab import status as st, switch as sw, set_auto as sa, cancel_auto as ca

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/playbooks/runner.py — kaskadnye stsenarii (playbooks) poverkh reestra deystviy.
+"""modules/playbooks/runner.py - kaskadnye stsenarii (playbooks) poverkh reestra deystviy.
 
 Mosty:
 - Yavnyy: (Myshlenie ↔ Ispolnenie) deklarativno opisyvaem shagi {kind,args}.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Memory ↔ Avtonomiya) legko skladyvat rezultaty v pamyat/ledger.
 
 Zemnoy abzats:
-«Poymat rybu» — ne raz: oformlyaem povtoryaemye tsepochki deystviy, chtoby Ester sama ikh zapuskala.
+“Poymat rybu” - ne raz: oformlyaem povtoryaemye tsepochki deystviy, chtoby Ester sama ikh zapuskala.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict, List
@@ -29,7 +27,7 @@ def _parse(data: str, content_type: str | None) -> Dict[str,Any]:
     try:
         return json.loads(data)
     except Exception:
-        # fallback minimalnyy YAML (klyuch:znachenie i massivy - best-effort)
+        # falbatsk minimal YML (key: value and arrays - best-effort)
         lines=[l.rstrip() for l in data.splitlines() if l.strip()]
         name="pb"; steps=[]
         for l in lines:
@@ -51,7 +49,7 @@ def _invoke_action(kind: str, args: Dict[str,Any]) -> Dict[str,Any]:
         if not isinstance(rep, dict): rep={"ok": True, "result": rep}
         return rep
     except Exception as e:
-        # Bazovye vstroennye deystviya
+        # Basic built-in actions
         if kind=="echo":
             return {"ok": True, "text": str(args.get("text",""))}
         if kind=="memory.upsert":
@@ -78,7 +76,7 @@ def run(obj: Dict[str,Any]) -> Dict[str,Any]:
     results=[]
     for st in obj.get("steps",[]):
         k=st.get("kind",""); a=st.get("args") or {}
-        # prostaya otsenka stoimosti (esli ukazana)
+        # simple cost estimate (if specified)
         cat=str(st.get("cost_cat","llm")); amt=float(st.get("cost",0.0))
         if amt>0.0 and not _cost_ok(cat, amt):
             results.append({"ok": False, "step": k, "error":"cost_exceeded"}); break

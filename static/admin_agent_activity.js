@@ -45,7 +45,7 @@ c=a+b
   }
 
   async function digestPlan(){
-    const title = E('title').value.trim() || 'Daydzhest aktivnosti Ester';
+    const title = E('title').value.trim() || 'Esther\'s activity digest';
     const q = E('q').value.trim();
     const limit = parseInt(E('limit').value||'40',10);
     const r = await fetchJSON('/thinking/act', {method:'POST', body: JSON.stringify({name:'agent.activity.digest.plan', args:{title, q, limit}})});

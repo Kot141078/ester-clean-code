@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/garage/sitegen.py — prostaya sborka staticheskogo sayta proekta/portfolio.
+"""modules/garage/sitegen.py - prostaya sborka staticheskogo sayta proekta/portfolio.
 
 Mosty:
-- Yavnyy: (Dokumenty ↔ Verstka) prevraschaem dannye proekta v index.html+style.css.
+- Yavnyy: (Documenty ↔ Verstka) prevraschaem dannye proekta v index.html+style.css.
 - Skrytyy #1: (Portfolio ↔ Garazh) globalnyy sayt portfolio stroitsya iz registry JSON.
 - Skrytyy #2: (Memory ↔ Profile) fakt sborki sokhranyaem v pamyat dlya trassirovki.
 
 Zemnoy abzats:
-Nazhali knopku — i na vykhode akkuratnaya statichnaya stranitsa, kotoruyu mozhno otdat zakazchiku.
+Nazhali knopku - i na vykhode akkuratnaya statichnaya stranitsa, kotoruyu mozhno otdat zakazchiku.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, html
 from typing import Any, Dict

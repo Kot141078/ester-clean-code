@@ -1,23 +1,21 @@
 from __future__ import annotations
 
-"""
-Ester JSON unicode adapter.
+"""Ester JSON unicode adapter.
 
 Tsel:
 - V AB-rezhime B vklyuchat ensure_ascii=False dlya JSON-otvetov Flask,
   chtoby kirillitsa i prochiy Unicode otdavalis v chitaemom vide,
-  a ne v "????" ili \\uXXXX-posledovatelnostyakh.
+  a ne v "????" ili\\uXXXX-posledovatelnostyakh.
 
-Povedenie:
-- Po umolchaniyu (ESTER_JSON_UNICODE_AB != "B") — rezhim A: nichego ne trogaem.
-- V rezhime B myagko patchim JSON-sloy Flask:
+Behavior:
+- Po umolchaniyu (ESTER_JSON_UNICODE_AB != "B") - rezhim A: nichego ne trogaem.
+- V rezhime B myagko patchim JSON-layer Flask:
   * dlya legacy flask.json.dumps;
-  * dlya app.json_provider_class (Flask 2.2+), pereopredelyaya dumps.
+  * for app.jsion_provider_class (Flask 2.2+), overriding dumps.
 
-Garantii:
+Guarantee:
 - Esli chto-to idet ne tak, adapter ne ronyaet prilozhenie.
-- HTTP-kontrakty (struktura JSON, marshruty, polya) ne menyayutsya.
-"""
+- HTTP-contrakty (struktura JSON, route, polya) ne menyayutsya."""
 
 import os
 from typing import Any
@@ -32,10 +30,8 @@ except Exception:  # pragma: no cover
 
 
 def _patch_flask_json_global() -> None:
-    """
-    Dlya starykh/sovmestimykh realizatsiy Flask:
-    pereopredelyaem flask.json.dumps tak, chtoby ensure_ascii=False byl defoltom.
-    """
+    """For older/compatible Flask implementations:
+    override flask.jsion.dumps so that sensor_assy=false is the default."""
     if flask_json is None:  # pragma: no cover
         return
 
@@ -43,12 +39,12 @@ def _patch_flask_json_global() -> None:
     if not callable(orig_dumps):
         return
 
-    # Uzhe propatcheno — vykhodim.
+    # Already patched - let's go.
     if getattr(flask_json, "_ester_unicode_patched", False):
         return
 
     def ester_dumps(obj: Any, **kwargs: Any) -> str:
-        # Esli vyzyvayuschiy yavno ne ukazal ensure_ascii — vyklyuchaem ASCII-ekranirovanie.
+        # If the caller has not explicitly specified an sensor_assy, ​​turn off the ASSIY shielding.
         kwargs.setdefault("ensure_ascii", False)
         return orig_dumps(obj, **kwargs)  # type: ignore[misc]
 
@@ -57,10 +53,8 @@ def _patch_flask_json_global() -> None:
 
 
 def _patch_app_json_provider(app) -> None:
-    """
-    Dlya Flask 2.2+:
-    podmenyaem json_provider_class tak, chtoby ensure_ascii=False byl defoltom.
-    """
+    """For Flask 2.2+:
+    overrides jsion_provider_class so that sensor_assy=False is the default."""
     if app is None:  # pragma: no cover
         return
 
@@ -68,30 +62,30 @@ def _patch_app_json_provider(app) -> None:
     if provider_class is None:
         return
 
-    # Esli uzhe patchili — ne trogaem.
+    # If we've already patched it, don't touch it.
     if getattr(provider_class, "_ester_unicode_patched", False):
         return
 
-    # Na sluchay otsutstviya novykh API — vse delaem maksimalno myagko.
+    # In case there are no new APIs, we do everything as gently as possible.
     try:
         from flask.json.provider import JSONProvider  # type: ignore
     except Exception:  # pragma: no cover
         JSONProvider = object  # type: ignore
 
-    # Esli tekuschiy provayder uzhe kakoy-to kastomnyy — prosto rasshiryaem ego.
+    # If the current provider is already some kind of custom one, we simply expand it.
     class EsterJSONProvider(provider_class):  # type: ignore[misc]
         _ester_unicode_patched = True
 
         def dumps(self, obj: Any, **kwargs: Any) -> str:  # type: ignore[override]
-            # Ne lomaem yavnyy ensure_ascii ot vyzyvayuschego koda,
-            # tolko menyaem defolt.
+            # We don’t break the explicit sensor_assy from the calling code,
+            # We just change the default.
             kwargs.setdefault("ensure_ascii", False)
             return super().dumps(obj, **kwargs)
 
-    # Veshaem novyy provayder na prilozhenie.
+    # We attach a new provider to the application.
     app.json_provider_class = EsterJSONProvider
 
-    # Initsializiruem app.json, esli eto primenimo dlya dannoy versii Flask.
+    # Initializes app.jsion, if applicable for this version of Flask.
     try:
         app.json = EsterJSONProvider(app)  # type: ignore[assignment]
     except Exception:  # pragma: no cover
@@ -100,24 +94,22 @@ def _patch_app_json_provider(app) -> None:
 
 
 def apply(app):
-    """
-    Tochka vkhoda dlya app.py.
+    """Tochka vkhoda dlya app.py.
 
     Upravlyaetsya peremennoy okruzheniya ESTER_JSON_UNICODE_AB:
 
-      - "A" ili ne zadana:
+      - "A" or ne zadana:
             adapter zagruzhen, no ne aktiven (nichego ne patchim).
       - "B":
             vklyuchaem ensure_ascii=False dlya JSON-otvetov Flask tam,
-            gde eto legitimno i bezopasno.
+            where it is legitimno and safe.
 
     Vozvraschaet:
-        dict: {"ok": bool, "mode": "A"|"B"}
-    """
+        dict: {"ok": bool, "mode": "A"|"B"}"""
     mode = (os.getenv("ESTER_JSON_UNICODE_AB", "A") or "A").strip().upper()
 
     if mode != "B":
-        # Rezhim A: nichego ne trogaem.
+        # Mode A: don't touch anything.
         return {"ok": True, "mode": "A"}
 
     try:
@@ -125,7 +117,7 @@ def apply(app):
         _patch_app_json_provider(app)
         return {"ok": True, "mode": "B"}
     except Exception as e:  # pragma: no cover
-        # Fail-safe: Ester dolzhna rabotat dazhe pri sboe adaptera.
+        # File-safe: Esther should work even if the adapter fails.
         try:
             print("[ester-json/unicode] error:", e)
         except Exception:

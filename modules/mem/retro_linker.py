@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/mem/retro_linker.py — avto-svyazyvanie suschnostey (KG↔gipotezy↔pamyat), «bez pereloma kontraktov».
+"""modules/mem/retro_linker.py - avto-svyazyvanie suschnostey (KG↔gipotezy↔pamyat), “bez pereloma kontraktov.”
 
 Mosty:
 - Yavnyy: (Memory ↔ KG) izvlekaem suschnosti iz novykh/svezhikh zapisey pamyati i pytaemsya upsert v KG + ostavlyaem ssylki.
 - Skrytyy #1: (Gipotezy ↔ Memory) pri nakhozhdenii patternov ("esli..., to...") sozdaem zametku-gipotezu.
-- Skrytyy #2: (Volya ↔ Planirovschik) modul dergaetsya kak ekshen «voli» ili po /ops/cron/tick.
+- Skrytyy #2: (Volya ↔ Planirovschik) modul dergaetsya kak ekshen “voli” ili po /ops/cron/tick.
 
 Zemnoy abzats:
-Eto «sekretar», kotoryy, chitaya dnevnik, risuet nitochki mezhdu imenami, mestami i ponyatiyami, chtoby potom bylo legche iskat.
+Eto “sekretar”, kotoryy, chitaya dnevnik, risuet nitochki mezhdu imenami, mestami i ponyatiyami, chtoby potom bylo legche iskat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, re, json, time, urllib.request
 from typing import Any, Dict, List, Tuple
@@ -20,7 +18,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 AB = (os.getenv("AUTOLINK_AB","A") or "A").upper()
 DEFAULT_LIMIT = int(os.getenv("AUTOLINK_LIMIT","100") or "100")
 
-# --- prosteyshiy izvlekatel suschnostey bez vneshnikh zavisimostey ---
+# --- simplest entity extractor without external dependencies ---
 EMAIL_RE   = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 URL_RE     = re.compile(r"https?://[^\s)]+")
 HASHTAG_RE = re.compile(r"(?:^|\s)#([A-Za-zA-Yaa-ya0-9_]{2,})")
@@ -37,7 +35,7 @@ def extract_entities(text: str)->Dict[str, List[str]]:
     names = list(set(names))
     return {"names": names, "emails": emails, "urls": urls, "tags": tags}
 
-# --- utility vyzova suschestvuyuschikh ruchek bez smeny ikh kontrakta ---
+# --- utilities for calling existing handles without changing their contract ---
 def _http_json(url: str, body: Dict[str,Any]|None=None, timeout: int=20)->Dict[str,Any]:
     data = json.dumps(body or {}).encode("utf-8") if body is not None else None
     req  = urllib.request.Request(url, data=data, headers={"Content-Type":"application/json"}) if body is not None else urllib.request.Request(url)
@@ -46,7 +44,7 @@ def _http_json(url: str, body: Dict[str,Any]|None=None, timeout: int=20)->Dict[s
     
 def _kg_upsert(node: Dict[str,Any])->None:
     try:
-        # ozhidaem suschestvuyuschiy kg-rout (ne lomaem kontrakt)
+        # we expect an existing kg-route (we don’t break the contract)
         _http_json("http://127.0.0.1:8000/mem/kg/upsert", node)
     except Exception:
         pass
@@ -73,7 +71,7 @@ def _flashback(limit: int)->List[Dict[str,Any]]:
         pass
     return []
 
-# --- yadro: obrabotka zapisey pamyati ---
+# --- kernel: processing memory entries ---
 PATTERN_CAUSE = re.compile(r"\b(esli|when|kogda)\b.+\b(to|then)\b", re.IGNORECASE)
 
 def process_item(item: Dict[str,Any])->Dict[str,Any]:
@@ -108,5 +106,5 @@ def tick(limit: int|None=None)->Dict[str,Any]:
     for it in items:
         rep=process_item(it); out.append(rep); k+= (rep.get("linked") or {}).get("kg",0)
     _passport("Avto-linkovka pamyati", {"count": len(items), "kg_links": k, "dry_run": AB!="A"})
-    return {"ok": True, "checked": len(items), "report": out[-10:]}  # poslednie 10 dlya kratkosti
+    return {"ok": True, "checked": len(items), "report": out[-10:]}  # last 10 for brevity
 # c=a+b

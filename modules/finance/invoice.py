@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/finance/invoice.py — oflayn-scheta: Markdown/HTML iz JSON, bez vneshnikh servisov.
+"""modules/finance/invoice.py - oflayn-scheta: Markdown/HTML iz JSON, bez vneshnikh servisov.
 
 Mosty:
 - Yavnyy: (Frilans ↔ Dokumenty) bystro vypuskat scheta i prikladyvat k otklikam.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (RAG ↔ Poisk) tekst scheta kladem v gibridnyy poisk.
 
 Zemnoy abzats:
-Eto kak blank-kvitantsiya v yaschike: zapolnil polya — poluchil akkuratnyy schet, kotoryy mozhno otpravit.
+Eto kak blank-kvitantsiya v yaschike: zapolnil polya - poluchil akkuratnyy schet, kotoryy mozhno otpravit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hashlib
 from typing import Any, Dict, List
@@ -46,7 +44,7 @@ def _render_md(d: dict, iid: str, total: float, vat: float, grand: float)->str:
     return "\n".join(lines)
 
 def _render_html(md: str)->str:
-    # minimalistichnyy Markdown→HTML (tolko nash format)
+    # minimalistichnyy Markdown→HTML (only our format)
     import html, re
     h=html.escape(md)
     # zagolovok

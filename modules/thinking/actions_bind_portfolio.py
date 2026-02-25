@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_bind_portfolio.py — eksheny «voli» dlya svyazki Watch→Media i portfolio.
+"""modules/thinking/actions_bind_portfolio.py — eksheny “voli” dlya svyazki Watch→Media i portfolio.
 
 Mosty:
-- Yavnyy: (Mysli ↔ Watch/Media/UI) knopki «nastroit/skanirovat» i «sobrat portfolio».
+- Yavnyy: (Mysli ↔ Watch/Media/UI) knopki “nastroit/skanirovat” i “sobrat portfolio”.
 - Skrytyy #1: (Profile ↔ Prozrachnost) deystviya guvernantki vidny.
 - Skrytyy #2: (Cron/Rules ↔ Avtonomiya) legko veshat na raspisaniya/sobytiya.
 
 Zemnoy abzats:
-Eti knopki pozvolyayut Ester samoy «lovit rybu» (skanirovat, razbirat) i pokazyvat ulov krasivo.
+Eti knopki pozvolyayut Ester samoy “lovit rybu” (skanirovat, razbirat) i pokazyvat ulov krasivo.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

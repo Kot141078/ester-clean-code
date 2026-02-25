@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ops_cron_routes.py - REST-obertka dlya «kron-tikov».
+"""routes/ops_cron_routes.py - REST-obertka dlya "kron-tikov".
 
 Mosty:
 - Yavnyy: (Veb ↔ CRON) bezopasnyy zapusk planovykh protsedur.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Volya ↔ Plan) ekshen ops.cron.tick vyzyvaet tot zhe kod.
 
 Zemnoy abzats:
-Nazhali «tik» - i nochnaya brigada proshla po reglamentu.
+Nazhali “tik” - i nochnaya brigada proshla po reglamentu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 import os

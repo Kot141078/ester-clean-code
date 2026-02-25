@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-Generatsiya CHANGELOG.md iz git-logov (Keep a Changelog stil, kratko).
-Ispolzovanie:
+"""Generatsiya CHANGELOG.md iz git-logov (Keep a Changelog stil, kratko).
+Use:
   python3 scripts/changelog_from_commits.py > CHANGELOG.md
 
-Optsii cherez ENV:
-  - CHANGELOG_SINCE_TAG (naprimer, v0.0.0) — ogranichit spisok kommitov.
-"""
+Optsii via ENV:
+  - CHANGELOG_SINCE_TAG (for example, v0.0.0) — ogranichit spisok kommitov."""
 from __future__ import annotations
 
 import datetime as dt

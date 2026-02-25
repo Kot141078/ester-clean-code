@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/adapt_triggers_routes.py - REST-pult adaptivnykh triggerov.
+"""routes/adapt_triggers_routes.py - REST-pult adaptivnykh triggerov.
 
 Ruchki:
   POST /adapt/observe {"result":"hit|miss","thr":0.74,"meta":{...}}
-  GET  /adapt/threshold -> {value}
-  POST /adapt/seed_template {"thr":0.78,"n":5}  # zanesti N "hit" tochek dlya razgona
+  GET /adapt/threshold -> {value}
+  POST /adapt/seed_template {"thr":0.78,"n":5} # zanesti N "hit" tochek dlya razgona
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.vision.adapt_triggers import keep_observation, current_threshold

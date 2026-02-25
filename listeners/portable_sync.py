@@ -1,29 +1,27 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/portable_sync.py — fonovye «dotyagivaniya» portable ot pirov i avto-obnaruzhenie portable-USB.
+"""listeners/portable_sync.py - fonovye “dotyagivaniya” portable ot pirov i avto-obnaruzhenie portable-USB.
 
-Etot modul obedinyaet dve funktsii:
+This modul obedinyaet dve funktsii:
 1) P2P Sync:
    - V rezhime A: indeksatsiya + publikatsiya offer (bez zagruzki blokov).
    - V rezhime B: + pull nedostayuschikh blokov u pirov v lokalnuyu tsel.
 
 2) USB Auto-detection:
-   - V rezhime A: tolko log/status (JSON), bez deystviy.
+   - V rezhime A: only log/status (JSON), bez deystviy.
    - V rezhime B: pri nalichii portable-nositelya mozhet primenit resursy (optsionalno, env-flag).
 
 Mosty:
-- Yavnyy (Kibernetika ↔ Orkestratsiya): zamknutyy tsikl «nablyudat → predlozhit → sinkhronizirovat».
-- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): CAS + kheshi → tochnaya dozagruzka bez «tyanut vse zanovo».
+- Yavnyy (Kibernetika ↔ Orkestratsiya): zamknutyy tsikl “nablyudat → predlozhit → sinkhronizirovat.”
+- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): CAS + kheshi → tochnaya dozagruzka bez “tyanut vse zanovo”.
 - Skrytyy 2 (Anatomiya ↔ Inzheneriya): kak proverka refleksa — stimul (USB/peer) → latentnost → otvet.
 
 Zemnoy abzats:
-Eto «dezhurnyy mekhanik» v odnom litse: regulyarno obkhodit sklad (lokalnye bloki), sveryaet s sosedyami
+Eto “dezhurnyy mekhanik” v odnom litse: regulyarno obkhodit sklad (lokalnye bloki), sveryaet s sosedyami
 (piry) i otmechaet v zhurnale, kogda priekhal novyy instrumentalnyy yaschik (portable-USB). Esli pitanie
-proselo, disk «podumal», set chikhnula — status JSON pozvolyaet uvidet, gde imenno tsep tormozit,
+proselo, disk "podumal", set chikhnula - status JSON pozvolyaet uvidet, where imenno tsep tormozit,
 ne gadaya na kofeynoy gusche.
 
-# c=a+b
-"""
+# c=a+b"""
 
 from __future__ import annotations
 
@@ -74,7 +72,7 @@ def _write_status(d: Dict[str, Any]) -> None:
 
 
 def _acquire_lock(stale_sec: int = 600) -> bool:
-    """Prostoy lok-fayl, chtoby ne zapuskat dva ekzemplyara parallelno."""
+    """A simple onion file to avoid running two instances in parallel."""
     LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
     now = _now_ts()
     try:
@@ -163,7 +161,7 @@ def run_p2p_sync(cfg: Dict[str, Any], loop_cfg: _LoopCfg, interval: int) -> None
         else:
             st["ok"] = True
 
-        # Pishem status kak «poslednee izvestnoe sostoyanie»
+        # We write the status as “last known state”
         try:
             _write_status(st)
         except Exception:
@@ -193,7 +191,7 @@ def _usb_once(period_hint: int = 8) -> Dict[str, Any]:
         "period_hint_s": int(period_hint),
     }
 
-    # V rezhime B mozhno vklyuchit avto-primenenie resursov (tolko esli vystavlen flag)
+    # In mode B, you can enable auto-use of resources (only if the flag is set)
     if root and AB == "B" and os.getenv("PORTABLE_AUTO_APPLY", "0") == "1":
         try:
             res = apply_lmstudio_resources(str(root))
@@ -244,17 +242,17 @@ def main(argv=None) -> int:
         "--mode",
         choices=["p2p", "usb", "all"],
         default="all",
-        help="Rezhim raboty: p2p-sink, usb-obnaruzhenie ili oba.",
+        help="Operating mode: p2p-sync, usb-detection or both.",
     )
-    ap.add_argument("--loop", action="store_true", help="Rabotat v beskonechnom tsikle.")
+    ap.add_argument("--loop", action="store_true", help="Run in an endless loop.")
     ap.add_argument(
         "--p2p-interval",
         type=int,
         default=0,
-        help="Interval P2P-sinkhronizatsii (sek). 0 = vzyat iz nastroek (po umolchaniyu).",
+        help="P2P synchronization interval (sec). 0 = taken from settings (default).",
     )
     ap.add_argument("--usb-period", type=int, default=8, help="Period skanirovaniya USB (sek).")
-    ap.add_argument("--lock-stale", type=int, default=600, help="Cherez skolko sekund schitat lock ustarevshim.")
+    ap.add_argument("--lock-stale", type=int, default=600, help="After how many seconds will lock be considered obsolete?")
 
     args = ap.parse_args(argv)
 

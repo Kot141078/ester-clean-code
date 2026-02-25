@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/audio/stt.py — oflayn/gibridnyy STT (whisper.cpp/Vosk/zaglushka) + SRT/VTT.
+"""modules/audio/stt.py - oflayn/gibridnyy STT (whisper.cpp/Vosk/zaglushka) + SRT/VTT.
 
 Mosty:
-- Yavnyy: (Audio/Video ↔ Memory/RAG) transkript + subtitry pishem v fayly i v pamyat; pri nalichii rag_append — v RAG.
+- Yavnyy: (Audio/Video ↔ Memory/RAG) transkript + subtitry pishem v fayly i v pamyat; pri nalichii rag_append - v RAG.
 - Skrytyy #1: (Profile ↔ Prozrachnost) kazhdyy progon zhurnaliruem s kheshem i vremenem.
-- Skrytyy #2: (Bind/Media ↔ Avtopotok) binder /bind/stt/run podtyagivaet novye media i vyzyvaet zdes transcribe().
+- Skrytyy #2: (Bind/Media ↔ Avtopotok) binder /bind/stt/run podtyagivaet new media i vyzyvaet zdes transcribe().
 
 Zemnoy abzats:
-Eto «diktofon s bloknotom»: iz zvuka poluchaem tekst i subtitry, kladem ryadom s media i v pamyat, chtoby potom bystro iskat i tsitirovat.
+Eto “diktofon s bloknotom”: iz zvuka poluchaem tekst i subtitry, kladem ryadom s media i v pamyat, chtoby potom bystro iskat i tsitirovat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hashlib, subprocess, shlex, uuid, re
 from typing import Dict, Any, Tuple
@@ -51,7 +49,7 @@ def _write(path: str, text: str):
     with open(path,"w",encoding="utf-8") as f: f.write(text)
 
 def _simple_srt(text: str)->str:
-    # Naivnaya razbivka po predlozheniyam, 3s na fragment
+    # Naive breakdown by sentence, per fragment
     parts=[p.strip() for p in re.split(r"[\\.!?\\n]+", text) if p.strip()]
     t=0.0; out=[]
     for i,p in enumerate(parts, start=1):
@@ -76,7 +74,7 @@ def _engine_whisper(wav: str, lang: str, out_prefix: str)->Tuple[str,str]:
     bin_=os.getenv("WHISPER_BIN","./main")
     model=os.getenv("WHISPER_MODEL","models/ggml-base.bin")
     extra=os.getenv("WHISPER_EXTRA","")
-    # -osrt -of <prefix> — sozdast <prefix>.srt i <prefix>.txt (pri nalichii -otxt, no mnogie sborki kladut txt v stdout — obrabotaem oba sluchaya)
+    # -osrt -of <prefix> - will create <prefix>.srt and <prefix>.txt (if -otxt is available, but many assemblies put txt in stdout - we’ll handle both cases)
     cmd=f"{shlex.quote(bin_)} -m {shlex.quote(model)} -f {shlex.quote(wav)} -l {shlex.quote(lang)} -osrt -of {shlex.quote(out_prefix)} {extra}"
     try:
         p=subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=360)
@@ -87,7 +85,7 @@ def _engine_whisper(wav: str, lang: str, out_prefix: str)->Tuple[str,str]:
         else:
             text=p.stdout.decode("utf-8","ignore").strip()
         if not os.path.isfile(srt_path):
-            # sdelaem prostye subtitry esli whisper ne vyvel
+            # We’ll make simple subtitles if Vnisper didn’t display them
             _write(srt_path, _simple_srt(text))
         return text, open(srt_path,"r",encoding="utf-8").read()
     except Exception:

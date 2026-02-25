@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ocr/lexicon_builder.py — personalnyy slovar UI-leksiki (OCR-praymer).
+"""modules/ocr/lexicon_builder.py - personalnyy dictionary UI-leksiki (OCR-praymer).
 
-Istochniki:
+Sources:
 - Zhurnal vnimaniya (/attention/journal) — zagolovki okon, metki shagov
 - Podskazki iz /text_guess/guess — kandidaty slov (s indeksami uverennosti)
 
@@ -10,7 +9,7 @@ API:
 - mine_from_journal(N=500) -> bag
 - merge_guess(candidates[]) -> obnovit bag
 - preview(top=200) -> tokeny/bigrammy s vesami
-- export_json() -> perenosimyy JSON (dlya OCR komponentov sistemy)
+- export_json() -> perenosimyy JSON (dlya OCR komponentov systemy)
 
 MOSTY:
 - Yavnyy: (Memory ↔ Raspoznavanie) personalnaya leksika dlya UI snizhaet oshibki OCR.
@@ -18,10 +17,9 @@ MOSTY:
 - Skrytyy #2: (Inzheneriya ↔ Sovmestimost) chistyy perenosimyy format.
 
 ZEMNOY ABZATs:
-Bez vneshnikh modeley. Chastoty tokenov i bigramm, normalizatsiya registra.
+Bez vneshnikh modeley. Frequency tokens i bigramm, normalizatsiya registra.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple
 import http.client, json, re, math, time

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/security/test_p2p_security.py — klyuchi, kid, replay i dreyf.
+"""tests/security/test_p2p_security.py - klyuchi, kid, replay i dreyf.
 
 MOSTY:
 - (Yavnyy) Proveryaem podpis s `kid` i bez, okno dreyfa i blokirovku povtora po nonce (X-Request-Id).
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Sovmestimost verify_headers() interfeysa.
 
 ZEMNOY ABZATs:
-Garantiruet, chto dazhe pri rotatsii klyuchey i povtornykh popytkakh zloumyshlennika zaschita derzhitsya.
+Garantiruet, what dazhe pri rotatsii klyuchey i povtornykh popytkakh zloumyshlennika zaschita derzhitsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, hmac, hashlib
 import pytest
@@ -38,7 +36,7 @@ def test_verify_with_kid_and_rotation(monkeypatch):
     ok,prob=verify_headers("POST","/api/v2/synergy/assign",body,{"X-P2P-Timestamp":ts,"X-P2P-Signature":sig,"X-P2P-Key-Id":"main"})
     assert ok and prob is None
 
-    # tot zhe zapros starym klyuchom (prev)
+    # same request with old key (prev)
     sig2=_mk_sig("POST","/api/v2/synergy/assign",ts,body,"KEYPREV")
     ok2,prob2=verify_headers("POST","/api/v2/synergy/assign",body,{"X-P2P-Timestamp":ts,"X-P2P-Signature":sig2,"X-P2P-Key-Id":"prev"})
     assert ok2 and prob2 is None

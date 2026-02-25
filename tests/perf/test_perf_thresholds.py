@@ -21,7 +21,7 @@ def test_perf_artifacts_thresholds():
     files = sorted(glob.glob("artifacts/perf/*.summary.json"))
     assert (
         files
-    ), "net faylov artifacts/perf/*.summary.json — snachala zapusti bench"
+    ), "there are no artifacts/perf/*.summary.jsion files - run the benchmark first"
     p95_limit = int(os.getenv("ESTER_P95_MS", "2000"))
     p99_limit = int(os.getenv("ESTER_P99_MS", "5000"))
     fail_rate_limit = float(os.getenv("ESTER_FAIL_RATE", "0.01"))

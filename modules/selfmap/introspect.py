@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/selfmap/introspect.py — samokarta sposobnostey: marshruty, eksheny, moduli, env.
+"""modules/selfmap/introspect.py - samokarta sposobnostey: route, eksheny, moduli, env.
 
 Mosty:
-- Yavnyy: (Prilozhenie ↔ Soznanie) edinyy JSON-portret «kto ya i chto umeyu».
-- Skrytyy #1: (AutoDiscover ↔ Prozrachnost) ispolzuem reestr skanera moduley.
-- Skrytyy #2: (Thinking Registry ↔ Navigatsiya) snimaem spisok dostupnykh ekshenov «voli».
+- Yavnyy: (Prilozhenie ↔ Soznanie) edinyy JSON-portret “who ya i chto umeyu.”
+- Skrytyy #1: (AutoDiscover ↔ Prozrachnost) ispolzuem reestr scanera moduley.
+- Skrytyy #2: (Thinking Registry ↔ Navigatsiya) snimaem spisok dostupnykh ekshenov “voli”.
 
 Zemnoy abzats:
-Kak tablichka pod kapotom: kakie uzly podklyucheny, kakie rychagi est, kakie lampochki goryat — bystro ponyat sostoyanie.
+Kak tablichka pod kapotom: kakie uzly podklyucheny, kakie rychagi est, kakie lampochki goryat - bystro ponyat sostoyanie.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, inspect, pkgutil, importlib
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -39,7 +37,7 @@ def _routes_from_sources(modnames):
     return routes
 
 def _action_list():
-    # poprobuem vytaschit iz reestra ekshenov, esli on predostavlyaet introspect
+    # let's try to pull it out of the action registry if it provides introspection
     acts=[]
     try:
         from modules.thinking.action_registry import list_actions  # type: ignore

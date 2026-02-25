@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R2/tests/r2_ingest_smoke.py — myagkiy smouk R2 bez seti.
+"""R2/tests/r2_ingest_smoke.py - myagkiy smouk R2 bez seti.
 
 Mosty:
 - Yavnyy: Enderton — proveryaem predikaty: parsitsya li sample RSS? kladutsya li kartochki?
@@ -9,10 +8,9 @@ Mosty:
 - Skrytyy #2: Cover & Thomas — nablyudeniya (added/seen) dostatochno informativny dlya priemki.
 
 Zemnoy abzats:
-Gonyaem CLI po lokalnym fiksturam (file://). Esli chego-to net — propuskaem, ne valim payplayn.
+Gonyaem CLI po lokalnym fiksturam (file://). Esli chego-to net - propuskaem, ne valim payplayn.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import os

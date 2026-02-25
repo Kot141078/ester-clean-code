@@ -7,16 +7,16 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 base = os.getenv("ESTER_CHAT_BASE") or os.getenv("ESTER_HTTP_BASE") or "http://localhost:8090"
 url = base.rstrip("/") + "/chat/message"
 
-# Test 1: Samyy prostoy zapros (proverka na obyazatelnye polya)
+# Test 1: The simplest request (checking for required fields)
 payload_minimal = {"message": "Ping"}
 
-# Test 2: Zapros s "lishnimi" polyami, kotorye mogut besit Guard
+# Test 2: Request with “extra” fields that can infuriate Guard
 payload_full = {
     "message": "Full check",
     "sid": "debug_console",
     "mode": "cloud",
     "author": "Owner",
-    "rag": False  # Chasto vyzyvaet oshibku v Pydantic V2
+    "rag": False  # Often causes an error in Podantic V2
 }
 
 def run_test(name, data):

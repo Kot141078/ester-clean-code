@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-routes/money_routes.py - REST/UI dlya orkestratora «mne nuzhny dengi».
+"""routes/money_routes.py - REST/UI dlya orkestratora “mne nuzhny dengi”.
 
 Ruchki:
-  GET  /money/probe
-  POST /money/trigger_check     {"text":"Ester, mne nuzhny dengi"}
-  GET  /money/questions
-  POST /money/profile           {"answers":{...}}
-  POST /money/strategies        {"answers":{...},"target_amount":1000,"timeframe_days":14}
-  POST /money/judge             {"answers":{...}}
-  POST /money/garage            {"answers":{...}}
-  POST /money/run               {"answers":{...},"target_amount":1000,"timeframe_days":14,"mode":"A|B"}
+  GET /money/probe
+  POST /money/trigger_check {"text":"Ester, mne nuzhny dengi"}
+  GET /money/questions
+  POST /money/profile {"answers":{...}}
+  POST /money/strategies {"answers":{...},"target_amount":1000,"timeframe_days":14}
+  POST /money/judge {"answers":{...}}
+  POST /money/garage {"answers":{...}}
+  POST /money/run {"answers":{...},"target_amount":1000,"timeframe_days":14,"mode":"A|B"}
 
-  GET  /admin/money
+  GET /admin/money
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.money import orchestrator as MO

@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/context_inspector_routes.py - REST/UI dlya inspektora konteksta.
+"""rutes/context_inspector_rutes.po - REST/UI for the context inspector.
 
-Ruchki:
-  POST /context/heatmap/build {"n":200}
-  GET  /admin/context
+Handles:
+  POST /context/netmap/build ZZF0Z
+  GET /admin/context
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.vision.context_inspector import build

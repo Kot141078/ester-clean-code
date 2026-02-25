@@ -1,34 +1,32 @@
 # -*- coding: utf-8 -*-
-"""
-modules/agents/desktop_os_driver.py — krossplatformennyy drayver rabochego stola.
+"""modules/agents/desktop_os_driver.py - krossplatformennyy drayver rabochego stola.
 
 Funktsii verkhnego urovnya (bez sokhraneniya sostoyaniya):
-  probe() -> dict             # opredelit OS i dostupnye vozmozhnosti
-  whitelist_get() -> dict     # zagruzit whitelist
-  whitelist_add(name, cmd)    # dobavit zapis
-  whitelist_remove(name)      # udalit
-  plan_to_commands(plan)      # sopostavit shagi agenta komandam OS
+  probe() -> dict # opredelit OS i dostupnye vozmozhnosti
+  whitelist_get() -> dict # zagruzit whitelist
+  whitelist_add(name, cmd) # add zapis
+  whitelist_remove(name) # delete
+  plan_to_commands(plan) # sopostavit steps agenta komandam OS
   execute(plan, dry_run=True) # vypolnit plan (sandbox/real) s logami
 
-Bezopasnost:
+Safety:
 - Po umolchaniyu dry_run (nichego ne delaet, tolko ekho).
-- Rezhim real dostupen tolko pri ESTER_DD_ENABLED=1 i ESTER_DD_MODE=real,
+- Rezhim real dostupen only pri ESTER_DD_ENABLED=1 i ESTER_DD_MODE=real,
   i esli KAZhDYY shag rezolvitsya v komandu iz whitelist.
 - Lyubaya komanda vne whitelist = otkaz s logom.
 
 MOSTY:
-- Yavnyy: (Agenty ↔ OS) — bezopasnoe, obyasnimoe vypolnenie shagov.
-- Skrytyy #1: (Kibernetika ↔ Pesochnitsa) — dry-run kak «bezopasnaya simulyatsiya».
-- Skrytyy #2: (Infoteoriya ↔ Upravlenie riskom) — whitelist kak szhataya politika.
+- Yavnyy: (Agenty ↔ OS) - bezopasnoe, obyasnimoe vypolnenie shagov.
+- Skrytyy #1: (Kibernetika ↔ Pesochnitsa) - dry-run kak “bezopasnaya simulyatsiya”.
+- Skrytyy #2: (Infoteoriya ↔ Upravlenie riskom) - whitelist kak szhataya politika.
 
 ZEMNOY ABZATs:
-Inzhenerno — eto konvertor shagov {launch, focus, type, navigate, capture} v
+Inzhenerno - eto konvertor shagov {launch, focus, type, navigate, capture} v
 konkretnye vyzovy OS/GUI (xdg-open/osascript/start i t.p.) s belymi spiskami.
-Prakticheski — Ester mozhet «pokazat na moem rabochem stole» i pri etom ne
+Prakticheski - Ester mozhet “pokazat na moem rabochem stole” i pri etom ne
 vyyti za ramki razreshennogo.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple
 import os, sys, json, platform, subprocess, shlex, time
@@ -112,7 +110,7 @@ def _cmd_focus(app:str)->Tuple[str,List[str]]:
     if osname=="macos":
         # AppleScript activate
         return "osascript", ["-e", f'tell application "{app}" to activate']
-    # Na Linux/Windows bez spets. tulzov — no-op (ostavim kak logicheskiy shag)
+    # On Linux/Windows without special tools - no-op (let's leave it as a logical step)
     return "noop", []
 
 def _cmd_type(text:str)->Tuple[str,List[str]]:
@@ -139,7 +137,7 @@ def plan_to_commands(plan:List[Dict[str,Any]], whitelist:Dict[str,Any]|None=None
         if do=="launch":
             app=step.get("app","")
             args=step.get("args") or []
-            # razreshim tolko esli app v whitelist.apps
+            # allow only if the app is in vnitlist.apps
             if app not in wl.get("apps",{}):
                 cmds.append({"ok":False,"reason":"app_not_whitelisted","step":step}); continue
             binpath=wl["apps"][app]
@@ -154,7 +152,7 @@ def plan_to_commands(plan:List[Dict[str,Any]], whitelist:Dict[str,Any]|None=None
             if not app:
                 cmds.append({"ok":True,"cmd":"noop","args":[],"step":step})
             else:
-                # focus razreshaem, esli prilozhenie whitelisted (esli imya est)
+                # We allow focus if the application is listed (if there is a name)
                 if app in wl.get("apps",{}):
                     exe,args2=_cmd_focus(app)
                 else:
@@ -193,17 +191,17 @@ def execute(plan:List[Dict[str,Any]], dry_run:bool=True)->Dict[str,Any]:
     for c in cmds:
         if not c.get("ok"):
             out.append({"ok":False, **c}); continue
-        # Lyubaya komanda vne whitelist (dlya launch) uzhe pomechena ok=True, no cmd mozhet byt 'noop' (eto bezopasno).
+        # Any command outside the list (for launch) is already marked ok=Three, but cmd can be optional (it’s safe).
         res=_exec_one(c["cmd"], c["args"], dry_run= (not real) or dry_run)
         out.append(res)
     return {"ok": all(x.get("ok") for x in out), "mode": mode, "enabled": enabled, "results": out}
 def _cmd_click(x:int,y:int):
     osname=_detect_os()
-    # Bez storonnikh utilit: tolko noop s logom pozitsii
+    # No third-party utilities: only noop with position log
     return "noop", [f"click:{x},{y}"]
 
 def plan_to_commands(plan, whitelist=None):
-    # originalnaya funktsiya zdes PEREOPREDELENA tselikom dlya konteksta
+    # the original function is OVERRIGGED here entirely for context
     wl=whitelist or (whitelist_get().get("whitelist") or {"apps":{}, "commands":{}})
     cmds=[]
     for step in plan:

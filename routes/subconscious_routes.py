@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/subconscious_routes.py — prostye ruchki upravleniya podsoznaniem.
+"""routes/subconscious_routes.py - prostye ruchki upravleniya podsoznaniem.
 Zavisit ot Flask-prilozheniya osnovnogo app.py (kanon Ester_dump_part_0001).
 Podklyuchite blueprint v app.py.
 
 Primer integratsii v app.py:
 
     from routes.subconscious_routes import bp_subcon
-    app.register_blueprint(bp_subcon)
-"""
+    app.register_blueprint(bp_subcon)"""
 
 import json
 import os
@@ -38,7 +36,7 @@ def status():
 
 @bp_subcon.post("/poke")
 def poke():
-    """R uchnoy «tik sna» bez planirovschika."""
+    """Manual sleep tick without a planner."""
     corr = uuid.uuid4().hex
     emit_event(
         "scheduler.fired",
@@ -53,7 +51,7 @@ def poke():
 
 @bp_subcon.post("/reflect")
 def reflect():
-    """Prinuditelno svyazat posledniy son s prichino-sobytiem (dlya testov)."""
+    """Forcefully associate the last dream with a causal event (for tests)."""
     mem = DreamMemory(MEM_PATH)
     act = mem.get_active()
     if not act:
@@ -72,7 +70,7 @@ def reflect():
             },
             "event": {"type": "manual.reflect", "payload": {}},
             "score": 1.0,
-            "suggestion": "R uchnaya proverka svyaznosti sna Re mysli.",
+            "suggestion": "Manual check of sleep coherence Re thoughts.",
         },
         correlation_id=corr,
     )

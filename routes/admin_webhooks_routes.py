@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_webhooks_routes.py - mini-panel upravleniya vebkhukami (Telegram setWebhook).
+"""routes/admin_webhooks_routes.py - mini-panel upravleniya webkhukami (Telegram setWebhook).
 
 MOSTY:
-- (Yavnyy) GET /admin/webhooks → HTML-forma; POST /admin/webhooks/telegram/set → vyzyvaet setWebhook c secret_token.
-- (Skrytyy #1) Ispolzuet tot zhe token/bazu, chto adapter Telegram; oshibok Meta/WA ne delaet - tam nastroyka iz konsoli.
-- (Skrytyy #2) Stranitsa podskazyvaet aktualnyy URL vebkhuka i sekret - udobno dlya DevOps.
+- (Yavnyy) GET /admin/webhooks → HTML-forma; POST /admin/webhooks/telegram/set → vyzyvaet setWebhook with secret_token.
+- (Skrytyy #1) Ispolzuet tot zhe token/bazu, what adapter Telegram; oshibok Meta/WA ne delaet - tam nastroyka iz konsoli.
+- (Skrytyy #2) Stranitsa podskazyvaet aktualnyy URL webkhuka i sekret - udobno dlya DevOps.
 
 ZEMNOY ABZATs:
 Odin klik - i bot nachinaet prinimat vkhodyaschie: bez ruchnogo curl i kopipasty.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, json
@@ -47,8 +45,7 @@ def _tg_call(method: str, payload: dict) -> tuple[int, dict]:
     except URLError as e:
         return (0, {"ok": False, "description": str(e)})
 
-_HTML = """
-<!doctype html><html><head><meta charset="utf-8"><title>Webhooks</title>
+_HTML = """<!doctype html><html><head><meta charset="utf-8"><title>Webhooks</title>
 <style>body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:16px;color:#222}
 .card{border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
 label{display:block;margin:6px 0}</style></head><body>
@@ -56,20 +53,19 @@ label{display:block;margin:6px 0}</style></head><body>
 <div class="card">
   <h3>Telegram setWebhook</h3>
   <form method="post" action="/admin/webhooks/telegram/set">
-    <label>URL vebkhuka (obychno https://<host>/webhooks/telegram)
+    <label>URL webkhuka (obychno https://<host>/webhooks/telegram)
       <input name="url" style="width:480px" value="{url}">
     </label>
     <div>secret_token: <code>{secret}</code></div>
-    <button type="submit">Postavit vebkhuk</button>
+    <button type="submit">Postavit webkhuk</button>
   </form>
   <p><small>Posle ustanovki Telegram budet prisylat apdeyty na <code>/webhooks/telegram</code> s zagolovkom <code>X-Telegram-Bot-Api-Secret-Token</code>.</small></p>
 </div>
 <div class="card">
   <h3>WhatsApp Cloud</h3>
-  <p>Vebkhuk nastraivaetsya v Meta Developers Console. Etot servis uzhe umeet prinimat verify i sobytiya na <code>/webhooks/whatsapp</code>. Ispolzuyte vash <code>WHATSAPP_VERIFY_TOKEN</code>.</p>
+  <p>Vebkhuk nastraivaetsya v Meta Developers Console. Etot servis uzhe umeet prinimat verify i sobytiya na <code>/webhooks/whatsapp</code>. Ispolzuyte your <code>WHATSAPP_VERIFY_TOKEN</code>.</p>
 </div>
-</body></html>
-"""
+</body></html>"""
 
 @router.get("/admin/webhooks", response_class=HTMLResponse)
 async def admin_webhooks_page():

@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-routes/metrics_mm_guard.py — Prometheus-metriki fabriki pamyati/obkhodov.
+"""routes/metrics_mm_guard.py - Prometheus-metriki fabriki pamyati/obkhodov.
 
 Endpoint:
   • GET /metrics/mm_guard
 
 Mosty:
-- Yavnyy: (Nablyudaemost v†" Memory) vidno, skolko raz shli cherez fabriku Re skolko — «mimoletom».
+- Yavnyy: (Nablyudaemost v†" Memory) vidno, skolko raz shli cherez fabriku Re skolko - “mimoletom”.
 - Skrytyy #1: (Kibernetika v†" Kontrol) pomogaet ubeditsya, chto vse novye zapisi prokhodyat s profileom.
-- Skrytyy #2: (Inzheneriya v†" Podderzhka) nulevye zavisimosti — aktiviruetsya tolko pri importe.
+- Skrytyy #2: (Inzheneriya v†" Podderzhka) nulevye zavisimosti - aktiviruetsya tolko pri importe.
 
 Zemnoy abzats:
 Eto schetchik u turniketa: skolko lyudey proshlo, Re skolko perelezlo cherez zabor.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, Response

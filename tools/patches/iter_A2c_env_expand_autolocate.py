@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-ITER A2c: stop %VAR% path poisoning + auto-locate real Chroma store for UI.
+"""ITER A2c: stop %VAR% path poisoning + auto-locate real Chroma store for UI.
 
 YaVNYY MOST: c=a+b — ne teryaem pamyat i prekraschaem ee fragmentatsiyu iz-za putey.
 SKRYTYE MOSTY:
   - Ashby: umenshaem khaos (odni i te zhe suschnosti pamyati v raznykh kornyakh) -> bolshe upravlyaemosti.
-  - Cover&Thomas: avto-lokator vybiraet “samyy informativnyy” kanal (gde count vyshe), ne peregruzhaya UI.
+  - Cover&Thomas: avto-lokator vybiraet “samyy informativnyy” kanal (where count vyshe), ne peregruzhaya UI.
 ZEMNOY ABZATs:
-  Eto kak perestat podpisyvat korobki “%SKLAD%” i nachat pisat realnyy adres.
-  Poka adres ne razvernut — gruz uezzhaet v sluchaynyy garazh.
-"""
+  Eto kak perestat podpisyvat korobki “%SKLAD%” i nachat pisat realnyy address.
+  Poka adres ne razvernut - gruz uezzhaet v sluchaynyy garazh."""
 from __future__ import annotations
 
 import os, re, sys, time, shutil, py_compile

@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/rpa_workflows_routes.py - REST dlya workflow i oflayn-planirovschika.
+"""routes/rpa_workflows_routes.py - REST dlya workflow i oflayn-planirovschika.
 
 Ruchki:
-  GET  /desktop/rpa/workflow/list
-  GET  /desktop/rpa/workflow/get?name=...
+  GET /desktop/rpa/workflow/list
+  GET /desktop/rpa/workflow/get?name=...
   POST /desktop/rpa/workflow/save {"name": "...", "spec": {...}}
   POST /desktop/rpa/workflow/run {"name": "...", "args_overrides": {...}}
   POST /desktop/rpa/workflow/export {"names": ["..."]} -> {"ok":true,"bundle":{name:spec,...}}
   POST /desktop/rpa/workflow/import {"bundle": {name:spec,...}}
-  GET  /desktop/rpa/schedule/list
+  GET /desktop/rpa/schedule/list
   POST /desktop/rpa/schedule/save {"items":[{name,interval_sec,enabled,last_ts?},...]}
   POST /desktop/rpa/schedule/tick
 
 RBAC: rol 'operator' (lokalnyy JWT) - sm. security/rbac_utils.require_role.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from flask import Blueprint, jsonify, request

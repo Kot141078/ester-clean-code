@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/events_routes.py - REST-obertka nad modules.events_bus.
+"""routes/events_routes.py - REST-obertka nad modules.events_bus.
 
-Endpointy:
-- POST /events/publish      - publikatsiya sobytiya
-- GET  /events/feed         - lenta sobytiy
-- GET  /events/last_ts      - posledniy taymstamp
+Endpoint:
+- POST /events/publish - publikatsiya sobytiya
+- GET /events/feed - lenta sobytiy
+- GET /events/last_ts - posledniy taymstamp
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict, List
 

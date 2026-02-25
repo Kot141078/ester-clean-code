@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-modules/video/index/window_summary.py — summarizatsiya po oknu taymlayna (start..end) iz dampa video.
+"""modules/video/index/window_summary.py - summarizatsiya po oknu taymlayna (start..end) iz dampa video.
 
 Funktsii:
   • summarize(dump_path:str, start:float, end:float, max_chars:int=700) -> dict
 
 A/B-slot (bezopasnaya samo-redaktura):
-  • A (defolt): chastotno-pozitsionnaya evristika (pervye predlozheniya + klyuchevye).
-  • B: usilennaya evristika (TF-ish ves + «razreshenie» na chut bolee dlinnye frazy), format otveta sovmestim.
+  • A (defolt): often-pozitsionnaya evristika (pervye predlozheniya + klyuchevye).
+  • B: usilennaya evristika (TF-ish ves + “razreshenie” na chut bolee dlinnye frazy), format otveta sovmestim.
 
 Mosty:
-- Yavnyy: (Video ↔ Memory) vydaem kompaktnyy «zum» po vybrannomu fragmentu dlya RAG/otveta polzovatelyu.
-- Skrytyy #1: (Infoteoriya ↔ Kachestvo) ogranichenie dliny/filtratsiya stop-slov umenshaet shum.
+- Yavnyy: (Video ↔ Memory) vydaem kompaktnyy “zum” po vybrannomu fragmentu dlya RAG/otveta polzovatelyu.
+- Skrytyy #1: (Infoteoriya ↔ Kachestvo) ogranichenie dliny/filtratsiya stop-slov umenshaet noise.
 - Skrytyy #2: (Logika ↔ UX) okno zadaetsya sekundami, chto legko svyazat s pleerom i glavami.
 
 Zemnoy abzats:
-Eto «lupa»: na vybrannom otrezke bystro delaem konspekt, chtoby ne peresmatrivat vse video.
+Eto “lupa”: na vybrannom otrezke bystro delaem konspekt, chtoby ne peresmatrivat vse video.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -73,7 +71,7 @@ def _score_tokens(s: str) -> float:
 def _summarize_A(sents: List[str], max_chars: int) -> str:
     if not sents:
         return ""
-    # pervye 1–2 predlozheniya + 2–3 «nasyschennykh»
+    # first 1–2 sentences + 2–3 “saturated”
     out: List[str] = []
     for s in sents[:2]:
         out.append(s)
@@ -90,7 +88,7 @@ def _summarize_A(sents: List[str], max_chars: int) -> str:
     return text
 
 def _summarize_B(sents: List[str], max_chars: int) -> str:
-    # usilennaya evristika: otdaem predpochtenie bolee dlinnym informativnym predlozheniyam, izbegaya povtorov
+    # enhanced heuristic: favor longer informative sentences, avoiding repetitions
     scored = sorted((( _score_tokens(s) * (1.0 + min(len(s), 200)/200.0), i, s) for i, s in enumerate(sents)), reverse=True)
     out: List[str] = []
     for _, _, s in scored:

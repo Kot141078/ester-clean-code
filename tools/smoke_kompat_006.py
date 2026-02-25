@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-tools/smoke_kompat_006.py — proverka dvukh poslednikh padeniy iz boot-loga:
+"""tools/smoke_kompat_006.py — proverka dvukh poslednikh padeniy iz boot-loga:
 1) forms_routes AssertionError('expected view func if endpoint is not provided.')
 2) mem_kg_routes AssertionError('View function mapping is overwriting ... memory_flashback')
-Skript sozdaet lokalnyy Flask app i registriruet oba modulya.
-# c=a+b
-"""
+Skript sozdaet lokalnyy Flask app i register both modulya.
+# c=a+b"""
 from __future__ import annotations
 import json, sys
 from flask import Flask

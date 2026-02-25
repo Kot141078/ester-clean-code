@@ -40,7 +40,7 @@ def test_ingest_put_fetch_remove_flow():
         assert "cid" in dp and isinstance(dp["cid"], str)
         assert "_cas" in dp["meta"]
 
-        # FETCH (bez avtorizatsii dopuskaetsya, optional)
+        # FETH (without authorization allowed, optional)
         r_get = c.get("/ingest/crdt/fetch?id=doc:1")
         assert r_get.status_code == 200
         dg = r_get.get_json()

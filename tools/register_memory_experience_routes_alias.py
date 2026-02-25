@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 """tools/register_memory_experience_routes_alias.py
 
-Registratsiya HTTP-aliasa profilya opyta.
+Registration HTTP-aliasa profilya opyta.
 
-Dobavlyaet `routes.memory_experience_routes_alias` v data/app/extra_routes.json,
-esli ego tam esche net.
+Add `routes.memory_experience_routes_alias` v data/app/extra_routes.json,
+esli ego there esche net.
 
-Invarianty:
+Invariance:
 - Ne trogaem suschestvuyuschie zapisi.
-- Bezopasen pri povtornom zapuske.
+- Safe in the future.
 - Umeet rabotat i s formatom:
-    1) [ "routes.foo", ... ]
-    2) { "routes": [ "routes.foo", ... ], ... }
-"""
+    1) ["routes.foo", ... ]
+    2) { "routes": [ "routes.foo", ... ], ... }"""
 
 import json
 from pathlib import Path
@@ -23,14 +22,13 @@ ALIAS = "routes.memory_experience_routes_alias"
 
 
 def load_routes_config(cfg_path: Path):
-    """Schitat konfig extra_routes v maksimalno schadyaschem rezhime.
+    """Schitat config extra_routes v maximalno schadyaschem rezhime.
 
     Vozvraschaet: (routes: list[str], mode: str)
     mode:
-      - "list"  — fayl yavlyaetsya spiskom marshrutov;
-      - "dict"  — fayl yavlyaetsya obektom s polem "routes";
-      - "new"   — fayla ne bylo, sozdaem spisok.
-    """
+      - "list" — fayl yavlyaetsya spiskom marshrutov;
+      - "dict" - fayl yavlyaetsya obektom s polem "routes";
+      - "new" - fayla ne bylo, sozdaem spisok."""
     if not cfg_path.exists():
         return [], "new"
 
@@ -38,7 +36,7 @@ def load_routes_config(cfg_path: Path):
         with cfg_path.open("r", encoding="utf-8") as f:
             data = json.load(f)
     except Exception:
-        # Povrezhdennyy fayl: ne lomaem, nachinaem s chistogo spiska.
+        # Damaged file: don't break it, start with a clean list.
         return [], "list"
 
     if isinstance(data, list):
@@ -50,14 +48,14 @@ def load_routes_config(cfg_path: Path):
             routes = []
         return (data, "dict") if routes is not None else ([], "dict")
 
-    # Nepredvidennyy format — nachinaem snachala kak spisok.
+    # Unexpected format - start over as a list.
     return [], "list"
 
 
 def save_routes_config(cfg_path: Path, payload, mode: str, alias: str) -> None:
-    """Save konfig, ne menyaya format bolshe, chem nuzhno."""
+    """Save the config without changing the format more than necessary."""
     if mode in ("new", "list"):
-        # Khranim prosto spisok marshrutov.
+        # We simply store a list of routes.
         if isinstance(payload, dict):
             routes = payload.get("routes", [])
         else:
@@ -72,7 +70,7 @@ def save_routes_config(cfg_path: Path, payload, mode: str, alias: str) -> None:
         return
 
     if mode == "dict":
-        # Sokhranyaem kak obekt s polem "routes".
+        # We save it as an object with the “Rute” field.
         if not isinstance(payload, dict):
             payload = {}
         routes = payload.get("routes", [])
@@ -86,7 +84,7 @@ def save_routes_config(cfg_path: Path, payload, mode: str, alias: str) -> None:
             json.dump(payload, f, ensure_ascii=False, indent=2)
         return
 
-    # Zapasnoy variant: kak spisok.
+    # Fallback option: as a list.
     routes = []
     if isinstance(payload, list):
         routes = payload
@@ -103,7 +101,7 @@ def main() -> None:
 
     payload, mode = load_routes_config(cfg_path)
 
-    # Opredelyaem, est li uzhe alias
+    # Determine if there is already an alias
     if mode == "dict" and isinstance(payload, dict):
         routes = payload.get("routes", [])
         if not isinstance(routes, list):

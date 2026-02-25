@@ -34,14 +34,12 @@ def _is_allowed_path(p: str) -> bool:
     return any(p.startswith(d + "/") or p == d for d in ALLOW_DIRS)
 
 def _norm_text(s: str) -> str:
-    # normalizatsiya kontsov strok
+    # normalization of line ends
     s = s.replace("\r\n", "\n").replace("\r", "\n")
     return s
 
 def dry_run_apply(target_path: str, new_text: str) -> Dict[str, Any]:
-    """
-    Proverka izmeneniy bez zapisi.
-    """
+    """Checking changes without recording."""
     target_path = target_path.replace("\\", "/")
     if not _is_allowed_path(target_path):
         return {"ok": False, "error": "path_not_allowed", "path": target_path}
@@ -132,9 +130,9 @@ def add_allow_dir(d: str) -> None:
 if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dry", action="store_true", help="Tolko dry-run")
+    ap.add_argument("--dry", action="store_true", help="Only dry-run")
     ap.add_argument("--apply", action="store_true", help="Primenit izmeneniya")
-    ap.add_argument("--stdin", action="store_true", help="Chitat JSON iz stdin {changes:[{path,text},...]}")
+    ap.add_argument("--stdin", action="store_true", help="Read ZhSON from stdin {hanges: yuZF0Z,...sch}")
     ap.add_argument("--list", action="store_true", help="Spisok bekapov")
     ap.add_argument("--restore", type=str, help="Imya fayla bekapa")
     ap.add_argument("--dest", type=str, help="Kuda vosstanovit")
@@ -147,7 +145,7 @@ if __name__ == "__main__":
 
     if args.restore:
         if not args.dest:
-            print("Nuzhen --dest")
+            print("Need --dest")
             raise SystemExit(2)
         r = restore_backup(args.restore, args.dest)
         print(json.dumps(r, ensure_ascii=False, indent=2))
@@ -165,4 +163,4 @@ if __name__ == "__main__":
         else:
             print("Ukazhi --dry ili --apply")
     else:
-        print("Nichego ne sdelano. Ispolzuy --stdin.")
+        print("Nothing has been done. Use --stdin.")

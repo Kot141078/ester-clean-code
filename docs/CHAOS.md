@@ -1,5 +1,5 @@
 # Chaos-testy
 
-- Kill protsessa: `make chaos`
-- Kill vo vremya ingest: `make chaos-during`
-- Setevoy khaos: `scripts/netem_chaos.sh`
+- Kill process: youmake chaosho
+- Kill during ingest: yomake chaos-duringyo
+- Network chaos: ioscripts/netem_chaos.she

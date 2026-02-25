@@ -122,7 +122,7 @@ Immunity and isolation. Suspected infection is isolated before full diagnosis to
 
 ## Earth Paragraph
 
-Eto kak okhrana i karantin na obekte: esli u sotrudnika vnezapno poyavilsya klyuch ot kriticheskoy zony bez oformleniya,
-ego ne puskayut dalshe turniketa, dazhe esli u nego est “naryad”. Snachala — ruchnaya sverka i podpis otvetstvennogo.
-Tak intsident ne stanovitsya avariey.
+It’s like security and quarantine at a facility: if an employee suddenly has a key to a critical area without registration,
+he is not allowed beyond the turnstile, even if he has an “outfit.” First, manual verification and signature of the person responsible.
+This way the incident does not become an accident.
 

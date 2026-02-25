@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Paket rezervnogo kopirovaniya.
+"""Packet rezervnogo kopirovaniya.
 
 MOSTY:
 - Yavnyy: (routes.backup_restore ↔ backup_logic) dostupen import.
@@ -10,8 +9,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Papka suschestvuet → importy ne sryvayutsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from . import backup_logic  # noqa: F401
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 

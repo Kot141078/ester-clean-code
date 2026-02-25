@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_sys_autoreg.py — eksheny «voli» dlya avtosborki i doveriya k kodu.
+"""modules/thinking/actions_sys_autoreg.py - eksheny “voli” dlya avtosborki i doveriya k kodu.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Sborka) zapuskaem autoreg pryamo iz planov voli.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Memory ↔ Profile) otrazhaetsya zhurnal vremeni.
 
 Zemnoy abzats:
-Mozg govorit: «prover novye moduli», — i sborschik prokhodit po sistemnoy polke.
+Brain says: “check new moduli”, - i sborschik prokhodit po sistemnoy polke.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -23,7 +21,7 @@ def _reg():
         return
 
     def a_autoreg(args: Dict[str,Any]):
-        # HTTP-vyzov lokalnoy ruchki, chtoby uvazhit RBAC/politiki
+        # HTTP call local handle to respect RVACH/policies
         import json, urllib.request
         body=json.dumps({"scan": list(args.get("scan") or [])}).encode("utf-8")
         req=urllib.request.Request("http://127.0.0.1:8000/sys/autoreg/tick", data=body, headers={"Content-Type":"application/json"})

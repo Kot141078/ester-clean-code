@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/auto_login.py - servisnye ruchki dlya Papa (avto-JWT).
+"""routes/auto_login.py - servisnye ruchki dlya Papa (avto-JWT).
 
 MOSTY:
 - (Yavnyy) GET /auth/papa/token, POST /auth/papa/login - vydaet/ustanavlivaet JWT.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Ne lomaet storonnie JWT-initsializatsii: eto parallelnyy put.
 
 ZEMNOY ABZATs:
-Knopka «voyti kak vladelets»: odin klik - i portal uzhe avtorizovan bez tantsev.
+Knopka “voyti kak vladelets”: odin klik - i portal uzhe avtorizovan bez tantsev.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, make_response, request

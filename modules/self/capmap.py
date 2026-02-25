@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/capmap.py — «karta sposobnostey»: marshruty, eksheny, ENV, artefakty.
+"""modules/self/capmap.py - “karta sposobnostey”: ​​route, eksheny, ENV, artefakty.
 
 Mosty:
-- Yavnyy: (Self-Introspection ↔ UI) edinaya panel «chto ya umeyu».
+- Yavnyy: (Self-Introspection ↔ UI) edinaya panel “what ya umeyu”.
 - Skrytyy #1: (Profile ↔ Prozrachnost) snimki karty mozhno shtampovat dlya istorii.
 - Skrytyy #2: (Thinking/Rules ↔ Plan) karta — opora pri samostoyatelnykh resheniyakh.
 
 Zemnoy abzats:
-Kak pamyatka inzhenera: spisok instrumentov pod rukoy, gde oni lezhat i kak ikh zovut. Ne teryaemsya v bolshom proekte.
+Kak pamyatka inzhenera: spisok instrumentov pod rukoy, where oni lezhat i kak ikh zovut. Ne teryaemsya v bolshom proekte.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Dict, Any

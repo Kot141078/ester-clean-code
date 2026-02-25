@@ -18,7 +18,7 @@
     <div class="box">
       <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
         <strong>Zdorove</strong>
-        <button class="btn right" onclick="loadStatus()">Obnovit vse</button>
+        <button class="btn right" onclick="loadStatus()">Update all</button>
       </div>
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:8px">
         <div class="card">
@@ -62,7 +62,7 @@
           <tbody id="pingBody"></tbody>
         </table>
       </div>
-      <p class="muted" style="margin-top:6px">3 progona GET c no-cache; JWT podstavlyaetsya avtomaticheski.</p>
+      <p class="muted" style="margin-top:6px">3 runs of GET with no-quality; The gastrointestinal tract is inserted automatically.</p>
     </div>
   </div>
 </section>
@@ -95,7 +95,7 @@
       if(h.status==='fulfilled'){
         document.getElementById('txtHealth').textContent = await h.value.text();
       }else{
-        document.getElementById('txtHealth').textContent = 'Oshibka /health: '+h.reason;
+        document.getElementById('txtHealth').textContent = 'Error /healthn:'+h.reason;
       }
       // live
       await renderChip(live, 'txtLive', 'chipLive');

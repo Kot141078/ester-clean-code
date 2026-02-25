@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-analyze_persona_shift.py
+"""analyze_persona_shift.py
 
 EXPLICIT BRIDGE (mezhkorpusnyy):
 - Ashby: variety/control -> schitaem "raznoobrazie" stilya i ego sdvigi vo vremeni.
 - Cover & Thomas: channel/capacity -> smotrim "propusknuyu sposobnost" (dlina/szhatost) otvetov kak signal ogranichitelya.
-- Earth paragraph (anatomiya/inzheneriya): ANCHOR ~ stvol mozga; style/empathy ~ kora. Esli stvol podmenen, kora "plyvet".
+- Earth paragraph (anatomiya/inzheneriya): ANCHOR ~ trunk brain; style/empathy ~ kora. Esli stvol podmenen, kora "plyvet".
 
-(skrytye mosty): jaynes_prior, dhamma_signal
-"""
+(skrytye mosty): jaynes_prior, dhamma_signal"""
 
 from __future__ import annotations
 
@@ -278,19 +276,19 @@ def write_report(rows: List[Row], summary_by_day: Dict[str, Dict[str, float]], c
             )
 
     # Markdown report
-    dhamma_signal = "stil — eto sledstvie prichiny, a ne ukrashenie"
+    dhamma_signal = "style is a consequence of a cause, not a decoration"
     with md.open("w", encoding="utf-8") as f:
         f.write("# Persona shift report (clean_memory.jsonl)\n\n")
         f.write(f"- Input rows: **{len(rows)}**\n")
         f.write(f"- Note: {dhamma_signal}\n\n")
 
         if changes:
-            f.write("## Top change points (heuristic)\n\n")
+            f.write("## Top change points (heuristic)")
             for day, score, reason in changes:
                 f.write(f"- **{day}** score={score:.2f} :: {reason}\n")
             f.write("\n")
         else:
-            f.write("## Change points\n\nNo strong change points detected (or slishkom malo dney s timestamp).\n\n")
+            f.write("## Change Points\n\nBut strong change points were detected (or too few days since Timestamp).")
 
         # Provide examples around first change point
         if changes:
@@ -304,5 +302,5 @@ def write_report(rows: List[Row], summary_by_day: Dict[str, Dict[str, float]], c
             # naive +/- 1 day by lexicographic works for same month; good enough here
             for r in rows:
                 if day_of(r) in targets and r.role.lower().startswith("assistant"):
-                    f.write(f"### idx={r.idx} ts={r.ts} role={r.role}\n\n")
+                    f.write(f"### idx={r.idx} ts={r.ts} role={r.role}")
                     sample = r.text.strip()

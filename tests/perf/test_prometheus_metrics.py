@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-Perf-test metrik dlya Ester.
+"""Perf-test metric dlya Ester.
 Zapusk, kak prosili: pytest -m perf -k metrics
 
-Proverki:
+Check:
 1) /metrics dostupen i otdaet tekstovyy format Prometheus.
 2) V metrikakh vstrechayutsya bazovye imena (libo http*_total, libo process_*).
 3) Vremya otveta /metrics ukladyvaetsya v razumnyy predel (po umolchaniyu 1.5s).
 
 ENV:
-- ESTER_BASE_URL (po umolchaniyu http://localhost:5000)
-- METRICS_PATH (po umolchaniyu /metrics)
-- METRICS_TIMEOUT_SEC (float, po umolchaniyu 1.5)
-"""
+- ESTER_BASE_URL (by default http://localhost:5000)
+- METRICS_PATH (by default /metrics)
+- METRICS_TIMEOUT_SEC (float, po umolchaniyu 1.5)"""
 from __future__ import annotations
 
 import os

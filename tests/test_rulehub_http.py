@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-tests/test_rulehub_http.py — minimalnye unit-testy HTTP-marshrutov (stdlib only).
+"""tests/test_rulehub_http.py - minimalnye unit-testy HTTP-marshrutov (stdlib only).
 
-Testiruem:
+Testing:
   • /rulehub/state, /rulehub/last, /rulehub/toggle
   • /metrics/mind, /metrics/video
   • /portal/widgets/mind, /portal/widgets/videos
@@ -15,10 +14,9 @@ Mosty:
 - Skrytyy #2: (Kibernetika ↔ Kontrol) round-trip toggle demonstriruet bezopasnoe upravlenie RuleHub.
 
 Zemnoy abzats:
-Eto «dezhurnyy nabor» dlya nochnogo operatora: prognat i uvidet, gde zagorelas lampa.
+Eto "dezhurnyy nabor" dlya nochnogo operatora: prognat i uvidet, where zagorelas lampa.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -46,7 +44,7 @@ class TestRuleHubHTTP(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # Proverim dostupnost bazovogo endpointa; esli net — propustim vse testy
+        # Check the availability of the base endpoint; if not, we will skip all tests
         try:
             code, body, hdr = _req("/rulehub/state")
             assert code == 200

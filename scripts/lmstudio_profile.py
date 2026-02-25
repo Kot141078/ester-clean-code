@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/lmstudio_profile.py — CLI-obertka dlya avto-profilya LM Studio/Ollama.
+"""scripts/lmstudio_profile.py - CLI-obertka dlya avto-profilya LM Studio/Ollama.
 
 Primery:
   python -m scripts.lmstudio_profile
   python -m scripts.lmstudio_profile --base http://127.0.0.1:1234 --model my-7b --timeout 3.0
 
 Mosty:
-- Yavnyy (Logika ↔ Praktika): odin CLI — i detekt, i bench, i vyvod JSON dlya payplayna.
-- Skrytyy 1 (Infoteoriya ↔ Diagnostika): pechataem tolko poleznuyu svodku; bez «vody».
+- Yavnyy (Logika ↔ Praktika): odin CLI - i detekt, i bench, i vyvod JSON dlya payplayna.
+- Skrytyy 1 (Infoteoriya ↔ Diagnostika): pechataem tolko poleznuyu svodku; bez "water".
 - Skrytyy 2 (Ashbi ↔ Upravlenie): A/B cherez ENV AB_MODE pozvolyaet bezopasno menyat nagruzku.
 
 Zemnoy abzats:
-Eto instrument mekhanika: bystro proverit «viden li server i skolko on vydaet tokenov/sek».
+Eto instrument mekhanika: quickly proverit “viden whether server i skolko on vydaet tokenov/sek”.
 Udobno avtomatizirovat pri pervom zapuske uzla i v planirovschike.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -28,9 +26,9 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(description="Ester LM Studio Profile CLI")
-    ap.add_argument("--base", type=str, default=None, help="BASE URL OpenAI-sovmestimogo API (esli izvesten)")
-    ap.add_argument("--model", type=str, default=None, help="Imya modeli dlya proverki (esli izvestno)")
-    ap.add_argument("--timeout", type=float, default=2.0, help="Taymaut zaprosa, sek")
+    ap.add_argument("--base", type=str, default=None, help="BASE URL of OpenAI-compatible API (if known)")
+    ap.add_argument("--model", type=str, default=None, help="Model name to check (if known)")
+    ap.add_argument("--timeout", type=float, default=2.0, help="Request timeout, sec")
     ap.add_argument("--bench", action="store_true", help="Prinuditelno vypolnit bench")
     args = ap.parse_args(argv)
 

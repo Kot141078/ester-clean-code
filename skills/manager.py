@@ -6,10 +6,8 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 logger = logging.getLogger("EsterSkillManager")
 
 class SkillManager:
-    """
-    Tsentralnaya nervnaya sistema instrumentov.
-    Khranit reestr navykov i marshrutiziruet prikazy.
-    """
+    """Central nervous system of instruments.
+    Store a register of skills and route orders."""
     def __init__(self):
         self._skills: Dict[str, EsterSkill] = {}
 
@@ -21,9 +19,7 @@ class SkillManager:
         logger.info(f"Skill registered: {skill.name}")
 
     def add_skill(self, name: str, func, tags=None, description: str = ""):
-        """
-        Sovmestimost s register_all.py: registriruem funktsiyu kak navyk.
-        """
+        """Compatible with register_all.po: Registers the function as a skill."""
         tags = tags or []
 
         class _FuncSkill(EsterSkill):
@@ -61,7 +57,7 @@ class SkillManager:
         return self._skills.get(name)
 
     def get_descriptions_for_prompt(self) -> str:
-        """Generiruet tekst instrumentov dlya sistemnogo prompta"""
+        """Generates tool text for a system prompt"""
         lines = []
         for name, skill in self._skills.items():
             lines.append(f"- {name}: {skill.description}")

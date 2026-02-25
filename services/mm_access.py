@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
-"""
-R2/services/mm_access.py — bezopasnyy dostup k MemoryManager bez pravok yadra.
+"""R2/services/mm_access.py - bezopasnyy dostup k MemoryManager bez pravok yadra.
 
 Mosty:
-- Yavnyy: Enderton — formalizuem «tochku vkhoda» kak chistuyu funktsiyu (predikat: suschestvuet/net), kompozitsiya bez sayd-effektov.
+- Yavnyy: Enderton - formalizuem “tochku vkhoda” kak chistuyu funktsiyu (predikat: suschestvuet/net), kompozitsiya bez sayd-effektov.
 - Skrytyy #1: Ashbi — regulyator prosche sistemy: odin fabrichnyy metod, odinakovyy dlya vsekh klientov.
-- Skrytyy #2: Cover & Thomas — umenshaem «entropiyu» integratsii: edinyy sposob poluchit MM, ne plodim variantov.
+- Skrytyy #2: Cover & Thomas — umenshaem “entropiyu” integratsii: edinyy sposob poluchit MM, ne plodim variantov.
 
 Zemnoy abzats:
 Sozdaet MemoryManager kak eto delaet damp: VectorStore + StructuredMemory + CardsMemory v `PERSIST_DIR`.
-Ne trebuet vneshnikh lib. Lyuboy modul mozhet zvat `get_mm()` i poluchat edinyy instans.
+Ne trebuet vneshnikh lib. Lyuboy modul mozhet zvat `get_mm()` i poluchat edinyy instances.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from typing import Any
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# keshiruem v module, chtoby ne plodit ekzemplyary
+# we cache it in the module so as not to produce more instances
 _MM: Any = None
 
 def get_mm():
     global _MM
     if _MM is not None:
         return _MM
-    # Sobiraem rovno kak v dampe (_build_mm logika; zavisimosti — iz proekta)
+    # We collect exactly as in the dump (_build_mm logic; dependencies - from the project)
     from vector_store import VectorStore  # type: ignore
     from structured_memory import StructuredMemory  # type: ignore
     from cards_memory import CardsMemory  # type: ignore

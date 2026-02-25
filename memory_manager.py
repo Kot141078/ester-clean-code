@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-memory_manager.py — koordinatsiya neskolkikh sloev pamyati.
+"""memory_manager.py - koordinatsiya neskolkikh sloev pamyati.
 
 Sovmestimost:
 - podderzhivaet legacy API iz starykh testov (add_to_medium_term(user, q, a, emotions, tags),
-  long_term.size, medium_term.memory, offers/agenda metody);
-- podderzhivaet tekuschiy API add_to_medium_term(user, item_dict).
-"""
+  long_term.size, medium_term.memory, offers/agenda methodology);
+- podderzhivaet tekuschiy API add_to_medium_term(user, item_dict)."""
 
 from datetime import datetime, timedelta
 import logging

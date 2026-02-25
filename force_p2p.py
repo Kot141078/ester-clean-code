@@ -16,11 +16,11 @@ def force_upgrade():
     injected = False
 
     for line in lines:
-        # Nakhodim nachalo staroy funktsii
+        # Finding the beginning of the old function
         if "async def synthesize_thought" in line:
             skip = True
             if not injected:
-                # Vstavlyaem NOVUYu versiyu funktsii s P2P
+                # Inserting a new version of the function with P2P
                 new_lines.append("    async def synthesize_thought(self, user_text: str, safe_history: List[Dict[str, Any]], base_system_prompt: str, identity_prompt: str, people_context: str, evidence_memory: str, file_context: str, facts_str: str, daily_report: str, chat_id: int = None) -> str:\n")
                 new_lines.append("        synth = self.pick_reply_synth()\n")
                 new_lines.append("        logging.info(f'[HIVE] P2P Synapse Active. Judge: {synth}')\n")
@@ -33,13 +33,13 @@ def force_upgrade():
                 new_lines.append("        sister_opinion = await sister_task\n")
                 new_lines.append("        pool = '\\n'.join([f'=== MNENIE {r.get(\"provider\")} ===\\n{r.get(\"text\")}' for r in opinions_raw if not isinstance(r, Exception)])\n")
                 new_lines.append("        if sister_opinion: pool += f'\\n=== MNENIE SESTRY ===\\n{sister_opinion}'\n")
-                new_lines.append("        final_prompt = [{'role': 'system', 'content': f'{identity_prompt}\\nSINTEZIRUY ITOG S UChETOM MNENIYa SESTRY:\\n{pool}'}, {'role': 'user', 'content': user_text}]\n")
+                new_lines.append("final_prompt = yu{role: system, unkontent: fZZF0TSZENSYNTHESIS THE TOTAL TAKEN INTO SISTER’S OPINION: encZF1ZZ}, ZZF2ZZsch")
                 new_lines.append("        final = await _safe_chat(synth, final_prompt)\n")
                 new_lines.append("        return clean_ester_response(final)\n")
                 injected = True
             continue
         
-        # Nakhodim konets funktsii (sleduyuschiy def)
+        # Finding the end of the function (next def)
         if skip and ("async def" in line or "def " in line) and "synthesize_thought" not in line:
             skip = False
         
@@ -48,6 +48,6 @@ def force_upgrade():
 
     with open(TARGET_FILE, 'w', encoding='utf-8') as f:
         f.writelines(new_lines)
-    print("✅ MOZG PEREPROShIT. Teper P2P neizbezhen.")
+    print("✅ MOZG PEREPROSHIT. Now P2P neizbezhen.")
 
 force_upgrade()

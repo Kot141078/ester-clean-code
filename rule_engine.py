@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-rule_engine — prostoy dvizhok pravil + zagruzka bandla avtomatizatsiy i ustanovka triggerov.
+"""rule_engine — prostoy dvizhok pravil + zagruzka bandla avtomatizatsiy i ustanovka triggerov.
 
 MOSTY:
 - Yavnyy: routes/routes_rules.py ↔ (load_rules, install_automation_triggers, run_automation, evaluate).
-- Skrytyy #1: (Faylovaya sistema ↔ Politika) — YAML/JSON konfig ischetsya v ./config/rules.yaml (ili RULES_FILE).
+- Skrytyy #1: (Faylovaya sistema ↔ Politika) - YAML/JSON config ischetsya v ./config/rules.yaml (ili RULES_FILE).
 - Skrytyy #2: (Planirovschik ↔ Logika) — install_automation_triggers gotovit plan; esli est modules.scheduler_engine,
               myagko pytaemsya ustanovit triggery cherez ego API (bez zhestkoy zavisimosti).
 
 ZEMNOY ABZATs:
-Dumay ob etom module kak o «pulte avtomatiki»: on chitaet pravila, proveryaet usloviya i libo
-zapuskaet deystvie, libo soobschaet «propusk». Po umolchaniyu vse integratsii bezopasnye (dry-run)
-i ne trebuyut seti/BD — prigodno dlya zakrytoy korobki.
-# c=a+b
-"""
+Dumay ob etom module kak o “pulte avtomatiki”: on chitaet pravila, proveryaet usloviya i libo
+zapuskaet deystvie, libo soobschaet "propusk". Po umolchaniyu vse integratsii bezopasnye (dry-run)
+i ne trebuyut seti/BD - prigodno dlya zakrytoy korobki.
+# c=a+b"""
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
@@ -21,7 +19,7 @@ from pathlib import Path
 import json, os
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# ---- publichnyy interfeys etogo modulya ----
+# ---- public interface of this module ----
 __all__ = [
     "evaluate",
     "load_rules",
@@ -33,7 +31,7 @@ __all__ = [
     "RulesBundle",
 ]
 
-# ---- primitivnaya proverka usloviy (kak bylo) ----
+# ---- primitive checking of conditions (as it was) ----
 
 def _check(cond: Dict[str, Any], ctx: Dict[str, Any]) -> bool:
     var = cond.get("var")
@@ -96,7 +94,7 @@ def _read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 def _try_parse_yaml_or_json(text: str) -> Dict[str, Any]:
-    # snachala YAML (esli ustanovlen), zatem JSON
+    # first YML (if installed), then ZhSON
     try:
         import yaml  # type: ignore
         obj = yaml.safe_load(text)
@@ -161,15 +159,13 @@ def _default_bundle() -> RulesBundle:
     )
 
 def load_rules(path: Optional[str] = None) -> RulesBundle:
-    """
-    Zagruzhaet bundle pravil iz YAML/JSON.
+    """Zagruzhaet bundle pravil iz YAML/JSON.
     Ischem v poryadke:
       1) path argument
       2) env RULES_FILE
       3) ./config/rules.yaml
-      4) ./rules.yaml
-    Pri oshibke — otdaem defoltnyy bandl (bez padeniya).
-    """
+      4)./rules.yaml
+    Pri oshibke - otdaem defoltnyy bandl (bez padeniya)."""
     cand: List[Path] = []
     if path:
         cand.append(Path(path))
@@ -195,24 +191,22 @@ def load_rules(path: Optional[str] = None) -> RulesBundle:
                         path=str(p),
                     )
         except Exception:
-            # myagkiy folbek — prosto poprobuem sleduyuschiy variant
+            # soft fullback - just try the next option
             continue
     return _default_bundle()
 
-# ---- ustanovka triggerov (myagkaya integratsiya s planirovschikom) ----
+# ---- setting triggers (soft integration with scheduler) ----
 
 def install_automation_triggers(bundle: RulesBundle) -> Dict[str, Any]:
-    """
-    Gotovit plan triggerov dlya planirovschika i, esli dostupen modules.scheduler_engine,
-    myagko pytaetsya ikh ustanovit. Vozvraschaet determinirovannyy otchet.
-    """
+    """Prepares a trigger plan for the scheduler and, if modules.scheduler_engine is available,
+    gently trying to stop them. Returns a deterministic report."""
     autos = bundle.automations or {}
     plan: List[Dict[str, Any]] = []
     for aid, a in autos.items():
         trig = a.get("trigger") or {}
         if not trig:
             continue
-        # podderzhivaem neskolko populyarnykh form
+        # We support several popular forms
         if isinstance(trig, dict):
             if "cron" in trig:
                 plan.append({"id": aid, "type": "cron", "expr": str(trig["cron"])})
@@ -223,10 +217,10 @@ def install_automation_triggers(bundle: RulesBundle) -> Dict[str, Any]:
         elif isinstance(trig, str):
             plan.append({"id": aid, "type": "cron", "expr": trig})
 
-    # Poprobuem delegirovat realnoy ustanovke, esli est sootvetstvuyuschiy API
+    # Let's try to delegate to a real installation if there is a corresponding API
     delegated = False
     try:
-        # vozmozhnye signatury, vstrechayuschiesya v proektakh
+        # possible signatures found in projects
         from modules.scheduler_engine import install_triggers as _install_triggers  # type: ignore
         res = _install_triggers(plan)  # type: ignore
         if isinstance(res, dict):
@@ -249,7 +243,7 @@ def install_automation_triggers(bundle: RulesBundle) -> Dict[str, Any]:
         "count": len(plan),
     }
 
-# ---- ruchnoy zapusk avtomatizatsii ----
+# ---- manual start of automation ----
 
 def _conditions_passed(conds: Any, context: Dict[str, Any]) -> bool:
     conds = conds or []
@@ -259,10 +253,8 @@ def _conditions_passed(conds: Any, context: Dict[str, Any]) -> bool:
         return False
 
 def run_automation(bundle: RulesBundle, automation_id: str, *, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """
-    Vypolnyaet avtomatizatsiyu po id (bezopasnyy rezhim — bez vneshnikh I/O).
-    Vozvraschaet {ok, id, executed|skipped, action, context_excerpt}
-    """
+    """Performs automation by ID (safe mode - without external I/O).
+    Returns ZZF0Z"""
     autos = bundle.automations or {}
     a = autos.get(automation_id)
     if not a:
@@ -277,7 +269,7 @@ def run_automation(bundle: RulesBundle, automation_id: str, *, context: Optional
     ab = (os.getenv("ESTER_RULES_AB") or "A").strip().upper()
     dry = (ab == "B")
 
-    # Mini-ispolnitel bez vneshnikh effektov; dlya realnykh deystviy ostavlyaem «ekho»
+    # Mini-performer without external effects; for real actions we leave “echo”
     result = {"type": action.get("type") or "noop", "echo": {k: v for k, v in action.items() if k != "type"}}
 
     return {
@@ -286,7 +278,7 @@ def run_automation(bundle: RulesBundle, automation_id: str, *, context: Optional
         "executed": not dry,
         "dry_run": dry,
         "action": result,
-        "context_excerpt": {k: ctx[k] for k in list(ctx)[:5]},  # ne raspukhat otvet
+        "context_excerpt": {k: ctx[k] for k in list(ctx)[:5]},  # don't swell the answer
     }
 
 

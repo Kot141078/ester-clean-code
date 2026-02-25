@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-group_intelligence.py
-Mozg «umnogo uchastnika» dlya gruppovykh chatov Telegram.
+"""group_intelligence.py
+Mozg “umnogo uchastnika” dlya gruppovykh chatov Telegram.
 
-Novoe:
-- uchet «vidimykh» grupp i ikh svezhesti (groups_seen.json)
-- utilita list_active_groups() dlya vechernikh demonov
-"""
+New:
+- uchet “vidimykh” grupp i ikh svezhesti (groups_seen.json)
+- utilita list_active_groups() dlya vechernikh demonov"""
 
 import json
 import os
@@ -22,13 +20,13 @@ STATE_DIR = os.path.join("state")
 os.makedirs(STATE_DIR, exist_ok=True)
 
 # --- parametry povedeniya v gruppe ---
-MIN_INTERVAL_SEC = 50  # ne chasche etogo dlya odnoy gruppy
+MIN_INTERVAL_SEC = 50  # no more than this for one group
 SILENCE_TRIGGER_SEC = (
-    300  # esli 5 minut tishiny — mozhno razmorozit
+    300  # if there is 5 minutes of silence, you can defrost
 )
 EMOTION_SPIKE = 0.72  # trevoga/zlost/radost vyshe poroga
 TOPIC_CHANGE_THRESHOLD = 0.55
-TOPIC_WINDOW = 30  # skolko poslednikh soobscheniy uchityvaem
+TOPIC_WINDOW = 30  # how many recent messages are taken into account
 MAX_REPLY_LEN = 600
 
 # legkiy slovar tem
@@ -110,8 +108,8 @@ HELP_CUES = {
     "pomogi",
     "podskazhi",
     "kak",
-    "chto delat",
-    "chto posovetuesh",
+    "what to do",
+    "what do you recommend?",
     "ideyu",
     "sovet",
 }
@@ -178,11 +176,11 @@ def _topic_similarity(a: List[str], b: List[str]) -> float:
     return inter / uni
 
 
-# --- publichnye funktsii yadra ---
+# --- public kernel functions ---
 
 
 def record_message(chat_id: int, author: str, text: str, emotions: Dict[str, float]):
-    """Zapisat soobschenie v okno tem + otmetit gruppu kak aktivnuyu."""
+    """Write a message in the topics window + mark the group as active."""
     meta = _load(_group_path(chat_id))
     msgs: List[Dict[str, Any]] = meta.get("msgs", [])
     topic = _extract_topics(text)
@@ -229,7 +227,7 @@ def chat_topics(chat_id: int, topn: int = 5) -> List[Tuple[str, int]]:
 
 
 def list_active_groups(active_within_sec: int = 24 * 3600) -> List[int]:
-    """Gruppy, gde byli soobscheniya za poslednie N sekund."""
+    """Groups with messages in the last N seconds."""
     seen = _load(GROUPS_SEEN_PATH)
     now = _now()
     out = []
@@ -247,7 +245,7 @@ def _passed_rate_limit(chat_id: int) -> bool:
     last = float(meta.get("last_reply_ts", 0))
     if _now() - last >= MIN_INTERVAL_SEC + random.randint(-10, 10):
         return True
-    # tishina — mozhno razmorozit
+    # silence - can be defrosted
     last_msg = float(meta.get("last_ts", 0))
     if last_msg and _now() - last_msg >= SILENCE_TRIGGER_SEC:
         return True
@@ -319,26 +317,26 @@ def compose_response(chat_id: int, author: str, text: str, emotions: Dict[str, f
     if _is_question(text):
         reply = "Poprobuyu korotko: "
         if "vrach" in " ".join(topic_now):
-            reply += "proverte vremya/adres, vozmite dokument i strakhovku. Nuzhno taksi — skazhite."
+            reply += "check time/address, take document and insurance. If you need a taxi, tell me."
         elif "bilet" in text.lower():
-            reply += "sravnite varianty v agregatorakh, obratite vnimanie na peresadki i bagazh."
+            reply += "compare options in aggregators, pay attention to transfers and luggage."
         else:
-            reply += "mogu nakinut 2–3 varianta resheniya — esli nuzhno, utochnite, chto uzhe probovali."
+            reply += "I can give you 2-3 possible solutions - if necessary, specify what you have already tried."
         if summary:
             reply += f"\n<i>{summary}</i>"
         _mark_replied(chat_id)
         return reply[:MAX_REPLY_LEN]
 
     if max(anx, anger) >= EMOTION_SPIKE:
-        reply = "Davayte na minutku vydokhnem. Ya ryadom. "
-        reply += "Vdokh 4 — pauza 4 — vydokh 6. Potom reshim shag za shagom."
+        reply = "Let's breathe for a moment. I'm nearby."
+        reply += "Inhale 4 - pause 4 - exhale 6. Then we will solve it step by step."
         if summary:
             reply += f"\n<i>{summary}</i>"
         _mark_replied(chat_id)
         return reply[:MAX_REPLY_LEN]
 
     if joy >= EMOTION_SPIKE:
-        reply = "Zvuchit klassno! 🎉 Chto zakrepim kak sleduyuschiy shag?"
+        reply = "Zvuchit cool! 🎉 What zakrepim kak sleduyuschiy shag?"
         if summary:
             reply += f"\n<i>{summary}</i>"
         _mark_replied(chat_id)
@@ -351,7 +349,7 @@ def compose_response(chat_id: int, author: str, text: str, emotions: Dict[str, f
     if sim <= TOPIC_CHANGE_THRESHOLD and (topic_now or prev_topic):
         prev_label = ", ".join(prev_topic) or "predyduschaya tema"
         now_label = ", ".join(topic_now) or "novaya tema"
-        reply = f"Pokhozhe, my pereskochili s «{prev_label}» na «{now_label}». Nuzhen mostik?"
+        reply = f"Looks like we've jumped from \"ZZF0Z\" to \"ZZF1ZZ\". Need a bridge?"
         if summary:
             reply += f"\n<i>{summary}</i>"
         _mark_replied(chat_id)
@@ -359,13 +357,13 @@ def compose_response(chat_id: int, author: str, text: str, emotions: Dict[str, f
 
     last_ts = float(meta.get("last_ts", 0))
     if last_ts and time.time() - last_ts >= SILENCE_TRIGGER_SEC:
-        reply = "Nemnogo zatikhli. Mogu sobrat korotkoe rezyume i varianty sleduyuschikh shagov."
+        reply = "They quieted down a bit. I can put together a short summary and options for next steps."
         if summary:
             reply += f"\n<i>{summary}</i>"
         _mark_replied(chat_id)
         return reply[:MAX_REPLY_LEN]
 
-    base = "Esli khotite — predlozhu malenkiy shag tak, chtoby stalo chut legche/ponyatnee."
+    base = "If you want, I’ll suggest a small step so that it becomes a little easier/clearer."
     if summary:
         base += f"\n<i>{summary}</i>"
     _mark_replied(chat_id)

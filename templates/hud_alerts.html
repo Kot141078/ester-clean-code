@@ -15,13 +15,13 @@
 </style>
 
 <h2>Ester — HUD Alerts</h2>
-<p class="mut">Mini-panel sobytiy: bystryy vzglyad na resheniya Safety/Policy i poslednie deystviya.</p>
+<p class="mut">Mini Event Dashboard: A quick look at Safeta/Police decisions and recent actions.</p>
 
 <section class="card">
   <div class="row">
-    <button onclick="loadCounts()">Obnovit schetchiki</button>
-    <button onclick="loadTail()">Pokazat khvost sobytiy</button>
-    <input id="q" placeholder="poisk: kind:click_text agent:desktop text:oshibka" style="min-width:420px">
+    <button onclick="loadCounts()">Update counters</button>
+    <button onclick="loadTail()">Show tail of events</button>
+    <input id="q" placeholder="search: kind:click_text agent:desktop text:error" style="min-width:420px">
     <button onclick="search()">Iskat</button>
   </div>
   <div id="counts"></div>
@@ -46,7 +46,7 @@ async function loadCounts(){
 async function loadTail(){
   const r = await j('/mem/counts');
   const items = (r.tail||[]).map(line).join('\n');
-  out.textContent = items || 'Poka pusto.';
+  out.textContent = items || 'Empty for now.';
 }
 async function search(){
   const r = await j('/mem/search?q='+encodeURIComponent(q.value||''));

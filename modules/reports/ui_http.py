@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-Drop-in: dobavlena ssylka RAG Eval v mini-UI otchetov.
-"""
+"""Drop-in: added RAG Eval link to mini-UI reports."""
 import os, html
 from typing import Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -11,9 +9,9 @@ _PREFIX = os.getenv("ESTER_REPORTS_PREFIX", "/compat/reports")
 AB = os.getenv("ESTER_UI_AB","A").upper().strip() or "A"
 
 _LINKS = [
-    ("System",  "system.md",   "Sistemnaya svodka (papki/progress)"),
+    ("System",  "system.md",   "System summary (folders/progress)"),
     ("RAG",     "rag.md",      "Indeks RAG (sostoyanie i primery)"),
-    ("RAG Feedback", "rag_feedback.md", "Zhurnal otvetov i istochnikov"),
+    ("RAG Feedback", "rag_feedback.md", "Log of answers and sources"),
     ("RAG Eval", "rag_eval.md", "Offlayn-otsenka RAG"),
     ("Metrics", "metrics.md",  "Kachestvo: okno, p90, error-rate"),
     ("Routes",  "routes.md",   "Marshruty i kollizii"),

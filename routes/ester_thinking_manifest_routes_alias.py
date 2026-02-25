@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ester_thinking_manifest_routes_alias.py
+"""routes/ester_thinking_manifest_routes_alias.py
 
 Ester thinking manifest/check HTTP alias.
 
-Marshruty:
-- GET /ester/thinking/manifest  — podrobnyy manifest myslitelnykh moduley
-- GET /ester/thinking/check     — korotkiy summary (chitaemo cheloveku/skriptam)
+Route:
+- GET /ester/thinking/manifest — podrobnyy manifest myslitelnykh moduley
+- GET /ester/thinking/check - short summary (chitaemo cheloveku/skriptam)
 
 Mosty:
-- (scripts.ester_thinking_check <-> HTTP) — odni i te zhe funktsii, bez dublirovaniya logiki.
-- (modules.ester.thinking_manifest <-> app.py) — akkuratnoe vklyuchenie cherez alias bez pravok yadra.
+- (scripts.ester_thinking_check <-> HTTP) - odni i te zhe funktsii, bez dublirovaniya logiciki.
+- (modules.ester.thinking_manifest <-> app.py) - akkuratnoe vklyuchenie cherez alias bez pravok yadra.
 
 Zemnoy abzats:
-Inzheneru nuzhno bystro ponyat, «vklyuchena li chelovecheskaya golova» u Ester:
-chto s kaskadom, voley, treysom, fonom. Etot alias daet JSON c temi zhe
-dannymi, chto CLI-skript, chtoby monitoring i paneli ne lezli v internals.
-"""
+Inzheneru nuzhno bystro ponyat, “vklyuchena li chelovecheskaya golova” u Ester:
+what s kaskadom, voley, treysom, fonom. This alias daet JSON with temi zhe
+dannymi, what CLI-skript, what monitoring i paneli ne lezli v internals."""
 
 from __future__ import annotations
 
@@ -28,9 +26,9 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def _ab_enabled() -> bool:
-    """Proverka flaga AB dlya HTTP-manifesta.
+    """Checking the AB flag for the HTTP manifest.
 
-    Marshruty schitayutsya vklyuchennymi, esli ESTER_THINK_CHECK_AB v:
+    Routes are considered enabled if ESTER_THINK_CHECK_AB is in:
     - "B", "AB", "ON", "1"
     """
     flag = (os.getenv("ESTER_THINK_CHECK_AB") or "").strip().upper()
@@ -48,25 +46,24 @@ def _load_manifest_module():
 def create_blueprint() -> Optional[Blueprint]:
     """Sozdat Blueprint dlya /ester/thinking/manifest i /ester/thinking/check.
 
-    Vozvraschaet None, esli:
-    - eksperiment ne vklyuchen;
-    - modul thinking_manifest nedostupen.
+    Vozvraschaet None, if:
+    - experiment ne vklyuchen;
+    - module thinking_manifest unavailable.
 
-    Eto sdelano, chtoby alias ne lomal bazovyy app.py.
-    """
+    This is done, chtoby alias ne lomal bazovyy app.py."""
     if not _ab_enabled():
         return None
 
     mod = _load_manifest_module()
     if mod is None:
-        # Paneli zavisyat ot etogo, no ne kritichnyy funktsional — tikho vykhodim.
+        # The panels depend on this, but the non-critical functionality is silent.
         return None
 
     bp = Blueprint("ester_thinking_manifest", __name__)
 
     @bp.get("/ester/thinking/manifest")
     def ester_thinking_manifest():
-        """Polnyy JSON-manifest myslitelnykh moduley i pokrytiya."""
+        """Complete ZhSON-manifest of thought modules and coverage."""
         manifest = mod.get_manifest()
         return jsonify(manifest)
 
@@ -74,13 +71,12 @@ def create_blueprint() -> Optional[Blueprint]:
     def ester_thinking_check():
         """Korotkiy chelovekochitaemyy summary sostoyaniya myshleniya.
 
-        Format otveta:
+        Format answer:
         {
           "ok": bool,
           "manifest": { ... kak /ester/thinking/manifest ... },
-          "summary": "... tekst iz describe_manifest ..." | null
-        }
-        """
+          "summary": "... text iz describe_manifest ..." | null
+        }"""
         manifest = mod.get_manifest()
         try:
             summary = mod.describe_manifest(manifest)
@@ -99,11 +95,10 @@ def create_blueprint() -> Optional[Blueprint]:
 
 
 def register(app) -> None:
-    """Registratsiya blueprint v Flask-prilozhenii.
+    """Registration blueprint v Flask-prilozhenii.
 
     - Nikakikh pobochnykh effektov, esli eksperiment vyklyuchen.
-    - Ne pere-registriruem blueprint, esli on uzhe est.
-    """
+    - Ne pere-registriruem blueprint, esli on uzhe est."""
     bp = create_blueprint()
     if bp is None:
         return

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/cascade_profile_adapter.py — profil kaskadnogo myshleniya.
+"""modules/thinking/cascade_profile_adapter.py — profil kaskadnogo myshleniya.
 
 Mosty:
 - Yavnyy: (cascade_closed ↔ Memory) — oformlyaet rezultaty kaskada v strukturirovannyy profil.
@@ -11,8 +10,7 @@ Zemnoy abzats:
     from modules.thinking import cascade_profile_adapter as cpa
     res = cpa.run_and_profile("kak zhit dalshe")
     print(res["profile"]["human_hint"])
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -43,17 +41,16 @@ def _human_hint(goal: str, score: float, steps: List[Dict[str, Any]]) -> str:
     has_branch = any(s.get("stage") == "branch" for s in steps)
     has_reflect = any(s.get("stage") == "reflect" for s in steps)
     if score < 2.0:
-        return f"Mysli po tseli «{goal}» byli kratkimi; mozhno uglubit kaskad ili proverit dannye."
+        return f"Thoughts on the ZZF0Z goal were brief; you can deepen the cascade or check the data."
     if not has_branch:
-        return f"Dlya tseli «{goal}» ne bylo realnogo vetvleniya; stoit rassmotret alternativy."
+        return f"There was no real branching for the target \"ZZF0Z\"; It's worth considering alternatives."
     if has_branch and has_reflect:
-        return f"Dlya tseli «{goal}» otrabotan kaskad s vetvleniem i refleksiey; kartina blizka k chelovecheskomu obdumyvaniyu."
-    return f"Tsel «{goal}» obrabotana, no refleksiya ogranichena; mozhno dobavit esche odin prokhod."
+        return f"For the “ZZF0Z” goal, a cascade with branching and reflection was developed; the picture is close to human deliberation."
+    return f"The goal “ZZF0Z” has been processed, but reflection is limited; you can add another pass."
 
 
 def run_and_profile(goal: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
-    """
-    Zapuskaet cascade_closed.run_cascade i stroit profil.
+    """Zapuskaet cascade_closed.run_cascade i build profile.
 
     Vozvraschaet:
       {
@@ -61,8 +58,7 @@ def run_and_profile(goal: str, params: Dict[str, Any] | None = None) -> Dict[str
         "goal": str,
         "cascade": {...},
         "profile": {...}
-      }
-    """
+      }"""
     res = cascade_closed.run_cascade(goal, params or {})
     steps: List[Dict[str, Any]] = list(res.get("steps") or [])
     stages = [s.get("stage") for s in steps]

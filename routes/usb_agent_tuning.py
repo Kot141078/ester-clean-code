@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/usb_agent_tuning.py — panel nastroyki «umnogo» USB-skanirovaniya.
+"""routes/usb_agent_tuning.py - panel nastroyki “smart” USB-scanirovaniya.
 
-Marshruty:
-  • GET  /admin/usb/agent/tuning            — HTML
-  • GET  /admin/usb/agent/tuning/status     — JSON: konfig + otsenka intervala + pitanie
-  • POST /admin/usb/agent/tuning/save       — zadat rezhim/parametry (persist v STATE_DIR)
+Route:
+  • GET /admin/usb/agent/tuning - HTML
+  • GET /admin/usb/agent/tuning/status - JSON: config + otsenka intervala + pitanie
+  • POST /admin/usb/agent/tuning/save - zadat rezhim/parametry (persist v STATE_DIR)
 
 Mosty:
-- Yavnyy (Kibernetika v†" UX): odin ekran — vybrat rezhim, uvidet otsenku, sokhranit.
+- Yavnyy (Kibernetika v†" UX): odin ekran - vybrat rezhim, uvidet otsenku, sokhranit.
 - Skrytyy 1 (Infoteoriya v†" Prozrachnost): pokazyvaem sostoyanie pitaniya Re raschet intervala.
 - Skrytyy 2 (Praktika v†" Sovmestimost): vklyuchenie smart-drayvera delaetsya cherez avtozapusk (ustanovit/pereustanovit).
 
 Zemnoy abzats:
-R egulyator «Eko/Balans/Bystro» — polzovatel vybiraet, a dalshe umnyy drayver sam podstraivaet chastotu obkhodov.
+R egulyator “Eko/Balans/Bystro” - polzovatel vybiraet, a dalshe umnyy drayver sam podstraivaet chastotu obkhodov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -30,7 +28,7 @@ bp_usb_tuning = Blueprint("usb_agent_tuning", __name__)
 AB = (os.getenv("AB_MODE") or "A").strip().upper()
 
 def _estimate_interval(cfg: dict) -> int:
-    # Prostaya kopiya evristiki iz drayvera (bez dublirovaniya vsey logiki)
+    # A simple copy of the heuristics from the driver (without duplicating all the logic)
     from listeners.usb_dyn_driver import Tuning, _target_interval  # type: ignore
     on_ac, batt = power_status()
     t = Tuning(
@@ -56,7 +54,7 @@ def api_status():
         "config": cfg,
         "power": {"on_ac": on_ac, "battery_percent": batt},
         "estimated_interval": _estimate_interval(cfg),
-        "hint": "Chtoby rezhim primenilsya pri starte sistemy, pereustanovi avtozapusk v /admin/usb/autostart (v B-rezhime)."
+        "hint": "For the mode to be applied at system startup, reinstall autostart in /admin/usb/autostart (in B-mode)."
     })
 
 @bp_usb_tuning.post("/admin/usb/agent/tuning/save")

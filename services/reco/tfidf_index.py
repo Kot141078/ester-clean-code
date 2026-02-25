@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-R3/services/reco/tfidf_index.py — indeks TF-IDF nad kartochkami Ester (CardsMemory).
+"""R3/services/reco/tfidf_index.py - indexes TF-IDF nad kartochkami Ester (CardsMemory).
 
 Mosty:
-- Yavnyy: Cover & Thomas — TF-IDF povyshaet poleznyy signal i ponizhaet izbytochnost cherez IDF.
-- Skrytyy #1: Enderton — model kak kompozitsiya predikatov (tf, df, idf, kosinus), vse proveryaemo i vosproizvodimo.
+- Yavnyy: Cover & Thomas - TF-IDF povyshaet poleznyy signal i ponizhaet izbytochnost cherez IDF.
+- Skrytyy #1: Enderton - model kak kompozitsiya predikatov (tf, df, idf, kosinus), vse proveryaemo i vosproizvodimo.
 - Skrytyy #2: Ashbi — A/B-slot cherez R3_MODE (A=unigrammy; B=unigrammy+bigrammy+bonus svezhesti), s avtokatbekom v A.
 
 Zemnoy abzats:
 Indeks stroitsya tolko na stdlib i khranitsya v JSON (sparse dict), sovmestim s maloy pamyatyu.
-Chitaet kartochki cherez mm_access (esli dostupno), inache — napryamuyu `PERSIST_DIR/ester_cards.json`.
+Chitaet kartochki cherez mm_access (esli dostupno), inache - napryamuyu `PERSIST_DIR/ester_cards.json`.
 Podderzhivaet limit `R3_MAX_DOCS`, sokhranenie v `data/reco/*`, skoring kosinusom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import math
@@ -36,7 +34,7 @@ def _paths():
     )
 
 def _load_cards() -> List[Dict]:
-    # 1) Pytaemsya cherez MemoryManager
+    # 1) Trying through MemoryManager
     try:
         from services.mm_access import get_mm  # type: ignore
         mm = get_mm()
@@ -46,19 +44,19 @@ def _load_cards() -> List[Dict]:
                 cards = list(getattr(mm.cards, m)())
                 if cards:
                     return cards
-        # poslednyaya popytka — poluchit "syrye" struktury
+        # last attempt - to get "raw" structures
         if hasattr(mm.cards, "to_list"):
             return list(mm.cards.to_list())
     except Exception:
         pass
-    # 2) Folbek: chitaem JSON napryamuyu
+    # 2) Fullback: read ZhSON directly
     base = os.getenv("PERSIST_DIR") or os.path.abspath(os.path.join(os.getcwd(), "data"))
     path = os.path.join(base, "ester_cards.json")
     if not os.path.isfile(path):
         return []
     try:
         raw = json.load(open(path, "r", encoding="utf-8"))
-        # dopuskaem dva formata: spisok; libo dict s klyuchom "cards"
+        # allows two formats: list; or dist with the key "cards"
         if isinstance(raw, list):
             return raw
         if isinstance(raw, dict) and "cards" in raw:
@@ -146,12 +144,12 @@ class TfidfIndex:
             # dlina
             l2 = math.sqrt(sum(v * v for v in vec.values())) or 1.0
 
-            # bonus za svezhest (rezhim B)
+            # bonus for freshness (mode B)
             if (os.getenv("R3_MODE") or "A").strip().upper() == "B":
                 try:
                     age_days = max(0.0, (now - _get_ts(c)) / 86400.0) if _get_ts(c) > 0 else 365.0
                     boost = 1.0 + max(0.0, (30.0 - min(30.0, age_days))) / 100.0  # do +30% za noviznu
-                    l2 *= 1.0 / boost  # ekvivalent normalizatsii povyshayuschey vklad novizny
+                    l2 *= 1.0 / boost  # equivalent to normalization increasing the contribution of novelty
                 except Exception:
                     pass  # avtokatbek: ignoriruem bonus
 

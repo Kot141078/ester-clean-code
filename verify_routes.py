@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-verify_routes.py — edinyy sborschik versiy/routov/statusa.
+"""verify_routes.py - edinyy sborschik versiy/routov/statusa.
 
 MOSTY:
 - (Yavnyy) Importiruet klyuchevye modules/routes, pechataet ikh versii i pishet JSON-otchet.
-- (Skrytyy #1) Pytaetsya postroit Flask app i snyat spisok endpoints; esli ne udaetsya — ne padaet.
-- (Skrytyy #2) Probuet ASGI-prilozhenie (FastAPI) i fiksiruet bazovoe zdorove /api/v2/health, esli dostupno.
+- (Skrytyy #1) Pytaetsya postroit Flask app i snyat spisok endpoints; esli ne udaetsya - ne padaet.
+- (Skrytyy #2) Try ASGI-prilozhenie (FastAPI) i fiksiruet bazovoe zdorove /api/v2/health, esli dostupno.
 
 ZEMNOY ABZATs:
-Kak «diagnosticheskiy razem» OBD-II: bystro snyali pokazaniya i ponyali, chto rabotaet, a chto net.
+How to “diagnosticheskiy razem” OBD-II: bystro snyali pokazaniya i ponyali, what works, what is net.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, importlib, traceback, time
 from typing import Dict, Any, List
@@ -72,7 +70,7 @@ def _probe_asgi() -> Dict[str, Any]:
         from asgi.app_main import app as asgi_app  # type: ignore
         out["loaded"] = True
         out["type"] = type(asgi_app).__name__
-        # bez realnogo HTTP — prosto fakt sborki
+        # without real HTTP - just a fact of assembly
     except Exception as e:
         out["error"] = f"{type(e).__name__}: {e}"
     return out
@@ -88,7 +86,7 @@ def main() -> int:
     rep["asgi"] = _probe_asgi()
     with open(REPORT_PATH, "w", encoding="utf-8") as f:
         json.dump(rep, f, ensure_ascii=False, indent=2)
-    # Kratkaya pechat
+    # Brief printing
     ok_mods = sum(1 for v in rep["modules"].values() if v.get("ok"))
     print(f"[verify] modules ok: {ok_mods}/{len(MODULES)}; flask routes: {len(rep['flask_routes'])}; asgi loaded: {rep['asgi'].get('loaded')}")
     print(f"[verify] report -> {REPORT_PATH}")

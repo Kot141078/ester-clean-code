@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-nudges/store.py — khranilische sobytiy/ocheredi/logov + eskalatsii i metriki (rasshireno).
+"""nudges/store.py - khranilische sobytiy/ocheredi/logov + eskalatsii i metriki (rashirno).
 
 MOSTY:
 - (Yavnyy) list_escalation_keys() — otdaet spisok vsekh kontaktnykh klyuchey, privyazannykh k eskalatsionnym tegam.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) DDL neizmenen po smyslu; bootstrap forwarder_state sokhranyaetsya.
 
 ZEMNOY ABZATs:
-Znaem «kuda eskalirovat» i «kak goryacho seychas» — mozhno triggerit alerty i berezhno ubirat shum posle eskalatsii.
+Know “kuda eskalirovat” i “kak goryacho seychas” - mozhno triggerit alerty i berezhno ubirat noise posle eskalatsii.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, sqlite3, time, json
@@ -125,7 +123,7 @@ def _conn() -> sqlite3.Connection:
             c2.close()
             return _memory_conn(db_path)
 
-# ----- bazovye operatsii (bez izmeneniy v signaturakh) -----
+# ----- basic operations (no changes to signatures) -----
 
 def add_event(event_type: str, entity_id: str, ts: float, payload: Dict[str, Any]) -> int:
     with _conn() as c:

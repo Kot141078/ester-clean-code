@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-ingestion.py — /ingest/*: upload → parse → chunk → index (vstore) → (optional) summarize.
+"""ingestion.py - /ingest/*: upload → parse → chunk → index (vstore) → (optional) summarize.
 
-Provaydery (po tvoemu .env):
+Provaydery (po tvoemu.env):
 - local/lmstudio: LMSTUDIO_BASE_URL + LMSTUDIO_MODEL + LMSTUDIO_TIMEOUT
 - openai (optsionalno): OPENAI_API_BASE + OPENAI_API_KEY + OPENAI_MODEL
 (nikakikh groq/xai)
@@ -17,9 +16,8 @@ Skrytye mosty:
 - Talmud/Avot (ideya distsipliny): zapreschaem URL ingest po umolchaniyu, vklyuchaetsya flagom.
 
 Zemnoy abzats:
-Inzhest — eto kak priemka syrya na proizvodstve: snachala kontrol (razmer/tip), potom narezka,
-potom sklad (indeks). I tolko esli nado — “shef-zametki” (summary), inache gorelka ne vyklyuchitsya.
-"""
+Inzhest - eto kak priemka syrya na proizvodstve: snachala kontrol (razmer/tip), potom narezka,
+potom warehouse (indexes). I tolko esli nado - “shef-zametki” (summary), inache gorelka ne vyklyuchitsya."""
 
 import hashlib
 import json
@@ -117,7 +115,7 @@ INGEST_ALLOW_URLS = (
 )
 INGEST_MAX_BYTES = int(os.getenv("INGEST_MAX_BYTES", str(50 * 1024 * 1024)))  # 50MB
 
-# Telegram: u tebya est ADMIN_TG_ID, a TELEGRAM_CHAT_ID mozhet ne byt
+# Telegram: you have ADMIN_TG_ID, but TELEGRAM_CHAT_ID may not exist
 TG_ENABLED = str(os.getenv("ESTER_TELEGRAM_ENABLED", "0")).lower() in ("1", "true", "yes")
 TG_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID") or os.getenv("ADMIN_TG_ID") or ""
 TG_TOKEN = os.getenv("TELEGRAM_TOKEN") or os.getenv("TG_BOT_TOKEN") or os.getenv("TELEGRAM_BOT_TOKEN") or ""
@@ -168,12 +166,10 @@ def _trace_write(rec: Dict[str, Any]) -> None:
 
 
 class LLMClient:
-    """
-    Prostoy OpenAI-compatible client.
+    """Simple OpenAI-compatible client.
     provider:
       - local/lmstudio → LMSTUDIO_BASE_URL
-      - openai → OPENAI_API_BASE
-    """
+      - openai → OPENAI_API_BASE"""
 
     def __init__(self, provider: Optional[str] = None):
         self.provider = (provider or LLM_PROVIDER or "local").lower()
@@ -358,7 +354,7 @@ def _map_reduce_summary(chunks: List[Dict[str, Any]], title: str, lang: str) -> 
 
     sys_msg = {
         "role": "system",
-        "content": f"Delay szhatye fakticheskie zametki. Language: {'Russkiy' if (lang or 'ru')=='ru' else 'English'}.",
+        "content": f"Take concise, factual notes. Language: ZZF0Z.",
     }
 
     bullets: List[str] = []
@@ -392,7 +388,7 @@ def _map_reduce_summary(chunks: List[Dict[str, Any]], title: str, lang: str) -> 
     try:
         reduced = LLM.chat(reduce_prompt, temperature=0.2, max_tokens=1400)
     except Exception as e:
-        reduced = f"Oshibka summarizatsii: {e}"
+        reduced = f"Summarization error: ЗЗФ0З"
 
     return {"map_notes": map_notes, "reduced": reduced}
 

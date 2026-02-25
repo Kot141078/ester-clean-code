@@ -1,5 +1,5 @@
 # scripts/ester_selfcheck_suite.ps1
-# Integratsionnyy self-check steka Ester.
+# Integration self-chest stack Esther.
 
 param(
     [string]$EsterHost = "127.0.0.1",

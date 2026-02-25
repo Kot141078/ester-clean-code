@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/attention.py — «ochki vnimaniya» dlya kooperativa.
+"""modules/coop/attention.py - “ochki vnimaniya” dlya kooperativa.
 
-Ideya:
-- Veduschiy publikuet «kuda smotret/zhat» (strelka/boks).
+Ideaya:
+- Veduschiy publikuet “kuda smotret/zhat” (strelka/boks).
 - Lokalno otrisovyvaem poverkh tekuschego skrina; parallelno rassylaem peers cherez /peer/proxy.
 - Istoriya poslednikh N tochek v pamyati (dlya povtornoy otrisovki).
 
 API:
 - set_arrow(p_from, p_to, label, broadcast=True) -> {overlay_b64, peers:[...]}
-- set_box(box, label, broadcast=True)            -> {overlay_b64, peers:[...]}
+- set_box(box, label, broadcast=True) -> {overlay_b64, peers:[...]}
 
 MOSTY:
 - Yavnyy: (Orkestratsiya ↔ Zrenie) vse vidyat odnu tsel.
-- Skrytyy #1: (Infoteoriya ↔ UX) minimum simvolov — maksimum smysla.
+- Skrytyy #1: (Infoteoriya ↔ UX) minimum simvolov — maximum smysla.
 - Skrytyy #2: (Kibernetika ↔ Bezopasnost) yavnoe deystvie lidera, prozrachnyy sled.
 
 ZEMNOY ABZATs:
-Vse vyzovy — cherez suschestvuyuschie /desktop/rpa/screen i /stream/overlay/* + /peer/proxy. Nikakikh novykh demonov.
+All vyzovy - cherez suschestvuyuschie /desktop/rpa/screen i /stream/overlay/* + /peer/proxy. Nikakikh novykh demonov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple
 import http.client, json

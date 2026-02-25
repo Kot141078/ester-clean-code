@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/hybrid_job_router.py — fonovye «tiki» gibridnoy ocheredi.
+"""listeners/hybrid_job_router.py - fonovye "tiki" gibridnoy ocheredi.
 
-Povedenie:
+Behavior:
   • Kazhdye HYBRID_POLL_SEC vyzyvaet dispatcher.tick_once().
-  • V AB=A — sukhoy prokhod bez effektov.
-  • Logi — kompaktnye JSON stroki v stdout.
+  • V AB=A - sukhoy prokhod bez effektov.
+  • Logi - kompaktnye JSON stroki v stdout.
 
 Mosty:
 - Yavnyy (Avtomatizatsiya ↔ Svyaznost): edinaya tochka pulsa gibridnoy ocheredi.
@@ -13,10 +12,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): stdlib, offlayn, bez zhestkikh zavisimostey.
 
 Zemnoy abzats:
-Eto «mayatnik»: ravnomerno podtalkivaet ochered vpered, chtoby zadaniya dokhodili lyubym dostupnym putem.
+Eto "mayatnik": ravnomerno podtalkivaet ochered vpered, chtoby zadaniya dokhodili lyubym dostupnym putem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, os, time
 from modules.hybrid.dispatcher import tick_once  # type: ignore

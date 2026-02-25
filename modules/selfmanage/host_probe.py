@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules.selfmanage.host_probe — proverka vozmozhnostey khosta.
+"""modules.selfmanage.host_probe — proverka vozmozhnostey khosta.
 
 MOSTY:
 - Yavnyy: (routes.selfmanage_routes ↔ Khost) probe_capabilities()/probe_host().
@@ -8,10 +7,9 @@ MOSTY:
 - Skrytyy #2: (Nadezhnost ↔ Fallback) rabotaet i bez psutil.
 
 ZEMNOY ABZATs:
-Bystraya spravka «na chem stoim», bez privyazki k OS i vneshnim zavisimostyam.
+Bystraya spravka “na chem stoim”, bez privyazki k OS i vneshnim zavisimostyam.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, platform
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -32,5 +30,5 @@ def probe_capabilities() -> dict:
         pass
     return {"ok": True, "host": info}
 
-# Alias pod ozhidaemoe imya iz routov
+# Alias ​​under the expected name from the routes
 probe_host = probe_capabilities

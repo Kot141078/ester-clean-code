@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/usb_one_question_agent.py — Zero-Touch USB agent (Windows + Linux + macOS).
+"""listeners/usb_one_question_agent.py - Zero-Touch USB agent (Windows + Linux + macOS).
 
 Tsel: pri poyavlenii semnogo nositelya (USB) avtomaticheski:
   1) obnaruzhit tochku montirovaniya,
-  2) sozdat/podgotovit /ESTER (prepare_ester_folder),
+  2) sozdat/podgotovit/ESTER (prepare_ester_folder),
   3) (optsionalno) razvernut reliz/damp (scripts.usb_deploy_release),
   4) zapisat telemetriyu (latency p50/p95) i sostoyanie "seen" s TTL,
   5) (optsionalno) otpravit uvedomlenie, no NE zadavat voprosov.
 
 Mosty:
 - Yavnyy (Kibernetika ↔ Operatsii): edinyy refleks + izmerenie vremeni reaktsii (control through observation).
-- Skrytyy 1 (Infoteoriya ↔ Diagnostika): minimum bitov (p50/p95 + ok/fail) → maksimum signala po kachestvu.
-- Skrytyy 2 (Anatomiya ↔ Inzheneriya): kak proverka sukhozhilnogo refleksa — stimul → latentnost → otvet.
+- Skrytyy 1 (Infoteoriya ↔ Diagnostika): minimum bitov (p50/p95 + ok/fail) → maximum signala po kachestvu.
+- Skrytyy 2 (Anatomiya ↔ Inzheneriya): kak proverka sukhozhilnogo refleksa - stimul → latentnost → otvet.
 
 Zemnoy abzats:
-Realnyy USB — eto fizika i pomekhi: odin i tot zhe stsenariy mozhet davat raznye zaderzhki iz‑za
-pitaniya, USB‑khaba, progreva diska, planirovschika OS. Poetomu p50/p95 vazhnee «srednego»:
-p50 — tipichno, p95 — «plokhoy den», kotoryy i ubivaet nadezhnost. Dzhitter nuzhen, chtoby
+Realnyy USB - eto fizika i pomekhi: odin i tot zhe stsenariy mozhet davat raznye zaderzhki iz‑za
+pitaniya, USB‑khaba, progreva disk, planirovschika OS. Poetomu p50/p95 vazhnee “srednego”:
+p50 - tipichno, p95 - “plokhoy den”, kotoryy i ubivaet nadezhnost. Dzhitter nuzhen, chtoby
 neskolko uzlov ne pytalis odnovremenno chitat/pisat odin i tot zhe nositel (anti‑stado).
 
-# c=a+b
-"""
+# c=a+b"""
 
 from __future__ import annotations
 
@@ -41,7 +39,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 # -------------------------
-# Bezopasnye importy iz repozitoriya (esli est)
+# Secure import from repository (if available)
 # -------------------------
 try:
     from modules.selfmanage.usb_locator import list_usb_roots as _list_usb_roots  # type: ignore
@@ -66,7 +64,7 @@ except Exception:  # noqa: BLE001
 # -------------------------
 
 def _default_state_dir() -> Path:
-    # 1) yavnyy override
+    # 1) explicit override
     if os.getenv("ESTER_STATE_DIR"):
         return Path(os.environ["ESTER_STATE_DIR"]).expanduser()
 
@@ -86,10 +84,10 @@ STATE_DIR = _default_state_dir()
 STATE_FILE = STATE_DIR / "usb_zero_touch_state.json"
 LOCK_FILE = STATE_DIR / "usb_zero_touch.lock"
 
-# TTL dlya "seen" (sek). 0/<=0 = ne povtoryat nikogda.
+# TTL for "shoen" (sec). 0/<=0 = never repeat.
 SEEN_TTL_SEC_DEFAULT = int(os.getenv("ESTER_ZT_SEEN_TTL_SECONDS", str(24 * 3600)) or (24 * 3600))
 
-# Period oprosa (sek), esli ne --once
+# Polling period (sec), if not --end
 POLL_INTERVAL_DEFAULT = int(os.getenv("ESTER_ZT_POLL_INTERVAL", "5") or 5)
 
 # Anti-«stado» dzhitter (sek)
@@ -98,16 +96,16 @@ JITTER_DEFAULT = float(os.getenv("ESTER_ZT_JITTER_SECONDS", "0.2") or 0.2)
 # Taymaut deploy (sek)
 DEPLOY_TIMEOUT_SEC_DEFAULT = int(os.getenv("ESTER_ZT_DEPLOY_TIMEOUT_SECONDS", "180") or 180)
 
-# Lock stale (sek): esli protsess umer, cherez eto vremya mozhno zakhvatit lock.
+# Locke became (sec): if the process died, after this time the gloss can be captured.
 LOCK_STALE_SEC_DEFAULT = int(os.getenv("ESTER_ZT_LOCK_STALE_SECONDS", "600") or 600)
 
-# Rezhim po umolchaniyu:
-#  A: tolko prepare_ester_folder
-#  B: prepare + deploy (esli zadan archive/dump)
+# Default mode:
+#  A: only prepare_ester_folder
+#  B: prepare + deploy (if archive/dump is specified)
 AB_MODE_DEFAULT = (os.getenv("AB_MODE") or "b").strip().lower()
 
 
-# Uvedomleniya: po umolchaniyu vklyucheny tolko esli est GUI (ne systemd/SSH bez DISPLAY)
+# Notifications: enabled by default only if there is GOI (not systemd/SS without DISPLAYS)
 def _default_headless() -> bool:
     if os.getenv("ESTER_ZT_HEADLESS") in ("1", "true", "yes"):
         return True
@@ -115,7 +113,7 @@ def _default_headless() -> bool:
         return False
     if platform.system().lower().startswith("win"):
         return False
-    # Linux/mac: esli net displeya — skoree vsego headless
+    # Linux/so: if there is no display, it’s most likely headless
     return not (os.getenv("DISPLAY") or os.getenv("WAYLAND_DISPLAY"))
 
 
@@ -211,7 +209,7 @@ def _acquire_lock(lock_file: Path, *, stale_sec: int) -> bool:
     lock_file.parent.mkdir(parents=True, exist_ok=True)
     now = _now_ts()
 
-    # Esli lock est i on staryy — probuem ubrat
+    # If there is a lock and it is old, we try to remove it
     try:
         if lock_file.exists():
             age = now - int(lock_file.stat().st_mtime)
@@ -231,7 +229,7 @@ def _acquire_lock(lock_file: Path, *, stale_sec: int) -> bool:
     except FileExistsError:
         return False
     except Exception:
-        # Esli ne mozhem zalochitsya — luchshe ne delat nichego.
+        # If we can’t log in, it’s better not to do anything.
         return False
 
 
@@ -244,7 +242,7 @@ def _release_lock(lock_file: Path) -> None:
 
 
 # -------------------------
-# Fallback USB roots (esli usb_locator nedostupen)
+# Falbatsk USB roots (if USB_locator is not available)
 # -------------------------
 
 def _fallback_usb_roots() -> List[str]:
@@ -376,7 +374,7 @@ def _deploy(mount: str, archive: Optional[str], dump: Optional[str], *, timeout_
 
 
 # -------------------------
-# Mini-statistika (esli metrics.usb_agent_stats net)
+# Mini-statistics (if matrix.usb_agent_stats is not present)
 # -------------------------
 
 @dataclass
@@ -475,13 +473,11 @@ def run_once(
     deploy_timeout_sec: int = DEPLOY_TIMEOUT_SEC_DEFAULT,
     lock_stale_sec: int = LOCK_STALE_SEC_DEFAULT,
 ) -> Dict[str, Any]:
-    """
-    Odin prokhod:
+    """Odin prokhod:
       - lock (chtoby 2 ekzemplyara ne gonyali USB parallelno),
       - enumerate mounts,
       - dlya novykh/prosrochennykh: prepare (+ deploy v B),
-      - update state, return JSON.
-    """
+      - update state, return JSON."""
     # stdout v UTF-8 (osobenno vazhno na Windows)
     try:
         sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
@@ -503,7 +499,7 @@ def run_once(
             if not _should_process_mount(st, m, ttl_sec=int(seen_ttl_sec)):
                 continue
 
-            # fiksiruem obnaruzhenie srazu (chtoby ne zatsiklitsya)
+            # We record the detection immediately (so as not to get hung up)
             now = _now_ts()
             rec = (st.get("seen") or {}).get(m) or {}
             if not isinstance(rec, dict):
@@ -532,7 +528,7 @@ def run_once(
                 "latency_s": latency,
             }
 
-            # Deploy tolko v B i tolko esli est vkhodnye artefakty
+            # Deploy only to B and only if there are input artifacts
             mode = (ab_mode or "b").strip().lower()
             if mode == "b" and (archive or dump) and ok_prepare:
                 rep["deploy"] = _deploy(m, archive=archive, dump=dump, timeout_sec=int(deploy_timeout_sec))
@@ -544,7 +540,7 @@ def run_once(
             if ok_prepare:
                 _notify("Ester: USB obrabotan", f"{m}\nroot={root}\nlatency={latency:.3f}s", headless=headless)
             else:
-                _notify("Ester: USB oshibka", f"{m}\n{err}", headless=headless)
+                _notify("Esther: USB error", f"{m}\n{err}", headless=headless)
 
         st["last"] = _now_ts()
         _save_state(st)
@@ -618,7 +614,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 deploy_timeout_sec=int(args.deploy_timeout),
                 lock_stale_sec=int(args.lock_stale),
             )
-            # pechataem tolko esli est deystviya ili byli propuski/oshibki — menshe shuma
+            # We print only if there are actions or there were omissions/errors - less noise
             if result.get("actions") or result.get("skipped") or not result.get("ok", True):
                 print(json.dumps(result, ensure_ascii=False, indent=2))
     except KeyboardInterrupt:

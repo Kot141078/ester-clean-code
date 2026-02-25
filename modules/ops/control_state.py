@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ops/control_state.py — globalnaya «pauza/SOS» dlya deystviy Ester.
+"""modules/ops/control_state.py - globalnaya “pauza/SOS” dlya deystviy Ester.
 
-Sostoyanie: data/security/control_state.json {"paused": false}
+State: data/security/control_state.json {"paused": false}
 API: get_paused(), set_paused(True/False)
 
 Integratsiya: routy deystviy (RPA/makrosy) dolzhny prezhde proveryat flag i vozvraschat 423 (Locked), esli pauza aktivna.
 
 MOSTY:
 - Yavnyy: (Volya ↔ Bezopasnost) mgnovennaya ostanovka vsekh aktov.
-- Skrytyy #1: (Kibernetika ↔ Kontrol) zavedomaya «krasnaya knopka».
-- Skrytyy #2: (Anatomiya ↔ Psikhologiya) kak refleks otdergivaniya ruki.
+- Skrytyy #1: (Kibernetika ↔ Kontrol) zavedomaya “krasnaya knopka”.
+- Skrytyy #2: (Anatomiya ↔ Psikhologiya) kak reflexes otdergivaniya ruki.
 
 ZEMNOY ABZATs:
-Fayl/flag — prostoy i nadezhnyy. Bez demonov. Otmenyaet buduschie deystviya do snyatiya.
+Fayl/flag - prostoy i nadezhnyy. Without demons. Otmenyaet buduschie deystviya do snyatiya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

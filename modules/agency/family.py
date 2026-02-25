@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/agency/family.py — chernoviki perevoda dlya «Papy» (SEPA), bez realnoy otpravki.
+"""modules/agency/family.py - chernoviki perevoda dlya “Papy” (SEPA), bez realnoy otpravki.
 
 Mosty:
 - Yavnyy: (Semya ↔ Ekonomika) gotovim ponyatnyy platezhnyy chernovik dlya ruchnogo ispolneniya.
 - Skrytyy #1: (Audit ↔ Nadezhnost) profile platezha i khesh, svyaz s ledzherom/limitami.
-- Skrytyy #2: (Kibernetika ↔ Kontrol) podtverzhdenie cherez «tabletku» i obschie limity raskhodov.
+- Skrytyy #2: (Kibernetika ↔ Kontrol) podtverzhdenie cherez “tabletku” i obschie limity raskhodov.
 
 Zemnoy abzats:
-Eto kak zapolnit platezhku: vse polya gotovy, no knopku «Otpravit» zhmet tolko chelovek v svoem banke.
+Eto kak zapolnit platezhku: vse polya gotovy, no knopku “Otpravit” zhmet tolko chelovek v svoem banke.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import hashlib, json, os, time

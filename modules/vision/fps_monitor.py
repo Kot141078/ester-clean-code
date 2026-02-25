@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/vision/fps_monitor.py — izmerenie chastoty obnovleniya «sensora ekrana».
+"""modules/vision/fps_monitor.py - izmerenie frequency obnovleniya "sensora ekrana".
 
 Rezhim:
 - start(target="screen"|"window", window_id?:int, seconds:int=3)
@@ -8,18 +7,17 @@ Rezhim:
 - status() -> {running, fps_avg, samples}
 
 Realizatsiya: sinkhronnyy tsikl zakhvata (bez demona po umolchaniyu); start zapuskaet fonovoy potok, kotoryy
-N sekund vyzyvaet sootvetstvuyuschiy zakhvat i meryaet srednee. Ostanovka — dobrovolnaya.
+N sekund vyzyvaet sootvetstvuyuschiy zakhvat i meryaet srednee. Ostanovka - dobrovolnaya.
 
 MOSTY:
 - Yavnyy: (Sensor ↔ Ekspluatatsiya) vidim realnuyu chastotu signala.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) podbor tempa deystviy pod realnyy FPS.
-- Skrytyy #2: (Kibernetika ↔ Kontrol) izmeryaem → nastraivaem profil.
+- Skrytyy #2: (Kibernetika ↔ Kontrol) izmeryaem → nastraivaem profile.
 
 ZEMNOY ABZATs:
 Polezno dlya igr/demonstratsiy: ne strelyaem klikami bystree, chem obnovlyaetsya kartinka.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import threading, time
 from typing import Optional, Dict, Any, Callable

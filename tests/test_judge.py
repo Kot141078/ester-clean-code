@@ -5,15 +5,15 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def test_pick_best_and_combine_local():
     answers = [
-        "Korotkiy otvet.",
-        "Razvernutyy otvet:\n- punkt 1\n- punkt 2\nVyvod: vse yasno.",
-        "Sredniy po dline otvet s paroy predlozheniy. On strukturirovan.",
+        "Short answer.",
+        "Detailed answer:\n- point 1\n- point 2\nConclusion: everything is clear.",
+        "Average length answer with a couple of sentences. It's structured.",
     ]
     best, meta = pick_best_local(answers)
     assert best in answers
     assert meta["strategy"] == "heuristic_local"
     out = combine_answers(
-        prompt="Testovyy zapros", local_answers=answers, mode="local"
+        prompt="Test request", local_answers=answers, mode="local"
     )
     assert out["mode"] == "local"
     assert out["final"] in answers

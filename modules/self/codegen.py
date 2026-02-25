@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/codegen.py — bezopasnaya samogeneratsiya koda (spec → gen → test → guarded apply)
+"""modules/self/codegen.py - bezopasnaya samogeneratsiya koda (spec → gen → test → guarded apply)
 
 Mosty:
-- Yavnyy: (LLM ↔ Kod) generiruem iskhodniki cherez broker s instruktsiyami i ramkami.
-- Skrytyy #1: (Pesochnitsa ↔ Test) proveryaem funktsional izolirovanno bez dostupa k OS.
+- Yavnyy: (LLM ↔ Kod) generate iskhodniki cherez broker s instruktsiyami i ramkami.
+- Skrytyy #1: (Pesochnitsa ↔ Test) proveryaem funktsional isolated bez dostupa k OS.
 - Skrytyy #2: (Nadezhnost ↔ Guard) primenenie tolko cherez dry→apply→health→rollback.
 
 Zemnoy abzats:
-Kak inzhener: snachala TZ, potom chernovik, testy na stolike, i tolko zatem — akkuratnaya ustanovka.
+Kak inzhener: snachala TZ, potom chernovik, testy na stolike, i tolko zatem - akkuratnaya ustanovka.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, textwrap
 from typing import Any, Dict, List, Tuple
@@ -22,11 +20,11 @@ CS_MODEL = os.getenv("CS_MODEL","lmstudio:gptq")
 CS_MAX_TOKENS = int(os.getenv("CS_MAX_TOKENS","2048") or "2048")
 CS_TEMPERATURE = float(os.getenv("CS_TEMPERATURE","0.2") or "0.2")
 
-PROMPT_TMPL = """Vy — strogiy generator iskhodnikov. Trebovaniya:
-- Odin modul Python, sovmestimyy s Python 3.10+.
+PROMPT_TMPL = """Vy — strict generator iskhodnikov. Trebovaniya:
+- Odin module Python, sovmestimyy s Python 3.10+.
 - Nikakikh vneshnikh zavisimostey i I/O.
 - Polnye opredeleniya funktsiy iz spetsifikatsii.
-- V nachale — modulnaya stroka-dokstring s kratkim opisaniem.
+- V nachale - modulnaya stroka-dokstring s kratkim opisaniem.
 - Minimalnye proverki tipov i ponyatnye oshibki.
 # - Finalnaya stroka v iskhodnike: `# c=a+b`.
 
@@ -70,9 +68,7 @@ def generate(spec: Dict[str,Any]) -> Dict[str,Any]:
     return {"ok": True, "files": [{"path": spec["path"], "content": gen["code"]}]}
 
 def test_files(files: List[Dict[str,Any]], test_code: str) -> Dict[str,Any]:
-    """
-    files: [{path, content}], test_code: str (odin fayl — ispolnyaetsya v pesochnitse)
-    """
+    """file: yuZF0ZZsch, test_code: pp (one file - executed in the sandbox)"""
     # Skleivaem: v testovom kode dopustim import <basename bez .py>
     try:
         from modules.sandbox.py_runner import run_py  # type: ignore
@@ -84,7 +80,7 @@ def test_files(files: List[Dict[str,Any]], test_code: str) -> Dict[str,Any]:
         p = str(f.get("path","")).strip()
         c = str(f.get("content",""))
         base = (p.rsplit("/",1)[-1]).replace(".py","")
-        # Vstavlyaem modul kak blok koda pered testom s markerom
+        # Inserting the module as a block of code before the test with a marker
         bundle.append(f"# --- BEGIN:{base} ---\n{c}\n# --- END:{base} ---")
     bundle.append("\n# --- TEST ---\n" + test_code)
     code = "\n\n".join(bundle)

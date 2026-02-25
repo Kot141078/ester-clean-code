@@ -1,54 +1,52 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/sidecar_orchestrator.py — saydkar-orkestrator fonovykh sluzhb.
+"""listeners/sidecar_orchestrator.po - sidecar orchestrator for background services.
 
-Svodnaya versiya, vklyuchayuschaya vse sluzhby iz predostavlennykh faylov.
-"""
+A consolidated version that includes all services from the provided files."""
 from __future__ import annotations
 import argparse, os, subprocess, sys, time
 from typing import Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Eta funktsiya importiruetsya iz drugogo modulya, predpolozhim, chto ona suschestvuet.
-# V realnom kode neobkhodimo ubeditsya v ee dostupnosti.
+# This function is imported from another module, let's assume it exists.
+# In real code you need to make sure it is available.
 def _load_p2p_settings_mock():
-    """Mok-funktsiya dlya _load_p2p."""
+    """Mock function for _load_p2p."""
     return {"enable": os.getenv("P2P_ENABLE_MOCK", "0")}
 
 _load_p2p = _load_p2p_settings_mock
 
 def _spawn(mod: str, *args):
-    """Zapuskaet docherniy protsess Python."""
+    """Starts the child process Pothon."""
     argv = [sys.executable, "-m", mod, *args]
     return subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def _flag(name: str) -> bool:
-    """Proveryaet znachenie peremennoy okruzheniya kak bulev flag."""
+    """Checks the value of an environment variable as a boolean flag."""
     try:
         return bool(int(os.getenv(name, "0")))
     except (ValueError, TypeError):
         return False
 
 def _p2p_enabled() -> bool:
-    """Proveryaet, vklyuchen li P2P-transport."""
+    """Checks whether P2P transport is enabled."""
     s = _load_p2p()
     if bool(int(os.getenv("P2P_ENABLE", "0"))):
         return True
     return bool(s.get("enable"))
 
 def main(argv=None) -> int:
-    """Glavnaya funktsiya orkestratora."""
+    """The main function of the orchestrator."""
     ap = argparse.ArgumentParser(description="Ester sidecar orchestrator")
     ap.add_argument("--poll", type=int, default=10, help="Interval oprosa v sekundakh")
     args = ap.parse_args(argv)
 
-    # --- Pervonachalnyy zapusk sluzhb ---
+    # --- Initial start of services ---
 
     # Bezuslovnye i osnovnye sluzhby
     usb = _spawn("listeners.usb_dyn_driver")
     p2p: Optional[subprocess.Popen] = _spawn("listeners.p2p_spooler", "--loop") if _p2p_enabled() else None
 
-    # Sluzhby, upravlyaemye peremennymi okruzheniya iz vsekh faylov
+    # Services controlled by environment variables from all files
     ps = _spawn("listeners.portable_sync", "--loop") if _flag("PORTABLE_SYNC_ENABLE") else None
     lc = _spawn("listeners.lan_catalog", "--loop") if _flag("LAN_CATALOG_ENABLE") else None # sidecar_orchestrator.py26 (lan_catalog_service)
     lj = _spawn("listeners.lan_jobs_runner", "--loop") if _flag("LAN_JOBS_ENABLE") else None
@@ -68,7 +66,7 @@ def main(argv=None) -> int:
     autolink = _spawn("listeners.auto_link_favorites", "--loop") if _flag("AUTOLINK_ENABLE") else None # sidecar_orchestrator.py23
     usbw = _spawn("listeners.usb_bootstrap_watcher", "--loop") if _flag("USB_BOOTSTRAP_ENABLE") else None # sidecar_orchestrator.py25
 
-    # Vyvod statusa zapuska
+    # Display startup status
     print(f"[sidecar] usb_dyn_driver=on", flush=True)
     print(f"[sidecar] p2p_spooler={'on' if p2p else 'off'}", flush=True)
     print(f"[sidecar] portable_sync={'on' if ps else 'off'}", flush=True)
@@ -95,12 +93,12 @@ def main(argv=None) -> int:
             time.sleep(max(2, int(args.poll)))
 
             def _dyn(flag, proc, mod):
-                """Perezapuskaet protsess, esli on upal, ili zapuskaet/ostanavlivaet po flagu."""
-                # Zapustit, esli flag ustanovlen, a protsessa net
+                """Restart a process if it crashes, or start/stop by flag."""
+                # Run if the flag is set but there is no process
                 if flag() and not proc:
                     return _spawn(mod, "--loop")
                 
-                # Ostanovit, esli flag snyat, a protsess est
+                # Stop if the flag is cleared but the process is running
                 if not flag() and proc:
                     try:
                         proc.terminate()
@@ -112,13 +110,13 @@ def main(argv=None) -> int:
                             pass
                     return None
                 
-                # Perezapustit, esli protsess zavershilsya, a flag vse esche ustanovlen
+                # Restart if the process has terminated and the flag is still set
                 if proc and proc.poll() is not None and flag():
                     return _spawn(mod, "--loop")
                 
                 return proc
 
-            # Proverka i obnovlenie sostoyaniya kazhdoy sluzhby
+            # Checking and updating the status of each service
             if usb and usb.poll() is not None:
                 usb = _spawn("listeners.usb_dyn_driver")
             
@@ -145,7 +143,7 @@ def main(argv=None) -> int:
     except KeyboardInterrupt:
         pass
     finally:
-        # Korrektnoe zavershenie vsekh dochernikh protsessov
+        # Correct termination of all child processes
         all_processes = (
             usb, p2p, ps, lc, lj, ur, lms, prj, pkg, scs, tg, la, ud, zc, 
             reg, usb_hotask, hyb, udp, autolink, usbw

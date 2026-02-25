@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/bind/watch_media.py — svyazka Watch→Media: skaniruem direktorii po maskam, dedupim i progonyaem novye fayly cherez /media/video/ingest.
+"""modules/bind/watch_media.py - svyazka Watch→Media: skaniruem direktorii po maskam, dedupim i progonyaem novye fayly cherez /media/video/ingest.
 
 Mosty:
-- Yavnyy: (Watch ↔ Media) avtomatiziruet put «nashel — razobral — v pamyat».
+- Yavnyy: (Watch ↔ Media) avtomatiziruet put “nashel - razobral - v pamyat”.
 - Skrytyy #1: (Profile ↔ Prozrachnost) kazhdyy progon i kazhdoe prinyatie fayla fiksiruetsya.
 - Skrytyy #2: (RAG/KG ↔ Navigatsiya) downstream uzhe delaet rag_append i autolink v ingest.
 
 Zemnoy abzats:
-Eto kak konveyer na sklade: kamera uvidela korobku — lenta sama povezla ee na sortirovku, a kladovschik vse otmetil v zhurnale.
+Eto kak konveyer na sklade: kamera uvidela korobku - lenta sama povezla ee na sortirovku, a kladovschik vse otmetil v zhurnale.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, fnmatch, hashlib
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

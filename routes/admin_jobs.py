@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_jobs.py - UI/REST «LAN-Jobs»: lokalnaya ochered, zapusk, push na pir, prosmotr udalennogo indeksa.
+"""routes/admin_jobs.py - UI/REST “LAN-Jobs”: lokalnaya ochered, zapusk, push na pir, prosmotr remote index.
 
-Marshruty:
-  • GET  /admin/jobs
-  • GET  /admin/jobs/status
+Route:
+  • GET /admin/jobs
+  • GET /admin/jobs/status
   • POST /admin/jobs/run_once
-  • POST /admin/jobs/push_proxy           {base_url, type, args?, public?}
-  • GET  /admin/jobs/remote_index_proxy?base=http://...
+  • POST /admin/jobs/push_proxy {base_url, type, args?, public?}
+  • GET /admin/jobs/remote_index_proxy?base=http://...
 
 Mosty:
 - Yavnyy (UX ↔ Operatsii): operator vidit ochered i mozhet otpravit zadanie sosedu.
@@ -15,10 +14,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): stdlib urllib; dry(A)/real(B).
 
 Zemnoy abzats:
-Eto «pult zadach»: paru klikov - i sosed soberet tiket, a my potom ego zaberem iz ego diagnostics.
+This is “pult zadach”: paru klikov - i sosed soberet tiket, a my potom ego zaberem iz ego diagnostics.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, urllib.request, urllib.error
 from flask import Blueprint, jsonify, render_template, request

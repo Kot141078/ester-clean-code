@@ -2,10 +2,10 @@
 import os, sys, json
 from pathlib import Path
 
-# 1) chtoby moduli proekta importirovalis
+# 1) so that project modules are imported
 sys.path.insert(0, r"D:\ester-project")
 
-# 2) podkhvatit .env imenno etogo proekta
+# 2) pick up .env of this particular project
 try:
     from dotenv import load_dotenv
     load_dotenv(dotenv_path=r"D:\ester-project\.env", override=True)

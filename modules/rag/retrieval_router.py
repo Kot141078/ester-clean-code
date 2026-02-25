@@ -392,8 +392,8 @@ def _maybe_log_self_evo(stats: Dict[str, Any], prov_len: int) -> None:
             f"doc_query={int(bool(stats.get('doc_query')))} "
             f"prov={int(prov_len)} "
             f"summary={int(stats.get('summary_hits') or 0)} "
-            f"chunks={int(stats.get('chunk_hits') or 0)} "
-            f"flash={int(stats.get('flashback_hits') or 0)} "
+            f"chunks={int(stats.get('chunk_hits') or 0)}"
+            f"flash={int(stats.get('flashback_hits') or 0)}"
             f"cards={int(stats.get('cards_hits') or 0)}"
         )
         memory_add("fact", text, meta={"type": "retrieval_router", "scope": "internal", "ts": now})

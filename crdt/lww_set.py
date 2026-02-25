@@ -42,13 +42,12 @@ class LwwSet:
         self.entries[item_id] = e
         return d
 
-    # --- eksport/import sobytiy (operiruem «zhirnymi» tochkami) ---
+    # --- export/import of events (operate with “bold” dots) ---
     def export_ops(self, since_clock: Optional[int] = None) -> Iterable[Tuple[str, str, dict]]:
         """Vozvraschaet generator operatsiy: (op, item_id, data)
         op: 'add' | 'rem'
         data: {dot:{peer,ts}, payload?}
-        Esli zadan since_clock — otbiraem tolko sobytiya lokalnogo pira posle etogo schetchika.
-        """
+        Esli zadan since_clock — otbiraem tolko sobytiya lokalnogo pira posle etogo schetchika."""
         for item_id, e in self.entries.items():
             if e.add and (
                 since_clock is None or (e.add.peer == self.peer_id and e.add.ts > since_clock)
@@ -68,7 +67,7 @@ class LwwSet:
         )
         if op == "add":
             dot = Dot(data["dot"]["peer"], int(data["dot"]["ts"]))
-            # obnovim payload na bolee svezhiy
+            # update the payload to a more recent one
             if data.get("payload"):
                 e.item = Item(id=item_id, payload=data["payload"])
             if (
@@ -112,7 +111,7 @@ class LwwSet:
             ):
                 e1.rem = e2.rem
             self.entries[item_id] = e1
-        # logicheskie chasy — maksimum (dlya lokalnykh filtrov eksporta)
+        # logical clock - maximum (for local export filters)
         self.clock = max(self.clock, other.clock)
 
     def visible_items(self) -> Dict[str, Item]:

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/export/batch_render.py — paketnyy render mnozhestva gidov (MP4/bez/s TTS).
+"""modules/export/batch_render.py - paketnyy render mnozhestva gidov (MP4/bez/s TTS).
 
 Vkhod:
 {"jobs":[{"name":"guide_A","text":"Shag A"}, {"name":"guide_B","text":"Shag B"}]}
@@ -17,8 +16,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Odin potok, lokalno, bez vneshnikh zavisimostey. Polzovatel sam zapuskaet ffmpeg-skripty.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import threading, time

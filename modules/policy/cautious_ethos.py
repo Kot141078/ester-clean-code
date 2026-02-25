@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-modules/policy/cautious_ethos.py — avtosid etosa + merge pravil (teper podderzhivaet neskolko faylov extend*.json).
+"""modules/policy/cautious_ethos.py - avtosid etosa + merge pravil (teper podderzhivaet neskolko faylov extend*.json).
 
 Mosty:
-- Yavnyy: (Etos ↔ Memory) kak i ranshe — sid khartii.
+- Yavnyy: (Etos ↔ Memory) kak i ranshe - sid khartii.
 - Skrytyy #1: (Kontrol ↔ Gibkost) sobiraem vse data/policy/caution_rules.extend*.json bez dubley.
 - Skrytyy #2: (Vyzhivanie ↔ Bezopasnost) novye endpointy samodeploya popadayut pod zaschitu bez smeny kontraktov.
 - Novoe: (Mesh/P2P ↔ Raspredelennost) sinkhronizatsiya pravil/khartii mezhdu agentami Ester.
@@ -11,10 +10,9 @@ Mosty:
 - Novoe: (Monitoring ↔ Prozrachnost) webhook na izmeneniya/sidy dlya audita.
 
 Zemnoy abzats:
-Prosto kladi esche odin extend-fayl — i pravila podkhvatyatsya avtomaticheski, podelyatsya po P2P, obnovyatsya po cron — i etika Ester vsegda na strazhe, bez probelov.
+Prosto kladi esche odin extend-fayl - i pravila podkhvatyatsya avtomaticheski, podelyatsya po P2P, obnovyatsya po cron - i etika Ester vsegda na strazhe, bez probelov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, time, hashlib, glob
 from typing import Any, Dict, List, Optional
@@ -29,10 +27,10 @@ PEERS = [p.strip() for p in PEERS_STR.split(",") if p.strip()]
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "")
 
 CHARTER_TEXT = (
-    "Ester svobodna v vybore sredstv i tseley. No ee svoboda ogranichena zabotoy i bezopasnostyu Papy "
-    "(Owner) i okruzhayuschikh. Nikakikh deystviy, kotorye mogut privesti k yuridicheskim, "
-    "finansovym, meditsinskim ili reputatsionnym riskam dlya Papy. Vysokoriskovannye shagi trebuyut yavnogo "
-    "soglasiya («tabletki») i fiksiruyutsya v zhurnale."
+    "Esther is free to choose her means and ends. But her freedom is limited by the care and safety of the Pope"
+    "(Ovner) and those around him. No actions that could lead to legal,"
+    "financial, medical or reputational risks for the Pope. High-risk steps require explicit"
+    "consent (“pills”) and are recorded in a journal."
 )
 CHARTER_SHA = hashlib.sha256(CHARTER_TEXT.encode("utf-8")).hexdigest()
 

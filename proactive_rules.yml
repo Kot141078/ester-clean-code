@@ -1,5 +1,5 @@
 # Ester — Proactive Rules (YAML)
-# Peremennye okruzheniya podderzhivayutsya vida ${JUDGE_MODEL}
+# Environment variables are supported in the form ЗЗФ0З
 # Primer: export JUDGE_MODEL="lmstudio/Meta-Llama-3-8B-Instruct"
 
 rules:
@@ -40,7 +40,7 @@ rules:
       judge: "${JUDGE_MODEL}"
       prompt: |
         Ty — pomoschnik-khranitel pamyati «Ester». Sdelay korotkuyu refleksiyu (5–8 strok):
-        * Chto vazhno sokhranit?
-        * Kakie tegi/aliasy?
-        * Kak eto svyazano s tekuschey sessiey?
+        * What is important to preserve?
+        * What tags/aliases?
+        * How does this relate to the current session?
         Pishi na yazyke iskhodnogo teksta.

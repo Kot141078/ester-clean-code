@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-nudges/pending_csv.py — eksport ocheredi pending v CSV.
+"""nudges/pending_csv.py - eksport ocheredi pending v CSV.
 
 MOSTY:
 - (Yavnyy) export_pending_csv(limit=20000) → bytes; kolonki: id,event_id,created_ts,due_ts,key,kind,intent,status,reason.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Razdelitel sovmestim s CSV_DELIM (kak v drugikh eksportakh).
 
 ZEMNOY ABZATs:
-Snimok ocheredi — dlya audita, otladki i bystroy vygruzki v tablichnye instrumenty.
+Snimok ocheredi - dlya audita, otladki i bystroy vygruzki v tablichnye instrumenty.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import csv, io, os, time

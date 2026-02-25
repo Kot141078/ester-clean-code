@@ -15,11 +15,11 @@ env:
   PYTHON_VERSION: "3.11"
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PIP_NO_PYTHON_VERSION_WARNING: "1"
-  # Porog pokrytiya dlya DoD (lin. i vetki >= 85%)
+  # Coverage threshold for DoD (line and branches >= 85%)
   DOD_LINES_MIN: "0.85"
   DOD_BRANCH_MIN: "0.85"
   ESTER_MEM_FACADE_STRICT: "1"
-  # Lokal, chtoby ne lovit charmap/locale oshibki v e2e
+  # Locale, so as not to catch harmmap/locale errors in e2e
   LANG: C.UTF-8
   LC_ALL: C.UTF-8
 
@@ -52,7 +52,7 @@ jobs:
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           else
-            # Bazovyy nabor na sluchay otsutstviya requirements.txt
+            # Basic set in case of lack of regulations.txt
             pip install flask gunicorn requests pyyaml \
                         pytest pytest-cov coverage
           fi

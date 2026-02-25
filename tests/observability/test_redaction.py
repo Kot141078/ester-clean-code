@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-tests/observability/test_redaction.py — proverki maskirovki PII i log-filtra.
+"""tests/observability/test_redaction.py - proverki maskirovki PII i log-filtra.
 
 MOSTY:
 - (Yavnyy) Maskiruem email/telefon/IP/UUID/kartu/token; rekursivnaya redaktsiya dict/list.
-- (Skrytyy #1) Podklyuchaem RedactFilter k loggeru i ubezhdaemsya, chto soobschenie redaktiruetsya.
+- (Skrytyy #1) Podklyuchaem RedactFilter k loggeru i ubezhdaemsya, what soobschenie redaktiruetsya.
 - (Skrytyy #2) Khvostovye simvoly sokhranyayutsya dlya sopostavleniya.
 
 ZEMNOY ABZATs:
-# Esli test zelenyy — vklyuchennaya redaktsiya ne lomaet logi, a privatnye dannye v nikh ne utekut. c=a+b
-"""
+# If the test is green, the enabled edition does not break the logs, and private data will not leak into them. c=a+b"""
 from __future__ import annotations
 
 import logging
@@ -21,7 +19,7 @@ def test_redact_text_basic():
     t = "Pochta: john.doe+dev@acme.io, Tel:+1-202-555-0199, IP: 192.168.1.77, UUID=123e4567-e89b-12d3-a456-426614174000, Card: 4111 1111 1111 1111"
     r = redact_text(t)
     assert "acme.io" in r
-    assert "john" not in r  # lokalnaya chast skryta
+    assert "john" not in r  # local part is hidden
     assert "202-555" not in r  # telefon skryt
     assert "x.x.x.77" in r  # IP redaktirovan
     assert "426614174000"[-4:] in r  # khvost viden

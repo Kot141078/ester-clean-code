@@ -1,5 +1,5 @@
-# R2/scripts/r2_ingest_smoke.ps1 — obertka smouka R2 dlya Windows PowerShell
-# Mosty: (Yavnyy) Enderton — predikaty; (Skrytye) Ashbi — prostoy regulyator; Cover&Thomas — minimum nablyudeniy.
+# P2/skripts/p2_ingest_stoke.ps1 - Smoke P2 wrapper for Windows PowerShell
+# Bridges: (Explicit) Enderton - predicates; (Hidden) Ashby is a simple regulator; Carpet & Thomas - minimum observations.
 # Zemnoy abzats: lokalnye fikstury, nikakoy seti.
 # c=a+b
 

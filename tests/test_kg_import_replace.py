@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-tests/test_kg_import_replace.py — property-test import_all(policy="replace").
-Proveryaem:
+"""tests/test_kg_import_replace.py - property-test import_all(policy="replace").
+Check it out:
   • replace polnostyu zamenyaet tekuschee sostoyanie;
-  • posle replace sokhranyayutsya invarianty KG (unikalnost reber po (src,rel,dst));
-  • neighbors()/query_edges prodolzhayut rabotat konsistentno.
-"""
+  • after replace sokhranyayutsya invarianty KG (unikalnost edge po (src,rel,dst));
+  • neighbors()/query_edges prodolzhayut rabotat konsistentno."""
 
 from __future__ import annotations
 
@@ -78,8 +76,8 @@ def test_import_all_replace(monkeypatch, tmp_path):
     }
     stats = kg.import_all(
         g1
-    )  # policy po umolchaniyu merge -> ispolzuem yavnyy replace nizhe dlya proverki polnoy zameny
-    # Dlya strogoy zameny vyzovem import_graph(..., policy="replace")
+    )  # default merge police -> use explicit replay below to test full replacement
+    # For a strict replacement, call import_graph(..., police="replace")
     stats = kg.import_graph(g1, policy="replace")
     assert (
         stats["nodes"] == 2 and stats["edges"] == 2 or stats["edges"] == 1
@@ -90,12 +88,12 @@ def test_import_all_replace(monkeypatch, tmp_path):
     e_old = kg.query_edges(src="topic::ocr", rel="supports", dst="doc::1", limit=5)
     assert len(e_old) == 0
 
-    # 2) doc::2 prisutstvuet i derzhit max(weight) sredi dubley
+    # 2) daughter::2 is present and holds max(weight) among the takes
     e_new = kg.query_edges(src="topic::ocr", rel="supports", dst="doc::2", limit=5)
     assert len(e_new) == 1
     assert abs(float(e_new[0]["weight"]) - 0.95) < 1e-8
 
-    # 3) neighbors vozvraschaet korrektnoe okruzhenie
+    # 3) namebors returns the correct environment
     nb = kg.neighbors("topic::ocr")
     out_dsts = [e["dst"] for e in nb["out"]]
 # assert out_dsts == ["doc::2"]

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/webhook_probe.py - offlayn-proverka konfiguratsii Telegram/WhatsApp webhook.
+"""routes/webhook_probe.py - offflayn-proverka konfiguratsii Telegram/WhatsApp webhook.
 
 MOSTY:
 - (Yavnyy) GET /admin/webhooks/probe - vozvraschaet gotovye URL, khesh-sekrety i chto esche zapolnit.
 - (Skrytyy #1) Ne delaet setevykh zaprosov; vse po ENV, mozhno ispolzovat v closed_box.
-- (Skrytyy #2) Otdaet «can-curl» podskazki dlya bystroy registratsii khuka.
+- (Skrytyy #2) Otdaet “can-curl” podskazki dlya bystroy registratsii khuka.
 
 ZEMNOY ABZATs:
-Kak «sukhoy progon» provodki: vidim, kuda pridet zapros, kakoy sekret zhdem, i chto vklyuchit v .env.
+How “sukhoy progon” provodki: vidim, kuda pridet zapros, kakoy sekret zhdem, i chto vklyuchit v.env.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, hmac, hashlib
 from flask import Blueprint, jsonify
@@ -33,7 +31,7 @@ def probe():
     wa_token = os.getenv("WHATSAPP_ACCESS_TOKEN","")
     wa_pnid = os.getenv("WHATSAPP_PHONE_NUMBER_ID","")
     verify = os.getenv("WHATSAPP_VERIFY_TOKEN","")
-    # Konstruiruem URL (drop-in: ne menyaem suschestvuyuschie ruchki)
+    # We construct a URL (drop-in: do not change existing handles)
     tg_url = f"{base.rstrip('/')}/telegram/webhook"
     wa_url = f"{os.getenv('WHATSAPP_GRAPH_BASE','https://graph.facebook.com/v20.0').rstrip('/')}/{wa_pnid}/messages"
     can_curl_tg = f"curl -s -X POST 'https://api.telegram.org/bot{tg_token}/setWebhook' -d 'url={tg_url}?secret={tg_secret}'"

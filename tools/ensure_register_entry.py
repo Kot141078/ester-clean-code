@@ -120,7 +120,7 @@ def main() -> None:
 
     rep = ensure_register(root)
     print(json.dumps(rep, ensure_ascii=False, indent=2))
-    # Polozhim otchet ryadom
+    # Let's put the report next to it
     try:
         (Path(".") / "ensure_register_entry.report.json").write_text(
             json.dumps(rep, ensure_ascii=False, indent=2), encoding="utf-8"

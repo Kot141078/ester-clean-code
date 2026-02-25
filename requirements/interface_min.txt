@@ -1,4 +1,4 @@
-# Minimalnye pakety dlya interfeysa (sovmestimo s bazovym dampom)
+# Minimum interface packages (compatible with base dump)
 fastapi
 starlette
 uvicorn

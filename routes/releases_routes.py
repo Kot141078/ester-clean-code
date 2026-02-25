@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
-"""
-routes/releases_routes.py - admin-stranitsy i JSON dlya relizov/samosborki.
+"""routes/releases_routes.py - admin-stranitsy i JSON dlya relizov/samosborki.
 
-Endpointy:
-  GET  /admin/releases             - HTML-stranitsa (templates/releases_admin.html)
-  GET  /admin/releases/json        - spisok relizov, lokalnye/usb arkhivy, sostoyanie current
-  POST /admin/releases/activate    - aktivirovat reliz po CID ili po puti k arkhivu
-  POST /admin/releases/usb_sync    - sinkhronizatsiya s USB (pull ili dvustoronnyaya)
+Endpoint:
+  GET /admin/releases - HTML-stranitsa (templates/releases_admin.html)
+  GET /admin/releases/json - spisok relizov, lokalnye/usb arkhivy, sostoyanie current
+  POST /admin/releases/activate - aktivirovat reliz po CID ili po puti k arkhivu
+  POST /admin/releases/usb_sync - sinkhronizatsiya s USB (pull or dvustoronnyaya)
 
-Bezopasnost:
-  • /activate - trebuet kvorum ili odinochnyy approval (minimum: odin approval).
+Safety:
+  • /activate - trebuet kvorum or odinochnyy approval (minimum: odin approval).
 
 Mosty:
-- Yavnyy: (DevOps ↔ UI) chelovek vklyuchaet nuzhnyy sborochnyy slepok cherez ponyatnuyu veb-panel.
+- Yavnyy: (DevOps ↔ UI) chelovek vklyuchaet nuzhnyy sborochnyy slepok cherez ponyatnuyu web-panel.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) spisok arkhivov beretsya lokalno - menshe vneshnikh tochek otkaza.
-- Skrytyy #2: (Kibernetika ↔ Kontrol) kvorum-«pilyulya» prepyatstvuet oshibochnomu deployu odnim klikom.
+- Skrytyy #2: (Kibernetika ↔ Kontrol) kvorum-“pilyulya” prepyatstvuet oshibochnomu deployu odnim klikom.
 
 Zemnoy abzats (inzheneriya/anatomiya):
-Eto «pereklyuchatel slepkov»: vybiraem arkhiv (po CID ili faylu) i «peresobiraem organizm» iz nego
+Eto “pereklyuchatel slepkov”: vybiraem arkhiv (po CID ili faylu) i “peresobiraem organizm” iz nego
 v tselevoy katalog zapuska. Uzkie mesta - USB/arkhivy i verifikatsiya kvoruma; vse ostalnoe - prostye
-muskuly vvoda/vyvoda i akkuratnye sukhozhiliya kontraktov JSON.
+mukuly vvoda/vyvoda i akkuratnye sukhozhiliya kontraktov JSON.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -77,7 +75,7 @@ releases_bp = Blueprint("releases_admin", __name__, url_prefix="/admin/releases"
 
 
 def _list_local_archives() -> Dict[str, str]:
-    """Vozvraschaet slovar {cid: path} po lokalnoy papke arkhivov."""
+    """Returns the ZZF0Z dictionary from the local archives folder."""
     d = _local_archives_dir()
     out: Dict[str, str] = {}
     try:
@@ -91,7 +89,7 @@ def _list_local_archives() -> Dict[str, str]:
 
 
 def _current_state() -> Dict[str, Any]:
-    """Chitaet sostoyanie tekuschego «perenosa» reliza (esli bylo)."""
+    """Reads the status of the current release \"transfer\" (if there was one)."""
     p = _relocate_state_file()
     if os.path.exists(p):
         try:
@@ -105,14 +103,14 @@ def _current_state() -> Dict[str, Any]:
 @releases_bp.get("/")
 @jwt_required()
 def page():
-    """HTML-stranitsa upravleniya relizami."""
+    """HTML release management page."""
     return render_template("releases_admin.html")
 
 
 @releases_bp.get("/json")
 @jwt_required()
 def json_list():
-    """JSON-svodka po relizam i lokalnym arkhivam + tekuschee sostoyanie."""
+    """ZhSON-summary of releases and local archives + current status."""
     rr = ReleaseRegistry()
     try:
         nodes = rr.list_releases(limit=500)
@@ -125,7 +123,7 @@ def json_list():
 @releases_bp.post("/activate")
 @jwt_required()
 def activate():
-    """Aktivirovat reliz po CID ili puti k arkhivu (s proverkoy kvoruma)."""
+    """Activate the release via LED or archive path (with quorum check)."""
     data = request.get_json(force=True, silent=True) or {}
     cid = (data.get("cid") or "").strip()
     path = (data.get("path") or "").strip()
@@ -173,7 +171,7 @@ def activate():
 @releases_bp.post("/usb_sync")
 @jwt_required()
 def do_usb_sync():
-    """Zapusk sinkhronizatsii relizov s USB-nositelem (pull/dvustoronnyaya)."""
+    """Starting synchronization of releases with USB media (bullet/double-sided)."""
     data = request.get_json(force=True, silent=True) or {}
     mount = data.get("mount") or None
     push = bool(data.get("push_to_usb") or False)
@@ -185,11 +183,11 @@ def do_usb_sync():
 
 
 def register_releases_routes(app) -> None:  # pragma: no cover
-    """Istoricheskaya registratsiya blyuprinta (sovmestimost s dampom)."""
+    """Historical blueprint registration (dump compatible)."""
     app.register_blueprint(releases_bp)
 
 
-# Unifitsirovannye khuki proekta
+# Unified project hooks
 def register(app) -> None:  # pragma: no cover
     app.register_blueprint(releases_bp)
 

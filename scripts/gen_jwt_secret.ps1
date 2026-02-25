@@ -1,6 +1,6 @@
-# S0/scripts/gen_jwt_secret.ps1 — udobnaya obertka generatsii sekreta dlya Windows PowerShell
-# Mosty: (Yavnyy) Enderton — predikaty parametrov; (Skrytye) Ashbi — prostoy regulyator; Dzheynes — apriory bezopasnosti.
-# Zemnoy abzats: bezopasnaya zapis v .env tolko po yavnomu ukazaniyu.
+# C0/skripts/gen_zhvt_secret.ps1 - convenient secret generation wrapper for Windows PowerShell
+# Bridges: (Explicit) Enderton - parameter predicates; (Hidden) Ashby is a simple regulator; Janes is a priori of safety.
+# Earth paragraph: secure entry in .env only when explicitly instructed.
 # c=a+b
 
 param(

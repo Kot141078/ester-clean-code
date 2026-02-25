@@ -1,6 +1,6 @@
 # Runbook: Vysokaya latentnost
-1) Posmotret Grafana: p95/p99, oshibochnye kody.
-2) Snyat k6 short‑profile (`make bench` s 60s).
-3) Proverit provaydera LLM i ochered ingest.
-4) Vklyuchit flag `feature_flags.yaml: kg_repair=true` pri degradatsii KG.
-5) Pri neobkhodimosti — scale out (docker-compose.prod.yml replikas net, no mozhno podnyat vtoroy uzel i postavit DNS RR).
+1) Look at Grafan: p95/p99, erroneous moves.
+2) Remove k6 short profile (yomake wencho from 60c).
+3) Check the LLM provider and the ingest queue.
+4) Enable the flag efeature_flags.yaml: kg_repair=three when degrading CG.
+5) If necessary - rock from (docker-compose.prod.iml there are no replicas, but you can raise the second node and install DNS RR).

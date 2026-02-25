@@ -12,15 +12,13 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 # --- end bootstrap ---
 
-"""
-Boevoy vystrel utrennego daydzhesta «pryamo seychas».
+"""Boevoy vystrel utrennego daydzhesta “pryamo seychas”.
 Trebuetsya: TELEGRAM_TOKEN, TELEGRAM_CHAT_ID (v okruzhenii).
 Zapusk (PowerShell):
     $env:PYTHONPATH = (Get-Location).Path
     $env:TELEGRAM_TOKEN = "XXX:telegram_bot_token"
     $env:TELEGRAM_CHAT_ID = "123456789"
-    python tests\manual\send_morning_now.py
-"""
+    python tests\manual\send_morning_now.py"""
 
 import types
 
@@ -31,7 +29,7 @@ from telegram_bot import (  # ispolzuem realnuyu otpravku
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
-# --- Mini-zaglushki dlya mm (dostatochno dlya daydzhesta) ---
+# --- Mini plugs for mm (enough for digest) ---
 class FakeVStore:
     def __init__(self, size: int):
         self.size = size
@@ -59,36 +57,36 @@ CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 USER = os.environ.get("ESTER_DEFAULT_USER", "Owner")
 
 if not TOKEN or not CHAT_ID:
-    raise SystemExit("Nuzhno vystavit TELEGRAM_TOKEN i TELEGRAM_CHAT_ID")
+    raise SystemExit("You need to set TELEGRAM_TOKEN and TELEGRAM_CHAT_ID")
 
 
 def main():
-    # Podstav realnye/zhelaemye znacheniya
+    # Substituting real/desired values
     fake_store_size = 120
     fake_emotions = {"anxiety": 0.28, "interest": 0.62}
 
     mm = FakeMM(fake_store_size, fake_emotions)
     daemon = MorningDigestDaemon(mm, providers=None, tg_token=TOKEN, default_user=USER)
 
-    # 1) forsim nalichie chata
+    # 1) force the availability of chat
     def _get_chat_id(self, user: str):
         return int(CHAT_ID)
 
     daemon._get_chat_id = types.MethodType(_get_chat_id, daemon)
 
-    # 2) schitaem, chto pryamo seychas «utro»
+    # 2) we believe that right now it’s “morning”
     def _now_in_morning_window(self):
         return True
 
     daemon._now_in_morning_window = types.MethodType(_now_in_morning_window, daemon)
 
-    # 3) ispolzuem realnyy tg_send — v daemon on importiruetsya kak pn.tg_send
-    # Nichego ne patchim, pust shlet po-nastoyaschemu.
+    # 3) use real tg_send - it is imported into the daemon as mon.tg_send
+    # We don’t patch anything, let it send for real.
 
     # 4) tik → soobschenie uydet v tvoy Telegram odin raz (metka "segodnya uzhe otpravlyali" sokhranitsya)
     daemon._tick()
     print(
-        "✓ Soobschenie otpravleno (esli vse ok s tokenom/chatom)."
+        "✓ Message sent (if everything is ok with the token/chat)."
     )
 
 

@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/project_share.py — UI/REST «Otpravit proekt» + vkhodyaschiy /ops/inbox/project.
+"""routes/project_share.py - UI/REST "Otpravit project" + vkhodyaschiy /ops/inbox/project.
 
-Marshruty:
-  • GET  /admin/project/share         — HTML-stranitsa
-  • POST /admin/project/share/send    — sformirovat konvert Re otpravit (LAN/Telegram)
-  • POST /ops/inbox/project           — priem konverta (validatsiya, anti-repley, zapis v inboks po AB_MODE)
+Route:
+  • GET /admin/project/share - HTML-pages
+  • POST /admin/project/share/send — sformirovat konvert Re otpravit (LAN/Telegram)
+  • POST /ops/inbox/project - accept konverta (validatsiya, anti-repley, zapis v inboxes po AB_MODE)
 
 Mosty:
 - Yavnyy (Kibernetika v†" Svyaz): odin ekran Re dva refleksa (otpravka/priem).
 - Skrytyy 1 (Infoteoriya v†" Kontrakty): envelope + transport_manager v†' bez pravok yadra.
-- Skrytyy 2 (Praktika v†" Vezopasnost): v A-rezhime inboks tolko «proslushivaet», bez zapisi na disk.
+- Skrytyy 2 (Praktika v†" Vezopasnost): v A-rezhime inboks tolko “prolushivaet”, bez zapisi na disk.
 
 Zemnoy abzats:
-Polzovatel «prikalyvaet bumazhku» (JSON proekta) Re zhmet «Otpravit». Grugoy uzel prinimaet Re, esli razresheno (B),
-akkuratno kladet fayl v inboks. Mozg/pamyat/volyu Ester ne trogaem.
+Polzovatel "prikalyvaet bumazhku" (JSON proekta) Re zhmet "Otpravit". Grugoy uzel prinimaet Re, esli razresheno (B),
+akkuratno kladet fayl v inboxes. Mozg/pamyat/volyu Ester ne trogaem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

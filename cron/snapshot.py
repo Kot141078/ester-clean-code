@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
-"""
-cron/snapshot.py — nochnye snapshoty indeksov (lokalno, bez vneshnikh zavisimostey).
+"""cron/snapshot.py - nochnye snapshoty indeksov (lokalno, bez vneshnikh zavisimostey).
 
 Zapusk:
-  • Razovo:         python -m cron.snapshot --once
-  • Po raspisaniyu:  SNAPSHOT_CRON=02:30 python -m cron.snapshot
-  • Parametry:      SNAPSHOT_DIR=./data/snapshots, INDEX_ROOT=./data/index/faiss, SNAPSHOT_KEEP=14
+  • Razovo: python -m cron.snapshot --once
+  • By raspisaniyu: SNAPSHOT_CRON=02:30 python -m cron.snapshot
+  • Parametry: SNAPSHOT_DIR=./data/snapshots, INDEX_ROOT=./data/index/faiss, SNAPSHOT_KEEP=14
 
-Chto delaet:
+What does it do:
   • Sobiraet katalogi shardov iz INDEX_ROOT i upakovyvaet tar.{zst|gz} v SNAPSHOT_DIR.
-  • Esli dostupen zstandard — .zst, inache — .gz.
+  • Esli dostupen zstandard - .zst, inache - .gz.
   • (Opts.) uderzhivaet ne bolee SNAPSHOT_KEEP poslednikh snapshotov.
 
 Zemnoy abzats (inzheneriya)
-Eto «nochnaya fotokamera stanka»: delaet akkuratnyy snimok sostoyaniya indeksov,
+This is “nochnaya fotokamera stanka”: delaet akkuratnyy snimok sostoyaniya indeksov,
 chtoby posle vnezapnogo otklyucheniya pitaniya mozhno bylo bystro vosstanovitsya.
 
 Mosty
 - Yavnyy (Arkhitektura ↔ Nadezhnost): regulyarnye snapshoty — strakhovka pri sboyakh/oshibkakh operatora.
 - Skrytyy 1 (Kibernetika ↔ Operatsii): vneshniy medlennyy kontur (planirovschik) stabiliziruet sistemu posle pikov.
-- Skrytyy 2 (Anatomiya ↔ PO): kak son — konsolidatsiya «pamyati» v dolgovremennoe khranilische.
+- Skrytyy 2 (Anatomiya ↔ PO): kak son - konsolidatsiya “pamyati” v long-term khranilische.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -118,8 +116,8 @@ def _seconds_until(hhmm: str) -> int:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--once", action="store_true", help="sdelat odin snapshot i vyyti")
-    ap.add_argument("--shard", default=None, help="ogranichit odnim shardom")
+    ap.add_argument("--once", action="store_true", help="take one snapshot and exit")
+    ap.add_argument("--shard", default=None, help="limit to one shard")
     args = ap.parse_args()
 
     if args.once:

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/roles_edges_routes.py - REST nad grafom affinnosti.
+"""routes/roles_edges_routes.py - REST nad grafom affinnosti.
 
 MOSTY:
 - (Yavnyy) POST /roles/edges/observe - fiksiruem ko-aktivnost (most iz lyubykh istochnikov).
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Kontekst sobytiya khranitsya v JSON, prigoden dlya obyasnimosti/bordy.
 
 ZEMNOY ABZATs:
-Dali znat, chto lyudi rabotali ryadom - i sistema nachala uchityvat «pritertost», ne navyazyvaya zhestkikh pravil.
+Dali znat, chto lyudi rabotali ryadom - i sistema nachala uchityvat “pritertost”, ne navyazyvaya zhestkikh pravil.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List

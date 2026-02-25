@@ -16,7 +16,7 @@ def test_perf_files_exist():
     summaries = glob.glob("artifacts/perf/*.summary.json")
     assert (
         summaries
-    ), "Net artifacts/perf/*.summary.json — snachala progonite profili (make perf-all)"
+    ), "No artifacts/perf/*.summary.zhsion - first run the profiles (make perf-al)"
     assert os.path.exists(
         "artifacts/perf/report.md"
     ), "Net artifacts/perf/report.md — zapustite perf_aggregate.py"

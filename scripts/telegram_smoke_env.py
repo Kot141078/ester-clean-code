@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/telegram_smoke_env.py
+"""scripts/telegram_smoke_env.py
 
 Bystraya proverka Telegram-nastroek dlya Ester.
 
@@ -10,7 +9,7 @@ Proveryaet:
 - TELEGRAM_ALLOWED_UPDATES
 - ADMIN_TG_ID
 
-Osobennost:
+Features:
 - Pered proverkoy pytaetsya zagruzit peremennye iz .env v korne proekta,
   esli oni esche ne zadany v okruzhenii protsessa.
   Eto delaet vyvod skripta soglasovannym s tem, kak Ester chitaet konfig.
@@ -20,8 +19,7 @@ Zapusk (iz kornya proekta):
 
 Zemnoy abzats:
 Eto kak otkryt schitok i sverit, chto podpisannye avtomaty realno vklyucheny —
-ne po pamyati, a po skheme v korobke (.env).
-"""
+ne po pamyati, a po scheme v korobke (.env)."""
 
 from __future__ import annotations
 
@@ -38,16 +36,14 @@ if str(ROOT) not in sys.path:
 
 
 def _load_env_from_file(path: Path) -> None:
-    """
-    Prosteyshiy zagruzchik .env bez vneshnikh zavisimostey.
+    """Prosteyshiy zagruzchik .env bez vneshnikh zavisimostey.
 
     Logika:
     - esli peremennaya uzhe est v os.environ, NE pereopredelyaem;
     - podderzhivaem stroki vida KEY=VALUE;
-    - ignoriruem kommentarii (#...) i pustye stroki;
+    - ignore comments (#...) i empty lines;
     - probely vokrug imeni i znacheniya obrezaem;
-    - kavychki vokrug VALUE snimaem, esli est.
-    """
+    - kavychki vokrug VALUE snimaem, esli est."""
     if not path.is_file():
         return
 
@@ -63,12 +59,12 @@ def _load_env_from_file(path: Path) -> None:
             if not name or name.startswith("#"):
                 continue
 
-            # Esli uzhe zadano v okruzhenii — ne trogaem (prioritet u vneshney sredy)
+            # If it is already set in the environment, do not touch it (priority is with the external environment)
             if name in os.environ:
                 continue
 
             value = value.strip()
-            # Snimaem odinarnye/dvoynye kavychki po krayam, esli est
+            # Remove single/double quotes around the edges, if any
             if (value.startswith('"') and value.endswith('"')) or (
                 value.startswith("'") and value.endswith("'")
             ):
@@ -76,8 +72,8 @@ def _load_env_from_file(path: Path) -> None:
 
             os.environ[name] = value
     except Exception as e:  # noqa: BLE001
-        # Ne valim smoke, prosto preduprezhdaem.
-        print(f"[WARN] Ne udalos korrektno prochitat .env: {e}")
+        # We're not throwing down the drain, we're just warning you.
+        print(f"YuVARNsch Could not read correctly .env: ZZF0Z")
 
 
 def _get(name: str) -> str | None:
@@ -98,7 +94,7 @@ def _err(msg: str) -> None:
 
 
 def main() -> int:
-    # Podkhvatyvaem .env iz kornya proekta (esli est)
+    # Picks up .env from the project root (if any)
     _load_env_from_file(ROOT / ".env")
 
     token = _get("TELEGRAM_BOT_TOKEN")
@@ -114,22 +110,22 @@ def main() -> int:
         else:
             _warn(
                 "TELEGRAM_BOT_TOKEN zadan, no format podozritelnyy "
-                "(obychno soderzhit dvoetochie i dostatochno dlinnyy)."
+                "(usually contains a colon and is quite long)."
             )
     else:
         _warn(
-            "TELEGRAM_BOT_TOKEN ne zadan. Bez nego bot ne smozhet otpravlyat "
-            "soobscheniya i prinimat webhook."
+            "TELEGRAM_HERE_TOKEN is not specified. Without it, the bot will not be able to send"
+            "messages and receive webhook."
         )
 
     if secret:
         if len(secret) >= 10:
             _ok("Webhook secret (TELEGRAM_WEBHOOK_SECRET/TELEGRAM_SECRET_TOKEN) zadan.")
         else:
-            _warn("Webhook secret zadan, no vyglyadit korotkim — luchshe >=10 simvolov.")
+            _warn("The webhook secret is set, but it looks short - better >=10 characters.")
     else:
         _warn(
-            "Webhook secret ne zadan. Webhook budet rabotat, no bez proverki "
+            "Webhook secret not set. Webhook will work, but without checking"
             "X-Telegram-Bot-Api-Secret-Token."
         )
 
@@ -138,11 +134,11 @@ def main() -> int:
         try:
             parsed = json.loads(allowed)
             if isinstance(parsed, list):
-                _ok(f"TELEGRAM_ALLOWED_UPDATES kak JSON: {parsed}")
+                _ok(f"TELEGRAM_ALLOWED_UPDATES as JSON: {parsed}")
             else:
                 _warn(
-                    "TELEGRAM_ALLOWED_UPDATES kak JSON ne yavlyaetsya spiskom, "
-                    "probuem interpretirovat kak CSV."
+                    "TELEGRAM_ALLOVED_UPDATES as ZhSION is not a list,"
+                    "we try to interpret it as CSV."
                 )
                 parsed = None
         except Exception:
@@ -151,11 +147,11 @@ def main() -> int:
         if parsed is None:
             parts = [p.strip() for p in allowed.split(",") if p.strip()]
             if parts:
-                _ok(f"TELEGRAM_ALLOWED_UPDATES kak spisok: {parts}")
+                _ok(f"TELEGRAM_ALLOVED_UPDATES as list: ZZF0Z")
             else:
                 _warn(
                     "TELEGRAM_ALLOWED_UPDATES zadan, no format ne razobran. "
-                    "Ostavlyaem kak est."
+                    "Let's leave it as is."
                 )
     else:
         _warn(
@@ -165,17 +161,17 @@ def main() -> int:
 
     if admin:
         if admin.isdigit():
-            _ok(f"ADMIN_TG_ID={admin} — OK (vyglyadit kak chislovoy chat id).")
+            _ok(f"ADMIN_TG_ID=ZZF0Z - OK (looks like a numeric chat ID).")
         else:
             _warn(
-                "ADMIN_TG_ID zadan, no ne yavlyaetsya chislom. Obychno eto numeric chat id."
+                "ADMIN_TG_ID is specified, but is not a number. Usually this is numeric chat id."
             )
     else:
-        _warn("ADMIN_TG_ID ne zadan. Smoke-test otpravki soobscheniya rabotat ne budet.")
+        _warn("ADMIN_TG_ID is not specified. The stock test of sending a message will not work.")
 
     if not token and not admin:
         _err(
-            "Net TELEGRAM_BOT_TOKEN i ADMIN_TG_ID — Telegram-integratsiya fakticheski "
+            "No TELEGRAM_HERE_TOKEN and ADMIN_TG_ID - Telegram integration actually"
             "vyklyuchena."
         )
         exit_code = 1

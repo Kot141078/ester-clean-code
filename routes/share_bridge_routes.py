@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/share_bridge_routes.py — drop-in Bridge-routy sovmestimye s share_bridge.py protokolom.
+"""routes/share_bridge_routes.py - drop-in Bridge-routy sovmestimye s share_bridge.py protocol.
 Naznachenie: prinimat web-vydeleniya/stranitsy i pisat ikh na disk (dlya posleduyuschego ingest) i, optsionalno,
 srazu v pamyat (StructuredMemory + Cards) dlya mgnovimoy dostupnosti v RAG/fide/UI.
 
-Endpointy:
+Endpoint:
   POST /share/capture
     — odinochnyy obekt: {url,title,html?,text?,selection?,tags?,note?}
     — paket: {"items":[{...},{...}]}
-Otvet (supermnozhestvo prezhnego):
+Answer (supermnozhestvo prezhnego):
   {"ok":true,"count":N,
    "saved":[
      {
@@ -22,14 +21,13 @@ Otvet (supermnozhestvo prezhnego):
    ]}
 
 ENV:
-  PERSIST_DIR                — koren dannykh (kak v drugikh modulyakh)
-  ESTER_INGEST_INBOX         — direktoriya dlya syrya (po umolchaniyu PERSIST_DIR/ingest/bridge_inbox)
-  SHARE_MAX_HTML_MB          — limit razmera HTML v megabaytakh (po umolchaniyu 8)
-  SHARE_WRITE_MEMORY         — 1/0: pisat v StructuredMemory/kartochki (po umolchaniyu 1)
+  PERSIST_DIR - koren dannykh (kak v drugikh modulyakh)
+  ESTER_INGEST_INBOX — direktoriya dlya syrya (by umolchaniyu PERSIST_DIR/ingest/bridge_inbox)
+  SHARE_MAX_HTML_MB - limit size HTML v megabaytakh (by default 8)
+  SHARE_WRITE_MEMORY - 1/0: pisat v StructuredMemory/kartochki (po umolchaniyu 1)
 Sovmestimost:
   - Polya "html"/"txt" i "meta" sokhraneny dlya obratnoy sovmestimosti s v1-testami.
-  - Put i signatury ne izmeneny. Mozhno rabotat kak «chistyy dropper», esli SHARE_WRITE_MEMORY=0.
-"""
+  - Put i signatury ne izmeneny. Mozhno rabotat kak "chistyy dropper", esli SHARE_WRITE_MEMORY=0."""
 from __future__ import annotations
 
 import datetime as dt
@@ -111,7 +109,7 @@ def _normalize_item(it: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _build_mm():
-    # Kanonnaya sborka pamyati — bez izmeneniya importov/putey
+    # Canonical memory assembly - without changing imports/paths
     from cards_memory import CardsMemory  # type: ignore
     from memory_manager import MemoryManager  # type: ignore
     from structured_memory import StructuredMemory  # type: ignore
@@ -153,7 +151,7 @@ def _save_one(
     tags = item["tags"]
     note = item["note"]
 
-    # Ogranichim HTML po razmeru (v baytakh)
+    # Limit HTML by size (in bytes)
     if html:
         html_bytes = html.encode("utf-8")
         max_bytes = int(max_html_mb * 1024 * 1024)
@@ -190,7 +188,7 @@ def _save_one(
         saved_rel += [os.path.relpath(hp, inbox), os.path.relpath(mp, inbox)]
         abs_html, abs_meta = hp, mp
 
-    # TEXT-kontent (esli html net)
+    # TEXT content (if there is no ntml)
     if text and not html:
         tb = text.encode("utf-8")
         sha = _sha256(tb)
@@ -212,7 +210,7 @@ def _save_one(
         saved_rel += [os.path.relpath(tp, inbox), os.path.relpath(mp, inbox)]
         abs_txt, abs_meta = tp, mp
 
-    # Pishem v pamyat (myagko, esli vklyucheno)
+    # Write to memory (softly, if enabled)
     rec_id = None
     if write_memory:
         try:
@@ -228,7 +226,7 @@ def _save_one(
             if not payload_text:
                 payload_text = (html or "")[:1000]
             rec_id = mm.structured.add_record(text=payload_text, tags=tagset, weight=0.55)  # type: ignore[attr-defined]
-            # kartochka — cherez sovmestimyy fasad (sm. mm_compat.patch_memory_manager)
+            # card - through a compatible facade (see mm_company.patch_memory_manager)
             try:
                 mm.cards.add_card(header=title, body=payload_text[:600], tags=["share"] + tags)  # type: ignore[attr-defined]
             except Exception:
@@ -236,7 +234,7 @@ def _save_one(
         except Exception:
             rec_id = None
 
-    # Bozvraschaem Re starye polya (dlya v1 testov), Re novye
+    # We return Re old fields (for B1 tests), Re new ones
     out: Dict[str, Any] = {
         "id": rec_id,
         "title": title,
@@ -258,7 +256,7 @@ def register_share_bridge_routes(app, url_prefix: str = "/share"):
     @app.post(url_prefix + "/capture")
     @jwt_required(
         optional=True
-    )  # dopuskaem gostya dlya bystrykh zametok
+    )  # We allow a guest for quick notes
     def share_capture():
         data = request.get_json(silent=True) or {}
         inbox = _inbox_dir()
@@ -319,7 +317,7 @@ def _save_one(obj: Dict[str, Any]) -> Dict[str, str]:
         },
     }
 
-    # reshaem, chto sokhranyat kak osnovnoy kontent
+    # deciding what to save as main content
     if html and isinstance(html, str) and html.strip():
         html_path = os.path.join(inbox, base + ".html")
         with open(html_path, "w", encoding="utf-8") as f:
@@ -356,8 +354,8 @@ def register_share_bridge_routes(app, url_prefix: str = "/share"):
                     continue
             return jsonify({"ok": True, "saved": saved, "count": len(saved)})
 
-        # rezhim: odinochnyy obekt
-        # dopuskaem peredachu poley pryamo v korne
+        # mode: single object
+        # allows fields to be passed directly to the root
         try:
             saved.append(_save_one(data))
         except Exception as e:
@@ -368,7 +366,7 @@ def register_share_bridge_routes(app, url_prefix: str = "/share"):
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
 def register(app):
-    # vyzyvaem suschestvuyuschiy register_share_bridge_routes(app) (url_prefix beretsya po umolchaniyu vnutri funktsii)
+    # calls an existing register_share_bridge_rutes(app) (url_prefix is ​​taken by default inside the function)
     return register_share_bridge_routes(app)
 
 # === /AUTOSHIM ===

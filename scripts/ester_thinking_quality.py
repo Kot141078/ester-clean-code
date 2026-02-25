@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/ester_thinking_quality.py
+"""scripts/ester_thinking_quality.py
 
 CLI-instrument dlya otsenki kachestva kaskadnogo myshleniya Ester.
 
 Mosty:
-- Yavnyy: (cascade_closed / ester_thinking_http <-> thinking_quality) — edinye kriterii dlya lokalnogo i HTTP-rezhima.
+- Yavnyy: (cascade_closed / ester_thinking_http <-> thinking_quality) - edinye kriterii dlya lokalnogo i HTTP-rezhima.
 - Skrytyy #1: (inzhener <-> metriki) — daet chislovoy skor i tekstovuyu prichinu.
-- Skrytyy #2: (thinking_manifest <-> profili) — pomogaet proverit, chto profil human_like realno daet human_like-kasCADE.
+- Skrytyy #2: (thinking_manifest <-> profili) — help proverit, chto profil human_like realno daet human_like-kasCADE.
 
-Ispolzovanie:
+Use:
 
-1) Lokalnyy test kaskada (bez HTTP):
+1) Lokalnyy test kaskada (without HTTP):
 
     python -m scripts.ester_thinking_quality
 
@@ -20,15 +19,14 @@ Ispolzovanie:
     python -m scripts.ester_thinking_quality http
 
 ENV:
-    ESTER_THINK_QUALITY_URL  — URL dlya HTTP-rezhima (po umolchaniyu /ester/thinking/once)
+    ESTER_THINK_QUALITY_URL - URL dlya HTTP-rezhima (po umolchaniyu /ester/thinking/once)
     Porogi chitayutsya iz modules.ester.thinking_quality (ESTER_THINK_MIN_DEPTH i dr.)
 
 Zemnoy abzats:
 Komanda daet prostoy otvet:
 "score=0.87, human_like=True, prichina=kasCADE sootvetstvuet kriteriyam".
 Eto udobno dlya regressionnykh testov i kontrolya evolyutsii myshleniya Ester.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -81,7 +79,7 @@ def _run_http() -> Dict[str, Any]:
     except Exception:
         return {"ok": False, "error": "invalid json from server", "raw": raw[:4000]}
 
-    # result mozhet lezhat libo v korne, libo v result
+    # Resilt can lie either in the root or in the Resilt
     cascade_res = parsed.get("result") or parsed
     q = analyze_cascade(cascade_res)
     return {"ok": True, "mode": "http", "response": parsed, "quality": q}

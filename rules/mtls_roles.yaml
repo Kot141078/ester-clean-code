@@ -1,4 +1,4 @@
-# rules/mtls_roles.yaml — karta DN → role dlya mTLS-garda
+# rules/mtls_roles.yaml - karta DN → role dlya mTLS-garda
 map:
   - dn_regex: "CN=node-\\d+,OU=core,O=Ester"
     role: replicator

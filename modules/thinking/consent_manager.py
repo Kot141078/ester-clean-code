@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/consent_manager.py — menedzher soglasiy i politik deystviy Ester.
+"""modules/thinking/consent_manager.py - menedzher soglasiy i politik deystviy Ester.
 
 Stsenarii:
-- ask_once: sprosit polzovatelya i zapomnit razreshenie na domen deystviy (naprimer, "rpa.*", "install.*", "vm.*").
+- ask_once: ask polzovatelya i zapomnit razreshenie na domen deystviy (for example, "rpa.*", "install.*", "vm.*").
 - session_only: razreshenie deystvitelno do restarta protsessa.
-- deny: zapretit.
+- deny: prohibited.
 
 Khranilische: data/security/consent.json (persist), a takzhe protsessnaya sessiya (in-memory).
 
 MOSTY:
 - Yavnyy: (Volya ↔ Bezopasnost) volevoe deystvie gated cherez yavnoe soglasie po domenam.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) yavnye domeny umenshayut neodnoznachnost zaprosa.
-- Skrytyy #2: (Psikhologiya ↔ UX) sootvetstvie chelovecheskoy modeli «razreshit odin raz/navsegda».
+- Skrytyy #2: (Psikhologiya ↔ UX) sootvetstvie chelovecheskoy modeli “razreshit odin raz/navsegda”.
 
 ZEMNOY ABZATs:
 Lokalnyy oflayn-fayl consent.json; API otdaet, nuzhno li sprosit, i fiksiruet vybor. 
-Podderzhka wildcards cherez prefiksy domena (naprimer, "rpa." pokryvaet "rpa.click", "rpa.open").
+Podderzhka wildcards cherez prefiksy domena (for example, "rpa." pokryvaet "rpa.click", "rpa.open").
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Dict
@@ -48,16 +46,14 @@ def _save(rules: Dict[str, str]) -> None:
         json.dump({"rules": rules}, f, ensure_ascii=False, indent=2)
 
 def get_effective(domain: str) -> str:
-    """
-    Vozvraschaet "allow"/"deny"/"ask" dlya domena.
-    Logika poiska: tochnoe sovpadenie → poisk po prefiksu "xxx." (ukorochenie).
-    Sessiya pereopredelyaet na vremya protsessa.
-    """
+    """Vozvraschaet "allow"/"deny"/"ask" dlya domena.
+    Logika poiska: tochnoe sovpadenie → poisk po prefiksu "xxx." (shortening).
+    Sessiya pereopredelyaet na vremya protsessa."""
     if domain in _session:
         mode = _session[domain]
         if mode in ("allow", "deny"):
             return mode
-        # "ask_once" → poka ne vstretili konkretnogo resheniya, vernem ask
+        # "ask_once" → until now ne vstretili konkretnogo resheniya, vernem ask
     rules = _load()
     sub = domain
     while True:

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/cron_nightly_routes.py - REST: status i ruchnoy zapusk Nightly.
+"""routes/cron_nightly_routes.py - REST: status i ruchnoy zapusk Nightly.
 
 Mosty:
 - Yavnyy: (Veb ↔ Cron) zapusk i monitoring tekhprotsedur.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Survival ↔ Rezerv) snapshoty popadayut v bandly.
 
 Zemnoy abzats:
-Otkryl panel - nazhal knopku - obsluzhivanie proshlo. Tak i dolzhno byt.
+Open panel - nazhal knopku - obsluzhivanie proshlo. That's how it works.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

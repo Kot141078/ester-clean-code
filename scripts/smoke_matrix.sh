@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# S0/scripts/smoke_matrix.sh — Sbor matritsy statusov (Markdown) dlya *nix
-# Mosty: (Yavnyy) Enderton — predikaty statusov; (Skrytyy #1) Ashbi — prostoy regulyator; (Skrytyy #2) Dzheynes — nablyudeniya dlya pravdopodobiya «zdorovya».
-# Zemnoy abzats: udobnaya obertka. Stavit otchet v matrix.md. Ne valit payplayn.
+# С0/skripts/stoke_matrix.sh - Collection of status matrix (Markdovn) for *them
+# Bridges: (Explicit) Enderton - status predicates; (Hidden #1) Ashby is a simple regulator; (Hidden #2) Janes - observations for the credibility of "health".
+# Earthly paragraph: a convenient wrapper. Place a report in Matrix.md. The pipeline doesn't fail.
 # c=a+b
 
 set -euo pipefail

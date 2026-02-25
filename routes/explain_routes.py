@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/explain_routes.py - REST/UI dlya metaforicheskikh obyasneniy.
+"""routes/explain_routes.py - REST/UI dlya metaforicheskikh obyasneniy.
 
 Mosty:
-- Yavnyy: (UI ↔ Obyasnitel) - otdaem metaforu i vizualnuyu «skhemu» dlya lyubogo teksta.
+- Yavnyy: (UI ↔ Obyasnitel) - otdaem metaforu i vizualnuyu “skhemu” dlya lyubogo teksta.
 - Skrytyy 1: (Memory ↔ Podacha) - auditoriya mozhet uchityvatsya upstream i peredavatsya syuda.
 - Skrytyy 2: (Diagnostika ↔ Avtorskiy stil) - edinyy format obyasneniy uluchshaet doverie i povtoryaemost.
 
 Zemnoy abzats:
-Knopka «obyasni» v adminke: vstavlyaesh tekst - poluchaesh prostoe, metaforu i mini-skhemku. Bystro i po delu.
-"""
+Knopka “obyasni” v adminke: vstavlyaesh tekst - poluchaesh prostoe, metaforu i mini-skhemku. Bystro i po delu."""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request, render_template

@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_portable_checklist.py - integratsionnyy chek-list (vetka B):
-  • /admin/portable/checklist            - stranitsa
-  • /admin/portable/checklist/status     - USB struktura, lock-prevyu, ocheredi, katalogi, LAN-svodka
-  • /admin/portable/lock_write           - zapisat ESTER/manifest_lock.json (AB=A → dry)
-  • /admin/portable/installer_seed       - zapisat ESTER/installer/* (AB=A → dry)
-  • /admin/portable/compat_check         - bazovaya proverka sovmestimosti s ester_manifest.json
+"""routes/admin_portable_checklist.py - integratsionnyy check-list (vetka B):
+  • /admin/portable/checklist - stranitsa
+  • /admin/portable/checklist/status - USB struktura, lock-prevyu, ocheredi, katalogi, LAN-svodka
+  • /admin/portable/lock_write - zapisat ESTER/manifest_lock.json (AB=A → dry)
+  • /admin/portable/installer_seed - zapisat ESTER/installer/* (AB=A → dry)
+  • /admin/portable/compat_check - bazovaya proverka sovmestimosti s ester_manifest.json
 
 Mosty:
 - Yavnyy (Ekspluatatsiya ↔ Priemka): vse klyuchevoe v odnom meste: struktura nositelya, lock i installer.
@@ -13,10 +12,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): dry AB, offlayn, proverki ne trogayut myshlenie/pamyat/volyu Ester.
 
 Zemnoy abzats:
-Eto «list priemki»: odin ekran pered vydachey/kopirovaniem - vse zelenoe/zheltoe/krasnoe vidno srazu.
+This is “list priemki”: odin ekran pered vydachey/kopirovaniem - vse zelenoe/zheltoe/krasnoe vidno srazu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from pathlib import Path
@@ -96,7 +94,7 @@ def installer_seed():
 def compat_check_api():
     body = request.get_json(silent=True) or {}
     manifest = body.get("manifest") or {}
-    # popytka podkhvatit s USB, esli ne peredan
+    # attempt to pick up from USB, if not transmitted
     if not manifest:
         usb = detect_usb_root()
         if usb:

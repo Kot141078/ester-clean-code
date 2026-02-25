@@ -1,30 +1,28 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/lan_discovery.py — UDP-multicast «mayak» + priemnik + obmen profileami.
+"""listeners/lan_discovery.py - UDP-multicast "mayak" + priemnik + exchange profileami.
 
-Protokol (JSON, UTF-8, 1 paket):
+Protocol (JSON, UTF-8, 1 package):
   { "t": "hello"|"req"|"passport", "ts": <unix>, "node": {"id","name"}, "port": <udp_port>, "sig": "<hex>", "payload": {...} }
 
-Povedenie:
+Behavior:
   • Periodicheski shlem "hello" v gruppu (model Ashbi: nablyudaemost).
   • Prinimaem pakety, vedem peers-tablitsu {ip -> {..., last_seen}} v {STATE}/lan_peers.json.
-  • Esli auto_exchange=1:
+  • If auto_exchange=1:
       - na hello — otpravlyaem "req" adresatu (unicast).
-      - na req — otpravlyaem "passport" (v AB=A — ukorochennyy profile).
-  • HMAC podpis cherez shared_key; bez klyucha pakety schitayutsya nepodpisannymi (accepted, verified=false).
+      - na req - otpravlyaem "passport" (v AB=A - ukorochennyy profile).
+  • HMAC podpis via shared_key; bez klyucha pakety schitayutsya nepodpisannymi (accepted, verified=false).
 
 ENV/CFG: sm. modules.lan.lan_settings.
 
 Mosty:
 - Yavnyy (Kibernetika ↔ Nablyudaemost): LAN-mayak daet zhivuyu kartu sosedey.
-- Skrytyy 1 (Infoteoriya ↔ Bezopasnost): HMAC-podpis snizhaet risk «shumnykh» uzlov.
+- Skrytyy 1 (Infoteoriya ↔ Bezopasnost): HMAC-podpis snizhaet risk “shumnykh” uzlov.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): drop-in; JSON-format sovmestim s P2P-konvertami po dukhu.
 
 Zemnoy abzats:
-Eto «ratsiya dvora»: uzly peregovarivayutsya na obschem kanale, znakomyatsya i pri neobkhodimosti obmenivayutsya vizitkami (profileami).
+This is “ratsiya dvora”: uzly peregovarivayutsya na obschem kanale, znakomyatsya i pri neobkhodimosti obmenivayutsya vizitkami (profileami).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse, json, os, socket, struct, time
@@ -63,7 +61,7 @@ def _node_id() -> str:
         return socket.gethostname()
 
 def _shorten_passport(p: Dict[str, Any], limit: int) -> Dict[str, Any]:
-    # Urezaem «tyazhelye» polya, chtoby vlezlo v MTU.
+    # We cut down the “heavy” fields to fit into the MTU.
     out = json.loads(json.dumps(p))  # deepcopy
     inv = out.get("inventory", {})
     # obrezaem spiski
@@ -76,7 +74,7 @@ def _shorten_passport(p: Dict[str, Any], limit: int) -> Dict[str, Any]:
     txt = json.dumps(out, ensure_ascii=False)
     if len(txt.encode("utf-8")) <= limit:
         return out
-    # esli vse esche velik — ostavim tolko zagolovok
+    # if it’s still too big, let’s leave only the title
     return {
         "kind": out.get("kind","ester-node-passport"),
         "version": out.get("version",1),
@@ -140,9 +138,9 @@ def _handle_packet(pkt: bytes, src: Any, cfg: Dict[str, Any], peers: Dict[str, A
     if not cfg.get("auto_exchange", True):
         return
 
-    # Zapros profilea na hello
+    # Hello profile request
     if t == "hello":
-        # otvetim individualnym req
+        # We will respond individually
         req = {"t":"req", "ts":int(time.time()), "node":{"id":_node_id(),"name":_node_id()}, "port": cfg["port"], "payload":{}}
         _sendto(_SOCK, req, (ip, port), cfg.get("shared_key",""))
         return
@@ -153,7 +151,7 @@ def _handle_packet(pkt: bytes, src: Any, cfg: Dict[str, Any], peers: Dict[str, A
         limit = int(cfg.get("max_packet", 1400)) - 128  # zapas na zagolovki
         if AB != "B":
             p = _shorten_passport(p, limit)
-        # Obrezka na vsyakiy sluchay
+        # Pruning just in case
         txt = json.dumps(p, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
         if len(txt) > limit:
             p = _shorten_passport(p, limit)
@@ -161,14 +159,14 @@ def _handle_packet(pkt: bytes, src: Any, cfg: Dict[str, Any], peers: Dict[str, A
         _sendto(_SOCK, rep, (ip, port), cfg.get("shared_key",""))
         return
 
-    # Na passport — prosto otmetim v peers poslednyuyu kopiyu (bez zapisi na disk konfigov)
+    # To the passport - just mark the last copy in the peer (without writing configs to disk)
     if t == "passport":
         rec["last_passport_ts"] = ts
         rec["has_passport"] = True
-        # Ne sokhranyaem payload — chtoby ne plodit personalnye dannye na disk.
+        # We do not save the payload - so as not to create personal data on disk.
         _save_peers(peers)
 
-# Globalnaya ssylka na soket — uproschaet otvety
+# Global socket reference - simplifies answers
 _SOCK: socket.socket
 
 def main(argv=None) -> int:
@@ -208,11 +206,11 @@ def main(argv=None) -> int:
             except socket.timeout:
                 pkt = None
             if pkt:
-                # ne reagiruem na svoe (grubaya proverka po imeni/ID)
+                # does not respond to its own (rough check by name/ID)
                 try:
                     j = json.loads(pkt.decode("utf-8", errors="ignore"))
                     if (j.get("node") or {}).get("id") == _node_id():
-                        pass  # propustim; vse ravno obnovim peers dlya vidimosti
+                        pass  # let's skip; still update the person for visibility
                 except Exception:
                     pass
                 _handle_packet(pkt, src, cfg, peers)

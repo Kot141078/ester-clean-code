@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/sandbox_routes.py - REST: zapusk Python v pesochnitse.
+"""routes/sandbox_routes.py - REST: zapusk Python v pesochnitse.
 
 Mosty:
 - Yavnyy: (Veb ↔ Pesochnitsa) edinaya tochka dlya prob.
-- Skrytyy #1: (CautionNet ↔ Consent) trebuet «pilyulyu».
-- Skrytyy #2: (UX ↔ Panel) udobno vstroit knopku «proverit».
+- Skrytyy #1: (CautionNet ↔ Consent) trebuet “pilyulyu”.
+- Skrytyy #2: (UX ↔ Panel) udobno vstroit knopku “check.”
 
 Zemnoy abzats:
-«Snachala na stolike, potom v operatsionnoy».
+“Snachala na stolike, potom v operatsionnoy.”
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

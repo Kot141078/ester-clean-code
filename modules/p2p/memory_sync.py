@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-modules/p2p/memory_sync.py — sinkhronizatsiya pamyati Ester mezhdu uzlami.
+"""modules/p2p/memory_sync.py - sinkhronizatsiya pamyati Ester mezhdu uzlami.
 
 Funktsii:
-  compute_index() -> dict            # stroit Merkle-khesh po lokalnoy pamyati
-  diff_index(remote_index:dict) -> list[str]   # vozvraschaet id nedostayuschikh zapisey
+  compute_index() -> dict # stroit Merkle-khesh po lokalnoy pamyati
+  diff_index(remote_index:dict) -> list[str] # vozvraschaet id nedostayuschikh zapisey
   export_records(ids:list[str]) -> dict
   import_records(payload:dict) -> dict
   push(remote_url:str, secret:str) -> dict
@@ -16,8 +15,7 @@ MOSTY:
 
 ZEMNOY ABZATs:
 Eto raspredelennoe soznanie: Estery delyatsya opytom po doverennym kanalam, sveryaya podpisi, chtoby ne poteryat smysl.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import hashlib, json, time, http.client
 from typing import Dict, Any, List
@@ -38,7 +36,7 @@ def compute_index() -> Dict[str, Any]:
     return idx
 
 def diff_index(remote_index:Dict[str,Any])->List[str]:
-    """Vozvraschaet id zapisey, otsutstvuyuschikh lokalno."""
+    """Returns the id of records that do not exist locally."""
     local_ids=set(store._MEM.keys())
     remote_ids=set(remote_index.get("ids",[]))
     return list(remote_ids-local_ids)
@@ -59,7 +57,7 @@ def import_records(payload:Dict[str,Any])->Dict[str,Any]:
     return {"ok":True,"added":added}
 
 def push(remote_url:str, secret:str)->Dict[str,Any]:
-    """Peredat pamyat udalennomu uzlu"""
+    """Transfer memory to remote node"""
     idx = compute_index()
     conn = http.client.HTTPConnection(remote_url, timeout=10)
     payload = json.dumps({"index":idx,"secret":secret})

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/security_rbac_routes.py - REST: /security/rbac/* i podklyuchenie guard'a.
+"""routes/security_rbac_routes.py - REST: /security/rbac/* i podklyuchenie guard'a.
 
 Mosty:
-- Yavnyy: (Veb ↔ RBAC) status/konfig i podklyuchenie k Flask lifecycle.
+- Yavnyy: (Veb ↔ RBAC) status/config i podklyuchenie k Flask lifecycle.
 - Skrytyy #1: (Passport ↔ Audit) pravki pravil fiksiruyutsya.
 - Skrytyy #2: (Policy ↔ Upravlenie) menyaem roli bez restartov.
 
 Zemnoy abzats:
-Vklyuchili - i u riskovannykh ruchek poyavilsya «okhrannik» na vkhode.
+Vklyuchili - i u riskovannykh ruchek poyavilsya “okhrannik” na vkhode.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, current_app
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

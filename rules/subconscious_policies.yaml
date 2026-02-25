@@ -1,4 +1,4 @@
-# Matchim vneshnie sobytiya i myagko podtalkivaem podskazki/refleksiyu
+# Matches external events and gently nudges prompts/reflection
 - name: ingest_links_with_dreams
   match:
     type: ingest.*

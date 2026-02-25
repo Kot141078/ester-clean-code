@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-routes/memory_policy_routes.py - REST/UI dlya politik pamyati.
+"""routes/memory_policy_routes.py - REST/UI dlya politik pamyati.
 
 Ruchki:
-  GET  /memory/policy/config
-  POST /memory/policy/config         { retention_days:{...}, privacy:{...}, compaction:{...}, automod:{...} }
-  POST /memory/policy/retention      { dry_run: true|false }
+  GET /memory/policy/config
+  POST /memory/policy/config { retention_days:{...}, privacy:{...}, compaction:{...}, automod:{...} }
+  POST /memory/policy/retention { dry_run: true|false }
   POST /memory/policy/scan_pii
-  POST /memory/policy/scrub_now      { ids: [..] }
-  POST /memory/policy/compact        { dry_run: true|false }
-  GET  /memory/policy/export_scrubbed
+  POST /memory/policy/scrub_now { ids: [..] }
+  POST /memory/policy/compact { dry_run: true|false }
+  GET /memory/policy/export_scrubbed
   POST /memory/policy/automod_tick
-  GET  /admin/memory_policies
+  GET /admin/memory_policies
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.memory import policies

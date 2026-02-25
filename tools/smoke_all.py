@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tools/smoke_all.py — edinyy smoke-test marshrutov bez zapuska vneshnego servera.
+"""tools/smoke_all.py - edinyy smoke-test routes bez zapuska vneshnego servera.
 
 Mosty:
 - Yavnyy: (QA ↔ App) — podnimaem vremennyy Flask i proveryaem bazovye GET/admin/probnye ruchki.
@@ -8,9 +7,8 @@ Mosty:
 - Skrytyy 2: (Diagnostika ↔ Logi) — pechataem kratkiy otchet po statusam, prigodnyy dlya CI.
 
 Zemnoy abzats:
-Skript «dyshit li vse?». Sobiraet prilozhenie, prokhodit po /probe, /admin i prostym GET, sveryaet 200 OK.
-Esli chto-to slomano — kod vozvrata 1.
-"""
+Skript “dyshit li vse?” Sobiraet prilozhenie, prokhodit po /probe, /admin i prostym GET, sveryaet 200 OK.
+Esli chto-to slomano - kod vozvrata 1."""
 from __future__ import annotations
 import sys, json
 from pathlib import Path
@@ -39,7 +37,7 @@ def main() -> int:
             failures.append((path, rv.status_code))
         return rv
 
-    # obyazatelnye proverki
+    # mandatory checks
     _hit("/admin")
     _hit("/health/state")
 
@@ -51,7 +49,7 @@ def main() -> int:
     for r in admins:
         _hit(str(r))
 
-    # neskolko GET-ruchek obschego vida (ogranichim desyatkom)
+    # several GET handles of a general type (limit to ten)
     for r in gets[:10]:
         try:
             _hit(str(r))

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/roles_clarify.py - metrika uverennosti profilya i «selektivnye voprosy» (+ optsionalnyy nudge).
+"""routes/roles_clarify.py - metrika uverennosti profilya i “selektivnye voprosy” (+ optsionalnyy nudge).
 
 MOSTY:
 - (Yavnyy) /roles/uncertain/{agent_id} → confidence [0..1]; /roles/clarify → korotkiy vopros i (esli nado) postanovka nudzha.
-- (Skrytyy #1) Vopros generiruetsya evristicheski iz slabykh komponentov vektora (roles.store → profile.vector).
-- (Skrytyy #2) Planirovanie nudzha - pryamoy vyzov obrabotchika routes.nudges_routes.nudges_event, bez setevogo obkhoda.
+- (Skrytyy #1) Questions generiruetsya evristicheski iz slabykh komponentov vektora (roles.store → profile.vector).
+- (Skrytyy #2) Planning nudzha - pryamoy vyzov obrabotchika routes.nudges_routes.nudges_event, bez setevogo obkhoda.
 
 ZEMNOY ABZATs:
-Kogda Ester ne uverena, ona ne «dostaet» vsekh - tolko adresno i vezhlivo utochnyaet u konkretnogo cheloveka to, chto vazhno dlya zadachi.
+Kogda Ester ne uverena, ona ne “dostaet” vsekh - tolko adresno i vezhlivo utochnyaet u konkretnogo cheloveka to, chto vazhno dlya zadachi.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -31,7 +29,7 @@ TH = float(os.getenv("ROLE_CLARIFY_THRESHOLD","0.35") or "0.35")
 router = APIRouter()
 
 def _confidence(vec: Dict[str,float]) -> float:
-    # prostaya metrika: sredniy uroven po klyuchevym osyam + «kontsentratsiya»
+    # simple metric: average level on key axes + “concentration”
     keys = ["experience","reaction","calm","coop","lead","comm","availability"]
     if not vec: return 0.0
     base = sum(float(vec.get(k,0.0)) for k in keys)/max(1,len(keys))
@@ -41,19 +39,19 @@ def _confidence(vec: Dict[str,float]) -> float:
 def _question_for(vec: Dict[str,float]) -> str:
     weak = sorted([(k,v) for k,v in vec.items()], key=lambda x:x[1])[:2]
     if not weak:
-        return "Chem seychas mozhete pomoch? Est li predpochtitelnye zadachi?"
+        return "How can you help now? Are there preferred tasks?"
     ask = []
     for k,_ in weak:
         if k == "availability":
-            ask.append("kogda vam udobno vklyuchitsya v blizhayshie sutki")
+            ask.append("When is it convenient for you to turn on in the next 24 hours?")
         elif k == "reaction":
-            ask.append("naskolko vam komfortny srochnye zadachi")
+            ask.append("How comfortable are you with urgent tasks?")
         elif k == "experience":
-            ask.append("kakie zadachi schitaete dlya sebya uverennymi")
+            ask.append("What tasks do you consider yourself confident in?")
         elif k == "comm":
-            ask.append("kak predpochitaete svyazyvatsya (korotko/podrobno)")
+            ask.append("How do you prefer to communicate (short/detailed)")
         else:
-            ask.append(f"kak otnosites k zadacham s uporom na «{k}»")
+            ask.append(f"How do you approach tasks with an emphasis on “ZZF0Z”")
     return "Korotko utochnyu: " + "; ".join(ask) + "?"
 
 @router.get("/roles/uncertain/{agent_id}")
@@ -77,18 +75,18 @@ async def roles_clarify(payload: Dict[str, Any] = Body(...)):
     q = _question_for(vec)
     sent = False
     if bool(payload.get("send_nudge")) and payload.get("channel_key") and nudges_event:
-        # sformiruem lokalnoe sobytie na etogo aktera
+        # Let's create a local event for this actor
         ev = {
             "event_type":"AssignmentRequested",
             "entity_id":f"clarify:{agent_id}:{int(time.time())}",
             "ts":time.time(),
             "payload":{
                 "actors":[{"agent_id":agent_id}],
-                "summary":"utochnenie profilya",
+                "summary":"profile clarification",
             }
         }
-        # podmenim intent cherez pole (ispolzuetsya nudges.engine intent_tpl)
-        # v prostom vide - nudzh uydet kak standartnyy "prinyal zapros"; tekst voprosa dobavitsya v intent u otpravki stilerom
+        # replace the intent through the field (using newges.engine intent_tpl)
+        # in a simple form - the need will go away as a standard “accepted request”; the question text will be added to the intent and sent by the stylist
         try:
             await nudges_event(ev)  # type: ignore
             sent = True

@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_diagnostics.py - rasshireno: dry-diff kolliziy/perezapisey i plan zaschity jobs.
+"""routes/admin_diagnostics.py - expandedno: dry-diff kolliziy/perezapisey i plan zaschity jobs.
 
-Dobavleno:
-  • POST /admin/diagnostics/collisions_scan  - polnyy otchet po jobs (perezapisi/multizapisi) + zaschitnyy plan
+Added:
+  • POST /admin/diagnostics/collisions_scan - polnyy otchet po jobs (perezapisi/multizapisi) + zaschitnyy plan
   • POST /admin/diagnostics/collisions_apply - {plan} → patch args.dest v job-faylakh (AB=A → prevyu)
 
 Mosty:
@@ -12,10 +11,9 @@ Mosty:
 - Skrytyy 2 (Praktika): offlayn, stdlib, zapis ogranichena job-faylami v AB=B.
 
 Zemnoy abzats:
-Eto «stop-kadr pered razgruzkoy»: vidim, chto imenno zatronetsya, i pri neobkhodimosti otvodim potok v bezopasnoe mesto.
+This is “stop-kadr pered razgruzkoy”: vidim, chto imenno zatronetsya, i pri neobkhodimosti otvodim potok v bezopasnoe mesto.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

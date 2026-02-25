@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R8/tools/r8_release_bundle.py — sborka reliz-bandla i manifesta chek-summ.
+"""R8/tools/r8_release_bundle.py - sborka reliz-bandla i manifesta chek-summ.
 
 Mosty:
 - Yavnyy: Enderton — spetsifikatsiya bandla: fiksirovannyy nabor direktoriy/faylov → tar.gz + manifest.json.
-- Skrytyy #1: Ashbi — A/B-slot: R8_MODE=B dobavlyaet rasshirennyy manifest (razmery/vremya), pri oshibkakh — katbek.
+- Skrytyy #1: Ashbi - A/B-slot: R8_MODE=B dobavlyaet rashirennyy manifest (razmery/vremya), pri oshibkakh - katbek.
 - Skrytyy #2: Cover & Thomas — kontrol tselostnosti: sha256 na kazhdyy artefakt → nizkaya entropiya neopredelennosti.
 
 Zemnoy abzats (inzheneriya):
-Bez vneshnikh zavisimostey. Sobiraet `tools/ services/ tests/ scripts/ rules/` i vazhnye fikstury, isklyuchaya `__pycache__/.*`.
-Pishet `release/ester_bundle.tar.gz` i `release/manifest.json`. Bezopasnaya skleyka putey cherez path_guard.
+No matter what. Sobiraet `tools/ services/ tests/ scripts/ rules/` i vazhnye fikstury, isklyuchaya `__pycache__/.*`.
+Write `release/ester_bundle.tar.gz` i `release/manifest.json`. Bezopasnaya skleyka putey cherez path_guard.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, os, tarfile, time, json, hashlib
 from typing import Dict, List

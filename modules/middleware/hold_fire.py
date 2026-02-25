@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-middleware/hold_fire.py — HumanLoop++ «Bolshoy stop»: mgnovennaya myagkaya zamorozka opasnykh deystviy.
+"""middleware/hold_fire.py — HumanLoop++ “Bolshoy stop”: mgnovennaya myagkaya zamorozka opasnykh deystviy.
 
 Mosty:
-- Yavnyy: (Chelovek ↔ Sistema) odno deystvie — i uzel ukhodit v «hold»: vse ne-zhiznenno vazhnoe blokiruetsya do TTL.
-- Skrytyy #1: (Kibernetika ↔ Kontrol) A/B-slot, allowlist marshrutov, JSONL-zhurnal dlya audita.
+- Yavnyy: (Chelovek ↔ Sistema) odno deystvie - i uzel ukhodit v “hold”: vse ne-zhiznenno vazhnoe blokiruetsya do TTL.
+- Skrytyy #1: (Kibernetika ↔ Kontrol) A/B-slot, allowlist routes, JSONL-zhurnal dlya audita.
 - Skrytyy #2: (Bezopasnost ↔ Politika) sochetaetsya s cautious_freedom i ConsentOps: obschiy predokhranitel.
 
 Zemnoy abzats:
-Eto «bolshoy krasnyy gribok»: esli chto-to poshlo ne tak — zhmem, vse opasnoe zamiraet, servisy ostayutsya dostupnymi.
+This is “bolshoy krasnyy gribok”: esli chto-to poshlo ne tak - zhmem, vse opasnoe zamiraet, servisy ostayutsya dostupnymi.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, time, re
 from typing import Any, Dict

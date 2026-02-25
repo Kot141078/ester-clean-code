@@ -11,13 +11,12 @@ PLAN = """\
 run_id: test_run_graph_status_min_01
 branch_id: main
 context_init:
-  spec: "Minimalnyy plan dlya proverki /graph/status bez include_ctx."
+  spec: "Minimal plan dlya proverki /graph/status bez include_ctx."
   items: []
 nodes:
   - id: end
     type: noop
-    depends: []
-"""
+    depends: []"""
 
 
 def test_graph_status_without_include_ctx():
@@ -37,5 +36,5 @@ def test_graph_status_without_include_ctx():
         assert r2.status_code == 200
         data = r2.get_json()
         assert data.get("ok") is True
-        # contexts_index ne dolzhen prisutstvovat po umolchaniyu
+        # context_index should not be present by default
         assert "contexts_index" not in data

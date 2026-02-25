@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-ITER A2d:
+"""ITER A2d:
 - Multi-Chroma UI: search/list across multiple persist dirs, auto-pick best store.
 - Fix hybrid dedup: do NOT collapse history by (type,text) only -> use ts bucket.
 - Safer backend_mode: if chroma total_count==0 -> fallback to json (unless forced).
 
-YaVNYY MOST: c=a+b — pamyat ne dolzhna teryatsya iz-za “dvukh domov”.
+YaVNYY MOST: c=a+b - pamyat ne dolzhna teryatsya iz-za “dvukh domov”.
 SKRYTYE MOSTY:
-  - Ashby: mnogokanalnaya pamyat => variety, no nuzhen upravlyayuschiy sloy (agregator).
+  - Ashby: mnogokanalnaya pamyat => variety, no nuzhen upravlyayuschiy layer (agregator).
   - Cover&Thomas: ogranichivaem vyborku (limity) i sortiruem po meta.time -> kontrol kanala.
 ZEMNOY ABZATs:
   Eto kak imet dva sklada v raznykh rayonakh: klientu vse ravno gde korobka,
-  emu nuzhen edinyy katalog i marshrut k nuzhnoy polke.
-"""
+  emu nuzhen edinyy katalog i route k nuzhnoy polke."""
 from __future__ import annotations
 
 import sys, time, shutil, py_compile
@@ -80,7 +78,7 @@ def _expand_path(p: str) -> str:
     if not p:
         return ""
     p2 = os.path.expandvars(os.path.expanduser(p))
-    # esli ostalis %VAR% — schitaem “pusto”, chtoby ne plodit musor
+    # if there are ZZF0ZZAR% left, we consider “empty” so as not to create garbage
     if _looks_unexpanded(p2):
         return ""
     return p2
@@ -672,7 +670,7 @@ def _backend_mode() -> str:
     if ch is None or not getattr(ch, "available", lambda: False)():
         return "json"
 
-    # esli auto/hybrid i chroma pustaya — smysla net, ne putaem UI
+    # if auto/hybrid and chromium are empty - there is no point, it doesn’t confuse OH
     try:
         total = int(getattr(ch, "total_count", lambda: 0)() or 0)
     except Exception:
@@ -713,7 +711,7 @@ def _dedup_cross_sources(items):
     return out
 
 def _maybe_strip_vec(obj: dict) -> dict:
-    # po umolchaniyu vec rezhem v UI, chtoby ne gnat megabayty
+    # by default we cut everything in the UI so as not to waste megabytes
     keep = (request.args.get("vec","0") or "0").strip().lower() in ("1","true","yes","on")
     if keep:
         return obj

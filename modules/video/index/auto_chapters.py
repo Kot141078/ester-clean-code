@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-modules/video/index/auto_chapters.py — avto-detektor glav (chapters) po dampu video i subtitram.
+"""modules/video/index/auto_chapters.py - avto-detektor glav (chapters) po dampu video i subtitram.
 
 Funktsii:
   • build_chapters(dump_path:str, force:bool=False) -> dict
-     - Esli v dump.meta.yt_dlp.chapters uzhe est glavy — normalizuem i sokhranyaem.
+     - Esli v dump.meta.yt_dlp.chapters uzhe est glavy - normalizuem i sokhranyaem.
      - Inache stroim evristicheski po taymkodam/punktuatsii/pauzam i dline teksta.
-  • chapters_path(dump_path) -> str  # put k keshu glav: data/video_ingest/index/<dump_id>.chapters.json
+  • chapters_path(dump_path) -> str # put k keshu glav: data/video_ingest/index/<dump_id>.chapters.json
 
 Format glav (JSON):
   [{"title":"...", "start":<sec>, "end":<sec>, "snippet":"..."}, ...]
 
 Mosty:
-- Yavnyy: (Video ↔ Poisk) glavy — eto semanticheskie «oglavleniya», uskoryayuschie navigatsiyu i QA.
+- Yavnyy: (Video ↔ Poisk) glavy — eto semanticheskie “oglavleniya”, uskoryayuschie navigatsiyu i QA.
 - Skrytyy #1: (Infoteoriya ↔ Inzheneriya) pereispolzuem bogatuyu metu yt-dlp pri nalichii, inache stroim ustoychivo ot subtitrov.
 - Skrytyy #2: (Kibernetika ↔ Volya) pravila myshleniya mogut zapuskat avto-indeksatsiyu glav po raspisaniyu.
 
 Zemnoy abzats:
-Eto «oglavlenie k filmu»: delim rolik na glavy, kazhdoy daem chitaemoe imya i koordinaty vremeni — kak zakladki v knige.
+Eto “oglavlenie k filmu”: delim rolik na glavy, kazhdoy daem chitaemoe imya i koordinaty vremeni - kak zakladki v knige.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -61,7 +59,7 @@ def _iter_spans(text: str) -> List[Tuple[float, float, str]]:
             s = _hms_to_sec(m.group(1)); e = _hms_to_sec(m.group(2))
             rows.append((s, e, t))
     if not rows:
-        # bez taymkodov — odna ogromnaya «glava», no dlya UX sdelaem 5-min okna
+        # without timecodes - one huge “chapter”, but for THEM we will make 5-minute windows
         chunk = 300.0
         text = (text or "").strip()
         parts = _SENT_SPLIT.split(text)
@@ -119,7 +117,7 @@ def _heuristic_chapters(spans: List[Tuple[float, float, str]]) -> List[Dict[str,
             cur_txt = (cur_txt + " " + t).strip()
         last_e = e
     flush()
-    # szhat slishkom melkie
+    # compress too small
     merged: List[Dict[str, Any]] = []
     for ch in out:
         if merged and (ch["end"] - ch["start"]) < 45.0:
@@ -160,5 +158,5 @@ def build_chapters(dump_path: str, force: bool = False) -> Dict[str, Any]:
     with open(cp, "w", encoding="utf-8") as f:
         json.dump(chapters, f, ensure_ascii=False, indent=2)
     _bump_state("video_index_chapters_total", len(chapters))
-    _bump_state("video_index_chapters_last_ts", 0)  # obnovim ts; samo znachenie nam ne vazhno
+    _bump_state("video_index_chapters_last_ts", 0)  # update the vehicle; the meaning itself is not important to us
 # return {"ok": True, "chapters": chapters, "cached": False, "path": cp}

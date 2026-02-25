@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ - REST/UI dlya massovogo tyuninga triggerov.
+"""routes/ - REST/UI dlya massovogo tyuninga triggerov.
 
 Ruchki:
   POST /mass_tuner/preview {"lang":"eng+rus","threshold":0.8,"scale_from_calibrate":true}
-  POST /mass_tuner/apply   {...}
-  GET  /admin/mass_tuner
+  POST /mass_tuner/apply {...}
+  GET /admin/mass_tuner
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.triggers.mass_tuner import preview, apply

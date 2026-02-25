@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-tests/test_dreams_engine_smoke.py — «dymovoy» test dlya DreamsEngine bez vneshnikh zavisimostey.
+"""tests/test_dreams_engine_smoke.py - “dymovoy” test dlya DreamsEngine bez vneshnikh zavisimostey.
 
-Ispolzuem feykovyy memory_manager s .flashback(), chtoby garantirovat generatsiyu khotya by odnoy gipotezy.
-"""
+Use feykovyy memory_manager s .flashback(), chtoby garantirovat generatsiyu khotya by odnoy gipotezy."""
 
 from __future__ import annotations
 
@@ -20,7 +18,7 @@ class FakeMM:
         base = [
             {
                 "id": "1",
-                "text": "OCR dlya PDF schetov i chekov",
+                "text": "OKR for PDF invoices and checks",
                 "mtime": time.time() - 1000,
             },
             {
@@ -30,12 +28,12 @@ class FakeMM:
             },
             {
                 "id": "3",
-                "text": "OCR izvlechenie teksta iz izobrazheniy",
+                "text": "OKR text extraction from images",
                 "mtime": time.time() - 800,
             },
             {
                 "id": "4",
-                "text": "Kvitantsii i invoysy — luchshee raspoznavanie",
+                "text": "Receipts and invoices - better recognition",
                 "mtime": time.time() - 700,
             },
         ]
@@ -63,7 +61,7 @@ def test_dreams_smoke(tmp_path, monkeypatch):
     assert len(rep["hypotheses"]) >= 1
     assert rep["saved"] >= 1
 
-    # Proverim, chto chto-to popalo v KG
+    # Let's check that something got into the CG
     kg = KGStore()
     nodes = kg.query_nodes(q="hypothesis", limit=5)
 # assert nodes, "Ozhidaetsya uzel gipotezy v KG"

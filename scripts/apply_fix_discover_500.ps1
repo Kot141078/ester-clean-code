@@ -4,7 +4,7 @@ scripts/apply_fix_discover_500.ps1 — garantirovannaya perezapis trekh faylov v
 Mosty:
 - Yavnyy: (DevOps ↔ Kod) zapisyvaet ispravlennye fayly pryamo v nuzhnye puti.
 - Skrytyy #1: (Kontrol ↔ Nadezhnost) proveryaet, chto papki suschestvuyut; sozdaet ikh pri neobkhodimosti.
-- Skrytyy #2: (A/V) podderzhivaet -Mode A (tolko pokazat puti), -Mode B (zapisat).
+- Skrytyy #2: (A/B) supports -Mode A (only show paths), -Mode B (write).
 
 Zemnoy abzats:
 Inogda «polozhil poverkh» ne srabatyvaet. Etot skript sam sozdaet/perezapisyvaet
@@ -24,7 +24,7 @@ function Write-FileUtf8 {
 }
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
-$proj = Split-Path -Parent $root  # predpolagaem raspolozhenie scripts/ v korne proekta
+$proj = Split-Path -Parent $root  # assumes location of scriptc/ in the project root
 
 $files = @{
   "routes\app_discover_routes.py" = @'

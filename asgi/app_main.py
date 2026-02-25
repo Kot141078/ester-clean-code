@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-asgi/app_main.py — edinaya tochka vkhoda ASGI (FastAPI API v2 + Flask SSE/borda).
+"""asgi/app_main.py - edinaya tochka vkhoda ASGI (FastAPI API v2 + Flask SSE/borda).
 
 MOSTY:
 - (Yavnyy) Montiruem FastAPI-prilozhenie asgi.synergy_api_v2.app i WSGI-Flask s potokovymi SSE i shablonami.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Podklyuchaem strogie security headers i OTel-instrumentirovanie bez pravok iskhodnykh routov.
 
 ZEMNOY ABZATs:
-Odin protsess Uvicorn obsluzhivaet i API, i «Shakhmatku»: sovmestimost putey ne lomaetsya, SSE rabotaet, metriki i zagolovki bezopasnosti — v komplekte.
+Odin protsess Uvicorn obsluzhivaet i API, i “Shakhmatku”: sovmestimost putey ne lomaetsya, SSE rabotaet, metriki i zagolovki bezopasnosti - v komplekte.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -24,7 +22,7 @@ from starlette.routing import Mount
 from starlette.middleware.wsgi import WSGIMiddleware
 
 # 1) Bazovyy FastAPI (suschestvuyuschiy API v2)
-from asgi.synergy_api_v2 import app as api_v2  # drop-in import suschestvuyuschego prilozheniya
+from asgi.synergy_api_v2 import app as api_v2  # drop-in import of an existing application
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 # 2) Bezopasnye zagolovki i OTel-instrumentirovanie
@@ -37,7 +35,7 @@ try:
 except Exception:
     instrument_app = lambda app: app  # type: ignore
 
-# 3) Flask-prilozhenie dlya SSE/bordy
+# 3) Flask application for CCE/Bordeaux
 def _build_flask_app():
     from flask import Flask
     templates_dir = os.getenv("TEMPLATES_DIR", "templates")
@@ -49,13 +47,13 @@ def _build_flask_app():
         # Zaregistriruem blueprint s pereopredeleniem url_prefix=""
         flask_app.register_blueprint(bp_stream, url_prefix="")
     except Exception:
-        # V starykh sborkakh — cherez register()
+        # In older builds - via register()
         try:
             reg_stream(flask_app)  # type: ignore
         except Exception:
             pass
 
-    # Esli est otdelnye HTML-routy bordy — podklyuchim
+    # If there are separate HTML routes for the boards, connect
     try:
         from routes.synergy_board_routes import register as reg_board  # type: ignore
         reg_board(flask_app)
@@ -66,9 +64,9 @@ def _build_flask_app():
 
 # 4) Finalnaya sborka
 def build_app() -> FastAPI:
-    app: FastAPI = api_v2  # ispolzuem uzhe sozdannyy FastAPI kak yadro
+    app: FastAPI = api_v2  # we use the already created FastAPI as the core
 
-    # CORS po umolchaniyu vyklyuchen; vklyuchim myagkiy profil pri neobkhodimosti
+    # COURSE is disabled by default; enable a soft profile if necessary
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -94,10 +92,10 @@ def build_app() -> FastAPI:
 
     return app
 
-# Eksport dlya Uvicorn
+# Export for Uvicorn
 app = build_app()
 
-# Pozvolim zapuskat modul napryamuyu: `python -m asgi.app_main`
+# Allows you to launch the module directly: epothon -m asgi.app_mainyo
 if __name__ == "__main__":
     import uvicorn  # type: ignore
     host = os.getenv("HOST", "0.0.0.0")

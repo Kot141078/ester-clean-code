@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_compliance_exchange.py - UI/API obmena snapshotami cherez payloads i LAN-drop.
+"""routes/admin_compliance_exchange.py - UI/API exchange snapshotami cherez payloads i LAN-drop.
 
-Marshruty:
-  • GET  /admin/portable/exchange            - stranitsa
-  • GET  /admin/portable/exchange/list       - spisok payloads (inbox/outbox)
-  • POST /admin/portable/exchange/export     - eksportirovat posledniy snapshot v outbox
-  • POST /admin/portable/exchange/import     - importirovat vse iz inbox v reports
-  • POST /admin/portable/exchange/send_lan   - {path} → skopirovat fayl v LAN_DROP_DIR (faylom, bez setey)
+Route:
+  • GET /admin/portable/exchange - stranitsa
+  • GET /admin/portable/exchange/list - spisok payloads (inbox/outbox)
+  • POST /admin/portable/exchange/export - eksportirovat posledniy snapshot v outbox
+  • POST /admin/portable/exchange/import - importirovat vse iz inbox v reports
+  • POST /admin/portable/exchange/send_lan - {path} → skopirovat fayl v LAN_DROP_DIR (faylom, bez setey)
 
 Mosty:
 - Yavnyy (perenos ↔ ekspluatatsiya): iz UI vse delaetsya v odin klik.
@@ -15,10 +14,9 @@ Mosty:
 - Skrytyy 2 (Praktika): chistyy stdlib/offlayn; zapis tolko v AB=B; yadro Ester ne zatragivaem.
 
 Zemnoy abzats:
-Eto «okno vydachi i priema»: kladem konvert v outbox, zabiraem iz inbox, a v LAN-korobku - kopiey fayla.
+Eto “okno vydachi i priema”: kladem konvert v outbox, zabiraem iz inbox, a v LAN-korobku - kopiey fayla.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

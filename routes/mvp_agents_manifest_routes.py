@@ -28,8 +28,8 @@ defaults:
 agents:
   - id: est.dispatcher.synergy_mvp.v1
     mission: >
-      Prinyat zadachu, utochnit tsel, vybrat luchshego ispolnitelya (ili svyazku) i vernut:
-      "kogo naznachit + pochemu + sleduyuschiy shag". Sam nichego ne menyaet (tolko chtenie/sovet).
+      Prinyat zadachu, utochnit tsel, vybrat luchshego ispolnitelya (ili svyazku) i return:
+      "kogo naznachit + pochemu + sleduyuschiy shag". Sam nichego ne menyaet (tolko chtenie/advice).
     runtime: { kind: mvp, id: director }
     capabilities:
       endpoints:
@@ -38,7 +38,7 @@ agents:
         - rag.hybrid.search
         - mem.passport.list
         - mem.kg.stats
-        - auth.roles.me
+        -auth.roles.me
     risk:
       level: low
       writes: []
@@ -64,7 +64,7 @@ agents:
         - ingest.guard.check
         - ingest.guard.config
         - mem.kg.stats
-        - auth.roles.me
+        -auth.roles.me
     risk:
       level: medium
       writes: ["ingest_guard_config (conditional)"]
@@ -79,7 +79,7 @@ agents:
   - id: est.librarian.knowledge_mvp.v1
     mission: >
       Vesti znanie: bezopasno iskat, proveryat limity ingest, predlagat fakty dlya profilea,
-      pomogat RAG.
+      help RAG.
     runtime: { kind: mvp, id: rag_researcher }
     capabilities:
       actions:
@@ -106,7 +106,7 @@ agents:
 
   - id: est.builder.suite_mvp.v1
     mission: >
-      Konstruktor agentov + otchety: opisat agenta, plan, sgenerit skelet. Lyubye apply — tolko cherez geyty.
+      Konstruktor agentov + otchety: opisat agenta, plan, sgenerit skeleton. Lyubye apply - only through geyty.
     runtime: { kind: mvp, id: maker_dev }
     capabilities:
       endpoints:

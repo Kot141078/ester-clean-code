@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/hw_routes.py - REST dlya apparatnogo statusa.
+"""routes/hw_routes.py - REST dlya apparatnogo statusa.
 
 Mosty:
 - Yavnyy: (Veb ↔ Zhelezo) bystryy srez.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Vyzhivanie ↔ Degradatsiya) mozhno triggerit mery pri nekhvatke.
 
 Zemnoy abzats:
-Proverili «zdorove zheleza» - reshili, kak zhit dalshe.
+Verified “zdorove zheleza” - decided, how zhit dalshe.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

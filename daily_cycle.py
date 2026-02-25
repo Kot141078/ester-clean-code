@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-modules/memory/daily_cycle.py — nochnoy tsikl «gigieny pamyati» Ester (FinalBridge).
+"""modules/memory/daily_cycle.py - nochnoy tsikl "gigieny pamyati" Ester (FinalBridge).
 
-Izmenenie:
+Change:
 - Pered vyzovom experience.sync_experience(mode="sleep") peredaem tekuschiy
-  rezultat tsikla cherez experience.set_last_sleep_status(res).
-- Eto ustranyaet gonku: sloy opyta vsegda vidit svezhie summary/reflection.
+  resultat tsikla cherez experience.set_last_sleep_status(res).
+- Eto ustranyaet gonku: layer opyta vsegda vidit svezhie summary/reflection.
 
-Ostalnoe povedenie i signatury bez izmeneniy.
-"""
+Ostalnoe povedenie i signatury bez izmeneniy."""
 from __future__ import annotations
 
 from typing import Dict, Any, Callable
@@ -119,7 +117,7 @@ def run_cycle(mode: str = "auto") -> Dict[str, Any]:
         "steps": [],
     }
 
-    # 1) Svodka dnya
+    # 1) Summary of the day
     if summary is not None and hasattr(summary, "generate_summary"):
         def _s():
             return summary.generate_summary("day")  # type: ignore[attr-defined]
@@ -154,14 +152,14 @@ def run_cycle(mode: str = "auto") -> Dict[str, Any]:
                 return {"ok": True, "backup": bk}
             _run_step(res, "memory_backup", _bk)
 
-    # 5) Refleksiya (po umolchaniyu vklyuchena)
+    # 5) Reflection (enabled by default)
     if reflection is not None and hasattr(reflection, "run_daily_reflection"):
         if _bool_env(REFLECT_ENV, default=True):
             def _rf():
                 return reflection.run_daily_reflection(mode=res.get("mode", "auto"))  # type: ignore[attr-defined]
             _run_step(res, "daily_reflection", _rf)
 
-    # Publikuem tekuschiy rezultat v oba sloya: status sna i modul opyta.
+    # We publish the current result in both layers: sleep status and experience module.
     try:
         _LAST_RESULT = dict(res)
     except Exception:
@@ -171,7 +169,7 @@ def run_cycle(mode: str = "auto") -> Dict[str, Any]:
         if experience is not None and hasattr(experience, "set_last_sleep_status"):
             experience.set_last_sleep_status(res)  # type: ignore[attr-defined]
     except Exception:
-        # eto dopolnitelnyy most, ne kritichno
+        # This is an additional bridge, not critical
         pass
 
     # 6) Opyt (po flagu)
@@ -205,10 +203,8 @@ def run_cycle(mode: str = "auto") -> Dict[str, Any]:
 
 
 def build_daily_narrative(summary: dict | None, insights: list[dict] | None) -> str:
-    """
-    Formiruet korotkiy chelovekochitaemyy tekst-refleksiyu dnya na osnove svodki
-    i spiska insaytov. Bezopasno k otsutstvuyuschim polyam.
-    """
+    """Generates a short human-readable reflection text of the day based on the summary
+    and a list of insights. Safe to missing fields."""
     try:
         parts: list[str] = []
         if summary and isinstance(summary, dict):
@@ -222,7 +218,7 @@ def build_daily_narrative(summary: dict | None, insights: list[dict] | None) -> 
             # Pervoe predlozhenie
             if total:
                 mood = "polozhitelnoe" if (emo or 0) > 0 else ("otritsatelnoe" if (emo or 0) < 0 else "neytralnoe")
-                parts.append(f"Segodnya bylo zapisey: {total}; nastroenie v tselom {mood}.")
+                parts.append(f"Today there were entries: ZZF0Z; mood in general ZZF1ZZ.")
             if text:
                 parts.append(text)
             # Temy
@@ -236,7 +232,7 @@ def build_daily_narrative(summary: dict | None, insights: list[dict] | None) -> 
             titles = [t for t in titles if t]
             if titles:
                 bullets = "; ".join(titles[:3])
-                parts.append(f"Vyvody dnya: {bullets}.")
+                parts.append(f"Conclusions of the day: ZZF0Z.")
         return " ".join(p for p in parts if p).strip()
     except Exception:
         return ""

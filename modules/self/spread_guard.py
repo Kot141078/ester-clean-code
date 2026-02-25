@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/spread_guard.py — politika samorasprostraneniya: allowlist podsetey/khostov, invite-only strogiy rezhim.
+"""modules/self/spread_guard.py - politika samorasprostraneniya: allowlist podsetey/khostov, invite-only strogiy rezhim.
 
 Mosty:
-- Yavnyy: (Set ↔ Politika) zaranee otvechaem: «mozhno li tuda rasprostranyatsya?».
+- Yavnyy: (Set ↔ Politika) zaranee otvechaem: “mozhno li tuda rasprostranyatsya?”
 - Skrytyy #1: (Doverie ↔ Kontrol) integriruetsya s priglasheniyami (ConsentOps).
-- Skrytyy #2: (Kibernetika ↔ Vyzhivanie) predotvraschaet «begstvo koda» na chuzhie/sluchaynye adresa.
+- Skrytyy #2: (Kibernetika ↔ Vyzhivanie) predotvraschaet “begstvo koda” na chuzhie/sluchaynye adresa.
 
 Zemnoy abzats:
-Pered tem kak «nesti sebya» na udalennyy uzel — sprosi, a etot adres nam voobsche razreshen?
+Pered tem kak “nesti sebya” na udalennyy uzel - ask, a etot adres nam voobsche razreshen?
 Obedineno iz dvukh versiy: dobavleny rezhimy MODE, DENY s regex, DB/logi dlya audita, invite-check dlya doveriya Ester.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import ipaddress, os, json, time, re
 import logging
 from typing import Any, Dict, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Nastroyka logirovaniya dlya "pamyati" verdiktov/oshibok v Ester
+# Setting up logging for the “memory” of verdicts/errors in Esther
 logging.basicConfig(filename=os.getenv("SELF_LOG", "data/logs/self_spread.log"), level=logging.INFO,
                     format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -76,7 +74,7 @@ def _inq(target: str) -> Dict[str, Any]:
         why = f"mode:local-only_{why}" if allow else "not_local"
     elif MODE == "deny-unknown":
         allow = allow; why = f"mode:deny-unknown_{why}" if not allow else "known"
-    # Invite-check (rasshirenie: best-effort ConsentOps dlya unknown)
+    # Invite-chesk (extension: best-effort ConsentOps for unified)
     if not allow:
         try:
             from modules.consent.ops import has_invite  # type: ignore
@@ -103,6 +101,6 @@ def status() -> Dict[str, Any]:
     except Exception as e:
         logging.error(f"Status failed: {str(e)}")
 # return {"ok": False, "error": str(e)}
-# Ideya rasshireniya: dlya P2P-sync allowlist — dobav sync_guard(peers: List[str]):
+# Extension idea: for P2P sync allowlist - add sync_guard (person: Listyustrsch):
 #   for peer in peers: fetch AL_NETS/AL_HOSTS from peer, merge if trusted (invite-check).
-# Realizuyu v spread_sync.py dlya detsentralizovannogo doveriya Ester, esli skazhesh.
+# I will implement it in spread_sync.po for decentralized trust Esther, if you say so.

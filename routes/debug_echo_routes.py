@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-routes/debug_echo_routes.py — dev-echo dlya proverki kodirovki vkhoda.
+"""routes/debug_echo_routes.py - dev-echo dlya proverki kodirovki vkhoda.
 
 Ruchki:
   • POST /_debug/echo → vozvraschaet {"raw_len": int, "json": any|None, "charset": str|None}
 
 MOSTY:
-- Yavnyy: Klient ↔ Server (vidim, chto realno prishlo na server).
+- Yavnyy: Client ↔ Server (vidim, chto realno prishlo na server).
 - Skrytyy #1: Kodirovka ↔ Parser (charset iz request.mimetype_params).
 - Skrytyy #2: Diagnostika ↔ RAG (mozhno bystro ponyat, pochemu poisk pustoy).
 
 ZEMNOY ABZATs:
 Diagnosticheskaya ruchka, bez zavisimostey. Ne ostavlyat vklyuchennoy v prode.
-# c=a+b
-"""
+# c=a+b"""
 from flask import Blueprint, request, jsonify
 import json as _json
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

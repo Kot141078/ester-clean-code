@@ -1,30 +1,28 @@
 # -*- coding: utf-8 -*-
-"""
-security/rbac.py — prostoy matrichnyy RBAC-geyt s podderzhkoy ENV.
+"""security/rbac.py - prostoy matrichnyy RBAC-geyt s podderzhkoy ENV.
 Drop-in sovmestimo s dampom po signature: attach_app(app).
 
 ENV:
-  RBAC_MODE: off | open | matrix           (po umolchaniyu: matrix)
-  RBAC_MATRIX: JSON {"role":[regex,...]}   (esli ne zadano — defoltnaya matritsa nizhe)
-  RBAC_LOG_DENY: 1/0                       (logirovat otkazy v app.logger.warning)
+  RBAC_MODE: off | open | matrix (by default: matrix)
+  RBAC_MATRIX: JSON {"role":[regex,...]} (esli ne zadano — defoltnaya matritsa nizhe)
+  RBAC_LOG_DENY: 1/0 (logirovat otkazy v app.logger.warning)
 
-Pravila:
-  • Roli berutsya iz JWT (claim roles/role). Esli JWT net — rol guest.
+Rules:
+  • Roli berutsya iz JWT (claim roles/role). Esli JWT net - role guest.
   • Role guest vsegda dobavlyaetsya ko vsem zaprosam (bazovyy dostup).
   • Sovpadenie LYuBOGO patterna iz LYuBOY roli polzovatelya dostatochno dlya dopuska.
   • OPTIONS propuskaetsya vsegda.
 
 Zemnoy abzats (inzheneriya):
 Edinyy before_request-filtr s matritsey-regekspami minimiziruet stseplenie moduley.
-Gost vidit tolko razreshennye publichnye stranitsy, operatsii zapisi — po JWT-rolyam.
+Gost vidit tolko razreshennye publichnye stranitsy, operatsii zapisi - po JWT-rolyam.
 
 Mosty:
 - Yavnyy (Kibernetika ↔ Arkhitektura): odin regulyator dostupa na ves potok zaprosov.
 - Skrytyy 1 (Infoteoriya ↔ Interfeysy): matritsa v ENV snizhaet entropiyu konfiguratsii.
 - Skrytyy 2 (Anatomiya ↔ PO): kak bazovye i proizvolnye refleksy — guest i roli naslaivayutsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -35,7 +33,7 @@ from typing import Any, Dict, List
 from flask import abort, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Optsionalnye zavisimosti (myagkie)
+# Optional dependencies (soft)
 try:
     from flask_jwt_extended import get_jwt, verify_jwt_in_request  # type: ignore
 except Exception:  # pragma: no cover
@@ -51,7 +49,7 @@ def _env_mode() -> str:
 
 
 def _default_matrix() -> Dict[str, List[str]]:
-    # Bazovyy publichnyy dostup: zdorove/indeksy/doki/portal/statik + UI-stranitsy autentifikatsii i telegram-paneley
+    # Basic public access: health/indexes/docs/portal/static + UI authentication page and telegram panels
     return {
         "admin": [r".*"],
         "user": [r"^/(?!ops/|replication/).*$"],
@@ -105,7 +103,7 @@ def _compile_matrix(matrix: Dict[str, List[str]]):
 
 def _roles_from_request() -> List[str]:
     roles: List[str] = []
-    # Pytaemsya izvlech JWT, esli est biblioteka
+    # We are trying to extract the gastrointestinal tract if there is a library
     if verify_jwt_in_request and get_jwt:
         try:
             verify_jwt_in_request(optional=True)  # ne brosaem pri otsutstvii
@@ -121,7 +119,7 @@ def _roles_from_request() -> List[str]:
     roles = [*(roles or []), "guest"]
     # Normalizuem registr
     roles = [r.lower() for r in roles]
-    # Ubiraem dublikaty, sokhranyaya poryadok
+    # Removing duplicates while maintaining order
     seen = set()
     ordered = []
     for r in roles:
@@ -135,9 +133,7 @@ def _roles_from_request() -> List[str]:
 
 
 def attach_app(app) -> None:
-    """
-    Podklyuchaet before_request filtr. Idempotentno: povtornyy vyzov ne dobavlyaet dubley.
-    """
+    """Connects the before_register filter. Idempotent: calling again does not add duplicates."""
     if getattr(app, "_rbac_attached", False):
         return
     app._rbac_attached = True  # type: ignore[attr-defined]
@@ -147,12 +143,12 @@ def attach_app(app) -> None:
     compiled = _compile_matrix(matrix)
     log_deny = (os.getenv("RBAC_LOG_DENY") or "0").strip().lower() in {"1", "true", "yes"}
 
-    # kladem v konfig dlya diagnostiki/goryachey zameny pri zhelanii
+    # put it in the config for diagnostics/hot swap if desired
     app.config.setdefault("RBAC_MODE", mode)
     app.config.setdefault("RBAC_MATRIX", matrix)
 
     if mode in {"off", "open"}:
-        # nichego ne delaem — vse zaprosy prokhodyat
+        # we do nothing - all requests pass
         return
 
     @app.before_request
@@ -164,7 +160,7 @@ def attach_app(app) -> None:
         path = request.path or "/"
         roles = _roles_from_request()
 
-        # Iteratsiya po rolyam: dostatochno odnogo sovpadeniya
+        # Iteration by role: one match is enough
         allowed = False
         for role in roles:
             pats = compiled.get(role, [])
@@ -191,6 +187,6 @@ def attach_app(app) -> None:
                     pass
             abort(403)
 
-    # na sluchay, esli kto-to zakhochet proverit izvne
+    # in case someone wants to check from outside
     app.extensions = getattr(app, "extensions", {})  # type: ignore[attr-defined]
 # app.extensions["ester-rbac"] = {"mode": mode, "matrix": matrix}

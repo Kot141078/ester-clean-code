@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/lan_catalog.py — fon: multikast-mayak + priem, TTL-ochistka, ARP-reskany (po intervalu).
+"""listeners/lan_catalog.py - fon: multikast-mayak + priem, TTL-ochistka, ARP-reskany (by intervalu).
 
-Povedenie:
+Behavior:
   • Kazhdye interval sek: beacon_once() + expire_old().
-  • Postoyanno slushaem multikast group:port i ingest_packet().
-  • V AB=A/B — odinakovo (eto tolko nablyudenie).
+  • Postoyanno slushaem multicast group:port i ingest_packet().
+  • V AB=A/B - odinakovo (eto tolko nablyudenie).
 
 ENV/CFG: sm. modules.lan.catalog_settings.
 
 Mosty:
 - Yavnyy (Kibernetika ↔ Orkestratsiya): podderzhivaem aktualnyy spisok sosedey bez ruchnogo vmeshatelstva.
-- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): TTL-ochistka i self-pamyat umenshayut «zastoynye zapisi».
+- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): TTL-ochistka i self-pamyat umenshayut “zastoynye zapisi”.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): chistyy UDP multikast + JSON, bez vneshnikh bibliotek.
 
 Zemnoy abzats:
-Eto «mayak i ushi»: periodicheski podaem golos i slushaem chuzhie — tak Ester vidit, kto ryadom.
+Eto “mayak i ushi”: periodicheski podaem golos i slushaem chuzhie - tak Ester vidit, kto ryadom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, os, socket, struct, threading, time
 

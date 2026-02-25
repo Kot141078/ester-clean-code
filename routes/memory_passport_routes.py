@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/memory_passport_routes.py - REST: paketnoe prostavlenie «profileov» pamyati.
+"""routes/memory_passport_routes.py - REST: paketnoe prostavlenie "profileov" pamyati.
 
 Mosty:
-- Yavnyy: (Veb ↔ Memory) edinaya knopka «prostavit/pochinit provenance».
+- Yavnyy: (Veb ↔ Memory) edinaya knopka “prostavit/pochinit provenance”.
 - Skrytyy #1: (Audit ↔ Prozrachnost) dry-run cherez A/B.
 - Skrytyy #2: (RAG ↔ Dedup) kheshi prigodyatsya dlya poiska/sshivki.
 
 Zemnoy abzats:
-Odna ruchka - i na polkakh pamyati est shtamp «kto/chto/kogda».
+Odna ruchka - i na polkakh pamyati est shtamp “kto/chto/kogda”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

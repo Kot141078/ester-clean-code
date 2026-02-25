@@ -1,17 +1,15 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.media.rag_sink — optsionalnaya vstavka sobytiy mediapotoka v RAG‑indeks.
+"""modules.media.rag_sink - optsionalnaya vstavka sobytiy mediapotoka v RAG‑indeks.
 Mosty:
 - Yavnyy: maybe_ingest_text(meta) — bezopasnyy vyzov iz watchers.process_file().
 - Skrytyy #1: (ENV‑kontrol) — ESTER_RAG_INGEST=1 vklyuchaet rezhim, AB‑slot ESTER_RAG_INGEST_AB=B daet bystryy no‑op.
 - Skrytyy #2: (Inzheneriya ↔ Prozrachnost) — vozvraschaet strukturu s id/ok, ne brosaet isklyucheniy.
 
 Zemnoy abzats:
-Eto «sinaps» mezhdu sensorami i pamyatyu: korotkaya duga, kotoraya dobavlyaet tekst pryamo v assotsiativnyy indeks.
-# c=a+b
-"""
+This is “sinaps” mezhdu sensorami i pamyatyu: korotkaya duga, kotoraya dobavlyaet tekst pryamo v assotsiativnyy indeks.
+# c=a+b"""
 import os
 from typing import Dict, Any
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

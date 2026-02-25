@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/telemetry_ingest.py — konveyer ingest'a: kvoty, dedup, bufer → TelemetryEvent.
+"""modules/synergy/telemetry_ingest.py - konveyer ingest: kvoty, dedup, buffer → TelemetryEvent.
 
 MOSTY:
 - (Yavnyy) Token-bucket na agenta + skolzyaschee okno kheshey dlya deduplikatsii.
@@ -8,11 +7,10 @@ MOSTY:
 - (Skrytyy #2) Vozvraschaet (evt|None, result) — udobno dlya metrik i prichin dropa.
 
 ZEMNOY ABZATs:
-Zaschischaet sistemu ot burstov i povtorov: iz «shuma» ostavlyaet tolko poleznye sobytiya,
+Zaschischaet sistemu ot burstov i povtorov: iz “shuma” ostavlyaet tolko poleznye sobytiya,
 kotorye idut dalshe v orkestratsiyu/khranilische.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import hashlib
@@ -71,7 +69,7 @@ class _DedupWindow:
             if key in self.buf:
                 return True
             if len(self.buf) >= self.max:
-                # grubaya ochistka poloviny starykh
+                # rough cleaning of half of the old ones
                 items = sorted(self.buf.items(), key=lambda kv: kv[1])
                 for k, _ in items[: len(items) // 2]:
                     del self.buf[k]
@@ -107,7 +105,7 @@ class TelemetryIngestor:
     @staticmethod
     def _hash_event(evt: TelemetryEvent) -> str:
         h = hashlib.sha256()
-        # Svodim klyuchevye polya v khesh
+        # Cache key fields
         parts = [
             evt.agent_id,
             str(evt.vendor or ""),

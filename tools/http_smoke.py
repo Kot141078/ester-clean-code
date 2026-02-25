@@ -1,23 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-tools/http_smoke.py — prostoy oflayn smoke-test HTTP-marshrutov Ester (bez storonnikh bibliotek).
+"""tools/http_smoke.py - prostoy oflayn smoke-test HTTP-marshrutov Ester (bez storonnikh bibliotek).
 
-Chto delaet:
+What does it do:
   • Proveryaet klyuchevye endpointy VideoIngestCore i MindRuleHub.
   • Umeet bezopasno pereklyuchat RuleHub (toggle) i vozvraschat v iskhodnoe sostoyanie.
   • Pechataet chelovekochitaemyy otchet ili JSON (flag --json).
 
 Mosty:
-- Yavnyy: (Nablyudaemost ↔ Ekspluatatsiya) edinaya komanda dlya proverki «dyshit li kontur myshleniya i video».
+- Yavnyy: (Nablyudaemost ↔ Ekspluatatsiya) edinaya komanda dlya proverki “dyshit li kontur myshleniya i video.”
 - Skrytyy #1: (Infoteoriya ↔ Diagnostika) validiruem formaty otvetov: JSON/HTML/Prometheus.
-- Skrytyy #2: (Kibernetika ↔ Kontrol) toggle RuleHub — proverka «voli» vklyuchat nablyudaemost bez restartov.
+- Skrytyy #2: (Kibernetika ↔ Kontrol) toggle RuleHub — proverka “voli” vklyuchat nablyudaemost bez restartov.
 
 Zemnoy abzats:
-Eto «karmannyy tester u tekhnika»: bystro oboyti pult, lampy i tablo; esli chto — schelknut tumbler i proverit reaktsiyu.
+This is “karmannyy tester u tekhnika”: bystro oboyti pult, lampy i tablo; esli chto - schelknut tumbler i proverit reaktsiyu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse

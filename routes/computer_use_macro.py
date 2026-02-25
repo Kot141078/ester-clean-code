@@ -2,7 +2,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
-# zaglushka dlya computer_use_macro: poka net bp/router/register_*_routes
+# stub for computer_use_macro: no power supply/router/register_*_rutes yet
 def register(app):
     return True
 

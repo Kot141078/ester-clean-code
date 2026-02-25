@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/memory_bridge.py — svyazka pamyati i myshleniya Ester.
+"""modules/thinking/memory_bridge.py - svyazka pamyati i myshleniya Ester.
 
 Funktsii:
   recall(goal:str, top_k:int=5) -> List[dict]
@@ -15,15 +14,14 @@ ZEMNOY ABZATs:
 Ester teper pri razmyshlenii zaglyadyvaet v svoi vospominaniya.  
 Kak chelovek, ona ischet v proshlom pokhozhie sluchai, chtoby ne izobretat zanovo.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import List, Dict, Any
 from modules.memory import store
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def recall(goal:str, top_k:int=5)->List[Dict[str,Any]]:
-    """Nayti v pamyati zapisi, svyazannye s tselyu"""
+    """Find memory entries associated with the target"""
     if not goal.strip():
         return []
     matches = store.query(goal, top_k=top_k)

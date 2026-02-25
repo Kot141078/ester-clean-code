@@ -118,7 +118,7 @@ c=a+b
       inputEl.value = "";
       loadEvents();
     } else {
-      alert("Ne udalos otpravit: " + (r.raw || r.status));
+      alert("Failed to send:" + (r.raw || r.status));
     }
   }
 

@@ -1,6 +1,6 @@
 # Observability & Release One-Shot (Iteratsiya G)
 
-## 1) Lokalnaya nablyudaemost
+## 1) Local observability
 
 ```bash
 docker compose -f docker-compose.observability.yml up -d
@@ -48,16 +48,16 @@ make release-preview
 
 Artefakty:
 - `CHANGELOG.md`
-- `sbom-v0.1-preview.spdx.json` (esli ustanovlen syft)
+- yosvom-v0.1-preview.spdh.jsonyo (if the software is installed)
 - `ester-0.1-preview.tar.gz`
 
 Vygruzka:
-- cherez `storage.uploader` (esli modul dostupen);
+- via estorage.uploader (if the module is available);
 - libo WebDAV (peremennye `WEBDAV_URL`, `WEBDAV_USER`, `WEBDAV_PASSWORD`);
-- libo S3 (CLI `aws`, peremennaya `S3_BUCKET`, optsionalno `S3_PREFIX`).
+- or C3 (SLI ёавсё, variable еС3_БОСКЭТе, optional еС3_PREFIXо).
 
 ## Primechaniya
 
-- Znacheniya porogov SLO nastraivayutsya v `values.observability.yaml`.
-- Dlya Istio ukazhite svoy `istio.host` i, pri neobkhodimosti, `istio.gateway`.
-- V klastere dolzhny byt CRD `ServiceMonitor`/`PrometheusRule` (Prometheus Operator).
+- The values ​​of the Arctic Ocean thresholds are configured in evalues.observabilities.yamlyo.
+- For Istio, specify your yoisto.hosto and, if necessary, yoisto.gatewayyo.
+- The cluster must have eServiceMonitor/ePrometneusRulee DRCs (Prometneus Operator).

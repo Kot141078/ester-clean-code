@@ -1,27 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/role_model.py — rasshirennaya model roley dlya sinergii.
+"""modules/synergy/role_model.py - expanded model roley dlya sinergii.
 
 MOSTY:
-- (Yavnyy) Dobavlyaet roli: mentor (nastavnik), backup (dubler), qa (otsenschik kachestva).
-- (Skrytyy #1) Sovmestim s fit_roles iz capability_infer: rasshirenie poverkh bazovykh metrik.
-- (Skrytyy #2) Balans «opyt↔reaktsiya»: myagkie koeffitsienty, ne lomayut uzhe naznachennye roli.
+- (Yavnyy) Add role: mentor (nastavnik), backup (dubler), qa (otsenschik kachestva).
+- (Skrytyy #1) Sovmestim s fit_roles iz capability_infer: expansion of poverkh bazovykh metrik.
+- (Skrytyy #2) Balans “opyt↔reaktsiya”: myagkie koeffitsienty, ne lomayut uzhe naznachennye roli.
 
 ZEMNOY ABZATs:
-Delaet komandy zhiznesposobnee: u operatora poyavlyaetsya nastavnik, u platformy — dubler,
-a kachestvo proveryaet «vtorye glaza» (QA). Vse — bez izmeneniya starykh kontraktov.
+Delaet komandy zhiznesposobnee: u operatora poyavlyaetsya nastavnik, u platformy - dubler,
+a kachestvo proveryaet “vtorye glaza” (QA). All - bez izmeneniya starykh kontraktov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict
 from modules.synergy.capability_infer import infer_capabilities, fit_roles
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def fit_roles_ext(agent: Dict[str, object]) -> Dict[str, float]:
-    """
-    Vozvraschaet score po rasshirennomu naboru roley.
-    """
+    """Returns to the quarrel over an expanded set of roles."""
     base = fit_roles(infer_capabilities(agent))
     # Dopolnitelnye roli
     caps = infer_capabilities(agent)

@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_codegen_routes.py - REST API dlya «samomodifikatsii» v pesochnitse.
+"""routes/self_codegen_routes.py - REST API dlya "samomodifikatsii" v pesochnitse.
 
-Naznachenie:
+Name:
   Rabochiy stol dlya nabroskov koda: sozdat draft, prognat proverki, primenit,
-  pri neobkhodimosti otkatit. Vse chuvstvitelnye deystviya zaschischeny «pilyuley» (tokenom).
+  pri neobkhodimosti otkatit. All chuvstvitelnye deystviya zaschischeny “pilyuley” (tokenom).
 
-Endpointy:
-  • POST /self/codegen/draft   {"name","content"}  - sozdat draft
-  • POST /self/codegen/check   {"name"}            - zapustit proverki drafta
-  • POST /self/codegen/apply   {"name"}            - primenit proverennyy draft (healthcheck + avto-otkat)
-  • POST /self/codegen/revert  {"name"}            - otkatit primenennyy modul
-  • GET  /self/codegen/list                         - perechislit dostupnye drafty
-  • GET  /metrics/self_codegen                      - metriki Prometheus
+Endpoint:
+  • POST /self/codegen/draft {"name","content"} - sozdat draft
+  • POST /self/codegen/check {"name"} - zapustit proverki drafta
+  • POST /self/codegen/apply {"name"} - primenit proverennyy draft (healthcheck + avto-otkat)
+  • POST /self/codegen/revert {"name"} - otkatit primenennyy modul
+  • GET /self/codegen/list - perechislit dostupnye drafty
+  • GET /metrics/self_codegen - Prometheus metrics
 
 Mosty:
 - Yavnyy: (Will ↔ Code) edinyy REST-stol dlya sozdaniya/testirovaniya/aktivatsii moduley.
 - Skrytyy #1: (Security ↔ Sandbox) proverki izolirovany v pesochnitse, isklyuchaya pobochnye effekty.
 - Skrytyy #2: (Trust ↔ Safeguards) zagruzka moduley s avto-otkatom pri sboe healthcheck.
-- Skrytyy #3: (Caution ↔ Pill) chuvstvitelnye operatsii («apply», «revert») trebuyut token-pilyulyu.
+- Skrytyy #3: (Caution ↔ Pill) chuvstvitelnye operatsii (“apply”, “revert”) trebuyut token-pilyulyu.
 
 Zemnoy abzats:
-Eto «verstak s zaschitnym ekranom»: polozhil zagotovku, proveril na stanke, podklyuchil -
-i pri zhelanii bystro otklyuchil. Uchimsya «lovit rybu» - pishem svoi kryuchki i tut zhe testiruem.
+This is “verstak s zaschitnym ekranom”: polozhil zagotovku, proveril na stanke, podklyuchil -
+i pri zhelanii bystro otklyuchil. Uchimsya “lovit rybu” - pishem svoi kryuchki i tut zhe testiruem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -35,7 +33,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp_codegen = Blueprint("self_codegen", __name__)
 
-# Myagkiy import pesochnitsy i verifikatora «pilyuli»
+# Soft import of sandbox and pill verifier
 try:  # pragma: no cover
     from modules.self.code_sandbox import (  # type: ignore
         draft as _draft,
@@ -51,7 +49,7 @@ except Exception:  # pragma: no cover
 
 
 def _pill_ok(req, pattern: str) -> bool:
-    """Proverka zaschitnoy «pilyuli» (tokena) dlya opasnykh operatsiy."""
+    """Checking the protective “pill” (token) for dangerous operations."""
     if _verify_pill is None:
         return False  # fail-closed
     tok = (req.args.get("pill") or "").strip()
@@ -90,7 +88,7 @@ def api_draft():
 
 @bp_codegen.post("/self/codegen/check")
 def api_check():
-    """Zapustit proverki (tests/lint) dlya drafta."""
+    """Run checks (tests/lint) for the draft."""
     if _check is None:
         return jsonify({"ok": False, "error": "code_sandbox_unavailable"}), 500
     data: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
@@ -105,7 +103,7 @@ def api_check():
 
 @bp_codegen.post("/self/codegen/apply")
 def api_apply():
-    """Primenit proverennyy draft (zaschischennaya operatsiya)."""
+    """Apply a verified draft (secure operation)."""
     if not _pill_ok(request, pattern=r"^/self/codegen/apply$"):
         return jsonify({"ok": False, "error": "pill_required"}), 403
     if _apply is None:
@@ -122,7 +120,7 @@ def api_apply():
 
 @bp_codegen.post("/self/codegen/revert")
 def api_revert():
-    """Otkatit ranee primenennyy modul (zaschischennaya operatsiya)."""
+    """Rollback a previously applied module (protected operation)."""
     if not _pill_ok(request, pattern=r"^/self/codegen/revert$"):
         return jsonify({"ok": False, "error": "pill_required"}), 403
     if _revert is None:

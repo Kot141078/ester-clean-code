@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/finance_routes.py - REST/UI dlya modul "Puti k dokhodu".
+"""routes/finance_routes.py - REST/UI dlya modul "Puti k dokhodu".
 
 Ruchki:
-  GET  /fin/probe
-  POST /fin/evaluate    {"text":"...", "target_amount":1000, "timeframe_days":14}
-  POST /fin/roadmap     {"text":"...", "target_amount":1000, "timeframe_days":14}
+  GET /fin/probe
+  POST /fin/evaluate {"text":"...", "target_amount":1000, "timeframe_days":14}
+  POST /fin/roadmap {"text":"...", "target_amount":1000, "timeframe_days":14}
   POST /fin/create_play {"text":"...", "mode":"A|B"}
-  GET  /admin/fin
+  GET /admin/fin
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.finance import pathways as FP

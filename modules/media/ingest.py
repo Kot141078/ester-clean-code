@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/media/ingest.py — oflayn/onlayn izvlechenie: metadannye, subtitry, chernovoy konspekt.
+"""modules/media/ingest.py - oflayn/onlayn izvlechenie: metadannye, subtitry, chernovoy konspekt.
 
 Mosty:
 - Yavnyy: (Media ↔ Memory) kladem izvlechennoe v pamyat s profileom i KG-svyazyami.
@@ -11,10 +10,9 @@ Mosty:
 - Novoe: (Monitoring ↔ Prozrachnost) webhook na tyazhelye ingesty/oshibki dlya audita.
 
 Zemnoy abzats:
-Kak «multimediynyy pylesos» s setyu: uvideli fayl/URL — snyali metadannye, vytaschili subtitry/ASR, polozhili v pamyat, podelilis po P2P, pochistili po cron — i BZ Ester vsegda svezha, bez musora.
+Kak "multimediynyy pylesos" s setyu: uvideli fayl/URL - snyali metadannye, vytaschili subtitry/ASR, polozhili v pamyat, podelilis po P2P, pochistili po cron - i BZ Ester vsegda svezha, bez musora.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, subprocess, tempfile, shlex, time, re, hashlib, shutil
 from typing import Any, Dict, List
@@ -218,7 +216,7 @@ def cron_cleanup():
             seen = data.get("seen", 0)
             if age_days > CRON_MAX_AGE_DAYS or seen < MIN_SEEN:
                 to_remove.append(pid)
-                # Udalyaem fayly v root
+                # We delete files in the mouth
                 root = data.get("root")
                 if root and os.path.isdir(root):
                     shutil.rmtree(root, ignore_errors=True)
@@ -270,7 +268,7 @@ def media_ingest(path_or_url: str, want_subtitles: bool = True, want_stt: bool =
                 if fn.lower().endswith((".vtt", ".srt", ".ass", ".sbv")):
                     subs.append(os.path.join(root, fn))
     item["subs"] = subs
-    # STT esli nuzhno
+    # STT if necessary
     if (not subs or want_stt) and media_file:
         out_wav = os.path.join(root, "audio.wav")
         if _extract_audio(media_file, out_wav)["ok"]:
@@ -299,7 +297,7 @@ def media_ingest(path_or_url: str, want_subtitles: bool = True, want_stt: bool =
         except Exception:
             pass
     rep["draft_len"] = len(text)
-    # Outline esli want
+    # Utline if shrouds
     outline = {}
     if want_outline and text:
         try:
@@ -320,7 +318,7 @@ def media_ingest(path_or_url: str, want_subtitles: bool = True, want_stt: bool =
         sha = ((m.get("provenance") or {}).get("sha256") or "")
         if sha:
             rep["kg"] = _kg_link(text, sha)
-    # Webhook esli heavy
+    # Webhook if heavy
     if WEBHOOK_URL and cost > MONITOR_THRESHOLD:
         try:
             alert = {"id": pid, "cost": cost, "len": len(text), "ts": int(time.time())}

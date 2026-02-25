@@ -7,26 +7,26 @@
 
 ## B. Vebkhuki
 - [ ] Telegram: vypolnen `python -m bin.messaging_webhooks --tg-set https://<host>/api/telegram/webhook --secret <TOKEN>` (ili dry-run).
-- [ ] Telegram: vklyuchena proverka zagolovka `X-Telegram-Bot-Api-Secret-Token` (ENV `TELEGRAM_SECRET_TOKEN`).
-- [ ] WhatsApp: nastroen webhook v Meta App Dashboard na `https://<host>/api/whatsapp/webhook`, verify token = `WHATSAPP_VERIFY_TOKEN`.
+- y Telegram: checking the header EХ-Telegram-Here-Api-Secret-Token (ENB ETELEGRAM_SECRET_TOKEN) is enabled.
+- WhatsApp: configured a webhook in the Meta App Dashboard at ехttps://<nost>/api/whatsapp/webhook, verification token = еWHATSAPP_VERIFY_TOKEN.
 
 ## C. Proaktivnost
-- [ ] `POST /proactive/dispatch` c `audience/intent/content` marshrutiziruetsya v nuzhnyy kanal (dry-run bez klyuchey).
-- [ ] `POST /proactive/hook/will` prinimaet sobytiya ot vashey «voli» i delegiruet ikh v `/proactive/dispatch`.
-- [ ] Idempotentnost po `source_id` isklyuchaet dubli pri povtornykh triggerakh.
+- yushch ePOST/proactive/dispatch with yoaudience/intent/contento is routed to the desired channel (dry-run without keys).
+- This ePOST /proactive/hook/ville accepts events from your “will” and delegates them to e/proactive/dispatch.
+- y y Idempotency by source_ido eliminates duplicates during repeated triggers.
 
 ## D. Stil/pisma
-- [ ] `POST /mail/compose/preview` generiruet korrektnyy ton (advokat/shkolnik/drug/biznes/medik/bank/gos/inzhener/uchitel/investor).
-- [ ] UI `/mail/compose/admin` i `/wa/style/admin` dostupny i rabotayut (predprosmotr, dry-run otpravka).
+- This post /mail/compose/prevyevo generates the correct tone (lawyer/student/friend/business/medical/bank/government/engineer/teacher/investor).
+- y oh yo/mail/kompose/adminyo and yo/va/style/adminyo are available and working (preview, dr-run sending).
 
 ## E. Nablyudaemost
 - [ ] `GET /metrics/messaging` otdaet Prometheus-metriki (`ester_msg_*`).
-- [ ] Logiruyutsya oshibki otpravki i setevye sboi bez utechki PII.
+- Sending and network errors are logged without leaking FDI.
 
 ## F. Prod
-- [ ] V boyu klyuchi vystavleny cherez ENV, ne v kode.
+- y y In battle, the keys are set through ENV, not in the code.
 - [ ] V nginx proksiruyutsya `/api/telegram/webhook`, `/api/whatsapp/webhook`, `/metrics/messaging`, health-routy.
 
-**Gotovo k ekspluatatsii** — kogda vse punkty otmecheny.
+**Ready for use** - when all items are checked.
 
 c=a+b

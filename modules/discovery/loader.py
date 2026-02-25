@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/discovery/loader.py — avto-podkhvat routes/actions, fon-skaner, zhurnal.
+"""modules/discovery/loader.py - avto-podkhvat routes/actions, fon-scanner, zhurnal.
 
 Mosty:
 - Yavnyy: (App Bootstrap ↔ Routes/Actions) tsentralizovannaya registratsiya moduley.
 - Skrytyy #1: (Passport ↔ Prozrachnost) vse skany/registratsii shtampuyutsya.
-- Skrytyy #2: (CapMap/Hub ↔ Navigatsiya) status dostupen dlya UI i planirovschika.
+- Skrytyy #2: (CapMap/Hub ↔ Navigatsiya) status available dlya UI i planirovschika.
 
 Zemnoy abzats:
-Eto «dispetcher tsekha»: on obkhodit masterskuyu, nakhodit novye stanki (moduli), podklyuchaet k seti (Flask/registrator ekshenov) i otmechaet v zhurnale.
+Eto “dispetcher tsekha”: on obkhodit masterskuyu, nakhodit novye stanki (moduli), podklyuchaet k seti (Flask/registrator ekshenov) i otmechaet v zhurnale.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, sys, time, importlib, threading, pkgutil, traceback
 from types import ModuleType
@@ -126,7 +124,7 @@ def _import_and_register(name: str, kind: str)->bool:
     if kind=="route":
         return _register_route_module(mod)
     else:
-        # actions — dostatochno importirovat (oni sami registriruyutsya cherez registry)
+        # actions - just import (they register themselves through registers)
         return True
 
 def register(modules: List[str])->Dict[str,Any]:
@@ -184,7 +182,7 @@ def _loop():
                 pass
         time.sleep(max(5, int(_state["interval_sec"])))
 
-# zapusk fonovoy niti (ofitsialno: «vklyuchen po umolchaniyu», opisano v shapke)
+# launching a background thread (officially: “enabled by default”, described in the header)
 def _ensure_thread():
     t=threading.Thread(target=_loop, name="discovery_loop", daemon=True)
     t.start()

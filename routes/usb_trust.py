@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-routes/usb_trust.py — UI/REST dlya Zero-Click USB: belyy spisok Re «zamok».
+"""routes/usb_trust.py - UI/REST dlya Zero-Click USB: belyy spisok Re “zamok”.
 
-Marshruty:
-  • GET  /admin/usb/trust                  — HTML-stranitsa
-  • GET  /admin/usb/trust/status           — {settings, devices, probe:[]}
-  • POST /admin/usb/trust/fingerprint      — body {mount} v†' {ok,label,id,sha256,...}
-  • POST /admin/usb/trust/add              — body {mount, notes?} v†' dobavlenie v whitelist
-  • POST /admin/usb/trust/remove           — body {id}
-  • POST /admin/usb/trust/settings         — body {zeroclick:bool, locked:bool, default_profile_id?:str}
+Route:
+  • GET /admin/usb/trust - HTML-pages
+  • GET /admin/usb/trust/status - {settings, devices, probe:[]}
+  • POST /admin/usb/trust/fingerprint - body {mount} v†' {ok,label,id,sha256,...}
+  • POST /admin/usb/trust/add — body {mount, notes?} v†' addavlenie v whitelist
+  • POST /admin/usb/trust/remove - body {id}
+  • POST /admin/usb/trust/settings - body {zeroclick:bool, locked:bool, default_profile_id?:str}
 
 Zemnoy abzats:
-Odin ekran: «Proba tomov v†' dobavit doverennuyu fleshku v†' vklyuchit Zero-Click v†' (opts.) povesit zamok».
+Odin ekran: “Proba tomov v†' dobavit doverennuyu fleshku v†' vklyuchit Zero-Click v†' (opts.) povesit zamok.”
 
 Mosty:
 - Yavnyy (Orkestratsiya v†" Vezopasnost): yavnyy kontrol whitelist Re globalnogo flaga.
 - Skrytyy 1 (Infoteoriya v†" Prozrachnost): pokazyvaem otpechatok Re spisok ustroystv.
 - Skrytyy 2 (Praktika v†" Ekspluatatsiya): nikakoy avtomaticheskoy zapisi bez yavnogo vklyucheniya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, render_template, request

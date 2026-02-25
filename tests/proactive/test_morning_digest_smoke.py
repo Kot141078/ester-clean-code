@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-tests/proactive/test_morning_digest_smoke.py — smoke-test utrennego daydzhesta.
+"""tests/proactive/test_morning_digest_smoke.py - smoke-test morning daydzhesta.
 
-Proveryaem:
+Check it out:
 - Okno utra (cherez ENV), bez TG/SMTP ukhodit v prevyu (publish_tg_preview zamokan)
-- Idempotentnost: vtoroy tik v tot zhe den ne otpravlyaet povtorno
-"""
+- Idempotentnost: vtoroy tik v tot zhe den ne otpravlyaet povtorno"""
 from __future__ import annotations
 
 import os
@@ -24,8 +22,8 @@ class FakeMM:
         self._emo = [{"emotions": {"calm": 0.8, "focus": 0.6}, "ts": time.time()}]
         self._fb = [
             {"text": "Vcherashnyaya zametka: protolknut MR po RBAC"},
-            {"text": "Ideya: dobavit CRDT dlya P2P-kartochek"},
-            {"text": "Son: agenty dogovorilis o plane dnya"},
+            {"text": "Idea: add MDG for P2P cards"},
+            {"text": "Dream: agents agreed on a plan for the day"},
         ]
 
     def get_session_meta(self, user: str, key: str):
@@ -40,7 +38,7 @@ class FakeMM:
     def flashback(self, query: str, k: int = 3):
         return self._fb[:k]
 
-    # Dlya UI initsiativ (drugoy test)
+    # For UI initiatives (another test)
     def get_agenda(self, user: str):
         return [{"id": "1", "title": "Proverit bekap", "status": "pending"}]
 
@@ -52,14 +50,14 @@ class FakeMM:
 
 
 def test_morning_digest_tick_preview(monkeypatch):
-    # Nastroim okno «utra» na tekuschiy chas, chtoby tik srabotal
+    # Set the “morning” window to the current hour so that the tick works
     import datetime as dt
 
     local_hour = dt.datetime.now().hour
     monkeypatch.setenv("MORNING_HOUR", str(local_hour))
     monkeypatch.setenv("MORNING_WINDOW_MIN", "120")
 
-    # Otklyuchim TG/SMTP chtoby poshel fallback preview
+    # Disable TG/SMTP so that false previews can start
     monkeypatch.delenv("TELEGRAM_TOKEN", raising=False)
     monkeypatch.delenv("TELEGRAM_CHAT_ID", raising=False)
     monkeypatch.delenv("SMTP_HOST", raising=False)
@@ -84,7 +82,7 @@ def test_morning_digest_tick_preview(monkeypatch):
     assert res1["channel"] == "preview"
     assert "path" in res1.get("preview", {}) or "preview" in res1
 
-    # Povtor v tot zhe den — ne dolzhen otpravlyat
+    # Repeat on the same day - should not send
     res2 = d._tick()
     assert res2["ok"] is True
     assert res2["sent"] is False

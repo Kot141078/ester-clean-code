@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_ui_routes.py - legkie stranitsy adminki.
+"""routes/admin_ui_routes.py - legkie stranitsy adminki.
 
 Mosty: (UI ↔ Operatsii), (RBAC ↔ Prozrachnost), (Audit ↔ Nadezhnost).
-Zemnoy abzats: «Schitok s tumblerami» - otkryt panel i videt bazovye pokazateli.
+Zemnoy abzats: “Schitok s tumblerami” - otkryt panel i see bazovye pokazateli.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, render_template
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

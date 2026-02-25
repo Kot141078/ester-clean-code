@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/codegate_routes.py - REST: podpis/proverka + secure-registratsiya proekta iz garazha.
+"""routes/codegate_routes.py - REST: podpis/verka + secure-registratsiya proekta iz garazha.
 
 Mosty:
 - Yavnyy: (Veb ↔ Bezopasnost) odin sloy dlya HMAC-podpisey i ikh validatsii.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Profile ↔ Trassirovka) vse resheniya fiksiruyutsya.
 
 Zemnoy abzats:
-Pered tem kak vpustit novuyu «korobku» vnutr - proveryaem plombu. Esli vse skhoditsya, podklyuchaem.
+Pered tem kak vpustit novuyu “korobku” vnutr - proveryaem plombu. Esli vse skhoditsya, podklyuchaem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os, json, urllib.request
@@ -54,12 +52,10 @@ def api_verify():
 
 @bp.route("/garage/project/register_secure", methods=["POST"])
 def api_register_secure():
-    """
-    Ozhidaet name proekta iz GARAGE_REG, proveryaet podpis papki proekta i tolko posle etogo registriruet modul.
-    """
+    """It waits for the project name from GARAGE_REG, checks the signature of the project folder and only after that registers the module."""
     d=request.get_json(True, True) or {}
     name=str(d.get("name",""))
-    # chitaem reestr garazha
+    # reading the garage register
     import json as _j
     reg_path=os.getenv("GARAGE_REG","data/garage/registry.json")
     if not os.path.isfile(reg_path):
@@ -69,7 +65,7 @@ def api_register_secure():
     if not proj:
         return jsonify({"ok": False, "error":"project_not_found"}), 404
     proj_dir=proj.get("dir",""); module=proj.get("module","")
-    # proverka podpisi
+    # signature verification
     from modules.security.codegate import verify, ENFORCE  # type: ignore
     v=verify(proj_dir)
     if not v.get("ok"):

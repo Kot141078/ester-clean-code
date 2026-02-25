@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-modules/video/subtitles/normalize.py — sbor/konversiya/normalizatsiya subtitrov (srt/vtt/ass) + fallback ASR.
+"""modules/video/subtitles/normalize.py - sbor/konversiya/normalizatsiya subtitrov (srt/vtt/ass) + fallback ASR.
 
 Funktsii:
   • load_and_normalize(path_or_text: str, fmt_hint: str|None, lang_hint: str|None) -> dict
-  • from_vtt_text(vtt: str) -> dict   # universalnyy plain-tekst + uproschennaya razmetka taymkodov
-  • try_asr(audio_path: str, model_hint='base') -> dict  # whisper/faster_whisper esli est
+  • from_vtt_text(vtt: str) -> dict # universalnyy plain-tekst + uproschennaya razmetka taymkodov
+  • try_asr(audio_path: str, model_hint='base') -> dict # whisper/faster_whisper esli est
 
 Mosty:
-- Yavnyy: (Memory ↔ Inzheneriya) privodim subtitry k edinomu «prostomu» vidu dlya indeksirovaniya.
-- Skrytyy #1: (Infoteoriya ↔ Masshtab) ogranichivaem razmer i obedinyaem fragmenty, snizhaya shum.
+- Yavnyy: (Memory ↔ Inzheneriya) privodim subtitry k edinomu “prostomu” vidu dlya indeksirovaniya.
+- Skrytyy #1: (Infoteoriya ↔ Masshtab) ogranichivaem razmer i obedinyaem fragmenty, snizhaya noise.
 - Skrytyy #2: (Kibernetika ↔ Nadezhnost) fallback ASR vklyuchaetsya tolko pri dostupnosti modeley/binarey.
 
 Zemnoy abzats:
-Eto «perepakovschik teksta»: kakuyu kapsulu ni prinesut (vtt/srt/ass) — na vykhode akkuratnyy plain-text dlya uma i pamyati.
+This is “perepakovschik teksta”: kakuyu kapsulu ni prinesut (vtt/srt/ass) - na vykhode akkuratnyy plain-text dlya uma i pamyati.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -47,7 +45,7 @@ def from_vtt_text(vtt: str) -> Dict[str, Any]:
     return {"ok": True, "text": "\n".join(lines)}
 
 def load_and_normalize(path_or_text: str, fmt_hint: str | None = None, lang_hint: str | None = None) -> Dict[str, Any]:
-    # esli eto put k faylu — chitaem, inache berem kak tekst
+    # if this is the path to the file, we read it, otherwise we take it as text
     if os.path.isfile(path_or_text):
         if os.path.getsize(path_or_text) > SUBS_MAX:
             return {"ok": False, "error": "subtitle too large"}
@@ -65,7 +63,7 @@ def load_and_normalize(path_or_text: str, fmt_hint: str | None = None, lang_hint
         norm = _strip_tags(norm)
         norm = re.sub(r"\n{3,}", "\n\n", norm)
         return {"ok": True, "text": norm.strip()}
-    # ASS/SSA: vytaschim prostuyu stroku
+    # ACC/SSA: extract a simple string
     if "[Script Info]" in txt_head or "[V4+" in txt_head:
         lines = []
         for line in txt.splitlines():

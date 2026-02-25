@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/replication_apply.py — otpravka ZIP na /replication/apply s HMAC-podpisyu.
+"""scripts/replication_apply.py - otpravka ZIP na /replication/apply s HMAC-podpisyu.
 ENV:
   API_BASE (http://127.0.0.1:8080)
-  AUTH_JWT (optsionalno)
-  REPLICATION_HMAC_KEY ili REPLICATION_HMAC_KEY_FILE
+  AUTH_JWT (optionalno)
+  REPLICATION_HMAC_KEY or REPLICATION_HMAC_KEY_FILE
 Primer:
-  REPLICATION_HMAC_KEY=secret python scripts/replication_apply.py snap.zip
-"""
+  REPLICATION_HMAC_KEY=secret python scripts/replication_apply.py snap.zip"""
 from __future__ import annotations
 
 import json

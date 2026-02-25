@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/agency/ledger.py — prostoy ledzher resursov i deneg dlya Ester (dokhody/raskhody/balansy/limity).
+"""modules/agency/ledger.py - prostoy ledzher resursov i deneg dlya Ester (dokhody/raskhody/balansy/limity).
 
 Mosty:
 - Yavnyy: (Ekonomika ↔ Myshlenie) plan opiraetsya na realnye resursy i limity trat.
 - Skrytyy #1: (Infoteoriya ↔ Audit) JSONL-zhurnal s provenansom i sha256 dlya vosproizvodimosti.
-- Skrytyy #2: (Kibernetika ↔ Kontrol) dnevnye/mesyachnye kapy i «tabletka»-overrayd (cherez routes/agency).
+- Skrytyy #2: (Kibernetika ↔ Kontrol) dnevnye/mesyachnye kapy i “tabletka”-overrayd (cherez routes/agency).
 
 Zemnoy abzats:
 Eto kassa i sklad: znaem, skolko est deneg/resursov, otkuda prishlo i kuda potratit bezopasno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import hashlib, json, os, time
@@ -51,7 +49,7 @@ def entries(limit: int = 500) -> List[Dict[str, Any]]:
     return out[-limit:] if limit>0 else out
 
 def balances() -> Dict[str, Any]:
-    # Denezhnye (EUR) i "naturalnye" resursy (proizvolnye edinitsy)
+    # Monetary (EUR) and “natural” resources (arbitrary units)
     cash_eur = 0.0
     resources: Dict[str, float] = {}
     for e in entries(limit=0):
@@ -82,9 +80,7 @@ def consume_resource(name: str, qty: float, unit: str, meta: Optional[Dict[str,A
     return _append({"kind":"resource_consume","name":name,"qty":float(qty),"unit":unit,"meta":meta or {}})
 
 def spend_allowed(eur: float, daily_cap: float, monthly_cap: float, pill_armed: bool) -> Dict[str, Any]:
-    """
-    Prostaya politika: razreshit tratu, esli <= daily/monthly kapov; inache — tolko s «tabletkoy».
-    """
+    """Simple policy: allow spending if <= dilo/montnly caps; otherwise - only with a “tablet”."""
     now = int(time.time())
     day_start = now - 24*3600
     mon_start = now - 30*24*3600

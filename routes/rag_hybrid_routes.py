@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-/rag/status i /rag/hybrid/search
+"""/rag/status i /rag/hybrid/search
 
 MOSTY:
-- Yavnyy: Rout ↔ Retriver — korrektno prokidyvaem query/top_k i optsionalnye include_text/max_chars.
-- Skrytyy #1: Prinimaem q|query|text|prompt|input i k|top_k|limit|n_results|n (gibkiy klient).
+- Yavnyy: Rout ↔ Retriever — korrektno prokidyvaem query/top_k i optsionalnye include_text/max_chars.
+- Skrytyy #1: Prinimaem q|query|text|prompt|input i k|top_k|limit|n_results|n (gibkiy client).
 - Skrytyy #2: Chistim payload ot uzhe normalizovannykh klyuchey, chtoby ne dublirovat kwargs.
 
 ZEMNOY ABZATs:
 Python vydaet oshibku "got multiple values for keyword argument", esli odin i tot zhe parametr
 peredan i imenovannym argumentom, i vnutri **kwargs. Lechim: vyrezaem normalizovannye klyuchi
 iz payload pered vyzovom retrivera.
-# c=a+b
-"""
+# c=a+b"""
 from typing import Any, Dict, Optional
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -27,7 +25,7 @@ def _import_hybrid():
     except Exception as e:
         return None, e
 
-# --- normalizatsiya vkhoda ---
+# --- input normalization ---
 def _norm_query(payload: Dict[str, Any]) -> str:
     for k in ("query", "q", "text", "prompt", "input"):
         v = payload.get(k)
@@ -64,7 +62,7 @@ def _coerce_int(x: Any, default: Optional[int] = None) -> Optional[int]:
         return default
 
 def _clean_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """Ubiraem klyuchi, kotorye my uzhe normalizovali/prokinem yavno, chtoby ne zadublirovat."""
+    """We remove the keys that we have already normalized/passed explicitly so as not to duplicate them."""
     block = {
         "query","q","text","prompt","input",
         "top_k","k","limit","n_results","n",
@@ -110,7 +108,7 @@ def api_search():
     if hybrid_search is None:
         return jsonify({"ok": False, "error": "hybrid retriever unavailable"}), 503
 
-    # soberem tolko «chistye» kwargs + nashi normalizovannye flagi (esli zadany)
+    # we will collect only “pure” quargs + our normalized flags (if specified)
     kwargs = _clean_payload(payload)
     if include_text is not None:
         kwargs["include_text"] = include_text

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/selfevo_routes.py - REST: kuznitsa samoevolyutsii (dryrun/apply/list) s RBAC i «pilyuley».
+"""routes/selfevo_routes.py - REST: kuznitsa samoevolyutsii (dryrun/apply/list) s RBAC i "pilyuley".
 
 Mosty:
 - Yavnyy: (Veb ↔ FS) sozdaem bezopasno novye artefakty koda.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Registratsiya ↔ Zhiznennyy tsikl) po flagu podklyuchaem modul srazu.
 
 Zemnoy abzats:
-Ofitsialnaya «dver v masterskuyu»: bez razresheniya - tolko posmotret, s razresheniem i podtverzhdeniem - akkuratno primenit.
+Ofitsialnaya “door v masterskuyu”: bez razresheniya - tolko posmotret, s razresheniem i podtverzhdeniem - akkuratno primenit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os

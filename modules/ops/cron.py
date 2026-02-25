@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ops/cron.py — planovye tekhprotsedury (heal→compact→snapshot→validate) pod «tik».
+"""modules/ops/cron.py - planovye tekhprotsedury (heal→compact→snapshot→validate) pod “tik”.
 
 Mosty:
 - Yavnyy: (Raspisanie ↔ Routingi) obraschaetsya k uzhe suschestvuyuschim /mem/* i /index/* bez izmeneniya ikh kontraktov.
-- Skrytyy #1: (AB-slot ↔ Bezopasnost) CRON_AB=B daet «sukhoy progon» bez vyzovov.
+- Skrytyy #1: (AB-slot ↔ Bezopasnost) CRON_AB=B daet “sukhoy progon” bez vyzovov.
 - Skrytyy #2: (Memory ↔ Profile) sokhranyaem profile-log o vypolnenii.
 
 Zemnoy abzats:
-Eto kak nochnoy klining v tsekhe: podmeli, smazali, proverili — utrom vse krutitsya.
+Eto kak nochnoy klining v tsekhe: podmeli, smazali, proverili - morning vse krutitsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, urllib.request
 from typing import Any, Dict

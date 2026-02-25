@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/memory_qa_routes.py - REST/UI dlya QA pamyati.
+"""rutes/memory_ka_rutes.po - REST/UI for KA memory.
 
-Ruchki:
-  GET  /memory/qa/summary
-  POST /memory/qa/run {"auto_fix":true|false}
-  GET  /admin/memory_qa
+Handles:
+  GET /memory/ka/summary
+  POST /memory/ka/run ZZF0Z
+  GET /admin/memory_ka
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.memory import qa

@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-volition/autonomous_web_agent.py — evristicheskiy agent, kotoryy reshaet: nuzhen li internet.
+"""volition/autonomous_web_agent.py - evristicheskiy agent, kotoryy reshaet: nuzhen li internet.
 
 YaVNYY MOST: c = a + b
-  a — kontekst/vopros polzovatelya,
-  b — protsedura "reshi i poischi" (evristiki + sanitayzing + limity),
-  c — rezultat poiska (korotkaya vyzhimka), kotoryy mozhno podmeshat v reasoning.
+  a - kontekst/vopros polzovatelya,
+  b - protsedura "reshi i poischi" (evristiki + sanitayzing + limity),
+  c - rezultat poiska (korotkaya vyzhimka), kotoryy mozhno podmeshat v reasoning.
 
 SKRYTYE MOSTY:
   - Ashby: evristiki dayut "raznoobrazie" triggerov, no my derzhim tormoza (limity/sanitayzing),
     chtoby raznoobrazie ne prevraschalos v khaos.
-  - Cover&Thomas: szhatie (extract_query) i korotkaya vydacha — eto kontrol kanala.
-  - Dhammapada (praktika): "ne govorit lishnego" — agent otdaet tolko vyzhimku, bez boltovni.
+  - Cover&Thomas: szhatie (extract_query) i korotkaya vydacha - eto kontrol kanala.
+  - Dhammapada (praktika): "ne govorit lishnego" - agent otdaet tolko vyzhimku, bez boltovni.
 
 ZEMNOY ABZATs (inzheneriya/anatomiya):
-  Agent — kak nadpochechniki: vklyuchaetsya tolko na trigger (stress/defitsit informatsii) i bystro
-  uspokaivaetsya. Esli on rabotaet vsegda — budet khronicheskiy kortizol (nagruzka/shum).
-"""
+  Agent - kak nadpochechniki: vklyuchaetsya tolko na trigger (stress/defitsit informatsii) i bystro
+  uspokaivaetsya. Esli on rabotaet vsegda - budet khronicheskiy kortizol (nagruzka/shum)."""
 from __future__ import annotations
 
 import os

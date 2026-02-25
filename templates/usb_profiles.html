@@ -42,13 +42,13 @@
     <h3>Redaktor</h3>
     <div class="row"><input id="id" placeholder="id (pusto — novyy)" class="mono" style="min-width:260px"/></div>
     <div class="row">
-      <input id="name" placeholder="Imya profilya" style="min-width:260px"/>
+      <input id="name" placeholder="Profile name" style="min-width:260px"/>
       <input id="label" placeholder="Metka (papka /...)" value="ESTER"/>
       <label><input type="checkbox" id="with_release" checked/> Vklyuchit reliz</label>
       <label><input type="checkbox" id="include_state" checked/> Vklyuchit ~/.ester</label>
     </div>
     <div class="row">
-      <input id="dump_paths" placeholder="Puti k dampam, cherez zapyatuyu" class="mono" style="min-width:420px"/>
+      <input id="dump_paths" placeholder="Paths to dumps, separated by commas" class="mono" style="min-width:420px"/>
       <input id="notes" placeholder="Zametki" style="min-width:260px"/>
       <button onclick="save()">Save</button>
     </div>
@@ -110,7 +110,7 @@ async function save(){
 }
 
 async function del(id){
-  if(!confirm('Udalit profil?')) return;
+  if(!confirm('Delete profile?')) return;
   const fd = new FormData(); fd.append('id', id);
   const r = await fetch('/admin/usb/profiles/delete', {method:'POST', body: fd});
   await r.json().catch(()=>({}));

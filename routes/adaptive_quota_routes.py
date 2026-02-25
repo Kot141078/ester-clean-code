@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/adaptive_quota_routes.py - REST/UI dlya adaptivnykh kvot.
+"""routes/adaptive_quota_routes.py - REST/UI dlya adaptivnykh kvot.
 
 Ruchki:
-  POST /adaptive_quota/config   {"room":"r","qmin":2,"qmax":15,"k":2.0}
-  POST /adaptive_quota/hb       {"room":"r","client":"bob","rtt_ms":85}
-  GET  /adaptive_quota/quotas?room=r
-  GET  /adaptive_quota/status?room=r
-  GET  /admin/adaptive_quota
+  POST /adaptive_quota/config {"room":"r","qmin":2,"qmax":15,"k":2.0}
+  POST /adaptive_quota/hb {"room":"r","client":"bob","rtt_ms":85}
+  GET /adaptive_quota/quotas?room=r
+  GET /adaptive_quota/status?room=r
+  GET /admin/adaptive_quota
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.coop.adaptive_quota import config, heartbeat, quotas, status

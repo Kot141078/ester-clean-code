@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/state_store.py — Potokobezopasnoe khranilische agentov/komand.
+"""modules/synergy/state_store.py - Potokobezopasnoe khranilische agentsov/komand.
 
 Mosty:
 - (Yavnyy) In-memory store s snapshotom sostoyaniya (agenty: lyudi/ustroystva; komandy i roli).
@@ -8,10 +7,9 @@ Mosty:
 - (Skrytyy #2) Myagkaya konsistentnost: versii i atomarnye apdeyty pod lokom.
 
 Zemnoy abzats:
-Daet Ester «obschuyu dosku» dlya lyudey i mashin: kto dostupen, kakie navyki i kuda naznacheny.
+Daet Ester “obschuyu dosku” dlya lyudey i mashin: kto dostupen, kakie navyki i kuda naznacheny.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import threading
 from typing import Dict, Any, Optional, List, Tuple

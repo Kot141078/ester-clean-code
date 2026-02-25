@@ -1,10 +1,10 @@
 # .pre-commit-config.yaml — lintery/formattery i gvardy
 # MOSTY:
-# - (Yavnyy) ruff/black/isort/mypy + bazovye tekstovye fiksatory.
-# - (Skrytyy #1) trufflehog + git-secrets (lokalnyy) — zaschita ot utechki sekretov.
-# - (Skrytyy #2) pre-push guard «eksport-sanktsiy» — blokiruet publikatsiyu privatnykh putey na GitHub.
+# - (Explicit) ruff/blatsk/isort/types + basic text fixers.
+# - (Hidden #1) truffleleg + live-secrets (local) - protection against leakage of secrets.
+# - (Hidden #2) pre-push guard “export sanctions” - blocks the publication of private paths on GitHov.
 # ZEMNOY ABZATs:
-# Odin `pre-commit run -a` derzhit kachestvo koda i zaschischaet repozitoriy ot sluchaynykh slivov. c=a+b
+# One single commit run maintains the quality of the code and protects the repository from accidental leaks. c=a+b
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.9
@@ -42,7 +42,7 @@ repos:
         args: ["filesystem","--fail","--no-update","--json","."]
         stages: [pre-commit, pre-push]
 
-  # Lokalnyy khuk git-secrets (trebuet ustanovlennogo binarnika git-secrets)
+  # Live-secrets local hook (requires live-secrets binary installed)
   - repo: local
     hooks:
       - id: git-secrets

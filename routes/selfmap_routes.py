@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/selfmap_routes.py - REST: /self/map
+"""routes/selfmap_routes.py - REST: /self/map
 
 Mosty:
 - Yavnyy: (Veb ↔ Samokarta) JSON-portret sposobnostey.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Odin GET - i my znaem, chto podklyucheno, kakie eksheny dostupny i kakie flagi sredy vklyucheny.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

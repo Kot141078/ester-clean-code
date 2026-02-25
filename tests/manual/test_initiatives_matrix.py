@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Grid-test vybora initsiativ po emotsiyam.
-Pechataet tablitsu 5x5 po anxiety i interest (0.0..1.0 shag 0.25).
+"""Grid-test vybora initsiativ po emotsiyam.
+Pechataet tablitsu 5x5 po anxiety i interest (0.0..1.0 step 0.25).
 Zapusk:
-    python tests/manual/test_initiatives_matrix.py
-"""
+    python tests/manual/test_initiatives_matrix.py"""
 from __future__ import annotations
 
 from initiatives import choose_by_emotions

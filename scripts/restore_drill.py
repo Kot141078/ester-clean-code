@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/restore_drill.py — drill-protsedura vosstanovleniya.
-Povedenie:
+"""scripts/restore_drill.py - drill-protsedura vosstanovleniya.
+Behavior:
   * Ischet posledniy *.enc v BACKUP_DIR
   * verify → restore v TEMP_TARGET (ili ukazannuyu)
-  * Po umolchaniyu vypolnyaet odin prokhod. Dlya tsiklicheskogo progona ustanovite DRILL_INTERVAL_SEC>0.
+  * Performs one pass by default. For a cyclic run, set DRILL_INTERVAL_SEC>0.
 
 ENV:
   PERSIST_DIR
   BACKUP_DIR
   BACKUP_HMAC_KEY
-  TEMP_TARGET            — tselevaya papka vosstanovleniya (po umolchaniyu PERSIST_DIR/_drill_restore)
-  DRILL_INTERVAL_SEC     — interval v sekundakh (0 → odin prokhod)
-"""
+  TEMP_TARGET — tselevaya papka vosstanovleniya (by umolchaniyu PERSIST_DIR/_drill_restore)
+  DRILL_INTERVAL_SEC — interval v sekundakh (0 → odin prokhod)"""
 from __future__ import annotations
 
 import json

@@ -4,7 +4,7 @@
  * - Skrytyy #2: (DevOps ↔ UX) JSON pokazan kak est — udobno kopirovat v tiket/otchet.
  *
  * Zemnoy abzats:
- * Nazhali knopku — poluchili otchet. Eto «lampochka testa» na paneli.
+ * Pressed a button and received a report. This is the "test light" on the panel.
  *
  * c=a+b
  */

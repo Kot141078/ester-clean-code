@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/memory_cycle_routes.py - REST/UI dlya sutochnogo tsikla pamyati.
+"""routes/memory_cycle_routes.py - REST/UI dlya sutochnogo tsikla pamyati.
 
 Ruchki:
-  GET  /memory/cycle/status
+  GET /memory/cycle/status
   POST /memory/cycle/run_now
   POST /memory/cycle/scheduler_start
   POST /memory/cycle/scheduler_stop
-  GET  /admin/memory_cycle
+  GET /admin/memory_cycle
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, render_template
 from modules.memory import daily_cycle

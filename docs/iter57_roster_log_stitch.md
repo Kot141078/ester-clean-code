@@ -71,7 +71,7 @@ Verifier counters:
 ## Profile Policy
 
 - `BASE`: missing roster anchor can be downgraded with `--allow-missing-roster-entry-hash`.
-- `HRO`: missing envelope anchor warns; mismatches fail.
+- `HRO`: missing envelope anchor warnings; mismatches fail.
 - `FULL`: missing envelope anchor fails; log/anchor mismatch fails.
 
 ## Error Codes

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/media/ffprobe.py — bystrye metadannye cherez ffprobe (s myagkim follbekom).
+"""modules/media/ffprobe.py - bystrye metadannye cherez ffprobe (s myagkim follbekom).
 
 Mosty:
 - Yavnyy: (Inzheneriya ↔ Multimedia) izvlekaem dlitelnost, dorozhki, kodeki.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Memory ↔ RAG) normalizuem polya dlya posleduyuschey zapis v pamyat.
 
 Zemnoy abzats:
-Kak «tekhnicheskiy profile» fayla: dlitelnost, razmer i chto vnutri — bez lishney magii.
+Kak “tekhnicheskiy profile” fayla: dlitelnost, razmer i chto vnutri - bez lishney magii.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import hashlib, json, os, subprocess
 from typing import Any, Dict

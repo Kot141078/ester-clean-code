@@ -1,34 +1,32 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-tools/video_subs_cli.py — CLI dlya proaktivnogo obkhoda podpisok/poiska video.
+"""tools/video_subs_cli.py - CLI dlya proaktivnogo obkhoda podpisok/poiska video.
 
 Primery:
-  # Sukhoy progon (tolko pokazat, chto nashli):
+  # Dry run (only show what was found):
   python tools/video_subs_cli.py --dry-run
 
   # Zapustit obrabotku podpisok:
   python tools/video_subs_cli.py --run
 
-  # Poisk po teme (ytsearch):
+  # Search po topic (ytsearch):
   python tools/video_subs_cli.py --search "bayesian inference lecture" --limit 2
 
 Optsii:
-  --dry-run          Pokazat, kakie elementy budut obrabotany (bez ingest)
-  --run              Vypolnit obkhod podpisok (mode=subs)
-  --search TOPIC     Vypolnit ytsearch po teme (mode=search)
-  --limit N          Ogranichenie chisla elementov (po umolchaniyu 3)
+  --dry-run Show, kakie elementy budut obrabotany (bez ingest)
+  --run Vypolnit obkhod podpisok (mode=subs)
+  --search TOPIC Vypolnit ytsearch po topic (mode=search)
+  --limit N Ogranichenie chisla elementov (po umolchaniyu 3)
 
 Mosty:
-- Yavnyy: (UX ↔ Operatsii) Operatoram udobno testirovat rabotu bez UI/REST.
+- Yavnyy: (UX ↔ Operatsii) Operatoram udobno testirovat work bez UI/REST.
 - Skrytyy #1: (Kibernetika ↔ Planirovschik) Ispolzuyte iz kron/planirovschika (s ENV VIDEO_SUBS_ENABLED=1).
 - Skrytyy #2: (Inzheneriya ↔ Nadezhnost) Sukhoy progon snizhaet risk "zakhlebnutsya" ot bolshogo obema.
 
 Zemnoy abzats:
 Eto kak "ruchnoy obkhodchik" sklada: mozhno proyti bez pogruzki (dry-run), a mozhno zapustit pogruzchik (run).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -48,7 +46,7 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
 
     if args.dry_run:
-        # dry-run: pokazhem, kakie URL budut sobrany iz konfiguratsii, ne vyzyvaya ingest
+        # dry-run: we will show which URLs will be collected from the configuration without causing ingest
         from modules.proactive.video_autorunner import _load_yaml, _ytsearch_to_url  # type: ignore
         cfg = _load_yaml(os.path.join("config", "video_subscriptions.yaml"))
         subs = [s for s in (cfg.get("subscriptions") or []) if int(s.get("enabled") or 0) == 1]

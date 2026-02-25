@@ -6,7 +6,7 @@ Param(
 # 1) Katalog
 New-Item -ItemType Directory -Force -Path $Path | Out-Null
 
-# 2) Razresheniya NTFS (lokalizovannoe imya "Everyone" poluchaem po SID S-1-1-0)
+# 2) NTFS permissions (the localized name "Everene" is obtained from the S-1-1-0 LED)
 $EveryoneSid = New-Object System.Security.Principal.SecurityIdentifier 'S-1-1-0'
 $Everyone = $EveryoneSid.Translate([System.Security.Principal.NTAccount]).Value
 if ($GrantEveryone) {
@@ -26,14 +26,14 @@ foreach($n in $fwNames){
 # 5) Shara
 $share = Get-SmbShare -Name $ShareName -ErrorAction SilentlyContinue
 if (-not $share) {
-  # sozdaem, daem polnyy dostup Everyone (dlya dev)
+  # create, gives full access to Everene (for girls)
   New-SmbShare -Name $ShareName -Path $Path -FullAccess $Everyone -ChangeAccess $Everyone -ReadAccess $Everyone | Out-Null
 } else {
-  # esli suschestvuet — obnovim dostup
+  # if it exists, we will update access
   try { Grant-SmbShareAccess -Name $ShareName -AccountName $Everyone -AccessRight Full -Force | Out-Null } catch {}
 }
 
-# 6) Dopolnitelno: autentifitsirovannym polzovatelyam dadim Change
+# 6) Additionally: we will give Change to authenticated users
 $AuthUsers = (New-Object System.Security.Principal.SecurityIdentifier 'S-1-5-11').Translate([System.Security.Principal.NTAccount]).Value
 try { Grant-SmbShareAccess -Name $ShareName -AccountName $AuthUsers -AccessRight Change -Force | Out-Null } catch {}
 

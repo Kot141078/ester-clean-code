@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/pipelines.py — spetsializirovannye konveyery myshleniya Ester.
+"""modules/thinking/pipelines.py - spetsializirovannye konveyery myshleniya Ester.
 
 Vozmozhnosti:
 - JSON-DSL opisaniya payplayna (stages: think/recall/plan/execute/reflect)
@@ -9,16 +8,15 @@ Vozmozhnosti:
 - Vozvrat strukturirovannogo rezultata (differences/similarities/summary)
 
 MOSTY:
-- Yavnyy: (Mysl ↔ Memory) — kazhdyy etap ispolzuet i popolnyaet pamyat.
-- Skrytyy #1: (Infoteoriya ↔ Sravnenie) — vektornye profili → skhodstva/razlichiya.
+- Yavnyy: (Mysl ↔ Memory) - kazhdyy etap ispolzuet i popolnyaet pamyat.
+- Skrytyy #1: (Infoteoriya ↔ Sravnenie) - vektornye profili → skhodstva/razlichiya.
 - Skrytyy #2: (Kibernetika ↔ Refleksiya) — Reflect zakryvaet tsikl obratnoy svyazi.
 
 ZEMNOY ABZATs:
-Inzhenerno — eto ispolnitel payplaynov s minimalnym DSL i khranilischem sostoyaniy.
-Prakticheski — «myslennaya lenta konveyera» dlya zadach: sravni, proanaliziruy, reshi, podvedi itog.
+Inzhenerno - eto ispolnitel payplaynov s minimalnym DSL i khranilischem sostoyaniy.
+Prakticheski - “myslennaya lenta konveyera” dlya zadach: sravni, proanaliziruy, reshi, podvedi itog.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Optional
 import time, re
@@ -43,7 +41,7 @@ def _top_terms(texts:List[str], n:int=12)->List[str]:
     return [w for w,_ in Counter(words).most_common(n)]
 
 def _vec_profile(recs:List[Dict[str,Any]])->List[float]:
-    # usrednennyy embedding (prostoy «tsentr»)
+    # average embedding (simple “center”)
     vs=[r.get("vec") for r in recs if r.get("vec")]
     if not vs: return []
     L=max(len(v) for v in vs)
@@ -66,7 +64,7 @@ def _cos(a:List[float], b:List[float])->float:
     return float(s/(na*nb))
 
 def _memory_search(keyword:str, top_k:int=50)->List[Dict[str,Any]]:
-    # Poisk relevantnykh zapisey po klyuchu (i semantike, esli dostupno)
+    # Search for relevant records by key (and semantics, if available)
     items=list(store._MEM.values())
     # grubyy filtr po tekstu
     raw=[r for r in items if keyword.lower() in (r.get("text","").lower())]
@@ -80,7 +78,7 @@ def _memory_search(keyword:str, top_k:int=50)->List[Dict[str,Any]]:
     return list(by_id.values())
 
 # ------------------------------
-# YaDRO VYPOLNENIYa DSL
+# DSL Execution Core
 # ------------------------------
 
 def run_pipeline(spec:Dict[str,Any])->Dict[str,Any]:
@@ -122,18 +120,18 @@ def run_pipeline(spec:Dict[str,Any])->Dict[str,Any]:
     out={"ok":True,"name":name,"goal":goal,"took_sec":t1-t0,"timeline":timeline,"result":ctx["result"]}
     record_thought(goal=f"pipeline:{name}", conclusion="done", success=True)
     record_event("pipeline", name, True, {"done":True,"took":t1-t0})
-    # finalnaya zapis v pamyat (chtoby byla «istoriya konveyera»)
+    # final entry into memory (so that there is a “conveyor history”)
     memory_add("dream", f"pipeline {name}: {ctx['result'].get('summary','gotovo')}",
                      {"goal":goal,"result":ctx["result"],"stage":"final"})
     return out
 
 # ------------------------------
-# ETAPY (standartnye obrabotchiki)
+# STAGES (standard handlers)
 # ------------------------------
 
 def _stage_think(ctx:Dict[str,Any])->Dict[str,Any]:
     goal=ctx["goal"]
-    msg=f"Obdumyvayu tsel: {goal}"
+    msg=f"Thinking about the goal: ZZF0Z"
     record_event("think","pipeline_think",True,{"goal":goal})
     record_thought(goal, "init reasoning", True)
     return {"stage":"think","ok":True,"msg":msg}
@@ -187,8 +185,8 @@ def _stage_execute(name:str, ctx:Dict[str,Any])->Dict[str,Any]:
 
         summary=(f"Sravnenie '{a}' vs '{b}': skhodstvo={sim:.2f}. "
                  f"Obschie temy: {', '.join(common) if common else '—'}. "
-                 f"Unikalno dlya {a}: {', '.join(unique_a) if unique_a else '—'}. "
-                 f"Unikalno dlya {b}: {', '.join(unique_b) if unique_b else '—'}.")
+                 f"Unique to ZZF0Z: ZZF1ZZ."
+                 f"Unique to ZZF0Z: ZZF1ZZ.")
 
         ctx["result"]={
             "mode":"compare_sources",
@@ -206,7 +204,7 @@ def _stage_execute(name:str, ctx:Dict[str,Any])->Dict[str,Any]:
     elif name=="analyze_text":
         text=params.get("text","")
         terms=_top_terms([text], 15)
-        ctx["result"]={"mode":"analyze_text","terms":terms,"summary":"Klyuchevye temy izvlecheny."}
+        ctx["result"]={"mode":"analyze_text","terms":terms,"summary":"Key themes are extracted."}
         record_event("act","analyze_text",True,{"terms":terms[:5]})
         return {"stage":"execute","ok":True,"terms":terms}
 
@@ -221,7 +219,7 @@ def _stage_execute(name:str, ctx:Dict[str,Any])->Dict[str,Any]:
     elif name=="decision_plan":
         objective=params.get("objective","")
         options=params.get("options") or []
-        # prostaya evristika: vybrat optsiyu, na kotoruyu bolshe «skhodnykh» vospominaniy
+        # simple heuristic: choose the option that has more “similar” memories
         scored=[]
         for opt in options:
             scored.append((opt, len(_memory_search(opt, top_k=20))))
@@ -232,7 +230,7 @@ def _stage_execute(name:str, ctx:Dict[str,Any])->Dict[str,Any]:
         return {"stage":"execute","ok":True,"choice":choice,"scores":scored}
 
     else:
-        ctx["result"]={"mode":"unknown","summary":"Neizvestnyy shablon."}
+        ctx["result"]={"mode":"unknown","summary":"Unknown pattern."}
         record_event("act","unknown_pipeline",False,{"name":name})
         return {"stage":"execute","ok":False,"msg":"unknown template"}
 
@@ -241,12 +239,12 @@ def _stage_reflect(name:str, ctx:Dict[str,Any])->Dict[str,Any]:
     msg=res.get("summary","gotovo")
     record_event("think","pipeline_reflect",True,{"name":name})
     record_thought(goal=f"pipeline:{name}", conclusion=msg, success=True)
-    # finalnaya fiksatsiya itoga
+    # final fixation of the result
     memory_add("summary", f"[{name}] {msg}", {"mode":"pipeline","result":res})
     return {"stage":"reflect","ok":True,"msg":msg}
 
 # ------------------------------
-# GOTOVYE ShABLONY (Factory)
+# READY-made Templates (Factors)
 # ------------------------------
 
 def builtins()->List[Dict[str,Any]]:

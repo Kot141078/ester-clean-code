@@ -1,27 +1,25 @@
 
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/cascade_multi_context_adapter.py — mnogokontekstnyy kaskad.
+"""modules/thinking/cascade_multi_context_adapter.py - mnogokontekstnyy kaskad.
 
 Mosty:
 - Yavnyy: (cascade_closed ↔ Memory) — zapuskaet kaskady po neskolkim smyslovym kontekstam.
 - Skrytyy #1: (Pisaniya/znanie ↔ Planirovanie) — otdelnye traektorii pod tsennostnyy, nauchnyy, inzhenernyy ugly.
-- Skrytyy #2: (Kod ↔ Praktika) — kontekst «engineering» podtalkivaet k inzhenernym/sistemnym resheniyam.
+- Skrytyy #2: (Kod ↔ Praktika) — kontekst “engineering” podtalkivaet k inzhenernym/sistemnym resheniyam.
 
 A/B-slot:
     ESTER_CASCADE_CTX_AB = "A" | "B"
-    A — sovmestimyy rezhim: prosto proksiruet cascade_closed.run_cascade.
-    B — rasshirennyy rezhim: zapuskaet kaskad po neskolkim kontekstam i agregiruet.
+    A - sovmestimyy rezhim: prosto proksiruet cascade_closed.run_cascade.
+    B - rasshirnnyy rezhim: zapuskaet kaskad po neskolkim kontekstam i agregiruet.
 
 Zemnoy abzats:
 Inzhener:
     from modules.thinking import cascade_multi_context_adapter as cmc
     res = cmc.run(goal="sproektirovat bezopasnyy servis")
     print(res["summary"])
-Tak Ester osmyslyaet tsel kak chelovek: s neskolkikh storon (etika, fakty, inzheneriya),
+Tak Ester osmyslyaet tsel kak chelovek: s neskolkikh side (etika, fakty, inzheneriya),
 no ostaetsya v svoem closed-box okruzhenii.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -40,28 +38,26 @@ def _contexts() -> List[Dict[str, str]]:
     return [
         {
             "name": "ethics",
-            "suffix": " (cherez prizmu tsennostey i posledstviy dlya lyudey)",
+            "suffix": "(through the lens of values ​​and consequences for people)",
         },
         {
             "name": "science",
-            "suffix": " (cherez prizmu faktov, modeley i proveryaemykh dopuscheniy)",
+            "suffix": "(through the lens of facts, models and testable assumptions)",
         },
         {
             "name": "engineering",
-            "suffix": " (cherez prizmu arkhitektury, otkazoustoychivosti i ogranicheniy resursov)",
+            "suffix": "(through the prism of architecture, fault tolerance and resource limitations)",
         },
     ]
 
 
 def run(goal: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
-    """
-    Mnogokontekstnyy zapusk kaskada.
+    """Mnogokontekstnyy zapusk kaskada.
 
     A-rezhim:
         proxy na cascade_closed.run_cascade(goal, params)
     B-rezhim:
-        progon po neskolkim kontekstam, sbor summary i profiley.
-    """
+        progon po neskolkim kontekstam, sbor summary i profiley."""
     params = params or {}
     if _CTX_MODE != "B":
         base = cascade_closed.run_cascade(goal, params)

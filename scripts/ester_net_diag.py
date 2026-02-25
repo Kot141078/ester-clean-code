@@ -63,9 +63,7 @@ def test_dns_and_http() -> dict:
     return out
 
 def test_net_bridge() -> dict:
-    """
-    [FIX] Proveryaem modules.net.net_bridge_adapter
-    """
+    """uFIKSsch Checking the module.net.net_bridge_adapter"""
     out = {"import_ok": False, "search_ok": False}
     try:
         from modules.net import net_bridge_adapter
@@ -73,7 +71,7 @@ def test_net_bridge() -> dict:
         
         # Probuem realnyy poisk
         if hasattr(net_bridge_adapter, "search"):
-            # Testovyy zapros
+            # Test request
             try:
                 res = net_bridge_adapter.search("test ping", limit=1)
                 if res.get("ok"):

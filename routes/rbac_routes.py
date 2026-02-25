@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/rbac_routes.py - REST: naznachenie roley i trebovaniya k marshrutam.
+"""routes/rbac_routes.py - REST: naznachenie roley i trebovaniya k routetam.
 
 Mosty:
 - Yavnyy: (Veb ↔ RBAC) upravlyaem polzovatelyami i pravilami.
 - Skrytyy #1: (Integratsiya ↔ AppOps+) mozhno trebovat rol admin dlya /app/discover/register.
-- Skrytyy #2: (UX ↔ Panel) legko svyazat s UI.
+- Skrytyy #2: (UX ↔ Panel) easy svyazat s UI.
 
 Zemnoy abzats:
-«Kto zdes admin?» - nastraivaetsya odnoy ruchkoy.
-# c=a+b
-"""
+“Who is the admin?” - nastraivaetsya odnoy ruchkoy.
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

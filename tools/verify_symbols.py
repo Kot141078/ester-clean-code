@@ -1,11 +1,9 @@
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 # -*- coding: utf-8 -*-
-"""
-tools.verify_symbols — proverka mostov memory/quality.
+"""tools.verify_symbols — proverka mostov memory/quality.
 Zapusk: python -m tools.verify_symbols
-# c=a+b
-"""
+# c=a+b"""
 def _try(name, fn):
     try:
         out = fn()

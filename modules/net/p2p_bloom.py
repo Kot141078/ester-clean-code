@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-modules/net/p2p_bloom.py — lokalnyy i vneshniy Bloom-filtry dlya deduplikatsii obmena id mezhdu uzlami.
+"""modules/net/p2p_bloom.py - lokalnyy i vneshniy Bloom-filtry dlya deduplikatsii obmena id mezhdu uzlami.
 
-Chto umeet:
+What does it mean:
   • Khranit osnovnoy Bloom (bloom.bin) s parametrami m (bity) i k (kheshi), schetchik add().
-  • Eksport/import binarnika; MERGE s odinakovymi parametrami — pobitovoe OR.
-    Pri nesovpadenii parametrov — sokhranyaem kak vneshniy filtr (external/*.bin) i uchityvaem pri check().
-  • Registratsiya pachek id (register_ids) i proverka chlenstva (check_ids).
-  • Sostoyanie/metadannye v state.json.
+  • Eksport/import binarnika; MERGE s odinakovymi parametrami - pobitovoe OR.
+    Pri nesovpadenii parametrov - sokhranyaem kak vneshniy filtr (external/*.bin) i uchityvaem pri check().
+  • Registration pachek id (register_ids) i proverka chlenstva (check_ids).
+  • State/metadannye v state.json.
 
 ENV:
   • P2P_BLOOM_ENABLED=1 | 0
@@ -15,15 +14,14 @@ ENV:
   • P2P_BLOOM_K=6
 
 Mosty:
-- Yavnyy: (Memory ↔ Set) deshevyy test «videl/ne videl» dlya id replik/profileov bez trafika.
+- Yavnyy: (Memory ↔ Set) deshevyy test “videl/ne videl” dlya id replik/profileov bez trafika.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) obedinenie filtrov (OR) bez sovmestnoy indeksatsii.
 - Skrytyy #2: (Kibernetika ↔ Masshtab) vneshnie filtry ne lomayut skhemu — prosto uchityvayutsya pri check().
 
 Zemnoy abzats:
-Eto ramka na vyezde so sklada: na letu skaniruet shtrikhkod korobki i mashet rukoy — «eto uzhe bylo» ili «vpervye vizhu».
+Eto ramka na vyezde so sklada: na letu skaniruet shtrikhkod korobki i mashet rukoy - “eto uzhe bylo” or “vpervye vizhu”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import base64
@@ -76,7 +74,7 @@ def _save():
         json.dump({"m": M, "k": K, "count": _count}, f, ensure_ascii=False, indent=2)
 
 def _hashes(s: str) -> List[int]:
-    # ispolzuem SHA-256 s raznymi prefiksami (k nezavisimykh funktsiy)
+    # we use SHA-256 with different prefixes (for independent functions)
     out: List[int] = []
     raw = s.encode("utf-8")
     for i in range(K):
@@ -114,7 +112,7 @@ def contains(s: str) -> bool:
         byte_i = idx // 8
         bit_i = idx % 8
         if not (_bits[byte_i] & (1 << bit_i)):
-            # proverim vneshnie filtry
+            # check external filters
             break
     else:
         return True
@@ -127,7 +125,7 @@ def contains(s: str) -> bool:
             data = memoryview(open(path, "rb").read())
             meta = json.loads(open(path + ".json", "r", encoding="utf-8").read())
             m2 = int(meta.get("m", M)); k2 = int(meta.get("k", K))
-            # esli parametry drugie — pereschitaem indeksy dlya k2/m2 i proverim
+            # if the parameters are different, we will recalculate the indices for k2/m2 and check
             raw = s.encode("utf-8")
             ok = True
             for i in range(k2):
@@ -151,10 +149,8 @@ def export_main() -> bytes:
     return bytes(_bits)
 
 def merge_blob(blob: bytes, meta: Dict[str, Any] | None = None) -> Dict[str, Any]:
-    """
-    Esli meta.m/meta.k sovpadayut — OR v osnovnoy filtr.
-    Inache — kladem kak vneshniy (external/<sha>.bin + .json).
-    """
+    """If meta.m/meta.k match - OP to the main filter.
+    Otherwise, we put it as external (external/<sna>.bin + .zhsion)."""
     _load()
     m2 = int((meta or {}).get("m", M))
     k2 = int((meta or {}).get("k", K))
@@ -165,7 +161,7 @@ def merge_blob(blob: bytes, meta: Dict[str, Any] | None = None) -> Dict[str, Any
             _bits[i] |= buf[i]
         _save()
         return {"ok": True, "mode": "or", "m": M, "k": K}
-    # sokhranit kak vneshniy
+    # save as external
     sha = hashlib.sha256(blob).hexdigest()[:16]
     path = os.path.join(_EXT_DIR, f"{sha}.bin")
     with open(path, "wb") as f:

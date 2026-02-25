@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/game_binding.py — privyazka multi-lidera k game_sync.
+"""modules/coop/game_binding.py - privyazka multi-lidera k game_sync.
 
-Naznachenie:
+Name:
 - One-shot bind(room, leader, tick_rate?, quota?) — nastraivaet game_sync na ukazannyy room,
-  fiksiruet lidera v multi_leader i vklyuchaet flag «sledovat za ML».
+  fiksiruet lidera v multi_leader i vklyuchaet flag “sledovat za ML”.
 - follow_ml(flag) — esli vklyucheno, lyubye izmeneniya lidera v /multi_leader perenosyatsya v game_sync
   (cherez yavnyy vyzov refresh() iz UI/skripta; fonovykh demonov net).
 - refresh(room) — sinkhroniziruet tekuschego lidera i room v game_sync (bez start/stop).
 
-Kontrakty:
+Contract:
 - NE menyaem signatury game_sync, multi_leader; rabotaem ikh publichnymi REST-ruchkami.
 
 MOSTY:
-- Yavnyy: (Orkestratsiya ↔ Takt) lider → taktirovanie i pometki v igre.
+- Yavnyy: (Orkestratsiya ↔ Takt) leader → taktirovanie i pometki v igre.
 - Skrytyy #1: (Infoteoriya ↔ Prozrachnost) ruchnoy refresh vmesto fonovoy magii.
-- Skrytyy #2: (Kibernetika ↔ Kontrol) liderstvo — yavnyy akt, sinkhronizatsiya — po knopke.
+- Skrytyy #2: (Kibernetika ↔ Kontrol) liderstvo - yavnyy akt, sinkhronizatsiya - po knopke.
 
 ZEMNOY ABZATs:
-Vsya logika — HTTP-vyzovy k uzhe suschestvuyuschim ruchkam, sostoyanie — v pamyati.
+Vsya logika - HTTP-vyzovy k uzhe suschestvuyuschim ruchkam, sostoyanie - v pamyati.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import http.client, json
@@ -63,7 +61,7 @@ def refresh(room: str | None = None) -> Dict[str, Any]:
         return {"ok": True, "skipped": True, "follow_ml": False}
     st = _get(f"/multi_leader/status?room={rm}")
     leader = st.get("leader")
-    # Prostavlyaem room esche raz, chtoby metka ne poteryalas
+    # We put the number down again so that the label doesn’t get lost.
     cfg = _post("/game/config", {"tick_rate": 20, "peers": [], "quota": 5, "room": rm})
     return {"ok": True, "room": rm, "leader": leader, "game": cfg}
 

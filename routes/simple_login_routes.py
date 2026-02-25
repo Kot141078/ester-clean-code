@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
 # routes/simple_login_routes.py
-"""
-routes/simple_login_routes.py — dev-only /auth/login (alternativa iz app._simple_auth).
+"""routes/simple_login_routes.py - dev-only /auth/login (alternativa iz app._simple_auth).
 
 Put:
-  • POST /auth/login — JSON {user, role} v†' JWT (esli v okruzhenii vklyucheno ENABLE_SIMPLE_LOGIN=1)
+  • POST /auth/login - JSON {user, role} v†' JWT (esli v okruzhenii vklyucheno ENABLE_SIMPLE_LOGIN=1)
 
 Sovmestimost:
   • register_all.py podklyuchaet ETOT blyuprint tolko esli /auth/login esche ne suschestvuet.
   • Esli vklyuchen obrabotchik iz app.py, etot modul ne zaregistriruetsya (idempotentnost).
 
 Zemnoy abzats (inzheneriya):
-Zapasnoy «klyuch na gvozdike» dlya lokalnoy otladki. R' prode vyklyuchen flagom.
+Zapasnoy “klyuch na gvozdike” dlya lokalnoy otladki. R'prode vyklyuchen flagom.
 
 Mosty:
 - Yavnyy (Kibernetika v†" Arkhitektura): bystryy kanal vydachi tokena dlya testov.
-- Skrytyy 1 (Infoteoriya v†" Interfeysy): minimalnyy JSON-kontrakt — prosche avtomatizirovat.
-- Skrytyy 2 (Anatomiya v†" PO): kak «vremennaya shina» — udobno pri sborke, ubiraem pri zapuske.
+- Skrytyy 1 (Infoteoriya v†" Interfeysy): minimalnyy JSON-kontrakt - prosche avtomatizirovat.
+- Skrytyy 2 (Anatomiya v†" PO): kak "vremennaya shina" - udobno pri sborke, ubiraem pri zapuske.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

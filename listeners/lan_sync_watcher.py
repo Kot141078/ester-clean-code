@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-listeners.lan_sync_watcher — nablyudenie za LAN-resursami i sovmestimyy API dlya routov.
+"""listeners.lan_sync_watcher - nablyudenie za LAN-resursami i sovmestimyy API dlya routov.
 
 MOSTY:
 - Yavnyy: (REST ↔ Nablyudatel) start/stop/status/tick_once — upravlyayut oprosom i snimkami FS.
 - Skrytyy #1: (Faylovaya sistema ↔ Obmen) scan/collect gotovyat sostoyanie dlya differentsiatsii.
-- Skrytyy #2: (A/B-sloty ↔ Bezopasnost) bez fonovykh potokov: «B» rezhim — tolko ruchnoy tick.
+- Skrytyy #2: (A/B-sloty ↔ Bezopasnost) bez fonovykh potokov: “B” rezhim — tolko hand tick.
 
 ZEMNOY ABZATs:
-Eto «peydzher»: fiksiruet bazovuyu telemetriyu, delaet snimok kataloga i nichego ne shlet naruzhu.
-Bezopasno dazhe v zakrytoy seti: vse operatsii lokalnye, bez soketov/daunstrimov.
-# c=a+b
-"""
+This is “peydzher”: fiksiruet bazovuyu telemetriyu, delaet snimok kataloga i nichego ne shlet naruzhu.
+Safely dazhe v zakrytoy seti: vse operatsii lokalnye, bez soketov/daunstrimov.
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -36,7 +34,7 @@ _STATE: Dict[str, Any] = {
     "last_error": None,     # type: Optional[str]
     "last_scan": None,      # type: Optional[Dict[str, Any]]
     "last_scan_ts": None,   # type: Optional[int]
-    "peers": [],            # rasshiryaemo v buduschem
+    "peers": [],            # expandable in the future
     "ab": (os.getenv("ESTER_LAN_WATCH_AB") or "A").strip().upper(),
 }
 
@@ -49,17 +47,13 @@ def _listdir_safe(path: str) -> List[str]:
         return []
 
 def scan(root: str = "data") -> Dict[str, Any]:
-    """
-    Vozvraschaet «snimok» kataloga: spisok podkatalogov i faylov pervogo urovnya.
-    """
+    """Returns a "snapshot" of a directory: a list of subdirectories and first-level files."""
     root = os.path.abspath(root)
     items = _listdir_safe(root)
     return {"ok": True, "root": root, "items": items}
 
 def collect(root: str = "data") -> Dict[str, Any]:
-    """
-    Sobiraet uproschennyy slovar sostoyaniya dlya dalneyshey differentsiatsii.
-    """
+    """Collects a simplified state dictionary for further differentiation."""
     shot = scan(root)
     return {"ok": True, "state": shot}
 
@@ -74,10 +68,8 @@ def diff(local: Dict[str, Any], remote: Dict[str, Any]) -> Dict[str, Any]:
 # ------------------------ Sovmestimyy publichnyy API ------------------------
 
 def start(interval: int = 2, root: str = "data") -> Dict[str, Any]:
-    """
-    Sovmestimaya tochka zapuska: vklyuchaet «nablyudatelya» (bez fonovykh potokov).
-    Vozvraschaet status posle ustanovki intervala.
-    """
+    """Compatible launch point: includes "observer" (no background threads).
+    Returns the status after setting the interval."""
     try:
         _STATE["interval"] = int(interval or 2)
     except Exception:
@@ -116,10 +108,8 @@ def status() -> Dict[str, Any]:
     }
 
 def tick_once(root: str = "data") -> Dict[str, Any]:
-    """
-    Razovyy tsikl: delaet snimok kataloga i uvelichivaet schetchik tikov.
-    Ispolzuetsya routerom dlya ruchnogo «pulsa» bez fonovogo potoka.
-    """
+    """One-time loop: takes a snapshot of the directory and increments the tick counter.
+    Used by the router for manual “heartbeat” without background flow."""
     try:
         _STATE["last_scan"] = scan(root)
         _STATE["last_scan_ts"] = int(time.time())

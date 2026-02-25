@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/roles_overrides.py - soft-overrides dlya orkestratora: personalnye bonusy i komandnaya affinnost.
+"""routes/roles_overrides.py - soft-overrides dlya orkestratora: personalnye bonusy i komandnaya affinnost.
 
 MOSTY:
 - (Yavnyy) POST /roles/overrides → {"overrides":[{agent_id,bias,why}], "team_bonus":x} - mozhno napryamuyu podmeshat v Orchestrator v2.
-- (Skrytyy #1) Ispolzuet rank_for_task(...) iz roles.store i team_affinity(...) bez izmeneniya /synergy/assign/v2.
+- (Skrytyy #1) Use rank_for_task(...) iz roles.store i team_affinity(...) bez izmeneniya /synergy/assign/v2.
 - (Skrytyy #2) Format "why" prigoden dlya explainability v Synergy Board.
 
 ZEMNOY ABZATs:
-Pered naznacheniem roli sistema myagko «podtalkivaet» vybor - k tomu, kto podkhodit i u kogo uzhe slozhilas svyazka s komandoy.
+Pered naznacheniem roli sistema myagko “podtalkivaet” vybor - k tomu, kto podkhodit i u kogo uzhe slozhilas svyazka s komandoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List

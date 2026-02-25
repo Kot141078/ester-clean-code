@@ -15,13 +15,13 @@ nodes:
     out: "outline"
     depends: []
 
-  # 2) Vetka na elementy (instruktsii/vozmozhnosti/UI)
+  # 2) Branch on elements (instructions/features/OH)
   - id: fork
     type: fanout
     items: "{{ctx.items}}"
     depends: ["outline"]
 
-  # 3) Generatsiya po kazhdomu elementu
+  # 3) Generation for each element
   - id: draft
     type: llm.generate
     prompt: |

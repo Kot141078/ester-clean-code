@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """Smoke-test dlya routes.memory_experience_routes_alias.
 
-Proveryaem:
+Check it out:
 - modul importiruetsya;
 - blueprint registriruetsya vo Flask-prilozhenii;
-- endpoint /memory/experience/profile otvechaet JSON s polem ok.
-"""
+- endpoint /memory/experience/profile otvechaet JSON s polem ok."""
 
 import importlib
 

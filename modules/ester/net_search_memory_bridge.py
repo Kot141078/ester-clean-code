@@ -1,16 +1,14 @@
-"""
-Ester Net Search -> Memory Bridge
+"""Ester Net Search -> Memory Bridge
 
-Naznachenie:
+Name:
 - Yavnyy most mezhdu setevym poiskom i sistemoy pamyati.
-- Esli dostupen events_unified_adapter ili analogichnyy sloy, zapisyvaet sobytie.
+- Esli dostupen events_unified_adapter or analogichnyy layer, zapisyvaet sobytie.
 - Pri oshibke tikho degradiruet, ne lomaya osnovnoy potok.
 
 Zemnoy abzats:
 Kak v normalnoy inzhenernoy sisteme logirovaniya zaprosov k oborudovaniyu:
 kazhdoe obraschenie k vneshnemu kanalu fiksiruetsya v zhurnale, chtoby potom mozhno
-bylo vosstanovit, kto, kogda i zachem dergal liniyu.
-"""
+bylo vosstanovit, kto, kogda i zachem dergal liniyu."""
 
 from __future__ import annotations
 
@@ -20,13 +18,11 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def record_net_search_event(source: str, query: str, items: List[Dict[str, Any]]) -> bool:
-    """
-    Pytaetsya zapisat fakt setevogo poiska v pamyat Ester.
+    """Pytaetsya zapisat fakt setevogo poiska v pamyat Ester.
 
     Vozvraschaet:
-        True  - esli udalos zapisat cherez odin iz dostupnykh adapterov,
-        False - esli nichego ne sdelali (no bez vybrosa isklyucheniy).
-    """
+        True - esli udalos zapisat cherez odin iz dostupnykh adapterov,
+        False - esli nichego ne sdelali (no bez vybrosa isklyucheniy)."""
     payload = {
         "ts": time.time(),
         "kind": "net_search",
@@ -41,7 +37,7 @@ def record_net_search_event(source: str, query: str, items: List[Dict[str, Any]]
         ],
     }
 
-    # Yavnyy most v unified-sloy, esli on est.
+    # An explicit bridge to the unified layer, if there is one.
     try:
         from modules.memory import events_unified_adapter as eua  # type: ignore
 
@@ -51,10 +47,10 @@ def record_net_search_event(source: str, query: str, items: List[Dict[str, Any]]
                 fn("net_search", payload)
                 return True
     except Exception:
-        # Tikhiy feyl: pamyat ne dolzhna lomat setevoy most.
+        # Quiet failure: memory should not break the network bridge.
         pass
 
-    # Skrytyy most: esli est generic meta/experience API.
+    # Hidden bridge: if there is a generic meta/experiential API.
     try:
         from modules.memory import experience as exp  # type: ignore
 
@@ -65,7 +61,7 @@ def record_net_search_event(source: str, query: str, items: List[Dict[str, Any]]
     except Exception:
         pass
 
-    # Esche odin skrytyy most: cherez meta, esli suschestvuet.
+    # Another hidden bridge: through the meta, if it exists.
     try:
         from modules.memory import meta as meta_mod  # type: ignore
 

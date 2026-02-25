@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_manifest_routes.py - REST: /self/manifest (GET: tolko karta; POST: sobrat i pri zhelanii zapisat v pamyat)
+"""routes/self_manifest_routes.py - REST: /self/manifest (GET: tolko karta; POST: sobrat i pri zhelanii zapisat v pamyat)
 
 Mosty:
 - Yavnyy: (Veb ↔ Samosoznanie) daet dostup k SelfMap Ester.
 - Skrytyy #1: (Memory ↔ Profile) po POST so store=true sokhranyaet kartu v pamyat.
-- Skrytyy #2: (RAG ↔ Navyki) karta prigodna dlya bystrogo otveta «chto u menya est».
+- Skrytyy #2: (RAG ↔ Navyki) karta prigodna dlya bystrogo otveta “what u menya est.”
 
 Zemnoy abzats:
-Sprosili - «kto ya i iz chego sobrana?» - i poluchili tochnuyu kartu.
+Asked - “who ya i iz chego sobrana?” - i poluchili tochnuyu kartu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

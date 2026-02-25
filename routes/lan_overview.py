@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/lan_overview.py - UI/REST «Svodka seti»: topologiya, versii, pull best, mini-dashbord kvot.
+"""routes/lan_overview.py - UI/REST “Svodka seti”: topologiya, versii, pull best, mini-dashbord kvot.
 
-Marshruty:
-  • GET  /admin/lan/overview            - HTML
-  • GET  /admin/lan/overview/status     - snapshot()
-  • POST /admin/lan/overview/pull_best  - enqueue pull k luchshemu istochniku (uchityvaet AB_MODE)
+Route:
+  • GET /admin/lan/overview - HTML
+  • GET /admin/lan/overview/status - snapshot()
+  • POST /admin/lan/overview/pull_best - enqueue pull k luchshemu istochniku (uchityvaet AB_MODE)
 
 Mosty:
-- Yavnyy (UX ↔ Orkestratsiya): odin ekran s kartinkoy seti i knopkoy «zabrat u luchshego».
+- Yavnyy (UX ↔ Orkestratsiya): odin ekran s kartinkoy seti i knopkoy “zabrat u luchshego”.
 - Skrytyy 1 (Infoteoriya ↔ Nadezhnost): deystviya idut cherez ochered job_queue (prozrachnyy JSON i kvoty).
 - Skrytyy 2 (Praktika ↔ Sovmestimost): drop-in; polzuem uzhe suschestvuyuschie mekhanizmy paketov-35/36.
 
 Zemnoy abzats:
-Eto «panel operatora»: smotri kto ryadom, kakaya versiya u kogo, i zaberi kod ot blizhayshego/luchshego istochnika v odin klik.
+This is “panel operatora”: see kto ryadom, kakaya versiya u kogo, i zaberi kod ot blizhayshego/luchshego istochnika v odin klik.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-modules/adapters/telegram_adapter.py - DEDUP EDITION
-Slushaet Telegram, otpravlyaet v Chat API.
-Vklyuchaet zaschitu ot povtornoy obrabotki (Deduplication).
-"""
+"""modules/adapter/telegram_adapter.po - DEDUP EDITION
+Listens to Telegram, sends to Chat API.
+Enables protection against reprocessing (Deduplication)."""
 import os
 import time
 import requests
@@ -17,7 +15,7 @@ TG_TOKEN = os.getenv("TG_TOKEN")
 # Adres Chat API (lokalnyy)
 API_URL = "http://127.0.0.1:8080/chat/message"
 
-# Globalnaya peremennaya dlya deduplikatsii v pamyati
+# Global variable for in-memory deduplication
 LAST_PROCESSED_ID = 0
 
 def _mirror_background_event(text: str, source: str, kind: str) -> None:
@@ -75,7 +73,7 @@ def process_message(msg):
     if not text or not chat_id: return update_id
 
     # === DEDUP CHECK ===
-    # Esli my (ili drugoy potok/skript) uzhe obrabotali etot ID -> propuskaem
+    # If we (or another thread/script) have already processed this ID -> skip
     if update_id <= LAST_PROCESSED_ID:
         return update_id
 
@@ -91,7 +89,7 @@ def process_message(msg):
     
     # Otpravka v Chat API
     try:
-        # Marker dlya ChatAPI, chto eto soobschenie iz Telegram
+        # Marker for ChatAPI that this is a message from Telegram
         payload = {"message": text, "user": user_name, "source": "telegram"}
         r = requests.post(API_URL, json=payload, timeout=600)
         
@@ -101,7 +99,7 @@ def process_message(msg):
             provider = data.get("provider", "unknown")
             
             # Formatiruem podpis zdes (ODIN RAZ)
-            # chat_api teper vozvraschaet chistoe imya, naprimer "lokalnaya LM Studio"
+            # chat_api now returns a pure name, for example "local LM Studio"
             final_text = f"{reply}\n\n(🧠 {provider})"
             
             send_message(chat_id, final_text)
@@ -136,7 +134,7 @@ def process_message(msg):
             pass
         send_message(chat_id, "⚠️ Oshibka svyazi s yadrom Ester.")
 
-    # Obnovlyaem globalnyy ID
+    # Update the global ID
     LAST_PROCESSED_ID = update_id
     return update_id
 
@@ -157,18 +155,18 @@ def telegram_loop():
         updates = get_updates(offset)
         for u in updates:
             uid = u.get("update_id")
-            # Esli eto staroe soobschenie (obrabotannoe do perezagruzki), prosto sdvigaem offset
+            # If this is an old message (processed before the reboot), simply shift the offset
             process_message(u)
             offset = uid + 1
             LAST_PROCESSED_ID = max(LAST_PROCESSED_ID, uid)
         time.sleep(1)
 
-# Avtozapusk pri importe (kak v tvoey arkhitekture)
-# No zapuskaem v otdelnom potoke, chtoby ne blochit app.py
+# Autorun on import (as in your architecture)
+# But we run it in a separate thread so as not to block the app.
 if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or True: # Force run usually
-    # Proverka, chtoby ne zapustit 10 potokov pri reloadere flaska
-    # Obychno Flask zapuskaet dva protsessa (glavnyy i reloader).
-    # Prosteyshaya zaschita - etot fayl dolzhen byt loaded odin raz.
+    # Checking not to start 10 threads when reloading a flask
+    # Typically Flask runs two processes (main and reloader).
+    # The simplest protection is that this file must be loaded once.
     if not any(t.name == "EsterTGPoller" for t in threading.enumerate()):
         t = threading.Thread(target=telegram_loop, name="EsterTGPoller", daemon=True)
         t.start()

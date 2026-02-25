@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-S0/tests/smoke_s0.py — myagkiy smouk cherez Flask test_client, bez lomki payplayna.
+"""S0/tests/smoke_s0.py - myagkiy smouk cherez Flask test_client, bez lomki payplayna.
 
 Mosty:
 - Yavnyy: Enderton (logika) → utverzhdaem minimalnye invarianty: /live, /ready, /admin (401/403 bez tokena).
@@ -13,8 +12,7 @@ Skript ne valit CI pri otsutstvii endpointov: testy "myagkie", pechatayut Warnin
 Esli `JWT_SECRET` sovpadaet s prilozheniem, proveryaem /admin s validnym HS256-JWT.
 Sovmestim s `python -m` i pryamym vyzovom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import os
@@ -98,9 +96,9 @@ def main() -> int:
     if code is not None and code in (200, 201):
         print("[smoke_s0] WARN: /admin otdaet 200 bez tokena — prover RBAC.")
     elif code in (401, 403, 302, 404, None):
-        pass  # normalnye varianty dlya smouka
+        pass  # normal options for smoke
 
-    # /admin s tokenom (esli est JWT_SECRET)
+    # /admin with a token (if there is ZhVT_SEKRET)
     token = _mint_jwt("Owner", "admin", 600)
     try:
         resp = client.get("/admin", headers={"Authorization": f"Bearer {token}"})
@@ -108,7 +106,7 @@ def main() -> int:
     except Exception as e:
         print(f"[smoke_s0] INFO: /admin (with JWT) ne proveren: {e}")
 
-    # Telegram webhook (esli est)
+    # Telegram webhook (if available)
     if any(r.rule.startswith("/api/telegram") for r in app.url_map.iter_rules()):
         payload = {
             "update_id": 9999999,

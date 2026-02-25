@@ -12,7 +12,7 @@ SELFMOD_ENDPOINT = os.getenv(
     "http://127.0.0.1:8080/ester/selfmod/propose_guarded",
 )
 
-# Belyy spisok klassov dlya reason
+# White list of classes for reacion
 ALLOWED_REASON_CLASSES = {
     "helper",
     "log",
@@ -24,20 +24,18 @@ ALLOWED_REASON_CLASSES = {
     "notes",
 }
 
-# Razreshennyy koren dlya faylov
+# Allowed root for files
 ALLOWED_PREFIX = "modules/ester/"
 
 
 def _parse_json_maybe(text: str) -> Optional[Dict[str, Any]]:
-    """
-    Pytaetsya rasparsit tekst kak JSON-obekt.
-    Esli ne poluchaetsya — vozvraschaet None.
-    """
+    """Tries to parse the text as a JSION object.
+    If it doesn’t work, he returns it to Nona."""
     text = text.strip()
     if not text:
         return None
 
-    # Esli model zachem-to obernula v troynye kavychki ili ```json
+    # If for some reason the model is wrapped in triple quotes or yoyoison
     if text.startswith("```"):
         # ubiraem formatirovanie
         text = re.sub(r"^```[a-zA-Z0-9]*", "", text.strip())
@@ -55,11 +53,9 @@ def _parse_json_maybe(text: str) -> Optional[Dict[str, Any]]:
 
 
 def _validate_selfmod_payload(data: Dict[str, Any]) -> Tuple[bool, str]:
-    """
-    Proveryaet, chto JSON deystvitelno yavlyaetsya volevym selfmod-zaprosom Ester
-    po nashemu protokolu.
-    Vozvraschaet (ok, reason).
-    """
+    """Verifies that ZhSON is indeed Esther's willed self-mod request
+    according to our protocol.
+    Returns (ok, reaction)."""
     # source
     if data.get("source") != "ester":
         return False, "source_not_ester"
@@ -99,11 +95,11 @@ def _validate_selfmod_payload(data: Dict[str, Any]) -> Tuple[bool, str]:
         if not path.startswith(ALLOWED_PREFIX):
             return False, f"path_not_allowed:{path}"
 
-        # bazovaya strakhovka: tolko .py i bez podlostey
+        # basic insurance: only .by and without meanness
         if not path.endswith(".py"):
             return False, f"path_not_py:{path}"
 
-        # nikakikh popytok lezt vverkh
+        # no attempts to climb up
         if ".." in path:
             return False, f"path_traversal:{path}"
 
@@ -111,10 +107,8 @@ def _validate_selfmod_payload(data: Dict[str, Any]) -> Tuple[bool, str]:
 
 
 def detect_selfmod_request(raw_text: str) -> Optional[Dict[str, Any]]:
-    """
-    Esli raw_text — validnyy selfmod JSON ot Ester, vozvraschaet etot JSON.
-    Inache None.
-    """
+    """If equal_text is a valid selfmod JSION from Esther, returns this JSION.
+    Otherwise None."""
     data = _parse_json_maybe(raw_text)
     if data is None:
         return None
@@ -127,10 +121,8 @@ def detect_selfmod_request(raw_text: str) -> Optional[Dict[str, Any]]:
 
 
 def submit_selfmod_request(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Sinkhronno otpravlyaet payload v /ester/selfmod/propose_guarded.
-    Nikakikh fonovykh zadach, odin yavnyy vyzov.
-    """
+    """Synchronously sends the payload to /ester/selfmod/propose_guarded.
+    No background tasks, one explicit call."""
     try:
         resp = requests.post(
             SELFMOD_ENDPOINT,
@@ -165,13 +157,12 @@ def handle_ester_reply_maybe_selfmod(
     reply_text: str,
     auto_submit: bool = True,
 ) -> Optional[Dict[str, Any]]:
-    """
-    Glavnaya «lovushka».
+    """Glavnaya "lovushka".
 
     1. Proveryaet, yavlyaetsya li otvet Ester selfmod-JSON po protokolu.
     2. Esli net — vozvraschaet None.
-    3. Esli da:
-       - esli auto_submit=True — shlet v propose_guarded i vozvraschaet rezultat.
+    3.Eslida:
+       - esli auto_submit=True — shlet v propose_guarded i vozvraschaet result.
        - esli auto_submit=False — tolko vozvraschaet payload dlya UI/operatora.
 
     Vozvraschaemyy format:
@@ -180,8 +171,7 @@ def handle_ester_reply_maybe_selfmod(
       "payload": { ... },
       "submitted": bool,
       "result": { ... } | None
-    }
-    """
+    }"""
     payload = detect_selfmod_request(reply_text)
     if not payload:
         return None

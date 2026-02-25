@@ -35,7 +35,7 @@ def test_restore_drill_run_once(monkeypatch):
     monkeypatch.setenv("USER_NAME", "admin")
     monkeypatch.setenv("USER_PASS", "admin")
 
-    # Podmenim requests.Session na nashu feykovuyu
+    # Replace the regular Session with our fake one
     import scripts.restore_drill
 
     fake_requests = types.SimpleNamespace(Session=_Sess)

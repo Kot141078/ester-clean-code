@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-tools/env_preview.py — CLI: import recommend.env, predprosmotr diff i zapis active.env.
+"""tools/env_preview.py - CLI: import recommend.env, predprosmotr diff i zapis active.env.
 
 Primery:
   # Predprosmotr diff (ispolzuya recommend.env s USB)
   python tools/env_preview.py --preview
 
-  # Predprosmotr diff dlya proizvolnogo fayla
+  # Preview diff for an arbitrary file
   python tools/env_preview.py --preview --file /path/to/file.env
 
   # Zapisat active.env na USB (AB=A → dry, AB=B → zapis)
@@ -14,8 +13,8 @@ Primery:
   python tools/env_preview.py --apply --file /path/to/file.env
 
 Kody vykhoda:
-  0 — uspekh (vklyuchaya dry)
-  1 — oshibka (net USB/net fayla)
+  0 - uspekh (vklyuchaya dry)
+  1 - oshibka (net USB/net fayla)
 
 Mosty:
 - Yavnyy (DevOps ↔ UX): te zhe operatsii dostupny bez UI.
@@ -23,10 +22,9 @@ Mosty:
 - Skrytyy 2 (Praktika): zapis tolko v portable/*; offlayn, stdlib, AB-guard.
 
 Zemnoy abzats:
-Eto «knopka bez brauzera»: bystro ponyat otlichiya i polozhit aktivnyy ENV na fleshku.
+Eto “knopka bez brauzera”: bystro ponyat otlichiya i polozhit aktivnyy ENV na fleshku.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json
 from pathlib import Path
@@ -40,7 +38,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Ester ENV preview/apply")
     ap.add_argument("--preview", action="store_true", help="Predprosmotr diff")
     ap.add_argument("--apply", action="store_true", help="Zapisat active.env na USB")
-    ap.add_argument("--file", help="Put k istochniku .env (esli ne ukazan — berem recommend.env s USB)", default=None)
+    ap.add_argument("--file", help="Path to the .env source (if not specified, take the recommended .env from the USB)", default=None)
     args = ap.parse_args(argv)
 
     text = ""

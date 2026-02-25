@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-modules/video/metadata/ffprobe_ex.py — rasshirennyy ffprobe-adapter (lokalnye fayly i udalennye URL po best-effort).
+"""modules/video/metadata/ffprobe_ex.py - expanded ffprobe-adapter (localnye fayly i remote URL po best-effort).
 
 Funktsii:
-  • probe(source: dict) -> dict  # source: {"url": "..."} ili {"path": "..."}
-  • sys_capabilities() -> dict   # nalichie binarey/moduley (ffmpeg/ffprobe/yt-dlp/whisper)
-  • safe_head(url: str, timeout=4.0) -> dict  # proverka dostupnosti URL bez skachivaniya
+  • probe(source: dict) -> dict # source: {"url": "..."} or {"path": "..."}
+  • sys_capabilities() -> dict # nalichie binarey/moduley (ffmpeg/ffprobe/yt-dlp/whisper)
+  • safe_head(url: str, timeout=4.0) -> dict # proverka dostupnosti URL bez skachivaniya
 
 Mosty:
 - Yavnyy: (Inzheneriya ↔ Memory) normalizovannye metadannye dlya pamyati i posleduyuschey vektorizatsii.
@@ -13,10 +12,9 @@ Mosty:
 - Skrytyy #2: (Kibernetika ↔ Kontrol) sys_capabilities daet RuleHub ponyatnye rychagi (kogda vklyuchat rezhim B).
 
 Zemnoy abzats:
-Eto «schup» i «profilea» na video: proveryaem, chto dostupno, i izvlekaem profile (format/dlina/dorozhki) bez tyazheloy zagruzki.
+Eto “schup” i “profilea” na video: proveryaem, chto dostupno, i izvlekaem profile (format/dlina/dorozhki) bez tyazheloy zagruzki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -84,7 +82,7 @@ def probe(source: Dict[str, Any]) -> Dict[str, Any]:
     if not path and not url:
         return {"ok": False, "error": "path or url required"}
     if url:
-        # probuem ffprobe po seti (nekotorye sborki umeyut), inache head
+        # try ffprobe over the network (some assemblies have it), otherwise head
         code, out, err = _run([FFPROBE, "-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", url], timeout=6.0)
         if code == 0 and out.strip():
             try:

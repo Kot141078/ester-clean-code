@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/stress_p2p_backup.py — stsenariy nagruzki replikatsii i bekapa Ester.
+"""scripts/stress_p2p_backup.py - stsenariy nagruzki replikatsii i bekapa Ester.
 
 Zapusk (primer):
-  python scripts/stress_p2p_backup.py --base http://localhost:5000 \
+  python scripts/stress_p2p_backup.py --base http://localhost:5000\
     --concurrency 32 --duration 45 --secret "<set-via-env-or-arg>"
 
 Parametry:
-  --base           bazovyy URL instansa Ester
-  --replicate      put replikatsii (po umolchaniyu /p2p/replicate)
-  --backup         put bekapa (po umolchaniyu /backup/run)
-  --concurrency    kolichestvo potokov
-  --duration       dlitelnost, sek
-  --secret         JWT_SECRET (HS256), chtoby sgenerirovat admin-token
-  --jwt            gotovyy JWT (esli zadan, secret ignoriruetsya)
-  --profile-out    put dlya profayla .prof (optsionalno)
+  --base bazovyy URL instansa Ester
+  --replicate put replikatsii (po umolchaniyu /p2p/replicate)
+  --backup put bekapa (po umolchaniyu /backup/run)
+  --concurrency kolichestvo potokov
+  --duration dlitelnost, sek
+  --secret JWT_SECRET (HS256), chtoby sgenerirovat admin-token
+  --jwt gotovyy JWT (esli zadan, secret ignoriruetsya)
+  --profile-out put dlya profayla .prof (optsionalno)
 
-Vyvodit JSON-metriki po kazhdomu URL.
-"""
+Vyvodit JSON-metriki po kazhdomu URL."""
 from __future__ import annotations
 
 import argparse

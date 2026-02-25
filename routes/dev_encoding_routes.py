@@ -16,10 +16,8 @@ except Exception:
 
 @bp.route("/probe", methods=["GET"])
 def probe():
-    """
-    GET /dev/encoding/probe?text=Ester%20probuet%20UTF-8
-    Vozvraschaet JSON s poluchennym tekstom bez \\uXXXX (UTF-8).
-    """
+    """GET /dev/encoding/probe?text=EsterZF0ZZrobitsZF1ZZTF-8
+    Returns YSON with the received text without eeuKSKS (UTF-8)."""
     text = request.args.get("text", "Ester: proverka UTF-8 🚀")
     info = {
         "ok": True,
@@ -43,9 +41,9 @@ def probe():
 
 @bp.route("/sample_html", methods=["GET"])
 def sample_html():
-    """HTML-stranitsa s yavnym UTF-8."""
+    """HTML page with explicit UTF-8."""
     html = """<!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Kodirovka OK</title>
@@ -59,7 +57,7 @@ def sample_html():
 
 
 def register(app):
-    # Registriruem blyuprint bez obrascheniya k current_app.
+    # We register the blueprint without contacting current_app.
     app.register_blueprint(bp)
     try:
         app.logger.info("dev_encoding_routes: registered /dev/encoding/*")

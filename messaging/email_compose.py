@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/email_compose.py — planirovanie i generatsiya pisem (tema/tekst/HTML) s A/B rezhimom.
+"""messaging/email_compose.py - planirovanie i generatsiya pisem (tema/tekst/HTML) s A/B rezhimom.
 
 MOSTY:
 - (Yavnyy) compose_email(keys, intent, context, kind_hint) → {"subject","text","html","style","trace"}.
-- (Skrytyy #1) Rezhim A (evristika) — bystryy i determinirovannyy; rezhim B — most k LLM (EMAIL_LLM_PROVIDER), s avtokatbekom na A.
+- (Skrytyy #1) Rezhim A (evristika) — bystryy i determinirovannyy; rezhim B - most k LLM (EMAIL_LLM_PROVIDER), s avtokatbekom na A.
 - (Skrytyy #2) Profile poluchateley podtyagivaetsya cherez roles.store (contact_key→agent_id), usrednyaetsya kak v messaging.styler.
 
 ZEMNOY ABZATs:
-Pisma — eto ne «magiya teksta», a struktura: tema, privetstvie, sut, deystviya, srok, podpis. Ester vybiraet stil i zapolnyaet karkas.
+Pisma - eto ne “magiya teksta”, a struktura: tema, privetstvie, sut, deystviya, srok, podpis. Ester vybiraet stil i zapolnyaet karkas.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, re, html, importlib
@@ -47,11 +45,11 @@ def _render_heuristic(intent: str, style: Dict[str,Any], ctx: Dict[str,Any]) -> 
     subj = (style.get("subject_prefix","") or "") + _first_sentence(intent, limit=72)
     greet = style.get("greeting","Zdravstvuyte")
     sign = style.get("signoff","")
-    # Telo: prichina → detali → deystvie → srok
+    # Body: reason → details → action → deadline
     parts = []
     reason = intent.strip()
     details = ctx.get("details") or ctx.get("context") or ""
-    action = ctx.get("action") or ctx.get("cta") or "Dayte znat, pozhaluysta, mozhno li tak sdelat."
+    action = ctx.get("action") or ctx.get("cta") or "Please let me know if this can be done."
     deadline = ctx.get("deadline")
     if style.get("formality",0.6) >= 0.8:
         opener = f"{greet}."

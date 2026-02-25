@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/mesh/bloom.py — kompaktnyy Bloom-filtr dlya anonsa vidennykh dokumentov.
+"""modules/mesh/bloom.py - kompaktnyy Bloom-filtr dlya anonsa vidennykh dokumentov.
 
 Mosty:
 - Yavnyy: (P2P ↔ Dublikaty) ne gonyaem povtorno uzhe vidennye id.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Kak vizitnitsa: pomnim, s kem uzhe zdorovalis, chtoby ne povtoryatsya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, math, hashlib
 from typing import Any, Dict, List

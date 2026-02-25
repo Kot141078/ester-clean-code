@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/debug_routes.py - bazovye otladochnye ruchki.
+"""routes/debug_routes.py - bazovye otladochnye ruchki.
 
 MOSTY:
 - (Yavnyy) GET /debug/env (bezopasno maskiruet sekrety), POST /debug/echo, GET /debug/threads.
 - (Skrytyy #1) /debug/env uvazhaet spisok klyuchey i ne raskryvaet znacheniya s *KEY/TOKEN/SECRET*.
-- (Skrytyy #2) Polezno pri bystroy diagnostike bez dostupa k terminalu.
+- (Skrytyy #2) Useful pri bystroy diagnostike bez dostupa k terminalu.
 
 ZEMNOY ABZATs:
-Eto «servisnaya dvertsa»: posmotret, chto pod kapotom, i proverit trakt dannykh.
+This is “servisnaya dvertsa”: posmotret, chto pod kapotom, i proverit trakt dannykh.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, threading
 from flask import Blueprint, jsonify, request

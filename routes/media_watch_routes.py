@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/media_watch_routes.py - REST: konfig i tik votchera.
+"""routes/media_watch_routes.py - REST: config i tik votchera.
 
 Mosty:
 - Yavnyy: (Veb ↔ Avtonomiya) zadaem papki i zapuskaem prokhod.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Volya ↔ Actions) est deystviya dlya zapuska tika.
 
 Zemnoy abzats:
-Polozhil - razobrali. Po knopke ili po taymeru.
+Polozhil - razobrali. Po knopke or po taymeru.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,21 +1,19 @@
-"""
-Ester Net Will Policy Adapter
+"""Ester Net Will Policy Adapter
 
-Naznachenie:
-- Bezopasnyy A/B-sloy dlya setevogo mosta.
+Name:
+- Safe A/B-layer dlya setevogo mosta.
 - Chitaet ENV, chtoby reshit: mozhet li Ester ispolzovat vneshniy poisk sama.
 - Yavnyy most mezhdu voley (will), setyu (net) i konfigom (ENV).
 
-Invarianty:
+Invariance:
 - Nikakikh setevykh vyzovov zdes.
-- Tolko chtenie ENV.
+- Just read ENV.
 - Esli flagi ne vklyucheny, schitaetsya, chto setevoy poisk dlya Ester zapreschen.
 
 Zemnoy abzats:
-Kak v inzhenernoy sisteme pitaniya: etot modul — eto rubilnik i predokhranitel
+Kak v inzhenernoy sisteme pitaniya: etot modul - eto rubilnik i predokhranitel
 mezhdu istochnikom (internet) i potrebitelem (Ester). Poka rubilnik v polozhenii A,
-liniya obestochena; rezhim B vklyuchaet pitanie cherez kontroliruemyy avtomat.
-"""
+liniya obestochena; rezhim B vklyuchaet pitanie cherez kontroliruemyy avtomat."""
 
 from __future__ import annotations
 
@@ -32,16 +30,14 @@ def _bool_env(name: str, default: bool = False) -> bool:
 
 
 def get_net_will_config() -> Dict[str, Any]:
-    """
-    Vozvraschaet svodnuyu politiku setevogo mosta dlya verkhnego sloya.
+    """Vozvraschaet svodnuyu politiku setevogo mosta dlya verkhnego sloya.
 
     Klyuchi:
     - mode: A|B|AB|OFF
     - enabled: vklyuchen li most v printsipe
     - ester_allowed: mozhet li Ester vystupat istochnikom (source="ester")
     - log_all: logirovat li vse zaprosy kak osoznannye sobytiya
-    - safe_defaults: opisanie defoltnogo povedeniya dlya UI/diagnostiki
-    """
+    - safe_defaults: description defoltnogo povedeniya dlya UI/diagnostiki"""
     raw_mode = (os.getenv("ESTER_NET_SEARCH_AB", "A") or "A").strip().upper()
     if raw_mode not in {"A", "B", "AB", "OFF"}:
         raw_mode = "A"

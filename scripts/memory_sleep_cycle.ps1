@@ -1,14 +1,14 @@
-# scripts/memory_sleep_cycle.ps1 — odnokratnyy zapusk «sna Ester» cherez HTTP.
+# skripts/memory_blind_number.ps1 - one-time launch of “Esther’s dream” via HTTP.
 #
 # MOSTY:
 # - Yavnyy: (Planirovschik OS ↔ /memory/sleep/run_now) — zapusk tsikla sna po raspisaniyu.
 # - Skrytyy #1: (DevOps ↔ Memory) — udobnyy khuk dlya nightly job bez pravok Python-koda.
-# - Skrytyy #2: (Inzheneriya ↔ Gigiena) — regulyarnyy zapusk QA/backup/summary v odnom meste.
+# - Skrytyy #2: (Inzheneriya ↔ Gigiena) — regulyarnyy zapusk QA/backup/summary in one place.
 #
 # ZEMNOY ABZATs:
-# Polozhi skript ryadom s prilozheniem, propishi ego v planirovschike zadach Windows/cron,
-# i Ester budet zasypat po raspisaniyu: proveryat pamyat, delat bekap i svodku.
-# PS5-sovmestimo, bez ekzoticheskikh klyuchey.
+# Place the script next to the application, register it in the Windows/Cron task scheduler,
+# and Esther will go to sleep according to a schedule: check memory, make backups and summaries.
+# PS5 compatible, no exotic keys.
 #
 # c=a+b
 

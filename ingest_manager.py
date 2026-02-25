@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-IngestManager — prostoy menedzher inzhesta faylov v vstore.
+"""IngestManager - prostoy menedzher inzhesta faylov v vstore.
 
 Tseli:
 - ne padat iz-za kodirovok/otsutstvuyuschikh moduley;
@@ -14,8 +13,7 @@ API:
   submit_file(path) -> job_id
   submit_bytes(name, raw_bytes) -> job_id
   list_jobs() -> [ {id,status,source,created,updated,count,error?} ]
-  get_job(job_id) -> dict|None
-"""
+  get_job(job_id) -> dict|None"""
 
 import os
 import time
@@ -36,7 +34,7 @@ def _safe_basename(p: str) -> str:
 
 
 def _chunk_file_fallback(path: str, *, max_chars: int = 1800, overlap: int = 200) -> List[str]:
-    """Esli file_chunker ne dostupen — delaem prostoy chanking po simvolam s perekrytiem."""
+    """If fill_chunker is not available, we do simple chunking by symbols with overlap."""
     try:
         raw = open(path, "rb").read()
     except Exception:
@@ -52,7 +50,7 @@ def _chunk_file_fallback(path: str, *, max_chars: int = 1800, overlap: int = 200
             continue
 
     if not text.strip():
-        # poslednyaya popytka — zamenyaem oshibki
+        # last attempt - replacing errors
         try:
             text = raw.decode("utf-8", errors="replace")
         except Exception:
@@ -86,7 +84,7 @@ def _chunk_file(path: str) -> List[str]:
 
 
 def _vstore_add(vstore: Any, texts: Sequence[str], meta: Dict[str, Any], ids: Optional[Sequence[str]] = None) -> None:
-    """Probuem raznye metody vstore dlya sovmestimosti."""
+    """We try different methods in the store for compatibility."""
     if not texts:
         return
 
@@ -139,7 +137,7 @@ class IngestManager:
                 raise FileNotFoundError(path)
 
             chunks = _chunk_file(path)
-            # Determinirovannye id dlya chankov (chtoby povtornyy inzhest ne plodil dubley)
+            # Deterministic IDs for hunks (so that repeated ingest does not produce duplicates)
             ids = [f"{jid}:{i}" for i in range(len(chunks))]
 
             m = {"source": _safe_basename(path)}
@@ -159,9 +157,7 @@ class IngestManager:
         return jid
 
     def submit_bytes(self, name: str, raw: bytes, *, meta: Optional[Dict[str, Any]] = None) -> str:
-        """
-        Udobno dlya REST: prinyat bytes, sokhranit v inbox_dir (esli zadan) i proindeksirovat.
-        """
+        """Convenient for REST: accept the message, save it in inbox_dir (if specified) and index it."""
         jid = uuid.uuid4().hex
         now = time.time()
         job: Dict[str, Any] = {

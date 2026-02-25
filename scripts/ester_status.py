@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/ester_status.py — CLI dlya statusa rezhimov Ester.
+"""scripts/ester_status.py - CLI dlya statusa rezhimov Ester.
 
 Mosty:
-- Yavnyy: (CLI ↔ modules.ester.status) — bystryy vyvod rezhimov.
+- Yavnyy: (CLI ↔ modules.ester.status) - bystryy vyvod rezhimov.
 - Skrytyy #1: (DevOps ↔ Myslitelnye rezhimy) — udobno v avtomaticheskikh proverkakh.
 - Skrytyy #2: (Dokumentatsiya ↔ Kod) — pokazyvaet realnoe sostoyanie flagov.
 
 Zemnoy abzats:
-python -m scripts.ester_status — i vidno, vklyuchena li volya, kaskad, treys i debug.
-# c=a+b
-"""
+python -m scripts.ester_status - i vidno, vklyuchena li volya, kaskad, treys i debug.
+# c=a+b"""
 from __future__ import annotations
 
 import sys

@@ -1,15 +1,15 @@
-# Ester · Sinergiya lyudey i mashin (yadro)
+# Esther · Synergy of people and machines (core)
 
-## Chto delaet yadro
-- Registriruet **lyudey** (vozrast, stazh, domeny, kanaly svyazi) i **ustroystva** (tip, telemetriya).
-- Bez «tupykh oprosov» stroit **vektor sposobnostey** iz faktov i kosvennykh signalov (bio, domeny, telemetriya).
-- Naznachaet **roli** pod zadachu (napr., strateg, operator, platforma/dron, nablyudatel).
-- Vychislyaet **puls** (synergy score): pokrytie roley × sootvetstvie sposobnostey rolyam.
-- Optsionalno **uvedomlyaet** uchastnikov cherez uzhe realizovannyy proaktivnyy stek (WA/TG).
+## What does the kernel do?
+- Registers **people** (age, length of service, domains, communication channels) and **devices** (type, telemetry).
+- Without “stupid surveys”, build a **vector of abilities** from facts and indirect signals (bio, domains, telemetry).
+- Assigns **roles** to a task (e.g. strategist, operator, platform/drone, observer).
+- Vychislyaet **puls** (synergy score): pokrytie roley × sootvetstvie sposobnostey roleyam.
+- Optionally **notifies** participants via an already implemented proactive stack (VA/TG).
 
-## Kak razvivat
-- Dobavit istoriyu vypolneniya zadach i adaptivnoe obuchenie vesov sposobnostey.
-- Rasshirit politiki (smeny, ustalost, zaprety na sovmeschenie).
-- Podtyagivat kontekst zadachi (relef, pogoda, riski) dlya vybora platformy.
+## How to develop
+- Add task history and adaptive learning of ability weights.
+- Expand policies (shifts, fatigue, prohibitions on combining).
+- Consider the context of the task (terrain, weather, risks) to select a platform.
 
 c=a+b

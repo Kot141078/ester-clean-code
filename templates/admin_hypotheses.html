@@ -81,7 +81,7 @@
     function cancelEdit(btn){
       const tr = btn.closest('tr');
       const id = tr.querySelector('.c-id').textContent;
-      // Delaem prostuyu perezagruzku vsey tablitsy, chtoby ne uslozhnyat vosstanovlenie stroki
+      // We do a simple reload of the entire table so as not to complicate row restoration
       loadHypotheses();
     }
 

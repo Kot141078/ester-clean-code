@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_diag_sync.py - UI/REST «Diag Sync (LAN)»: indeksy, vybor, fetch/merge, kross-tiket.
+"""routes/admin_diag_sync.py - UI/REST “Diag Sync (LAN)”: indeksy, vybor, fetch/merge, kross-tiket.
 
-Marshruty:
-  • GET  /admin/diag_sync
-  • GET  /admin/diag_sync/status
-  • POST /admin/diag_sync/cross_ticket   {names: ["2025-09-28.ndjson", ...]}
+Route:
+  • GET /admin/diag_sync
+  • GET /admin/diag_sync/status
+  • POST /admin/diag_sync/cross_ticket {names: ["2025-09-28.ndjson", ...]}
 
 Zametki:
   • Spisok pirov chitaem iz lan_pkg_peers.json cherez /lan/packages/peers (esli paket LAN_Packages ustanovlen).
   • Fetch/merge vypolnyaetsya cherez /lan/diagnostics/fetch (edinaya logika).
 
 Mosty:
-- Yavnyy (UX ↔ Obmen): odin ekran - smotret indeksy, slivat istorii, zabirat tikety.
+- Yavnyy (UX ↔ Obmen): odin ekran - smotret indeksy, slivat istorii, zabirat tickety.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): podpis uzla vezde - legko filtrovat istochniki.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): reuse ACL/throttle; ta zhe skhema dry(A)/real(B).
 
 Zemnoy abzats:
-Eto «sborochnaya»: v paru klikov podtyanuli chuzhuyu telemetriyu, vlili v svoi fayly i sobrali obschiy tiket.
+This is “sborochnaya”: v paru klikov podtyanuli chuzhuyu telemetriyu, vlili v svoi fayly i sobrali obschiy tiket.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import io, json, os, time, zipfile
 from pathlib import Path
@@ -39,7 +37,7 @@ TIC_DIR   = DIAG_DIR / "tickets"
 AB = (os.getenv("AB_MODE") or "A").strip().upper()
 
 def _read_peers() -> List[str]:
-    # chitaem peers cherez fayl, esli est
+    # read the peer through the file, if available
     try:
         d = json.loads((STATE_DIR / "lan_pkg_peers.json").read_text(encoding="utf-8"))
         return [str(x) for x in d.get("items", []) if x]
@@ -73,7 +71,7 @@ def cross_ticket():
 
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, mode="w", compression=zipfile.ZIP_DEFLATED) as z:
-        # svezhiy otchet
+        # latest report
         try:
             from modules.selfcheck.health_probe import build_report  # type: ignore
             cur = build_report(deep=True)

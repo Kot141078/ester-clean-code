@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/telegram_feed_ui_routes.py — veb-lenta obscheniya v Telegram + JSON-ruchki.
+"""routes/telegram_feed_ui_routes.py - web-lenta obscheniya v Telegram + JSON-ruchki.
 
 Puti:
-  • GET  /chat/telegram                 — HTML-lenta (templates/telegram_feed.html)
-  • GET  /chat/telegram/chats           — spisok chatov (aggregatsiya po feed.jsonl)
-  • GET  /chat/telegram/events          — sobytiya chata (?chat_id=...&limit=500)
+  • GET /chat/telegram - HTML-lenta (templates/telegram_feed.html)
+  • GET /chat/telegram/chats — spisok chatov (aggregatsiya po feed.jsonl)
+  • GET /chat/telegram/events — sobytiya chata (?chat_id=...&limit=500)
 
 Sovmestimost:
-  • Ispolzuet modules.telegram_feed_store.{latest,list_events}.
+  • Use modules.telegram_feed_store.{latest,list_events}.
   • Glya otpravki soobscheniy UI dergaet POST /tg/send (sm. routes/telegram_send_routes.py).
-  • Nichego ne menyaet v pamyati/protsessakh myshleniya — tolko chtenie/vizualizatsiya lenty.
+  • Nothing ne menyaet v pamyati/protsessakh myshleniya - tolko chtenie/vizualizatsiya lenty.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from collections import defaultdict
@@ -35,14 +33,12 @@ def telegram_feed_page():
 
 @bp.get("/chats")
 def telegram_chats():
-    """
-    Bozvraschaet agregirovannyy spisok chatov po lente:
-    [{"chat_id":"...","chat_title":"...","last_ts":..., "last_text":"..."}]
-    """
+    """Returns an aggregated list of chats by feed:
+    YuZF0ZZsch"""
     if feed is None:
         return jsonify({"ok": False, "error": "feed_unavailable"}), 503
 
-    # Berem dostatochno bolshoy khvost Re gruppiruem po chat_id
+    # We take a fairly large tail. Re groups by chat_id
     items = feed.latest(limit=2000, chat_id=None)  # type: ignore[attr-defined]
     agg: Dict[str, Dict[str, Any]] = {}
     for ev in items:
@@ -60,17 +56,15 @@ def telegram_chats():
                 "last_text": str(ev.get("text") or ""),
             }
 
-    # R' vide massiva, uporyadochennogo po ubyvaniyu vremeni
+    # In the form of an array ordered in descending order of time
     arr = sorted(agg.values(), key=lambda r: float(r.get("last_ts") or 0.0), reverse=True)
     return jsonify({"ok": True, "chats": arr})
 
 @bp.get("/events")
 def telegram_events():
-    """
-    Parametry:
-      chat_id — obyazatelnyy identifikator chata
-      limit   — maksimum sobytiy (po umolchaniyu 500)
-    """
+    """Parameters:
+      chat_id - required chat identifier
+      limit - maximum events (default 500)"""
     if feed is None:
         return jsonify({"ok": False, "error": "feed_unavailable"}), 503
 

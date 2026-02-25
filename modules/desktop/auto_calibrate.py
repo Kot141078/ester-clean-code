@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/desktop/auto_calibrate.py — avtokalibrovka ekrana/myshi (otsenka DPI/masshtaba).
+"""modules/desktop/auto_calibrate.py - avtokalibrovka ekrana/myshi (otsenka DPI/masshtaba).
 
 Rezhimy:
 - Quick probe: otsenivaet chastotu peremescheniya myshi (px/sec) i poluchaet metriki ekrana cherez /desktop/metrics/info.
@@ -12,18 +11,17 @@ Khranilische:
 API:
 - quick_probe() -> {screen_w,h, mouse_px_per_sec, scale}
 - set_manual(px_per_cm) -> obnovlyaet DPI/scale
-- status() -> tekuschee sostoyanie
+- status() -> tekushee sostoyanie
 
 MOSTY:
-- Yavnyy: (Anatomiya ↔ Mekhanika) «ruka-mysh» sootnositsya s «glaz-ekran».
-- Skrytyy #1: (Infoteoriya ↔ Nadezhnost) yavnye chislennye parametry snizhayut oshibki pozitsionirovaniya.
-- Skrytyy #2: (Inzheneriya ↔ UX) tochnyy scale uluchshaet shablonnyy matching i trenazhery.
+- Yavnyy: (Anatomiya ↔ Mekhanika) “ruka-mysh” sootnositsya s “glaz-ekran”.
+- Skrytyy #1: (Infoteoriya ↔ Nadezhnost) yavnye chislennye parameter snizhayut oshibki pozitsionirovaniya.
+- Skrytyy #2: (Inzheneriya ↔ UX) precise scale uluchshaet shablonnyy matching i trenazhery.
 
 ZEMNOY ABZATs:
-Bez drayverov. Ispolzuem gotovye REST-metriki i prostye vychisleniya. DPI ~ px_per_cm*2.54.
+No drayverov. Use gotovye REST-metriki i prostye vychisleniya. DPI ~ px_per_cm*2.54.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Dict, Any
@@ -61,7 +59,7 @@ def quick_probe() -> Dict[str, Any]:
     st = _read()
     met = _get("/desktop/metrics/info")
     w = int(met.get("width", st["screen"]["w"])); h = int(met.get("height", st["screen"]["h"]))
-    # dvizhenie po diagonali v bezopasnoy zone: 20 shagov
+    # movement diagonally in the safe zone: 20 steps
     x0,y0 = int(w*0.1), int(h*0.1)
     x1,y1 = int(w*0.9), int(h*0.9)
     _post("/desktop/window/mouse_move", {"x":x0,"y":y0}); time.sleep(0.05)
@@ -77,7 +75,7 @@ def quick_probe() -> Dict[str, Any]:
     st["mouse_px_per_sec"] = int(pxps)
     st["screen"] = {"w": w, "h": h}
     # scale evristicheski: normiruem na etalon 96 dpi → ekrannaya diagonal ~ 24"?
-    # ostavlyaem scale=1.0 do ruchnoy kalibrovki
+    # leave rock=1.0 until manual calibration
     _write(st); return {"ok": True, **st}
 
 def set_manual(px_per_cm: float) -> Dict[str, Any]:

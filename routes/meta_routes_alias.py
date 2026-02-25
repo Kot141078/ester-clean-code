@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/meta_routes_alias.py — alias-routy dlya meta-ispytaniy i bandita.
-"""
+"""rutes/meta_rutes_alias.po - alias routes for meta-tests and bandit."""
 from __future__ import annotations
 from typing import Any, Dict
 from flask import jsonify, request

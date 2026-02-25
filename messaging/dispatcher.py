@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/dispatcher.py — dispetcher, komandy, tishina, proaktivnost (persistentnaya).
+"""messaging/dispatcher.py - dispatcher, komandy, tishina, proaktivnost (persistentnaya).
 
 MOSTY:
-- (Yavnyy) /start|/stop|/silence [30m|2h|1d]|/resume|/help; opt-in/tishina/limity — cherez SQLite-khranilische.
-- (Skrytyy #1) Politiki: opt-in obyazatelen (esli vklyucheno), «tikhiy rezhim» uchityvaetsya v proaktivke i otvetakh.
+- (Yavnyy) /start|/stop|/silence [30m|2h|1d]|/resume|/help; opt-in/tishina/limity - via SQLite-khranilische.
+- (Skrytyy #1) Politiki: opt-in obyazatelen (esli vklyucheno), “tikhiy rezhim” uchityvaetsya v proaktivke i otvetakh.
 - (Skrytyy #2) Render teksta cherez author_text + persona iz prefs; padeniy net dazhe bez nastroek.
 
 ZEMNOY ABZATs:
-Pishem, kak chelovek, no po pravilam: ne navyazyvaemsya, uvazhaem tishinu i chastotu, vsegda mozhno postavit «na pauzu».
+Pishem, kak chelovek, no po pravilam: ne navyazyvaemsya, uvazhaem tishinu i chastotu, vsegda mozhno postavit “na pauzu”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -103,30 +101,28 @@ def _reply(txt: str, kind: str = "friend") -> str:
     return author_text(txt, recipient_kind=kind)
 
 def _silence_reply(minutes: int) -> str:
-    return _reply(f"Vklyuchayu tikhiy rezhim na {minutes} min. Chtoby vernutsya — napishite «/resume».", "friend")
+    return _reply(f"I turn on quiet mode at ZZF0Z min. To return, write “/resume”.", "friend")
 
 def _resume_reply() -> str:
-    return _reply("Tikhiy rezhim otklyuchen. Ya na svyazi.", "friend")
+    return _reply("Quiet mode is disabled. I'm in touch.", "friend")
 
 def _help_reply() -> str:
-    return _reply("Komandy: /start — podklyuchit, /stop — otpiska, /silence [30m|2h|1d] — tishe, /resume — vernutsya, /help — spravka.", "friend")
+    return _reply("Commands: /start - connect, /stop - unsubscribe, /silentse yu30m|2х|1дш - quieter, /resume - return, /help - help.", "friend")
 
 def accept_incoming(evt: InEvent) -> Dict[str, str]:
-    """
-    Normalizuem vkhodyaschie; komandy obrabatyvaem zdes.
-    Vozvraschaet {action: welcome|optout|silence|resume|help|forward, reply?: text}
-    """
+    """Normalizes incoming messages; commands are processed here.
+    Returns ZZF0Z"""
     key = _key(evt)
     text = (evt.text or "").strip()
 
     if text.lower() in ("/start", "start", "start"):
         register_optin(key, True)
-        return {"action": "welcome", "reply": _reply("Spasibo, chto podklyuchili menya. Chem mogu pomoch pryamo seychas?", "friend")}
+        return {"action": "welcome", "reply": _reply("Thanks for connecting me. How can I help you right now?", "friend")}
 
     if text.lower() in ("stop", "otpiska", "stop", "/stop"):
         register_optin(key, False)
         clear_silence(key)
-        return {"action": "optout", "reply": _reply("Otklyuchayu uvedomleniya. Esli peredumaete — napishite «/start».", "friend")}
+        return {"action": "optout", "reply": _reply("I turn off notifications. If you change your mind, write “/start”.", "friend")}
 
     # /silence [dur]
     if text.lower().startswith("/silence") or text.lower().startswith("tikho"):
@@ -147,7 +143,7 @@ def accept_incoming(evt: InEvent) -> Dict[str, str]:
     return {"action": "forward"}
 
 def maybe_proactive(key: str, intent: str, recipient_kind: str = "friend") -> Optional[str]:
-    """Reshaem, mozhno li prislat proaktivnoe soobschenie po sobytiyu (uchet tishiny/opt-in/limitov)."""
+    """We are deciding whether it is possible to send a proactive message about the event (taking into account silence/opt-in/limits)."""
     if not _envb("MSG_PROACTIVE_ENABLE", True):
         return None
     if not _can_proactive(key):

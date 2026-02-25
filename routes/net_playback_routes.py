@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/net_playback_routes.py - REST/UI dlya setevogo pleybeka.
+"""routes/net_playback_routes.py - REST/UI dlya setevogo playbeka.
 
 Ruchki:
-  POST /netplay/peers   {"peers":["192.168.1.22:8000"]}
-  GET  /netplay/status
-  POST /netplay/leader/step   {"step":{...},"index":0}
-  POST /netplay/leader/ctrl   {"op":"start|pause|resume|stop|next|prev","index":0?}
-  POST /netplay/ingest  {"cmd":"step|control", ...}    # vedomyy prinimaet paket
-  GET  /admin/netplay
+  POST /netplay/peers {"peers":["192.168.1.22:8000"]}
+  GET /netplay/status
+  POST /netplay/leader/step {"step":{...},"index":0}
+  POST /netplay/leader/ctrl {"op":"start|pause|resume|stop|next|prev","index":0?}
+  POST /netplay/ingest {"cmd":"step|control", ...} # vedomyy prinimaet paket
+  GET /admin/netplay
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.coop.net_playback import set_peers, status as st, leader_step, leader_control, follower_ingest

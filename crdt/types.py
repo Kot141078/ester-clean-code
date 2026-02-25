@@ -13,13 +13,13 @@ class Item:
     id: str
     payload: Dict[
         str, Any
-    ]  # proizvolnye polya pamyati (topic, text, vectors, refs)
+    ]  # arbitrary memory fields (topic, text, vestors, refs)
 
 
 @dataclass(frozen=True)
 class Dot:
     peer: str
-    ts: int  # monotonnyy logicheskiy schetchik po piru
+    ts: int  # monotonic logical counter per peer
 
 
 @dataclass
@@ -33,7 +33,7 @@ class LwwEntry:
             return False
         if self.rem is None:
             return True
-        # LWW: bolee «pozdnyaya» operatsiya pobezhdaet (po ts; pri ravenstve — peer id)
+        # LVV: the “later” operation wins (by TS; if there is a tie - peer id)
         if self.add.ts > self.rem.ts:
             return True
         if self.add.ts < self.rem.ts:

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/rag/hybrid_retriever.py — gibridnyy retriver: coarse (BM25-layt) → dense-stab.
+"""modules/rag/hybrid_retriever.py - hybridnyy retriver: coarse (BM25-layt) → dense-stab.
 
 Mosty:
 - Yavnyy: (Poisk ↔ Kontent) nakhodit relevantnye fragmenty dazhe pri uzkikh zaprosakh.
-- Skrytyy #1: (Memory ↔ Vektory) umeet «pozvat» vektornyy sloy, esli on dostupen; inache rabotaet leksikoy.
+- Skrytyy #1: (Memory ↔ Vektory) umeet “pozvat” vektornyy sloy, esli on dostupen; inache rabotaet leksikoy.
 - Skrytyy #2: (Mysli ↔ Plan) validnaya tochka vkhoda dlya RAG-payplayna.
 
 Zemnoy abzats:
-Kak khoroshiy bibliotekar: snachala beglo po zagolovkam i klyuchevym slovam, zatem — utochnyaet sovpadeniya smyslom (esli est vektora).
+Kak khoroshiy bibliotekar: snachala beglo po zagolovkam i klyuchevym slovam, zatem - utochnyaet sovpadeniya smyslom (esli est vektora).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict, List, Tuple
 import math, re
@@ -24,15 +22,13 @@ def _bm25lite_score(q: List[str], d: List[str])->float:
     if not d: return 0.0
     qset=set(q); dset=set(d)
     inter=len(qset & dset)
-    # prostaya formula: dolya peresecheniy s log-vesom dliny
+    # simple formula: intercept fraction with log weight of length
     return inter / math.log2(2+len(dset))
 
 def _dense_try(query: str, docs: List[Dict[str,str]])->List[Tuple[str,float]]:
-    """
-    Best-effort: probuem «vektornyy» sloy cherez optional API/moduli; inache — 0.
-    Vozvraschaet spisok (id,score_dense).
-    """
-    # Zaglushka: net vneshnikh zavisimostey — vernem nuli odinakovye.
+    """Best-effort: try the “vector” layer through the optional API/modules; otherwise - 0.
+    Returns the list (id, quarrel_dense)."""
+    # Stub: there are no external dependencies - we will return the same zeros.
     return [(d["id"], 0.0) for d in docs]
 
 def hybrid_rank(query: str, docs: List[Dict[str,str]], top_k: int=5)->List[Dict[str,Any]]:

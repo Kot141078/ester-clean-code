@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-routes/synergy_board_stream.py - Server-Sent Events dlya «Shakhmatki» i agregaty.
+"""routes/synergy_board_stream.py - Server-Sent Events dlya “Shakhmatki” i agregaty.
 
 MOSTY:
-- (Yavnyy) /synergy/board/stream - event: update pri izmenenii STORE._v ili naznacheniy komandy.
+- (Yavnyy) /synergy/board/stream - event: update pri izmenenii STORE._v or naznacheniy komandy.
 - (Skrytyy #1) /synergy/board/aggregate - top-kandidaty po rolyam, nagruzka agentov, riski platformy.
 - (Skrytyy #2) Heartbeat event: ping dlya podderzhaniya soedineniya i prostogo L7-Health.
 
 ZEMNOY ABZATs:
-«Shakhmatka» sama ozhivaet: izmeneniya (novye agenty, perestanovki roley, telemetriya ustroystv) avtomaticheski
+"Shakhmatka" sama ozhivaet: izmeneniya (novye agenty, perestanovki roley, telemetriya ustroystv) avtomaticheski
 podtyagivayutsya vo front bez perezagruzki stranitsy. Agregaty pomogayut bystro ponyat kartinu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -55,12 +53,10 @@ def _sse_pack(event: str, data: Dict[str, Any]) -> str:
 
 @bp.route("/board/stream", methods=["GET"])
 def board_stream():
-    """
-    SSE-potok sobytiy dlya konkretnoy team_id.
-    Otdaet:
+    """SSE-potok sobytiy dlya konkretnoy team_id.
+    From:
       - event: update - pri izmenenii STORE._v ili naznacheniya/overraydov vybrannoy komandy
-      - event: ping   - raz v heartbeat_sec
-    """
+      - event: ping - raz v heartbeat_sec"""
     team_id = (request.args.get("team_id") or "").strip()
     if not team_id:
         return jsonify({"ok": False, "error": "team_id_required"}), 400
@@ -98,12 +94,10 @@ def board_stream():
 
 @bp.route("/board/aggregate", methods=["GET"])
 def board_aggregate():
-    """
-    Agregaty dlya bordy:
-      - role_candidates: top-3 po kazhdoy roli
-      - agent_load: {agent_id: n_roles}
-      - risks: evristiki po naznachennoy platforme
-    """
+    """Board units:
+      - role_candidates: top 3 for each role
+      - agent_load: ZZF0Z
+      - risk: heuristics for the assigned platform"""
     team_id = (request.args.get("team_id") or "").strip()
     if not team_id:
         return jsonify({"ok": False, "error": "team_id_required"}), 400

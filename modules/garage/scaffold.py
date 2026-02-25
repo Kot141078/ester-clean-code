@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/garage/scaffold.py — «garazh»: karkas novykh moduley s register(app), faylovaya pesochnitsa i proverka.
+"""modules/garage/scaffold.py - “garazh”: karkas novykh moduley s register(app), faylovaya pesochnitsa i proverka.
 
 Mosty:
 - Yavnyy: (DevOps ↔ Prilozhenie) bystro sozdat drop-in modul bez pravok app.py.
 - Skrytyy #1: (AutoDiscover ↔ Avtonomiya) gotovit importiruemyy put i registratsiyu cherez /app/discover.
-- Skrytyy #2: (A/B ↔ Bezopasnost) generiruet primer marshruta s A/B-obertkoy.
+- Skrytyy #2: (A/B ↔ Bezopasnost) generate primer route s A/B-obertkoy.
 
 Zemnoy abzats:
-Eto kak verstak s naborami: nazhal — i u tebya pustaya «korobka» s provodami, kotoruyu mozhno srazu vstraivat.
+Eto kak verstak s naborami: nazhal - i u tebya pustaya “korobka” s provodami, kotoruyu mozhno srazu vstraivat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, re
 from typing import Dict
@@ -58,7 +56,7 @@ def _pong_a():
     return {{"ok": True, "slot":"A", "msg":"hello from {name}"}}
 
 def _pong_b():
-    # alternativnaya realizatsiya (mozhet byt eksperimentalnoy)
+    # alternative implementation (may be experimental)
     return {{"ok": True, "slot":"B", "msg":"hello from {name} (B)"}}
 
 @bp.route("{route_base}/ping", methods=["GET"])
@@ -79,7 +77,7 @@ def register(app):
 def add_file(name: str, rel_path: str, content: str)->Dict:
     j=_load(); p=(j.get("projects") or {}).get(name)
     if not p: return {"ok": False, "error":"not_found"}
-    # ogranichimsya pesochnitsey proekta
+    # Let's limit ourselves to the sandbox of the project
     base=p["dir"]; full=os.path.abspath(os.path.join(base, rel_path.strip("/")))
     if not full.startswith(os.path.abspath(base)):
         return {"ok": False, "error":"path_outside_garage"}
@@ -88,9 +86,7 @@ def add_file(name: str, rel_path: str, content: str)->Dict:
     return {"ok": True, "path": full}
 
 def build(name: str)->Dict:
-    """
-    «Sukhaya» proverka: import modulya + poisk dekorirovannykh routov.
-    """
+    """“Dry” check: module import + search for decorated routes."""
     import importlib, inspect, re
     j=_load(); p=(j.get("projects") or {}).get(name)
     if not p: return {"ok": False, "error":"not_found"}

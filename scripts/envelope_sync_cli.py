@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/envelope_sync_cli.py — CLI dlya sinkhronizatsii po konvertu (fayl ili JSON-stroka).
+"""scripts/envelope_sync_cli.py - CLI dlya sinkhronizatsii po konvertu (fayl or JSON-stroka).
 
 Primery:
   AB_MODE=A python -m scripts.envelope_sync_cli --file ~/.ester/inbox/projects/envelopes/1699999999_proj.json
@@ -8,21 +7,20 @@ Primery:
   AB_MODE=B python -m scripts.envelope_sync_cli --file env.json --profile-id my-profile
 
 Optsii:
-  --file        — put k JSON-faylu konverta
-  --json        — stroka JSON konverta
-  --dry         — prinuditelnyy dry-run (ignoriruet AB_MODE)
-  --profile-id  — profil sinkhronizatsii (optsionalno)
+  --file - put k JSON-faylu konverta
+  --json — string JSON converta
+  --dry — prinuditelnyy dry-run (ignoreet AB_MODE)
+  --profile-id — profil sinkhronizatsii (optsionalno)
 
 Mosty:
-- Yavnyy (Kibernetika ↔ Orkestratsiya): odna komanda primenyaet konvert po skheme ili profilyu.
+- Yavnyy (Kibernetika ↔ Orkestratsiya): odna komanda primenyaet konvert po scheme ili profilyu.
 - Skrytyy 1 (Infoteoriya ↔ Bezopasnost): proverka podpisi i JSON-otchet, kak v UI.
-- Skrytyy 2 (Praktika ↔ Ekspluatatsiya): obratnaya sovmestimost, novye flagi optsionalny.
+- Skrytyy 2 (Praktika ↔ Ekspluatatsiya): obratnaya sovmestimost, new flagi optsionalny.
 
 Zemnoy abzats:
 Kak kurer s posylkoy: beret konvert, proveryaet podpis, akkuratno dostavlyaet po adresu (s profilem ili bez). Udobno dlya avtomatizatsiy i payplaynov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -34,7 +32,7 @@ from typing import Dict, Optional
 from modules.selfmanage.envelope_sync import apply_envelope  # type: ignore
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Proveryaem nalichie apply_envelope_with_profile
+# Checking the presence of app_envelope_with_profile
 try:
     from modules.selfmanage.envelope_sync import apply_envelope_with_profile  # type: ignore
     HAS_PROFILE_SUPPORT = True
@@ -62,12 +60,12 @@ def _load_envelope(args: argparse.Namespace) -> tuple[Optional[Dict], Optional[s
             return None, f"invalid-json: {args.json}"
 
 def main(argv: list[str] | None = None) -> int:
-    """Osnovnaya logika sinkhronizatsii po konvertu."""
+    """Basic envelope synchronization logic."""
     ap = argparse.ArgumentParser(description="Ester envelope sync CLI")
     src = ap.add_mutually_exclusive_group(required=True)
     src.add_argument("--file", type=str, help="put k JSON-faylu konverta")
     src.add_argument("--json", type=str, help="stroka JSON konverta")
-    ap.add_argument("--profile-id", type=str, default="", help="profil sinkhronizatsii (optsionalno)")
+    ap.add_argument("--profile-id", type=str, default="", help="synchronization profile (optional)")
     ap.add_argument("--dry", action="store_true", help="prinuditelnyy dry-run")
     args = ap.parse_args(argv)
 
@@ -77,7 +75,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"ok": False, "error": error}, ensure_ascii=False, indent=2))
         return 2
 
-    # Opredelyaem rezhim dry-run
+    # Determining the dry-rune mode
     dry = args.dry or (AB != "B")
 
     # Primenyaem konvert

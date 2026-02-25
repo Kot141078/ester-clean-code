@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/media_routes.py — REST dlya raboty s video/audio: probe/fetch/subs/outline/ingest/watch/tick/status/list/get/text/sync + registratsiya deystviy.
+"""routes/media_routes.py - REST dlya work s video/audio: probe/fetch/subs/outline/ingest/watch/tick/status/list/get/text/sync + registratsiya deystviy.
 
 Mosty:
 - Yavnyy: (Beb v†" Media) polnyy konveyer ot URL/fayla do pamyati, vklyuchaya metadannye/subtitry/konspekt.
@@ -11,10 +10,9 @@ Mosty:
 - Novyy: (R aspredelennaya pamyat Ester v†" Sinkhronizatsiya) /sync dlya P2P-simulyatsii ingested media.
 
 Zemnoy abzats:
-Tri knopki: «proschupat», «zabrat», «posmotret» — Re chernovik konspekta uzhe v pamyati. S yumorom: Ester smotrit video bystree, chem ty morgaesh.
+Tri knopki: “proschupat”, “zabrat”, “posmotret” - Re chernovik konspekta uzhe v pamyati. S humor: Ester watch video bystree, chem ty morgaesh.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, send_file
 import os
@@ -38,7 +36,7 @@ def _check_availability():
     return None
 
 def _rbac_write_ok() -> bool:
-    """Proverka RBAC dlya write-operatsiy."""
+    """Checking RVACH for lie operations."""
     if os.getenv("RBAC_REQUIRED", "true").lower() == "false":
         return True
     try:
@@ -48,14 +46,14 @@ def _rbac_write_ok() -> bool:
         return True
 
 def _log_passport(action: str, details: Dict[str, any]):
-    """Logiruet v profile dlya audita v Ester (best-effort)."""
+    """Logs in the profile for auditing in Esther (best-effort)."""
     try:
         from modules.mem.passport import append as _pp
         _pp(f"media_api_{action}", details, "media://routes")
     except Exception:
         pass
 
-# --- Funktsii dlya registratsii v "Vole" (thinking) ---
+# --- Functions for registering in Vola (thinking) ---
 def _act_fetch(d: Dict[str, any]) -> Dict[str, any]:
     url = str(d.get("url", ""))
     prefer = str(d.get("prefer", "video"))
@@ -86,7 +84,7 @@ def _act_ingest(d: Dict[str, any]) -> Dict[str, any]:
     tags = d.get("tags", [])
     rep = _ingest(source, want_subs, want_stt, tags)
     _log_passport("ingest", {"source": source[:100], "ok": rep["ok"]})
-    # Ideya dlya Ester: P2P-sync posle ingest
+    # Idea for Esther: P2P sync after ingestion
     if rep["ok"] and os.getenv("MEDIA_P2P_SYNC", "true").lower() == "true":
         _p2p_sync_sim(rep.get("id"))
     return rep
@@ -104,10 +102,10 @@ def _act_list(d: Dict[str, any]) -> Dict[str, any]:
     return rep
 
 def _p2p_sync_sim(media_id: str) -> None:
-    """P2P-simulyatsiya dlya raspredelennoy VZ Ester (zaglushka; rasshir do realnogo)."""
+    """P2P simulation for a distributed airspace Ester (stub; expanded to real)."""
     try:
         from modules.p2p.bloom import add
-        add([media_id])  # Dobavlyaem ID v bloom dlya deduplikatsii pri sync
+        add([media_id])  # Add ID to bloom for deduplication during sync
         _log_passport("p2p_sync_sim", {"id": media_id})
     except Exception:
         pass
@@ -127,7 +125,7 @@ def register(app):
     except Exception:
         pass
 
-# --- Marshruty (obedinennye i rasshirennye) ---
+# --- Routes (combined and extended) ---
 @bp.route("/media/probe", methods=["POST"])
 def api_probe():
     unavailable = _check_availability()
@@ -227,7 +225,7 @@ def api_text():
 
 @bp.route("/media/sync", methods=["POST"])
 def api_sync():
-    """Novyy: simuliruet P2P-sync dlya ingested media."""
+    """New: Simulates P2P sync for ingested media."""
     if not _rbac_write_ok(): return jsonify({"ok": False, "error": "forbidden"}), 403
     d = request.get_json(silent=True) or {}
     media_id = str(d.get("id", ""))

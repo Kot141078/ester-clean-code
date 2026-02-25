@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-scheduler/cron_memory_maintenance.py — «ruchka pod cron» dlya tekhprotsedur pamyati.
+"""scheduler/cron_memory_maintenance.py - “ruchka pod cron” dlya tekhprotsedur pamyati.
 
 API (vnutr.):
-  • run_pipeline(tasks:list[str]) -> dict   # tasks ⊆ {"heal","compact","snapshot","reindex"}
+  • run_pipeline(tasks:list[str]) -> dict # tasks ⊆ {"heal","compact","snapshot","reindex"}
 
 Realizatsiya:
   • Pytaetsya vyzvat suschestvuyuschie HTTP/lokalnye protsedury; pri otsutstv. — bezoshibochnyy NOOP.
@@ -11,14 +10,13 @@ Realizatsiya:
 
 Mosty:
 - Yavnyy: (Memory ↔ Ekspluatatsiya) formalizuet nochnye protsedury bez skrytykh demonov.
-- Skrytyy #1: (Inzheneriya ↔ Nadezhnost) soft-fail — dazhe esli kakoy-to shag nedostupen.
+- Skrytyy #1: (Inzheneriya ↔ Nadezhnost) soft-fail - dazhe esli kakoy-to shag nedostupen.
 - Skrytyy #2: (Kibernetika ↔ Kontrol) integriruetsya v RuleHub/raspisanie.
 
 Zemnoy abzats:
-Eto knopka «nochnaya uborka»: proshlis pylesosom po pamyati — stala kompaktnee i chische.
+Eto knopka “nochnaya uborka”: proshlis pylesosom po pamyati - stala kompaktnee i chische.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -54,7 +52,7 @@ def run_pipeline(tasks: List[str]) -> Dict[str, Any]:
         elif t == "reindex":
             ok = _try_http("/mem/reindex") or _try_http("/search/reindex")
         else:
-            ok = True  # neizvestnaya zadacha — ignor
+            ok = True  # unknown task - ignore
         report.append({"task": t, "ok": bool(ok)})
         _CNT["steps_ok" if ok else "steps_fail"] += 1
     return {"ok": True, "report": report, "ts": int(time.time())}

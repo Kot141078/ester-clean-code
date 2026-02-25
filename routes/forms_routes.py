@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-routes/forms_routes.py - demonstratsiya CSRF-zaschity dlya HTML-form.
+"""routes/forms_routes.py - demonstratsiya CSRF-zaschity dlya HTML-form.
 
-Endpointy:
-  GET  /forms/token  → vydaet csrf_token v cookie i JSON
-  POST /forms/echo   (multipart/x-www-form-urlencoded) @csrf_protect
-"""
+Endpoint:
+  GET /forms/token → vydaet csrf_token v cookie i JSON
+  POST /forms/echo (multipart/x-www-form-urlencoded) @csrf_protect"""
 from __future__ import annotations
 
 from flask import jsonify, request
@@ -17,8 +15,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 def register_forms_routes(app, url_prefix: str = "/forms"):
     """Drop-in registratsiya endpointov form.
     Yavno vyzyvaem add_url_rule(..., view_func=...), chtoby izbezhat
-    AssertionError('expected view func if endpoint is not provided.').
-    """
+    AssertionError('expected view func if endpoint is not provided.')."""
     base = url_prefix or "/forms"
     ep_prefix = (base or "/").strip("/").replace("/", "_") or "root"
 
@@ -28,7 +25,7 @@ def register_forms_routes(app, url_prefix: str = "/forms"):
         return issue_csrf()
 
     def forms_echo_view():
-        # Ekho-endpoint dlya testov CSRF
+        # Echo endpoint for SSRF tests
         return jsonify(
             {
                 "ok": True,
@@ -37,7 +34,7 @@ def register_forms_routes(app, url_prefix: str = "/forms"):
             }
         )
 
-    # Oborachivaem echo zaschitoy CSRF na urovne view_func
+    # We wrap the echo with SSRF protection at the view_function level
     protected_echo_view = csrf_protect(forms_echo_view)  # decorator -> callable
 
     # --- routes ---
@@ -57,7 +54,7 @@ def register_forms_routes(app, url_prefix: str = "/forms"):
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
 def register(app):
-    # vyzyvaem suschestvuyuschiy register_forms_routes(app) (url_prefix beretsya po umolchaniyu vnutri funktsii)
+    # calls an existing register_forts_rutes(app) (url_prefix is ​​taken by default inside the function)
     return register_forms_routes(app)
 
 # === /AUTOSHIM ===

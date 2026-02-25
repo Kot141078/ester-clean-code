@@ -1,6 +1,6 @@
 # U1/scripts/u1_smoke.ps1 — offlayn-smoke soveta
-# Mosty: (Yavnyy) Enderton; (Skrytye) Ashbi; Cover&Thomas.
-# Zemnoy abzats: odna knopka dlya proverki.
+# Bridges: (Explicit) Enderton; (Hidden) Ashby; Carpet&Thomas.
+# Earth paragraph: one button to check.
 # c=a+b
 
 python tests/u1_smoke.py

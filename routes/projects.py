@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-routes/projects.py - panel proektov: sozdanie, dobavlenie zadach, batch-progon, eksport na fleshku.
+"""routes/projects.py - panel project: sozdanie, addavlenie zadach, batch-progon, eksport na fleshku.
 
-Marshruty:
-  • GET  /admin/projects                      - HTML
-  • GET  /admin/projects/status               - spisok proektov + put inboksa
-  • GET  /admin/projects/detail               - detali proekta ?id=
-  • POST /admin/projects/create               - {name, defaults?}
-  • POST /admin/projects/add_jobs             - {id, items:[{prompt, alias?, req?, max_tokens?, temperature?}]}
-  • POST /admin/projects/run                  - {id, mode: pending|all, stop_on_error?}
-  • POST /admin/projects/export               - {id, mount}
+Route:
+  • GET /admin/projects - HTML
+  • GET /admin/projects/status - spisok proektov + put inboksa
+  • GET /admin/projects/detail - details project ?id=
+  • POST /admin/projects/create - {name, defaults?}
+  • POST /admin/projects/add_jobs - {id, items:[{prompt, alias?, req?, max_tokens?, temperature?}]}
+  • POST /admin/projects/run - {id, mode: pending|all, stop_on_error?}
+  • POST /admin/projects/export - {id, mount}
 
 Mosty:
 - Yavnyy (UX ↔ Orkestratsiya): edinyy ekran dlya postanovki zadach i zapuska batchey.
-- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): AB-aware rezhimy (dry vs real), statusy i protokol rezultatov v JSON.
+- Skrytyy 1 (Infoteoriya ↔ Nadezhnost): AB-aware rezhimy (dry vs real), statusy i protocol rezultatov v JSON.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): eksport v offlayn-strukturu ESTER/exports na fleshke, yadro ne trogaem.
 
 Zemnoy abzats:
-Eto «rabochiy stol»: sozday proekt, vstav prompty, zapusti - i zaberi rezultaty na fleshku bez golovnoy boli.
+This is “rabochiy stol”: sozday proekt, vstav prompty, zapusti - i zaberi rezultaty na fleshku bez golovnoy boli.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

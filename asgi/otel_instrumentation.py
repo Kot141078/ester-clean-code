@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-asgi/otel_instrumentation.py — bezopasnaya obvyazka FastAPI/ASGI dlya treysinga/metrik.
+"""asgi/otel_instrumentation.py - bezopasnaya obvyazka FastAPI/ASGI dlya treysinga/metrik.
 
 MOSTY:
-- (Yavnyy) instrument_app(app): vklyuchaet FastAPI-treysing (esli SDK dostupen) i pishet latency-gistogrammu/statusy.
-- (Skrytyy #1) Vstroennyy middleware bez storonnikh zavisimostey; OTel SDK — optsionalen.
+- (Yavnyy) instrument_app(app): vklyuchaet FastAPI-treysing (if SDK is available) i pishet latency-histogrammu/statusy.
+- (Skrytyy #1) Vstroennyy middleware bez storonnikh zavisimostey; OTel SDK - optional.
 - (Skrytyy #2) Sovmestim s security headers (Iter.10): poryadok obertok ne kritichen.
 
 ZEMNOY ABZATs:
-Odna stroka — i u tebya p95 latentnost `/api/v2/synergy/assign`, schetchik oshibok i status-kody po routam.
+Odna stroka - i u tebya p95 latentnost `/api/v2/synergy/assign`, schetchik oshibok i status-kody po routam.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import time
@@ -25,7 +23,7 @@ from modules.synergy.metrics import record_api_status, record_assign_latency_ms
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def instrument_app(app):
-    # Poprobuem vklyuchit OTel-instrumentirovanie FastAPI (esli SDK ustanovlen)
+    # Let's try to enable Hotel-instrumentation FastAPI (if SDK is installed)
     try:
         init_otel()
         from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor  # type: ignore

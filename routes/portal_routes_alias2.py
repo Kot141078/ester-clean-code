@@ -26,11 +26,11 @@ def portal_render():
             r.headers["X-Ester-Portal-Alias2"] = "rendered"
             return r
         except Exception as e:
-            # 2) Folbek: minimalnaya stranitsa bez zavisimostey
+            # 2) Fullback: minimal page without dependencies
             _log("portal_render fallback: %r" % e)
     # 3) Minimalnyy HTML (bez 500)
     html = u"<!doctype html><html><head><meta charset='utf-8'><title>Ester Portal (alias2)</title></head>" \
-           u"<body><h1>Ester Portal (alias2)</h1><p>Shablon portal.html nedostupen, pokazan fallback.</p></body></html>"
+           u"<body><h1>Ester Portal (alias2)</h1><p>Thablon portal.html nedostupen, pokazan fallback.</p></body></html>"
     r = make_response(html, 200)
     r.headers["X-Ester-Portal-Alias2"] = "fallback"
     return r

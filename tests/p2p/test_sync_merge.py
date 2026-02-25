@@ -15,7 +15,7 @@ def test_merge_idempotent_and_commutative():
     a.merge(c)
     c.merge(a)
     b.merge(c)
-    # teper u vsekh troikh odinakovoe vidimoe mnozhestvo
+    # now all three have the same apparent set
     va = set(a.visible_items().keys())
     vb = set(b.visible_items().keys())
     vc = set(c.visible_items().keys())

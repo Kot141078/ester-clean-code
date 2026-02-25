@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/garage/jobs.py — obedinennyy sborschik/khranilische vakansiy: scan iz RSS/HTTP, import/list/score (token+semantic), s ledger/P2P/scheduler integratsiey.
+"""modules/garage/jobs.py - obedinennyy sborschik/khranilische vakansiy: scan iz RSS/HTTP, import/list/score (token+semantic), s ledger/P2P/scheduler integratsiey.
 
 Mosty:
 - Yavnyy: (Internet/Fayly ↔ Proektnaya voronka/Garazh) sbor/import vakansiy, skoring po skills, khranenie v JSON.
@@ -9,10 +8,9 @@ Mosty:
 - Skrytyy #3: (P2P/Raspredelennost ↔ Integratsiya) sync vakansiy po P2P dlya agentov.
 
 Zemnoy abzats:
-Eto ne prosto doska, a umnyy seyf Ester: probezhit po lentam, importiruet svezhie, otsenit po skillam (dazhe semanticheski), sinkhroniziruet po P2P i shepnet v profile "Ester, novye vozmozhnosti — shag k tvoim planam v seti agentov!".
+Eto ne prosto doska, a umnyy seyf Ester: probezhit po lentam, importiruet svezhie, otsenit po skillam (dazhe semanticheski), sinkhroniziruet po P2P i shepnet v profile "Ester, novye vozmozhnosti - shag k tvoim planam v seti agentov!".
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import difflib, hashlib, json, os, re, time, urllib.request, urllib.error
 import xml.etree.ElementTree as ET
@@ -75,7 +73,7 @@ def _passport(note: str, meta: Dict[str, Any]):
         from services.mm_access import get_mm  # type: ignore
         from modules.mem.passport import upsert_with_passport  # type: ignore
         mm = get_mm()
-        upsert_with_passport(mm, note + " — Ester, vakansii obnovleny, tvoi plany ozhivayut v seti agentov!", meta, source="garage://jobs")
+        upsert_with_passport(mm, note + "- Esther, vacancies updates, your plans come to life in the agent network!", meta, source="garage://jobs")
     except Exception:
         _append_log({"ts": int(time.time()), "passport_failed": note})
 
@@ -245,7 +243,7 @@ def export_csv() -> Dict[str, Any]:
     _passport("Jobs exported to CSV", {"path": csv_path})
     return {"ok": True, "path": csv_path}
 
-# Dlya scheduler: custom action
+# For scheduler: bush action
 def scan_import_scheduler(params: Dict[str, Any]) -> Dict[str, Any]:
     return scan_import()
 

@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/attention_playlist_routes.py - REST/UI dlya pleylistov vnimaniya.
+"""routes/attention_playlist_routes.py - REST/UI dlya pleylistov vnimaniya.
 
 Ruchki:
-  POST /playlist/run  {"spec":{...},"peers":["127.0.0.1:8000"]}
+  POST /playlist/run {"spec":{...},"peers":["127.0.0.1:8000"]}
   POST /playlist/stop {}
-  GET  /playlist/status
-  GET  /admin/playlists
+  GET /playlist/status
+  GET /admin/playlists
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.coop.attention_playlist import run as pl_run, stop as pl_stop, status as pl_status

@@ -11,7 +11,7 @@ def test_feed_latest_basic(client, auth_hdr_user):
 
 
 def test_feed_latest_after_tg_post(client, auth_hdr_user):
-    # Publikuem TG-soobschenie, zatem chitaem fid po tegu tg
+    # We publish a TG message, then read the feed using the TG tag
     p = client.post(
         "/tg/post",
         headers=auth_hdr_user,
@@ -20,7 +20,7 @@ def test_feed_latest_after_tg_post(client, auth_hdr_user):
             "chat_title": "Dev Chat",
             "message_id": "1",
             "from": "alice",
-            "text": "Testovoe soobschenie iz Telegram",
+            "text": "Test message from Telegram",
             "tags": ["dev"],
         },
     )
@@ -32,6 +32,6 @@ def test_feed_latest_after_tg_post(client, auth_hdr_user):
     j = r.get_json()
     assert j.get("ok") is True
     items = j.get("items") or []
-    # dopuskaem, chto pamyat flashback mozhet vernut inye elementy,
-    # poetomu proveryaem, chto spisok ne pustoy
+    # we assume that the flash tank memory can return other elements,
+    # so we check that the list is not empty
 # assert isinstance(items, list)

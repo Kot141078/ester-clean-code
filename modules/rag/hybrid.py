@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules/rag/hybrid.py — gibridnyy retriver (fallback JSONL) s "maloy vydachey".
+"""modules/rag/hybrid.py - gibridnyy retriver (fallback JSONL) s "maloy vydachey".
 
-Izmeneniya v6:
+Changes v6:
 - Po umolchaniyu otdaem tolko SNIPPET (obrezka) vmesto polnogo teksta.
-- Polnyy tekst vklyuchaem TOLKO pri include_text=true (ili cherez ENV HYBRID_INCLUDE_TEXT=1).
-- Upravlenie dlinoy snippeta: max_chars (parametr zaprosa) ili ENV HYBRID_SNIPPET_CHARS (po umolchaniyu 600).
-- Sovmestimost: polya "items" i "hits" ostayutsya; dobavleny "snippet" i "len_text".
+- Polnyy tekst vklyuchaem TOLKO pri include_text=true (or cherez ENV HYBRID_INCLUDE_TEXT=1).
+- Upravlenie dlinoy snippeta: max_chars (parameter zaprosa) or ENV HYBRID_SNIPPET_CHARS (by default 600).
+- Sovmestimost: polya "items" i "hits" ostayutsya; add "snippet" i "len_text".
 
 MOSTY:
-- Yavnyy: /rag/hybrid/search ↔ etot modul — parametry include_text/max_chars.
+- Yavnyy: /rag/hybrid/search ↔ etot modul - parameter include_text/max_chars.
 - Skrytye:
-  1) ENV ↔ Otvet: HYBRID_SNIPPET_CHARS, HYBRID_INCLUDE_TEXT.
+  1) ENV ↔ Answer: HYBRID_SNIPPET_CHARS, HYBRID_INCLUDE_TEXT.
   2) Dannye ↔ Transport: umenshaem JSON (snippet), predotvraschaya megabaytnye otvety.
 ZEMNOY ABZATs:
-Bolshie dokumenty (mnogomegabaytnye) zabivayut set/klient. Snippet — inzhenerno razumnyy
+Bolshie dokumenty (mnogomegabaytnye) zabivayut set/klient. Snippet - inzhenerno razumnyy
 kompromiss: bystryy predprosmotr + yavnoe vklyuchenie polnogo teksta po zaprosu.
-# c=a+b
-"""
+# c=a+b"""
 import os, re, math, json
 from typing import List, Dict, Any, Tuple, Optional, Iterable
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

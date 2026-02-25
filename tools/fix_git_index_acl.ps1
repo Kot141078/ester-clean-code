@@ -13,8 +13,8 @@ $ErrorActionPreference = "Stop"
 #  - Skrytyy #2: A/B-slot ↔ bezopasnaya samo-redaktura (report-only vs apply).
 #
 # ZEMNOY ABZATs:
-#  - Eto kak predokhranitel v schitke: poka na linii "DENY" — avtomatika glokhnet.
-#    Chinim pitanie (ACL), i dalshe dvigatel (git/pytest) krutitsya stabilno.
+#  - It’s like a fuse in a panel: while the “DAY” line is on, the automation stalls.
+#    We fix the power supply (ASL), and then the engine (live/potest) spins stably.
 # -------------------------------------------------------------------
 
 function _NowStamp { (Get-Date).ToString("yyyyMMdd_HHmmss") }

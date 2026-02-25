@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/game_sync_routes.py - REST/UI dlya «sovmestnoy igry».
+"""routes/game_sync_routes.py - REST/UI dlya “sovmestnoy game”.
 
 Ruchki:
   POST /game/config {"tick_rate":20,"peers":["..."],"quota":5,"room":"test"}
-  POST /game/start  {}
-  POST /game/stop   {}
+  POST /game/start {}
+  POST /game/stop {}
   POST /game/ingest {"peer":"p1","action":{"kind":"input","type":"hotkey","seq":"CTRL+S"}}
-  GET  /game/status
-  GET  /admin/game
+  GET /game/status
+  GET /admin/game
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -83,12 +81,12 @@ def admin():
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta (kontrakt proekta)."""
+    """Drop-in registration of blueprint (project contract)."""
     app.register_blueprint(bp)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

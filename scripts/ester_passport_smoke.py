@@ -1,23 +1,21 @@
-"""
-scripts/ester_passport_smoke.py
+"""scripts/ester_passport_smoke.py
 
-Prostoy smoke-test dlya modulya modules.mem.passport:
+Simple smoke-test dlya modulya modules.mem.passport:
 
-1. Garantiruem, chto koren proekta (D:\ester-project) est v sys.path.
-2. Pechataem, gde lezhit ester_identity.md.
+1. Guarantee, chto koren proekta (D:\ester-project) est v sys.path.
+2. Pechataem, where lezhit ester_identity.md.
 3. Pechataem korotkuyu sistemnuyu vyzhimku profilea.
 4. Delaem odnu probnuyu zapis cherez upsert_with_passport(..).
 5. Vyvodim poslednie 3 zapisi iz zhurnala.
 
-Zapusk iz kornya proekta:
+Zapusk iz kornya project:
 
     cd D:\ester-project
-    python scripts\ester_passport_smoke.py
-"""
+    python scripts\ester_passport_smoke.py"""
 
 from __future__ import annotations
 
-# === 0. Butstrap putey: dobavlyaem koren proekta v sys.path ===============
+# === 0. Bootstrap paths: add the project root to sys.path ===============
 
 import sys
 from pathlib import Path
@@ -47,7 +45,7 @@ def main() -> None:
     print("=== Upsert test entry ===")
     res_upsert = mem_passport.upsert_with_passport(
         mm=None,
-        text="Testovaya zapis dlya proverki ester_identity profilea.",
+        text="Test record to check the profile's ester_identity.",
         meta={"owner": "ester", "kind": "smoke_test"},
         source="scripts/ester_passport_smoke.py",
         version=1,

@@ -1,6 +1,6 @@
 param(
   [string]$Base = "http://127.0.0.1:8080",
-  [Parameter(Mandatory=$true)] [string]$Phrase,      # iskomaya fraza (kirillitsa ok)
+  [Parameter(Mandatory=$true)] [string]$Phrase,      # search phrase (Cyrillic ok)
   [int]$K = 50,
   [int]$WindowBefore = 200,
   [int]$WindowAfter = 400,
@@ -43,7 +43,7 @@ function Try-FindIdInJsonl([string]$docsPath, [string]$phrase) {
     if ($obj.text -is [string]) {
       $txt = [string]$obj.text
     } else {
-      # uproschennyy poisk: serializuem vlozhennuyu strukturu v stroku i proverim vkhozhdenie
+      # simplified search: serialize the nested structure into a string and check for occurrence
       $txt = ($obj.text | ConvertTo-Json -Depth 8 -Compress)
     }
     if ($txt -and ($txt -match [regex]::Escape($phrase))) {

@@ -1,27 +1,26 @@
 # -*- coding: utf-8 -*-
-"""merge_memories.py — utilita sliyaniya dvukh JSON-faylov pamyati.
+"""merge_memories.py - utilita sliyaniya dvukh JSON-faylov pamyati.
 
-Fiks oshibki:
+Fixes:
   expected an indented block after 'if' statement
-V iskhodnike blok:
+V iskhodnike block:
   if __name__ == "__main__":
 byl bez tela (main zakommentirovan), iz-za chego fayl ne kompilirovalsya.
 
-Chto uluchsheno:
+What improved:
 - Normalnaya CLI: dry-run, otchet, vybor klyucha deduplikatsii.
-- Deduplikatsiya po 'id' (po umolchaniyu) ili po vychislyaemomu fingerprint (query+answer/text/message).
-- Optsionalno: generatsiya id dlya zapisey bez id (--generate-missing-id).
+- Deduplikatsiya po 'id' (po umolchaniyu) or po vychislyaemomu fingerprint (query+answer/text/message).
+- Optionalno: generatsiya id dlya zapisey bez id (--generate-missing-id).
 - Atomarnaya zapis rezultata (*.tmp → replace).
 - Bolshe validatsii vkhodnykh dannykh: myagko propuskaem musor, no ne padaem.
 
-Mosty (trebovanie):
+Mosty (demand):
 - Yavnyy most: merge memories → edinyy kanonicheskiy ester_memory.json → ustoychivyy kontekst (SER/EWCEP).
 - Skrytye mosty:
   1) Infoteoriya ↔ praktika: fingerprint kak kompaktnaya “signatura soobscheniya” dlya deduplikatsii (szhatie/kanal proverki).
   2) Inzheneriya ↔ ekspluatatsiya: atomarnaya zapis + dry-run = predokhranitel ot porchi dannykh.
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 from __future__ import annotations
 
@@ -60,10 +59,9 @@ def _safe_str(x: Any) -> str:
 
 
 def fingerprint_entry(e: Entry) -> str:
-    """Fingerprint dlya deduplikatsii, esli id otsutstvuet.
+    """Fingerprint dlya deduplikatsii, esli id ​​otsutstvuet.
 
-    Stabilnyy i korotkiy: sha256 → pervye 8 bayt hex.
-    """
+    Stabilnyy i korotkiy: sha256 → pervye 8 bayt hex."""
     parts = [
         _safe_str(e.get("query")),
         _safe_str(e.get("answer")),
@@ -138,7 +136,7 @@ def merge(
             if dedupe_key == "id":
                 key_val = _safe_str(e.get("id")) or None
                 if not key_val:
-                    # esli id net — ispolzuem fp, chtoby ne plodit dublikaty
+                    # if there is no ID, use FP to avoid creating duplicates
                     key_val = fingerprint_entry(e)
             else:
                 key_val = fingerprint_entry(e)
@@ -176,7 +174,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     ap.add_argument(
         "--primary",
         required=True,
-        help="Kuda merdzhim (kanonicheskiy ester_memory.json).",
+        help="Where is Merjim (canonical ester_memory.zhsion).",
     )
     ap.add_argument(
         "--secondary",
@@ -187,17 +185,17 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--dedupe-key",
         choices=["id", "fp"],
         default="id",
-        help="Klyuch deduplikatsii: id (po umolchaniyu) ili fp (fingerprint).",
+        help="Deduplication key: id (default) or fp (fingerprint).",
     )
     ap.add_argument(
         "--generate-missing-id",
         action="store_true",
-        help="Sgenerirovat id dlya zapisey, gde id otsutstvuet (uuid4 hex).",
+        help="Generate id for records where there is no id (ooid4 hex).",
     )
     ap.add_argument(
         "--dry-run",
         action="store_true",
-        help="Pokazat otchet, no ne zapisyvat rezultat.",
+        help="Show the report, but do not record the result.",
     )
     return ap
 
@@ -218,10 +216,8 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Sliyanie pamyati — kak perelivanie krovi mezhdu dvumya sistemami khraneniya: vazhno ne “udvoit” kletki i ne zanesti gryaz.
-Inzhenerno eto pokhozhe na skladskuyu inventarizatsiyu: esli net unikalnogo nomera detali (id), berem otpechatok (fp)
-po soderzhimomu, chtoby ne zavezti vtoroy raz tot zhe yaschik. Atomarnaya zapis — kak plomba na vorotakh: libo vse
-obnovilos tselikom, libo nichego ne tronuli.
-"""
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Sliyanie pamyati - kak perelivanie krovi mezhdu dvumya sistemami khraneniya: vazhno ne “udvoit” kletki i ne zanesti gryaz.
+Inzhenerno eto pokhozhe na skladskuyu inventarizatsiyu: esli net unikalnogo nomera detail (id), berem otpechatok (fp)
+po soderzhimomu, chtoby ne zavezti vtoroy raz tot zhe yaschik. Atomarnaya zapis - kak plomba na vorotakh: libo vse
+obnovilos tselikom, libo nichego ne tronuli."""

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/lmstudio_routes.py - kompaktnaya konsol dlya LM Studio (UI + API).
+"""routes/lmstudio_routes.py - kompaktnaya konsol dlya LM Studio (UI + API).
 
 Zachem:
 - Ubeditsya, chto imenno LM Studio otvechaet (Ping/Models).
@@ -15,11 +14,10 @@ Mosty:
 Zemnoy abzats:
 Ty otkryvaesh /ui/lm, zhmesh Ping - vidish spisok modeley iz LM Studio.
 Vybiraesh model - zadaesh vopros - poluchaesh krasivyy otvet i usage.
-Esli GPU «ne shevelitsya», sdelay dlinnee zapros/otvet, vklyuchi bolshuyu model,
-ili uvelich max_tokens - togda grafik poydet vverkh.
+Esli GPU “ne shevelitsya”, sdelay dlinnee zapros/otvet, vklyuchi bolshuyu model,
+ili uvelich max_tokens - then grafik poydet vverkh.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -120,11 +118,9 @@ def api_lm_models():
 
 @bp.post("/api/lm/chat")
 def api_lm_chat():
-    """
-    Tonkiy proksi k /v1/chat/completions LM Studio.
-    Vkhod JSON:
-      {model, system, prompt, temperature, max_tokens}
-    """
+    """Thin proxy to /v1/chat/completions LM Studio.
+    Login ZhSION:
+      ZZF0Z"""
     j = request.get_json(silent=True) or {}
     model = j.get("model") or "gpt-oss-20b"
     system_prompt = j.get("system") or "You are Ester - a helpful local assistant."
@@ -146,7 +142,7 @@ def api_lm_chat():
     code, data = _http_post("/chat/completions", payload, timeout=max(60.0, max_tokens * 0.5))
     dt = time.time() - t0
 
-    # Dostaem cheloveko-chitaemyy otvet
+    # We get a human-readable answer
     text = ""
     usage = {}
     if isinstance(data, dict):

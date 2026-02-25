@@ -1,5 +1,5 @@
-# R0/scripts/r0_auth_smoke.ps1 — smouk R0 dlya Windows PowerShell
-# Mosty: (Yavnyy) Enderton — predikaty; (Skrytye) Dzheynes — nablyudeniya; Cover&Thomas — minimizatsiya neopredelennosti.
+# R0/scripts/r0_auth_smoke.ps1 - smouk R0 dlya Windows PowerShell
+# Bridges: (Explicit) Enderton - predicates; (Hidden) Janes - observations; Carpet&Thomas - minimizing uncertainty.
 # Zemnoy abzats: odna knopka dlya bystroy proverki kontura /auth/auto → /admin.
 # c=a+b
 

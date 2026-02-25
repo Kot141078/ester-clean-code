@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_audio_stt.py — eksheny «voli» dlya STT i bindera.
+"""modules/thinking/actions_audio_stt.py - eksheny “voli” dlya STT i bindera.
 
 Mosty:
-- Yavnyy: (Mysli ↔ STT/Bind) knopki «rasshifrovat fayl» i «oboyti novye media».
+- Yavnyy: (Mysli ↔ STT/Bind) knopki “rasshifrovat fayl” i “oboyti novye media”.
 - Skrytyy #1: (Profile ↔ Prozrachnost) upravlyayuschie deystviya fiksiruyutsya.
 - Skrytyy #2: (RAG/Portfolio ↔ Sinergiya) teksty popadayut v poisk i mogut ispolzovatsya v portfolio.
 
 Zemnoy abzats:
-Eti eksheny dayut Ester privychku «snimat tekst» s lyubogo zvuka — i delat eto sama, kogda uvidit novye roliki.
+Eti eksheny dayut Ester privychku “snimat tekst” s lyubogo zvuka - i delat eto sama, kogda uvidit novye roliki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

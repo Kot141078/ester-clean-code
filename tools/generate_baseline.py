@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-tools/generate_baseline.py — CLI: pechat baseline.json v stdout.
+"""tools/generate_baseline.py - CLI: print baseline.json v stdout.
 
 Zapusk:
   python tools/generate_baseline.py > baseline.json
 
-Vozvraschaet kod 0 vsegda (dazhe esli chast faylov nedostupna): baseline — vspomogatelnyy slepok, ne «stop-kran».
+Vozvraschaet kod 0 vsegda (dazhe esli chast faylov nedostupna): baseline - vspomogatelnyy slepok, ne “stop-kran”.
 
 Mosty:
 - Yavnyy (DevOps ↔ Sborka): bystryy artefakt baseline dlya posleduyuschikh sravneniy v CI/oflayne.
@@ -13,10 +12,9 @@ Mosty:
 - Skrytyy 2 (Praktika): chistyy stdlib; yadro Ester ne zatragivaetsya.
 
 Zemnoy abzats:
-Eto «knopka fotoapparata»: snyal tekuschee polozhenie rychagov — i pones fayl v drugoy tsekh dlya sverki.
+Eto “knopka fotoapparata”: snyal tekuschee polozhenie rychagov - i pones fayl v drugoy tsekh dlya sverki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, sys
 from modules.compat.baseline_builder import build_baseline  # type: ignore

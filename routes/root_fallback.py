@@ -7,7 +7,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 bp = Blueprint("root_fallback", __name__)
 
 _HTML = """<!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Ester - bezopasnaya startovaya</title>
@@ -45,7 +45,7 @@ _HTML = """<!doctype html>
         <ul>
           <li><a href="/routes_index.html">/routes_index.html</a></li>
           <li><a href="/ui">/ui</a></li>
-          <li><a href="/portal">/portal</a> (esli dostupen osnovnoy portal)</li>
+          <li><a href="/portal">/portal</a> (if available portal)</li>
         </ul>
       </div>
 
@@ -56,8 +56,7 @@ _HTML = """<!doctype html>
     </div>
   </div>
 </body>
-</html>
-"""
+</html>"""
 
 @bp.before_app_request
 def _serve_root_safely():

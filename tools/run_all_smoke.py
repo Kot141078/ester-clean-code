@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-tools/run_all_smoke.py — svodnyy myagkiy progon smoukov R2–R8, U1, U2.
+"""tools/run_all_smoke.py - svodnyy myagkiy progon smoukov R2–R8, U1, U2.
 
 Mosty:
 - Yavnyy: Enderton — fiksirovannaya posledovatelnost komand, kazhdaya s nablyudaemym rezultatom.
-- Skrytyy #1: Ashbi — myagkiy rezhim: oshibki ne valyat ranner; fiksiruem RC i dvizhemsya dalshe.
-- Skrytyy #2: Cover & Thomas — na vykhod — kompaktnyy JSON-itog, dostatochnyy dlya priemki.
+- Skrytyy #1: Ashbi — myagkiy rezhim: oshibki ne valyat runner; fiksiruem RC i dvizhemsya dalshe.
+- Skrytyy #2: Cover & Thomas - na vykhod - kompaktnyy JSON-itog, dostatochnyy dlya priemki.
 
 Zemnoy abzats:
-Vypolnyaet smouki po ocheredi: ingenst → indeks → rerank (fallback dopustim) → daydzhest → pravila → render →
-nablyudaemost → bezopasnost/reliz → sovetnik → Cortex (dry-run + run). Podkhodit dlya lokalnoy «revizii».
+Vypolnyaet smouki po ocheredi: ingenst → indexes → rerank (fallback dopustim) → daydzhest → pravila → render →
+nablyudaemost → bezopasnost/reliz → sovetnik → Cortex (dry-run + run). Podkhodit dlya lokalnoy “revizii”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, subprocess, sys
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

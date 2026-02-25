@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/sync_cursor.py — sinkhro-kursor (veduschiy transliruet koordinaty/kliki vedomym).
+"""modules/coop/sync_cursor.py - sinkhro-kursor (veduschiy transliruet koordinaty/kliki vedomym).
 
 Rezhimy:
 - leader: chitaet lokalnye sobytiya (mouse_move/click) iz REST-zaprosov UI (/admin/sync) i rassylaet peers.
 - follower: prinimaet pakety cherez /sync/ingest i vyzyvaet lokalnye deystviya: /desktop/window/mouse_move, /mouse_click.
 
-Format paketa:
-{"type":"move","x":123,"y":456} ili {"type":"click","btn":"left","down":true}
+Format package:
+{"type":"move","x":123,"y":456} or {"type":"click","btn":"left","down":true}
 
 MOSTY:
-- Yavnyy: (Orkestratsiya ↔ Motorika) vsem — odin i tot zhe zhest.
+- Yavnyy: (Orkestratsiya ↔ Motorika) vsem - odin i tot zhe zhest.
 - Skrytyy #1: (Infoteoriya ↔ Sinkhronizatsiya) prostye sobytiya, garantirovannaya posledovatelnost.
 - Skrytyy #2: (Kibernetika ↔ Kontrol) rabotaet tolko pri yavnom zapuske i prokhodit cherez policy/consent/safe.
 
 ZEMNOY ABZATs:
-Tolko HTTP: /peer/proxy k spisku peers. Na vedomom — shtatnye ruchki okna myshi.
+Tolko HTTP: /peer/proxy k spisku peers. Na vedomom - shtatnye ruchki okna myshi.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import http.client, json

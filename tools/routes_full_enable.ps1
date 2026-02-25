@@ -1,12 +1,12 @@
 # tools\routes_full_enable.ps1
-# Purpose: vklyuchit rasshirennye marshruty, chtoby RAG/pamyat podtsepilis k portalu.
+# Purpuse: enable extended routes so that the RAG/memory is hooked up to the portal.
 # Bezopasno: delaet bekap starogo extra_routes.json i pishet novyy.
 
 Param(
   [string]$DataRoot = $env:ESTER_DATA_ROOT
 )
 
-# --- helpers (ASCII-only messages, chtoby ne bylo krakozyabr) ---
+# --- helpers (ASSII-only messages so that there is no krakozyabr) ---
 function Info($m){ Write-Host "[info] $m" }
 function Ok($m){ Write-Host "[ok]   $m" -ForegroundColor Green }
 function Warn($m){ Write-Host "[warn] $m" -ForegroundColor Yellow }
@@ -29,7 +29,7 @@ if (Test-Path $Extra) {
 
 # 3) Spisok moduley marshrutov.
 # Zamet: daem ODNIM spiskom i varianty s prefiksom "ester." i bez.
-# Lishnie prosto budut propuscheny tvoim zagruzchikom, eto normalno.
+# The extra ones will simply be skipped by your bootloader, this is normal.
 $routes = @(
   # bazovye stranitsy/portal/doki
   "routes.root_routes",
@@ -71,7 +71,7 @@ $routes = @(
   "ester.routes.routes_rules"
 ) | Select-Object -Unique
 
-# 4) Zapis JSON (ASCII), chtoby PowerShell ne isportil kavychki
+# 4) Write JSION (ASSII) so that PowerShell does not spoil the quotes
 $Json = ($routes | ConvertTo-Json -Depth 3)
 $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText($Extra, $Json, $Utf8NoBom)

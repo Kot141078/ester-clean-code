@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-SelfModIntent schema for Ester.
+"""SelfModIntent schema for Ester.
 
-Etot modul opisyvaet kontrakt bezopasnogo samoizmeneniya:
-- gde Ester mozhet predlagat izmeneniya;
+This modul opisyvaet kontrakt bezopasnogo samoizmeneniya:
+- where Ester mozhet predlagat izmeneniya;
 - kakie zony navsegda zaprescheny;
-- kak proveryat predlozhennye izmeneniya pered vyzovom /ester/selfmod/propose.
+- how to proveryat predlozhennye izmeneniya pered vyzovom /ester/selfmod/propose.
 
 Nikakikh realnykh izmeneniy sam po sebe modul ne delaet.
-Ispolzuetsya mostami i routami-obertkami.
-"""
+Ispolzuetsya mostami i routami-obertkami."""
 
 import os
 from typing import Any, Dict, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Zhestkie zaprety: ne trogaem portal, kaskad i pamyat.
+# Strict prohibitions: do not touch the portal, cascade and memory.
 FORBIDDEN_PREFIXES = [
     "templates/portal.html",
     "templates/portal",
@@ -24,7 +22,7 @@ FORBIDDEN_PREFIXES = [
     "modules/thinking/cascade_closed.py",
 ]
 
-# Bazovye bezopasnye zony dlya samoizmeneniya i rasshireniy.
+# Basic safe zones for self-modification and extensions.
 ALLOWED_PREFIXES_DEFAULT = [
     "modules/ester/",
     "routes/ester_",
@@ -34,7 +32,7 @@ ALLOWED_PREFIXES_DEFAULT = [
 
 
 def get_mode() -> str:
-    """AB-rezhim dlya logiki namereniy samoizmeneniya."""
+    """AB mode for the logic of self-change intentions."""
     mode = (os.getenv("ESTER_SELFMOD_INTENT_AB", "A") or "A").strip().upper()
     return "B" if mode == "B" else "A"
 
@@ -48,7 +46,7 @@ def is_path_forbidden(path: str) -> bool:
 
 
 def is_path_allowed(path: str) -> bool:
-    """Razreshaem tolko to, chto ne v stop-liste i lezhit v dozvolennykh prefiksakh."""
+    """Allows only what is not in the stop list and lies in the allowed prefixes."""
     norm = path.replace("\\", "/")
     if is_path_forbidden(norm):
         return False
@@ -59,7 +57,7 @@ def is_path_allowed(path: str) -> bool:
 
 
 def describe() -> Dict[str, Any]:
-    """Chelovekochitaemyy profil samoizmeneniya dlya Ester i operatora."""
+    """Human-readable self-modification profile for Esther and the operator."""
     mode = get_mode()
     return {
         "ok": True,
@@ -67,11 +65,11 @@ def describe() -> Dict[str, Any]:
         "sources": {
             "ester": {
                 "allowed": True,
-                "note": "Ester mozhet predlagat izmeneniya tolko cherez zaschischennyy kontur i v razreshennykh zonakh.",
+                "note": "Esther can only propose changes through a protected circuit and in authorized areas.",
             },
             "operator": {
                 "allowed": True,
-                "note": "Operator mozhet vyzyvat /ester/selfmod/propose napryamuyu, no guard vse ravno deystvuet.",
+                "note": "The operator can call /ester/selfmod/propose directly, but the guard is still in effect.",
             },
         },
         "paths": {
@@ -97,8 +95,7 @@ def validate_proposal(source: str, changes: List[Dict[str, Any]]) -> Dict[str, A
       "guard": [
         {"idx": 0, "path": "...", "allowed": bool, "note": "ok|forbidden_path|no_path"}
       ]
-    }
-    """
+    }"""
     errors: List[str] = []
     guard: List[Dict[str, Any]] = []
 

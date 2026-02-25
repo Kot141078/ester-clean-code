@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/safe_scenarios_routes.py - REST/UI dlya seyf-stsenariev.
+"""routes/safe_scenarios_routes.py - REST/UI dlya seyf-stsenariev.
 
 Ruchki:
-  POST /safe_scenarios/run   {"steps":[...]}
-  GET  /safe_scenarios/status
-  GET  /admin/safe_scenarios
+  POST /safe_scenarios/run {"steps":[...]}
+  GET /safe_scenarios/status
+  GET /admin/safe_scenarios
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.coop.safe_scenarios import run as srun, status as sstatus

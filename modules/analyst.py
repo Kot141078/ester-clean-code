@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/analyst.py — Deep Processing Unit (GPU/CPU safe).
+"""modules/analyst.py - Deep Processing Unit (GPU/CPU safe).
 
 EXPLICIT BRIDGE (c=a+b):
   a) vkhodyaschiy kontent (soobscheniya/veb/fayly) +
@@ -9,11 +8,10 @@ EXPLICIT BRIDGE (c=a+b):
 
 HIDDEN BRIDGES:
   - Ashby: raznye vkhody privodim k edinomu payload.
-  - Cover & Thomas: ogranichivaem «shirinu kanala» (snippet/metadannye).
+  - Cover & Thomas: ogranichivaem “shirinu kanala” (snippet/metadannye).
 
 EARTH:
-  kak zheludochek serdtsa — prinimaet portsiyu i vytalkivaet dalshe; ne blokiruet osnovnoy potok.
-"""
+  kak zheludochek serdtsa - prinimaet portsiyu i vytalkivaet dalshe; ne blokiruet osnovnoy potok."""
 
 from __future__ import annotations
 
@@ -29,7 +27,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 logger = logging.getLogger("ester.analyst")
 
-# torch — strogo optsionalen
+# torch - strictly optional
 try:
     import torch  # type: ignore
 except Exception:

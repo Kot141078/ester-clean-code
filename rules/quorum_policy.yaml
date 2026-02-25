@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# rules/quorum_policy.yaml — politika kvoruma dlya high-impact deystviy.
+# rules/corum_police.yaml - quorum policy for high impact actions.
 
 required:
   - match: "scheduler.cancel"
@@ -14,5 +14,5 @@ required:
     min_approvals: 2
     allowed_roles: ["owner", "core"]
 
-# Vremya zhizni sessii kvoruma (sekundy)
+# Quorum session lifetime (seconds)
 ttl_sec: 900

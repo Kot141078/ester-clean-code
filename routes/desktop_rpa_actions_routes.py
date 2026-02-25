@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/desktop_rpa_actions_routes.py - «stsenarii deystviy» s profilem i dzhitterom.
+"""routes/desktop_rpa_actions_routes.py - “stsenarii deystviy” s profilem i dzhitterom.
 
 Ruchka:
   POST /desktop/rpa/act {
@@ -13,23 +12,22 @@ Ruchka:
     ]
   }
 
-Pravila:
+Rules:
 - move: plavno peremeschaet kursor (servernaya approksimatsiya → seriya click bez nazhatiya? net, ispolzuem tolko konechnyy click;
-        dlya vidimogo «vedeniya» kursora na khoste nuzhny agentnye api peremescheniya. Zdes delaem tolko itogovyy klik s pauzami.)
+        dlya vidimogo "vedeniya" kursora na khoste nuzhny agentnye api peremescheniya. Zdes delaem tolko itogovyy klik s pauzami.)
 - click: POST /desktop/rpa/click (s dzhitterom koordinat)
-- type:  POST /desktop/rpa/type (s ogranicheniem TPS)
+- type: POST /desktop/rpa/type (s limited TPS)
 - sleep: lokalnaya pauza
 
 MOSTY:
 - Yavnyy: (Profile ↔ Deystvie) skorostnye limity i pauzy primenyayutsya k lyubomu naboru shagov.
-- Skrytyy #1: (Infoteoriya ↔ Ekspluatatsiya) edinyy format stsenariev dlya «ucheby» i «igr».
+- Skrytyy #1: (Infoteoriya ↔ Ekspluatatsiya) edinyy format stsenariev dlya “ucheby” i “igr”.
 - Skrytyy #2: (Anatomiya ↔ OS) skorost i mikrodrozh imitiruyut realnoe vzaimodeystvie.
 
 ZEMNOY ABZATs:
-Daet Ester «polnyy kontrol» v cheloveko-ponyatnom tempe. Rabotaet oflayn cherez uzhe suschestvuyuschie ruchki.
+Daet Ester “polnyy kontrol” v cheloveko-ponyatnom tempe. Rabotaet oflayn cherez uzhe suschestvuyuschie ruchki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from typing import Any, Dict, List
@@ -60,7 +58,7 @@ def act():
     jitter_px = int(limits["jitter_px"])
     delay_ms = int(limits["delay_ms"])
     tps = float(limits["tps"])
-    # «schadyaschiy» interval mezhdu simvolami
+    # “gentle” spacing between characters
     per_char_ms = int(max(1.0/tps, 0.01)*1000)
 
     trace: List[Dict[str, Any]] = []
@@ -80,14 +78,14 @@ def act():
             continue
         if t == "type":
             text = str(st.get("text") or "")
-            # posimvolnaya otpravka - cherez uzhe suschestvuyuschiy /type (dopustimo kak tselnyy vvod)
-            # Zdes - tselnym blokom, no s dopolnitelnoy pauzoy, chtoby ne prevyshat TPS.
+            # character-by-character sending - through an already existing /type (acceptable as a solid input)
+            # Here - as a solid block, but with an additional pause so as not to exceed the TPS.
             res = _post("/desktop/rpa/type", {"text": text})
             trace.append({"type":"type","len":len(text),"res":res})
             time.sleep(max(0.0, per_char_ms*max(1,len(text))/1000.0))
             continue
         if t == "move":
-            # server ne dvigaet kursor bez klika - ostavlyaem kak «podgotovitelnuyu pauzu»
+            # the server does not move the cursor without a click - leave it as a “preparatory pause”
             time.sleep(max(0.0, delay_ms/1000.0))
             trace.append({"type":"move","note":"no-op on server"})
             continue

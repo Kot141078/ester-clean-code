@@ -1,6 +1,6 @@
 # Alerts
 - EsterHighErrorBurn — MWMB po error‑rate.
 - EsterLatencyP95High / P99 — prevyshenie poroga.
-- EsterBackupStale — bekap starshe 48 chasov.
+- EsterbackupStalje - backup older than 48 hours.
 
-**Kanaly**: Telegram (boevoy), Email (dezhurnyy yaschik). Povtor: 4h.
+**Channels**: Telegram (combat), Email (duty box). Repeat: 4x.

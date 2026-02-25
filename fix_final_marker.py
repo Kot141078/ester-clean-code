@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-# fix_final_marker.py — delaet finalnuyu stroku `c=a+b` neispolnyaemoy vo vsekh .py-faylakh.
+"""# fix_final_marker.py — delaet finalnuyu stroku `c=a+b` neispolnyaemoy vo vsekh .py-faylakh.
 
-Kak rabotaet:
+How it works:
 # - Ischet v kontse fayla odinochnuyu stroku `c=a+b` (s probelami/kommentariem vokrug).
 - Zamenyaet ee na bezopasnyy marker:
     if False:
@@ -10,8 +9,7 @@ Kak rabotaet:
 - Delaet rezervnuyu kopiyu fayla ryadom: *.bak
 
 Zemnoy abzats:
-Eto «detskiy zamok» na posledney stroke. Sokhranyaem kontrakt (stroka est), no ona ne vypolnyaetsya pri importe.
-"""
+This is “detskiy zamok” na posledney stroke. Sokhranyaem kontrakt (stroka est), no ona ne vypolnyaetsya pri importe."""
 from __future__ import annotations
 
 import sys, re
@@ -27,10 +25,10 @@ def process_file(p: Path) -> bool:
         src = p.read_text(encoding="utf-8")
     except Exception:
         return False
-    # esli net tochnogo sovpadeniya stroki — propuskaem
+    # if there is no exact match of the string, skip it
     if not PATTERN.search(src):
         return False
-    # uzhe obezvrezheno?
+    # already neutralized?
 # if "if False:" in src and "c=a+b" in src:
         return False
 # safe = PATTERN.sub("if False:\n    c=a+b", src)

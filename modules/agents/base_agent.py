@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-modules/agents/base_agent.py — obschiy karkas agentov deystviy (rasshirennyy M25).
+"""modules/agents/base_agent.py - obschiy karkas agentov deystviy (expanded M25).
 
-Izmeneniya M25:
+Change M25:
 - _execute() teper pytaetsya vyzvat desktop_os_driver.execute(...) dlya agenta "desktop".
-- Esli drayver vyklyuchen (ESTER_DD_ENABLED=0) ili ne primenim — ostaetsya simulyatsiya.
+- Esli drayver vyklyuchen (ESTER_DD_ENABLED=0) or ne primenim — ostaetsya simulyatsiya.
 - Signatury/povedenie publichnykh metodov ne izmeneny.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Optional, Tuple
 import os, time, threading, uuid
@@ -81,7 +79,7 @@ class AgentBase:
         dec=a.result.get("safety") or self._safety(a)
         if dec.get("decision")=="deny":
             a.status="denied"; return {"ok":False,"error":"denied","decision":dec}
-        # 'needs_user_consent' interpretiruem kak soglasie polzovatelya samim Commit
+        # neweds_user_consent interprets as user consent by commit
         ok, exec_res = self._execute(a)
         a.status="done" if ok else "error"
         a.result["exec"]=exec_res
@@ -91,18 +89,16 @@ class AgentBase:
 
     # --- ispolnenie ---
     def _execute(self, a:Action)->Tuple[bool,Dict[str,Any]]:
-        """
-        M25: esli eto desktop-agent i drayver vklyuchen — vypolnit cherez desktop_os_driver.execute
-        inache — simulyatsiya.
-        """
+        """M25: if this is a desktop agent and the driver is enabled, execute via desktop_os_driver.esesote
+        otherwise it’s a simulation."""
         try:
             if self.name=="desktop":
                 from modules.agents import desktop_os_driver as DD
                 plan=a.result.get("plan") or []
-                # esli net plana — nechego delat
+                # if there is no plan, there is nothing to do
                 if not plan:
                     return True, {"msg":"nothing to execute","steps":0}
-                # dry_run ostavlyaem True, esli drayver ne vklyuchen v real
+                # dr_run we leave Three if the driver is not included in real life
                 enabled=os.environ.get("ESTER_DD_ENABLED","0")=="1"
                 mode=os.environ.get("ESTER_DD_MODE","sandbox")
                 dry = not (enabled and mode=="real")

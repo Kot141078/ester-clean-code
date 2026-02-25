@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-modules/overlay/observer_mode.py — «rezhim nablyudatelya»: myagkie podskazki i teplovaya podsvetka,
+"""modules/overlay/observer_mode.py - “rezhim nablyudatelya”: myagkie podskazki i teplovaya podsvetka,
 bez vypolneniya deystviy (read-only).
 
-Ideya:
+Ideaya:
 - Stroim kombinirovannuyu kartu (context + error) i vozvraschaem poluprozrachnyy RGBA-overley (base64).
-- enable/disable — sostoyanie v pamyati. Nikakikh «postoyannykh» khukov.
-- Otrisovka podskazok: goryachie zony (oshibki) — malinovaya maska; zony vnimaniya — zhelto-krasnaya.
-- Otdelno otdaem «hints» — massiv tekstovykh podskazok (kuda nazhat / chto proverit).
+- enable/disable - sostoyanie v pamyati. Nikakikh "postoyannykh" khukov.
+- Otrisovka podskazok: goryachie zony (oshibki) - malinovaya maska; zony vnimaniya - zhelto-krasnaya.
+- Otdelno otdaem “hints” - mass tekstovykh podskazok (kuda nazhat / chto proverit).
 
 API:
 - build_overlay(n_ctx=200, n_err=300) -> {png_b64, hints[]}
@@ -16,13 +15,12 @@ API:
 MOSTY:
 - Yavnyy: (Memory ↔ Vnimanie) podskazyvaem, no ne vmeshivaemsya (volya polzovatelya pervichna).
 - Skrytyy #1: (Infoteoriya ↔ UX) vizualnoe summirovanie konteksta i oshibok.
-- Skrytyy #2: (Kibernetika ↔ Bezopasnost) nulevoy pobochnyy effekt — tolko podsvetka.
+- Skrytyy #2: (Kibernetika ↔ Bezopasnost) nullevoy pobochnyy effekt — only podsvetka.
 
 ZEMNOY ABZATs:
-Offlayn RGBA bez vneshnikh bibliotek. Vneshniy mir vidit tolko PNG base64 i «vkl/vykl».
+Offlayn RGBA bez vneshnikh bibliotek. Vneshniy mir vidit tolko PNG base64 i “vkl/vykl”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import http.client, json, base64, math, zlib, struct
@@ -52,7 +50,7 @@ def _list_points_from_journal(n: int, kinds: List[str]) -> List[Dict[str,int]]:
     return pts
 
 def _paint(w: int, h: int, pts: List[Dict[str,int]], radius: int, color: str) -> List[int]:
-    # vozvraschaet akkumulyator znacheniy (0..1) dlya odnogo sloya
+    # returns an accumulator of values ​​(0..1) for one layer
     field = [0.0]*(w*h); r2 = radius*radius
     for p in pts:
         x0 = max(0, min(w-1, int(p.get("x",0)))); y0 = max(0, min(h-1, int(p.get("y",0))))
@@ -73,10 +71,10 @@ def _compose(w: int, h: int, ctx: List[float], err: List[float]) -> bytes:
         for x in range(w):
             i = y*w+x
             c = ctx[i]; e = err[i]
-            # Smeshivanie: kontekst — zhelto-krasnyy, oshibki — malinovo-fioletovyy poverkh
-            r = int(255*max(c*0.8, e))           # krasnyy usilen oshibkami
-            g = int(200*c)                        # zelenyy — tolko kontekst
-            b = int(150*e)                        # siniy — tolko oshibki
+            # Blending: context - yellow-red, errors - crimson-purple on top
+            r = int(255*max(c*0.8, e))           # red is enhanced by errors
+            g = int(200*c)                        # green - context only
+            b = int(150*e)                        # blue - only errors
             a = int(180*min(1.0, c+e*1.2))        # alfa — kombinirovannaya
             row += bytes([r,g,b,a])
         rows.append(bytes(row))
@@ -95,9 +93,9 @@ def build_overlay(n_ctx: int = 200, n_err: int = 300) -> Dict[str, Any]:
     b64 = base64.b64encode(png).decode("ascii")
     hints = []
     if err_pts:
-        hints.append("Izbegay krasnykh pyaten: tam chasche promakhi raspoznavaniya.")
+        hints.append("Avoid red spots: there are more recognition failures there.")
     if ctx_pts:
-        hints.append("Zheltye oblasti — nedavnie tseli vnimaniya; nachni s nikh.")
+        hints.append("Yellow areas are recent attention targets; start with them.")
     _state["last_overlay"] = b64
     _state["hints"] = hints
     return {"ok": True, "png_b64": b64, "hints": hints, "w": w, "h": h}

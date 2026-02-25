@@ -42,7 +42,7 @@
     <div class="row">
       <button onclick="status()">Status</button>
       <button onclick="testsend()">Test-otpravka</button>
-      <button onclick="poll()">Poll vkhodyaschie</button>
+      <button onclick="poll()">Poll inbox</button>
       <span id="q" class="chip muted">—</span>
     </div>
     <pre id="out">—</pre>
@@ -51,7 +51,7 @@
   <section>
     <h3>Marshrutizatsiya (allow-list)</h3>
     <div class="row">
-      <button onclick="addCurrent()">Dobavit tekuschiy Chat ID</button>
+      <button onclick="addCurrent()">Add current Chat ID</button>
       <input id="dest" class="mono" placeholder="telegram:-1001234567890" style="width:320px"/>
       <button onclick="add()">Dobavit</button>
     </div>
@@ -68,7 +68,7 @@
     </div>
     <pre id="m_out">—</pre>
     <div class="row" style="margin-top:8px">
-      <label style="flex:1"><span>Vstav JSON dlya importa</span><textarea id="m_in" class="mono" placeholder='{"type":"...","payload":{...}}'></textarea></label>
+      <label style="flex:1"><span>Inserting JSION for import</span><textarea id="m_in" class="mono" placeholder='{"type":"...","payload":{...}}'></textarea></label>
       <button onclick="m_import()">Importirovat</button>
     </div>
     <pre id="m_log">—</pre>

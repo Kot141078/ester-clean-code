@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/game_profiles_routes.py - upravlenie profilnym slovarem igr/prilozheniy.
+"""routes/game_profiles_routes.py - upravlenie profilnym slovarem igr/prilozheniy.
 
 Ruchki:
-  GET  /games/profiles/list                -> {ok, profiles}
+  GET /games/profiles/list -> {ok, profiles}
   POST /games/profiles/install {"name":..} -> {ok}
-  POST /games/profiles/bind    {"title":"Diablo","profile":"FPS_basic"} -> {ok}
+  POST /games/profiles/bind {"title":"Diablo","profile":"FPS_basic"} -> {ok}
   POST /games/profiles/apply_hotkeys {"title":"Diablo"} -> poslat nabor khotkeev v tselevoe okno (po privyazke)
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from typing import Any, Dict

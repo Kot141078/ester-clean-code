@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/llm_broker_routes.py - REST: broker LLM (LM Studio / OpenAI-sovmestimye / Gemini).
+"""routes/llm_broker_routes.py - REST: broker LLM (LM Studio / OpenAI-sovmestimye / Gemini).
 
 Mosty:
 - Yavnyy: (Veb ↔ Myshlenie) edinyy endpoint dlya zaversheniy.
 - Skrytyy #1: (Ekonomika ↔ CostFence) vneshnie modeli mozhno otsenivat i ogranichivat.
-- Skrytyy #2: (Avtonomiya ↔ Volya) «volya» vybiraet provaydera iskhodya iz zadach.
+- Skrytyy #2: (Avtonomiya ↔ Volya) “volya” vybiraet provaydera iskhodya iz zadach.
 
 Zemnoy abzats:
 Odin API - mnogo dvizhkov. Lokalno bystro, v oblake - po mere neobkhodimosti.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

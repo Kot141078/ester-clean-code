@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_garage.py — eksheny «voli» dlya Laboratorii-Garazha.
+"""modules/thinking/actions_garage.py - eksheny “voli” dlya Laboratorii-Garazha.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Garazh) korotkie komandy na ves tsikl: skanirovat/import→otsenka→offer→skelet→schet→portfolio→flot.
 - Skrytyy #1: (RBAC/Politiki) uvazhaet obschuyu sistemu roley cherez REST ili lokalno.
 - Skrytyy #2: (Memory ↔ Profile) modulnye operatsii uzhe logiruyutsya.
-- Skrytyy #3: (Ekonomika ↔ CostFence) legkie deystviya stoyat deshevo; tyazhelye — luchshe vyzyvat pod pilyuley cherez REST.
+- Skrytyy #3: (Ekonomika ↔ CostFence) legkie deystviya stoyat deshevo; tyazhelye - luchshe vyzyvat pod pillyuley cherez REST.
 
 Zemnoy abzats:
-Mozg otdaet prikazy — «vozmi zayavku, otseni, predlozhi, soberi karkas, vypishi schet, razday zadachi» — i konveyer rabotaet. Dali Ester udochku: vidit rabotu — gotovit zayavku — pokazyvaet lending — vystavlyaet schet, vse s fallback dlya resilience.
+Mozg otdaet prikazy - “vozmi zayavku, otseni, predlozhi, soberi karkas, vypishi schet, razday zadachi” - i konveyer rabotaet. Dali Ester udochku: vidit rabotu - gotovit zayavku - pokazyvaet lending - vystavlyaet schet, vse s fallback dlya resilience.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -37,7 +35,7 @@ def _reg():
         except Exception as e:
             return {"ok": False, "error": f"server_down: {str(e)}"}
 
-    # Lokalnye deystviya (iz pervogo)
+    # Local actions (from the first)
     def a_scan(args: Dict[str, Any]):
         from modules.garage.jobs import scan
         return scan()
@@ -64,7 +62,7 @@ def _reg():
         return make_invoice(dict(args.get("sender") or {}), dict(args.get("client") or {}), list(args.get("items") or []), str(args.get("currency", "EUR")), bool(args.get("make_pain001", False)), str(args.get("end_to_end", "")), str(args.get("purpose", "")))
     register("garage.invoice.draft", {"sender": "dict", "client": "dict", "items": "list"}, {"ok": "bool"}, 8, a_invoice_local)
 
-    # REST-deystviya (iz vtorogo, s fallback gde vozmozhno)
+    # REST actions (from the second, with false ones where possible)
     def a_import(args: Dict[str, Any]): return _post("/garage/job/import", dict(args or {}))
     register("garage.job.import", {"id": "str"}, {"ok": "bool"}, 1, a_import)
 
@@ -95,7 +93,7 @@ def _reg():
     def a_fleet(args: Dict[str, Any]): return _post("/garage/fleet/assign", {"tasks": list(args.get("tasks") or []), "peers": list(args.get("peers") or [])})
     register("garage.fleet.assign", {"tasks": "list", "peers": "list"}, {"ok": "bool"}, 4, a_fleet)
 
-    # Novoe rasshirenie: spisok jobs dlya monitoringa
+    # New extension: EBS list for monitoring
     def a_jobs_list(args: Dict[str, Any]):
         try:
             with urllib.request.urlopen(GARAGE_URL + "/garage/jobs/list", timeout=20) as r:

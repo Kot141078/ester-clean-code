@@ -14,7 +14,7 @@ class AgentProfile:
 PROFILES: Dict[str, AgentProfile] = {
     "director": AgentProfile(
         id="director",
-        mission="Marshrutizirovat zaprosy i sobirat otvet.",
+        mission="Route requests and collect response.",
         capabilities=["route", "plan", "merge_results", "rate_limit"],
         risk="medium",
     ),
@@ -32,13 +32,13 @@ PROFILES: Dict[str, AgentProfile] = {
     ),
     "messenger": AgentProfile(
         id="messenger",
-        mission="Otpravka soobscheniy po utverzhdennym kanalam/shablonam.",
+        mission="Sending messages via approved channels/templates.",
         capabilities=["compose", "queue_outbox"],
         risk="high",
     ),
     "maker_dev": AgentProfile(
         id="maker_dev",
-        mission="Chernoviki moduley + proverki (bez avtoprimeneniya).",
+        mission="Draft modules + checks (without auto-application).",
         capabilities=["draft", "test", "diff"],
         risk="high",
     ),
@@ -51,7 +51,7 @@ def run_agent(agent_id: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     if agent_id not in PROFILES:
         return {"ok": False, "error": "unknown_agent", "agent_id": agent_id}
 
-    # MVP: poka “zaglushka” — prosto ekho + profil.
+    # MVP: for now the “stub” is just an echo + profile.
     prof = PROFILES[agent_id]
     return {
         "ok": True,

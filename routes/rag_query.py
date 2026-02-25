@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/rag_query.py - endpoint RAG (coarse→fine) s keshem otvetov.
+"""routes/rag_query.py - endpoint RAG (coarse→fine) s keshem otvetov.
 
-Dobavleno:
+Added:
   • Lokalnyy kesh `AnswerCache` (klyuch - normalizovannyy zapros). Esli zapis svezhaya - otdaem mgnovenno.
   • TTL beretsya iz data/config.json → ANSWER_CACHE_TTL_HOURS (ili ENV).
 
-Kontrakt bez lomki: k otvetu dobavleny polya:
+Kontrakt bez lomki: k otvetu addavleny polya:
   "cached": true|false, "cache_ttl_h": <int>
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json, os, time
@@ -55,7 +53,7 @@ def rag_query_post() -> Response:
     if cache:
         cached = cache.get(q)
         if cached is not None:
-            # prikleim sluzhebnye polya i vernem
+            # glue the service fields and return it
             cached_out = dict(cached)
             cached_out["ok"] = True
             cached_out["query"] = q
@@ -81,7 +79,7 @@ def rag_query_post() -> Response:
         "coarse": coarse,
         "fine": fine,
     }
-    # sokhranim v kesh
+    # save to cache
     if cache:
         try:
             cache.put(q, resp, meta={"route": "rag_query"})
@@ -96,9 +94,9 @@ def rag_query_post() -> Response:
 
 @rag_bp.route("/query", methods=["GET"])
 def rag_query_form() -> Response:
-    # forma iz predyduschego paketa - bez izmeneniy, opuschena radi kratkosti
+    # form from previous package - unchanged, omitted for brevity
     html = """<!doctype html>
-<html lang="ru"><meta charset="utf-8"><title>RAG (L1→L2)</title>
+<html lang="en"><meta charset="utf-8"><title>RAG (L1→L2)</title>
 <style>body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;max-width:960px;margin:40px auto;padding:0 16px;}
 h1{font-size:20px;margin:0 0 12px} textarea{width:100%;height:80px} .btn{padding:8px 14px;border:1px solid #999;border-radius:8px;background:#f7f7f7;cursor:pointer}
 pre{white-space:pre-wrap;background:#f4f4f4;padding:12px;border-radius:8px} .sec{margin-top:18px} .hit{margin:8px 0;padding:10px;border:1px solid #e1e1e1;border-radius:8px}
@@ -106,8 +104,8 @@ pre{white-space:pre-wrap;background:#f4f4f4;padding:12px;border-radius:8px} .sec
 <h1>RAG (coarse → fine)</h1>
 <form onsubmit="return false;">
 <textarea id="q" placeholder="vvedite zapros..."></textarea><br><br>
-<label>TopK glav: <input id="k1" type="number" value="5" min="1" max="20"></label>&nbsp;&nbsp;
-<label>TopK chankov: <input id="k2" type="number" value="5" min="1" max="50"></label>&nbsp;&nbsp;
+<label>TopK glav: <input id="k1" type="number" value="5" min="1" max="20"></label>  
+<label>TopK chankov: <input id="k2" type="number" value="5" min="1" max="50"></label>  
 <button class="btn" onclick="go()">Iskat</button>
 </form>
 <div class="sec" id="out"></div>

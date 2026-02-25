@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/docs_routes.py — Swagger UI na /docs Re JSON speka na /openapi.json.
-Drop-in: otdelnyy blyuprint; podklyuchite v app.py:
+"""routes/docs_routes.py - Swagger UI na /docs Re JSON speka na /openapi.json.
+Drop-in: otdelnyy blueprint; podklyuchite v app.py:
     from routes.docs_routes import bp_docs
     app.register_blueprint(bp_docs)
 
-Povedenie /openapi.json:
+Povedenie/openapi.json:
 - Ischet spetsifikatsiyu po putyam (v poryadke prioriteta):
-    1) ENV OPENAPI_SPEC_PATH (esli zadan)
+    1) ENV OPENAPI_SPEC_PATH (as specified)
     2) docs/OpenAPI.yaml
     3) docs/openapi.yaml
     4) openapi.yaml
@@ -18,8 +17,7 @@ Povedenie /openapi.json:
     9) docs/openapi.json
 - Podderzhivaet YAML (cherez PyYAML) i JSON.
 - Bozvraschaet application/json, pretty-printed.
-- Esli spetsifikatsiya ne naydena ili ne parsitsya — daet ponyatnuyu JSON-oshibku.
-"""
+- Esli spetsifikatsiya ne naydena ili ne parsitsya — daet ponyatnuyu JSON-oshibku."""
 from __future__ import annotations
 
 import json
@@ -57,7 +55,7 @@ def openapi_json():
         data = _load_spec(spec_path)
     except (
         Exception
-    ) as e:  # noqa: BLE001 — khotim vernut ponyatnuyu oshibku polzovatelyu
+    ) as e:  # leg: BLE001 - we want to return a clear error to the user
         return (
             jsonify(
                 {
@@ -69,7 +67,7 @@ def openapi_json():
             500,
         )
 
-    # Otdaem kak JSON (pretty), soblyudaya UTF-8
+    # We give away as ZhSON (pretty), observing UTF-8
     body = json.dumps(data, ensure_ascii=False, indent=2)
     return Response(body, mimetype="application/json; charset=utf-8")
 
@@ -96,7 +94,7 @@ def _candidate_paths() -> List[str]:
             os.path.join("docs", "openapi.json"),
         ]
     )
-    # Uberem dublikaty, sokhraniv poryadok
+    # Remove duplicates while maintaining order
     seen = set()
     uniq: List[str] = []
     for p in candidates:
@@ -119,7 +117,7 @@ def _load_spec(path: str):
         raw = f.read()
 
     if ext in (".yaml", ".yml"):
-        # PyYAML obyazatelen dlya YAML; v proekte uzhe ispolzuetsya YAML v pravilakh/konfige.
+        # PiNML is required for YML; The project already uses YML in the rules/config.
         try:
             import yaml  # type: ignore
         except Exception as e:  # noqa: BLE001

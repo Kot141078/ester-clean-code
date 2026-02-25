@@ -31,7 +31,7 @@
     E('outTx').textContent = JSON.stringify(j,null,2);
   });
   E('btnExec').addEventListener('click', async ()=>{
-    if(!lastSha){ E('outTx').textContent = 'Net chernovika — snachala «Sdelat chernovik»'; return; }
+    if(!lastSha){ E('outTx').textContent = 'No draft - first “Make a draft”'; return; }
     const j = await POST('/agency/papa/support/execute',{sha:lastSha});
     E('outTx').textContent = JSON.stringify(j,null,2);
   });

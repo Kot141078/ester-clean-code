@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ester_net_ingest_url_routes_alias.py — ingest URL (fetch→text→markdown inbox).
+"""routes/ester_net_ingest_url_routes_alias.py — ingest URL (fetch→text→markdown inbox).
 
 YaVNYY MOST: c=a+b — chelovek daet URL (a), protsedura fetch/SSRF-guard/normalizatsiya/zapis (b) → ustoychivyy artefakt (c).
 SKRYTYE MOSTY:
@@ -8,8 +7,7 @@ SKRYTYE MOSTY:
   - Ashby: raznoobrazie istochnikov (WEB_PROVIDER) daet variety, no my rezhem risk (SSRF) i derzhim ramki.
 ZEMNOY ABZATs:
   Eto kak “vpustit vozdukh” cherez filtr i klapan: my ne otkryvaem vorota nastezh, a doziruem potok,
-  chistim ot musora i skladyvaem v “yaschik vkhodyaschikh”, chtoby pamyat ne zakhlebnulas.
-"""
+  chistim ot musora i skladyvaem v “yaschik vkhodyaschikh”, chtoby pamyat ne zakhlebnulas."""
 
 from __future__ import annotations
 

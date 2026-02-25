@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_hub.py — eksheny «voli» dlya Hub++.
+"""modules/thinking/actions_hub.py - eksheny “voli” dlya Hub++.
 
 Mosty:
-- Yavnyy: (Mysli ↔ Hub) knopki «otkryt panel» i «poluchit svodku».
+- Yavnyy: (Mysli ↔ Hub) knopki “otkryt panel” i “poluchit svodku”.
 - Skrytyy #1: (Passport ↔ Prozrachnost) vyzovy fiksiruyutsya bazovymi ruchkami.
 - Skrytyy #2: (Planner ↔ Avtonomiya) svodka mozhet triggerit pravila.
 
 Zemnoy abzats:
 Korotkie komandy: zaglyanut na schitovuyu i zabrat JSON-slepok sostoyaniya.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import urllib.request, json
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

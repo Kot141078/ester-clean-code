@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# E2E curl-skripty dlya «Ester» (sm. TZ §5)
+# E2E curl scripts for “Esther” (see TC §5)
 # Progonyaet skvoznye proverki: auth → health → ingest → chat → replication → backup → RBAC deny
 set -euo pipefail
 
@@ -7,7 +7,7 @@ BASE="${BASE:-http://127.0.0.1:8000}"
 UA="${UA:-ester-e2e}"
 IP="${IP:-127.0.0.1}"
 CSRF_SECRET="${CSRF_SECRET:-ester-dev-csrf-secret}"
-REPL_TOKEN_HEADER="${REPL_TOKEN_HEADER:-}" # esli nuzhno yavno peredavat token: eksportiruy REPL_TOKEN_HEADER="X-REPL-TOKEN: your_token"
+REPL_TOKEN_HEADER="${REPL_TOKEN_HEADER:-}" # if you need to explicitly transfer a token: export REPL_TOKEN_NEADER="C-REPL-TOKEN: legal_token"
 
 echo "== Ester E2E =="
 echo "BASE=$BASE"

@@ -1,9 +1,9 @@
-# Konfig proaktivnosti Ester (edinyy slovar verkhnego urovnya)
+# Esther proactivity config (single top-level dictionary)
 
 version: 1
 
 # ——————————————————————————————————————————
-# Semeynaya marshrutizatsiya (ispolzuetsya telegram_bot._family_route)
+# Family routing (uses telegram_here._family_route)
 # ——————————————————————————————————————————
 family_default_question: "Nuzhno utochnenie. Vse li ok?"
 family_routing:
@@ -37,7 +37,7 @@ morning_digest:
       howto: "Sdelay chto-to prostoe (frukty/yogurt/tost). Vernis s energiey."
 
 # ——————————————————————————————————————————
-# Vecherniy daydzhest po gruppam (ispolzuetsya group_evening.py)
+# Evening digest by groups (using group_evening.po)
 # ——————————————————————————————————————————
 evening_digest:
   hour_local: 20
@@ -71,7 +71,7 @@ rituals:
     Esli khotite — zapishem 1 malenkiy shag na zavtra.
 
 # ——————————————————————————————————————————
-# Myagkie proaktiv-triggery v lichke (esli kogda-to podklyuchish)
+# Soft proactive triggers in PM (if you ever connect)
 # ——————————————————————————————————————————
 personal_triggers:
   - trigger: "anxiety>=0.75"

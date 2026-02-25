@@ -9,7 +9,7 @@ import time
 import typing as t
 from dataclasses import asdict, dataclass
 
-# VAZhNO: headless-bekend, chtoby ne trebovalsya displey
+# Important: headless backend so no display is required
 import matplotlib
 
 matplotlib.use("Agg")
@@ -124,11 +124,9 @@ def _draw_plot(save_path: str, checks: list[CheckResult]) -> None:
 
 
 def main(payload: dict | None = None) -> dict:
-    """
-    Osnovnaya funktsiya validatora.
+    """Osnovnaya funktsiya validatora.
     Vkhod: payload (optsionalno) — mozhno peredat persist_dir, flagi i t.p.
-    Vykhod: podrobnyy otchet + put k sgenerirovannomu PNG-grafiku.
-    """
+    Vykhod: podrobnyy otchet + put k sgenerirovannomu PNG-grafiku."""
     payload = payload or {}
     pd = _persist_dir(payload)
     logs_dir = os.path.join(pd, "logs")

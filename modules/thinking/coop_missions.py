@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/coop_missions.py — kooperativnye missii veduschiy↔vedomyy.
+"""modules/thinking/coop_missions.py - kooperativnye missii veduschiy↔vedomyy.
 
-Naznachenie:
-- Derzhim komnatu kooperativa: host(leader), peers(list), tekuschaya missiya, indeks shaga.
+Name:
+- Derzhim komnatu kooperativa: host(leader), peers(list), tekuschaya missiya, indexes shaga.
 - Komandy: bind(peer), start(mission_id), next(), status()
 
 Transport:
@@ -12,13 +11,12 @@ Transport:
 MOSTY:
 - Yavnyy: (Volya ↔ Sinkhronizatsiya) odin plan shagaetsya sinkhronno na dvukh mashinakh.
 - Skrytyy #1: (Kibernetika ↔ Bezopasnost) yavnoe soglasie na domen "rpa.coop" uzhe vnedreno ranee.
-- Skrytyy #2: (Inzheneriya ↔ Memory) prostaya struktura komnaty — stabilnyy kontekst dlya sovmestnoy sessii.
+- Skrytyy #2: (Inzheneriya ↔ Memory) prostaya struktura komnaty - stabilnyy kontekst dlya sovmestnoy sessii.
 
 ZEMNOY ABZATs:
 Bez novykh demonov/servisov: odin fayl sostoyaniya v pamyati, HTTP-proxy vyzovy; missii berem iz uzhe suschestvuyuschikh marshrutov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

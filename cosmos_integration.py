@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-cosmos_integration.py — integratsiya s NVIDIA Cosmos (optsionalno).
-Esli Cosmos ili zavisimosti otsutstvuyut, modul ne padaet pri importe.
-"""
+"""cosmos_integration.po - integration with NVIDIA Cosmos (optional).
+If Space or dependencies are missing, the module does not crash upon import."""
 from __future__ import annotations
 
 import os
@@ -94,11 +92,11 @@ class CosmosIntegrator:
             sim_output = self.wfm.generate_video(sim_input)  # type: ignore
             sim_description = sim_output.description
         except Exception as e:
-            sim_description = f"Oshibka simulyatsii: {str(e)}"
+            sim_description = f"Simulation error: ZZF0Z"
 
         response = (
-            f"Ya chuvstvuyu tvoyu {user_emotion.get('emotion')}. "
-            f"V simulyatsii: {sim_description}. Kak pomoch dalshe?"
+            f"I feel your ZZF0Z."
+            f"In the simulation: ZZF0Z. How can I help further?"
         )
 
         encrypted_data = f"{user_input}|{sim_description}"
@@ -130,5 +128,5 @@ class CosmosIntegrator:
 
 if __name__ == "__main__":
     integrator = CosmosIntegrator()
-    query = "Ya ustal ot kodinga, smodeliruy robota-pomoschnika."
+    query = "I'm tired of coding, model a robot assistant."
     print(integrator.analyze_and_simulate(query))

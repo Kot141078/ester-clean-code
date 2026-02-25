@@ -1,14 +1,14 @@
 # Iter55: Publisher Roster + Multi-signer (2-of-3)
 
-## Chto reshaet Iter55
-- `publisher_roster.json` vvodit upravlyaemyy spisok doverennykh klyuchey publisher: `active`, `retired`, `revoked`, okna validnosti i rotatsiyu.
-- Bundle teper mozhet soderzhat neskolko podpisey `publisher_sigs` i politiku `publisher_policy` s porogom (`threshold/of`), naprimer `2-of-3`.
-- Auditor proveryaet ne tolko podpisi bundle, no i doverennost roster cherez trust anchor `roster-root`.
+## What Iter55 decides
+- epublisher_roster.jsonyo introduces a manageable list of trusted publisher keys: eaktivee, eretyredyo, erevokedyo, validity windows and rotation.
+- A bundle can now contain multiple epublisher_signature signatures and epublisher_police policy with a threshold (etnreshold/ofo), for example е2-of-3е.
+- The auditor checks not only the signatures of the Bundle, but also the Roster's power of attorney through Trust Anchor Yoroster-Roote.
 
 ## Trust Anchor
-- Roster podpisyvaetsya klyuchom `roster-root` (`ester.publisher.roster_sig.v1`).
-- Auditor dolzhen poluchit `roster-root` public key (`--pubkey-roster-root` ili `ESTER_ROSTER_ROOT_PUBKEY_PATH`).
-- Bez doverennogo `roster-root` enforce-rezhim schitaetsya nedoverennym i valitsya fail-closed.
+- The roaster is signed with the key yoester-rooto (yoester.publisher.roster_sig.v1yo).
+- The auditor must receive a yo-rooster-roote public key (yo--pubkeys-roster-roote or yoESTER_ROSTER_ROOT_PYUBKEY_PATNyo).
+- Without a trusted yoster root, the enforce mode is considered untrusted and the closed file crashes.
 
 ## Formaty
 - `manifest.publisher_sigs`: massiv podpisey formata Iter54 (`ester.l4w.publisher_sig.v1`).
@@ -34,7 +34,7 @@ python -B tools/export_audit_bundle.py `
   --json
 ```
 
-## Proverka bundle auditorom
+## Bundle audit by auditor
 ```powershell
 python -B tools/auditor_verify_bundle.py `
   --bundle <bundle_dir_or_zip> `
@@ -52,7 +52,7 @@ python -B tools/publisher_roster_manage.py revoke-key --roster <roster.json> --k
 python -B tools/publisher_roster_manage.py show --roster <roster.json>
 ```
 
-## Tipovye oshibki
+## Typical errors
 - `ROSTER_REQUIRED`
 - `ROSTER_ROOT_PUBKEY_REQUIRED`
 - `ROSTER_SIG_INVALID`
@@ -64,16 +64,16 @@ python -B tools/publisher_roster_manage.py show --roster <roster.json>
 - `LEGACY_SINGLE_SIG_NOT_ALLOWED`
 
 ## Troubleshooting
-- `ROSTER_SIG_INVALID`: proverit `roster-root` pubkey i podpis roster posle poslednego izmeneniya.
-- `ROSTER_KEY_REVOKED`: klyuch otozvan na moment `manifest.created_ts`; pereeksportirovat bundle aktualnymi klyuchami.
-- `MULTISIG_THRESHOLD_NOT_MET`: uvelichit chislo aktivnykh signer ili ponizit policy threshold (esli eto dopustimo politikoy).
+- YOROSTER_SIG_INVALIDE: check the Yoroster-roote bobkeys and roster signature after the last change.
+- yoROSTER_KEY_REVOKEDYO: the key was revoked at the time of yomanifest.created_tso; re-export the bundle with current keys.
+- EMULTISEG_THRESHOLD_NOT_METH: increase the number of active signers or lower the police threshold (if allowed by policy).
 
 ## Bridges
 - Explicit bridge (safety governance): roster + revoke + `2-of-3` ubirayut single-point-of-failure podpisi.
-- Hidden bridge #1 (infoteoriya): threshold-podpis snizhaet risk odinochnogo kanala oshibki.
-- Hidden bridge #2 (anatomiya/inzheneriya): eto rezervirovanie, gde odin otkaz ne lomaet ves kontur doveriya.
+- Hidden bridge #1 (info theory): three-hold signature reduces the risk of a single error channel.
+- Hidden Bridge #2 (Anatomy/Engineering): This is redundancy where one failure does not break the entire circuit of trust.
 
 ## Earth paragraph
-Eto kak dva klyucha ot seyfa (`2-of-3`): odin klyuch ukrali, no seyf vse ravno ne otkryt.  
-Roster — eto zhurnal dopuska: kto seychas v smene (`active`), kto vyveden (`retired`), kogo srochno otozvali (`revoked`).  
-Audit v itoge opiraetsya ne na obeschaniya, a na proveryaemye pravila, kotorye perezhivayut otdelnye mashiny i lyudey.
+It's like two keys to a safe (е2-of-3е): one key was stolen, but the safe still cannot be opened.
+The roster is a log of admissions: who is currently on shift (yoaktivee), who is withdrawn (yoryetyredyo), who has been urgently recalled (yerevkedyo).
+Auditing ultimately rests not on promises, but on verifiable rules that outlive individual machines and people.

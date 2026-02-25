@@ -1,23 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-modules/video/index/timeline_index.py — postroenie taymlaynovogo indeksa iz video dump + vektorizatsiya segmentov.
+"""modules/video/index/timeline_index.py - postroenie taymlaynovogo index iz video dump + vektorizatsiya segmentov.
 
-Chto delaet:
-  • build_index(dump_path, ...) → JSONL-indeks segmentov s taymkodami, metadannymi i registratsiey v vektornom sloe.
+What does it do:
+  • build_index(dump_path, ...) → JSONL-indexes segmentov s taymkodami, metadannymi i registratsiey v vektornom sloe.
   • list_dumps() → perechislenie rep_*.json i nalichie .index.jsonl.
   • qa_scope_filter(items, scope) → post-filtr rezultatov gibridnogo poiska po meta-tegu dump_id.
 
 A/B (bezopasnaya samo-redaktura):
   • A (defolt): regulyarnaya narezka po vremeni (VIDEO_INDEX_CHUNK_SEC) s perekrytiem (VIDEO_INDEX_OVERLAP_SEC),
-                opirayas na taymkody v subtitrakh (esli est), inache — na razmer/punktatsiyu.
+                opirayas na taymkody v subtitrakh (esli est), inache - na razmer/punktatsiyu.
   • B: evristicheskaya segmentatsiya po pauzam/punktuatsii/taymkodam (bolee krupnye smyslovye bloki), avto-otkat ne nuzhen,
        tak kak A i B vybirayutsya ENV i ne lomayut kontrakty.
 
-Fayly:
-  • data/video_ingest/rep_*.json         — iskhodnyy dump (sozdaet universal extractor).
-  • data/video_ingest/index/<dump_id>.index.jsonl — segmenty. Odin JSON v stroke:
+Faily:
+  • data/video_ingest/rep_*.json - iskhodnyy dump (sozdaet universal extractor).
+  • data/video_ingest/index/<dump_id>.index.jsonl - segmenty. Odin JSON v stroke:
       {"id","start","end","text","meta":{"src":{"url|path"},"dump_id","tags":[...]}}
-  • data/video_ingest/index/state.json   — schetchiki i sluzhebnye otmetki.
+  • data/video_ingest/index/state.json — schetchiki i sluzhebnye otmetki.
 
 Mosty:
 - Yavnyy: (Memory ↔ Poisk) formiruem edinitsy RAG po video dlya otveta na voprosy s privyazkoy ko vremeni.
@@ -25,10 +24,9 @@ Mosty:
 - Skrytyy #2: (Logika ↔ UX) segmenty soderzhat ssylku `url_ts`, chtoby srazu prygnut k mestu v video.
 
 Zemnoy abzats:
-Eto «narezchik batonov»: bolshoy rolik rezhem na lomtiki s metkami vremeni i kladem na polku — potom legko nayti nuzhnyy kusok.
+This is “narezchik batonov”: bolshoy rolik rezhem na lomtiki s metkami vremeni i kladem na polku - potom legko nayti nuzhnyy kusok.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -69,10 +67,8 @@ def _sec_to_hms(sec: float) -> str:
     return f"{hh:02d}:{mm:02d}:{s:06.3f}"
 
 def _iter_spans_from_text(text: str) -> List[Tuple[float, float, str]]:
-    """
-    Pytaemsya izvlech [start,end] iz markerov [[hh:mm:ss.mmm --> hh:mm:ss.mmm]].
-    Esli net, to vernem [(0, +inf, text)].
-    """
+    """We are trying to extract juststart,end from the markers yuyuh:mm:s.mmm --> xx:mm:s.mmmshsch.
+    If not, it will return yu(0, +inf, text)sch."""
     rows: List[Tuple[float, float, str]] = []
     if not text.strip():
         return rows
@@ -86,7 +82,7 @@ def _iter_spans_from_text(text: str) -> List[Tuple[float, float, str]]:
             rows.append((start, end, t))
     if rows:
         return rows
-    # fallback: bez taymkodov — sdelaem odin bolshoy blok
+    # fake: no timecodes - let's make one big block
     return [(0.0, 10 ** 9, text.strip())]
 
 def _merge_sentences(sentences: List[Tuple[float, float, str]], max_chars: int) -> List[Tuple[float, float, str]]:
@@ -107,12 +103,10 @@ def _merge_sentences(sentences: List[Tuple[float, float, str]], max_chars: int) 
     return out
 
 def _segments_A(spans: List[Tuple[float, float, str]]) -> List[Tuple[float, float, str]]:
-    """
-    A: rezhem na ravnye okna CHUNK_SEC s perekrytiem OVERLAP_SEC, ispolzuya realnye start/end esli est.
-    """
+    """A: we cut into equal windows CHUNK_SES with overlap OVERLAP_SEC, using real start/end if available."""
     if not spans:
         return []
-    # uploschaem v odin potok po vremeni
+    # flatten into one stream in time
     spans = sorted(spans, key=lambda x: (x[0], x[1]))
     t0 = spans[0][0]
     t1 = max([x[1] for x in spans])
@@ -132,10 +126,8 @@ def _segments_A(spans: List[Tuple[float, float, str]]) -> List[Tuple[float, floa
     return _merge_sentences(segments, MAX_CHARS)
 
 def _segments_B(spans: List[Tuple[float, float, str]]) -> List[Tuple[float, float, str]]:
-    """
-    B: evristicheskaya segmentatsiya po pauzam/punktuatsii.
-    - slivaem podryad iduschie stroki, poka ne vstretim «silnuyu» punktuatsiyu (".", "!", "?", "…") ili dlinnuyu pauzu (>15s).
-    """
+    """B: evristicheskaya segmentatsiya po pauzam/punktuatsii.
+    - slivaem podryad iduschie stroki, poka ne vstretim “silnuyu” punktuatsiyu (".", "!", "?", "…") ili dlinnuyu pauzu (>15s)."""
     if not spans:
         return []
     spans = sorted(spans, key=lambda x: (x[0], x[1]))

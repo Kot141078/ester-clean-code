@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-routes/provenance_network_routes.py — setevye ruchki dlya obmena «profileami znaniy» (provenance).
+"""routes/provenance_network_routes.py - setevye ruchki dlya obmena “profileami znaniy” (provenance).
 
-Endpointy:
-  • GET  /p2p/provenance/export?limit=N
-  • POST /p2p/provenance/announce   {"passports":[{sha256,len,source?,ts?},...]}
-  • POST /p2p/provenance/verify     {"passports":[{sha256,...}]}
+Endpoint:
+  • GET /p2p/provenance/export?limit=N
+  • POST /p2p/provenance/announce {"passports":[{sha256,len,source?,ts?},...]}
+  • POST /p2p/provenance/verify {"passports":[{sha256,...}]}
 
 Mosty:
 - Yavnyy: (Memory v†" Set) obyavlyaem szhatye metadannye znaniy bez peredachi soderzhimogo.
-- Skrytyy #1: (Infoteoriya v†" Nadezhnost) sveryaem sha256 pered obmenom — ne zaprashivaem lishnee.
+- Skrytyy #1: (Infoteoriya v†" Nadezhnost) sveryaem sha256 pered obmenom - ne zaprashivaem lishnee.
 - Skrytyy #2: (Kibernetika v†" Masshtab) batchi JSON bez vneshnikh zavisimostey.
 
 Zemnoy abzats:
 Eto kak spisok nakladnykh mezhdu skladami: soobschaem nomera korobok i sveryaemsya, nuzhno li voobsche vezti.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import glob

@@ -1,37 +1,35 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-modules/selfmanage/watchdog.py — nablyudenie i avto‑remont servisov.
+"""modules/selfmanage/watchdog.py - nablyudenie i avto‑remont servisov.
 
 Pochemu etot modul kritichen:
-- esli storozh ne rabotaet, lyuboy «tikhiy» sboy (upal vorker, zavisla BD, umer poller) prevraschaet sistemu v khrupkuyu korobku.
+- esli storozh ne rabotaet, lyuboy “tikhiy” sboy (upal vorker, zavisla BD, umer poller) prevraschaet sistemu v khrupkuyu korobku.
 
-Dizayn:
-- Service(name, check, restart) — registriruemye servisy;
-- Watchdog.tick() — odin prokhod (mozhno zvat vruchnuyu);
-- Watchdog.start() — fonovyy potok (podnimaetsya tolko yavno cherez start_watchdog()).
+Design:
+- Service(name, check, restart) — register service;
+- Watchdog.tick() - odin prokhod (mozhno zvat vruchnuyu);
+- Watchdog.start() - fonovyy potok (podnimaetsya tolko yavno cherez start_watchdog()).
 
 Nadezhnost:
 - check/restart obernuty: isklyucheniya ne valyat tsikl;
 - eksponentsialnyy backoff + nebolshoy jitter;
-- «kanareechnaya» pereproverka pered restartom;
+- “kanareechnaya” pereproverka pered restartom;
 - otchet poslednego tika dostupen cherez watchdog.last_report().
 
 ENV:
-- SELF_WATCH_ENABLE=1|0      (default=1)
+- SELF_WATCH_ENABLE=1|0 (default=1)
 - SELF_WATCH_INTERVAL_MS=1500
 - SELF_WATCH_BACKOFF_MAX_SEC=60
-- SELF_WATCH_DRYRUN=0|1      (default=0) — logiruem restart, no ne vypolnyaem (dlya bezopasnogo vvoda)
+- SELF_WATCH_DRYRUN=0|1 (default=0) — logiruem restart, no ne vypolnyaem (dlya bezopasnogo vvoda)
 
 MOSTY:
 - Yavnyy: kibernetika ↔ orkestratsiya protsessov (nablyudenie → reshenie → deystvie → nablyudenie).
 - Skrytyy #1: infoteoriya ↔ ustoychivost (my deystvuem po shumnym signalam, no cherez gisterezis/backoff).
-- Skrytyy #2: inzheneriya otkazoustoychivosti ↔ «audit trail» (posledniy otchet khranitsya i dostupen).
+- Skrytyy #2: inzheneriya otkazoustoychivosti ↔ “audit trail” (posledniy otchet khranitsya i dostupen).
 
 ZEMNOY ABZATs:
-Eto kak avtomat zaschity v schitke: on ne delaet dom umnee, no ne daet melkoy neispravnosti prevratitsya v pozhar.
-"""
+Eto kak avtomat zaschity v schitke: on ne delaet dom umnee, no ne daet melkoy neispravnosti prevratitsya v pozhar."""
 
 import os
 import random
@@ -88,18 +86,16 @@ class Service:
     check: CheckFn
     restart: RestartFn
     backoff: float = 1.5          # koeffitsient rosta
-    cooldown_sec: float = 2.0     # bazovyy interval mezhdu popytkami
+    cooldown_sec: float = 2.0     # basic retry interval
     max_backoff_sec: float = float(os.getenv("SELF_WATCH_BACKOFF_MAX_SEC", "60"))
 
 
 class Watchdog:
-    """
-    Watchdog ne «ugadyvaet», a delaet prostye veschi:
-    - proveryaet servis,
+    """Watchdog ne “ugadyvaet”, a delaet prostye veschi:
+    - proveryaet service,
     - pereproveryaet (kanareyka),
-    - esli plokho — restartuet,
-    - esli restart ne pomogaet — uvelichivaet pauzu (backoff).
-    """
+    - esli plokho - restartuet,
+    - esli restart ne pomogaet — uvelichivaet pauzu (backoff)."""
 
     def __init__(self, services: List[Service], interval_ms: Optional[int] = None, dry_run: Optional[bool] = None):
         self.services = list(services or [])
@@ -109,10 +105,10 @@ class Watchdog:
         self.dry_run = bool(int(os.getenv("SELF_WATCH_DRYRUN", "0"))) if dry_run is None else bool(dry_run)
 
         # name -> state
-        # next_at: kogda sleduyuschiy raz mozhno trogat servis
+        # next_at: when is the next time you can touch the service
         # cur_backoff: tekuschaya pauza backoff
-        # fails: podryad neuspekhov
-        # last_reason: tekst posledney oshibki
+        # files: consecutive failures
+        # last_reaction: last error text
         self.state: Dict[str, Dict[str, float | int | str]] = {}
 
         self._thread: Optional[threading.Thread] = None
@@ -167,13 +163,13 @@ class Watchdog:
             return False, f"restart_exc:{e}"
 
     def _jitter(self, base: float, frac: float = 0.12) -> float:
-        # nebolshoy dzhitter, chtoby vse servisy ne «schelkali» sinkhronno
+        # slight jitter so that all services do not “click” synchronously
         j = base * frac
         return max(0.0, base + random.uniform(-j, j))
 
     # ---- core ----
     def tick(self) -> List[HealthStatus]:
-        """Odin prokhod po vsem servisam; vozvraschaet statusy i sokhranyaet last_report()."""
+        """One pass through all services; returns statuses and saves last_report()."""
         report: List[HealthStatus] = []
         for s in list(self.services):
             now = time.time()
@@ -194,7 +190,7 @@ class Watchdog:
                 st["next_at"] = now + self._jitter(s.cooldown_sec)
                 continue
 
-            # 2) canary re-check (korotkaya pereproverka)
+            # 2) Canaries re-check (short recheck)
             self._stop.wait(0.05)
             hs2 = self._safe_check(s)
             report.append(hs2)
@@ -295,7 +291,7 @@ class Watchdog:
             pass
 
 
-# --------- gotovye servisy i zapusk ---------
+# --------- ready services and launch ---------
 
 def _check_db_service() -> HealthStatus:
     from modules.selfmanage.health import check_db  # type: ignore
@@ -303,7 +299,7 @@ def _check_db_service() -> HealthStatus:
 
 
 def _restart_db_service() -> bool:
-    # SQLite reconnect proizoydet lenivo; prosto "potrogaem" soedinenie
+    # SGLite reconnection will happen lazily; just “touch” the connection
     from modules.synergy.store import AssignmentStore  # type: ignore
     try:
         AssignmentStore.default().get_latest_plan("__health__")
@@ -318,7 +314,7 @@ def _check_internal_service() -> HealthStatus:
 
 
 def _restart_internal_service() -> bool:
-    # Peresozdadim vnutrennie keshi (poka — PlanCache)
+    # Let's rebuild the internal caches (for now - PlanKache)
     try:
         from modules.synergy.plan_cache import CACHE as C  # type: ignore
         C.put_plan("watchdog-reset", {"ok": True})
@@ -338,10 +334,8 @@ _WD: Optional[Watchdog] = None
 
 
 def start_watchdog(services: Optional[List[Service]] = None, interval_ms: Optional[int] = None) -> Optional[Watchdog]:
-    """
-    Yavno zapustit fonovyy watchdog (esli SELF_WATCH_ENABLE=1).
-    Esli watchdog uzhe sozdan, no potok umer/ostanovlen — podnimet snova.
-    """
+    """Explicitly launch background watchdog (if SELF_WACH_ENABLE=1).
+    If the watchdog has already been created, but the thread has died/stopped, it will pick it up again."""
     if os.getenv("SELF_WATCH_ENABLE", "1") != "1":
         return None
 
@@ -351,7 +345,7 @@ def start_watchdog(services: Optional[List[Service]] = None, interval_ms: Option
         _WD.start()
         return _WD
 
-    # uzhe est: obnovim interval, esli prosyat
+    # already available: we will update the interval if requested
     if interval_ms is not None:
         try:
             _WD.interval_ms = max(250, int(interval_ms))

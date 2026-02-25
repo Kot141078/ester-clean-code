@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-restore_from_dump.py
+"""restore_from_dump.py
 
 Vosstanavlivaet proekt iz chastey (Ester_dump_part_*.txt) po manifestu ester_manifest.json.
 Sozdaet fayly/katalogi zanovo, dekodiruet binarniki iz base64.
@@ -11,10 +10,10 @@ Zapusk (primer):
     python restore_from_dump.py --out "D:\ester-project_restored"
 
 Optsii:
-  --manifest PATH      put k ester_manifest.json (po umolchaniyu ./ester_manifest.json)
-  --parts-dir DIR      gde lezhat Ester_dump_part_*.txt (po umolchaniyu ryadom s manifest)
-  --verify-only        tolko proverka SHA256 (bez raspakovki)
-  --strict             pri otsutstvii chasti/fayla — schitat oshibkoy (i vernut nenulevoy kod)
+  --manifest PATH put k ester_manifest.json (po umolchaniyu ./ester_manifest.json)
+  --parts-dir DIR where lezhat Ester_dump_part_*.txt (po umolchaniyu ryadom s manifest)
+  --verify-only tolko proverka SHA256 (bez raspakovki)
+  --strict pri otsutstvii chasti/fayla — schitat oshibkoy (i vernut nenulevoy kod)
 
 Mosty:
 - Yavnyy: manifest (struktura) → vosstanovlenie faylov (realnost).
@@ -22,8 +21,7 @@ Mosty:
   1) Infoteoriya ↔ nadezhnost: verify (SHA256) = proverka tselostnosti kanala.
   2) Inzheneriya ↔ ekspluatatsiya: potokovyy razbor chastey → ne derzhim gigabayty v pamyati.
 
-ZEMNOY ABZATs: vnizu fayla.
-"""
+ZEMNOY ABZATs: vnizu fayla."""
 
 import argparse
 import base64
@@ -71,7 +69,7 @@ def _resolve_parts_dir(manifest_path: Path, parts_dir: Optional[str]) -> Path:
 
 
 def _iter_part_lines(part_path: Path) -> Iterable[str]:
-    # Vazhno: stream (ne readlines), chtoby ne gruzit pamyat.
+    # Important: stream (not redlines), so as not to load memory.
     with part_path.open("r", encoding="utf-8") as pf:
         for line in pf:
             yield line.rstrip("\n")
@@ -98,7 +96,7 @@ def _restore_one_part(
             continue
 
         relpath = m.group(1).strip()
-        # esli u nas est whitelist i fayl ne nuzhen — propuskaem blok do END
+        # if we have a vnitlist and the file is not needed, we skip the block to the END
         need = True
         if wanted_relpaths is not None:
             need = relpath in wanted_relpaths
@@ -153,7 +151,7 @@ def _restore_one_part(
 
 
 def verify_sha256(out_root: Path, manifest: Dict, *, strict: bool) -> int:
-    print("[CHK] Proveryayu SHA256...")
+    print("YuHKshch I'm checking SHA256...")
     bad = 0
     entries = manifest.get("entries") or []
     for e in entries:
@@ -178,16 +176,16 @@ def verify_sha256(out_root: Path, manifest: Dict, *, strict: bool) -> int:
             bad += 1
 
     if bad == 0:
-        print("[OK] Vosstanovlenie zaversheno bez raskhozhdeniy po khesham")
+        print("yOKshch Recovery completed without hash discrepancies")
     else:
-        print(f"[WARN] Nesovpadeniy/oshibok: {bad}")
+        print(f"YuVARNsch Mismatches/errors: ZZF0Z")
     return bad
 
 
 def restore(out_root: Path, manifest_path: Path, parts_dir: Path, *, strict: bool) -> None:
     manifest = _load_manifest(manifest_path)
 
-    # parts: spisok imen faylov chastey (kak v manifeste)
+    # parts: list of parts file names (as in manifest)
     parts = [p.get("name") for p in (manifest.get("parts") or [])]
     parts = [x for x in parts if isinstance(x, str) and x.strip()]
     part_map: Dict[int, str] = {i + 1: parts[i] for i in range(len(parts))}
@@ -206,7 +204,7 @@ def restore(out_root: Path, manifest_path: Path, parts_dir: Path, *, strict: boo
     for part_idx, items in sorted(entries_by_part.items()):
         part_name = part_map.get(part_idx)
         if not part_name:
-            msg = f"[WARN] Net imeni fayla chasti dlya indeksa {part_idx}"
+            msg = f"YuVARNsch No part file name for index ZZF0Z"
             if strict:
                 raise RuntimeError(msg)
             print(msg)
@@ -238,9 +236,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     ap = argparse.ArgumentParser(description="Vosstanovlenie proekta iz Ester_dump_part_*.txt")
     ap.add_argument("--out", required=True, help="Kuda razvernut vosstanovlennyy proekt")
     ap.add_argument("--manifest", default=MANIFEST_DEFAULT, help="Put k ester_manifest.json (po umolchaniyu ./ester_manifest.json)")
-    ap.add_argument("--parts-dir", default="", help="Papka s Ester_dump_part_*.txt (po umolchaniyu ryadom s manifest)")
-    ap.add_argument("--verify-only", action="store_true", help="Tolko proverka SHA256 (bez raspakovki)")
-    ap.add_argument("--strict", action="store_true", help="Schitat otsutstviya/oshibki fatalnymi (nenulevoy kod)")
+    ap.add_argument("--parts-dir", default="", help="Folder with Esther_dump_part_*.txt (next to manifest by default)")
+    ap.add_argument("--verify-only", action="store_true", help="Only checking ША256 (without unpacking)")
+    ap.add_argument("--strict", action="store_true", help="Treat missing/errors as fatal (non-zero code)")
 
     args = ap.parse_args(argv)
 
@@ -274,9 +272,7 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Vosstanovlenie iz dampa — eto kak sobrat organizm po tkanyam i sverit DNK.
-Sami fayly — «plot», manifest — «skhema sborki», a SHA256 — kontrol, chto nichego ne podmenili i ne porvali po doroge.
-Esli kontrol propustit — mozhno poluchit “pokhozhiy” proekt, no s polomannymi nervami.
-"""
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Vosstanovlenie iz dampa - eto kak sobrat organizm po tkanyam i sverit DNK.
+Sami fayly - “plot”, manifest - “skhema sborki”, and SHA256 - kontrol, what nichego ne podmenili i ne porvali po doroge.
+Esli kontrol propustit - mozhno poluchit “pokhozhiy” project, no s polomannymi nervami."""

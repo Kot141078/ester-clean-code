@@ -1,16 +1,14 @@
 # scripts/install_rules_triggers.py
 # -*- coding: utf-8 -*-
-"""
-scripts/install_rules_triggers.py — ustanovka triggerov dlya YAML-avtomatizatsiy.
+"""scripts/install_rules_triggers.py - ustanovka triggerov dlya YAML-avtomatizatsiy.
 
 Zapusk:
   python scripts/install_rules_triggers.py
 
-Deystvie:
+Action:
   - chitaet YAML iz standartnykh putey (rule_engine.load_rules)
-  - registriruet zadachi planirovschika po vsem automations (install_automation_triggers)
-  - pechataet kratkiy otchet JSON v STDOUT
-"""
+  - register zadachi planirovschika po vsem automations (install_automation_triggers)
+  - pechataet kratkiy otchet JSON v STDOUT"""
 from __future__ import annotations
 
 import json

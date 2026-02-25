@@ -16,7 +16,7 @@ def test_ingest_415_unsupported_media_type(client, auth_hdr_user):
 
 
 def test_ingest_413_too_large(client, auth_hdr_user, monkeypatch):
-    # umenshim limit do 1 MB na vremya testa
+    # reduce the limit to 1 MB for the duration of the test
     import routes_upload
 
     monkeypatch.setattr(routes_upload, "MAX_MB", 1, raising=False)

@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-Admin Acceptance - finalnaya priemka (UI).
+"""Admin Acceptance - final acceptance (UI).
 
 Most (yavnyy):
-- (Kibernetika ↔ Kontrol) Knopka «Snyat snapshot» i vidimyy rezhim A/B.
+- (Kibernetika ↔ Kontrol) Knopka “Snyat snapshot” i vidimyy rezhim A/B.
 
 Mosty (skrytye):
 - (Infoteoriya ↔ Ekonomika) Otchet v kanonichnom JSON oblegchaet obmen i arkhivirovanie.
-- (Logika ↔ UX) Chek-list na odnoy stranitse fokusiruet vnimanie na klyuchevykh stsenariyakh.
+- (Logika ↔ UX) Check-list na odnoy stranitse fokusiruet vnimanie na klyuchevykh stsenariyakh.
 
 Zemnoy abzats:
-Stranitsa pokazyvaet chek-list priemki i zapuskaet sbor itogovogo snapshota.
+Stranitsa pokazyvaet check-list priemki i zapuskaet sbor itogovogo snapshota.
 V A - tolko prevyu na ekrane, v B - zapis fayla `ESTER/reports/final_compliance.json`.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -39,7 +37,7 @@ def page():
 
 @bp.post("/snapshot")
 def api_snapshot():
-    # Esli AB=B - proizoydet zapis; inache vernem prevyu
+    # If AB=B, a recording will occur; otherwise we'll return the preview
     res = gather_and_maybe_write()
     return jsonify(res)
 

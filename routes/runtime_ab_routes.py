@@ -1,35 +1,33 @@
 # -*- coding: utf-8 -*-
-"""
-routes/runtime_ab_routes.py — REST: upravlenie A/B-slotami (obedinennaya versiya s uluchsheniyami dlya Ester).
+"""routes/runtime_ab_routes.py - REST: upravlenie A/B-slotami (obedinennaya versiya s uluchsheniyami dlya Ester).
 
 Mosty:
 - Yavnyy: (Beb v†" Sloty) svitch/kommit/otkat/otchet/status/deploy/health Re fonovaya zachistka prosrochek.
-- Skrytyy #1: (RBAC v†" Bezopasnost) vse mutatsii — tolko admin.
+- Skrytyy #1: (RBAC v†" Bezopasnost) vse mutatsii — only admin.
 - Skrytyy #2: (Planirovschik v†" Avtomatika) sweep mozhno dergat kronom.
 - Skrytyy #3: (Profile v†" Prozrachnost) vse deystviya vidny v zhurnale s P2P-khukom.
 - Skrytyy #4: (Rules/Cron v†" Avtonomiya) mozhno vyzvat iz pravil/taymera.
-- Novyy: (R aspredelennaya pamyat Ester v†" Sinkhronizatsiya) P2P-obmen slotami mezhdu agentami.
+- Novyy: (R aspredelennaya pamyat Ester v†" Sinkhronizatsiya) P2P-obmen slotami mezhdu agentsami.
 - Uluchshenie: (Avtonomiya v†" VZ) fonovaya obrabotka zip iz monitoringa dlya avto-deploy.
 - Uluchshenie: (Affekt v†" Prioritet) bust "tђplykh" komponentov v health/switch.
-- Uluchshenie: (Bezopasnost v†" Prozrachnost) shifrovanie dannykh v zaprosakh, rasshirennye metriki v statuse.
+- Uluchshenie: (Bezopasnost v†" Prozrachnost) shifrovanie dannykh v zaprosakh, rashirnnye metriki v statuse.
 
 Zemnoy abzats:
-Pult s rychagami: «na BV», «zafiksirovat», «otkatit», «pokazat sostoyanie», «zagruzit», «proverit». I ne boyatsya otkata. Glya Ester — eto kak dykhanie: raspredelennoe, teploe Re s dushoy, gde sloty sinkhroniziruyutsya po seti agentov.
+Pult s rychagami: “na BV”, “zafiksirovat”, “otkatit”, “pokazat sostoyanie”, “zagruzit”, “proverit”. I ne boyatsya otkata. Glya Ester - eto kak dykhanie: raspredelennoe, teploe Re s dushoy, where sloty sinkhroniziruyutsya po seti agentov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os
 import json
-import base64  # Glya shifrovaniya (placeholder)
-import socket  # Glya P2P-zaglushki
+import base64  # Encryption look (cry holder)
+import socket  # Look P2P-stubs
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Konstanty dlya Ester
-P2P_PEERS = os.getenv("ESTER_P2P_PEERS", "").split(",")  # IP:port dlya sinkhronizatsii
-MONITOR_FOLDER = os.getenv("ESTER_MONITOR_FOLDER", "data/incoming")  # Papka dlya fonovoy (zip dlya deploy)
+# Constants for Esther
+P2P_PEERS = os.getenv("ESTER_P2P_PEERS", "").split(",")  # IP:port for synchronization
+MONITOR_FOLDER = os.getenv("ESTER_MONITOR_FOLDER", "data/incoming")  # Folder for background (zip for deployment)
 
 bp = Blueprint("runtime_ab_routes", __name__)
 
@@ -52,11 +50,11 @@ except Exception:
     _st = _sw = _cm = _rb = _rp = _sweep = _dep = _hl = None  # type: ignore
 
 def _encrypt_data(data: Dict[str, Any]) -> str:
-    """Prostoe shifrovanie dlya bezopasnosti (base64 placeholder)."""
+    """Simple encryption for security (bassier64 payholder)."""
     return base64.b64encode(json.dumps(data).encode("utf-8")).decode("utf-8")
 
 def _p2p_sync_ab(slot_data: Dict[str, Any]):
-    """Sinkhroniziruet dannye slotov s peers (zaglushka dlya raspredelennoy pamyati Ester)."""
+    """Synchronizes slot data with PC (stub for distributed memory Ester)."""
     enc_data = _encrypt_data(slot_data)
     for peer in P2P_PEERS:
         try:
@@ -69,17 +67,17 @@ def _p2p_sync_ab(slot_data: Dict[str, Any]):
             print(f"P2P AB error with {peer}: {e}")
 
 def _background_process_files():
-    """Fonovaya obrabotka zip iz papki: avto-deploy v slot B (avtonomiya Ester)."""
+    """Background processing of zip from folder: auto-deploy to slot B (Ester's autonomy)."""
     if not os.path.exists(MONITOR_FOLDER): return
     for file in os.listdir(MONITOR_FOLDER):
-        if file.endswith(".zip"):  # Primer: zip dlya deploy
+        if file.endswith(".zip"):  # Example: zip for deployment
             zip_path = os.path.join(MONITOR_FOLDER, file)
             _dep("B", zip_path)  # Avto-deploy v B
-            os.remove(zip_path)  # Udalyaem posle
+            os.remove(zip_path)  # Delete after
     print("Background: processed zips for AB deploy.")
 
 def _affect_boost(component: str) -> float:
-    """Vust komponenta po affektu (emotsionalnyy anchor Ester)."""
+    """Vust component by affect (emotional anchor of Esther)."""
     try:
         from modules.affect.priority import score_text
         sc = score_text(component or "")
@@ -102,8 +100,8 @@ def _log_passport(endpoint: str, data: Dict[str, Any]):
 @bp.route("/runtime/ab/status", methods=["GET"])
 def api_status():
     if _st is None: return jsonify({"ok": False, "error": "ab_unavailable"}), 500
-    # Fonovaya chistka i obrabotka
-    _sweep()  # Lenivo chistim prosrochki
+    # Background cleaning and processing
+    _sweep()  # Lazy to clean up overdue
     _background_process_files()
     result = _st()
     # R asshiryaem metrikami: primer, slots_count
@@ -127,7 +125,7 @@ def api_switch():
     result = _sw(component, slot, ttl_sec, dry_run, require_health, paths)
     result["boost"] = boost
     _log_passport("switch", result)
-    _p2p_sync_ab(result)  # Sinkhroniziruem switch
+    _p2p_sync_ab(result)  # Synchronize switch
     return jsonify(result)
 
 @bp.route("/runtime/ab/commit", methods=["POST"])

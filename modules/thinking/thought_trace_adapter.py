@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/thought_trace_adapter.py — chelovekochitaemyy treys myshleniya Ester.
+"""modules/thinking/thought_trace_adapter.py — chelovekochitaemyy treys myshleniya Ester.
 
 Mosty:
 - Yavnyy: (cascade_closed / will_scheduler_adapter ↔ Memory/Log) —
   delaet iz syrykh struktur kaskada svyaznyy rasskaz o tom, kak Ester dumala.
-- Skrytyy #1: (Kaskad ↔ Chelovek) — vydaet ponyatnyy cheloveku narrativ shagov Think→Recall→Branch→Plan→Act→Reflect.
-- Skrytyy #2: (Kaskad / Volya ↔ Diagnostika) — pozvolyaet bystro uvidet, est li vetvlenie, refleksiya, konteksty.
+- Skrytyy #1: (Kaskad ↔ Chelovek) — vydaet ponyatnyy cheloveku narrative shagov Think→Recall→Branch→Plan→Act→Reflect.
+- Skrytyy #2: (Kaskad / Volya ↔ Diagnostika) - pozvolyaet bystro uvidet, est li vetvlenie, refleksiya, konteksty.
 
 A/B-slot:
     ESTER_TRACE_AB = "A" | "B"
-    A — legkiy rezhim: kratkiy treys bez lishnikh detaley.
-    B — rasshirennyy rezhim: bolee razvernutaya rasshifrovka.
+    A - legkiy rezhim: kratkiy treys bez lishnikh details.
+    B - rashirannyy rezhim: bolee razvernutaya rasshifrovka.
 
 Zemnoy abzats (inzhener):
     from modules.thinking import cascade_closed
     from modules.thinking import thought_trace_adapter as tta
 
-    c = cascade_closed.run_cascade("proverit treys")
+    c = cascade_closed.run_cascade("checkit treys")
     trace = tta.from_cascade_result(c)
     print(trace["text"])
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -135,17 +133,17 @@ def _format_text(info: Dict[str, Any]) -> str:
     parts.append(f"Tsel: {goal}")
     parts.append(f"Itog: {summary}")
 
-    path = " → ".join([s for s in stages if s]) or "net yavnogo kaskada"
+    path = " → ".join([s for s in stages if s]) or "no obvious cascade"
     parts.append(f"Put kaskada: {path}")
 
     if info["has_recall"]:
         rc = info.get("recall_count")
         if rc is not None:
-            parts.append(f"Ester obraschalas k pamyati: {rc} fragm.")
+            parts.append(f"Esther turned to memory: ZZF0Z fragm.")
         else:
-            parts.append("Ester obraschalas k pamyati.")
+            parts.append("Esther turned to memory.")
     else:
-        parts.append("Bez yavnogo obrascheniya k pamyati.")
+        parts.append("No explicit memory access.")
 
     if info["has_branch"]:
         if info["branches"]:
@@ -155,15 +153,15 @@ def _format_text(info: Dict[str, Any]) -> str:
             else:
                 parts.append("Byli rassmotreny alternativnye gipotezy.")
     else:
-        parts.append("Bez realnogo vetvleniya — reshenie pryamolineyno.")
+        parts.append("Without any real branching, the solution is straightforward.")
 
     if info["has_reflect"]:
-        parts.append("Byla stadiya refleksii: Ester otsenila svoi shagi i itog.")
+        parts.append("There was a stage of reflection: Esther assessed her steps and the outcome.")
     else:
-        parts.append("Refleksiya minimalna — mozhno initsiirovat dopolnitelnoe osmyslenie.")
+        parts.append("Reflection is minimal—additional reflection can be initiated.")
 
     if _TRACE_MODE == "B":
-        parts.append(f"Slozhnost myshleniya: {info['complexity']} ({info['quality']}).")
+        parts.append(f"Complexity of thinking: ZZF0Z (ZZF1ZZ).")
         if info["used_pipelines"]:
             parts.append("Zadeystvovany payplayny: " + ", ".join(info["used_pipelines"]))
 
@@ -171,7 +169,7 @@ def _format_text(info: Dict[str, Any]) -> str:
 
 
 def from_cascade_result(cascade: Dict[str, Any]) -> Dict[str, Any]:
-    """Postroit chelovekochitaemyy treys po rezultatu kaskada ili planirovschika."""
+    """Build a human-readable trace based on the result of a cascade or scheduler."""
     if not isinstance(cascade, dict):
         return {"ok": False, "error": "expected dict"}
 

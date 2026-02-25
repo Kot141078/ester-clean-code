@@ -6,18 +6,16 @@ import requests
 from modules.perception.extractors import extract_text
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Ssylka na lokalnoe yadro (Sudyu)
+# Link to local core (Judge)
 API_URL = "http://127.0.0.1:8080/chat/message"
 
-# Put k pamyati (dlya dublirovaniya logov, esli nuzhno)
+# Path to memory (for duplicating logs, if necessary)
 CLEAN_MEMORY_PATH = os.path.join(os.getcwd(), "data", "passport", "clean_memory.jsonl")
 
 def ingest_file(file_path: str, meta: dict) -> str:
-    """
-    1. Chitaet fayl (Extract).
-    2. Otpravlyaet Sude na osmyslenie (Refine).
-    3. Vozvraschaet otvet dlya polzovatelya.
-    """
+    """1. Reads the file (Extract).
+    2. Sends it to Suda for reflection (Refina).
+    3. Returns a response for the user."""
     filename = os.path.basename(file_path)
     print(f"[Perception] 👁️ Vizhu fayl: {filename}")
 
@@ -27,42 +25,42 @@ def ingest_file(file_path: str, meta: dict) -> str:
     print(f"[Perception] 📖 Prochitano simvolov: {char_count}")
 
     if char_count < 50:
-         return f"Fayl **{filename}** kazhetsya pustym ili nechitaemym.\nKontent: {raw_text}"
+         return f"The file **ZZF0Z** appears empty or unreadable.\nContent: ZZF1ZZ"
 
     # 2. REFINE (Myshlenie)
-    # Formiruem prompt dlya Sudi
+    # We create a prompt for the Judge
     prompt = (
         f"Ya zagruzil v tvoe soznanie fayl: '{filename}'.\n"
-        f"Ego soderzhimoe (nachalo):\n"
+        f"Its contents (beginning):"
         f"================================\n"
         f"{raw_text}\n"
         f"================================\n\n"
-        f"TVOYa ZADAChA:\n"
-        f"1. Izuchi etot dokument.\n"
-        f"2. Esli eto kod — obyasni, chto on delaet.\n"
-        f"3. Esli eto tekst — sdelay sammari (kratkuyu vyzhimku).\n"
-        f"4. Sokhrani klyuchevye fakty v pamyat.\n"
-        f"Otvet mne: o chem etot fayl i chem on polezen?"
+        f"Your Task:"
+        f"1. Study this document."
+        f"2. If it's code, explain what it does."
+        f"3. If this is a text, make a summary (short summary)."
+        f"4. Keep key facts in your memory."
+        f"Answer me: what is this file about and how is it useful?"
     )
 
     try:
-        # Otpravlyaem zapros yadru (ispolzuem mode='judge' dlya umnogo otveta)
+        # Send a request to the kernel (use mode=yudzhey for a smart response)
         response = requests.post(API_URL, json={
             "message": prompt,
-            "sid": "ingest_pipeline", # Spetsialnaya sessiya
+            "sid": "ingest_pipeline", # Special session
             "mode": "judge",
             "author": "SystemIngest"
         }, timeout=21600) # Tvoy novyy taymaut
 
         if response.status_code == 200:
             data = response.json()
-            analysis = data.get("reply", "Sudya promolchal.")
+            analysis = data.get("reply", "The judge remained silent.")
             provider = data.get("provider", "unknown")
             
-            # 3. SAVE EXPERIENCE (Yavnoe sokhranenie fakta chteniya)
+            # 3. SAVE EXPERIENCE (Explicitly saving the fact of reading)
             _save_experience(filename, analysis, meta)
             
-            return f"📂 **Fayl prochitan** ({char_count} simv.)\n🧠 Obrabotano: {provider}\n\n{analysis}"
+            return f"📂 **Fayl prochitan** ({char_count} simv.)\n🧠 Processed: {provider}\n\n{analysis}"
         else:
             return f"❌ Oshibka yadra pri analize: {response.status_code}"
 
@@ -70,7 +68,7 @@ def ingest_file(file_path: str, meta: dict) -> str:
         return f"❌ Kriticheskaya oshibka payplayna: {e}"
 
 def _save_experience(filename, analysis, meta):
-    """Pishet fakt 'Osmysleniya fayla' v chistuyu pamyat."""
+    """Writes the fact of Understanding the file to clean memory."""
     entry = {
         "ts": int(time.time()),
         "type": "experience_ingest",

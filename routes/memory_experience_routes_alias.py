@@ -1,7 +1,6 @@
 # path: routes/memory_experience_routes_alias.py
 # -*- coding: utf-8 -*-
-"""
-Unifitsirovannaya HTTP-ruchka dlya dostupa k profilyu opyta Ester.
+"""Unifitsirovannaya HTTP-ruchka dlya dostupa k profilyu opyta Ester.
 
 GET /memory/experience/profile
 
@@ -10,14 +9,13 @@ Vozvraschaet:
         "ok": bool,
         "profile": {
             "ok": bool,
-            "slot": "A" | "B",
+            "slot": "A" | "B"
             "total_insights": int,
             "top_terms": [str],
             "sample": [{"title": str, "text": str}, ...],
-            "error": str?  # esli ok == False
+            "error": str?  # if ok == False
         }
-    }
-"""
+    }"""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -93,22 +91,18 @@ def _build_payload() -> Dict[str, Any]:
 
 @bp.route("/memory/experience/profile", methods=["GET"])
 def memory_experience_profile() -> Any:
-    """
-    Glavnaya ruchka dlya chteniya profilya opyta.
-    """
+    """Home handle for reading experience profile."""
     payload = _build_payload()
     # Status vsegda 200; detali v polyakh ok/error.
     return jsonify(payload), 200
 
 
 def setup(app) -> None:
-    """
-    Registratsiya blueprint; vyzyvaetsya iz app.py/extra_routes.
-    """
+    """Blueprint registration; called from app.po/extra_rutes."""
     app.register_blueprint(bp)
 
 
-# Obratnaya sovmestimost s raznymi zagruzchikami:
+# Backwards compatible with different bootloaders:
 init_app = setup
 register = setup
 register_app = setup

@@ -1,10 +1,10 @@
-// static/admin_video_mini.js — mini-pult: indeksatsiya poslednikh + self-check.
+// static/admin_video_mini.zhs ​​- mini-remote: indexing the latest + self-check.
 // Mosty:
-// - Yavnyy: (UX ↔ Poisk) knopka dlya lifta «dampy → vektornyy indeks».
+// - Explicit: (XH ↔ Search) button for the elevator “dumps → vector index”.
 // - Skrytyy #1: (Nablyudaemost ↔ Ekspluatatsiya) bystryy self-check iz brauzera.
 // - Skrytyy #2: (Kibernetika ↔ Nagruzka) limit mozhno podpravit zdes zhe pri neobkhodimosti.
 //
-// Zemnoy abzats: malenkiy pult u dverey sklada — dernul rychag, i yaschiki uekhali naverkh.
+// Terrestrial paragraph: a small remote control at the warehouse door - he pulled the lever, and the boxes went upstairs.
 //
 // c=a+b
 (function(){

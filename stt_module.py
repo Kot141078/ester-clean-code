@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-STT (Speech-to-Text) modul dlya Ester cherez Whisper.
+"""STT (Speech-to-Text) modul dlya Ester cherez Whisper.
 
 YaVNYY MOST: c=a+b → golos polzovatelya (a) + protsedura raspoznavaniya (b) → tekst dlya Ester (c)
 
@@ -11,8 +10,7 @@ SKRYTYE MOSTY:
 
 ZEMNOY ABZATs:
   Kak ukho → mozg: zvukovye volny → ulitka → neyronnye impulsy → ponimanie.
-  Mikrofon → Whisper → tokeny → smysl.
-"""
+  Mikrofon → Whisper → tokeny → smysl."""
 
 import os
 import logging
@@ -36,20 +34,18 @@ class STTConfig:
     model_path: str = ""      # optional local model path for fully-offline init
     device: str = "cpu"       # cpu ili cuda
     compute_type: str = "int8"  # int8, float16, float32
-    language: str = "ru"      # yazyk raspoznavaniya
+    language: str = "ru"      # recognition language
     beam_size: int = 5        # tochnost vs skorost
     vad_filter: bool = True   # filtr pauz (Voice Activity Detection)
     allow_remote_init: bool = False  # allow model download on first init
 
 
 class STTEngine:
-    """
-    Dvizhok raspoznavaniya rechi cherez Whisper.
+    """Speech recognition engine via Vnisper.
     
-    Podderzhivaet:
-    - faster-whisper (bystryy, rekomenduetsya)
-    - openai-whisper (fallback)
-    """
+    Supports:
+    - faster-vnisper (fast, recommended)
+    - open-vnisper (falbatsk)"""
     
     def __init__(self, config: Optional[STTConfig] = None):
         self.config = config or STTConfig()
@@ -58,7 +54,7 @@ class STTEngine:
         self._init_engine()
     
     def _init_engine(self):
-        """Initsializatsiya dvizhka (probuet faster-whisper, zatem openai-whisper)."""
+        """Initializing the engine (try faster-vnisper, then open-vnisper)."""
         offline = _truthy(os.getenv("ESTER_OFFLINE", "1"), default=True)
         allow_outbound = _truthy(os.getenv("ESTER_ALLOW_OUTBOUND_NETWORK", "0"), default=False)
         allow_remote = bool(self.config.allow_remote_init or allow_outbound or (not offline))
@@ -112,17 +108,15 @@ class STTEngine:
         language: Optional[str] = None,
         **kwargs
     ) -> str:
-        """
-        Raspoznaet audio → tekst.
+        """Raspoznaet audio → tekst.
         
         Args:
             audio_path: put k audiofaylu (wav, mp3, m4a, ogg...)
             language: kod yazyka (po umolchaniyu iz config)
-            **kwargs: dopolnitelnye parametry (beam_size, temperature i t.d.)
+            **kwargs: additional parameter (beam_size, temperature i t.d.)
             
         Returns:
-            Raspoznannyy tekst
-        """
+            Raspoznannyy text"""
         if not self.model:
             raise RuntimeError("STT model ne zagruzhena")
         
@@ -162,7 +156,7 @@ class STTEngine:
         
         logger.info(
             f"STT: raspoznano {len(text_parts)} segmentov, "
-            f"yazyk={info.language} (veroyatnost={info.language_probability:.2f})"
+            f"language=ZZF0Z (probability=ZZF1ZZ)"
         )
         
         return result
@@ -185,14 +179,12 @@ class STTEngine:
         audio_path: str,
         language: Optional[str] = None
     ) -> List[Dict[str, Any]]:
-        """
-        Raspoznavanie s vremennymi metkami dlya kazhdogo segmenta.
+        """Recognition with timestamps for each segment.
         
         Returns:
-            [{"start": 0.0, "end": 2.5, "text": "Privet"}, ...]
-        """
+            YuZF0Z, ...sch"""
         if self.engine_type != "faster-whisper":
-            raise NotImplementedError("Timestamps dostupny tolko dlya faster-whisper")
+            raise NotImplementedError("Timestamps are only available for faster-vnisper")
         
         lang = language or self.config.language
         segments, _ = self.model.transcribe(
@@ -217,23 +209,19 @@ class STTEngine:
 # =============================================================================
 
 def quick_transcribe(audio_path: str, language: str = "ru") -> str:
-    """
-    Bystroe raspoznavanie bez sozdaniya obekta.
-    Dlya odnorazovogo ispolzovaniya.
-    """
+    """Fast recognition without object creation.
+    For single use."""
     engine = STTEngine(STTConfig(language=language))
     return engine.transcribe(audio_path)
 
 
-# Globalnyy ekzemplyar (lenivaya initsializatsiya)
+# Global instance (lazy initialization)
 _global_stt_engine: Optional[STTEngine] = None
 
 
 def get_stt_engine(config: Optional[STTConfig] = None) -> STTEngine:
-    """
-    Poluchit globalnyy STT dvizhok (singleton).
-    Pri pervom vyzove initsializiruetsya.
-    """
+    """Get the global STT engine (Singleton).
+    When called for the first time, it is initialized."""
     global _global_stt_engine
     
     if _global_stt_engine is None:
@@ -243,7 +231,7 @@ def get_stt_engine(config: Optional[STTConfig] = None) -> STTEngine:
 
 
 # =============================================================================
-# INTEGRATsIYa S TELEGRAM (optsionalno)
+# Integration WITH TELEGRAM (optional)
 # =============================================================================
 
 async def transcribe_telegram_voice(
@@ -251,8 +239,7 @@ async def transcribe_telegram_voice(
     voice_message,
     language: str = "ru"
 ) -> str:
-    """
-    Raspoznaet golosovoe soobschenie iz Telegram.
+    """Raspoznaet golosovoe soobschenie iz Telegram.
     
     Args:
         bot: ekzemplyar Telegram Bot
@@ -260,11 +247,10 @@ async def transcribe_telegram_voice(
         language: yazyk raspoznavaniya
         
     Returns:
-        Raspoznannyy tekst
-    """
+        Raspoznannyy text"""
     import tempfile
     
-    # Skachivaem golosovoe v vremennyy fayl
+    # Download the voice to a temporary file
     with tempfile.NamedTemporaryFile(suffix=".ogg", delete=False) as tmp:
         tmp_path = tmp.name
         voice_file = await voice_message.get_file()
@@ -276,7 +262,7 @@ async def transcribe_telegram_voice(
         text = engine.transcribe(tmp_path, language=language)
         return text
     finally:
-        # Udalyaem vremennyy fayl
+        # Deleting a temporary file
         try:
             os.unlink(tmp_path)
         except Exception:
@@ -304,7 +290,7 @@ if __name__ == "__main__":
     text = quick_transcribe(audio_file)
     print(f"\nRezultat:\n{text}")
     
-    # Variant 2: s timestamps (esli faster-whisper)
+    # Option 2: with timestamps (if faster-vnisper)
     try:
         engine = STTEngine()
         if engine.engine_type == "faster-whisper":

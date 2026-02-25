@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/attention_playlist.py — pleylisty vnimaniya (serii strelok/boksov po taymeru).
+"""modules/coop/attention_playlist.py - pleylisty vnimaniya (serii strelok/boksov po taymeru).
 
-Struktura pleylista:
+Struktura playlista:
 {
   "name": "demo",
   "items": [
     {"kind":"arrow","from":[300,200],"to":[420,240],"label":"Shag 1","delay_ms":1000},
-    {"kind":"box","box":{"left":100,"top":120,"width":220,"height":80},"label":"Shag 2","delay_ms":1000}
+    {"kind":"box","box":{"left":100,"top":120,"width":220,"height":80},"label":"Step 2","delay_ms":1000}
   ],
   "loop": false
 }
 
-API (modul):
+API (module):
 - run(spec, peers:list[str]) -> proigrat posledovatelnost (lokalno + peers cherez /stream/overlay/*)
 - stop(), status()
 
@@ -24,8 +23,7 @@ MOSTY:
 ZEMNOY ABZATs:
 Odin potok proigryvaniya; kadry berem iz /desktop/rpa/screen; nalozhenie delaem /stream/overlay/*.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Optional
 import threading, time, http.client, json

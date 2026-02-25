@@ -60,7 +60,7 @@ spec:
         prometheus:
           address: {{`{{args.prom}}`}}
           query: |
-            # Evristicheskiy baseline p99 za {{ .Values.rollouts.analysis.slo.adaptive.baselineRange }}
+            # Heuristic basseline p99 for {ZZF0Z}
             histogram_quantile(0.99,
               avg_over_time(sum(rate(http_request_duration_seconds_bucket{job="ester"}[5m])) by (le)[{{ .Values.rollouts.analysis.slo.adaptive.baselineRange }}:])
             )

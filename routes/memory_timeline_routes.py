@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/memory_timeline_routes.py - REST/UI dlya lenty pamyati.
+"""routes/memory_timeline_routes.py - REST/UI dlya lenty pamyati.
 
 Ruchki:
-  GET  /memory/timeline
+  GET /memory/timeline
       ?q=...&type=dialog|event|fact|dream|goal&source=web|telegram|file|thought
       &start=unix_ts&end=unix_ts&limit=500&offset=0
-  GET  /memory/timeline/export (te zhe parametry - otdaet JSON)
-  GET  /admin/memory_timeline
+  GET /memory/timeline/export (te zhe parameter - otdaet JSON)
+  GET /admin/memory_timeline
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.memory.timeline import build_timeline, export_timeline

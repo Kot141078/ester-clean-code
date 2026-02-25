@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-utils/notify.py — legkie sistemnye uvedomleniya (best-effort, bez zavisimostey).
+"""utils/notify.py - legkie sistemnye uvedomleniya (best-effort, bez zavisimostey).
 
 Poryadok popytok:
-  • Linux: notify-send (esli dostupen).
+  • Linux: notify-send (if available).
   • macOS: osascript (display notification).
-  • Windows: powershell (Write-Host + zvukovoy signal kak minimum).
-Nichego ne blokiruet vvod i ne trebuet GUI; pri otsutstvii instrumentov — tikhiy log.
+  • Windows: powershell (Write-Host + zvukovoy signal as minimum).
+Never mind blokiruet vvod i ne trebuet GUI; pri otsutstvii instrumentov — tikhiy log.
 
 Mosty:
-- Yavnyy (Inzheneriya ↔ UX): odin best-effort vyzov — i dostatochno dlya refleksa.
+- Yavnyy (Inzheneriya ↔ UX): odin best-effort vyzov - i dostatochno dlya refleksa.
 - Skrytyy 1 (Infoteoriya ↔ Nadezhnost): uvedomlenie — lish signal; reshenie ostaetsya za taymerom.
-- Skrytyy 2 (Anatomiya ↔ Neyro): kak «kolokolchik» dlya refleksa — ne vmeshivaetsya v mozg, tolko ping.
+- Skrytyy 2 (Anatomiya ↔ Neyro): kak “kolokolchik” dlya refleksa — ne vmeshivaetsya v mozg, tolko ping.
 
 Zemnoy abzats:
-V prode uvedomleniya chasto ogranicheny politikami OS. Zdes strategiya «esli mozhno — podskazat operatoru».
+V prode uvedomleniya often ogranicheny politikami OS. Zdes strategiya “esli mozhno - podskazat operatoru”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -42,7 +40,7 @@ def try_notify(title: str, message: str) -> None:
             subprocess.Popen(["osascript", "-e", script])
             return
         if sys == "Windows" and _which("powershell"):
-            # Bez BurntToast: prostoy zvuk i zapis — ne blokiruyuschee.
+            # Without BurntTuast: simple sound and recording - no blocking.
             safe_message_ps = message.replace("'", " ")
             safe_title_ps = title.replace("'", " ")
             code = f"[console]::beep(1000,200); Write-Host '{safe_title_ps}: {safe_message_ps}'"

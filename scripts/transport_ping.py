@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/transport_ping.py — CLI ping uzla po HTTP.
+"""scripts/transport_ping.py - CLI ping uzla po HTTP.
 
 Primer:
   python -m scripts.transport_ping --base http://192.168.1.20:8080
 
 Mosty:
-- Yavnyy (Svyaz ↔ Diagnostika): bystryy otvet «zhiv?» dlya lyubykh avtomatizatsiy.
+- Yavnyy (Svyaz ↔ Diagnostika): bystryy otvet “zhiv?” dlya lyubykh avtomatizatsiy.
 - Skrytyy 1 (Infoteoriya ↔ CLI): strogiy JSON — goditsya v payplayny.
 - Skrytyy 2 (Praktika ↔ Bezopasnost): X-Ester-Cluster pri nalichii sekreta.
 
 Zemnoy abzats:
-Obychnyy «ping po prilozheniyu»: proveryaet, dostupen li /ops/ping na udalennom uzle.
+Obychnyy “ping po prilozheniyu”: proveryaet, dostupen li /ops/ping na udalennom uzle.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse

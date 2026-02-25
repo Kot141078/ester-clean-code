@@ -34,7 +34,7 @@
   -->
   <div class="wrap">
     <h1>Activity Console</h1>
-    <p class="muted">Rabotaet poverkh suschestvuyuschikh API: <code>/thinking/act</code>, <code>/thinking/cascade/*</code>, <code>/rulehub/last</code>. JWT — obschiy (kak v adminke).</p>
+    <p class="muted">Works on top of existing APIs: <code>/thinking/act</code>, <code>/thinking/cascade/*</code>, <code>/rulehub/last</code>. ZhVT - general (as in the admin panel).</p>
 
     <div class="card">
       <h3>JWT</h3>
@@ -46,11 +46,11 @@
       <div class="grid" style="margin-top:12px;">
         <div class="card">
           <h4>Okruzhenie</h4>
-          <button id="btnEnv">Proverit okruzhenie</button>
+          <button id="btnEnv">Check environment</button>
           <pre id="state" class="muted">{}</pre>
         </div>
         <div class="card">
-          <h4>RuleHub — poslednie sobytiya</h4>
+          <h4>RuleNov - latest events</h4>
           <pre id="rule" class="muted">{}</pre>
         </div>
       </div>
@@ -70,7 +70,7 @@
       </div>
       <div class="card">
         <h3>Daydzhest</h3>
-        <input id="title" placeholder="Zagolovok (napr. Daydzhest aktivnosti: nedelya)">
+        <input id="title" placeholder="Heading (eg Activity Digest: Week)">
         <div class="row">
           <button id="btnDigest">Sformirovat daydzhest-plan</button>
           <button id="btnExec">Vypolnit plan</button>

@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.tools.route_guard — myagkiy storozh dublikatov routov dlya FastAPI/Flask.
+"""modules.tools.route_guard - myagkiy storozh dublikatov routov dlya FastAPI/Flask.
 
-Ispolzovanie (ruchnaya aktivatsiya — drop-in):
+Use (ruchnaya aktivatsiya - drop-in):
     from modules.tools import route_guard as rg
-    rg.enable_for_fastapi(app)  # ili rg.enable_for_flask(app)
+    rg.enable_for_fastapi(app) # ili rg.enable_for_flask(app)
 
 ENV:
 - ESTER_ROUTE_GUARD=1 — obschiy flag vklyucheniya (po umolchaniyu vyklyucheno).
-- ESTER_ROUTE_GUARD_AB=A|B — A: vklyucheno; B: no-op.
-- ESTER_ROUTE_GUARD_VERBOSE=1 — pechatat "RouteGuard ..." pri propuskakh.
+- ESTER_ROUTE_GUARD_AB=A|B - A: vklyucheno; B: no-op.
+- ESTER_ROUTE_GUARD_VERBOSE=1 — pechatat "RouteGuard..." pri propuskakh.
 
 Mosty:
 - Yavnyy: patchim add_api_route (FastAPI) / add_url_rule (Flask).
@@ -18,9 +17,8 @@ Mosty:
 - Skrytyy #2: sovmestim s otchetom routes_http (odna i ta zhe model kolliziy).
 
 Zemnoy abzats:
-Kak obratnyy klapan: esli takoy zhe (method,path) uzhe est, ne puskaem dublikat dalshe po trube.
-# c=a+b
-"""
+Kak obratnyy klapan: esli takoy zhe (method, path) uzhe est, ne puskaem dublikat dalshe po trube.
+# c=a+b"""
 import os
 from typing import Set, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -41,7 +39,7 @@ def enable_for_fastapi(app) -> bool:
         if router is None or not hasattr(router, "add_api_route"):
             return False
         seen: Set[Tuple[str,str]] = set()
-        # Initsializatsiya uzhe imeyuschimisya
+        # Initialization with existing ones
         try:
             for r in getattr(app, "routes", []):
                 methods = getattr(r, "methods", None) or []
@@ -53,7 +51,7 @@ def enable_for_fastapi(app) -> bool:
         orig = router.add_api_route
         def wrapped(path, endpoint, **kw):
             methods = kw.get("methods") or ["GET"]
-            # FastAPI mozhet takzhe probrasyvat metody cherez "methods" ili deduce iz endpoint
+            # FastAPI can also pass methods through "metnods" or grandfather from endpoint
             # Normalizuem
             ms = [str(m).upper() for m in (list(methods) if isinstance(methods, (list,set,tuple)) else [methods])]
             skip = False
@@ -79,7 +77,7 @@ def enable_for_flask(app) -> bool:
         if not hasattr(app, "add_url_rule"):
             return False
         seen: Set[Tuple[str,str]] = set()
-        # Initsializatsiya uzhe imeyuschimisya
+        # Initialization with existing ones
         try:
             url_map = getattr(app, "url_map", None)
             if url_map is not None:

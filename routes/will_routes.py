@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/will_routes.py - «volya/namereniya» Ester.
+"""routes/will_routes.py - “volya/namereniya” Ester.
 
 MOSTY:
 - (Yavnyy) GET /will/status; POST /will/set; POST /will/append - khranenie stsenariev v data/will/will.json.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Bez fonovogo ispolneniya - tolko khranenie i prosmotr.
 
 ZEMNOY ABZATs:
-Kak «bloknot namereniy»: zafiksirovat, chto i kak delat pri starte/po zaprosu.
+Kak "bloknot namereniy": zafiksirovat, what i kak delat pri starte/po zaprosu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, uuid
 from typing import List, Dict, Any

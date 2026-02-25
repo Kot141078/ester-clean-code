@@ -1,4 +1,4 @@
-# scripts/smoke_p2p.ps1 — dymovoy test P2P-mekhanizma (podpis i API) dlya PowerShell.
+# skripts/stoke_p2p.ps1 - smoke test of the P2P mechanism (signature and API) for PowerShell.
 
 <#
 Rezhimy:
@@ -13,7 +13,7 @@ Primery:
 Mosty:
 - Yavnyy (Windows ↔ P2P API): PowerShell-ekvivalent Bash-smouka.
 - Skrytyy #1 (Dev-noutbuki ↔ Server): odinakovyy stsenariy na Win i *nix.
-- Skrytyy #2 (CI ↔ Ops): podkhodit dlya self-hosted runner na Windows, JSON-otchet.
+- Skrytyy #2 (CI ↔ Ops): podkhodit dlya self-hosted runner on Windows, JSON-otchet.
 
 Zemnoy abzats:
 Kak kontrolnaya lampa: v rezhime simple proveryaet podpis, v full — vsyu tsepochku API. Vse chetko, s otchetom dlya CI.
@@ -44,7 +44,7 @@ if ([string]::IsNullOrEmpty($SECRET)) {
     exit 2
 }
 
-# Proverka zavisimostey
+# Checking dependencies
 $python = "python"
 if (-not (Get-Command $python -ErrorAction SilentlyContinue)) {
     Write-Host "[p2p-smoke] ERR: python not found"
@@ -55,7 +55,7 @@ if (-not (Test-Path "scripts/p2p_sign.py")) {
     exit 2
 }
 
-# Funktsiya dlya generatsii zagolovkov
+# Function for generating headers
 function Gen-Hdrs([string]$method, [string]$path, [string]$body = "") {
     $args = @("scripts/p2p_sign.py", $method, $path, $body)
     if ($P2P_SIG_LEGACY -eq "1") { $args += "--secret"; $args += $SECRET }
@@ -67,7 +67,7 @@ function Gen-Hdrs([string]$method, [string]$path, [string]$body = "") {
     return $out
 }
 
-# Funktsiya dlya parsinga zagolovkov
+# Header parsing function
 function Parse-Headers([string]$line) {
     $pieces = $line -split "' " | ForEach-Object { $_.Trim("'") }
     $headers = @{}
@@ -78,7 +78,7 @@ function Parse-Headers([string]$line) {
     return $headers
 }
 
-# Funktsiya dlya vypolneniya HTTP-zaprosa
+# Function for executing an HTTP request
 function Curl-H([string]$method, [string]$path, [string]$body = "") {
     $hdrs = Gen-Hdrs $method $path $body
     $headers = Parse-Headers $hdrs
@@ -100,14 +100,14 @@ function Curl-H([string]$method, [string]$path, [string]$body = "") {
     }
 }
 
-# JSON-otchet
+# ZhSON-report
 $report = @{
     ok = $true
     mode = $Mode
     tests = @()
 }
 
-# Funktsiya dlya dobavleniya rezultata testa
+# Function to add test result
 function Add-TestResult([string]$name, [int]$code, [string]$body, [string]$error = $null) {
     $test = @{
         name = $name
@@ -187,7 +187,7 @@ if ($Mode -eq "full") {
     Write-Host "[p2p-smoke] PASS: merge code=$($r.StatusCode)"
 }
 
-# Vyvod JSON-otcheta
+# Output of the JSION report
 $report | ConvertTo-Json -Depth 4
 if ($report.ok) {
     Write-Host "[p2p-smoke] OK"

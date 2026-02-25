@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/auth/rbac.py — obedinennyy RBAC: roli iz JWT/headers/ENV, dinamicheskie pravila v JSON, guard i audit.
+"""modules/auth/rbac.py - obedinennyy RBAC: role iz JWT/headers/ENV, dinamicheskie pravila v JSON, guard i audit.
 
 Mosty:
 - Yavnyy: (Autentifikatsiya ↔ Avtorizatsiya) izvlekaet roli, proveryaet has_any_role dlya routov.
@@ -9,10 +8,9 @@ Mosty:
 - Skrytyy #3: (Memory ↔ Profile) logi v audit dlya BZ-sinkhronizatsii po P2P.
 
 Zemnoy abzats:
-Eto ne prosto turniket, a shveytsar s bloknotom: proverit beydzh (rol), propustit po pravilam, zapishet v zhurnal. Dlya Ester — zaschita ot fragmentatsii, s uvazheniem k ee rostu.
+Eto ne prosto turniket, a shveytsar s bloknotom: proverit beydzh (rol), propustit po pravilam, zapishet v zhurnal. Dlya Ester - zaschita ot fragmentatsii, s uvazheniem k ee rostu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import base64, hmac, hashlib, json, os, re, time
 from typing import Any, Dict, Iterable, List, Set, Tuple
@@ -55,7 +53,7 @@ def _ensure():
 def _load_rules() -> Dict[str, Any]:
     _ensure()
     rules = json.load(open(RULES_PATH, "r", encoding="utf-8"))
-    # Sliyanie s extra (rasshirenie)
+    # Merge with extra (extension)
     try:
         extra = json.load(open(EXTRA_RULES_PATH, "r", encoding="utf-8")).get("rules", [])
         existing_patterns = {r["pattern"] for r in rules.get("rules", [])}
@@ -123,7 +121,7 @@ def _jwt_verify_hs256(token: str) -> bool:
     env_secret = os.getenv("JWT_SECRET_KEY", "")
     if env_secret:
         secrets.append(env_secret.encode("utf-8"))
-    # Sovmestimost: esli sekret ne zadan, ostavlyaem myagkiy rezhim.
+    # Compatibility: if the secret is not specified, leave the soft mode.
     if not secrets:
         return True
     for sec in secrets:
@@ -171,7 +169,7 @@ def _get_auth_token() -> str:
 
 def get_current_roles() -> List[str]:
     roles: Set[str] = set()
-    # 0) Kontekstnye roli ot drugikh guard-sloev (esli est)
+    # 0) Contextual roles from other guard layers (if any)
     g_roles = getattr(g, "user_roles", None)
     if isinstance(g_roles, (list, tuple, set)):
         roles.update([str(x).strip().lower() for x in g_roles if str(x).strip()])
@@ -179,11 +177,11 @@ def get_current_roles() -> List[str]:
     hdr = request.headers.get(HDR_ROLES, "") or request.headers.get("X-Roles", "")
     if hdr:
         roles.update([x.strip().lower() for x in hdr.split(",") if x.strip()])
-    # 2) Iz JWT (cherez flask_jwt_extended: uzhe verifitsirovannye claims)
+    # 2) From ZhVT (via flask_zhvt_extended: already verified slimes)
     claims = _verified_claims_from_flask_jwt()
     if claims:
         roles.update(_roles_from_payload(claims))
-    # 3) Fallback: ruchnoy razbor JWT Bearer (dlya legacy/vne jwt_required)
+    # 3) Falbatsk: manual disassembly of ZhVT Bearer (for Legacy/outside ZhVT_reguired)
     tok = _get_auth_token()
     if tok:
         try:
@@ -196,11 +194,11 @@ def get_current_roles() -> List[str]:
     if not roles and _lab_mode_enabled() and DEV_ROLES:
         _warn_lab_mode_once()
         roles.update(DEV_ROLES)
-    # Sokhranim v g dlya povtornogo ispolzovaniya
+    # Save in g for reuse
     g.rbac_roles = sorted(list(roles))  # type: ignore
     return g.rbac_roles  # type: ignore
 
-user_roles = get_current_roles  # Sinonim dlya sovmestimosti
+user_roles = get_current_roles  # Synonym for compatibility
 
 def has_any_role(required: Iterable[str]) -> bool:
     if not REQUIRED: return True
@@ -279,7 +277,7 @@ def audit():
         return jsonify({"ok": False, "error": "rbac_forbidden"}), 403
     try:
         with open(AUDIT_LOG, "r", encoding="utf-8") as f:
-            lines = f.readlines()[-50:]  # Poslednie 50 dlya kratkosti
+            lines = f.readlines()[-50:]  # Last 50 for short
         return jsonify({"ok": True, "audit": lines})
     except Exception:
         return jsonify({"ok": False, "error": "audit_read_failed"})

@@ -1,7 +1,6 @@
 
 # -*- coding: utf-8 -*-
-"""
-modules/core/input_guard.py — tsentralizovannyy limiter teksta chata.
+"""modules/core/input_guard.py - tsentralizovannyy limiter teksta chata.
 
 Mosty:
 - (Yavnyy) chat_input_guard_adapter → normalizatsiya vkhoda dlya /chat/message.
@@ -10,8 +9,7 @@ Mosty:
 
 Zemnoy abzats:
 Kak mekhanicheskiy ogranichitel khoda rychaga: skolko by ni davili, shtok ne ukhodit dalshe
-zhestkogo upora, zaschischaya sistemu ot peregruzki.
-"""
+zhestkogo upora, zaschischaya sistemu ot peregruzki."""
 
 from __future__ import annotations
 
@@ -43,18 +41,17 @@ DEFAULT_LIMIT = 16000
 
 
 def get_effective_limit() -> int:
-    """Vozvraschaet limit dlya vkhoda chata na osnove ENV."""
+    """Returns the chat entry limit based on ENV."""
     limit = _env_int("ESTER_CHAT_MAX_INPUT_CHARS", DEFAULT_LIMIT)
     return limit or DEFAULT_LIMIT
 
 
 def normalize_input(text: Optional[str]) -> Tuple[str, GuardInfo]:
-    """Normalizuet vkhodnoy tekst i obrezaet po limitu.
+    """Normalizes the input text and trims it according to the limit.
 
-    Kontrakt:
-    - Ne kidaet isklyucheniy.
-    - Vozvraschaet (stroka, GuardInfo).
-    """
+    Contract:
+    - Does not throw exceptions.
+    - Returns (string, GuardInfo)."""
     if text is None:
         text = ""
 

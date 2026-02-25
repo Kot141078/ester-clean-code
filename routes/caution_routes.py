@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/caution_routes.py - REST: politika, vydacha/otzyv «pilyul».
+"""routes/caution_routes.py - REST: politika, vydacha/otzyv "pilyul".
 
 Mosty:
 - Yavnyy: (Veb ↔ Soglasie) upravlyaem tokenami i smotrim politiku.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Integratsiya ↔ Panel) druzhit s HTML-panelyu AppOps+.
 
 Zemnoy abzats:
-Knopka «podtverdit risk»: poluchil zheton, vypolnil, otozval.
+Knopka “podtverdit risk”: poluchil zheton, vypolnil, otozval.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import json, os

@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/persona_style.py — Vybor «chelovechnogo» stilya dlya pisem i soobscheniy.
+"""modules/persona_style.py - Vybor "chelovechnogo" stilya dlya pisem i soobscheniy.
 
 Mosty:
 - (Yavnyy) Karta audience×intent → stil (ton, registr, struktura).
-- (Skrytyy #1) Grays — maksimy kooperatsii: yasnost/umestnost/kratkost.
-- (Skrytyy #2) Pul — register adaptation: formalnost/terminy/punktuatsiya po roli adresata.
+- (Skrytyy #1) Grays — maximy kooperatsii: yasnost/umestnost/kratkost.
+- (Skrytyy #2) Pul - register adaptation: formalnost/terminy/punktuatsiya po roli adresata.
 
 Zemnoy abzats:
-Modul daet vosproizvodimye teksty bez «robota» v golose: korotkie, taktichnye,
-vezhlivye. Ne imitiruet cheloveka obmanom — prosto khoroshiy ton.
+Modul daet vosproizvodimye teksty bez “robota” v golose: korotkie, taktichnye,
+vezhlivye. Ne imitiruet cheloveka obmanom - prosto khoroshiy ton.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -24,7 +22,7 @@ _BASE = {
         "closing": "S uvazheniem",
         "signature": "—",
         "register": "formal",
-        "traits": ["tochnost", "yasnye ssylki na daty/vremya", "bez emotsiy"],
+        "traits": ["tochnost", "clear references to dates/times", "bez emotsiy"],
     },
     "student": {
         "greeting": "Privet",
@@ -42,7 +40,7 @@ _BASE = {
     },
     "business": {
         "greeting": "Zdravstvuyte",
-        "closing": "Khoroshego dnya",
+        "closing": "Have a good day",
         "signature": "—",
         "register": "neutral-formal",
         "traits": ["po delu", "akkuratnye markery", "bez razgovornykh oborotov"],
@@ -61,7 +59,7 @@ _TEMPL = {
     "letter": "{greeting},\n\n{body}\n\n{closing}\n{signature}",
     "update": "{greeting}, {body} {closing}.",
     "reminder": "{greeting}, napominayu: {body}. {closing}.",
-    "apology": "{greeting}, proshu proscheniya: {body}. {closing}.",
+    "apology": "ZZF0Z, I'm sorry: ZZF1ZZ. ZZF2ZZ.",
     "request": "{greeting}, proshu: {body}. {closing}.",
 }
 
@@ -98,6 +96,6 @@ def render_message(audience: str, intent: str, content: str) -> str:
         closing=prof["closing"],
         signature=prof["signature"],
     )
-    # Ubiraem lishnie probely pered punktuatsiey i dvoynye perevody strok.
+    # Removes extra spaces before punctuation and double line breaks.
     msg = "\n".join([ln.rstrip() for ln in msg.splitlines()]).strip()
     return msg

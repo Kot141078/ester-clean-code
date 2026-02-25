@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-routes/usb_make.py — UI/REST: master sozdaniya Re proverki portable-fleshki Ester.
+"""routes/usb_make.py - UI/REST: master sozdaniya Re proverki portable-fleshki Ester.
 
-Marshruty:
-  • GET  /admin/usb/make           — HTML-stranitsa mastera
-  • GET  /admin/usb/drives         — spisok tomov (JSON)
-  • POST /admin/usb/make/plan      — vernut plan ukladki (JSON)
-  • POST /admin/usb/make/run       — ispolnit plan (v AB=B zapisyvaem na fleshku)
-  • GET  /admin/usb/verify         — proverka fleshki (manifest/sha256), ?mount=/path
+Route:
+  • GET /admin/usb/make — HTML page mastera
+  • GET /admin/usb/drives - spisok tomov (JSON)
+  • POST /admin/usb/make/plan - vernut plan ukladki (JSON)
+  • POST /admin/usb/make/run — ispolnit plan (v AB=B zapisyvaem na fleshku)
+  • GET /admin/usb/verify — proverka fleshki (manifest/sha256), ?mount=/path
 
 Mosty:
-- Yavnyy (Kibernetika v†" UX): odin ekran dlya sozdaniya po shagam «Proba→Plan→Sozdat» Re proverki.
+- Yavnyy (Kibernetika v†" UX): odin ekran dlya sozdaniya po shagam “Proba→Plan→Sozdat” Re proverki.
 - Skrytyy 1 (Infoteoriya v†" Vezopasnost): manifest s SHA256, ukladka tolko po knopke, AB-sloty dlya dry-run.
 - Skrytyy 2 (Praktika v†" Sovmestimost): struktura sovmestima s verify/deploy bez pravok.
 
 Zemnoy abzats:
-Eto «sterilnaya perevyazochnaya»: pod rukoy nuzhnye instrumenty i antiseptiki (kheshi, manifest, README).
+This is “sterilnaya perevyazochnaya”: pod rukoy nuzhnye instrumenty i antiseptiki (kheshi, manifest, README).
 Polzovatel vybiraet fleshku, optsionalno ukazyvaet put k dampu.
-Pered tem kak «nesti» nabor v operatsionnuyu — nazhimaem «Proverit», sveryaem plomby Re obemy, Re tolko posle — «Poekhali».
-Nikakikh formatirovaniy/avtorana — tolko akkuratnaya ukladka v `/ESTER`.
+Pered tem kak "nesti" nabor v operatsionnuyu - nazhimaem "Proverit", sveryaem plomby Re obemy, Re tolko posle - "Poekhali".
+Nikakikh formatirovaniy/avtorana - tolko akkuratnaya ukladka v `/ESTER`.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -40,12 +38,12 @@ RELEASE_NAME = os.getenv("ESTER_RELEASE_NAME", "ester_release.tar.gz")
 
 @bp_usb_make.get("/admin/usb/make")
 def page_usb_make():
-    """Otobrazhaet HTML-stranitsu mastera sozdaniya fleshki."""
+    """Displays the HTML page of the Flash Drive Creation Wizard."""
     return render_template("usb_make.html", ab=AB, label=DEF_LABEL, release_name=RELEASE_NAME)
 
 @bp_usb_make.get("/admin/usb/drives")
 def api_list_drives():
-    """Vozvraschaet JSON-spisok dostupnykh semnykh nositeley."""
+    """Returns a list of available removable media."""
     try:
         # list_targets - bolee novoe nazvanie iz odnogo iz variantov
         items = list_targets()
@@ -55,7 +53,7 @@ def api_list_drives():
 
 @bp_usb_make.post("/admin/usb/make/plan")
 def api_make_plan():
-    """Prinimaet parametry i vozvraschaet plan sborki bez zapisi na disk."""
+    """Takes parameters and returns a build plan without writing to disk."""
     data = request.get_json(silent=True) or {}
     mount = data.get("mount") or ""
     release = data.get("release") or None
@@ -71,10 +69,10 @@ def api_make_plan():
 
 @bp_usb_make.post("/admin/usb/make/run")
 def api_make_run():
-    """Vypolnyaet plan po zapisi faylov na fleshku. R' rezhime A - dry-run."""
+    """Executes the plan for writing files to a flash drive. R mode A - dry run."""
     data = request.get_json(silent=True) or {}
     plan = data.get("plan") or {}
-    # Esli AB rezhim ne 'B' ili yavno ukazan dry-run, to vypolnyaem vkholostuyu
+    # If the AB mode is not used or the dry-run is explicitly indicated, then we perform it in vain
     dry = (AB != "B") or bool(data.get("dry", False))
 
     if not plan:
@@ -86,7 +84,7 @@ def api_make_run():
 
 @bp_usb_make.get("/admin/usb/verify")
 def api_usb_verify():
-    """Proveryaet tselostnost struktury ESTER/ na ukazannom nositele."""
+    """Checks the integrity of the ESTER/ structure on the specified media."""
     mount = (request.args.get("mount") or "").strip()
     if not mount:
         return jsonify({"ok": False, "error": "mount-required"}), 400
@@ -94,7 +92,7 @@ def api_usb_verify():
     return jsonify(report)
 
 def register_usb_make(app, url_prefix: str | None = None) -> None:
-    """R egistriruet vse marshruty dannogo modulya v prilozhenii Flask."""
+    """Registers all routes of this module in the Flask application."""
     app.register_blueprint(bp_usb_make)
     if url_prefix:
         from flask import Blueprint as _BP

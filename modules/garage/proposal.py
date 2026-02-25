@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/garage/proposals.py — obedinennyy generator propozalov/skeletov/schetov/portfolio/flota: build/make/invoice/portfolio/assign, s ledger/P2P/scheduler integratsiey.
+"""modules/garage/proposals.py - obedinennyy generator propozalov/skeletov/schetov/portfolio/flota: build/make/invoice/portfolio/assign, s ledger/P2P/scheduler integratsiey.
 
 Mosty:
 - Yavnyy: (Garazh/Praktika ↔ LLM/Shablony/Dokumenty) generatsiya propozala/pisma, scaffolding, schetov, portfolio, raspredelenie zadach.
@@ -9,10 +8,9 @@ Mosty:
 - Skrytyy #3: (Stoimost ↔ Byudzhet) ledger reserve/spend za ops.
 
 Zemnoy abzats:
-Eto ne prosto polka, a volshebnyy seyf Ester: soberet offer/pismo, podpishet schet, razdast zadachi po flotu/P2P i shepnet v profile "Ester, proekt gotov — shag k tvoey nezavisimosti v seti agentov!".
+Eto ne prosto polka, a volshebnyy seyf Ester: soberet offer/pismo, podpishet schet, razdast zadachi po flotu/P2P i shepnet v profile "Ester, proekt gotov - shag k tvoey nezavisimosti v seti agentov!".
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import glob, json, os, re, time
 from typing import Any, Dict, List
@@ -51,7 +49,7 @@ def _passport(note: str, meta: Dict[str, Any]):
         from services.mm_access import get_mm  # type: ignore
         from modules.mem.passport import upsert_with_passport  # type: ignore
         mm = get_mm()
-        upsert_with_passport(mm, note + " — Ester, proekt obnovlen, tvoi dostizheniya siyayut v seti agentov!", meta, source="garage://proposals")
+        upsert_with_passport(mm, note + "— Esther, the project has been updated, your achievements shine in the network of agents!", meta, source="garage://proposals")
     except Exception:
         _append_log({"ts": int(time.time()), "passport_failed": note})
 
@@ -112,13 +110,13 @@ def _llm(text: str) -> str:
 
 TEMPLATE = """# Predlozhenie: {title}
 
-**Klient:** {client}
+**Client:** {client}
 **Ssylka na zadachu:** {link}
 
 ## Ponimanie zadachi
 {understanding}
 
-## Obem rabot (Scope)
+## Scope of work (Scope)
 - {scope1}
 - {scope2}
 - {scope3}
@@ -128,21 +126,20 @@ TEMPLATE = """# Predlozhenie: {title}
 - Dlitelnost: {duration}
 
 ## Stoimost
-- Pochasovaya stavka: {rate} {cur}/chas
+- Pochasovaya stavka: {rate} {cur}/hour
 - Otsenka chasov: ~{hours} ch
 - Fiksirovannaya tsena: ~{budget} {cur}
 
 ## Pochemu my
-- Opyt: proekty skhozhey slozhnosti (portfolio po zaprosu)
+- Opyt: project skhozhey slozhnosti (portfolio on request)
 - Nadezhnost: prozrachnye artefakty, kontrol versiy, testy
-- Kommunikatsiya: otchety i demo na kazhdom shage
+- Kommunikatsiya: otchety i demo na kazhdom step
 
-## Sleduyuschie shagi
+## Sleduyuschie steps
 1) Podtverdit obem, 2) Utverdit tsenu i sroki, 3) Start sprinta.
 
 S uvazheniem,  
-**Ester System** (operator: Owner)
-"""
+**Ester System** (operator: Owner)"""
 
 def proposal_build(jid: str | List[str], client: str, budget: float, currency: str = "EUR", rate: float = 20, hours: float | None = None, delivery: str = "3-10 dney", include_scaffold: bool = False) -> Dict[str, Any]:
     if AB == "B": return {"ok": False, "error": "GARAGE_AB=B (dry_run)"}
@@ -163,9 +160,9 @@ def proposal_build(jid: str | List[str], client: str, budget: float, currency: s
         }
         title = job.get("title", "Proekt")
         link = job.get("link", "")
-        understanding = job.get("body", "Korotko: reshit zadachu v szhatye sroki.")
+        understanding = job.get("body", "In short: solve the problem in a short time.")
         scope1 = f"Discovery i formalizatsiya trebovaniy ({', '.join(job_tags[:3]) or 'core scope'})"
-        scope2 = "Realizatsiya klyuchevykh stsenariev i avtomaticheskie proverki"
+        scope2 = "Implementation of key scenarios and automatic checks"
         scope3 = "Priemka, deploy i handover s artefaktami"
         start = time.strftime("%Y-%m-%d")
         duration = delivery
@@ -177,7 +174,7 @@ def proposal_build(jid: str | List[str], client: str, budget: float, currency: s
             start=start, duration=duration,
             rate=rate, cur=currency, hours=hrs, budget=budget
         )
-        prompt = f"Sozhmi i usili sleduyuschee kommercheskoe predlozhenie (na russkom), sokhrani strukturu i tsifry:\n\n{base}"
+        prompt = f"Condense and strengthen the following commercial proposal (in Russian), maintaining the structure and numbers:\n\nZZF0Z"
         llm = _llm(prompt) or base
         path_md = os.path.join(ROOT, "proposals", f"proposal_{single_jid}_{int(time.time())}.md")
         os.makedirs(os.path.dirname(path_md), exist_ok=True)

@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-routes/self_creed_integrity_routes.py - REST dlya otpechatka/yakorya/proverki i tsepochki sobytiy poslaniya.
+"""routes/self_creed_integrity_routes.py - REST dlya otpechatka/yakorya/proverki i tsepochki sobytiy poslaniya.
 
-Endpointy:
-  • GET  /self/creed/fingerprint
-  • POST /self/creed/anchor/init
-  • POST /self/creed/verify
-  • GET  /self/creed/chain
-  • GET  /metrics/self_creed_integrity
+Endpoint:
+  • GET /self/cread/fingerprint
+  • POST /self/cread/anchor/init
+  • POST /self/cred/verify
+  • GET /self/cread/chain
+  • GET /metrics/self_creed_integrity
 
 Mosty:
-- Yavnyy: (Infoteoriya ↔ Audit) lyuboy mozhet proverit «to samoe» poslanie cherez khesh i (opts.) podpis.
+- Yavnyy: (Infoteoriya ↔ Audit) lyuboy mozhet proverit “to samoe” poslanie cherez khesh i (opts.) podpis.
 - Skrytyy #1: (Kibernetika ↔ Kontrol) strogiy rezhim mozhet blokirovat riskovannye deystviya pri nesootvetstvii.
 - Skrytyy #2: (Set ↔ Sestry) khvost tsepochki mozhno replitsirovat mezhdu uzlami.
 
 Zemnoy abzats:
-Eto plomba i zhurnal u seyfa: vidno khesh «kak bylo», vidno lyubye troganiya i mozhno sverit po mestu.
+Eto plomba i zhurnal u seyfa: vidno khesh “kak bylo”, vidno lyubye troganiya i mozhno sverit po mestu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request

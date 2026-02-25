@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-modules/instructor/hud_alerts.py — HUD-alerty po latentnosti/oshibkam.
+"""modules/instructor/hud_alerts.py - HUD-alerty po latentnosti/oshibkam.
 
-Ideya:
-- Porogovye nastroyki: p90_ms, fail_rate (dolya «oshibochnykh» sobytiy sredi poslednikh N).
-- build() risuet PNG-overley: esli prevysheno — krasnaya plashka «ALERT» + taymer; inache — zelenaya «OK».
-- Otdelno otdaem flag allow_audio: UI mozhet igrat Beep cherez WebAudio TOLKO v brauzere (po soglasiyu).
+Ideaya:
+- Porogovye nastroyki: p90_ms, fail_rate (dolya “oshibochnykh” sobytiy sredi poslednikh N).
+- build() risuet PNG-overley: esli prevysheno - krasnaya plashka “ALERT” + taymer; inache - greenaya "OK".
+- Otdelno otdaem flag allow_audio: UI mozhet igrat Beep cherez WebAudio TOLKO v brauzere (by soglasiyu).
 
 MOSTY:
-- Yavnyy: (Kontrol ↔ Obuchenie) bystryy signal «plokho/norm».
+- Yavnyy: (Control ↔ Obuchenie) bystryy signal “plokho/norm”.
 - Skrytyy #1: (Infoteoriya ↔ Bezopasnost) nikakogo zvuka/deystviy bez yavnogo soglasiya.
 - Skrytyy #2: (Inzheneriya ↔ UX) minimalnaya nagruzka — odin prozrachnyy PNG.
 
 ZEMNOY ABZATs:
-Vse lokalno, bez fonovykh demonov; statistika iz zhurnala, render RGBA.
+All lokalno, bez fonovykh demonov; statistika iz zhurnala, render RGBA.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import http.client, json, base64, zlib, struct, time
@@ -44,7 +42,7 @@ def _get(path: str) -> Dict[str, Any]:
 def _stats(n: int = 200) -> Dict[str, Any]:
     j=_get(f"/attention/journal/list?n={n}")
     items=j.get("items",[])
-    # p90 latentnosti (kak v predyduschikh modulyakh)
+    # n90 latency (as in previous modules)
     lat=[]; last=None
     bad=0; total=0
     for it in items:
@@ -66,7 +64,7 @@ def _banner(w: int, h: int, ok: bool) -> bytes:
         row=bytearray([0])
         for x in range(w):
             if ok:
-                # zelenaya poluprozrachnaya polosa
+                # green translucent stripe
                 r,g,b,a=40,150,40,200
             else:
                 r,g,b,a=180,30,30,220
@@ -83,6 +81,6 @@ def build(n: int = 200) -> Dict[str, Any]:
     met=_get("/desktop/metrics/info"); w,h=int(met.get("width",1280)), int(met.get("height",720))
     st=_stats(n)
     ok = (st["p90"] <= _state["p90_ms"]) and (st["fail_rate"] <= _state["fail_rate"])
-    png=_banner(w, 60, ok)  # uzkaya plashka sverkhu
+    png=_banner(w, 60, ok)  # narrow plate at the top
     b64=base64.b64encode(png).decode("ascii")
     return {"ok": True, "alert": (not ok), "metrics": st, "png_b64": b64, "allow_audio": bool(_state.get("allow_audio"))}

@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/smoke_rag_file_readers.py
+"""scripts/smoke_rag_file_readers.py
 
-Lokalnyy smoke-test:
+Local smoke test:
 - sozdaet vremennuyu papku s test-faylami,
 - podstavlyaet ee v RAG_DOCS_PATH,
 - proveryaet list_docs() i ingest_all().
 
 Zapusk:
-    python scripts/smoke_rag_file_readers.py
-"""
+    python scripts/smoke_rag_file_readers.py"""
 
 from __future__ import annotations
 
@@ -17,7 +15,7 @@ import os
 import shutil
 from pathlib import Path
 
-# Podklyuchaem proektnyy koren
+# Connecting the project root
 ROOT = Path(__file__).resolve().parent.parent
 import sys
 if str(ROOT) not in sys.path:
@@ -30,7 +28,7 @@ TEST_DIR = ROOT / "_rag_test_docs"
 
 
 def main() -> None:
-    # Gotovim testovuyu direktoriyu
+    # Preparing the test directory
     if TEST_DIR.exists():
         shutil.rmtree(TEST_DIR)
     TEST_DIR.mkdir(parents=True, exist_ok=True)

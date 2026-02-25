@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/memory_hud_routes.py - REST dlya HUD-integratsii pamyati.
+"""routes/memory_hud_routes.py - REST dlya HUD-integratsii pamyati.
 
 Ruchki:
-  GET  /memory/hud/check?q=...
+  GET /memory/hud/check?q=...
   POST /memory/hud/remind {"goal":"..."}
-  GET  /memory/hud/status
+  GET /memory/hud/status
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.hud_bridge import check_context, auto_remind

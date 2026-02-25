@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/loop.py — odin takt tsikla agenta: Sense → Think → Plan (bez Act).
+"""modules/thinking/loop.py - odin takt tsikla agenta: Sense → Think → Plan (bez Act).
 
 Funktsiya:
 - step(goal:str, sense_fetcher:callable) -> {"planned":int, "queued":int, "preview":[...]}
   * soberem sense (journal/windows/screen), peredadim v planner.plan()
   * solem v obschuyu ochered (bez vypolneniya)
 
-Khranilische ocheredi — v modules.planner.forge (v pamyati).
+Khranilische ocheredi - v modules.planner.forge (v pamyati).
 
 MOSTY:
 - Yavnyy: (Sensory ↔ Mysl) svyazyvaem A2 i buduschiy A4.
 - Skrytyy #1: (Infoteoriya ↔ Diagnostika) vozvrat preview daet prozrachnost prinyatiya resheniya.
-- Skrytyy #2: (Inzheneriya ↔ Sovmestimost) step ne trebuet consent i ne imeet pobochnykh effektov.
+- Skrytyy #2: (Inzheneriya ↔ Sovmestimost) step ne demand consent i ne imeet pobochnykh effektov.
 
 ZEMNOY ABZATs:
 Taktovyy vyzov statichen i determinirovanen: tolko formirovanie spiska shagov.
 Ispolnenie poyavitsya v A4.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, Callable
 from modules.planner.forge import plan as _plan, merge_queue as _merge, queue as _queue
@@ -31,9 +29,9 @@ def step(goal:str)->Dict[str,Any]:
 
     plan={"goal":goal,"steps":[]}
     if goal:
-        # Emulyatsiya prostogo planirovaniya
-        plan["steps"]=[{"op":"think","text":f"Obdumyvayu tsel: {goal}"}]
-    # integratsiya pamyati
+        # Simple scheduling emulation
+        plan["steps"]=[{"op":"think","text":f"Thinking about the goal: ZZF0Z"}]
+    # memory integration
     plan=integrate(goal,plan)
     return {"ok":True,"planned":len(plan.get("steps",[])),"plan":plan}
 

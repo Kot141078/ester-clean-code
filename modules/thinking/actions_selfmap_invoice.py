@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_selfmap_invoice.py — eksheny «voli» dlya Samokarty/Dashborda/Schetov.
+"""modules/thinking/actions_selfmap_invoice.py - eksheny “voli” dlya Samokarty/Dashborda/Schetov.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Upravlenie/Finansy) bystrye komandy na snimok, HTML-dashbord i schet.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Garage/Market ↔ Svyazka) mozhno vstraivat v otkliki frilansa.
 
 Zemnoy abzats:
-S etimi knopkami Ester mozhet posmotret na sebya so storony i tut zhe oformit rabotu dokumentalno.
+S etimi knopkami Ester mozhet posmotret na sebya so sidery i tut zhe oformit rabotu dokumentalno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

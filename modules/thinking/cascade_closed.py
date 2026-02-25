@@ -1,30 +1,28 @@
 
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/cascade_closed.py — uluchshennoe kaskadnoe myshlenie (closed-box rezhim).
+"""modules/thinking/cascade_closed.py - uluchshennoe kaskadnoe myshlenie (closed-box rezhim).
 
 Goryachiy fiks:
 - Isklyuchena zavisimost ot pipeline "decision_plan", chtoby ne triggerit
   bag v suschestvuyuschem vektornom poiske (raznye dliny vec).
-- Ispolzuetsya lokalnoe bezopasnoe reshenie + pipeline "analyze_text".
-- Nikakikh pravok modules/memory/*, tolko novyy modul.
+- Use local bezopasnoe solution + pipeline "analyze_text".
+- Nikakikh correct modules/memory/*, only new module.
 
 Mosty:
-- Yavnyy: (Kaskad ↔ Pipelines) — cherez bezopasnyy vyzov analyze_text.
-- Skrytyy #1: (Memory ↔ Planirovanie) — store.query na etape Recall.
+- Yavnyy: (Kaskad ↔ Pipelines) — through bezopasnyy vyzov analyze_text.
+- Skrytyy #1: (Memory ↔ Planning) - store.query na etape Recall.
 - Skrytyy #2: (Mysli ↔ Sobytiya) — record_event/record_thought po etapam kaskada.
 
 A/B-slot:
     ESTER_CASCADE_MODE = "A" | "B"
-    A — defoltnaya konfiguratsiya.
-    B — vklyuchaet rasshirennyy kaskad (eta realizatsiya).
+    A - defoltnaya configuratsiya.
+    B - vklyuchaet rashirennyy kaskad (eta realizatsiya).
 Pri lyuboy oshibke kaskad vozvraschaet validnyy rezultat i ne lomaet yadro.
 
 Zemnoy abzats:
     from modules.thinking import cascade_closed
     print(cascade_closed.run_cascade("testovyy kaskad")["summary"])
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -148,7 +146,7 @@ def _should_save_residue(score: Dict[str, Any]) -> bool:
 
 def _residue_text(goal: str, branch: str, score: Dict[str, Any]) -> str:
     base = f"Vetka: {branch}"
-    reason = "Otbroshena posle otsenki (nizkaya poleznost/zatukhanie)."
+    reason = "Discarded after evaluation (low utility/attenuation)."
     signal = f"Signal: rel={score.get('relevance')} nov={score.get('novelty')} risk={score.get('risk')} cost={score.get('cost')}"
     if _v2_mode() == "B":
         return f"{base} / {reason} / {signal}"
@@ -174,16 +172,14 @@ def _save_residue(goal: str, branch: str, score: Dict[str, Any]) -> None:
 
 
 def _mode() -> str:
-    """Tekuschiy rezhim kaskada (A/B)."""
+    """Current cascade mode (A/B)."""
     m = (os.environ.get("ESTER_CASCADE_MODE", "A") or "A").strip().upper()
     return "B" if m == "B" else "A"
 
 
 def _rank_branches(goal: str, hypotheses: List[str]) -> List[Tuple[str, float]]:
-    """
-    Ranzhirovanie gipotez po smyslovoy blizosti k tseli.
-    Bezopasno: pri lyuboy oshibke vozvraschaet iskhodnyy poryadok.
-    """
+    """Ranking of hypotheses according to semantic proximity to the goal.
+    Safe: On any error, returns to the original order."""
     try:
         qv = embed(goal)
         docs = []
@@ -207,57 +203,48 @@ def _rank_branches(goal: str, hypotheses: List[str]) -> List[Tuple[str, float]]:
 
 
 def _branch_hypotheses(goal: str) -> List[str]:
-    """Bazovye gipotezy dlya kaskada."""
+    """Basic hypotheses for the cascade."""
     base = [
-        f"nayti suschestvuyuschie resheniya dlya: {goal}",
-        f"sobrat ogranicheniya i resursy dlya: {goal}",
-        f"razbit zadachu na podzadachi: {goal}",
-        f"sravnit alternativnye podkhody dlya: {goal}",
-        f"provesti eksperiment dlya proverki: {goal}",
+        f"find existing solutions for: ZZF0Z",
+        f"collect restrictions and resources for: ZZF0Z",
+        f"break the task into subtasks: ЗЗФ0З",
+        f"compare alternative approaches for: ZZF0Z",
+        f"conduct an experiment to test: ZZF0Z",
     ]
     k = MAX_BRANCHES_B if _mode() == "B" else MAX_BRANCHES_A
     return base[:k]
 
 
 def _local_decision(goal: str, best_h: str, recalled_count: int) -> Dict[str, Any]:
-    """
-    Lokalnoe bezopasnoe reshenie.
+    """Local bezopasnoe decision.
 
     Evristika:
-    - esli recalled_count > 0: opora na imeyuschiysya opyt;
-    - inache: rekomendovat issledovanie i utochnenie trebovaniy.
-    """
+    - esli remembered_count > 0: opora na imeyuschiysya opyt;
+    - inache: rekomendovat issledovanie i utochnenie trebovaniy."""
     if recalled_count > 0:
         choice = "ispolzovat nakoplennyy opyt i utochnit plan"
     else:
-        choice = "issledovat zadachu i sobrat ogranicheniya"
+        choice = "explore the problem and collect constraints"
     return {
         "mode": "local_decision",
         "goal": goal,
         "hypothesis": best_h,
         "recalled": recalled_count,
         "choice": choice,
-        "summary": f"Dlya tseli '{goal}' vybrana strategiya: {choice}.",
+        "summary": f"For the goal ъЗЗФ0ЗЗь, the strategy chosen was: ЗЗФ1ЗЗ.",
     }
 
 
 def run_cascade(goal: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
-    """
-    Zapustit kaskadnoe myshlenie dlya tseli.
+    """Launch cascading thinking for a goal.
 
-    Vozvrat:
-      {
-        "ok": True/False,
-        "goal": str,
-        "steps": [...],
-        "summary": str
-      }
-    """
+    Return:
+      ZZF0Z"""
     params = params or {}
     steps: List[Dict[str, Any]] = []
 
     # 1) Think
-    steps.append({"stage": "think", "msg": f"Obdumyvayu tsel: {goal}"})
+    steps.append({"stage": "think", "msg": f"Thinking about the goal: ZZF0Z"})
     try:
         record_event("cascade", "start", True, {"goal": goal})
         record_thought(goal, "start-cascade", True)
@@ -349,7 +336,7 @@ def run_cascade(goal: str, params: Dict[str, Any] | None = None) -> Dict[str, An
                     }
                 )
             except Exception as e:
-                # Ne ronyaem kaskad pri oshibke payplayna.
+                # Does not drop the cascade when there is a pipeline error.
                 traceback.print_exc()
                 results.append(
                     {"step": i, "name": st.get("name"), "error": str(e)[:200]}
@@ -380,7 +367,7 @@ def run_cascade(goal: str, params: Dict[str, Any] | None = None) -> Dict[str, An
     if local_choice and analyze_summary:
         summary = f"{analyze_summary} / Rekomendatsiya: {local_choice}"
     elif local_choice:
-        summary = f"Kaskad zavershen. Rekomendatsiya: {local_choice}"
+        summary = f"The cascade is completed. Recommendation: ZZF0Z"
     elif analyze_summary:
         summary = f"Kaskad zavershen. {analyze_summary}"
     else:
@@ -393,7 +380,7 @@ def run_cascade(goal: str, params: Dict[str, Any] | None = None) -> Dict[str, An
     except Exception:
         pass
 
-    # Zapis v pamyat (kak dream/opyt)
+    # Recording in memory (as a dream/experience)
     try:
         memory_add("dream", f"cascade: {goal}", {"summary": summary, "steps": len(steps)})
     except Exception:

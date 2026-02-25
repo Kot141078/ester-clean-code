@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-roles/ontology.py — ontologiya roley i ikh semanticheskikh priznakov.
+"""roles/ontology.py - ontologiya roley i ikh semanticheskikh priznakov.
 
 MOSTY:
 - (Yavnyy) get_ontology() → dict s opredeleniyami roley (>=20), sinonimami i ozhidaemymi napravleniyami po vektoram.
-- (Skrytyy #1) Skhodimost s vektorom: roli opisany cherez "hints" po izmereniyam (experience, reaction, calm, ...).
+- (Skrytyy #1) Skhodimost s vektorom: role opisany cherez "hints" po izmereniyam (experience, reaction, calm, ...).
 - (Skrytyy #2) Rasshiryaemost: merge_ontology(custom) pozvolyaet dobavlyat/pereopredelyat roli bez migratsiy.
 
 ZEMNOY ABZATs:
-Ester derzhit "slovar" roley: kto sklonen k chemu, kak eto raspoznaetsya i chem otlichaetsya "veteran-operator" ot "razvedchik" ili "peregovorschik".
+Ester derzhit "slovar" roley: kto sklonen k chemu, kak eto raspoznaetsya i chem otlichaetsya "veteran-operator" ot "razvedchik" or "peregovorschik".
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Dict, Any

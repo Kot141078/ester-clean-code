@@ -1,6 +1,6 @@
-# R6/scripts/r6_smoke.ps1 — offlayn-smoke dlya Windows PowerShell
-# Mosty: (Yavnyy) Enderton — predikaty; (Skrytyy #1) Ashbi — katbek; (Skrytyy #2) Cover&Thomas — umenshenie izbytochnosti.
-# Zemnoy abzats: proverka primeneniya pravil k poslednemu daydzhestu, bez izmeneniya rantayma.
+# Rb/skripts/rb_stoke.ps1 - offline stock for Windows PowerShell
+# Bridges: (Explicit) Enderton - predicates; (Hidden #1) Ashby - cutback; (Hidden #2) Carpet & Thomas - reducing redundancy.
+# Earthly paragraph: checking that the rules are applied to the last digest, without changing the runtime.
 # c=a+b
 
 python tests/r6_smoke.py

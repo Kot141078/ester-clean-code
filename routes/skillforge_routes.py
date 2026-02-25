@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/skillforge_routes.py - REST: kuznitsa (draft/test/apply).
+"""routes/skillforge_routes.py - REST: kuznitsa (draft/test/apply).
 
 Mosty:
-- Yavnyy: (Veb ↔ Samorazvitie) sdelat modul - cherez karantin i testy.
+- Yavnyy: (Veb ↔ Samorazvitie) sdelat modul - cherez quarantine i testy.
 - Skrytyy #1: (Bezopasnost ↔ Kontrol) A/B, zapreschen vypusk pri B.
 - Skrytyy #2: (Instrumenty ↔ Protsessy) svyazka s deployer.stage/approve uzhe nastroena v sisteme.
 
 Zemnoy abzats:
-Knopki «chernovik», «proverka», «vypusk v staging».
+Knopki “chernovik”, “verka”, “vypusk v staging”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/room.py — legkiy kooperativnyy sloy (komnaty, lider, kvoty, sobytiya).
+"""modules/coop/room.py - legkiy kooperativnyy sloy (komnaty, leader, kvoty, sobytiya).
 
-Funktsional:
+Functional:
 - komnaty: join/leave, spisok pirov, status
-- lider: set/rotate
+- leader: set/rotate
 - kvoty: tick_hz (logicheskie tiki), actions_per_sec (APS)
 - sobytiya: append/broadcast, pull (posledovatelnost seq i polling)
-- bezopasnyy forvard silnykh sobytiy (hotkey/text) — proverka consent_gate na LIDERE
+- bezopasnyy forvard silnykh sobytiy (hotkey/text) — proverka consent_gate on LIDERE
 
-Ogranicheniya:
+Limitations:
 - In-memory, bez fonovykh potokov i demonov
 - Polling po GET /coop/pull?room=...&since=seq (dlinnyy optsionalno, no tut obychnyy korotkiy)
 
 MOSTY:
-- Yavnyy: (Sovmestnost ↔ Kontrol) zhezl lidera opredelyaet, kto realno «zhmet».
+- Yavnyy: (Sovmestnost ↔ Kontrol) zhezl lidera opredelyaet, kto realno “zhmet”.
 - Skrytyy #1: (Infoteoriya ↔ Predskazuemost) tick/APS zadayut ritm i limitiruyut potok deystviy.
 - Skrytyy #2: (Inzheneriya ↔ Sovmestimost) chistyy JSON i lokalnye REST-vyzovy bez vneshnikh brokerov.
 
 ZEMNOY ABZATs:
-Eto shina sobytiy v pamyati protsessa. Lider — edinstvennyy, kto ispolnyaet «silnye» deystviya. Ostalnye poluchayut sobytiya v log (dlya UI/sinkhronizatsii).
+This is shina sobytiy v pamyati protsessa. Leader - edinstvennyy, who ispolnyaet “silnye” deystviya. Ostalnye poluchayut sobytiya v log (dlya UI/sinkhronizatsii).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple
 import time, threading, json, http.client
@@ -90,16 +88,14 @@ def _append_event(rm: Dict[str, Any], ev: Dict[str, Any]) -> int:
     ev["seq"] = rm["seq"]
     ev["ts"] = time.time()
     rm["events"].append(ev)
-    # ogranichim khvost
+    # limitim khvost
     if len(rm["events"]) > 2000:
         rm["events"] = rm["events"][-1000:]
     return ev["seq"]
 
 def broadcast(room: str, peer_id: str, ev_type: str, payload: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Esli peer_id == leader i sobytie «silnoe» (hotkey/text), probuem ispolnit lokalno (consent_gate).
-    Vsegda pishem v shinu sobytiy; klienty zaberut cherez /pull.
-    """
+    """Esli peer_id == leader i sobytie “silnoe” (hotkey/text), try ispolnit lokalno (consent_gate).
+    Vsegda pishem v shinu sobytiy; klienty zaberut cherez /pull."""
     rm = _room(room)
     leader = rm.get("leader")
     executed = None

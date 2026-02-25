@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ops_routes.py - REST dlya operatsionnykh zadach: pokupki, zadaniya i GDPR.
+"""routes/ops_routes.py - REST dlya operatsionnykh zadach: pokupki, zadaniya i GDPR.
 
-Etot modul obedinyaet dva aspekta operatsionnoy deyatelnosti:
-1.  **Spisok del i pokupok**: Planirovanie pokupok, naznachenie zadach i otslezhivanie ikh vypolneniya.
-2.  **Instrumenty GDPR**: Upravlenie personalnymi dannymi, vklyuchaya eksport i bezopasnoe udalenie po zaprosu.
+This modul obedinyaet dva aspekta operatsionnoy deyatelnosti:
+1. **Spisok del i pokupok**: Planirovanie pokupok, naznachenie zadach i otslezhivanie ikh vypolneniya.
+2. **Instrumenty GDPR**: Upravlenie personalnymi dannymi, vklyuchaya eksport i bezopasnoe udalenie po zaprosu.
 
-Endpointy:
+Endpoint:
   (Zadachi i pokupki)
-  • POST /ops/shopping/plan      {"items":[{"name","qty"?,"budget"?,"tags"?[]}],"assign_to"?:"papa"}
-  • GET  /ops/assignments
+  • POST /ops/shopping/plan {"items":[{"name","qty"?,"budget"?,"tags"?[]}],"assign_to"?:"papa"}
+  • GET /ops/assignments
   • POST /ops/assignments/complete {"id": "<task_id>"}
 
   (GDPR)
-  • POST /ops/export_personal_data   {"query":"stroka","download":false}
-  • POST /ops/delete_personal_data   {"query":"stroka","dry_run":true}
-"""
+  • POST /ops/export_personal_data {"query":"stroka","download":false}
+  • POST /ops/delete_personal_data {"query":"stroka","dry_run":true}"""
 from __future__ import annotations
 
 import io
@@ -116,7 +114,7 @@ def _save_structured(recs: List[Dict[str, Any]], raw: Any, fmt: str) -> None:
         json.dump(data, f, ensure_ascii=False, indent=2)
     os.replace(tmp, p)
 
-# ---------- GDPR: yadro realizatsii ----------
+# ----------GDPG: core implementation ----------
 
 def _export_personal_data_impl(query: str) -> Dict[str, Any]:
     ql = (query or "").strip().lower()
@@ -249,7 +247,7 @@ def _delete_personal_data_impl(query: str, dry_run: bool = True) -> Dict[str, An
                 else:
                     keep_lines.append(line)
             except Exception:
-                rem_ev += 1  # Udalyaem povrezhdennye stroki
+                rem_ev += 1  # Removing damaged lines
         if not dry_run and rem_ev > 0:
             tmp = ev_path + ".tmp"
             with open(tmp, "w", encoding="utf-8") as f:
@@ -265,7 +263,7 @@ def _delete_personal_data_impl(query: str, dry_run: bool = True) -> Dict[str, An
 
 @bp_ops.route("/shopping/plan", methods=["POST"])
 def api_shop_plan():
-    """Sozdat spisok pokupok i naznachit ispolnitelya."""
+    """Create a shopping list and assign a performer."""
     if add_assignments is None:
         return jsonify({"ok": False, "error": "ops module unavailable"}), 500
     d: Dict[str, Any] = request.get_json(True, True) or {}
@@ -275,14 +273,14 @@ def api_shop_plan():
 
 @bp_ops.route("/assignments", methods=["GET"])
 def api_assignments():
-    """Poluchit spisok vsekh aktivnykh zadaniy."""
+    """Get a list of all active jobs."""
     if list_assignments is None:
         return jsonify({"ok": False, "error": "ops module unavailable"}), 500
     return jsonify(list_assignments())
 
 @bp_ops.route("/assignments/complete", methods=["POST"])
 def api_assign_complete():
-    """Otmetit zadanie kak vypolnennoe."""
+    """Mark the task as completed."""
     if complete_assignment is None:
         return jsonify({"ok": False, "error": "ops module unavailable"}), 500
     d: Dict[str, Any] = request.get_json(True, True) or {}
@@ -291,7 +289,7 @@ def api_assign_complete():
 @bp_ops.route("/export_personal_data", methods=["POST"])
 @jwt_required()
 def export_personal_data():
-    """Eksportirovat personalnye dannye po poiskovomu zaprosu."""
+    """Export personal data based on a search query."""
     data = request.get_json(silent=True) or {}
     q = str(data.get("query") or "").strip()
     download = bool(data.get("download") or False)
@@ -309,7 +307,7 @@ def export_personal_data():
 @bp_ops.route("/delete_personal_data", methods=["POST"])
 @jwt_required()
 def delete_personal_data():
-    """Udalit personalnye dannye po poiskovomu zaprosu."""
+    """Delete personal data for a search query."""
     data = request.get_json(silent=True) or {}
     q = str(data.get("query") or "").strip()
     if not q:
@@ -318,14 +316,14 @@ def delete_personal_data():
     out = _delete_personal_data_impl(q, dry_run=dry)
     return jsonify(out)
 
-# ---------- Registratsiya Blueprint v prilozhenii ----------
+# ---------- Register Blueprint in the application ----------
 
 def register(app: Flask):  # pragma: no cover
     """Registriruet ops blueprint v prilozhenii Flask."""
     app.register_blueprint(bp_ops, url_prefix="/ops")
 
 def init_app(app: Flask):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 __all__ = ["bp_ops", "register", "init_app"]

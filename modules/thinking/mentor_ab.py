@@ -1,31 +1,29 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/mentor_ab.py — A/B-slot «Nastavnika» s avto-otkatom.
+"""modules/thinking/mentor_ab.py - A/B-slot "Nastavnika" s avto-otkatom.
 
-Naznachenie:
-- Derzhim dva nezavisimykh «rezhima» podsvetki/logiki: A (stabilnyy, po umolchaniyu) i B (eksperiment).
-- Pereklyuchenie — REST. Avto-otkat — po taymeru (esli vklyuchen), chtoby minimizirovat risk «zalipnut» v B.
+Name:
+- Derzhim dva nezavisimykh “rezhima” podsvetki/logiki: A (stabilnyy, po umolchaniyu) i B (eksperiment).
+- Pereklyuchenie - REST. Avto-otkat - po taymeru (esli vklyuchen), chtoby minimizirovat risk “zalipnut” v B.
 
 ENV:
-- MENTOR_SLOT (A|B) — nachalnyy slot (default A)
-- MENTOR_AUTO_ROLLBACK_SEC — 0 (off) ili >0 (sekundy do avto-vozvrata v A), po umolchaniyu 0
+- MENTOR_SLOT (A|B) — initial slot (default A)
+- MENTOR_AUTO_ROLLBACK_SEC — 0 (off) or >0 (secundy do avto-vozvrata v A), po umolchaniyu 0
 
-API (cherez routes/mentor_ab_routes.py):
-- GET /mentor/ab/status           -> {slot, auto_sec, until_ts?}
+API (via routes/mentor_ab_routes.py):
+- GET /mentor/ab/status -> {slot, auto_sec, until_ts?}
 - POST /mentor/ab/switch {"slot":"A"|"B"}
-- POST /mentor/ab/auto  {"sec":60}     # vkl/pereustanovka avto-otkata
-- POST /mentor/ab/cancel_auto          # vykl avto-otkata
+- POST /mentor/ab/auto {"sec":60} # vkl/pereustanovka avto-otkata
+- POST /mentor/ab/cancel_auto # vykl avto-otkata
 
 MOSTY:
 - Yavnyy: (Inzheneriya ↔ Ekspluatatsiya) bezopasnoe razvertyvanie s bystrym otkatom.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) dva fiksirovannykh kanala umenshayut veroyatnost regressiy.
-- Skrytyy #2: (Kibernetika ↔ Kontrol) «refleks» vozvrata k A.
+- Skrytyy #2: (Kibernetika ↔ Kontrol) “reflexes” vozvrata k A.
 
 ZEMNOY ABZATs:
-Rabotaet oflayn v odnom protsesse; sostoyaniya — v pamyati + ENV-defolty. Bez storonnikh servisov.
+Rabotaet oflayn v odnom protsesse; sostoyaniya - v pamyati + ENV-defolty. Bez storonnikh servisov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, threading
 from typing import Optional, Dict, Any

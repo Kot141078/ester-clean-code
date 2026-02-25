@@ -24,7 +24,7 @@ chtoby dazhe nesovpadayuschie imena funktsiy ne ronyali veb-interfeys. c=a+b
 """
 from __future__ import annotations
 
-# 1) jupytext(...) → flask.jsonify(...), esli gde-to staryy vyzov
+# 1) jupytext(...) → flask.jsonify(...), esli somewhere staryy vyzov
 try:
     import builtins
     def jupytext(payload=None, *args, **kwargs):  # type: ignore
@@ -51,13 +51,13 @@ def _patch_discover_aliases() -> None:
     try:
         import importlib
         m = importlib.import_module("modules.app.discover")
-        # esli v module net nuzhnykh imen — zavedem
+        # if the module does not have the necessary names, we will create
         if not hasattr(m, "scan_modules") and hasattr(m, "scan"):
             setattr(m, "scan_modules", getattr(m, "scan"))
         if not hasattr(m, "get_status") and hasattr(m, "status"):
             setattr(m, "get_status", getattr(m, "status"))
     except Exception:
-        # myagko — nichego strashnogo, esli modul poyavitsya pozzhe
+        # gently - it’s okay if the module appears later
         pass
 
 _patch_discover_aliases()

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # modules/self/time_utils.py
-# Edinyy istochnik pravdy o vremeni dlya Ester.
+# Esther's single source of truth about time.
 # c=a+b
 
 from datetime import datetime
@@ -8,22 +8,20 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 try:
     from zoneinfo import ZoneInfo
 except ImportError:
-    # Fallback dlya starykh pitonov, khotya v 2025 dolzhen byt 3.9+
+    # Falbatsk for old pythons, although in 2025 there should be 3.ya+
     from dateutil.tz import gettz as ZoneInfo
 
-# Zhestkaya privyazka k Bryusselyu, kak k fizicheskomu mestu nakhozhdeniya Servera/Sozdatelya
+# Strict binding to Brussels as the physical location of the Server/Creator
 HOME_TZ_NAME = "UTC"
 HOME_TZ = ZoneInfo(HOME_TZ_NAME)
 
 def now_brussels() -> datetime:
-    """Vozvraschaet tekuschiy datetime s uchetom TZ Bryusselya."""
+    """Returns the current DateTime, taking into account the C Brussels."""
     return datetime.now(tz=HOME_TZ)
 
 def format_for_prompt() -> tuple[str, str]:
-    """
-    Vozvraschaet paru (iso, human_readable) dlya inektsii v prompt.
-    Primer: ('2025-12-12T22:00:00+01:00', '12.12.2025 22:00 (CET, UTC+0100)')
-    """
+    """Returns a pair (iso, human_readable) for injection into the prompt.
+    Example: (b2025-12-12Ть22:00:00+01:00b, b12.12.2025 22:00 (NETWORK, UTS+0100)b)"""
     now = now_brussels()
     iso = now.isoformat()
     # Format: DD.MM.GGGG ChCh:MM (Timezone)

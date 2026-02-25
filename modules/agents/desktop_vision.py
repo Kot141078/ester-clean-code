@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-modules/agents/desktop_vision.py — zrenie rabochego stola (yakorya UI, poisk, «navedi-klikni»).
+"""modules/agents/desktop_vision.py - zrenie rabochego stola (yakorya UI, poisk, “navedi-klikni”).
 
 Vozmozhnosti:
-- Reestr yakorey (anchors): imya → {roi?, template_path?} v JSON-fayle.
-- Poisk yakorya na skrinshote: esli Pillow dostupen — prostoe sopostavlenie shablona (SSD);
-  inache — evristika po ROI ili vozvraschaem «ne naydeno» bez oshibok.
+- Register yakorey (anchors): imya → {roi?, template_path?} v JSON-fayle.
+- Poisk yakorya na screenshote: esli Pillow dostupen - prostoe sopostavlenie shablona (SSD);
+  inache - evristika po ROI ili vozvraschaem “ne naydeno” bez oshibok.
 - Postprotsess: tsentr boksa, otchet, trassirovka v pamyat.
 
-Formaty yakorey:
+Formatyyakorey:
   {
     "name": "ok_button",
     "roi": [x,y,w,h],            # optsionalno: ozhidaemaya oblast
@@ -18,14 +17,13 @@ Formaty yakorey:
 MOSTY:
 - Yavnyy: (Drayver OS ↔ Zrenie) — shagi {capture→find→click} stanovyatsya obyasnimymi.
 - Skrytyy #1: (Infoteoriya ↔ Robastnost) — ROI i shablony snizhayut entropiyu poiska.
-- Skrytyy #2: (Kibernetika ↔ Bezopasnost) — dry-run po umolchaniyu, prozrachnyy otchet.
+- Skrytyy #2: (Kibernetika ↔ Bezopasnost) - dry-run po umolchaniyu, prozrachnyy otchet.
 
 ZEMNOY ABZATs:
-Inzhenerno — «raskroy» skrinshota, naydi «anchor», verni koordinatu tsentra i doverie.
-Prakticheski — Ester mozhet «uvidet knopku» i natselit deystvie (klik) s poyasneniem.
+Inzhenerno - “raskroy” skrinshota, naydi “anchor”, verni koordinatu tsentra i doverie.
+Prakticheski - Ester mozhet “uvidet knopku” i natselit deystvie (klik) s poyasneniem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple, Optional
 import os, json, time
@@ -73,14 +71,14 @@ def anchors_remove(name:str)->Dict[str,Any]:
     return {"ok":True}
 
 def _ssd_score(img, tpl, x0, y0)->float:
-    # prostaya summa kvadratov razlichiy (bez normalizatsii)
+    # simple sum of squared differences (no normalization)
     w,h=tpl.size
     if x0+w>img.size[0] or y0+h>img.size[1]: return float("inf")
     patch=img.crop((x0,y0,x0+w,y0+h))
     # uskorim do L (grayscale)
     patch=patch.convert("L"); tpl=tpl.convert("L")
     p=patch.tobytes(); t=tpl.tobytes()
-    # SSD kak summa (p[i]-t[i])^2
+    # SSD as the sum (puisch-tyusch)^2
     s=0
     for a,b in zip(p,t):
         d=(a-b); s+=d*d
@@ -88,7 +86,7 @@ def _ssd_score(img, tpl, x0, y0)->float:
 
 def _find_template(img, tpl)->Tuple[int,int,float]:
     best=(0,0,float("inf"))
-    step=max(1, min(img.size)//200)  # grubyy shag, chtoby ne «zhech CPU»; stabilnost > tochnost
+    step=max(1, min(img.size)//200)  # a rough step so as not to “burn the CNC”; stability > accuracy
     W,H=img.size; w,h=tpl.size
     for y in range(0, H-h, step):
         for x in range(0, W-w, step):
@@ -109,7 +107,7 @@ def detect(image_path:str, anchor_name:str)->Dict[str,Any]:
     if not os.path.exists(image_path):
         return {"ok":False,"error":"image_not_found","path":image_path}
 
-    # rezhim bez PIL — otdaem ROI esli zadan, inache fail-safe
+    # mode without SAW - give ROY if specified, otherwise file-safe
     if not _PIL:
         if rec.get("roi"):
             x,y,w,h = rec["roi"]
@@ -119,7 +117,7 @@ def detect(image_path:str, anchor_name:str)->Dict[str,Any]:
     img=Image.open(image_path).convert("RGB")
     box=None; center=None; conf=0.0
 
-    # 1) esli zadan ROI — vyrezhem zonu poiska
+    # 1) if SWARM is specified, cut out the search area
     if rec.get("roi"):
         x,y,w,h = rec["roi"]
         x=max(0,x); y=max(0,y); w=max(1,w); h=max(1,h)
@@ -129,7 +127,7 @@ def detect(image_path:str, anchor_name:str)->Dict[str,Any]:
         sx,sy=0,0
         crop=img
 
-    # 2) esli zadan template — poisk sovpadeniya
+    # 2) if a template is specified, search for a match
     if rec.get("template") and os.path.exists(rec["template"]):
         tpl=Image.open(rec["template"]).convert("RGB")
         cx,cy,conf=_find_template(crop, tpl)
@@ -137,7 +135,7 @@ def detect(image_path:str, anchor_name:str)->Dict[str,Any]:
         box=[center[0]-tpl.size[0]//2, center[1]-tpl.size[1]//2, tpl.size[0], tpl.size[1]]
         engine="template"
     else:
-        # fallback: esli tolko ROI, berem tsentr ROI
+        # false: if only ROY, take the center of ROY
         if rec.get("roi"):
             x,y,w,h = rec["roi"]
             center=[x+w//2, y+h//2]; box=[x,y,w,h]; conf=0.42; engine="roi"
@@ -150,6 +148,6 @@ def probe()->Dict[str,Any]:
     return {"ok":True,"enabled":_DV_ENABLED,"anchors_path":_ANCHORS_PATH,"pil":_PIL}
 
 def add_sample()->Dict[str,Any]:
-    # dobavim uchebnyy anchor (ROI dlya «tsentra» ekrana primerno)
+    # add training anchor (ROY for the “center” of the screen approximately)
     anchors_add("ok_button", roi=[100,100,160,60], template_path=None)
     return {"ok":True,"added":"ok_button"}

@@ -46,4 +46,4 @@ Hidden bridge #2 (Guyton/Hall): deny/stop plus journal is negative feedback; wit
 
 ## Earth paragraph
 
-Eto kak elektroschit v dome: mozhno podklyuchit mnogo stankov (agentov), no esli oni idut v obkhod avtomata (Volition Gate), provodka sgorit. Poetomu kazhdoe deystvie idet cherez avtomat, s limitom po toku (budget) i zapisyu, pochemu avtomat razreshil ili zapretil.
+Eto kak elektroschit v dome: mozhno podklyuchit mnogo stankov (agentov), ​​​​​​​​​​no esli oni idut v obkhod avtomata (Volition Gate), provodka sgorit. Poetomu kazhdoe deystvie idet cherez avtomat, s limitom po toku (budget) i zapisyu, pochemu avtomat razreshil or zapretil.

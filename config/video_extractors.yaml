@@ -1,5 +1,5 @@
-# config/video_extractors.yaml — parametry universalnogo videokonveyera (optsionalno).
-# Esli fayl otsutstvuet — ispolzuyutsya ENV i vstroennye defolty.
+# config/video_extractors.yaml - parameters of the universal video pipeline (optional).
+# If the file is missing, ENV and built-in defaults are used.
 #
 # Parametry:
 #   ab_slot: A | B
@@ -15,6 +15,6 @@ ab_slot: B
 prefer_lang: 'ru'
 asr_model: 'base'
 
-# Zemnoy abzats: eto «shildik na pulte» — kakoy slot vklyuchen i na kakom yazyke zhdem subtitry.
+# Earthly paragraph: this is the “label on the remote control” - which slot is turned on and in what language we expect subtitles.
 
 # c=a+b

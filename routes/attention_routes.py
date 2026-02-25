@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-routes/attention_routes.py - «ochki vnimaniya» (kooperativnaya podsvetka).
+"""routes/attention_routes.py - “ochki vnimaniya” (kooperativnaya podsvetka).
 
 Ruchki:
   POST /attention/arrow {"from":[x,y],"to":[x,y],"label":"Syuda","peers":["127.0.0.1:8000"]}
-  POST /attention/box   {"box":{"left":..,"top":..,"width":..,"height":..},"label":"Pole","peers":[...]}
-  GET  /attention/history
+  POST /attention/box {"box":{"left":..,"top":..,"width":..,"height":..},"label":"Pole","peers":[...]}
+  GET /attention/history
 
 UI: /admin/attention - prostaya panel.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from typing import Any, Dict, List

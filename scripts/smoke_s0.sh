@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# S0/scripts/smoke_s0.sh — udobnyy smouk dlya *nix
-# Mosty: (Yavnyy) Dzheynes — "pravdopodobie" sostoyaniya otsenivaem prostymi nablyudeniyami; (Skrytye) Ashbi — regulyator prosche sistemy; Enderton — proveryaemye predikaty.
-# Zemnoy abzats: obertka, ne trogaet prilozhenie. Udobno krutit v CI/lokalno.
+# С0/skripts/stoke_s0.sh - convenient smoke for *them
+# Mosty: (Yavnyy) Dzheynes - "pravdopodobie" sostoyaniya otsenivaem prostymi nablyudeniyami; (Skrytye) Ashbi - regulyator prosche sistemy; Enderton — proveryaemye predikaty.
+# Earth paragraph: wrapper, does not touch the application. It is convenient to twist in SI/locally.
 # c=a+b
 
 set -euo pipefail

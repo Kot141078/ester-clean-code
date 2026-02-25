@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-tools/selfcheck_agent_suite.py — itogovaya samoproverka Agent Suite (Builder/KIT/Report/Activity/One-Click).
+"""tools/selfcheck_agent_suite.py - itogovaya samoproverka Agent Suite (Builder/KIT/Report/Activity/One-Click).
 
 Mosty:
 - Yavnyy: (Instrumenty ↔ Mysli/Deystviya) — proveryaem, chto eksheny zaregistrirovany v reestre i dostupny pri importe.
 - Skrytyy #1: (Instrumenty ↔ Dokumentatsiya/Statika) — proveryaem nalichie HTML/JS/planov bez izmeneniya servernykh kontraktov.
-- Skrytyy #2: (Instrumenty ↔ Bezopasnost) — validiruem A/B-slot i WRITE-flag, rekomenduem RuleHub-preset.
+- Skrytyy #2: (Instrumenty ↔ Bezopasnost) — validiruem A/B-slot i WRITE-flag, recommend RuleHub-preset.
 
 Zemnoy abzats:
-Eto «odna knopka proverki»: importiruy sistemu, ubedis, chto Ester vidit vse eksheny, stranitsy i plany. Ni odin kontrakt ne menyaetsya — eto kontrol kachestva.
-# c=a+b.
-"""
+Eto “odna knopka proverki”: importiruy sistemu, ubedis, chto Ester vidit vse eksheny, stranitsy i plany. Ni odin kontrakt ne menyaetsya - eto kontrol kachestva.
+# c=a+b."""
 from __future__ import annotations
 import os, sys, json, importlib, glob
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -19,7 +17,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 EXPECTED_ACTIONS = [
-    # Agent Builder yadro
+    # Agent Builder core
     "agent.builder.templates.list",
     "agent.builder.describe",
     "agent.builder.plan.generate",
@@ -81,8 +79,8 @@ def _exists(path):
     return os.path.isfile(os.path.join(ROOT, path))
 
 def _import_actions():
-    # Podkhvatyvaem nashi action-moduli (drop-in): cherez auto-discovery oni gruzyatsya,
-    # no zdes prinuditelno importiruem dlya prozrachnosti.
+    # Picks up our action modules (drop-in): they are loaded through auto-discoverers,
+    # but here we force import for transparency.
     modules = [
         "modules.thinking.actions_build_agent_helper",
         "modules.thinking.actions_sustainability_kit",
@@ -132,7 +130,7 @@ def main():
         "static_js": js,
         "plans": plans,
         "registry": reg_payload,
-        "hint": "RuleHub preset: docs/agent_builder_rulehub_preset.yaml; zapis tolko pri AB='A' i WRITE='1'."
+        "hint": "RuleNew preset: dox/agent_builder_rulenov_preset.yaml; recording only for AB=bAb and VRITE=b1b."
     }
 
     if "--json" in sys.argv:

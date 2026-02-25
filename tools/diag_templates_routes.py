@@ -556,18 +556,18 @@ def render_markdown(report: Dict[str, Any]) -> str:
 
     lines.append("## Bridges")
     lines.append(
-        "- Ashby (yavnyy): diagnostika marshrutov/shablonov daet nablyudaemoe i upravlyaemoe raznoobrazie UI."
+        "- Ashby (explicit): route/pattern diagnostics provide observable and manageable variety of OPs."
     )
     lines.append(
-        "- Enderton (skrytyy): chastichnaya funktsiya `template -> route` priblizhaetsya k totalnoy za schet ustraneniya neopredelennostey."
+        "- Enderton (hidden): the partial function etemplate -> routee approaches the total by eliminating uncertainties."
     )
     lines.append(
-        "- Guyton/Hall (skrytyy): vmesto 500 stranitsy vozvraschayut sostoyanie \"not ready\", sokhranyaya homeostasis kontura."
+        "- Guiton/Hull (hidden): instead of page 500, the \"note read\" state is returned, preserving the homeostasis of the circuit."
     )
     lines.append("")
     lines.append("## Earth Paragraph")
     lines.append(
-        "UI zdes kak provodka v schitke: poka ne prozvonili klemmy testerom (diagnostika+smoke), nelzya podklyuchat novye avtomaty."
+        "The UI here is like wiring in a panel: until the terminals are rung with a tester (diagnostics + drain), you cannot connect new machines."
     )
     lines.append("")
     return "\n".join(lines)

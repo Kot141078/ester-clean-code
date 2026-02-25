@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/synergy_api_v2_mount.py - montirovanie FastAPI /api/v2 v suschestvuyuschiy Flask.
+"""routes/synergy_api_v2_mount.py - montirovanie FastAPI /api/v2 v suschestvuyuschiy Flask.
 
 MOSTY:
 - (Yavnyy) Oborachivaet ASGI (FastAPI) v WSGI cherez asgiref.wsgi.AsgiToWsgi i veshaet DispatcherMiddleware.
-- (Skrytyy #1) A/B-flag SYNERGY_API_V2_ENABLE (po umolchaniyu vklyucheno).
+- (Skrytyy #1) A/B-flag SYNERGY_API_V2_ENABLE (by umolchaniyu vklyucheno).
 - (Skrytyy #2) Prefiks montirovaniya nastraivaetsya ENV (SYNERGY_API_V2_PREFIX) bez izmeneniya koda.
 
 ZEMNOY ABZATs:
 Odna stroka v `app.py` - i novoe API dostupno, a staryy Flask ostaetsya kak byl.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

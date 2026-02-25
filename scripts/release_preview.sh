@@ -3,10 +3,10 @@ set -euo pipefail
 
 # One-shot reliz predprosmotra (v0.1-preview):
 #  - generiruet CHANGELOG.md
-#  - sobiraet SBOM (esli ustanovlen syft)
+#  - collects SVOM (if the software is installed)
 #  - upakovyvaet artefakt (tar.gz)
-#  - sozdaet git-teg v0.1-preview (esli net)
-#  - pytaetsya vygruzit na WebDAV / S3 / cherez storage.uploader (esli dostupno)
+#  - creates live-tag v0.1-preview (if not present)
+#  - tries to upload to WebDAV/Sz/ via storage.uploader (if available)
 
 VERSION="${VERSION:-v0.1-preview}"
 ARTIFACT_NAME="ester-${VERSION#v}.tar.gz"
@@ -32,11 +32,11 @@ if command -v syft >/dev/null 2>&1; then
   echo "[release] SBOM saved: $SBOM"
 else
   echo "[release] syft not found, skipping SBOM"
-  : > "$SBOM"  # sozdadim pustoy fayl dlya sovmestimosti shagov
+  : > "$SBOM"  # let's create an empty file for compatibility of steps
 fi
 
 echo "[release] Pack artifact: $ARTIFACT_NAME"
-# Isklyuchim .git i tyazhelye artefakty, mozhno rasshiryat
+# Exclude .live and heavy artifacts, can be expanded
 tar --exclude=".git"     --exclude="**/__pycache__"     --exclude="**/.pytest_cache"     -czf "$ARTIFACT_NAME" .
 
 echo "[release] Try upload via storage.uploader (if present)"

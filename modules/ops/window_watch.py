@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ops/window_watch.py — «zhivoy pleybufer»: otslezhivanie aktivnogo okna i avtoprimenenie khotkeev.
+"""modules/ops/window_watch.py ​​- “zhivoy playbufer”: otslezhivanie aktivnogo okna i avtoprimenenie khotkeev.
 
-Ideya:
+Ideaya:
 - Fonovyy potok (daemon=False) s periodicheskim oprosom aktivnogo okna.
 - Pri smene zagolovka → vyzvat profile_mix.apply_for_title(title).
 
-Kontrol:
+Control:
 - start(interval_ms=800), stop(), status()
 
-ZAMEChANIE:
+NOTE:
 - Realizatsiya aktivnogo okna uproschennaya: na Windows cherez GetForegroundWindow + GetWindowText,
-  na Linux — cherez `xdotool getactivewindow getwindowname` (nuzhen xdotool). Esli nedostupno — tikhiy no-op.
+  na Linux - cherez `xdotool getactivewindow getwindowname` (nuzhen xdotool). Esli nedostupno - tikhiy no-op.
 
 MOSTY:
 - Yavnyy: (Sensor OS ↔ Motorika) refleks na pereklyuchenie vnimaniya.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) minimalnyy opros bez demonov i blokirovok.
-- Skrytyy #2: (Kibernetika ↔ Volya) avtomaticheski «vstavlyaet» nuzhnye khotkei pri fokuse.
+- Skrytyy #2: (Kibernetika ↔ Volya) avtomaticheski “vstavlyaet” nuzhnye khotkei pri fokuse.
 
 ZEMNOY ABZATs:
-Obychnyy potok v protsesse veb-prilozheniya, upravlyaemyy REST. Nikakikh vneshnikh servisov.
+Obychnyy potok v protsesse web-prilozheniya, upravlyaemyy REST. Nikakikh vneshnikh servisov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import platform, threading, time, subprocess, ctypes
 from ctypes import wintypes

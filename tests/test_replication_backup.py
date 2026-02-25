@@ -36,7 +36,7 @@ def test_backup_run_verify_restore(client, auth_hdr_operator, auth_hdr_admin):
     assert r2.status_code == 200
     assert r2.get_json().get("ok") is True
 
-    # restore (vremennaya papka)
+    # restore (temporary folder)
     tmp_dir = os.path.join(os.path.dirname(zip_path), "restore_tmp")
     r3 = client.post(
         "/ops/backup/restore",

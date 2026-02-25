@@ -1,7 +1,7 @@
 # routes/ester_net_search_logged_mem_routes_alias.py
 # Obertka nad /ester/net/search_logged:
-# * proverka voli (cherez planirovschik);
-# * akkuratnyy log v pamyat (esli est podkhodyaschiy endpoint);
+# * test of will (via planner);
+# * neat log into memory (if there is a suitable endpoint);
 # * ni odin sboy ne lomaet bazovyy kontrakt poiska.
 
 from __future__ import annotations
@@ -28,8 +28,7 @@ def _call_internal(method: str, path: str, payload: Dict[str, Any] | None = None
     """Vnutrenniy HTTP k samomu sebe cherez Flask test_client.
 
     Nikakogo vneshnego trafika, tolko vnutri protsessa.
-    Bezopasen: lyubye oshibki prevraschayutsya v (0, None).
-    """
+    Safe: lyubye oshibki prevraschayutsya v (0, None)."""
     try:
         client = current_app.test_client()
         if method == "GET":
@@ -51,20 +50,19 @@ def _call_internal(method: str, path: str, payload: Dict[str, Any] | None = None
 
 
 def _check_will_for_network(source: str) -> bool:
-    """Myagkaya proverka cherez /ester/will/plan_ext_net (esli on est).
+    """Soft check via /ester/vill/plan_is_not (if there is one).
 
-    Nikakikh zhestkikh otkazov, tolko podskazka.
-    """
+    No hard refusals, just a hint."""
     code, data = _call_internal("GET", "/ester/will/plan_ext_net")
     if code != 200 or not isinstance(data, dict):
-        # Folbek: ne nashli planirovschik — ne blokiruem.
+        # Fullback: the scheduler was not found - it does not block.
         return False
 
     tasks = data.get("tasks") or []
     if not isinstance(tasks, list):
         return False
 
-    # Istoricheskiy sled: ischem zadachi, razreshayuschie network-deystviya.
+    # Historical trace: we are looking for tasks that resolve networking actions.
     for t in tasks:
         try:
             if not isinstance(t, dict):
@@ -72,7 +70,7 @@ def _check_will_for_network(source: str) -> bool:
             if t.get("kind") != "network":
                 continue
             p = t.get("payload") or {}
-            # Minimalnaya proverka soglasovannosti.
+            # Minimal consistency check.
             if p.get("source") == source:
                 return True
         except Exception:
@@ -82,12 +80,11 @@ def _check_will_for_network(source: str) -> bool:
 
 
 def _try_log_memory(source: str, query: str, items: Any) -> bool:
-    """Optsionalnyy log v pamyat.
+    """Optionalnyy log v pamyat.
 
-    Nichego ne lomaet:
-    * esli endpointa net — prosto vozvraschaem False;
-    * ne logiruem sekrety: tolko tekst zaprosa i zagolovki rezultatov.
-    """
+    Nothing wrong:
+    * if there is no endpoint, we simply return False;
+    *ne logiruem sekrety: only tekst zaprosa i zagolovki rezultatov."""
     if not _env_flag("ESTER_NET_LOG_ALL", True):
         return False
 
@@ -111,10 +108,10 @@ def _try_log_memory(source: str, query: str, items: Any) -> bool:
                     }
                 )
     except Exception:
-        # Lyubye problemy s formatom prosto ignoriruem.
+        # We simply ignore any problems with the format.
         pass
 
-    # Pytaemsya nayti myagkiy memory-endpoint
+    # Trying to find a soft memory endpoint
     for path in ("/ester/memory/events", "/ester/memory/event", "/ester/memory/log"):
         code, _ = _call_internal("POST", path, event)
         if code == 200:
@@ -125,13 +122,12 @@ def _try_log_memory(source: str, query: str, items: Any) -> bool:
 
 @bp_ester_net_search_mem.route("/ester/net/search_logged_mem", methods=["POST"])
 def ester_net_search_logged_mem():
-    """Rasshirennyy setevoy poisk cherez most.
+    """Rasshirnnyy setevoy poisk cherez most.
 
-    Kontrakt:
+    Contract:
     * Vkhod: JSON s polyami q, limit (opts.), source (operator|ester).
-    * Vykhod: kak /ester/net/search_logged + flagi will_checked i memory_logged.
-    * Esli bazovyy endpoint nedostupen — 400 s ok=false.
-    """
+    * Output: like /esther/no/search_logged + flags villa_checked and memories_logged.
+    * If the base endpoint is unavailable - 400 with ok=false."""
     data = request.get_json(force=True, silent=True) or {}
 
     query = (data.get("q") or "").strip()
@@ -144,7 +140,7 @@ def ester_net_search_logged_mem():
 
     limit = data.get("limit") or data.get("top_k") or 5
 
-    # Myagkaya proverka voli
+    # Soft test of will
     will_checked = _check_will_for_network(source)
 
     # Vyzov bazovogo logiruemogo poiska
@@ -162,7 +158,7 @@ def ester_net_search_logged_mem():
     items = base.get("items") or []
     memory_logged = _try_log_memory(source, query, items)
 
-    # Formiruem otvet
+    # Generates a response
     out = dict(base)
     out["ok"] = bool(base.get("ok", True))
     out.setdefault("mode", os.getenv("ESTER_NET_SEARCH_AB", "B"))

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # scripts/installers/install_usb_agent_launchd.sh
-# Ustanavlivaet launchd-agent dlya macOS.
+# Installs the launch agent for macOS.
 
 set -euo pipefail
 
@@ -10,7 +10,7 @@ set -euo pipefail
 # - Skrytyy 2 (Praktika ↔ Bezopasnost): polzovatelskiy agent (bez sudo), peremennye mozhno zadavat v okruzhenii obolochki.
 
 # Zemnoy abzats:
-# Na macOS demony zapuskayutsya cherez launchd. Etot agent startuet pri logine i rabotaet v fone.
+# On macOS, demons are launched through launch. This agent starts when you log in and runs in the background.
 
 PLIST_SRC="packaging/launchd/com.ester.usb_agent.plist"
 PLIST_DST="$HOME/Library/LaunchAgents/com.ester.usb_agent.plist"

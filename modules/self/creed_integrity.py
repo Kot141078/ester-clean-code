@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Creed integrity helpers.
+"""Creed integrity helpers.
 
 Provides fingerprinting, anchor file management, append-only event chain,
-optional Ed25519 signature verification, and consistency checks against memory.
-"""
+optional Ed25519 signature verification, and consistency checks against memory."""
 from __future__ import annotations
 
 import base64

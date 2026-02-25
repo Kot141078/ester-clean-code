@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/search/hybrid.py — gibridnyy retriver: BM25 (po pamyati) + ierarkhicheskiy indeks + dense.
+"""modules/search/hybrid.py - gibridnyy retriver: BM25 (po pamyati) + ierarkhicheskiy indexes + dense.
 
 Mosty:
-- Yavnyy: (RAG ↔ Memory/Indeks) obedinyaem coarse (BM25/ierarkhiya) i dense (vektornyy) rezultat.
+- Yavnyy: (RAG ↔ Memory/Indeks) obedinyaem coarse (BM25/ierarkhiya) i dense (vektornyy) result.
 - Skrytyy #1: (Memory ↔ Audit) pri zaprose sokhranyaem profile zaprosa/otveta.
 - Skrytyy #2: (Volya ↔ Poisk) ekshen 'search.hybrid.query' dergaet etot modul.
 
 Zemnoy abzats:
-Kak u khoroshego bibliotekarya: snachala — po klyuchevym slovam i oglavleniyu, potom — «smyslovaya» podborka, i vse eto akkuratno skleeno.
+Kak u khoroshego bibliotekarya: snachala - po klyuchevym slovam i oglavleniyu, potom - “smyslovaya” podborka, i vse eto akkuratno skleeno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, re, math, json, collections
 from typing import Any, Dict, List, Tuple
@@ -35,7 +33,7 @@ def _flashback(n: int=500)->List[Dict[str,Any]]:
         return []
 
 def _hier_search(q: str, k: int=20)->List[Dict[str,Any]]:
-    # popytaemsya vyzvat suschestvuyuschie khendlery ierarkhii, esli oni est
+    # will try to call existing hierarchy handlers if there are any
     try:
         rep=_http_json(f"http://127.0.0.1:8000/index/search_coarse?q={q}&k={k}")
         items=rep.get("items") or []
@@ -50,7 +48,7 @@ def _dense_search(q: str, k: int=20)->List[Dict[str,Any]]:
     except Exception:
         return []
 
-# --- prostoy BM25 po flashback (fallback, esli net vneshnikh) ---
+# --- simple BM25 with flash tank (false tank if there are no external ones) ---
 def _tokenize(t: str)->List[str]:
     return re.findall(r"[A-Za-zA-Yaa-ya0-9]{2,}", t.lower())
 
@@ -110,7 +108,7 @@ def hybrid_query(q: str, k: int|None=None)->Dict[str,Any]:
     bm_ids=[(str(x["item"].get("id") or str(i)), float(x["score"])) for i,x in enumerate(bm_sc)]
 
     fused=_rrf([hier_ids, dense_ids, bm_ids], kk)
-    # sobrat kartochki, chto smozhem
+    # collect cards that we can
     id2item={}
     for it in bm_items:
         id2item[str(it.get("id"))]= {"id": str(it.get("id")), "text": it.get("text") or it.get("body") or "", "source": it.get("meta",{}).get("source","mem")}

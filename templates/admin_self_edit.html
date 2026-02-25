@@ -20,7 +20,7 @@
     <button onclick="dry()">Dry-run</button>
     <button onclick="apply()">Apply</button>
   </div>
-  <p><small>V slote <code>SELFEDIT_AB=A</code> razreshen tolko dry-run. Dlya primeneniya ustanovite <code>SELFEDIT_AB=B</code>. Vse fayly bekapyatsya i proveryayutsya.</small></p>
+  <p><small>V slote <code>SELFEDIT_AB=A</code> Only dry runes are allowed. To use, install <code>SELFEDIT_AB=B</code>. All files are backed up and checked.</small></p>
   <textarea id="json" placeholder='JSON: {"label":"...", "edits":[{"path":"routes/health_routes.py","pattern":"@bp.get\\(\"/probe\"\\)","replacement":"@bp.get(\"/probe\")","multiple":false}]}'></textarea>
   <h3>Rezultat</h3>
   <pre id="out">—</pre>

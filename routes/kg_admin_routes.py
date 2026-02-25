@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/kg_admin_routes.py - administrativnye operatsii dlya KG/GC/Rebuild.
+"""routes/kg_admin_routes.py - administrative operations dlya KG/GC/Rebuild.
 
-Marshruty:
-  POST /kg/admin/repair       - chinit KG invarianty (merge/dedup po rebram)
-  POST /kg/admin/decay_gc     - ubyvanie/GC s parametrami (sm. DecayRules)
-  POST /kg/admin/rebuild_all  - skvoznoy Rebuild/Repair: Structured + Vector + KG
+Route:
+  POST /kg/admin/repair - chinit KG invarianty (merge/dedup po rebram)
+  POST /kg/admin/decay_gc - ubyvanie/GC s parametrami (sm. DecayRules)
+  POST /kg/admin/rebuild_all - skvoznoy Rebuild/Repair: Structured + Vector + KG
 
 Mosty:
 - Yavnyy: Memory (KGStore/DecayGC) ↔ Operatsii (REST) - edinaya panel admina.
-- Skrytyy #1: Infoteoriya (Cover-Thomas) - «decay» snizhaet shum vesa reber.
+- Skrytyy #1: Infoteoriya (Cover-Thomas) - “decay” snizhaet noise vesa reber.
 - Skrytyy #2: Kibernetika (Ashby) - repair/GC derzhat graf v ustoychivom sostoyanii.
 
 Zemnoy abzats:
-Podumay o KG kak o «limfosisteme»: repair - sanobrabotka, decay - estestvennyy raspad,
-GC - vyvedenie musora; rebuild_all - «polnaya sanatsiya» po vsem organam (khranilischam).
+Podumay o KG kak o “limfosisteme”: repair - sanobrabotka, decay - natural decay,
+GC - vyvedenie musora; rebuild_all - “polnaya sanatsiya” po vsem organam (khranilischam).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -70,11 +68,11 @@ def kg_rebuild_all():
 
 
 def register_kg_admin_routes(app) -> None:  # pragma: no cover
-    """Sovmestimaya registratsiya blyuprinta (kontrakt proekta)."""
+    """Compatible blueprint registration (project contract)."""
     app.register_blueprint(kg_admin_bp)
 
 
-# Unifitsirovannye khuki proekta (drop-in)
+# Unifitsirovannye khuki project (drop-in)
 def register(app) -> None:  # pragma: no cover
     app.register_blueprint(kg_admin_bp)
 

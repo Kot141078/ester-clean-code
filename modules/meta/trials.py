@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-modules/meta/trials.py — upravlenie ispytaniyami (Trials) dlya meta-optimizatsii.
+"""modules/meta/trials.py - upravlenie ispytaniyami (Trials) dlya meta-optimizatsii.
 Khranenie (pod ESTER_DATA_ROOT):
   - data/meta/trials/<trial_id>/spec.json
   - data/meta/trials/<trial_id>/episodes.jsonl
   - data/meta/trials/<trial_id>/status.json
 Integratsiya: adapter otsenivaet epizod i vozvraschaet metriki.
-Bez zavisimostey ot kaskada; closed-box.
-"""
+No matter what; closed-box."""
 from __future__ import annotations
 from typing import Dict, Any, List, Optional
 import os, json, time, pathlib
@@ -27,7 +25,7 @@ def _json_atomic(path: pathlib.Path, obj: Any) -> None:
     os.replace(tmp, path)
 
 def create_spec(tid: str, spec: Dict[str, Any]) -> Dict[str, Any]:
-    """Sozdat/perezapisat spetsifikatsiyu ispytaniya (idempotent)."""
+    """Create/overwrite test specification (idempotent)."""
     d = _trial_dir(tid)
     d.mkdir(parents=True, exist_ok=True)
     _json_atomic(d / "spec.json", spec)
@@ -69,12 +67,11 @@ def append_episode(tid: str, episode: Dict[str, Any]) -> None:
     st["updated"] = time.time()
     _json_atomic(stp, st)
 
-# --- zapusk epizoda cherez peredannyy adapter (sm. modules.judge.adapters) ---
+# --- launching the episode via the transferred adapter (see modules.yuge.adapter) ---
 
 def run_episode(tid: str, adapter, task: Dict[str, Any], config: Dict[str, Any]) -> Dict[str, Any]:
-    """Zapuskaet odin epizod: adapter.evaluate(config, task) -> metrics.
-    Sokhranyaet zapis i vozvraschaet metriki.
-    """
+    """Launches one episode: adapter.evaluate(config, task) -> matrix.
+    Saves the record and returns metrics."""
     t0 = time.time()
     res = {"error": "no adapter"}
     try:

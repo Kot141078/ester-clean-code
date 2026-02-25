@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/memory_daily_cycle_cli.py — CLI dlya sutochnogo tsikla pamyati.
+"""scripts/memory_daily_cycle_cli.py - CLI dlya sutochnogo tsikla pamyati.
 
 Primery:
   python scripts/memory_daily_cycle_cli.py run
@@ -8,8 +7,7 @@ Primery:
   python scripts/memory_daily_cycle_cli.py start
   python scripts/memory_daily_cycle_cli.py stop
 
-# c=a+b
-"""
+# c=a+b"""
 import sys
 from modules.memory import daily_cycle
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

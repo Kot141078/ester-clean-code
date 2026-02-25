@@ -3,18 +3,18 @@ from __future__ import annotations
 
 """group_evening.py — vecherniy daydzhest dlya aktivnykh grupp.
 
-Oshibka iz loga:
+Error from loga:
   cannot import name 'TZ' from 'config'
-Prichina: config.py ne eksportiroval TZ. V fix-versii config.py dobavlen TZ.
-No dopolnitelno my delaem zdes ustoychivyy fallback (esli vdrug drugoy config).
+Prichina: config.py ne eksportiroval TZ. V fix-versii config.py addavlen TZ.
+No additional information my delaem zdes ustoychivyy fallback (esli vdrug drugoy config).
 
-Chto uluchsheno:
+What improved:
 - Pochinena kodirovka (ubrany krakozyabry).
 - Vosstanovlena otpravka tg_send (v iskhodnike byla zakommentirovana).
 - Dobavlena zaschita ot povtornoy otpravki: 1 raz v den na gruppu.
-- Dobavlen filtr po whitelist (esli ESTER_GROUP_WHITELIST zadan).
+- Add filtr po whitelist (esli ESTER_GROUP_WHITELIST zadan).
 - Tikhie chasy/okno otpravki reguliruyutsya env.
-- Vse isklyucheniya logiruyutsya (vmesto "except: pass").
+- All isklyucheniya logiruyutsya (vmesto "except: pass").
 
 Mosty:
 - Yavnyy most: group_intelligence snapshot/topics → vechernee soobschenie v Telegram.
@@ -22,8 +22,7 @@ Mosty:
   (1) Kibernetika ↔ kod: “raz v sutki” = zaschita ot ostsillyatsiy/spama (kontur stabilizatsii).
   (2) Inzheneriya ↔ ekspluatatsiya: whitelist kak predokhranitel (ne shlem “kuda popalo”).
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 import os
 import logging
@@ -112,7 +111,7 @@ EVENING_MINUTE = int(os.getenv("EVENING_DIGEST_MINUTE", "30"))
 EVENING_WINDOW_MIN = int(os.getenv("EVENING_WINDOW_MIN", "20"))  # okno ± minut
 ACTIVE_WITHIN_SEC = int(os.getenv("EVENING_ACTIVE_WITHIN_SEC", str(24 * 3600)))
 
-# Esli ukazan whitelist — otpravlyaem tolko tuda (v ostalnom filtre ne nuzhdaemsya)
+# If a vnitlist is specified, we send only there (no other filter is needed)
 WHITELIST_RAW = os.getenv("ESTER_GROUP_WHITELIST", "").strip()
 
 
@@ -133,7 +132,7 @@ def _parse_whitelist(raw: str) -> Optional[List[int]]:
 
 _WHITELIST = _parse_whitelist(WHITELIST_RAW)
 
-# Vnutrennyaya pamyat: gid -> yyyy-mm-dd (posledniy den otpravki)
+# Internal memory: guide -> yyyy-mm-dd (last day of sending)
 _SENT_DAY: Dict[int, str] = {}
 
 
@@ -150,7 +149,7 @@ def _now_local() -> datetime:
             return datetime.now(ZoneInfo(name))
         except Exception:
             pass
-    # poslednyaya liniya oborony
+    # last line of defense
     return datetime.now()
 
 
@@ -173,7 +172,7 @@ class EveningDigestDaemon(threading.Thread):
     def __init__(self, token: str):
         super().__init__(daemon=True, name="EsterEveningDigest")
         self.token = token
-        # nebolshoy dzhitter, chtoby neskolko uzlov ne bili rovno v odnu sekundu
+        # slight jitter so that multiple nodes are not exactly at the same second
         self._jitter = random.randint(0, 25)
 
     def run(self):
@@ -205,9 +204,9 @@ class EveningDigestDaemon(threading.Thread):
 
                 text = (
                     "📌 <b>Vecherniy puls</b>\n"
-                    f"Soobscheniy za sutki: {msg_count}\n"
+                    f"Messages per day: ZZF0Z"
                     f"Temy: {topics_str}\n"
-                    "Esli khotite — soberu 3‑shagovyy plan na zavtra."
+                    "If you want, I’ll put together a 3-step plan for tomorrow."
                 )
 
                 tg_send(self.token, gid, text)
@@ -218,9 +217,7 @@ class EveningDigestDaemon(threading.Thread):
                 continue
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Vecherniy daydzhest — eto kak “puls” na obkhode: ne lechit, no pokazyvaet sostoyanie.
-Esli puls merit kazhduyu sekundu — budet panika i shum. Poetomu “raz v sutki” i okno vremeni
-rabotayut kak stabilizator: menshe kolebaniy, menshe spama, bolshe smysla.
-"""
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Vecherniy daydzhest - eto kak “puls” na obkhode: ne lechit, no pokazyvaet sostoyanie.
+Esli puls merit kazhduyu sekundu - budet panika i noise. Poetomu “raz v sutki” i okno vremeni
+rabotayut kak stabilizer: menshe kolebaniy, menshe spama, bolshe smysla."""

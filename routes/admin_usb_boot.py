@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_usb_boot.py - UI/REST dlya sozdaniya USB-nositelya s autorun-planom proekta.
+"""routes/admin_usb_boot.py - UI/REST dlya sozdaniya USB-nositelya s autorun-planom project.
 
-Marshruty:
-  • GET  /admin/usb_boot              - HTML
-  • POST /admin/usb_boot/make         - {mount, project_dir, layout?, publish_on_target?, include_runner?}
+Route:
+  • GET /admin/usb_boot - HTML
+  • POST /admin/usb_boot/make - {mount, project_dir, layout?, publish_on_target?, include_runner?}
 
 Mosty:
 - Yavnyy (UX ↔ Avtomatizatsiya): odna knopka - gotovaya fleshka, kotoruyu tselevoy uzel poymet sam.
@@ -12,10 +11,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): stdlib, uvazhaem limity i AB, bez vneshnikh zavisimostey.
 
 Zemnoy abzats:
-Eto «master zapisi»: formiruet na fleshke ponyatnuyu strukturu i stsenariy dlya tselevogo uzla.
+Eto “master zapisi”: formiruet na fleshke ponyatnuyu strukturu i stsenariy dlya tselevogo uzla.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/generate_openapi_from_routes.py — generator OpenAPI.yaml iz Flask-marshrutov.
+"""scripts/generate_openapi_from_routes.py - generator OpenAPI.yaml iz Flask-marshrutov.
 
 Zapusk:
-  python scripts/generate_openapi_from_routes.py  # sozdast docs/OpenAPI.yaml
+  python scripts/generate_openapi_from_routes.py # sozdast docs/OpenAPI.yaml
 
-Osobennosti:
+Features:
 - Ne menyaet kod prilozheniya, chitaet kartu marshrutov iz app.url_map.
-- Ignoriruet /static/*, HEAD/OPTIONS.
-- Sozdaet minimalno sovmestimoe opisanie OpenAPI 3.0.0, prigodnoe dlya Swagger UI.
-"""
+- Ignore /static/*, HEAD/OPTIONS.
+- Sozdaet minimalno sovmestimoe opisanie OpenAPI 3.0.0, prigodnoe dlya Swagger UI."""
 from __future__ import annotations
 
 import os
@@ -48,7 +46,7 @@ def build_spec() -> Dict[str, Any]:
         "info": {
             "title": "Ester API",
             "version": "0.1.0",
-            "description": "Avtosgenerirovannoe opisanie po tekuschim marshrutam Flask.",
+            "description": "Auto-generated description for current Flask routes.",
         },
         "servers": [{"url": "/"}],
         "paths": paths,

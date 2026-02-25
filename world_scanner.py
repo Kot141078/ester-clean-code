@@ -10,7 +10,7 @@ from chromadb.utils import embedding_functions
 from dotenv import load_dotenv
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# --- NASTROYKI VOSPRIYaTIYa ---
+# --- Perception SETTINGS ---
 IGNORE_DIRS = {
     'Windows', 'Program Files', 'Program Files (x86)', 'ProgramData', 
     '$RECYCLE.BIN', 'System Volume Information', 'AppData', 
@@ -27,7 +27,7 @@ INTERESTING_EXTS = {
 
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB (podnyali limit)
 
-# --- PODKLYuChENIE ---
+# --- Connection ---
 load_dotenv()
 USER_PROFILE = os.environ.get("USERPROFILE")
 raw_path = os.environ.get("CHROMA_PERSIST_DIR", r"%USERPROFILE%\.ester\vstore\chroma")
@@ -42,7 +42,7 @@ def get_brain():
     return client.get_or_create_collection(name="ester_long_term", embedding_function=ef)
 
 def compute_file_hash(filepath):
-    """Sozdaet unikalnyy otpechatok (MD5) soderzhimogo fayla."""
+    """Creates a unique fingerprint (MD5) of the file contents."""
     hash_md5 = hashlib.md5()
     try:
         with open(filepath, "rb") as f:
@@ -55,7 +55,7 @@ def compute_file_hash(filepath):
 def scan_drive(start_path):
     brain = get_brain()
     print(f"🚀 Ester nachinaet umnoe skanirovanie: {start_path}")
-    print("--- Ya budu propuskat to, chto uzhe znayu ---")
+    print("--- I will skip what I already know ---")
 
     new_files = 0
     skipped_files = 0
@@ -75,22 +75,22 @@ def scan_drive(start_path):
             try:
                 if os.path.getsize(filepath) > MAX_FILE_SIZE: continue
 
-                # 1. Snimaem otpechatok (Khesh)
+                # 1. Take a fingerprint (Cache)
                 file_hash = compute_file_hash(filepath)
                 if not file_hash: continue
 
-                # 2. PROVERKA PAMYaTI: Znaem li my etot khesh?
-                # Ischem v baze zapis, u kotoroy v metadannykh takoy zhe khesh
+                # 2. MEMORY CHECK: Do we know this hash?
+                # Searches the database for a record that has the same cache in its metadata
                 existing = brain.get(where={"file_hash": file_hash})
                 
                 if existing['ids']:
-                    # My uzhe videli etot fayl, i on NE IZMENILSYa
-                    # print(f"[SKIP] {file} (bez izmeneniy)") # Mozhno raskommentit dlya debaga
+                    # We have already seen this file and it has NOT CHANGED
+                    # print(f"ySKIPshch ZZF0Z (no changes)") # Can be uncommented for debugging
                     skipped_files += 1
                     continue
 
-                # 3. Esli khesha net, znachit fayl NOVYY ili IZMENENNYY
-                # Proverim, znali li my fayl s takim imenem ranshe (no s drugim kheshem)?
+                # 3. If there is no hash, then the file is NEW or CHANGED
+                # Let's check if we knew a file with the same name before (but with a different hash)?
                 old_version = brain.get(where={"source": filepath})
                 is_update = len(old_version['ids']) > 0
 
@@ -106,7 +106,7 @@ def scan_drive(start_path):
                 doc_id = str(uuid.uuid4())
                 meta = {
                     "source": filepath,
-                    "file_hash": file_hash,  # <-- Vot klyuchevaya metka
+                    "file_hash": file_hash,  # <-- Here is the key mark
                     "type": "world_scan", 
                     "drive": os.path.splitdrive(filepath)[0],
                     "ts": time.time()
@@ -127,15 +127,15 @@ def scan_drive(start_path):
             except Exception as e:
                 continue
 
-    print(f"\n✨ OTChET O SKANIROVANII ✨")
+    print(f"✨ OTCHET O SKANIROVANII ✨")
     print(f"📂 Propuscheno (uzhe znala): {skipped_files}")
     print(f"🆕 Izucheno novykh faylov: {new_files}")
-    print(f"📝 Pereosmysleno obnovleniy: {updated_files}")
+    print(f"📝 Pereosmysleno update: {updated_files}")
 
 if __name__ == "__main__":
-    target = input("Vvedite put dlya skanirovaniya (naprimer %USERPROFILE%\\Downloads): ").strip()
+    target = input("Enter the path to scan (for example ZZF0ZSERPROFILE%eDownloads):").strip()
     if target:
         scan_drive(target)
     else:
         print("Put ne ukazan.")
-    input("\nNazhmite Enter, chtoby vyyti...")
+    input("Press Enter to exit...")

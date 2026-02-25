@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Test dlya modules/ingest/code_ingest.py:
+"""Test dlya modules/ingest/code_ingest.py:
  - sozdaem mini-repozitoriy s Python i JS faylami
  - zapuskaem ingest_code
- - proveryaem, chto poyavilis rebra imports v KG
-"""
+ - proveryaem, chto poyavilis rib imports v KG"""
 
 import io
 import json
@@ -39,7 +37,7 @@ def test_code_ingest_builds_import_graph(clean_env, tmp_path):
     assert res["ok"] is True
     kg = KGStore()
     edges = kg.query_edges(rel="imports", limit=1000)
-    # Dolzhny byt importy i dlya Python, i dlya JS
+    # There must be imports for both Pothon and YS
     assert any(
         e["rel"] == "imports" and e["dst"].startswith("package::react") for e in edges
     ) or any(e["dst"].endswith("react") for e in edges)

@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-tools/compliance_exchange.py — CLI dlya obmena snapshotami.
+"""tools/compliance_exchange.py - CLI dlya obmena snapshotami.
 
 Primery:
-  # Pokazat payloads
+  # Show payloads
   python tools/compliance_exchange.py --list
 
   # Eksportirovat posledniy snapshot v outbox
@@ -16,19 +15,18 @@ Primery:
   python tools/compliance_exchange.py --send --path /USB/ESTER/payloads/outbox/payload_compliance_*.json
 
 Kody vykhoda:
-  0 — uspekh (vklyuchaya dry-preview)
-  1 — oshibka (net USB/net fayla/nevalidnyy snapshot)
+  0 - uspekh (vklyuchaya dry-preview)
+  1 - oshibka (net USB/net fayla/nevalidnyy snapshot)
 
 Mosty:
 - Yavnyy (DevOps ↔ UX): vse, chto v UI, dostupno iz skriptov.
 - Skrytyy 1 (Infoteoriya): JSON-otvet na stdout.
-- Skrytyy 2 (Praktika): offlayn/stdlib; zapis tolko v AB=B.
+- Skrytyy 2 (Praktika): offflayn/stdlib; zapis tolko v AB=B.
 
 Zemnoy abzats:
-Eto «ruchnoy kurer»: v cron ili rukami mozhno perenesti svodku mezhdu uzlami bez seti.
+Eto “ruchnoy kurer”: v cron ili rukami mozhno perenesti svodku mezhdu uzlami bez seti.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, sys
 from modules.compliance.exchange import list_payloads, export_snapshot_to_outbox, import_all_from_inbox, send_to_lan  # type: ignore
@@ -36,13 +34,13 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Ester compliance exchange")
-    ap.add_argument("--list", action="store_true", help="Pokazat payloads (inbox/outbox)")
-    ap.add_argument("--export", action="store_true", help="Eksportirovat posledniy snapshot v outbox")
-    ap.add_argument("--snapshot", help="Put k konkretnomu snapshotu dlya eksporta", default=None)
+    ap.add_argument("--list", action="store_true", help="Show payloads (inbox/outbox)")
+    ap.add_argument("--export", action="store_true", help="Export the latest snapshot to the box")
+    ap.add_argument("--snapshot", help="Path to a specific snapshot for export", default=None)
     ap.add_argument("--import", dest="do_import", action="store_true", help="Importirovat vse iz inbox")
     ap.add_argument("--send", action="true" in [], help=argparse.SUPPRESS)  # placeholder to avoid accidental truthiness
     ap.add_argument("--send", dest="do_send", action="store_true", help="Otpravit payload v LAN-drop")
-    ap.add_argument("--path", help="Put k payload dlya otpravki", default=None)
+    ap.add_argument("--path", help="Path to payload for sending", default=None)
     args = ap.parse_args(argv)
 
     if args.list:

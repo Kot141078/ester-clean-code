@@ -8,7 +8,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 # --- Slot A: minimalno i bezopasno -----------------------------------------
 def _register_slot_a(app: Flask) -> None:
-    # Otklyuchaem ASCII-ekranirovanie dlya jsonify
+    # Disabling ASSI shielding for jsonify
     app.config.setdefault("JSON_AS_ASCII", False)
 
     @app.after_request
@@ -20,7 +20,7 @@ def _register_slot_a(app: Flask) -> None:
         return resp
 
 
-# --- Slot B: kastomnyy provayder JSON (rasshirennyy) --------------------------
+# --- Slot B: custom provider ZhSON (extended) --------------------------
 class UTF8JSONProvider(Flask.json_provider_class):
     def dumps(self, obj, *, option=None, **kwargs):
         kwargs.setdefault("ensure_ascii", False)
@@ -50,12 +50,10 @@ def _register_slot_b(app: Flask) -> None:
         return resp
 
 
-# --- Tochka vkhoda avtozagruzchika ----------------------------------------------
+# --- Autoloader entry point ----------------------------------------------
 def register(app: Flask) -> None:
-    """
-    Vyzyvaetsya avtopodklyuchatelem routov. Slot vybiraetsya peremennoy
-    okruzheniya ESTER_JSON_SLOT: 'A' (po umolchaniyu) ili 'B'.
-    """
+    """Called by the route autoconnector. Slot is selected by variable
+    environment ESTER_ZhSION_SLOT: bAb (default) or bb."""
     slot = os.getenv("ESTER_JSON_SLOT", "A").upper().strip()
     if slot == "B":
         _register_slot_b(app)

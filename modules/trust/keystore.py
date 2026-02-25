@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/trust/keystore.py — lokalnaya para klyuchey i podpis/proverka (ed25519 esli dostupno; follbek — HMAC-SHA256).
+"""modules/trust/keystore.py - lokalnaya para klyuchey i podpis/proverka (ed25519 esli dostupno; follbek - HMAC-SHA256).
 
 Mosty:
-- Yavnyy: (Kripto ↔ Doverie) edinaya tochka «chem podpisyvaem/proveryaem».
+- Yavnyy: (Kripto ↔ Doverie) edinaya tochka “chem podpisyvaem/proveryaem.”
 - Skrytyy #1: (Infoteoriya ↔ Audit) otpechatki i serializatsiya v fayly s pravami 0600.
 - Skrytyy #2: (Kibernetika ↔ Vyzhivanie) follbek HMAC pozvolyaet rabotat offlayn bez storonnikh zavisimostey.
 
 Zemnoy abzats:
-Esli est Ed25519 — ispolzuem sovremennuyu podpis; esli net — ne lomaemsya, podpisyvaem HMAC, chetko pomechaya algoritm.
+Esli est Ed25519 - ispolzuem sovremennuyu podpis; esli net - ne lomaemsya, podpisyvaem HMAC, chetko pomechaya algoritm.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import base64, hashlib, json, os
 from typing import Dict, Any, Optional
@@ -38,10 +36,8 @@ def _chmod600(p: str):
         pass
 
 def get_local_identity() -> Dict[str, Any]:
-    """
-    Vozvraschaet {"alg":"ed25519","pubkey":BASE64, "fingerprint":SHA256hex} ili HMAC-variant.
-    Sozdaet klyuchi pri otsutstvii.
-    """
+    """Returns the ZZF0Z or XMAS variant.
+    Creates keys when missing."""
     if HAS_NACL:
         if not os.path.isfile(TRUST_LOCAL_KEY_PATH):
             _ensure_dir(TRUST_LOCAL_KEY_PATH)
@@ -84,8 +80,8 @@ def verify_bytes(data: bytes, alg: str, signature: str, pubkey_b64: str) -> bool
             vk.verify(data, base64.b64decode(signature))
             return True
         if alg == "hmac":
-            # pubkey_b64 — ne ispolzuetsya (identfikator), proveryaem lokalnym klyuchom? net — proveryat HMAC drugogo uzla nevozmozhno.
-            # Poetomu HMAC dopustim tolko dlya lokalnykh priglasheniy (aud="local").
+            # pubkey_b64 - not used (identifier), check with a local key? no - it is impossible to check the HMAS of another node.
+            # Therefore, XMAS is only valid for local invitations (aud="local").
             key = open(TRUST_FALLBACK_HMAC_PATH,"rb").read()
             mac = hashlib.sha256(key + data).hexdigest()
             return mac == signature

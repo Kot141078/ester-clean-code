@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/video_ingest_routes.py — REST-obertka vokrug video-konveyera (URL/fayl v†' metadannye/subtitry/ASR v†' konspekt v†' pamyat).
+"""routes/video_ingest_routes.py - REST-obertka vokrug video-konveyera (URL/fayl v†' metadannye/subtitry/ASR v†' konspekt v†' pamyat).
 
 Mosty:
 - Yavnyy: (Memory v†" Interfeysy) HTTP-ruchki dayut polzovatelyu Re Ester edinyy vkhod k pamyati cherez ingest yadro.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Infoteoriya v†" Inzheneriya) Edinyy format JSON-otveta snizhaet entropiyu integratsiy Re uproschaet otladku.
 
 Zemnoy abzats:
-Eto «universalnyy razem» na paneli: mozhno podat syre (URL/put), poluchit profile (meta), syre raspilit (ASR) Re raport (summary) — vse temi zhe klyuchami.
+Eto “universalnyy razem” na paneli: mozhno podat syre (URL/put), poluchit profile (meta), syre raspilit (ASR) Re report (summary) - vse temi zhe klyuchami.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -113,7 +111,7 @@ def ingest_probe():
             want_subs=True,
             chunk_ms=300000,
         )
-        # Ostavim tolko probe/source dlya kompaktnosti
+        # Let's leave only the sample/source for compactness
         return jsonify({"ok": rep.get("ok", True), "source": rep.get("source"), "probe": rep.get("probe")})
     except Exception as e:
         return _json_error(f"exception: {e}", 500)

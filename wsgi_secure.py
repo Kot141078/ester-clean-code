@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-wsgi_secure.py — prodakshn-entripoint «Ester».
+"""wsgi_secure.py - prodakshn-entripoint "Ester".
 Funktsii:
   - create_app(): Flask app so vklyuchennymi bezopasnymi nastroykami
-Osobennosti:
+Features:
   * CORS (prostoy after_request, bez vneshnikh zavisimostey)
   * JSON-logirovanie zaprosov/otvetov s correlation id (X-Request-Id)
-  * ProxyFix podderzhka (esli vklyucheno cherez ENV USE_PROXY_FIX=1)
+  * ProxyFix support (if enabled via ENV USE_PROXY_FIX=1)
   * JWT HS256/RS256 (ENV: JWT_ALG=HS256|RS256, JWT_SECRET | JWT_PRIVATE_KEY_PATH/JWT_PUBLIC_KEY_PATH)
-  * RBAC: security/rbac.attach_app(app) — deny po /ops/* i /replication/* dlya user
+  * RVACH: security/rvach.attah_app(app) - day by /ops/* and /replication/* for user
   * Routy registriruyutsya myagko (try/except) — drop-in sovmestimost
-  * VAZhNO: ranniy import modules.mm_compat.patch_memory_manager() dlya vyravnivaniya API .cards
+  * Important: early import modules.mm_comp.patch_memory_manager() for API alignment.cards
 
 Zapusk:
   gunicorn -w 4 -b 0.0.0.0:8080 wsgi_secure:app
-ili
-  python wsgi_secure.py
-"""
+or
+  python wsgi_secure.py"""
 from __future__ import annotations
 
 import json
@@ -43,7 +41,7 @@ def _load_jwt_keys(app: Flask) -> None:
         pub_path = os.getenv("JWT_PUBLIC_KEY_PATH")
         if not (priv_path and pub_path and os.path.exists(priv_path) and os.path.exists(pub_path)):
             raise RuntimeError(
-                "RS256 vybran, no klyuchi ne naydeny (JWT_PRIVATE_KEY_PATH/JWT_PUBLIC_KEY_PATH)"
+                "PC256 is selected, but the keys are not found (ZhVT_PRIVATE_KEY_PATH/ZhVT_PUBLIC_KEY_PATH)"
             )
         app.config["JWT_PRIVATE_KEY"] = open(priv_path, "r", encoding="utf-8").read()
         app.config["JWT_PUBLIC_KEY"] = open(pub_path, "r", encoding="utf-8").read()
@@ -127,11 +125,9 @@ def _register_routes(app: Flask) -> None:
 
 
 def _simple_auth(app: Flask) -> None:
-    """
-    Optsionalnaya prostaya autentifikatsiya (dlya lokalnoy razrabotki).
-    Vklyuchaetsya ENV ENABLE_SIMPLE_LOGIN=1.
-    POST /auth/login {"user":"owner","role":"admin|user"} -> {"access_token": "..."}
-    """
+    """Optional simple authentication (for local development).
+    Enabled ENVABLE_SIMPLE_LOGIN=1.
+    POST /outn/login ZZF0Z -> ZZF1ZZ"""
     if os.getenv("ENABLE_SIMPLE_LOGIN", "0") != "1":
         return
 
@@ -162,7 +158,7 @@ def create_app() -> Flask:
     _setup_logging(app)
     _register_routes(app)
     _simple_auth(app)
-    # RBAC attach (geyt na /ops/* i /replication/*; nastraivaemo cherez ENV)
+    # RVACH attah (gate to /ops/* and /replication/*; configurable via ENV)
     try:
         from security.rbac import attach_app  # type: ignore
 
@@ -175,10 +171,10 @@ def create_app() -> Flask:
 app = create_app()
 
 if __name__ == "__main__":
-    # Po umolchaniyu Ester slushaet 8090 (kak v tvoikh skriptakh zapuska). Mozhno pereopredelit ENV PORT.
+    # By default, Esther listens to 8090 (as in your startup scripts). You can override ENV PORT.
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", "8090"))
     debug = os.getenv("DEBUG", "0") == "1"
 
-    # Vstroennyy server Flask — tolko dlya dev/testa. Dlya prodakshena ispolzuy gunicorn/uwsgi.
+    # Built-in Flask server - only for devs/test. For production use gunicorn/ovsgi.
     app.run(host=host, port=port, debug=debug)

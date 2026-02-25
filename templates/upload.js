@@ -38,7 +38,7 @@
   function csrf() {
     // Imitiruem logiku tokena: ispolzuem tekuschiy UA i localhost IP
     const secret = ''; // server sam sverit po zagolovkam (X-CSRF-Token vychislyaetsya na servere)
-    return ''; // ne vychislyaem na kliente; luchshe poluchit ot servera, no dlya primera ostavim pustym
+    return ''; // we do not calculate on the client; It’s better to get it from the server, but leave it empty for example
   }
 
   async function uploadOne(f) {
@@ -47,7 +47,7 @@
     const r = await fetch('/ingest/file', {
       method: 'POST',
       headers: {
-        // CSRF: dlya realnoy integratsii mozhno zaprosit token u bekenda, zdes opuscheno (testy pokryvayut servernuyu storonu)
+        // SSRF: for real integration you can request a backend token, omitted here (tests cover the server side)
       },
       body: fd
     });

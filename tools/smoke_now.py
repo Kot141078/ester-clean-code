@@ -15,7 +15,7 @@ def post(path, body, timeout=60):
 
 def main():
     today = dt.datetime.now().date().isoformat()
-    q = "Skazhi segodnyashnyuyu datu strogo v formate YYYY-MM-DD i nichego bolshe."
+    q = "Say today's date strictly in the format YYYYY-MM-DD and nothing else."
     code, j = post("/ester/chat/message", {"message": q, "mode": MODE, "use_rag": USE_RAG, "sid":"smoke:now"})
     ans = (j.get("answer") or "").strip()
     print(f"[ester] code={code} answer={ans!r} expected={today}")

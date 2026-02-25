@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-roles/infer.py — izvlechenie priznakov iz vzaimodeystviy i obnovlenie profiley (EMA), plyus A/B-most k LLM.
+"""roles/infer.py - izvlechenie priznakov iz vzaimodeystviy i obnovlenie profiley (EMA), plyus A/B-most k LLM.
 
 MOSTY:
-- (Yavnyy) infer_features(text) → {dims, labels, trace}; update_vector(prev, obs, alpha) → novyy vektor.
-- (Skrytyy #1) Rezhimy: A=evristiki, B=LLM_PROVIDER; esli B nedostupen — avto-otkat na A (bystryy avtokatbek).
-- (Skrytyy #2) label_by_ontology(vector) sopostavlyaet vektor s rolyami iz roles/ontology, vydaet top-yarlyki.
+- (Yavnyy) infer_features(text) → {dims, labels, trace}; update_vector(prev, obs, alpha) → newyy vector.
+- (Skrytyy #1) Rezhimy: A=evristiki, B=LLM_PROVIDER; esli B nedostupen - avto-otkat na A (bystryy avtokatbek).
+- (Skrytyy #2) label_by_ontology(vector) sopostavlyaet vektor s roles/ontology, vydaet top-yarlyki.
 
 ZEMNOY ABZATs:
-Ester "slushaet" to, chto lyudi i mashiny uzhe govoryat/delayut, akkuratno obnovlyaet predstavlenie o cheloveke
-i, ne navyazyvaya yarlykov, vyvodit rabochie predskazaniya — chtoby luchshe sobirat komandy.
+Ester "listen" to, chto lyudi i mashiny uzhe govoryat/delayut, akkuratno obnovlyaet predstavlenie o cheloveke
+i, ne navyazyvaya yarlykov, vyvodit rabochie predskazaniya - chtoby luchshe sobirat komandy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, re, importlib
@@ -24,7 +22,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 _DIMS = [d.strip() for d in (os.getenv("ROLE_TOP_DIMS") or
           "experience,reaction,calm,coop,lead,law,tech,med,edu,craft,comm,creative,stamina,availability").split(",")]
 
-# --- Evristicheskie slovari (ru/en, legko rasshirit) ---
+# --- Heuristic dictionaries (ru/en, easy to expand) ---
 _LEX = {
     "reaction":  [r"\bbystr(o|yy|ee)\b", r"\bskor(o|ost)\b", r"\breact|fast|quick\b"],
     "experience":[r"\bstazh\b", r"\bopytn(yy|aya)\b", r"\bsenior\b", r"\bveteran\b"],
@@ -67,13 +65,13 @@ def _try_llm(text: str) -> Dict[str, Any] | None:
 def _score_by_patterns(text: str) -> Dict[str, float]:
     text_l = text.lower()
     scores: Dict[str, float] = {d:0.0 for d in _DIMS}
-    # bazovye sdvigi po klyuchevym slovam
+    # basic shifts by keywords
     for dim, pats in _LEX.items():
         for p in pats:
             if re.search(p, text_l):
                 if dim in scores:
                     scores[dim] += 0.2
-                # domennye yarlyki → proektsii na bazovye osi
+                # domenye yarlyki → proektsii na bazovye osi
                 if dim == "pilot":
                     scores["reaction"] += 0.15; scores["tech"] += 0.1
                 if dim == "courier":
@@ -107,7 +105,7 @@ def infer_features(text: str) -> Dict[str, Any]:
     # rezhim A
     dims = _score_by_patterns(text)
     labels: List[str] = []
-    # evristicheskaya metka pri yavnom domene
+    # heuristic label for explicit domain
     for name in ("lawyer","doctor","teacher","student","pilot","courier","coordinator","negotiator","driver"):
         if any(re.search(p, text.lower()) for p in _LEX.get(name,[])):
             labels.append(name)
@@ -127,7 +125,7 @@ def label_by_ontology(vector: Dict[str,float], top_k: int = 3) -> List[str]:
     scores: List[Tuple[str,float]] = []
     for rid, cfg in roles.items():
         hints = cfg.get("hints",{}) or {}
-        # kosinus spravedliv zdes uslovno: berem skalyarnoe, normiruem na #hints
+        # cosine is valid here conditionally: we take a scalar and normalize it to #hintz
         s = 0.0
         for k, w in hints.items():
             s += float(vector.get(k,0.0))*float(w)

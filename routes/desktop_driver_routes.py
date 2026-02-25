@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-routes/desktop_driver_routes.py - REST/UI dlya drayvera rabochego stola.
+"""routes/desktop_driver_routes.py - REST/UI dlya drayvera rabochego stola.
 
 Ruchki:
-  GET  /desktop/driver/probe
-  GET  /desktop/driver/whitelist
-  POST /desktop/driver/whitelist/add   {"name":"TextEdit","cmd":"/System/Applications/TextEdit.app","kind":"app"}
+  GET /desktop/driver/probe
+  GET /desktop/driver/whitelist
+  POST /desktop/driver/whitelist/add {"name":"TextEdit","cmd":"/System/Applications/TextEdit.app","kind":"app"}
   POST /desktop/driver/whitelist/remove{"name":"TextEdit","kind":"app"}
   POST /desktop/driver/plan_to_commands {"plan":[...]}
-  POST /desktop/driver/execute         {"plan":[...], "dry_run":true}
-  GET  /admin/desktop_driver
+  POST /desktop/driver/execute {"plan":[...], "dry_run":true}
+  GET /admin/desktop_driver
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.agents import desktop_os_driver as DD

@@ -1,18 +1,16 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.video.ingest — minimalnye multimedia-konveyery.
+"""modules.video.ingest - minimalnye multimedia-konveyery.
 Mosty:
 - Yavnyy: probe()/extract_audio()/transcode() s predskazuemymi otvetami.
 - Skrytyy #1: (DX ↔ Nadezhnost) — no-op, esli ffmpeg/ffprobe nedostupny.
 - Skrytyy #2: (Inzheneriya ↔ Sovmestimost) — neizmennye signatury dlya buduschikh realizatsiy.
 
 Zemnoy abzats:
-Mediapayplayn chasto «lomaet» sistemu iz‑za vneshnikh utilit.
+Mediapayplayn often “lomaet” sistemu iz‑za vneshnikh utilit.
 Zdes vozvraschaem strukturirovannyy status, chtoby ostalnoy kod ne padal.
-# c=a+b
-"""
+# c=a+b"""
 import os, pathlib, shutil, time
 from typing import Optional, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -24,7 +22,7 @@ def probe(path: str) -> Dict:
     p = pathlib.Path(path)
     info = {"ok": p.exists(), "size": p.stat().st_size if p.exists() else 0, "ts": int(time.time())}
     if _exists("ffprobe"):
-        info["ffprobe"] = True  # ne zapuskaem, tolko flag nalichiya
+        info["ffprobe"] = True  # do not launch, only availability flag
     else:
         info["ffprobe"] = False
     return info

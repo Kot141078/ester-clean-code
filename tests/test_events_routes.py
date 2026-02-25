@@ -1,7 +1,7 @@
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 # -*- coding: utf-8 -*-
 def test_events_publish_and_feed(client, auth_hdr_user):
-    # Publikuem neskolko sobytiy
+    # We publish several events
     for k in ("dream", "proactive", "tg"):
         r = client.post(
             "/events/publish",

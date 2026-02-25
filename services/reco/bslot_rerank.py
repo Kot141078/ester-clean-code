@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-R4/services/reco/bslot_rerank.py — B-slot: rerank + kratkie summary s pomoschyu lokalnogo LLM (LM Studio).
+"""R4/services/reco/bslot_rerank.py - B-slot: rerank + short summary s pomoschyu lokalnogo LLM (LM Studio).
 Avtokatbek: pri lyuboy oshibke LLM → vozvraschaem A-slot kak est s prostym ekstraktivnym summary.
 
 Mosty:
@@ -10,11 +9,10 @@ Mosty:
 
 Zemnoy abzats:
 Berem top-K iz A-slota (TF-IDF), peredaem kompaktnye snippety v LLM i prosim vernut chistyy JSON s
-poryadkom (indeksy) i korotkimi summary (≤160 simvolov). Esli LLM ne otvechaet/nevaliden JSON —
-ostavlyaem A-poryadok i delaem ekstraktivnye summary (pervye 160 simvolov). Tolko stdlib.
+poryadkom (indeksy) i shortkimi summary (≤160 simvolov). Esli LLM ne otvechaet/nevaliden JSON —
+ostavlyaem A-poryadok i delaem ekstraktivnye summary (pervye 160 simvolov). Only stdlib.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json
 import os
@@ -27,14 +25,14 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 MAX_SUMMARY = 160
 
 _SYSTEM_PROMPT = (
-    "Ty — kratkiy i tochnyy ranzhirovschik. Na vkhode: polzovatelskiy zapros i spisok kandidatov "
-    "(c indeksami, score_a i snippet). Otsortiruy kandidatov po relevantnosti k zaprosu i verni "
-    "TOLKO JSON bez kommentariev rovno takogo vida:\n"
+    "You are a concise and precise ranking. Input: user request and list of candidates"
+    "(with indexes, quarrel_a and snippet). Sort candidates by relevance to the request and return"
+    "ONLY JSION without comments of exactly this type:"
     "{\n"
-    '  "order": [indeksy v poryadke ubyvaniya relevantnosti],\n'
+    '"order": indexes in descending order of relevance,'
     '  "notes": {"<index>": "kratkoe rezyume (≤160 simv.)", "...": "..."}\n'
     "}\n"
-    "Nikakogo teksta krome JSON. Rezyume — po soderzhaniyu snippet, bez fantaziy i ssylok."
+    "No text except ZhSON. The summary is a snippet in content, without imagination or links."
 )
 
 def _extractive(text: str) -> str:
@@ -51,7 +49,7 @@ def bslot_rerank(query: str, top: int = 5, tags: List[str] | None = None) -> Lis
     if not cand:
         return []
 
-    # Podgotovim spisok dlya LLM
+    # Prepare a list for the LLM
     items = []
     for i, c in enumerate(cand):
         meta = c.get("meta") or {}
@@ -75,7 +73,7 @@ def bslot_rerank(query: str, top: int = 5, tags: List[str] | None = None) -> Lis
             })
         return out
 
-    # B-rezhim: probuem LLM → pri sboe vozvraschaem A-fallback
+    # B-rezhim: try LLM → pri sboe vozvraschaem A-fallback
     try:
         client = LMStudioClient()
         user_payload = {

@@ -1,23 +1,23 @@
-# Ester · Profili kontaktov v TG/WA «kak obychnyy kontakt»
+# Esther Contact profiles in TG/VA “like a regular contact”
 
 **Vazhno (etika i komplayens):**
-- Telegram trebuet username, okanchivayuschiysya na `bot`. Skryvat eto ili vydavat sebya za cheloveka nelzya.
-- V WhatsApp ispolzuyte **Business Display Name** i avatar — eto legalnyy sposob vyglyadet «kak kontakt».
+- The telegram requires a username ending in ёbotyo. You cannot hide this or pretend to be a person.
+- In WhatsApp, use **Business Display Name** and an avatar - this is a legal way to look like a contact.
 
-## Rekomendatsii po oformleniyu
-- **Imya:** kratko i po delu (napr., «Sluzhba koordinatsii», «Ofis-assistent»).
-- **Avatar:** neytralnyy, bez logotipov, kotorye sozdayut ozhidanie «24/7 robota».
-- **Bio/opisanie:** odna stroka pro naznachenie («pomogayu soglasovyvat vstrechi i dokumenty»).
-- **Skorost i vremya otvetov:** chelovecheskie okna (9:00–20:00), povedenie «prochital — otvetil kratko».
+## Recommendations for design
+- **Name:** short and to the point (e.g., “Coordination Service,” “Office Assistant”).
+- **Avatar:** Neutral, no logos that create the “24/7 robot” expectation.
+- **Bio/description:** one line about the appointment (“I help coordinate meetings and documents”).
+- **Response speed and time:** human windows (me:00-20:00), read-answer behavior.
 
 ## Proaktivnost bez razdrazheniya
-- Maloshumnye napominaniya (odna fraza, odna konkretika, odna ssylka).
-- Vezhlivye «ping-okna» (ne pisat nochyu bez neobkhodimosti).
-- Esli nuzhen otvet — formulirovat yavnyy uzkiy vopros.
+- Low-noise reminders (one phrase, one specificity, one link).
+- Polite “ping windows” (do not write at night unless necessary).
+- If you need an answer, formulate an explicit, narrow question.
 
-## Zaschita ot «mashinnosti»
-- Korotkie predlozheniya, minimum kantselyarita.
-- Adresatsiya po delu: «Dobryy den», «Spasibo» — no bez shablonnoy stenogrammy.
+## Protection from "machine"
+- Short sentences, minimum paperwork.
+- Addressing the case: “Good afternoon”, “Thank you” - but without a template transcript.
 - Tochnaya faktura (daty, summy, nomera) → doverie k soderzhaniyu.
 
 c=a+b

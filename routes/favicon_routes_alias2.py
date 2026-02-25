@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Drop-in alias that serves favicon robustly, without depending on anything else.
+"""Drop-in alias that serves favicon robustly, without depending on anything else.
 Endpoints:
   GET /_alias2/favicon.ico
-  GET /_alias2/favicon/ping  -> {"ok": true}
+  GET /_alias2/favicon/ping -> {"ok": true}
 
 AB flag: ESTER_FAVICON_ALIAS2_AB (A|B), default B = enabled
 
@@ -13,18 +12,17 @@ Mosty:
 - Skrytyy #2: (Logi ↔ Nablyudaemost) - myagkiy log cherez app.logger pri skip registratsii.
 
 Zemnoy abzats:
-Fayl otvechaet za odnu vesch: garantirovannuyu otdachu favicon bez 500-ok. Glavnaya problema byla v
-povtornoy registratsii blueprint s odinakovym imenem pri goryachem reloade/dvoynom importe. Ispravleno
+Fayl otvechaet za odnu vesch: garantirovannuyu otdachu favicon bez 500-ok. Main problem byla v
+povtornoy registratsii blueprint s odinakovym imenem pri goryachem reloade/dvoynom importe. Corrected
 akkuratno: pered app.register_blueprint my proveryaem app.blueprints i, esli imya zanyato, prosto vykhodim.
-Naruzhnye marshruty ne menyalis.
-# c=a+b
-"""
+Naruzhnye route ne menyalis.
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, current_app, send_from_directory, Response, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Imya bluprinta fiksirovannoe dlya sovmestimosti marshrutov
+# Blueprint name fixed for route compatibility
 _BP_NAME = "favicon_alias2"
 _bp = Blueprint(_BP_NAME, __name__)
 
@@ -59,10 +57,10 @@ def _ping():
     return jsonify(ok=True, ab=_AB, bp=_BP_NAME)
 
 def register(app):
-    """Bezopasnaya registratsiya BP s zaschitoy ot povtornogo dobavleniya pod tem zhe imenem."""
+    """Secure registration of BP with protection against re-addition under the same name."""
     if _AB != "B":
         return
-    # Esli uzhe est BP s tem zhe imenem - ne registriruem vtoroy raz
+    # If there is already a power supply with the same name, do not register it a second time
     existing = app.blueprints.get(_BP_NAME)
     if existing is not None:
         try:

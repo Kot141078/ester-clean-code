@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/proactive.py — proaktivnye triggery i avto-kaskady.
+"""modules/thinking/proactive.py - proaktivnye triggery i avto-kaskady.
 
 Funktsii:
   enable()/disable()/status()
   run_trigger(name, payload) — zapustit pravilo yavno
-  load_rules() — zagruzka JSON-pravil (user overrides)
+  load_rules() — zagruzka JSON-rules (user overrides)
   watcher_loop() — planirovschik: nablyudaet pamyat/dialogi i zapuskaet kaskady
 
-Bezopasnost:
+Safety:
   - ENV ESTER_PROACTIVE_ENABLED (0/1)
-  - Limit deystviy/chas (ESTER_PROACTIVE_MAX_ACTIONS)
+  - Limit deystviy/hour (ESTER_PROACTIVE_MAX_ACTIONS)
   - Cooldown mezhdu kaskadami (ESTER_PROACTIVE_COOLDOWN_SEC)
-  - Anti-povtory po klyuchu goal+rule (vremennyy cache)
+  - Anti-repeat by klyuchu goal+rule (vremennyy cache)
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import os, time, json, threading
@@ -71,9 +69,9 @@ def _rules_path()->str:
 
 _DEFAULT_RULES = [
     # prostye i bezopasnye
-    {"name":"weekly_plan", "match":{"contains":["plan na nedelyu","spisok zadach"]}, "goal":"Sformirovat nedelnyy plan", "action":"cascade"},
-    {"name":"file_summary", "match":{"contains":["prochitan fayl","Prochitan fayl"]}, "goal":"Sdelat konspekt prochitannogo fayla", "action":"cascade"},
-    {"name":"repeat_error", "match":{"contains":["act:","fail"]}, "goal":"Razobratsya s povtoryayuscheysya oshibkoy", "action":"cascade"},
+    {"name":"weekly_plan", "match":{"contains":["plan na nedelyu","task list"]}, "goal":"Sformirovat nedelnyy plan", "action":"cascade"},
+    {"name":"file_summary", "match":{"contains":["prochitan fayl","Prochitan fayl"]}, "goal":"Make a summary of the file you read", "action":"cascade"},
+    {"name":"repeat_error", "match":{"contains":["act:","fail"]}, "goal":"Troubleshoot a recurring error", "action":"cascade"},
 ]
 
 def load_rules()->List[Dict[str,Any]]:
@@ -97,7 +95,7 @@ def _hour_bucket()->int:
 
 def _budget_ok()->bool:
     with _LOCK:
-        # obnulim schetchik raz v chas
+        # reset the counter once per hour
         if STATE.get("_bucket")!=_hour_bucket():
             STATE["_bucket"]=_hour_bucket()
             STATE["actions_this_hour"]=0
@@ -148,7 +146,7 @@ def run_trigger(name:str, payload:Dict[str,Any]|None=None)->Dict[str,Any]:
     return {"ok":True,"result":out}
 
 def _scan_memory_for_triggers(rules:List[Dict[str,Any]])->List[Dict[str,Any]]:
-    # smotrim tolko poslednie zapisi (poslednie 200)
+    # look only at the latest entries (last 200)
     items=sorted(store._MEM.values(), key=lambda r:r.get("ts",0), reverse=True)[:200]
     hits=[]
     for r in items:

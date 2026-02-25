@@ -1,32 +1,30 @@
 # -*- coding: utf-8 -*-
-"""
-modules/coop/migrate_to_safe.py — migratsiya starykh stsenariev (action-only) v «seyf-stsenarii».
+"""modules/coop/migrate_to_safe.py - migratsiya starykh stsenariev (action-only) v "seyf-stsenarii".
 
-Vkhod: steps starogo vida, naprimer:
+Vkhod: steps starogo vida, for example:
 [
   {"title":"Otkryt menyu","action":{"type":"hotkey","seq":"ALT+F"}},
   {"title":"Save","action":{"type":"hotkey","seq":"CTRL+S"}}
 ]
 
-Pravila:
-- action -> do (bez izmeneniy).
+Rules:
+- action -> do (without change).
 - Esli net check: sozdaem OCR-check po pervomu slovu title (esli est) s timeout_ms=3000.
 - Esli net undo: ispolzuem modules.coop.undo_suggester.patch dlya avtopodstanovki (ESC/return workflows/...).
 
 API:
-- preview(steps) -> {"steps":[...]}   # ne menyaem vkhod
-- export(steps)  -> {"steps":[...]}   # itogovaya versiya (safe) s undo i check
+- preview(steps) -> {"steps":[...]} # ne menyaem vkhod
+- export(steps) -> {"steps":[...]} # itogovaya version (safe) s undo i check
 
 MOSTY:
 - Yavnyy: (Evolyutsiya ↔ Nadezhnost) perevodim starye stsenarii v atomarnye s otkatom.
 - Skrytyy #1: (Memory ↔ Praktika) sokhranyaem smysl shagov, dobavlyaya zaschitnye konstruktsii.
-- Skrytyy #2: (Inzheneriya ↔ UX) prostaya knopka «konvertirovat» — nikakoy boli migratsiy.
+- Skrytyy #2: (Inzheneriya ↔ UX) prostaya knopka “konvertirovat” - nikakoy boli migratsiy.
 
 ZEMNOY ABZATs:
-Chistyy JSON-transformer; opiraetsya na uzhe napisannyy undo_suggester.
+Cleany JSON-transformer; opiraetsya na uzhe napisannyy undo_suggester.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 from modules.coop.undo_suggester import patch as _patch

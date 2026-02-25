@@ -1,26 +1,24 @@
 
 # -*- coding: utf-8 -*-
-"""
-scripts/thinking_smoke.py — integratsionnyy smoke-test myshleniya Ester.
+"""scripts/thinking_smoke.py - integratsionnyy smoke-test myshleniya Ester.
 
 Mosty:
 - Yavnyy: (CLI ↔ kaskady/volya/trace) — odin stsenariy, proveryayuschiy svyazku moduley.
 - Skrytyy #1: (Inzhener ↔ Diagnostika) — bystraya proverka bez ruchnogo nabora komand.
-- Skrytyy #2: (Arkhitektura ↔ Nadezhnost) — fiksiruet minimalnyy invariant «Ester dumaet kaskadom».
+- Skrytyy #2: (Arkhitektura ↔ Nadezhnost) - fiksiruet minimalnyy invariant “Ester dumaet kaskadom”.
 
 Zapusk (iz kornya proekta):
     python -m scripts.thinking_smoke
 
 Stsenariy:
-    1. Proverka importa klyuchevykh moduley.
+    1. Check importa klyuchevykh moduley.
     2. Progon prostogo kaskada.
     3. Progon volevogo kaskada s prioritetom.
     4. Vyvod kratkogo otcheta.
 
 Zemnoy abzats:
-Eto inzhenernyy «EKG» Ester: odnim vyzovom vidish, chto kaskad, volya, fon i treys zhivy.
-# c=a+b
-"""
+Eto inzhenernyy “EKG” Ester: odnim vyzovom vidish, chto kaskad, volya, fon i treys zhivy.
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -76,7 +74,7 @@ def main() -> int:
         traceback.print_exc()
         ok = False
 
-    # 3. Trace (esli vklyuchen)
+    # 3. Trace (if enabled)
     try:
         os.environ.setdefault("ESTER_TRACE_AB", "A")
         c = cascade_closed.run_cascade("smoke: trace")

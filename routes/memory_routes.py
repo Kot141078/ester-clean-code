@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/memory_routes.py — UI navigatsiya po pamyati (JSON + Chroma).
+"""routes/memory_routes.py - UI navigatsiya po pamyati (JSON + Chroma).
 
 Ruchki:
-- GET  /memory/list?type=&limit=200
-- GET  /memory/search?q=&k=5
-- GET  /memory/timeline?days=30&per_day=20&type=&src=auto|json|chroma|hybrid
-- GET  /memory/status
+- GET /memory/list?type=&limit=200
+- GET /memory/search?q=&k=5
+- GET /memory/timeline?days=30&per_day=20&type=&src=auto|json|chroma|hybrid
+- GET /memory/status
 - POST /memory/add
 - POST /memory/forget
 - POST /memory/snapshot
-- GET  /memory/admin
+- GET /memory/admin
 
 ENV:
 - MEMORY_UI_BACKEND=auto|json|chroma|hybrid
 - MEM_UI_DUAL_WRITE=1|0
-- CHROMA_AUTO_HEAL_ENV=1|0     (process-only pointer heal)
-- CHROMA_AUTO_HEAL_EAGER=1|0   (init chroma on register)
-"""
+- CHROMA_AUTO_HEAL_ENV=1|0 (process-only pointer heal)
+- CHROMA_AUTO_HEAL_EAGER=1|0 (init chroma on register)"""
 from __future__ import annotations
 
 import os, time
@@ -157,7 +155,7 @@ def _backend_mode() -> str:
     if ch is None or not getattr(ch, "available", lambda: False)():
         return "json"
 
-    # esli auto/hybrid i chroma pustaya — smysla net, ne putaem UI
+    # if auto/hybrid and chromium are empty - there is no point, it doesn’t confuse OH
     try:
         total = int(getattr(ch, "total_count", lambda: 0)() or 0)
     except Exception:

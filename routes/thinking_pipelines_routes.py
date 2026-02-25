@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/thinking_pipelines_routes.py - REST/UI dlya myslitelnykh payplaynov.
+"""routes/thinking_pipelines_routes.py - REST/UI dlya myslitelnykh payplaynov.
 
 Ruchki:
-  GET  /thinking/pipelines/builtins
-  POST /thinking/pipelines/run   { "name": "...", "goal": "...", "params": {...} }
-  GET  /admin/thinking_pipelines
+  GET /thinking/pipelines/builtins
+  POST /thinking/pipelines/run { "name": "...", "goal": "...", "params": {...} }
+  GET /admin/thinking_pipelines
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.thinking import pipelines as TP

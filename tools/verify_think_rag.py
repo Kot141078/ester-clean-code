@@ -3,7 +3,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 def main():
     from modules.thinking import compat_actions as ca
     print("try_register:", ca.try_register())
-    q = "Chto takoe Ester?"
+    q = "What is Esther?"
     print("heuristic:", ca.heuristic_should_rag(q))
     res = ca.rag_answer(q)
     print("rag_answer.ok:", res.get("ok"), "len:", len(res.get("text","")))

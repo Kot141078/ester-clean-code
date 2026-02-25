@@ -23,7 +23,7 @@
     <label class="btn" style="margin-left:6px;cursor:pointer">
       vybrat<input id="file" type="file" multiple style="display:none">
     </label>
-    <div class="notice" style="margin-top:8px">Podderzhivaetsya paketnaya zagruzka. Progress — po kazhdomu faylu.</div>
+    <div class="notice" style="margin-top:8px">Batch downloading is supported. Progress - for each file.</div>
 
     <div class="filelist" id="list" style="margin-top:10px"></div>
   </div>
@@ -99,7 +99,7 @@
     fd.append('file', file, file.name);
     if(coll) fd.append('collection', coll);
     if(meta!==null){
-      // Esli meta — obekt, otpravim kak JSON-stroku
+      // If meta is an object, we will send it as a JSION string
       fd.append('meta', (typeof meta==='string') ? meta : JSON.stringify(meta));
     }
     try{
@@ -126,7 +126,7 @@
     }
   }
 
-  // ===== Poslednie zagruzki (best-effort: probuem neskolko ruchek)
+  // ===== Latest downloads (best effect: trying several pens)
   let ING=[];
 
   function normIngest(x){
@@ -156,7 +156,7 @@
           const j=await r.json();
           data = Array.isArray(j) ? j : (j.items || j.files || j.documents || []);
         }else{
-          // Esli kto-to otdal tekstom — propustim
+          // If someone sent it in text, we’ll let it pass.
           continue;
         }
         ING = data.map(normIngest);
@@ -164,7 +164,7 @@
         return;
       }catch(e){}
     }
-    // Esli ne nashli spisok — prosto ochistim tablitsu
+    // If you don’t find the list, just clear the table
     ING = [];
     renderIngests();
   }

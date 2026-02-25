@@ -1,48 +1,46 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-modules/listeners/lan_discovery_agent.py — UDP-discovery sosedey po LAN (bez vneshnikh zavisimostey).
+"""modules/listeners/lan_discovery_agent.py - UDP-discovery sosedey po LAN (bez vneshnikh zavisimostey).
 
 Role:
 - periodicheski otpravlyaet broadcast UDP paket ("hello") s identifikatorom uzla i base_url;
-- slushaet port i, poluchiv hello ot drugogo uzla, dobavlyaet/obnovlyaet peer registry.
+- slushaet port i, poluchiv hello ot drugogo uzla, add/obnovlyaet peer registry.
 
-Pochemu padalo / bylo khrupko:
+Pochemu padalo/bylo khrupko:
 - vnizu fayla byl sloman blok `if __name__ == "__main__":` → SyntaxError (expected an indented block). fileciteturn12file0
 - beskonechnye tsikly bez stop_event i bez timeout na recvfrom meshayut shtatno ostanovit potok.
-- sekret klastera ranshe mog svetitsya v plaintext; dobavlen sovmestimyy HMAC-variant.
+- secret klastera ranshe mog svetitsya v plaintext; add sovmestimyy HMAC-variant.
 
 Sovmestimost:
-- Esli ESTER_CLUSTER_SECRET pustoy → prinimaem lyubye hello (kak ranshe).
+- Esli ESTER_CLUSTER_SECRET empty → prinimaem lyubye hello (kak ranshe).
 - Esli ESTER_CLUSTER_SECRET zadan:
   - prinimaem legacy: payload["secret"] == SECRET
-  - i/ili novyy variant: payload["sig"] (HMAC-SHA256) bez peredachi sekreta v soobschenii.
-  - Esli khochesh ostavatsya strogo v legacy — postav ESTER_DISCOVERY_ACCEPT_HMAC=0
+  - i/ili newy variant: payload["sig"] (HMAC-SHA256) bez peredachi sekreta v soobschenii.
+  - Esli khochesh ostavatsya strictly v legacy — postav ESTER_DISCOVERY_ACCEPT_HMAC=0
 
 ENV:
 - ESTER_DISCOVERY_PORT=53535
-- ESTER_DISCOVERY_INTERVAL=5                 (sek)
+- ESTER_DISCOVERY_INTERVAL=5 (sek)
 - ESTER_DISCOVERY_BIND=0.0.0.0
 - ESTER_HTTP_BASE=http://127.0.0.1:8080
-- ESTER_CLUSTER_SECRET=...                   (pusto = bez proverki)
-- ESTER_DISCOVERY_BCAST=255.255.255.255      (mozhno: "255.255.255.255,192.168.1.255")
-- ESTER_DISCOVERY_SEND_SECRET=0|1            (po umolchaniyu 0 — ne shlem secret, tolko HMAC)
-- ESTER_DISCOVERY_ACCEPT_HMAC=0|1            (po umolchaniyu 1 — prinimaem HMAC)
-- ESTER_DISCOVERY_RECV_TIMEOUT=1.0           (sek, chtoby stop_event rabotal)
-- ESTER_DISCOVERY_TTL=0                      (sek) okno validnosti dlya HMAC; 0 = ne proveryat vremya
+- ESTER_CLUSTER_SECRET=... (pusto = bez proverki)
+- ESTER_DISCOVERY_BCAST=255.255.255.255 (mozhno: "255.255.255.255,192.168.1.255")
+- ESTER_DISCOVERY_SEND_SECRET=0|1 (po umolchaniyu 0 — ne shlem secret, tolko HMAC)
+- ESTER_DISCOVERY_ACCEPT_HMAC=0|1 (po umolchaniyu 1 — prinimaem HMAC)
+- ESTER_DISCOVERY_RECV_TIMEOUT=1.0 (sek, chtoby stop_event rabotal)
+- ESTER_DISCOVERY_TTL=0 (sek) okno validnosti dlya HMAC; 0 = ne proveryat vremya
 
 MOSTY:
 - Yavnyy: kibernetika ↔ svyaz: mayak "hello" + lokalnyy reestr → osnovanie dlya vybora transporta/marshruta.
-- Skrytyy #1: infoteoriya ↔ minimalizm: UDP broadcast — minimum nakladnykh raskhodov, maksimum shansov “uvidet” soseda.
+- Skrytyy #1: infoteoriya ↔ minimalizm: UDP broadcast - minimum nakladnykh raskhodov, maximum shansov “uvidet” soseda.
 - Skrytyy #2: bezopasnost ↔ avtonomnost: HMAC v stdlib vmesto vneshnego crypto-modulya + bez peredachi sekreta v pakete.
 
 ZEMNOY ABZATs:
-Eto kak morzyanka po provodam: “ya zdes, menya zovut tak-to, zhivu po etomu adresu”. Etogo dostatochno,
-chtoby nachat rabotu — i vazhno, chtoby “mayak” ne lomalsya iz-za odnoy krivoy stroki v __main__.
+Eto kak morzyanka po provodam: “ya zdes, menya zovut tak-to, zhivu po etomu adresu.” This is enough,
+chtoby nachat rabotu - i vazhno, chtoby “mayak” ne lomalsya iz-za odnoy krivoy stroki v __main__.
 
-# c=a+b
-"""
+# c=a+b"""
 
 import base64
 import hashlib
@@ -80,11 +78,9 @@ def _node_id() -> str:
 
 
 def _secret_key_bytes() -> bytes:
-    """
-    Podderzhka b64 klyuchey (optsionalno):
+    """Podderzhka b64 klyuchey (optsionalno):
       - esli SECRET nachinaetsya s 'b64:' → decode base64
-      - inache ispolzuem kak utf-8 bytes
-    """
+      - inache ispolzuem kak utf-8 bytes"""
     if not SECRET:
         return b""
     s = SECRET
@@ -128,7 +124,7 @@ def _mk_socket() -> socket.socket:
         pass
     # broadcast
     s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    # timeout, chtoby stop_event rabotal (receiver ne zavisaet navsegda)
+    # timeout so that the stop_event works (the receiver does not freeze forever)
     try:
         s.settimeout(max(0.2, float(RECV_TIMEOUT)))
     except Exception:
@@ -164,9 +160,7 @@ def sender(sock: socket.socket, node_id: str, stop: threading.Event) -> None:
 
 
 def receiver(sock: socket.socket, node_id: str, stop: threading.Event) -> None:
-    """
-    Slushaet hello i obnovlyaet peer registry.
-    """
+    """Listens to hello and updates the peer registers."""
     while not stop.is_set():
         try:
             try:
@@ -209,7 +203,7 @@ def receiver(sock: socket.socket, node_id: str, stop: threading.Event) -> None:
 
             upsert_peer(peer_id, base, via="lan", secret_ok=bool(SECRET))
         except Exception:
-            # best-effort: discovery ne dolzhen valit sistemu
+            # best-effort: discovery should not crash the system
             continue
 
 
@@ -232,7 +226,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     th_tx.start()
 
     try:
-        # derzhim glavnyy potok zhivym
+        # keep the main thread alive
         while th_rx.is_alive() and th_tx.is_alive():
             time.sleep(0.5)
     except KeyboardInterrupt:

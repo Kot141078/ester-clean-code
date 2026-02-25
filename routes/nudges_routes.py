@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/nudges_routes.py - nudges s optsionalnoy stilizatsiey teksta, retrayami i vsem, chto my dobavili ranee.
+"""routes/nudges_routes.py - nudges s optsionalnoy stilizatsiey teksta, retrayami i vsem, chto my addavili ranee.
 
 MOSTY:
 - (Yavnyy) Esli NUDGES_USE_STYLED=1 → otpravka cherez messaging.styled_broadcast.send_styled_broadcast().
 - (Skrytyy #1) Pri NUDGES_USE_STYLED=0 - prezhniy put messaging.broadcast.send_broadcast() (polnaya obratnaya sovmestimost).
-- (Skrytyy #2) Sokhranyaem avtogashenie po Outcome, eksport CSV, eskalatsionnye mappingi, alerty, retrai, «umnuyu tishinu».
+- (Skrytyy #2) Sokhranyaem avtogashenie po Outcome, eksport CSV, eskalatsionnye mappingi, alerty, retrai, “umnuyu tishinu”.
 
 ZEMNOY ABZATs:
-Kogda nuzhno - zvuchim «po-chelovecheski». Kogda ne nuzhno - rabotaem kak ranshe. V oboikh sluchayakh - akkuratno i bez shuma.
+Kogda nuzhno - zvuchim "po-chelovecheski". Kogda ne nuzhno - rabotaem kak ranshe. V oboikh sluchayakh - akkuratno i bez shuma.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import html, time, os, io

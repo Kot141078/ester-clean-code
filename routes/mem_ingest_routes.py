@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mem_ingest_routes.py - ingest tekstov/faylov v pamyat.
+"""routes/mem_ingest_routes.py - ingest tekstov/faylov v pamyat.
 
 MOSTY:
 - (Yavnyy) POST /mem/ingest/text i POST /mem/ingest/file (multipart/form-data).
 - (Skrytyy #1) Fayly sokhranyayutsya v data/uploads; tekstovye izvlekayutsya i idut v sloi pamyati.
-- (Skrytyy #2) Bez vneshnikh parserov; bezopasnyy porog chteniya (<=1 MB), metki v meta.
+- (Skrytyy #2) Bez vneshnikh parserov; bezopasnyy threshold chteniya (<=1 MB), metki v meta.
 
 ZEMNOY ABZATs:
-Okoshko «Polozhit dokument»: brosil fayl - on i sokhranilsya, i popal v kartoteku dlya poiska.
+Okoshko “Polozhit document”: brosil fayl - on i sokhranilsya, i popal v kartoteku dlya poiska.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time
 from flask import Blueprint, request, jsonify
@@ -49,7 +47,7 @@ def ingest_file():
     path = os.path.join(UPLOAD_DIR, f"{int(time.time())}_{safe_name}")
     f.save(path)
 
-    # Poprobuem prochest kak tekst (best effort)
+    # Let's try to read it like a text (best effect)
     text = ""
     try:
         with open(path, "rb") as fh:

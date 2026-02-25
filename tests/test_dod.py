@@ -16,27 +16,25 @@ _COV_OK_XML = """<?xml version="1.0" ?>
           line-rate="0.92" lines-covered="92" lines-valid="100"
           version="7.6.0" timestamp="1726969696">
   <packages></packages>
-</coverage>
-"""
+</coverage>"""
 
 _COV_BAD_XML = """<?xml version="1.0" ?>
 <coverage branch-rate="0.80" branches-covered="80" branches-valid="100"
           line-rate="0.81" lines-covered="81" lines-valid="100"
           version="7.6.0" timestamp="1726969696">
   <packages></packages>
-</coverage>
-"""
+</coverage>"""
 
 
 def _run_main_with(tmpdir: Path, xml_text: str, thr_lines="0.85", thr_br="0.85"):
     cov = tmpdir / "coverage.xml"
     out = tmpdir / "dod_status.json"
     cov.write_text(xml_text, encoding="utf-8")
-    # Porogovye znacheniya cherez ENV
+    # Threshold values ​​via ENV
     os.environ["DOD_LINES_MIN"] = thr_lines
     os.environ["DOD_BRANCH_MIN"] = thr_br
 
-    # Podmenyaem argv dlya main()
+    # Substitutes argv for main()
     argv_backup = sys.argv[:]
     try:
         sys.argv = [
@@ -86,7 +84,7 @@ def test_main_fail_low_coverage():
 
 def test_main_missing_file_returns_rc2():
     with tempfile.TemporaryDirectory() as td:
-        # Ne sozdaem coverage.xml — proverim obrabotku oshibki
+        # We don’t create sovereignage.xml - let’s check error handling
         out = Path(td) / "dod_status.json"
         # Porogovye po umolchaniyu
         os.environ.pop("DOD_LINES_MIN", None)

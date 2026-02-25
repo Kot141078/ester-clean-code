@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-modules/providers/__init__.py — edinyy vkhod k provayderam LLM/Embeddings.
+"""modules/providers/__init__.py - edinyy vkhod k provayderam LLM/Embeddings.
 
 Tseli:
 - edinyy standart vyzova (send_chat / send_embeddings);
 - registry, chtoby ostalnoy kod ne zavisel ot konkretnykh SDK;
-- A/B rezhimy: A = tolko lokalnye/proveryaemye vyzovy; B = dopuskaet rasshireniya po env.
+- A/B rezhimy: A = tolko lokalnye/proveryaemye vyzovy; B = dopuskaet rashirniya po env.
 
 Mosty:
-- Yavnyy (Kibernetika ↔ Inzheneriya): edinaya tochka upravleniya vkhodom/vykhodom «regulyatora».
+- Yavnyy (Kibernetika ↔ Inzheneriya): edinaya tochka upravleniya vkhodom/vykhodom “regulyatora”.
 - Skrytyy 1 (Logika ↔ Sovmestimost): interfeys otdelen ot realizatsiy (zamena adaptera bez kaskada pravok).
-- Skrytyy 2 (Infoteoriya ↔ Stoimost): obschiy parametr k/limits pozvolyaet derzhat «kanal» pod kontrolem.
+- Skrytyy 2 (Infoteoriya ↔ Stoimost): obschiy parameter k/limits pozvolyaet derzhat “kanal” pod kontrolem.
 
 Zemnoy abzats:
 Eto kak perekhodnik v elektroschite: rozetok mnogo, no u tebya odin standart, chtoby ne peretykat
 provoda v stene kazhdyy raz, kogda menyaetsya instrument.
 
-# c=a+b
-"""
+# c=a+b"""
 
 from __future__ import annotations
 
@@ -87,7 +85,7 @@ def list_providers() -> List[str]:
 def get_provider(name: Optional[str] = None) -> ChatProvider:
     key = (name or os.getenv("ESTER_PROVIDER", "lmstudio")).lower().strip()
     if key not in _REGISTRY:
-        # lazy import izvestnykh adapterov (bez tsiklov)
+        # Lazy import of known adapters (no loops)
         _lazy_autoregister()
 
     if key not in _REGISTRY:
@@ -96,7 +94,7 @@ def get_provider(name: Optional[str] = None) -> ChatProvider:
 
 
 def _lazy_autoregister() -> None:
-    # syuda mozhno dobavlyat adaptery bez pravok ostalnogo koda
+    # you can add adapters here without editing the rest of the code
     # LM Studio / OpenAI-compat (lokalnyy)
     try:
         importlib.import_module("modules.providers.lmstudio_adapter")
@@ -187,10 +185,8 @@ def send_chat(
     provider: Optional[str] = None,
     **kwargs: Any,
 ) -> Dict[str, Any]:
-    """
-    Universalnyy vyzov chata.
-    Vozvraschaet dict, chtoby byt sovmestimym so starym kodom Ester.
-    """
+    """Universal chat call.
+    Returns dist to be compatible with Esther's old code."""
     try:
         p = get_provider(provider)
         res = p.send_chat(messages, model=model, **kwargs)
@@ -210,9 +206,7 @@ def send_embeddings(
     provider: Optional[str] = None,
     **kwargs: Any,
 ) -> Any:
-    """
-    Universalnyy vyzov embeddings (esli podderzhivaetsya).
-    """
+    """Universal call embeddings (if supported)."""
     try:
         p = get_provider(provider)
         fn = getattr(p, "send_embeddings", None)

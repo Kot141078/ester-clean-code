@@ -84,7 +84,7 @@
     .bar.ok{background:var(--ok)} .bar.err{background:var(--danger)}
     /* melochi */
     .muted{color:var(--muted)} .right{margin-left:auto}
-    /* globalnaya poloska oshibok */
+    /* global error bar */
     #globalErr{display:none;margin:10px 16px 0 16px;padding:8px 10px;border-radius:8px;
                background:#fee2e2;color:#7f1d1d;border:1px solid #fecaca;font-size:13px}
     html[data-variant="B"] .brand-title::after{content:" · beta";color:var(--muted);font-weight:400}
@@ -100,7 +100,7 @@
         const variant = (saved==='B'||saved==='A') ? saved : 'A';
         document.documentElement.setAttribute('data-variant', variant);
 
-        // avto-otkat: esli 3 poslednikh zagruzki lovili onerror -> pereklyuchaemsya na 'A'
+        // auto-rollback: if the last 3 loads had an error -> switches to bAb
         const errs = parseInt(localStorage.getItem(keyErr)||'0',10);
         window.addEventListener('error', function(){
           const n = (parseInt(localStorage.getItem(keyErr)||'0',10) || 0) + 1;
@@ -108,7 +108,7 @@
           if(n>=3){ localStorage.setItem(keyVar,'A'); localStorage.setItem(keyErr,'0'); }
         });
         window.addEventListener('load', function(){
-          // uspeshnaya zagruzka — sbrasyvaem schetchik
+          // successful loading - reset the counter
           localStorage.setItem(keyErr,'0');
         });
         window.switchVariant = function(){
@@ -186,7 +186,7 @@
     }
     document.addEventListener('DOMContentLoaded', loadJWTIntoInput);
 
-    // ==== Anti-echo/Quarantine + $fetch polyfill =========================================
+    // ==== Anti-echo/Quarantine + $fetch polyfill ===========================
     (function(){
       const maskHeaders = (h)=>{
         // ne daem utech Authorization v UI/konsol
@@ -194,7 +194,7 @@
         return h;
       };
 
-      // Polifill $fetch (esli ne opredelen)
+      // Polyfill $feth (if not defined)
       if(typeof window.$fetch !== 'function'){
         window.$fetch = async function(url, opts){
           opts = opts || {};
@@ -252,7 +252,7 @@
             const res = await fetch(finalUrl, {...reqOpts, headers, body});
             return res;
           }catch(err){
-            // Globalnaya oshibka seti — pokazyvaem v poloske, bez utechki chuvstvitelnykh dannykh
+            // Global network error - shown in a strip, without leaking sensitive data
             const box = document.getElementById('globalErr');
             if(box){
               box.style.display='block';
@@ -264,7 +264,7 @@
           }
         };
       }
-      // vspomogatelnaya obertka: poluchit JSON s obrabotkoy oshibok
+      // auxiliary wrapper: get JSION with error handling
       window.$json = async function(url, opts){
         const res = await window.$fetch(url, opts||{});
         const ct = res.headers.get('content-type') || '';
@@ -275,7 +275,7 @@
         }
         return ct.includes('application/json') ? res.json() : res.text();
       };
-      window._maskHeaders = maskHeaders; // na vsyakiy sluchay dlya lokalnoy diagnostiki
+      window._maskHeaders = maskHeaders; // just in case for local diagnostics
     })();
 
     // ==== Otkrytie v novoy vkladke =======================================================

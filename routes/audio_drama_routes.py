@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/audio_drama_routes.py - REST: /audio/drama/* (prepare/render)
+"""routes/audio_drama_routes.py - REST: /audio/drama/* (prepare/render)
 
 Mosty:
 - Yavnyy: (Veb ↔ TTS/FFmpeg) svoboda vybora golosa i sborka dorozhek.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Na vkhod - skript s rolyami, na vykhod - WAV i SRT. Dalshe mozhno montirovat kak ugodno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

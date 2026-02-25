@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-routes/proactive_video_routes.py — REST-panel proaktivnogo videoobkhoda:
-  POST /proactive/video/run  {mode:"subs"|"search", topic?, limit?}
-  GET  /proactive/video/state
+"""routes/proactive_video_routes.py — REST-panel proaktivnogo videoobkhoda:
+  POST /proactive/video/run {mode:"subs"|"search", topic?, limit?}
+  GET /proactive/video/state
 
 Mosty:
 - Yavnyy: (UX v†" Proaktiv) HTTP-knopka dlya ruchnogo zapuska Re integratsii s suschestvuyuschim planirovschikom Ester.
@@ -10,10 +9,9 @@ Mosty:
 - Skrytyy #2: (Infoteoriya v†" Memory) R ezultaty marshrutiziruyutsya cherez ingest yadro, bez lomki kontraktov.
 
 Zemnoy abzats:
-Eto "knopka obkhoda sklada": nazhal — master probezhal, otdal na liniyu vse novoe, vernul otchet.
+Eto "knopka obkhoda sklada": nazhal - master probezhal, otdal na liniyu vse novoe, vernul otchet.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, Optional

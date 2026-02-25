@@ -32,7 +32,7 @@
 
   <section class="grid">
     <div>
-      <h3>Svoya kartochka</h3>
+      <h3>Your own card</h3>
       <button onclick="refresh()">Obnovit</button>
       <button onclick="publish()">Opublikovat seychas</button>
       <button onclick="importUSB()">Import s USB</button>
@@ -43,7 +43,7 @@
       <div id="nodes">—</div>
     </div>
     <div>
-      <h3>Podskazka dlya gibridnoy ocheredi</h3>
+      <h3>Hybrid Queue Tip</h3>
       <div class="row">
         <select id="job">
           <option value="proj_build_publish">proj_build_publish</option>
@@ -51,7 +51,7 @@
         </select>
       </div>
       <textarea id="jargs" style="width:100%;min-height:80px" placeholder='{"project_dir":"/path/on/remote","publish":true}'></textarea>
-      <button onclick="suggest()">Podskazat tseli</button>
+      <button onclick="suggest()">Suggest goals</button>
       <pre id="suggest">—</pre>
     </div>
   </section>
@@ -64,7 +64,7 @@
 <script>
 function esc(s){return (s||"").toString().replace(/</g,"&lt;")}
 function table(items){
-  if(!items || !items.items || !items.items.length) return "<p class='muted'>Poka pusto</p>";
+  if(!items || !items.items || !items.items.length) return "<p class='muted'>Bye empty</p>/p>";
   let h="<table><tr><th>node_id</th><th>class</th><th>mem</th><th>GPU</th><th>aliases</th></tr>";
   for(const it of items.items){
     const cls = it?.hw?.class || "-";

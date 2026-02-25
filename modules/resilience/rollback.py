@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/resilience/rollback.py — otkat putey k poslednim bekapam iz forge.
+"""modules/resilience/rollback.py - otkat putey k poslednim bekapam iz forge.
 
 Mosty:
 - Yavnyy: (Samoistselenie ↔ Khranenie) ispolzuet bekapy fordzha dlya vosstanovleniya.
@@ -9,10 +8,9 @@ Mosty:
 - Skrytyy #3: (Forge ↔ Bezopasnost) registriruem bekapy s soderzhimym dlya prozrachnosti.
 
 Zemnoy abzats:
-Slomalos posle pravki? Vernuli predyduschee sostoyanie po rezervnoy kopii — kak «Ctrl+Z» dlya faylov, s versiyami i kheshami, chtoby esli stalo khuzhe, otkatyvaemsya gratsiozno i s istoriey.
+Slomalos after pravki? Vernuli predyduschee sostoyanie po rezervnoy kopii - kak “Ctrl+Z” dlya faylov, s versiyami i kheshami, chtoby esli became khuzhe, otkatyvaemsya gratsiozno i ​​s istoriey.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, glob, shutil, json, hashlib, time
 from typing import Any, Dict, List

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/project_inbox_poll_telegram.py — podtyagivaet konverty iz Telegram i kladet v inboks (B).
+"""scripts/project_inbox_poll_telegram.py - podtyagivaet konverty iz Telegram i kladet v inboxes (B).
 
 CLI:
   python -m scripts.project_inbox_poll_telegram --once --ttl 3600
@@ -12,10 +11,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Nadezhnost): loop-bezopasnyy, bez zavisimostey.
 
 Zemnoy abzats:
-Eto «pochtalon iz messendzhera»: vidit konverty v chate i, esli vse validno, zanosit v inboks (B).
+Eto “pochtalon iz messendzhera”: vidit konverty v chate i, esli vse validno, zanosit v inboxes (B).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -76,7 +74,7 @@ def main(argv: list[str] | None = None) -> int:
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--once", action="store_true")
     g.add_argument("--loop", action="store_true")
-    ap.add_argument("--ttl", type=int, default=0, help="zamenit TTL vkhodyaschikh (sek)")
+    ap.add_argument("--ttl", type=int, default=0, help="replace incoming TTL (sec)")
     args = ap.parse_args(argv)
     ttl_o = int(args.ttl) if args.ttl > 0 else None
     return once(ttl_o) if args.once else loop(ttl_o)

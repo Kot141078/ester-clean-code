@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tools/publish/github_publish.py — push «public-safe» kataloga v GitHub.
+"""tools/publish/github_publish.py - push “public-safe” kataloga v GitHub.
 
 MOSTY:
-- (Yavnyy) push_repo(workdir) — kommitit soderzhimoe i pushit v GITHUB_REPO/GITHUB_BRANCH.
+- (Yavnyy) push_repo(workdir) — commit soderzhimoe i pushit v GITHUB_REPO/GITHUB_BRANCH.
 - (Skrytyy #1) Ispolzuet prostoy `git` cherez subprocess (bez vneshnikh python-bibliotek).
 - (Skrytyy #2) Offlayn-gotov: esli git/tokenov net — vernet podskazki vmesto padeniya.
 
 ZEMNOY ABZATs:
-Kak «finalnyy shag upakovki»: podpisali, polozhili v obschiy shkaf, otmetili kleymom vetki.
+Kak “finalnyy shag upakovki”: podpisali, polozhili v obschiy shkaf, otmetili kleymom vetki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, subprocess, time, shutil
 from typing import Dict, Any

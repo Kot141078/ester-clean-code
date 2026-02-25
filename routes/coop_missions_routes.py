@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/coop_missions_routes.py - REST dlya kooperativnykh missiy.
+"""routes/coop_missions_routes.py - REST dlya kooperativnykh missiy.
 
 Ruchki:
-  POST /coop/bind   {"peer":"127.0.0.1:8000"} -> dobavlyaet vedomogo
-  POST /coop/start  {"mission":"notepad_intro"}   -> fiksiruet missiyu
-  POST /coop/next   {}                            -> ++index i zapuskaet shag lokalno + u vsekh peers
-  GET  /coop/status
+  POST /coop/bind {"peer":"127.0.0.1:8000"} -> dobavlyaet vedomogo
+  POST /coop/start {"mission":"notepad_intro"} -> fiksiruet missiyu
+  POST /coop/next {} -> ++index i zapuskaet shag lokalno + u vsekh peers
+  GET /coop/status
 
 Lokalnaya chast shaga ispolzuet /missions/step; u peers - /peer/proxy -> /missions/step.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from typing import Any, Dict
@@ -31,7 +29,7 @@ def _post_local(path: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     except Exception: return {"ok": False, "raw": t}
 
 def _post_peer(host: str, path: str, payload: Dict[str, Any]) -> Dict[str, Any]:
-    # ispolzuem uzhe suschestvuyuschiy /peer/proxy
+    # use an existing /per/proxy
     return _post_local("/peer/proxy", {"host": host, "path": path, "payload": payload})
 
 @bp.route("/bind", methods=["POST"])

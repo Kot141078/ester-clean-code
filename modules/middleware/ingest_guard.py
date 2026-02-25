@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-middleware/ingest_guard.py — backpressure/token-bucket dlya /ingest/* s avto-backoff i ban-listom.
+"""middleware/ingest_guard.py - backpressure/token-bucket dlya /ingest/* s avto-backoff i ban-listom.
 
 Mosty:
 - Yavnyy: (Operatsii ↔ Set) spravedlivost ingest po istochnikam (per-source throttle).
-- Skrytyy #1: (Infoteoriya ↔ Nablyudaemost) metrika «age v ocheredi», schetchiki hit/deny/backoff.
+- Skrytyy #1: (Infoteoriya ↔ Nablyudaemost) metrika “age v ocheredi”, schetchiki hit/deny/backoff.
 - Skrytyy #2: (Kibernetika ↔ Ustoychivost) myagkiy rezhim B (log), vysokiy A — zhestkiy.
 
 Zemnoy abzats:
-Ne daem odnim istochnikam «zabit trubu»: v sekundu — ne bolshe kvoty, pri oshibkakh zamedlyaem.
-# c=a+b
-"""
+Ne daem odnim istochnikam “zabit trubu”: v sekundu - ne bolshe kvoty, pri oshibkakh zamedlyaem.
+# c=a+b"""
 from __future__ import annotations
 import os, time, json, re
 from typing import Any, Dict, Tuple
@@ -76,7 +74,7 @@ def guard():
     return None
 
 def report_failure(source: str, code: int):
-    """Myagkiy API: modul ingest mozhet soobschit ob oshibke, chtoby usilit backoff."""
+    """Soft API: the ingest module can report an error to strengthen the backlog."""
     b = _bucket(source)
     if code == 429:
         b["backoff_until"] = max(b.get("backoff_until",0), time.time() + B429/1000.0)

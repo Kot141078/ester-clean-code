@@ -19,12 +19,12 @@ def test_mm_cards_facade_compatible(monkeypatch, tmp_path):
     c = CM.CardsMemory(str(tmp_path / "ester_cards.json"))
     m = MM.MemoryManager(v, s, c)
 
-    # Ubedimsya, chto svoystvo cards dostupno i metod add_card s (header, body) rabotaet
+    # Let's make sure that the cards property is available and the add_card with (neader, water) method works
     card_id = m.cards.add_card(
         header="Zagolovok", body="Telo kartochki", tags=["ui", "test"], weight=0.7
     )
     assert isinstance(card_id, str) and len(card_id) > 0
 
-    # I chto iskhodnyy API medium_cards ostalsya rabochim
+    # And that the original API medium_cards remained working
     card_id2 = m.medium_cards.add_card(user="default", text="legacy text", tags=["legacy"])
     assert isinstance(card_id2, str) and len(card_id2) > 0

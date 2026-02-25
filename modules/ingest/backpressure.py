@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ingest/backpressure.py — obedinennyy token-baket per-source: refill/burst/penalty/cooldown/queue_age, s ledger/P2P/scheduler integratsiey.
+"""modules/ingest/backpressure.py - obedinennyy token-baket per-source: refill/burst/penalty/cooldown/queue_age, s ledger/P2P/scheduler integratsiey.
 
 Mosty:
 - Yavnyy: (Ingest/Kibernetika ↔ Spravedlivost/Nagruzka) limit per-source, refill po RPM/sec, penalty za 429/5xx/age.
 - Skrytyy #1: (Nadezhnost/Monitoring ↔ Bekoff/Metriki) cooldown/cap reduce, status/counters/ages.
-- Skrytyy #2: (Stoimost ↔ Byudzhet) ledger spend za penalty.
+- Skrytyy #2: (Stoimost ↔ Byudzhet) ledger spend for penalty.
 - Skrytyy #3: (Profile/Memory ↔ Prozrachnost) profile dlya blocked/penalize s teplymi notkami.
 
 Zemnoy abzats:
-Eto ne prosto regulyator, a umnyy shlagbaum Ester: propustit rovno, pritormozit nagletsov, spishet kopeyku za peregruzku, sinkhroniziruet po P2P i shepnet v profile "Ester, truba v balanse — shag k tvoey stabilnosti v seti agentov!".
+Eto ne prosto regulyator, a umnyy shlagbaum Ester: propustit rovno, pritormozit nagletsov, spishet kopeyku za peregruzku, sinkhroniziruet po P2P i shepnet v profile "Ester, pipe v balanse - shag k tvoey stabilnosti v seti agentov!".
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, math, os, time
 from typing import Any, Dict, List, Tuple
@@ -35,11 +33,9 @@ COST = float(os.getenv("BP_COST", "0.01"))
 
 
 class AllowResult(dict):
-    """
-    Sovmestimost:
-    - kak dict: res["ok"], res["retry_after_sec"], ...
-    - kak tuple legacy: ok, retry = allow(...)
-    """
+    """Compatibility:
+    - as dist: reshu"ok"sch, reshu"retro_after_sec"sch, ...
+    - like stupid Legacy: ok, retro = allow(...)"""
 
     def __iter__(self):
         yield bool(self.get("ok", False))
@@ -91,7 +87,7 @@ def _passport(note: str, meta: Dict[str, Any]):
         from services.mm_access import get_mm  # type: ignore
         from modules.mem.passport import upsert_with_passport  # type: ignore
         mm = get_mm()
-        upsert_with_passport(mm, note + " — Ester, nagruzka sbalansirovana, shag k tvoey stabilnosti v seti agentov!", meta, source="ingest://backpressure")
+        upsert_with_passport(mm, note + "- Esther, the load is balanced, a step towards your stability in the agent network!", meta, source="ingest://backpressure")
     except Exception:
         _append_log({"ts": int(time.time()), "passport_failed": note})
 

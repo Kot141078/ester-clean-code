@@ -15,7 +15,7 @@ Write-Host "[OK] Backup created: $bak"
 
 $src = Get-Content -LiteralPath $Target -Raw -Encoding UTF8
 
-# A-slot: dobavit defolt temperature=0.7, esli on obyazatelnyy
+# A-slot: add default temperature=0.7, if required
 # Ischem imenno signaturu, gde temperature bez '='
 $patternA = 'def\s+_ask_provider\(\s*self\s*,\s*provider\s*,\s*messages\s*,\s*temperature\s*,'
 $replA    = 'def _ask_provider(self, provider, messages, temperature=0.7,'
@@ -28,7 +28,7 @@ if ($patched -match $patternA) {
   Write-Host "[WARN] Signature pattern not found (maybe already patched)."
 }
 
-# B-slot (neobyazatelnyy, no poleznyy): sdelat vyzov yavnym, esli on v tochnosti takoy
+# B-slot (optional but useful): make the call explicit if it's exactly like that
 $patternB = 'self\._ask_provider\(\s*p\s*,\s*msgs\s*\)'
 $replB    = 'self._ask_provider(p, msgs, temperature=0.7)'
 
@@ -43,7 +43,7 @@ if ($patched -match $patternB) {
 Set-Content -LiteralPath $Target -Value $patched -Encoding UTF8
 Write-Host "[OK] Written patched file: $Target"
 
-# Bystraya proverka: kompilyatsiya
+# Quick check: compilation
 & "D:\ester-project\.venv\Scripts\python.exe" -m py_compile $Target
 Write-Host "[OK] py_compile passed"
 

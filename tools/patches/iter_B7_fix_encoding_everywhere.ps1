@@ -1,9 +1,9 @@
 # iter_B7_fix_encoding_everywhere.ps1  (B7c, PowerShell 5-safe)
 # Encoding hygiene end-to-end: normalize at boundaries (TG in/out + passport write/read) + optional passport sanitize.
 #
-# Explicit bridge: c=a+b -> (a) tekst/pamyat + (b) normalizatsiya na granitsakh => (c) dolgovremennaya pamyat bez krakozyabr.
-# Hidden bridges: Ashby (neskolko gipotez perekodirovki), Cover&Thomas (shumoustoychivost kanala), Gray’s (shov na granitse I/O).
-# Earth: kak filtr na vkhode ventilyatsii — stavim na granitsakh, chtoby gryaz ne letela v “legkie” dolgovremennoy pamyati.
+# Explicit bridge: c=a+b -> (a) text/memory + (c) normalization at the boundaries => (c) long-term memory without gibberish.
+# Hidden bridges: Ashby (several transcoding hypotheses), Carpet&Thomas (channel noise immunity), Gray's (seam on the I/O border).
+# Erth: like a filter at the ventilation inlet - we place it at the boundaries so that dirt does not fly into the “lungs” of long-term memory.
 
 param(
   [switch]$SanitizePassport

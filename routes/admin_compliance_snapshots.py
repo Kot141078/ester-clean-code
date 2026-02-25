@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_compliance_snapshots.py - UI/API snapshotov Compliance.
+"""routes/admin_compliance_snapshots.py - UI/API snapshotov Compliance.
 
-Marshruty:
-  • GET  /admin/portable/snapshots            - stranitsa
-  • GET  /admin/portable/snapshots/list       - spisok dostupnykh snapshotov (USB + lokalno)
-  • POST /admin/portable/snapshots/make       - sdelat snapshot (AB=A → dry)
-  • POST /admin/portable/snapshots/diff       - sravnit dva snapshota (poslednie dva po umolchaniyu)
+Route:
+  • GET /admin/portable/snapshots - stranitsa
+  • GET /admin/portable/snapshots/list - spisok dostupnykh snapshotov (USB + lokalno)
+  • POST /admin/portable/snapshots/make - sdelat snapshot (AB=A → dry)
+  • POST /admin/portable/snapshots/diff - sravnit dva snapshota (poslednie dva po umolchaniyu)
 
 Mosty:
 - Yavnyy (Snimok ↔ Sravnenie): po knopke delaem snimok i tut zhe mozhem sravnit s predyduschim.
@@ -14,10 +13,9 @@ Mosty:
 - Skrytyy 2 (Praktika): zapis tolko v AB=B, offlayn, yadro Ester ne trogaem.
 
 Zemnoy abzats:
-Eto «tekhprofile s probegom»: khranim izmeneniya ekspluatatsii v faylakh, chtoby videt trendy i regressii bez setey i BD.
+This is “tekhprofile s probegom”: khranim izmeneniya ekspluatatsii v faylakh, chtoby videt trendy i regressii bez setey i BD.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request
@@ -52,7 +50,7 @@ def diff():
     body = request.get_json(silent=True) or {}
     a_path = (body.get("a") or "").strip()
     b_path = (body.get("b") or "").strip()
-    # Esli ne zadano - berem poslednie dva s USB, zatem lokalnye
+    # If not specified, take the last two from the USB, then local ones
     snaps = list_snapshots()
     ordered = snaps.get("usb", []) + snaps.get("local", [])
     if not a_path or not b_path:

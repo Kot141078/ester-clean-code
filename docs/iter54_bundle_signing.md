@@ -82,5 +82,5 @@ Verifier options:
 - Hidden bridge #2 (Ashby cybernetics): control loop needs observable + immutable channel; signature makes delivery channel auditable.
 
 ## Earth paragraph
-Eto kak pechat na opechatannom konverte: vnutri spisok plomb (hashes), a snaruzhi podpis otpravitelya.  
+It's like a seal on a sealed envelope: inside is a list of seals (hashes), and outside is the sender's signature.
 Auditor beret bundle, proveryaet pechat (`publisher_sig`), sveryaet plomby (`tree hash` i `SHA256SUMS`) i srazu vidit podmenu dazhe pri vneshne “akkuratnom” soderzhimom.

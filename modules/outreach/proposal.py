@@ -1,7 +1,6 @@
 # modules/outreach/proposal.py
 # -*- coding: utf-8 -*-
-"""
-modules/outreach/proposal.py — generator predlozheniy/pisem po vozmozhnosti (oflayn MD/HTML + email).
+"""modules/outreach/proposal.py - generator predlozheniy/pisem po vozmozhnosti (oflayn MD/HTML + email).
 
 Mosty:
 - Yavnyy: (Opps ↔ Outreach) iz kartochki vozmozhnosti — srazu gotovoe predlozhenie i pismo.
@@ -9,10 +8,9 @@ Mosty:
 - Skrytyy #2: (Passport/RAG ↔ Prozrachnost/Poisk) teksty otpravlyayutsya v RAG i shtampuyutsya.
 
 Zemnoy abzats:
-Kak shablonnyy konstruktor: podstavil polya — i u tebya akkuratnyy dokument i pismo dlya otpravki.
+Kak shablonnyy konstruktor: podstavil polya - i u tebya akkuratnyy document i pismo dlya otpravki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, hashlib, html, re
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

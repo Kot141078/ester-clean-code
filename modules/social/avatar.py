@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/studio/avatar.py — «virtualnyy veduschiy»: tekst → TTS → animirovannoe litso → mp4.
+"""modules/studio/avatar.py - “virtualnyy veduschiy”: tekst → TTS → animirovannoe litso → mp4.
 
 Mosty:
 - Yavnyy: (TTS ↔ Avatar) svyazyvaet vybrannye dvizhki i vydaet itogovyy rolik.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Flot ↔ Studiya) legko vynositsya v zadachu avatar_talk.
 
 Zemnoy abzats:
-Kak studiya novostey: veduschiy chitaet tekst, mimika sinkhronizirovana, na vykhode — gotovyy syuzhet.
+Kak studiya novostey: veduschiy chitaet tekst, mimika sinkhronizirovana, na vykhode - gotovyy syuzhet.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, tempfile, subprocess
 from typing import Any, Dict, List
@@ -24,11 +22,11 @@ def _ensure():
     os.makedirs(AV_CACHE, exist_ok=True)
 
 def _tts_wav(lines: List[str], voice: str|None=None)->str:
-    # ispolzuem uzhe suschestvuyuschie TTS-moduli studii
+    # uses existing studio shopping center modules
     from modules.studio.tts import _speech  # type: ignore
     _ensure()
     out=os.path.join(AV_CACHE, f"tts_{int(time.time())}.wav")
-    # skleim cherez ffmpeg: segmenty podryad
+    # glue using ffmpeg: segments in a row
     import wave, struct
     sr=44100
     segs=[]
@@ -44,7 +42,7 @@ def _tts_wav(lines: List[str], voice: str|None=None)->str:
     return out
 
 def _avatar_local_sadtalker(audio: str, avatar: Dict[str,Any], out_mp4: str)->bool:
-    # Trebuetsya ustanovlennyy sadtalker; komanda demonstratsionnaya
+    # Requires sidetalker installed; demo team
     bin=os.getenv("SADTalker_BIN") or os.getenv("SADTALKER_BIN","sadtalker")
     img=avatar.get("image") or ""
     if not img or not os.path.isfile(img): return False
@@ -56,7 +54,7 @@ def _avatar_local_sadtalker(audio: str, avatar: Dict[str,Any], out_mp4: str)->bo
         return False
 
 def _avatar_fallback(audio: str, out_mp4: str)->bool:
-    # Zapasnoy put: chernyy fon + audio (bez litsa), chtoby payplayn byl stabilnym
+    # Fallback: black background + audio (no face) to keep the pipeline stable
     ff=os.getenv("FFMPEG_BIN","ffmpeg")
     try:
         p=subprocess.run([ff,"-y","-f","lavfi","-i","color=c=black:s=1080x1920:d=10","-i",audio,"-c:v","libx264","-c:a","aac","-shortest",out_mp4],
@@ -92,7 +90,7 @@ def make(title: str, script: List[str], avatar: Dict[str,Any], tts: Dict[str,Any
     if prov.get("name")=="sadtalker" and avatar.get("kind")=="photo":
         ok=_avatar_local_sadtalker(wav, avatar, out)
     elif prov.get("name") in ("heygen","d-id") and avatar_kind in ("photo","external"):
-        # Zdes mogli by byt HTTP-vyzovy vneshnikh API; bez klyuchey provayder nedostupen.
+        # There could be HTTP calls to external APIs here; Without keys the provider is unavailable.
         ok=False
     else:
         if avatar_kind in ("", "fallback", legacy_kind, "photo", "external"):

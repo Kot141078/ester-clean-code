@@ -107,14 +107,14 @@ async function removeTg(id){
   await refresh();
 }
 async function enqueueLan(id){
-  const jtype = prompt('Tip zadachi (naprimer: proj_build_publish)','proj_build_publish')||'proj_build_publish';
+  const jtype = prompt('Task type (for example: prozh_build_public)','proj_build_publish')||'proj_build_publish';
   const jargs = prompt('args JSON','{"project_dir":"/path","publish":true}')||'{}';
   let args={}; try{ args = JSON.parse(jargs); }catch(e){ alert('Plokhoy JSON'); return; }
   const r = await fetch('/admin/hybrid/favorites/enqueue',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:jtype,args,target:"lan",id})});
   alert('Otpravleno'); 
 }
 async function enqueueTg(id){
-  const jtype = prompt('Tip zadachi (naprimer: proj_build_publish)','proj_build_publish')||'proj_build_publish';
+  const jtype = prompt('Task type (for example: prozh_build_public)','proj_build_publish')||'proj_build_publish';
   const jargs = prompt('args JSON','{"project_dir":"/path","publish":true}')||'{}';
   let args={}; try{ args = JSON.parse(jargs); }catch(e){ alert('Plokhoy JSON'); return; }
   const r = await fetch('/admin/hybrid/favorites/enqueue',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:jtype,args,target:"tg",id})});

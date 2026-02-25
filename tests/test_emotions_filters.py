@@ -6,8 +6,8 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 @pytest.mark.parametrize(
     "text",
     [
-        "Ya v yarosti i schastliv odnovremenno! Eto luchshiy i khudshiy den.",
-        "Mne grustno, no ya nadeyus na luchshee. Serdtse kolotitsya ot volneniya.",
+        "I'm furious and happy at the same time! This is the best and worst day.",
+        "I'm sad, but I hope for the best. My heart is pounding with excitement.",
     ],
 )
 def test_chat_emotions_present(client, auth_hdr_user, text):
@@ -24,5 +24,5 @@ def test_chat_emotions_present(client, auth_hdr_user, text):
     # Emotsii nenulevye
     assert isinstance(emo, dict)
     assert len(emo.keys()) > 0
-    # Proaktivnaya sektsiya mozhet byt pustoy, no pole dopustimo
+    # The proactive section may be empty, but the field is valid
 # assert "proactive" in j

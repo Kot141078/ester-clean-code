@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ingest/fair.py — per-source token-bucket + backoff dlya /ingest/submit (i pokhozhikh).
+"""modules/ingest/fair.py - per-source token-bucket + backoff dlya /ingest/submit (i pokhozhikh).
 
 Mosty:
 - Yavnyy: (Inzheneriya ↔ Spravedlivost) ogranichivaem rps/burst dlya kazhdogo istochnika.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Nablyudaemost ↔ Metriki) otdaem svodku v /ingest/fair/status.
 
 Zemnoy abzats:
-«Gorlyshko butylki» regulirovat nado: tak my ne utonem pod shkvalom zaprosov.
+“Gorlyshko butylki” regulirovat nado: so my ne utonem pod shkvalom zaprosov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, time
 from typing import Any, Dict
@@ -54,9 +52,7 @@ def _tick(bucket: Dict[str,Any], rps: float, burst: int, now: float):
     bucket["last"] = now
 
 def admit(source: str) -> Dict[str,Any]:
-    """
-    Vozvraschaet {allow, retry_after?}. V AB=B — vsegda allow, tolko logiruem.
-    """
+    """Returns ZZF0Z. In AB=B - always allow, we just log."""
     q = _quotas()
     conf = q.get(source) or q.get("default") or {"rps": DEF_RPS, "burst": DEF_BURST}
     st = _load_state()

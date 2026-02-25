@@ -15,7 +15,7 @@
       <button class="btn" onclick="openNew('/openapi.json')">/openapi.json</button>
       <button class="btn" onclick="openNew('/routes')">/routes</button>
     </div>
-    <p class="muted" style="margin-top:8px">Vse ssylki otkryvayutsya v novykh vkladkakh. JWT beretsya iz <code>localStorage.jwt</code>.</p>
+    <p class="muted" style="margin-top:8px">All links open in new tabs. GVT is taken from <code>localStorage.jwt</code>.</p>
   </div>
 
   <div class="card">
@@ -74,10 +74,10 @@
         </label>
         <button class="btn right" onclick="clearChat()">Ochistit</button>
       </div>
-      <textarea id="chatInput" class="textarea" placeholder="Sprosi Ester… (nuzhno JWT: USER/OPERATOR/ADMIN)"></textarea>
+      <textarea id="chatInput" class="textarea" placeholder="Ask Esther... (need ZhVT: USER/OPERATOR/ADMIN)"></textarea>
       <div class="row" style="margin-top:6px">
         <button class="btn" onclick="sendChat()">Otpravit</button>
-        <span class="muted">Podderzhivayutsya rezhimy «local/cloud/judge», RAG-kontekst iz tvoey BZ.</span>
+        <span class="muted">The modes “local/cloud/yuje” and RAG context from your business center are supported.</span>
       </div>
     </div>
   </div>
@@ -164,7 +164,7 @@
         logMsg('bot', 'Istochniki: n/a');
       }
     }catch(e){
-      logMsg('bot','Set/oshibka: '+e);
+      logMsg('bot','Network/Error:'+e);
     }
   }
 

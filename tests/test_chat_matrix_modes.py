@@ -19,11 +19,11 @@ def test_chat_matrix_ok(client, auth_hdr_user, mode, use_rag, temp):
     )
     assert r.status_code == 200
     j = r.get_json()
-    # dopuskaem raznye klyuchi otveta
+    # allows different answer keys
     assert any(k in j for k in ("response", "answer"))
     assert "emotions" in j
     assert "proactive" in j
-    # esli rag vklyuchen — ozhidaem nalichie rag-polya (mozhet byt pustym)
+    # if rag is enabled, expect the presence of a rag field (may be empty)
     if use_rag:
         assert "rag" in j
 
@@ -39,9 +39,9 @@ def test_chat_401_no_jwt(client):
 
 
 def test_chat_403_rbac_denied_when_configured(client, auth_hdr_user, monkeypatch):
-    # Esli v okruzhenii vklyuchen strogiy RBAC, /chat mozhet byt razreshen — togda test propustim
+    # If strict RVACH is enabled in the environment, /chat can be allowed - then we will skip the test
     r = client.get("/routes", headers=auth_hdr_user)
     if r.status_code == 200:
         pytest.skip(
-            "RBAC pozvolyaet /chat dlya roli user — otritsatelnyy keys ne primenim"
+            "RVACH allows /chat for the user role - negative case is not applicable"
 )

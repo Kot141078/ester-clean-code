@@ -1,8 +1,8 @@
-# config/nudges.yaml — pravila generatsii nudzhey + eskalatsiy.
+# config/newges.yaml - rules for generating news + escalation.
 # MOSTY:
-# - (Yavnyy) rules po tipam sobytiy, intent_tpl i intent_tpl_escalation, sla_soon_min.
-# - (Skrytyy #1) Eskalatsii aktiviruyutsya na shagakh SLA-tsepochki s m<0 (overdue) i napravlyayutsya na tegi iz ENV `NUDGES_ESCALATE_TAGS`.
-# - (Skrytyy #2) Esli ENV ne zadan — mozhno yavno propisat tegi v rules.<Event>.escalate_tags.
+# - (Explicit) rules by event types, intent_tpl and intent_tpl_escalation, slal_soon_min.
+# - (Hidden #1) Escalations are activated at the steps of the SLA chain with m<0 (overdue) and are sent to tags from the ENV ёNIDGES_ESKALATE_TAGSje.
+# - (Hidden #2) If ENV is not specified, you can explicitly write tags in rules.<Event>.escalate_tags.
 
 rules:
   AssignmentPlanned:
@@ -18,7 +18,7 @@ rules:
     kind: neutral
     intent_tpl: "Prinyal zapros «{summary}». Vernus s planom v blizhayshee vremya."
 
-# Primer polzovatelskogo sobytiya s sobstvennoy eskalatsiey:
+# Example of a custom event with its own escalation:
   CustomIncident:
     kind: lawyer
     intent_tpl: "Intsident: {summary}. Nuzhna otsenka riskov i plan sderzhivaniya."

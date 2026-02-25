@@ -1,32 +1,43 @@
-from modules.memory.facade import memory_add, ESTER_MEM_FACADE
+"""Template notes for context-window UX behavior.
 
-## 1) Upravlenie granitsey konteksta (preduprezhdat zaranee, ne «prygat» molcha)
+This file stores product notes in a Python-safe format so it can be imported
+or linted without syntax errors.
+"""
 
-**Chto nuzhno**
+IDEA_NOTES = """
+1) Context boundary management (warn in advance, do not "jump" silently)
 
-* Zhivoy schetchik tokenov i dva poroga: `WARN` (napr. ostalos <15%) i `HARD` (<5%).
-* Pered `WARN` — nenavyazchivyy banner/tost + zvukovoy «ping» dlya golosovogo rezhima.
-* Knopki vybora:
+What is needed:
+- A live token counter with two thresholds: WARN (for example, <15% left)
+  and HARD (<5%).
+- Before WARN, show a lightweight banner/toast and a short "ping" sound in
+  voice mode.
+- User choice buttons:
+  1. "Summarize and continue" (auto-summary -> carry over to a new session),
+  2. "Start a clean session",
+  3. "Fit into current session" (compact tail history: remove/compact).
+- For voice input: do not start a new session while the user is speaking;
+  wait until speech is complete, then show the modal. If speech recognition
+  is available, buffer first and present the three options after capture.
 
-  1. **«Summirovat i prodolzhit»** (avtosvodka → perenos v novuyu sessiyu),
-  2. **«Nachat chistuyu sessiyu»**,
-  3. **«Umestit v tekuschuyu»** (szhat khvost istorii: remove/compact).
-* Dlya **golosovogo vvoda**: ne nachinat novuyu sessiyu, poka polzovatel govorit; dogovarivat — i tolko potom pokazyvat modalku. Esli «umeem» raspoznavat rech — buferizovat, zatem pokazat modalku s tremya variantami.
-
-**Psevdokod yadra monitoringa**
+Monitoring core pseudocode:
 
 ```python
 class ContextBudget:
-    def __init__(self, max_tokens:int, warn_ratio:float=0.85, hard_ratio:float=0.95):
+    def __init__(self, max_tokens: int, warn_ratio: float = 0.85, hard_ratio: float = 0.95):
         self.max = max_tokens
-        self.warn = int(max_tokens*warn_ratio)
-        self.hard = int(max_tokens*hard_ratio)
+        self.warn = int(max_tokens * warn_ratio)
+        self.hard = int(max_tokens * hard_ratio)
 
-    def remaining(self, used:int)->int:
+    def remaining(self, used: int) -> int:
         return max(self.max - used, 0)
 
-    def state(self, used:int)->str:
+    def state(self, used: int) -> str:
         r = self.remaining(used)
-        if r <= self.hard: return "HARD"
-        if r <= self.warn: return "WARN"
-# return "OK"  # Fixed: invalid character '—' (U+2014) (<unknown>, line 7)
+        if r <= self.hard:
+            return "HARD"
+        if r <= self.warn:
+            return "WARN"
+        return "OK"
+```
+"""

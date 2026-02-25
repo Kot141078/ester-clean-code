@@ -3,8 +3,8 @@
 #
 # GET /ester/will/plan_ext
 #
-# Rasshirennaya versiya plana voli.
-# Delaet GET /ester/will/plan, zatem cherez net_will_adapter dobavlyaet setevye zadachi.
+# Extended version of the will plan.
+# Does GET /ester/vill/plan, then adds network tasks through the net_vill_adapter.
 # Bazovyy kontrakt /ester/will/plan ne menyaetsya.
 
 from __future__ import annotations

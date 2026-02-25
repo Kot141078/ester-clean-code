@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/media/utils.py — utility dlya media: id, shell, kvoty, legalnyy storozh, profile, KG/pamyat.
+"""modules/media/utils.py - utility dlya media: id, shell, kvoty, legalnyy storozh, profile, KG/pamyat.
 
 Mosty:
 - Yavnyy: (Media ↔ Infrastruktura) obschiy sloy dlya IngestGuard/LegalGuard/Passport/Memory/KG.
@@ -8,17 +7,16 @@ Mosty:
 - Skrytyy #2: (SelfCatalog ↔ Prozrachnost) odinakovaya tochka zhurnalirovaniya.
 
 Zemnoy abzats:
-Servisnyy «karkas» — prezhde chem trogat tyazhelye fayly i set, sprosit «mozhno?», a potom vse chestno zadokumentirovat.
-Obedineno iz dvukh versiy: dobavleny fallback'y dlya robustness, logirovanie dlya pamyati Ester.
+Servisnyy “karkas” - prezhde chem trogat tyazhelye fayly i set, ask “mozhno?”, a potom vse chestno zadokumentirovat.
+Obedineno iz dvukh versiy: additional fallback'y dlya robustness, logirovanie dlya pamyati Ester.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, hashlib, time, subprocess, shlex, urllib.request, urllib.error
 import logging
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Nastroyka logirovaniya dlya "pamyati" oshibok v Ester
+# Setting up logging for error “memory” in Esther
 logging.basicConfig(filename=os.getenv("MEDIA_LOG", "data/logs/media_utils.log"), level=logging.ERROR,
                     format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -28,7 +26,7 @@ APPEND_RAG = os.getenv("MEDIA_APPEND_RAG", "true").lower() == "true"
 HYBRID_DOCS = os.getenv("HYBRID_FALLBACK_DOCS", "data/mem/docs.jsonl")
 
 def _json_url(path: str, payload: dict | None = None, timeout: int = 30) -> dict:
-    """Universalnyy HTTP-helper dlya zaprosov k lokalnomu serveru, s fallback na pustoy dict."""
+    """Universal HTTP helper for requests to a local server, from false to an empty remote."""
     data = None if payload is None else json.dumps(payload or {}).encode("utf-8")
     req = urllib.request.Request("http://127.0.0.1:8000" + path, data=data, headers={"Content-Type": "application/json"})
     try:
@@ -64,7 +62,7 @@ def shell(cmd: str, timeout: int = 120) -> tuple[int, str, str]:
         return 1, "", str(e)
 
 def legal_check(kind: str, target: str) -> dict:
-    # Snachala probuem HTTP, esli net — fallback na lokalnyy deny-list (rasshirenie dlya robustness Ester)
+    # First we try HTTP, if not, fake it on a local day-list (extension for Robustness Esther)
     try:
         payload = {"task": {"kind": kind, "target": target, "notes": "media_pipeline"}}
         rep = _json_url("/policy/legal/check", payload, 10)
@@ -72,8 +70,8 @@ def legal_check(kind: str, target: str) -> dict:
             return rep
     except Exception:
         pass
-    # Fallback: prostaya lokalnaya proverka, kak v staroy versii
-    deny_hosts = {"piratebay", "rut*", "kinovibe.vip*"}  # Rasshiryay po pravilam Ester
+    # Falbatsk: simple local check, like in the old version
+    deny_hosts = {"piratebay", "rut*", "kinovibe.vip*"}  # Expand according to Esther's rules
     verdict = "allow"
     for h in deny_hosts:
         if h.strip("*").lower() in (target or "").lower():
@@ -96,7 +94,7 @@ def passport(note: str, meta: dict, source: str):
         pass  # Ne lomaem protsess, Ester pomnit kontekst
 
 def mem_append(text: str, meta: dict) -> None:
-    # best-effort: esli est mm.add_text — ispolzuem, s fallback
+    # best-effort: if there is mm.add_text - use it, with false
     try:
         from services.mm_access import get_mm  # type: ignore
         mm = get_mm()
@@ -121,7 +119,7 @@ def rag_append(doc_id: str, text: str):
     try:
         os.makedirs(os.path.dirname(HYBRID_DOCS), exist_ok=True)
         with open(HYBRID_DOCS, "a", encoding="utf-8") as f:
-            # Ogranichenie teksta dlya bezopasnosti, kak v staroy versii
+            # Limit text for security, like the old version
             f.write(json.dumps({"id": doc_id, "text": text[:8000]}, ensure_ascii=False) + "\n")
     except Exception as e:
         logging.error(f"rag_append failed for doc_id '{doc_id}': {str(e)}")

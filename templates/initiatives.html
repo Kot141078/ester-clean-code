@@ -42,10 +42,10 @@
         <h1>Initsiativy i Sny</h1>
         <div class="user">Polzovatel: {{ user }}</div>
       </div>
-      <div class="hint muted">Zdes — predlozheniya Ester (initsiativy), sformirovannye pravilami i «snami». Mozhno <b>prinyat</b> ili <b>otlozhit</b>.</div>
+      <div class="hint muted">Here are Esther's proposals (initiatives), formed by rules and “dreams.” Can <b>prinyat</b> ili <b>otlozhit</b>.</div>
 
       {% if not items %}
-        <div class="empty">Poka pusto. Zaglyani pozzhe — ili poprosi Ester sgenerirovat plan na den.</div>
+        <div class="empty">Empty for now. Check back later - or ask Esther to generate a plan for the day.</div>
       {% else %}
         <div class="list">
           {% for it in items %}
@@ -62,13 +62,13 @@
               {% endif %}
               <div class="actions">
                 <a class="btn ok" href="/initiatives/accept?id={{ it.id }}&user={{ user }}">Prinyat</a>
-                <a class="btn snooze" href="/initiatives/defer?id={{ it.id }}&min=60&user={{ user }}">Otlozhit na 1 chas</a>
+                <a class="btn snooze" href="/initiatives/defer?id={{ it.id }}&min=60&user={{ user }}">Set aside for 1 hour</a>
               </div>
             </div>
           {% endfor %}
         </div>
       {% endif %}
-      <p class="muted" style="margin-top:18px;">Podskazka: Swagger dokumentatsiya dostupna na <a class="btn" href="/docs">/docs</a>.</p>
+      <p class="muted" style="margin-top:18px;">Tip: Swagger documentation is available at <a class="btn" href="/docs">/docs</a>.</p>
     </div>
   </body>
 </html>

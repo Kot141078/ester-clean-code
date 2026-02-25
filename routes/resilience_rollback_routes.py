@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/resilience_rollback_routes.py - REST: /resilience/rollback/paths.
+"""routes/resilience_rollback_routes.py - REST: /resilience/rollback/paths.
 
 Mosty:
 - Yavnyy: (Veb ↔ Otkat) yavnyy i adresnyy rollback.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Prostoy sposob vernut konkretnye fayly k proshlomu sostoyaniyu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

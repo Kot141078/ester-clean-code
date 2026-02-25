@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-xai_integration.py — Integratsiya xAI/Grok + OpenAI, Gemini (Google AI), Claude.
-Rezhim: vybiraet provaydera po emotsii/nastroeniyu i delaet fallback na lokalnyy LLM.
-"""
+"""xai_integration.py - Integratesiya xAI/Grok + OpenAI, Gemini (Google AI), Claude.
+Rezhim: vybiraet provaydera po emotsii/nastroeniyu i delaet fallback na lokalnyy LLM."""
 from __future__ import annotations
 
 import json
@@ -213,7 +211,7 @@ class XAIIntegrator:
 
             selected_provider = provider
 
-        final_response = f"Sintez ot {selected_provider}: {synth_output}. Ya pomnyu tvoyu {user_emotion.get('emotion')}, kak pomoch?"
+        final_response = f"Synthesis from ZZF0Z: ZZF1ZZ. I remember your ZZF2ZZ, how can I help?"
 
         encrypted_data = self._encrypt(f"{user_input}|{synth_output}")
         if self.collection is not None:

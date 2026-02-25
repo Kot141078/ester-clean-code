@@ -1,4 +1,4 @@
-# Profile «Golosa avtora» (primer). Ne obyazatelen — mozhno peredavat voice v API.
+# Profile “Voice of the author” (example). Not required - can be transferred to the warrior in the API.
 warmth: 0.3        # 0..1 — teplee
 brevity: 0.6       # 0..1 — koroche
 formality: 0.8     # 0..1 — formalnee

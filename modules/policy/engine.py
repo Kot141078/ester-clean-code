@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-modules/policy/engine.py — sloy politik (RBAC + usloviya) poverkh Safety.
+"""modules/policy/engine.py - sloy politik (RBAC + usloviya) poverkh Safety.
 
-Naznachenie:
-- Tsentralizovannye pravila «kto-chto-kogda-gde-pri kakikh usloviyakh».
-- Komponovka s suschestvuyuschim Safety (M20): politika mozhet uzhestochit reshenie.
-- Roli: user:*, machine:*, group:*. Resursy: agent/kind (naprimer, "agent:desktop/click").
+Name:
+- Tsentralizovannye pravila “kto-chto-kogda-gde-pri kakikh usloviyakh.”
+- Komponovka s suschestvuyuschim Safety (M20): politika mozhet uzhestochit decision.
+- Roli: user:*, machine:*, group:*. Resursy: agent/kind (for example, "agent:desktop/click").
 - Usloviya: vremya, rezhimy (A/B), whitelist/real-mode, flazhki meta (requires_admin, steps), risk.
 
 MOSTY:
@@ -14,11 +13,10 @@ MOSTY:
 - Skrytyy #2: (Infoteoriya ↔ Szhatie politiki) — korotkie deklaratsii → dlinnye stsenarii.
 
 ZEMNOY ABZATs:
-Inzhenerno — eto filtr-politika s rolyami i usloviyami. Prakticheski — mozhno strogo
+Inzhenerno - eto filtr-politika s rolyami i usloviyami. Prakticheski - mozhno strictly
 zadat, komu i kogda razresheny kliki/ustanovki/vvod, i kak politika sshivaetsya s Safety.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List, Tuple
 import os, json, time
@@ -41,16 +39,16 @@ def _ensure_default():
       },
       "rules": [
         # Primery:
-        # Razreshaem bezopasnye operatsii rabochego stola v rezhime A (dry)
+        # Allowing secure desktop operations in mode A (drills)
         {"id":"r1","subjects":["user:*"],"resource":"agent:desktop/*","effect":"allow","conditions":{"mode":["A"]}},
-        # Kliki realnogo rezhima tolko s soglasiem
+        # Real mode clicks only with consent
         {"id":"r2","subjects":["user:*"],"resource":"agent:desktop/click","effect":"needs_user_consent","conditions":{"real":["1"]}},
         # Ustanovka PO trebuet soglasiya i requires_admin=true
         {"id":"r3","subjects":["user:*"],"resource":"agent:installer/*","effect":"needs_user_consent","conditions":{"requires_admin":[True]}},
         # Zapret na >20 shagov v plane
         {"id":"r4","subjects":["user:*"],"resource":"agent:*/*","effect":"deny","conditions":{"steps_gt":20}}
       ],
-      "order": ["r4","r3","r2","r1"]  # poryadok primeneniya (pervoe sovpadenie silnee)
+      "order": ["r4","r3","r2","r1"]  # order of application (first match is stronger)
     }
     with open(POLICY_PATH,"w",encoding="utf-8") as f:
         json.dump(default, f, ensure_ascii=False, indent=2)
@@ -78,7 +76,7 @@ def save_all(obj:Dict[str,Any])->Dict[str,Any]:
     return _save(obj)
 
 def _match_resource(rule_res:str, res:str)->bool:
-    # rule_res: "agent:desktop/*"  vs res: "agent:desktop/click"
+    # rule_res: "agent:desktop/*" vs res: "agent:desktop/click"
     if rule_res.endswith("/*"):
         return res.startswith(rule_res[:-2])
     return rule_res == res or rule_res == "agent:*/*"
@@ -117,32 +115,28 @@ def _cond_ok(conds:Dict[str,Any], ctx:Dict[str,Any])->bool:
     return True
 
 def _compose(safety_decision:str, policy_effect:str)->str:
-    """
-    Komponovka Safety (allow/needs_user_consent/deny) i Policy (allow/needs_user_consent/deny).
-    V strogom rezhime politika mozhet tolko uzhestochit reshenie.
-    """
-    # esli politika deny — vsegda deny
+    """Layout of Safeta (allov/needs_user_consent/day) and Police (allov/needs_user_consent/day).
+    In a strict regime, politics can only make the decision tougher."""
+    # if politics is day, always day
     if policy_effect=="deny":
         return "deny"
-    # esli politika needs — minimum needs
+    # if the policy is none - at least none
     if policy_effect=="needs_user_consent":
         return "needs_user_consent"
     # policy allow:
     if POLICY_MODE=="A":
-        # advisory: vozvraschaem Safety kak iskhodnik
+        # advisors: returning Safeta as source
         return safety_decision
     # strict: allow → ne myagche Safety
     return safety_decision
 
 def evaluate(agent:str, kind:str, meta:Dict[str,Any], subject:str, safety_decision:str|None=None, ctx:Dict[str,Any]|None=None)->Dict[str,Any]:
-    """
-    Vozvraschaet itog: decision, matched_rule, compose(safety,policy).
+    """Vozvraschaet itog: decision, matched_rule, compose(safety,policy).
     - agent: "desktop" | "installer" | "game" | ...
-    - kind:  "open_app" | "click" | ...
+    - kind: "open_app" | "click" | ...
     - subject: "user:default" | "machine:local" | ...
-    - safety_decision: optsionalno — reshenie iz Safety (esli est).
-    - ctx: {"mode":"A|B","real_enabled":bool,"requires_admin":bool,"steps":int}
-    """
+    - safety_decision: optsionalno — decision iz Safety (esli est).
+    - ctx: {"mode":"A|B","real_enabled":bool,"requires_admin":bool,"steps":int}"""
     if not POLICY_ENABLED:
         return {"ok":True,"decision": safety_decision or "allow", "policy":"disabled"}
     data=_load()
@@ -160,6 +154,6 @@ def evaluate(agent:str, kind:str, meta:Dict[str,Any], subject:str, safety_decisi
     final=_compose(safety_decision or "allow", effect)
     return {"ok":True,"decision":final,"effect":effect,"matched_rule":matched, "safety":safety_decision or "allow", "mode":POLICY_MODE}
 
-# Uproschennyy khelper dlya agentov/routov
+# Simplified agent/route helper
 def decide_with_policy(agent:str, kind:str, meta:Dict[str,Any], subject:str, safety_decision:str, ctx:Dict[str,Any])->Dict[str,Any]:
     return evaluate(agent, kind, meta, subject, safety_decision, ctx)

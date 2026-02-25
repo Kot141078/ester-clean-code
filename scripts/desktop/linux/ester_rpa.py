@@ -1,5 +1,5 @@
 # scripts/desktop/linux/ester_rpa.py
-# Naznachenie: lokalnyy RPA (127.0.0.1:8732) dlya Xvfb.
+# Destination: local RPA (127.0.0.1:8732) for Hvfb.
 #   GET  /health
 #   GET  /screen                       -> { ok, png_b64 }
 #   POST /open {"app":"xterm"|"thunar"}
@@ -9,9 +9,9 @@
 #   POST /slot {"slot":"A"|"B"}        -> pereklyuchenie A/B (fayl /opt/ester/active.slot)
 #
 # Zavisimosti:
-#   apt install -y tesseract-ocr xdotool x11-apps netpbm pngtools  (dlya screen cherez xwd/xwdtopnm/pnmtopng)
+#   apt install -y tesseract-ocr xdotool x11-apps netpbm pngtools (dlya screen cherez xwd/xwdtopnm/pnmtopng)
 #
-# MOSTY/ZEMLYa sm. Windows-versiyu — analogichny. Vse lokalno, oflayn.
+# BRIDGES/GROUND See Windows version - similar. Everything is local, offline.
 #
 # c=a+b
 

@@ -1,26 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ops/content_pauser.py — «pauza po kontentu» dlya triggerov/pleybufera.
+"""modules/ops/content_pauser.py - “pauza po kontentu” dlya triggerov/pleybufera.
 
-Usloviya pauzy:
-- FPS < min_fps (esli dostupno cherez /desktop/metrics)
-- require_visible=true i okno svernuto/neaktivno (esli dostupno cherez /desktop/window/status)
-- manual_pause=true (ruchnoy tumbler)
+Conditions:
+- FPS < min_fps (if not available in /desktop/metrics)
+- require_visible=true i window svernuto/neaktivno (if dostupno cherez /desktop/window/status)
+- manual_pause=true (hand tumbler)
 
 API:
 - set_policy(min_fps:int|null, require_visible:bool, manual_pause:bool)
 - get_status() -> {allowed:bool, reason?:str, metrics?:...}
 
 MOSTY:
-- Yavnyy: (Sreda ↔ Deystvie) plokhie usloviya — stop.
+- Yavnyy: (Wednesday ↔ Deystvie) plokhie usloviya — stop.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) izmeryaem i obyasnyaem prichinu.
-- Skrytyy #2: (Kibernetika ↔ Kontrol) prostoy tormoz dlya lyubykh avto-deystviy.
+- Skrytyy #2: (Kibernetika ↔ Kontrol) prostoy brake dlya lyubykh avto-deystviy.
 
 ZEMNOY ABZATs:
 Legkaya proverka, nikakikh demonov. Ispolzuetsya triggerami/vatcherom cherez REST.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, Optional
 import http.client, json

@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules/garage/pipeline.py — yadro konveyera Garage/Workbench
-(poisk → skoring → generatsiya → autrich → billing → otchet)
+"""modules/garage/pipeline.py - yadro konveyera Garage/Workbench
+(poisk → scoring → generatsiya → autrich → billing → otchet)
 
 Most (yavnyy):
-  • (FS/lokal ↔ Veb/bekend) — konveyer pishet artefakty v ponyatnuyu ierarkhiyu (workbench/, outbox/, billing/) i daet API.
+  • (FS/lokal ↔ Web/backend) — konveyer pishet artefakty v ponyatnuyu ierarkhiyu (workbench/, outbox/, billing/) i daet API.
 
 Skrytye mosty:
-  • (Kibernetika ↔ Inzheneriya protsessov) — A/B-sloty i avto-otkat: riskovannye operatsii idut v slote B s bystrym rollback.
-  • (Ekonomika ↔ Infoteoriya) — edinyy format brifa snizhaet «trenie» mezhdu istochnikami (JSON/JSONL/katalogi).
+  • (Kibernetika ↔ Inzheneriya protsessov) - A/B-sloty i avto-otkat: riskovannye operatsii idut v slote B s bystrym rollback.
+  • (Ekonomika ↔ Infoteoriya) - edinyy format brifa snizhaet “trenie” mezhdu istochnikami (JSON/JSONL/katalogi).
 
 Zemnoy abzats:
 Kak tsekh s konveyerom: magazin zagotovok (inbox istochniki), kalibr (skoring/resursy), frezer (generatsiya proekta),
-konveyernaya podacha (autrich), kassa i nakladnye (invoysy/otchety). Vse logiruetsya v zhurnaly JSONL.
+konveyernaya podacha (autrich), kassa i nakladnye (invoysy/otchety). All logiruetsya v zhurnaly JSONL.
 
-ENV (optsionalno):
-  • ESTER_ROOT — koren proekta (po umolchaniyu avtoopredelenie)
-  • GARAGE_AB_MODE=A|B — A (polnyy prokhod) / B (schadyaschiy: bez vneshnikh otpravok; tolko outbox)
+ENV (optional):
+  • ESTER_ROOT - koren proekta (by umolchaniyu avtoopredelenie)
+  • GARAGE_AB_MODE=A|B - A (polnyy prokhod) / B (schadyaschiy: bez vneshnikh otpravok; tolko outbox)
   • OUTREACH_WEBHOOK_URL — esli zadan, autrich ukhodit HTTP POST'om (dopolnitelno k outbox)
   • PAY_NAME, PAY_IBAN, PAY_BIC, PAY_ADDR — rekvizity dlya invoysa, esli net data/pay/prefs.json
 
-# c=a+b
-"""
+# c=a+b"""
 import dataclasses
 import hashlib
 import json
@@ -52,7 +50,7 @@ def _project_root() -> Path:
     for up in [here] + list(here.parents):
         if (up / "app.py").exists():
             return up
-    # 3) fallback — tekuschaya direktoriya protsessa
+    # 3) falbatsk - current process directory
     return Path.cwd().resolve()
 
 
@@ -173,7 +171,7 @@ def _iter_jobs_from_source(src: Dict[str, Any]) -> Iterable[Job]:
             elif isinstance(raw, dict):
                 yield _normalize_job(raw, f"file:{p.name}")
     elif stype == "folder":
-        # Fayly *.job.json kak edinichnye brify
+        # Files *.eb.zsion as single briefs
         p = Path(src.get("path") or "")
         if p.exists():
             for f in p.glob("*.job.json"):
@@ -183,7 +181,7 @@ def _iter_jobs_from_source(src: Dict[str, Any]) -> Iterable[Job]:
                         yield _normalize_job(raw, f"folder:{p.name}")
                 except Exception:
                     continue
-    # drugie tipy mozhno dobavit bez lomki kontrakta
+    # other types can be added without breaking the contract
 
 
 def scan_jobs() -> List[Dict[str, Any]]:
@@ -198,12 +196,12 @@ def scan_jobs() -> List[Dict[str, Any]]:
 
 def _estimate_resources(job: Job) -> Dict[str, Any]:
     cores = os.cpu_count() or 2
-    # grubaya model ETA ~ 1 / (sqrt(budget)+1) + shtraf za srok
+    # rough model ETA ~ 1 / (skrt(budget)+1) + penalty for the term
     import math
     eta_hours = max(1.0, 40.0 / (math.sqrt(max(job.budget, 1.0)) + 1.0))
     if job.deadline:
         try:
-            # chem blizhe dedlayn — tem vyshe prioritet (nizhe ETA)
+            # the closer the deadline, the higher the priority (lower ETA)
             eta_hours *= 0.8
         except Exception:
             pass
@@ -250,7 +248,7 @@ def generate_project(job_or_id: Any) -> Dict[str, Any]:
 </body></html>"""
     _write_text(pd / "site" / "index.html", index_html)
 
-    # Chernovik predlozheniya (pitch)
+    # Draft proposal (pitch)
     pitch = f"""### Predlozhenie po zadache: {job.title}
 
 Zdravstvuyte! Kratko po podkhodu:
@@ -318,7 +316,7 @@ def send_outreach(job_or_id: Any) -> Dict[str, Any]:
     pitch_file = _outbox_path(job)
     _write_text(pitch_file, pitch_text)
 
-    # Webhook (dopolnitelno k outbox), esli ukazan
+    # Webhook (in addition to boxbox), if specified
     hook = os.getenv("OUTREACH_WEBHOOK_URL", "").strip()
     hook_res: Optional[Tuple[int, str]] = None
     if hook:
@@ -364,7 +362,7 @@ def create_invoice(job_or_id: Any) -> Dict[str, Any]:
         "job_id": job.id,
     }
     (inv_dir / "invoice.json").write_text(_json_dumps(doc), encoding="utf-8")
-    # CSV dlya importa v uchetku
+    # ChSV for import into accounting
     csv_lines = ["number,date,title,qty,price,currency,total"]
     csv_lines.append(f"{num},{doc['date']},{job.title.replace(',', ' ')},1,{_amount_from_job(job)},{job.currency},{_amount_from_job(job)}")
     (inv_dir / "invoice.csv").write_text("\n".join(csv_lines), encoding="utf-8")
@@ -376,9 +374,7 @@ def create_invoice(job_or_id: Any) -> Dict[str, Any]:
 # -------------------------- otchet --------------------------
 
 def daily_report(day_iso: str) -> Dict[str, Any]:
-    """
-    Svodka po sobytiyam za den iz logs/garage/pipeline.jsonl
-    """
+    """Summary of events for the day from logs/garage/pipeline.zsionl"""
     y, m, d = (int(day_iso[0:4]), int(day_iso[5:7]), int(day_iso[8:10]))
     day_prefix = f"{y:04d}-{m:02d}-{d:02d}"
     stats = {"generate": 0, "outreach": 0, "invoice": 0, "errors": 0}
@@ -411,14 +407,14 @@ def _resolve_job(job_or_id: Any) -> Optional[Job]:
     if isinstance(job_or_id, dict):
         return _normalize_job(job_or_id, source=str(job_or_id.get("source") or "api"))
     if isinstance(job_or_id, str):
-        # Pytaemsya nayti v tekuschem skane
+        # We are trying to find in the current scan
         for j in scan_jobs():
             if j.get("id") == job_or_id:
                 return _normalize_job(j, j.get("source") or "scan")
         # Follbek: sobrat iz artefaktov workbench
         pd = WORKBENCH / _slug(job_or_id)
         if (pd / "README.md").exists():
-            # minimalnaya rekonstruktsiya (po imeni)
+            # minimal reconstruction (by name)
             return Job(id=_slug(job_or_id), title=job_or_id, description="", skills=[], budget=0.0, currency="USD", deadline=None, source="workbench", meta={})
     return None
 
@@ -428,11 +424,9 @@ def _ab_mode() -> str:
 
 
 def run_pipeline(params: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Universalnyy zapusk:
-      - params={"job": {...}} ili {"job_id": "..."} ili {"auto": true}
-    Rezultat: {"ok": bool, "job_id": "...", "steps": [...], "rollback": bool}
-    """
+    """Universal launch:
+      - params={"eb": ZZF0Z} or ZZF1ZZ or ZZF2ZZ
+    Result: ZFzZZ"""
     # Vybor brifa
     job: Optional[Job] = None
     if "job" in params:
@@ -462,18 +456,18 @@ def run_pipeline(params: Dict[str, Any]) -> Dict[str, Any]:
         except Exception as e:
             return {"name": name, "ok": False, "ms": round((time.perf_counter() - t0) * 1000.0, 1), "error": str(e)}
 
-    # Shag 1: generatsiya proekta (vsegda)
+    # Step 1: Project generation (always)
     s1 = _step("generate", generate_project, job)
     steps.append(s1)
     if not s1["ok"]:
         _append_jsonl(LOGS / "pipeline.jsonl", {"ts": _now_iso(), "event": "error", "job_id": job.id, "stage": "generate", "error": s1.get("error") or s1["res"].get("error")})
         return {"ok": False, "job_id": job.id, "steps": steps, "rollback": False}
 
-    # Shag 2: autrich
+    # Step 2: Outreach
     if mode == "A":
         s2 = _step("outreach", send_outreach, job)
     else:
-        # B-slot: tolko outbox (bez webhook) — dostignem tem zhe send_outreach, no bez ENV OUTREACH_WEBHOOK_URL
+        # V-slot: only otbox (without webhook) - we will reach the same send_morning, but without ENV MORNING_WEBHOOK_URL
         hook_old = os.environ.get("OUTREACH_WEBHOOK_URL", "")
         try:
             if hook_old:
@@ -490,7 +484,7 @@ def run_pipeline(params: Dict[str, Any]) -> Dict[str, Any]:
 
     ok = bool(s1["ok"] and s2["ok"] and s3["ok"])
 
-    # Avto-rollback pri provale v A-slote: udalim svezhesozdannye artefakty
+    # Auto-rollback when failing in A-slot: remove newly created artifacts
     if (mode == "A") and (not ok):
         try:
             pd = _project_dir(job)

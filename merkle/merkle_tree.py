@@ -10,7 +10,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 class Merkle:
     @staticmethod
     def build(leaves: List[bytes]) -> Tuple[str, List[List[str]]]:
-        # vozvraschaet (root, levels) — urovni ot listev k kornyu
+        # returns (root, levels) - levels from leaves to root
         if not leaves:
             return _digest(b""), []
         level = [_digest(x) for x in leaves]
@@ -21,7 +21,7 @@ class Merkle:
             for a in it:
                 b = next(
                     it, a
-                )  # dubliruem posledniy pri nechetnom kolichestve
+                )  # duplicate the last one if the number is odd
                 nxt.append(_digest((a + b).encode("utf-8")))
             level = nxt
             levels.append(level)

@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""
-routes/mtls_guard.py - REST: /mtls/whoami
-Vozvraschaet svedeniya o «mTLS-lichnosti» zaprosa na osnove zagolovkov ot ingress.
+"""routes/mtls_guard.py - REST: /mtls/whoami
+Vozvraschaet svedeniya o “mTLS-lichnosti” zaprosa na osnove zagolovkov ot ingress.
 
 Ozhidaemye zagolovki:
-  - X-Client-Verified: SUCCESS  (inache mTLS schitaem neuspeshnym)
-  - X-Client-DN: polnaya DN-stroka klientskogo sertifikata (naprimer, "CN=alice,O=Acme,OU=R&D")
+  - X-Client-Verified: SUCCESS (inache mTLS schitaem neuspeshnym)
+  - X-Client-DN: polnaya DN-stroka klientskogo sertifikata (for example, "CN=alice,O=Acme,OU=R&D")
 
-Kontrakty:
+Contract:
   GET /mtls/whoami -> {"ok":true,"verified":bool,"dn":str,"role":str|null,"hint":str}
 
-# c=a+b
-"""
+# c=a+b"""
 
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -29,10 +27,8 @@ bp_mtls = Blueprint("mtls_guard", __name__, url_prefix="/mtls")
 
 @bp_mtls.get("/whoami")
 def mtls_whoami():
-    """
-    Vozvraschaet informatsiyu o mTLS-identichnosti zaprosa.
-    Role vychislyaetsya po rules/mtls_roles.yaml cherez security.mtls_rolemap.
-    """
+    """Returns information about the mTLS identity of the request.
+    The role is calculated by rules/mtls_roles.yaml through security.mtls_rolemap."""
     verified = (request.headers.get("X-Client-Verified") or "").upper() == "SUCCESS"
     dn = request.headers.get("X-Client-DN", "")
     role = map_dn_to_role(dn) if (verified and map_dn_to_role) else None
@@ -48,12 +44,12 @@ def mtls_whoami():
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta (kontrakt proekta)."""
+    """Drop-in registration of blueprint (project contract)."""
     app.register_blueprint(bp_mtls)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

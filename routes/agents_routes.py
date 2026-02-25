@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-routes/agents_routes.py - REST/UI dlya agentov.
+"""routes/agents_routes.py - REST/UI dlya agentsov.
 
 Ruchki:
-  POST /agents/desktop/enqueue     {"kind":"open_app","meta":{...}}
-  POST /agents/installer/enqueue   {"kind":"plan_install","meta":{...}}
-  POST /agents/game/enqueue        {"kind":"ttt_suggest","meta":{...}}
-  POST /agents/dry_run             {"agent":"desktop|installer|game","id":"..."}
-  POST /agents/commit              {"agent":"...","id":"..."}
-  GET  /agents/list                {"agent":"..."}
-  GET  /admin/agents
+  POST /agents/desktop/enqueue {"kind":"open_app","meta":{...}}
+  POST /agents/installer/enqueue {"kind":"plan_install","meta":{...}}
+  POST /agents/game/enqueue {"kind":"ttt_suggest","meta":{...}}
+  POST /agents/dry_run {"agent":"desktop|installer|game","id":"..."}
+  POST /agents/commit {"agent":"...","id":"..."}
+  GET /agents/list {"agent":"..."}
+  GET /admin/agents
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.agents.desktop_agent import DesktopAgent

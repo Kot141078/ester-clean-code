@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # scripts/installers/install_lan_discovery_systemd.sh
-# Ustanavlivaet systemd-yunit dlya LAN discovery-agenta.
+# Installs a system unit for the LAN discovery agent.
 
 set -euo pipefail
 
 # Mosty:
 # - Yavnyy (Ekspluatatsiya ↔ Svyaz): avtozapusk agenta pri starte OS.
 # - Skrytyy 1 (Nadezhnost ↔ Bezopasnost): ENV zadaetsya otdelnym faylom.
-# - Skrytyy 2 (Praktika ↔ Minimalizm): bez zavisimostey; prostoy yunit.
+# - Skrytyy 2 (Praktika ↔ Minimalizm): bez zavisimostey; simple unit.
 
 # Zemnoy abzats:
-# Fonovyy «mayak» po seti, chtoby uzly uvideli drug druga bez ruchnoy nastroyki.
+# A background “beacon” across the network so that nodes can see each other without manual configuration.
 
 UNIT="/etc/systemd/system/ester-lan-discovery.service"
 ENVF="/etc/default/ester-lan-discovery"

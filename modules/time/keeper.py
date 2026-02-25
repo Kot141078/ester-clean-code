@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/time/keeper.py — khranitel vremeni: otslezhivanie dreyfa chasov i zametki NTP/vneshnikh verifikatsiy.
+"""modules/time/keeper.py - khranitel vremeni: otslezhivanie dreyfa chasov i zametki NTP/vneshnikh verifikatsiy.
 
 Mosty:
 - Yavnyy: (Vremya ↔ Nadezhnost) sravnivaem wall-clock s monotonikom mezhdu perezapuskami.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Kripto ↔ Sroki) tochnost vremeni vazhna dlya TTL podpisey/priglasheniy (ConsentOps).
 
 Zemnoy abzats:
-Esli chasy «uplyvut», podpisi i sroki nachnut vrat. My eto lovim i signalim.
+Esli chasy “uplyvut”, podpisi i sroki nachnut vrat. My eto lovim i signalim.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, time
 from typing import Any, Dict

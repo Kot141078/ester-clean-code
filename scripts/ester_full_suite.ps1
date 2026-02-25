@@ -20,7 +20,7 @@ function Run-ScriptIfExists([string]$Path, [string]$Args = "") {
 
 Write-Host "== Ester Full Suite :: base endpoints =="
 
-# Bazovye proverki napryamuyu
+# Basic checks directly
 $paths = @(
     "/ester/thinking/manifest",
     "/ester/thinking/status",

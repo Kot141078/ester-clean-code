@@ -1,18 +1,18 @@
-# Cheklist: Meropriyatie «Nol otkhodov»
+# Checklist: Zero Waste Event
 
 ## Podgotovka
-- Vyberite ploschadku s sortirovkoy otkhodov i dostupom k vode (malo odnorazovogo plastika).
-- Vklyuchite trebovaniya k postavschikam: mnogorazovaya posuda, tara, vozvrat tary.
-- Kommunikatsiya uchastnikam: pravila sortirovki, sobstvennye butylki/kruzhki, eko-beydzh.
+- Choose a site with waste sorting and access to water (little single-use plastic).
+- Include requirements for suppliers: reusable tableware, containers, return of containers.
+- Communication to participants: sorting rules, own bottles/mugs, eco-badge.
 
 ## Provedenie
-- Stantsii sortirovki: ponyatnye piktogrammy, volontery-nastavniki.
-- Voda iz kulerov, razdacha mnogorazovykh stakanov pod zalog, moyka na meste.
-- Pitanie: lokalnye postavschiki, veg-optsii, kontrol portsiy.
+- Triage stations: clear pictograms, volunteer mentors.
+- Water from coolers, distribution of reusable glasses for deposit, on-site washing.
+- Food: local suppliers, veg options, portion control.
 
 ## Zavershenie
-- Uchet otkhodov po fraktsiyam (kg) i vyvoz s podtverzhdeniem.
-- Sbor obratnoy svyazi i fotofiksatsiya.
+- Waste accounting by fraction (kg) and removal with confirmation.
+- Collecting feedback and photographing.
 - Publikatsiya otcheta: % pererabotki, sekonomlennyy plastik, CO₂e po logistike.
 
 **Zemnoy abzats**  

@@ -2,11 +2,11 @@
 # Purpose: make Sister token debugging safe (sha256 prefix only) + strict .env loading + robust expected-token lookup.
 # A/B safety: patch -> py_compile -> rollback on failure.
 #
-# YaVNYY MOST: c=a+b — vkhodyaschiy stimul (a) + protsedurnaya proverka tokena/istochnika (b) => dopusk k obmenu (c).
+# Explicit BRIDGE: c=a+b - incoming stimulus (a) + procedural check of token/source (c) => admission to exchange (c).
 # SKRYTYE MOSTY:
-#   - Ashby: variety — token kak minimalnaya “razlichimost” uzlov v kanale.
-#   - Cover&Thomas: channel capacity — logiruem tolko khesh-prefiks (szhimaem, ne taschim sekret).
-# ZEMNOY ABZATs: kak prokladka v gidrosisteme — derzhit davlenie i ne daet “soplivit” soedineniyu, no sama po sebe nichego ne kachaet.
+#   - Ashby: boil - a token as the minimum “distinguishability” of nodes in the channel.
+#   - Carpet&Thomas: capacity channel - we log only the hash prefix (we compress it, we don’t drag the secret).
+# EARTHLY Paragraph: like a gasket in a hydraulic system - it holds pressure and does not allow the connection to “snot”, but by itself it does not pump anything.
 
 $ErrorActionPreference = "Stop"
 

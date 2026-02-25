@@ -9,13 +9,13 @@ $ErrorActionPreference = "Stop"
 # Ester patch B5: fix WHOIS regex mojibake + guard arbitrage in TG handler (PS5-safe)
 #
 # Explicit bridge: c=a+b -> (a) polzovatelskiy tekst na russkom + (b) protsedurnye guards (encoding-safe regex + try/except)
-#                   => (c) ustoychivyy kanal obscheniya bez padeniy.
+#                   => (c) a stable communication channel without crashes.
 # Hidden bridges:
-#  - Enderton (logika): "ne dopuskay vyvoda iz protivorechivykh predposylok" -> regex ne dolzhen rushit interpretator.
-#  - Cover&Thomas (kanal): zaschita ot "oshibki dekodirovaniya" kak ot degradatsii kanala peredachi.
-#  - Ashby (kibernetika): dobavili variety (strakhovki) chtoby sistema vyzhivala v bolshem chisle sostoyaniy.
-# Earth (inzheneriya/anatomiya): kak svyazka/shov — luchshe postavit ligaturu (try/except) i zamenit krivoy sosud (regex),
-#                              chem teryat vse krovosnabzhenie (TG handler) iz-za odnoy "porvannoy" stroki.
+#  - Enderton (logic): “I do not allow conclusions from contradictory premises” -> regex should not destroy the interpreter.
+#  - Carpet&Thomas (channel): protection against "decoding error" as from degradation of the transmission channel.
+#  - Ashby (cybernetics): added boil (insurance) so that the system survives in a greater number of states.
+# Erth (engineering/anatomy): like a ligament/suture - it’s better to put a ligature (tri/except) and replace a crooked vessel (regex),
+#                              than to lose the entire blood supply (TG handler) because of one “broken” line.
 # ==============================
 
 function Write-Utf8NoBom([string]$Path, [string]$Content) {
@@ -50,7 +50,7 @@ def _is_whois_query(text: str) -> Optional[str]:
         if not s:
             return None
 
-        # 'kto (takoy|takaya|eto) <Name?>'
+        # who (such|such|this) <Name?>b
         # Cyrillic range: \u0400-\u04FF (covers Russian + extended Cyrillic).
         pat = (
             r"(?i)\b(?:\u043a\u0442\u043e)\s+"

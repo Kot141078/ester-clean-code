@@ -20,16 +20,16 @@ def _html_resp(html, status=200):
     return Response(html, status=status, mimetype="text/html; charset=utf-8")
 
 def _data_root_candidates():
-    # 1) iz okruzheniya (ofitsialno)
+    # 1) from the environment (officially)
     env_root = os.getenv("ESTER_DATA_ROOT", "").strip()
     # 2) lokalnaya data/ (sentinel v repozitorii)
     local_data = str(Path("data").absolute())
-    # 3) istoricheskaya Z:\ester-data (esli smontirovana)
+    # 3) historical Z:ester-date (if installed)
     z_drive = "Z:\\ester-data"
     cands = []
     if env_root:
-        # esli ESTER_DATA_ROOT == "<PROJECT_ROOT_DRIVE>", rabochaya baza khranitsya v "<PROJECT_ROOT_DRIVE>\\ester-data"
-        # esli ESTER_DATA_ROOT == "<PROJECT_ROOT_DRIVE>\\ester-data", eto uzhe sama baza
+        # if ESTER_DATA_ROOT == "<PROJECT_ROOT_DRIVE>", the working database is stored in "<PROJECT_ROOT_DRIVE>essier-date"
+        # if ESTER_DATA_ROOT == "<PROJECT_ROOT_DRIVE>eeessier-date", this is the database itself
         root = Path(env_root)
         if (root / "memory").exists() or (root / "events").exists() or (root.name.lower() == "ester-data"):
             cands.append(str(root))
@@ -50,7 +50,7 @@ def _is_dev_allowed():
     env = (os.getenv("ESTER_DEV_ALLOW", "") or "").strip().lower()
     if env in ("1", "true", "allow", "yes", "on"):
         return True
-    # sentinel-fayl dev.allow v lyubom iz kornevykh kandidatov
+    # sentinel file dev.alls in any of the root candidates
     for base in _data_root_candidates():
         try:
             if Path(base, "dev.allow").exists():
@@ -70,7 +70,7 @@ def _dev_only(fn):
         try:
             return fn(*args, **kwargs)
         except Exception as e:
-            # Nikogda ne vozvraschaem None — tolko validnyy JSON
+            # Never returns to None - only valid JSION
             return _json_resp({"ok": False, "error": "exception", "detail": repr(e)}, status=500)
     return _wrap
 
@@ -97,7 +97,7 @@ def diag_ping():
 @bp.route("/_diag/json", methods=["GET"])
 @_dev_only
 def diag_json():
-    # Mini-svod okruzheniya i protsessa
+    # Mini summary of environment and process
     return _json_resp({
         "ok": True,
         "pid": os.getpid(),
@@ -128,7 +128,7 @@ def diag_echo():
 @_dev_only
 def encoding_probe():
     text = request.args.get("text", "", type=str)
-    # Flask uzhe daet unicode-stroku; pokazhem kontrolki
+    # Flask already gives a Unicode string; we'll show you the controls
     u = text
     b = u.encode("utf-8", "strict")
     return _json_resp({
@@ -142,11 +142,11 @@ def encoding_probe():
 @_dev_only
 def encoding_html():
     html = """<!doctype html>
-<html lang="ru">
+<html lang="en">
 <meta charset="utf-8">
 <title>UTF-8 sample</title>
 <body>
-<h1>Proverka UTF-8</h1>
+<h1>Verka UTF-8</h1>
 <p>Kirillitsa: Ester umeet govorit po-russki. ✅</p>
 <p>Emoji: 😀🔥🚀</p>
 </body>

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mesh_bloom_routes.py - REST: eksport/sliyanie/proverka Bloom-filtra.
+"""routes/mesh_bloom_routes.py - REST: eksport/sliyanie/proverka Bloom-filtra.
 
 Mosty:
 - Yavnyy: (Veb ↔ P2P) legkiy obmen filtrami mezhdu uzlami.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Resilience ↔ Prostota) stateless-ruchki bez pobochnykh effektov.
 
 Zemnoy abzats:
-«Vy uzhe eto slali?» - sprashivaem filtr, a ne set.
+“Vy uzhe eto slali?” - sprashivaem filtr, a ne set.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

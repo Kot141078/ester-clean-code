@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/plan_apply_routes.py - REST/UI dlya primeneniya «plana shablonov».
+"""routes/plan_apply_routes.py - REST/UI dlya primeneniya “plana shablonov”.
 
 Ruchki:
   POST /trigger_plan/dry_run {"plan":[...], "batch":50}
-  POST /trigger_plan/apply   {"plan":[...], "batch":50}
-  GET  /admin/trigger_plan
+  POST /trigger_plan/apply {"plan":[...], "batch":50}
+  GET /admin/trigger_plan
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.triggers.plan_apply import dry_run, apply

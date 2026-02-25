@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-Negativnye testy dlya OCR/ASR, ne trebuyuschie vneshnikh modeley:
- - run_ocr na text/plain → oshibka "OCR ne podderzhivaet MIME"
- - asr_transcribe na .mp3 → oshibka "tolko WAV"
+"""Negative OCR/ASR tests that do not require external models:
+ - run_ocr on text/plain -> error "OCR does not support MIME"
+ - asr_transcribe on .mp3 -> error "WAV only"
 """
 
 import pytest
@@ -28,4 +27,4 @@ def test_asr_requires_wav(clean_env):
 
     with pytest.raises(RuntimeError) as ei:
         asr_transcribe("audio.mp3", b"\x00\x01\x02")
-# assert "tolko WAV" in str(ei.value)
+# assertion "only VAV" in str(ey.value)

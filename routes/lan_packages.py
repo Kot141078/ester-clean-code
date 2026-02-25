@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
-"""
-routes/lan_packages.py - LAN-katalog paketov: publikatsiya indeksa, skachivanie ZIP, fetch/verify/import s pirov.
+"""routes/lan_packages.py - LAN-katalog packages: publikatsiya index, download ZIP, fetch/verify/import s pirov.
 
-Marshruty:
-  • GET  /lan/packages               - HTML
-  • GET  /lan/packages/index         - lokalnyy indeks ZIP (ACL+throttle)
-  • GET  /lan/packages/download      - skachat ZIP iz lokalnogo out/?name=
-  • POST /lan/packages/fetch         - zabrat ZIP s pira i (opts.) importirovat
-  • POST /lan/packages/peers         - sokhranit/prochitat spisok pirov
+Route:
+  • GET /lan/packages - HTML
+  • GET /lan/packages/index - lokalnyy indexes ZIP (ACL+throttle)
+  • GET /lan/packages/download - skachat ZIP iz lokalnogo out/?name=
+  • POST /lan/packages/fetch - zabrat ZIP s pira i (opts.) importirovat
+  • POST /lan/packages/peers - sokhranit/prochitat spisok pirov
 
 AB:
   • A - bez setevykh zagruzok/importa (tolko prevyu indeksa udalennogo uzla, esli dostupen, i lokalnye operatsii chteniya).
-  • B - polnye operatsii.
+  • B - complete operatsii.
 
 Mosty:
 - Yavnyy (Operatsii ↔ Audit): perenos paketov po lokalke s temi zhe plombami/proverkami, chto i USB.
 - Skrytyy 1 (Infoteoriya ↔ Nadezhnost): ACL+throttle, verify pered import, vse determinirovano.
-- Skrytyy 2 (Praktika ↔ Sovmestimost): stdlib urllib; JSON-kontrakty kak u USB-paketov.
+- Skrytyy 2 (Praktika ↔ Sovmestimost): stdlib urllib; JSON-kontrakty kak u USB-packetov.
 
 Zemnoy abzats:
-Eto «lokalnaya polka»: sosedi vidyat tvoi pakety i mogut ikh zabrat; ty - ikh. Vse v ramkakh lokalki i s predokhranitelyami.
+Eto “lokalnaya polka”: sosedi vidyat tvoi pakety i mogut ikh zabrat; ty - ikh. All v ramkakh lokalki i s predokhranitelyami.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, urllib.parse, urllib.request
 from pathlib import Path
@@ -45,7 +43,7 @@ PEERSF = STATE_DIR / "lan_pkg_peers.json"
 AB = (os.getenv("AB_MODE") or "A").strip().upper()
 
 def _client_ip() -> str:
-    # X-Forwarded-For ne uchityvaem umyshlenno (lokalnaya vydacha).
+    # S-Forwarded-For is not taken into account intentionally (local output).
     return request.remote_addr or "0.0.0.0"
 
 @bp_lanpkg.get("/lan/packages")
@@ -71,7 +69,7 @@ def download():
     if not ok: return jsonify({"ok": False, "error": "too-many-requests", "meta": meta}), 429
     name = (request.args.get("name") or "").strip()
     if not name: return jsonify({"ok": False, "error": "name required"}), 400
-    # otdaem tolko fayly iz lokalnogo OUT_DIR
+    # We only give files from the local OT_DIR
     p = (OUT_DIR / name).resolve()
     if not str(p).startswith(str(OUT_DIR.resolve())) or not p.exists():
         return jsonify({"ok": False, "error": "not-found"}), 404

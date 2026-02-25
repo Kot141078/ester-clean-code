@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/actions_workbench_ab_routes.py - eksheny «voli» dlya Workbench i A/B.
+"""routes/actions_workbench_ab_routes.py - eksheny “voli” dlya Workbench i A/B.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Instrumenty) mozg sozdaet fayly, pishet kod, rulit A/B.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (AutoDiscover ↔ Zhiznennyy tsikl) posle scaffold mozhno srazu registrirovat.
 
 Zemnoy abzats:
-Odni korotkie komandy - i u Ester est «payalnik» (Workbench) i «tumbler» (A/B) pod rukoy.
+Odni korotkie komandy - i u Ester est “payalnik” (Workbench) i “tumbler” (A/B) pod rukoy.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 

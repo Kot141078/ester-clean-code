@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-bridges/internet_access.py — setevoy most Ester (poisk + bezopasnaya vyborochnaya zagruzka HTML).
+"""bridges/internet_access.py - setevoy most Ester (poisk + bezopasnaya vyborochnaya zagruzka HTML).
 
-YaVNYY MOST: c=a+b — vneshniy fakt podtyagivaem protseduroy (b), ne lomaya subektnost “c”.
+YaVNYY MOST: c=a+b - vneshniy fakt podtyagivaem protseduroy (b), ne lomaya subektnost “c”.
 SKRYTYE MOSTY:
-  - Cover&Thomas: ogranichenie kanala — RPM/taymaut/limit bayt, chtoby ne zabit liniyu i ne raznesti pamyat.
-  - Ashby: requisite variety — neskolko provayderov (Google CSE → DDGS → DDG API) dayut raznoobrazie, a arbitr — stabilizatsiyu.
+  - Cover&Thomas: ogranichenie kanala - RPM/taymaut/limit bayt, chtoby ne zabit liniyu i ne raznesti pamyat.
+  - Ashby: requisite variety - neskolko provayderov (Google CSE → DDGS → DDG API) dayut raznoobrazie, a arbitr - stabilizatsiyu.
 ZEMNOY ABZATs (inzheneriya/anatomiya):
-  Eto kak postavit klapan+manometr na magistral: davlenie (zaprosy) doziruem, musor (lishnie bayty) filtruem,
+  This is how postavit klapan+manometr na magistral: davlenie (zaprosy) doziruem, musor (lishnie bayty) filtruem,
   a peregrev (flud/taymauty) gasim do togo, kak “serdtse” (event loop) nachnet aritmit.
 
-Bezopasnye defolty:
-- CLOSED_BOX=1 ili WEB_FACTCHECK=never  -> set vyklyuchena polnostyu.
+Safe default:
+- CLOSED_BOX=1 or WEB_FACTCHECK=never -> set vyklyuchena polnostyu.
 - fetch_html() po umolchaniyu vyklyuchen (WEB_ALLOW_FETCH=0) i rezhet SSRF (lokalkhost/privatnye seti).
 
-ENV (osnovnye):
+ENV (main):
   WEB_FACTCHECK=auto|always|never
   WEB_MAX_RPM=12
   WEB_TIMEOUT_SEC=8
@@ -23,8 +22,7 @@ ENV (osnovnye):
   WEB_PROVIDER=auto|google_cse|ddgs|ddg_api
   WEB_ALLOW_FETCH=0|1
   GOOGLE_API_KEY=...
-  GOOGLE_CSE_ID=...
-"""
+  GOOGLE_CSE_ID=..."""
 
 from __future__ import annotations
 
@@ -329,7 +327,7 @@ class InternetAccess:
         return _uniq(rs)
 
     def fetch_html(self, url: str) -> str:
-        """Optsionalno: gruzim HTML stranitsy (tolko esli WEB_ALLOW_FETCH=1)."""
+        """Optional: load HTML pages (only if WEB_ALLOW_FETH=1)."""
         if not self.enabled() or not self.allow_fetch:
             return ""
         u = (url or "").strip()
@@ -358,7 +356,7 @@ class InternetAccess:
             return []
         limit = max(1, min(40, int(limit or 12)))
 
-        # grubyy, no bystryy HTML text extraction dlya <a> i <h*>:
+        # rough but quick NTML extraction test for <a> and <x*>:
         # vynimaem tekst, chistim, filtruem musor.
         candidates: List[str] = []
 

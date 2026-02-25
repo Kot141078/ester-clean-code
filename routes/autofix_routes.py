@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-routes/autofix_routes.py - «tikhiy shurshatel»: set, LM Studio, guard-safe diskaver, GPU, apply.
+"""routes/autofix_routes.py - "tikhiy shurshatel": set, LM Studio, guard-safe diskaver, GPU, apply.
 
-Novoe v shag-8:
+New v step-8:
   • GET /autofix/llm/models - spisok modeley iz LM Studio (keshiruetsya i obnovlyaetsya).
-Ostalnoe - kak v shag-7: diskaver bez HTTP (obkhod 403), pravilnaya adresatsiya cherez ACTIONS_ENDPOINT.
+Ostalnoe - kak v step-7: diskaver bez HTTP (obkhod 403), pravilnaya adresatsiya cherez ACTIONS_ENDPOINT.
 
 Mosty:
   • Yavnyy: (Kibernetika ↔ Ekspluatatsiya) - nablyudaemost i upravlenie LLM.
   • Skrytye: (Infoteoriya ↔ Seti), (Anatomiya ↔ Refleksy).
 
 Zemnoy abzats:
-  Nuzhen prostoy sposob uvidet dostupnye modeli i bystro «razmyat» odnu iz nikh - vot zachem /llm/models i knopki v UI.
+  Nuzhen prostoy sposob uvidet dostupnye modeli i bystro “razmyat” odnu iz nikh - vot zachem /llm/models i knopki v UI.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -32,9 +30,9 @@ from flask import Blueprint, jsonify, request, current_app, Flask
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 autofix_bp = Blueprint("autofix", __name__)
-bp = autofix_bp  # dlya discover.register
+bp = autofix_bp  # for discover.register
 
-# Globalnaya ssylka na prilozhenie (nuzhna dlya fonovogo potoka pri otsutstvii request context)
+# Global link to the application (needed for a background thread if there is no registred context)
 _APP: Optional[Flask] = None
 
 _STATE: Dict[str, Any] = {
@@ -77,14 +75,14 @@ def _push_event(topic: str, payload: Dict[str, Any]) -> None:
 # ---------- helpers: set / lm studio / http / gpu ----------
 
 def _net_probe() -> Tuple[bool, str]:
-    """Bystryy TCP probe. Vazhno: soket zakryvaetsya dazhe pri ConnectionRefused."""
+    """Quick TCP test. Important: the socket is closed even with ConnectionRefused."""
     targets = [("1.1.1.1", 53), ("8.8.8.8", 53), ("127.0.0.1", 80)]
     ok_any = False
     detail = []
 
     for host, port in targets:
         try:
-            # VAZhNO: cherez context manager soket budet zakryt dazhe esli connect() upadet.
+            # Important: through the manager context, the socket will be closed even if connect() fails.
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.settimeout(1.0)
                 s.connect((host, port))
@@ -224,7 +222,7 @@ def _discover_scan() -> Tuple[bool, str, int, int]:
         ok = False
         details.append("direct:app_missing")
 
-    # HTTP (best-effort, mozhet byt 403 - eto ne oshibka)
+    # HTTP (best-effort, maybe 403 is not an error)
     code_scan, _ = _http_json("GET", _local_url("/app/discover/scan"), None, timeout=4)
     code_rl, _   = _http_json("POST", _local_url("/debug/actions/reload"), {}, timeout=4)
     details.append(f"http:scan={code_scan},reload={code_rl}")

@@ -1,16 +1,14 @@
 
 # -*- coding: utf-8 -*-
-"""
-modules.transport — tonkiy transportnyy sloy (p2p/lan/fs).
+"""modules.transport - tonkiy transportnyy layer (p2p/lan/fs).
 Mosty:
-- Yavnyy: send()/recv() — bezopasnye defolty.
-- Skrytyy #1: (listeners ↔ transport) — probuem p2p_spooler kak drayver, esli dostupen.
+- Yavnyy: send()/recv() — bezopasnye default.
+- Skrytyy #1: (listeners ↔ transport) — try p2p_spooler as drayver, if available.
 - Skrytyy #2: (Inzheneriya ↔ Nadezhnost) — ne brosaem isklyucheniya pri otsutstvii transporta.
 
 Zemnoy abzats:
 Dazhe esli polnotsennyy transport ne gotov, API ne dolzhen valit prilozhenie.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import importlib
 from typing import Optional

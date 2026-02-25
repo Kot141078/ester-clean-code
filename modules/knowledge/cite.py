@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-modules/knowledge/cite.py — tsitirovanie i «profile otveta».
+"""modules/knowledge/cite.py - tsitirovanie i “profile otveta”.
 
 Funktsii:
   build_evidence_pack(record_id:str|None, query:str|None, top_k:int=12) -> dict
   cite_lines(evidence_pack:dict, max_items:int=6) -> dict
   answer_passport(answer_text:str, evidence_pack:dict) -> dict
 
-Naznachenie:
+Name:
 - Sobrat dokazatelstva (iz pamyati/reestra), vydat kompaktnye tsitaty i metriki
-  uverennosti, chtoby lyuboy otvet imel «profile» proiskhozhdeniya.
+  uverennosti, chtoby lyuboy otvet imel “profile” proiskhozhdeniya.
 
 MOSTY:
-- Yavnyy: (Memory ↔ Dokazatelstva) — kazhdyy vyvod podkreplen ssylkami.
-- Skrytyy #1: (Infoteoriya ↔ Szhatie) — kratkie tsitaty vmesto «prostyn».
+- Yavnyy: (Memory ↔ Dokazatelstva) - kazhdyy vyvod podkreplen ssylkami.
+- Skrytyy #1: (Infoteoriya ↔ Szhatie) - kratkie tsitaty vmesto “prostyn”.
 - Skrytyy #2: (Kibernetika ↔ Prozrachnost) — obyasnimost → doverie.
 
 ZEMNOY ABZATs:
-Inzhenerno — upakovschik: na vkhod evidence, na vykhod kompaktnye ssylki i confident=… .
-Prakticheski — eto chtoby lyuboy otvet Ester mozhno bylo proverit i vosstanovit.
+Inzhenerno - upakovschik: na vkhod evidence, na vykhod kompaktnye ssylki i confident=… .
+Prakticheski - eto chtoby lyuboy otvet Ester mozhno bylo proverit i vosstanovit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import time
@@ -40,7 +38,7 @@ def build_evidence_pack(record_id:str|None=None, query:str|None=None, top_k:int=
             ev=[]
         else:
             ev = [e for e in Q.vec_search(qv, list(store._MEM.values()), top_k=top_k)]  # type: ignore
-        # dobavim samu zapis kak yadro
+        # add the entry itself as a core
         if r not in ev: ev.insert(0,r)
     else:
         if not query: return {"ok":False,"error":"no_query"}

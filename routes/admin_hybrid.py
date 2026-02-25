@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_hybrid.py - panel gibridnoy ocheredi: dobavit zadanie, smotret ochered, pnut TG.
+"""routes/admin_hybrid.py - panel hybridnoy ocheredi: dobavit zadanie, smotret ochered, pnut TG.
 
-Marshruty:
-  • GET  /admin/hybrid            - HTML
-  • GET  /admin/hybrid/status     - svodka ocheredi
-  • POST /admin/hybrid/enqueue    - {type,args,targets,policy?}
-  • POST /admin/hybrid/nudge_tg   - {uid} → dlya state=lan_sent: prinuditelno otpravit v TG seychas
+Route:
+  • GET /admin/hybrid - HTML
+  • GET /admin/hybrid/status - svodka ocheredi
+  • POST /admin/hybrid/enqueue - {type,args,targets,policy?}
+  • POST /admin/hybrid/nudge_tg - {uid} → dlya state=lan_sent: prinuditelno otpravit v TG seychas
 
 Mosty:
-- Yavnyy (UX ↔ Avtomatizatsiya): edinyy pult upravleniya gibridnoy dostavkoy.
+- Yavnyy (UX ↔ Avtomatizatsiya): edinyy remote upravleniya gibridnoy dostavkoy.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): ponyatnye JSON-otvety i yavnye sostoyaniya zadach.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): bez izmeneniya yadernykh kontraktov, offlayn.
 
 Zemnoy abzats:
-Eto «schitok s pereklyuchatelyami»: dobavili zadanie, smotrim kuda ushlo, pri neobkhodimosti - vruchnuyu perevodim na rezerv.
+Eto “schitok s pereklyuchatelyami”: dobavili zadanie, smotrim kuda ushlo, pri neobkhodimosti - vruchnuyu perevodim na rezerv.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

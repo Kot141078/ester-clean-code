@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/autonomy/state.py — edinoe sostoyanie avtonomii Ester.
+"""modules/autonomy/state.py - edinoe sostoyanie avtonomii Ester.
 
 Soderzhit:
 - level: 0..3 (0—passiv, 1—semi, 2—agent, 3—tsikl+planirovschik)
@@ -11,14 +10,13 @@ Soderzhit:
 
 MOSTY:
 - Yavnyy: (Volya ↔ Deystvie) tsentralizovannyy istochnik istiny dlya vsekh silnykh moduley.
-- Skrytyy #1: (Kibernetika ↔ Kontrol) TTL i pauza — regulyatory «tyagi».
+- Skrytyy #1: (Kibernetika ↔ Kontrol) TTL i pauza - regulyatory “tyagi”.
 - Skrytyy #2: (Infoteoriya ↔ Prozrachnost) neizmenyaemyy interfeys get()/set(), prostye tipy.
 
 ZEMNOY ABZATs:
-V pamyati protsessa, bez BD i demonov. Potokobezopasnost — cherez prostoy lock.
+V pamyati protsessa, bez BD i demonov. Potokobezopasnost - through simple lock.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any
 import time, threading
@@ -38,7 +36,7 @@ def _now() -> int: return int(time.time())
 
 def get() -> Dict[str, Any]:
     with _lock:
-        # lenivoe «sgoranie» TTL: umenshaem s momenta poslednego obrascheniya
+        # lazy "burning" TTL: decreases since the last access
         now = _now()
         elapsed = now - int(_state.get("updated", now))
         ttl = max(0, int(_state.get("ttl_sec", 0)) - elapsed)

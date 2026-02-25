@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-routes/release_routes.py - REST: snepshot sborki i .torrent dlya distributsii.
+"""routes/release_routes.py - REST: snepshot sborki i .torrent dlya distributsii.
 
 Ruchki:
-  POST /release/snapshot  {"roots":["src","web"],"name":"ester"} -> {"ok":true,...}
-  POST /release/torrent   {"manifest":"path/to/manifest.json","announce":["udp://..."]}
+  POST /release/snapshot {"roots":["src","web"],"name":"ester"} -> {"ok":true,...}
+  POST /release/torrent {"manifest":"path/to/manifest.json","announce":["udp://..."]}
 
 Mosty:
-- Yavnyy: (Veb ↔ Reliz) gotovim manifest/arkhiv i .torrent cherez edinyy REST.
+- Yavnyy: (Veb ↔ Release) gotovim manifest/arkhiv i .torrent cherez edinyy REST.
 - Skrytyy #1: (Integratsiya ↔ Trust) manifest prigoden dlya podpisi i proverki tselostnosti.
-- Skrytyy #2: (Ustoychivost ↔ Bekap) .torrent oblegchaet P2P-rasprostranenie i rassharivanie uzlov.
+- Skrytyy #2: (Ustoychivost ↔ Bekap).torrent oblegchaet P2P-rasprostranenie i rassharivanie uzlov.
 
 Zemnoy abzats:
-Odin zapros - i u tebya na rukakh proveryaemaya «sborka» i torrent dlya razdachi po seti. Prozrachno i bystro.
+Odin zapros - i u tebya na rukakh proveryaemaya “sborka” i torrent dlya razdachi po seti. Prozrachno i bystro.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -25,7 +23,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp_rel = Blueprint("release_routes", __name__)
 
-# Myagkiy import yadra relizov
+# Soft import of core releases
 try:
     from modules.release.packager import snapshot as _snap, make_torrent as _tor  # type: ignore
 except Exception:  # pragma: no cover
@@ -42,7 +40,7 @@ def init_app(app):  # pragma: no cover
 
 @bp_rel.route("/release/snapshot", methods=["POST"])
 def api_snap():
-    """Sobrat snepshot: manifest + arkhiv (realizatsiya delegirovana _snap)."""
+    """Collect a snapshot: manifest + archive (implementation delegated to _snap)."""
     if _snap is None:
         return jsonify({"ok": False, "error": "release_unavailable"}), 500
     d: Dict[str, Any] = request.get_json(force=True, silent=True) or {}

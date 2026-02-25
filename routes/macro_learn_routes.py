@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/macro_learn_routes.py - REST/UI dlya obucheniya iz makrosov.
+"""routes/macro_learn_routes.py - REST/UI dlya obucheniya iz makrosov.
 
 Ruchki:
-  GET  /macro_learn/preview
+  GET /macro_learn/preview
   POST /macro_learn/export
   POST /macro_learn/apply
-  GET  /admin/macro_learn
+  GET /admin/macro_learn
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.learn.from_macro import preview, export, apply

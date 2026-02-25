@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Asinkhronnyy agent dlya poiska (Google + obertka).
-"""
+"""Asynchronous search agent (Google + wrapper)."""
 import asyncio
 from typing import Any, Dict, List, Optional
 
@@ -13,5 +11,5 @@ class SearchAgent:
     async def search(
         self, query: str, num_results: int = 3, date_restrict: Optional[str] = None
     ) -> List[Dict[str, Any]]:
-        # Simuliruem asinkhronnyy poisk (unosim v potok, chtoby ne blokirovat event loop)
+        # Simulate asynchronous search (takes it into the thread so as not to block the event loop)
         return await asyncio.to_thread(google_search, query)

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/archiver.py — samosnimki koda/struktury: .tar.gz + manifest s sha256 i webseed-monetkoy.
+"""modules/self/archiver.py - samosnimki koda/struktury: .tar.gz + manifest s sha256 i webseed-monetkoy.
 
 Mosty:
-- Yavnyy: (Inzheneriya ↔ Set) gotovim perenosimyy arkhiv + manifest i optsionalnyy .torrent, chtoby sestry mogli podtyanut.
+- Yavnyy: (Inzheneriya ↔ Set) gotovim perenosimyy arkhiv + manifest i optsionalnyy .torrent, chtoby sister mogli podtyanut.
 - Skrytyy #1: (Infoteoriya ↔ Audit) katalog snapshotov, kheshi i provenans ostayutsya dlya proverki tselostnosti.
 - Skrytyy #2: (Kibernetika ↔ Vyzhivanie) snapshoty pitayut otkaty/samosoborku i rasprostranyayutsya legalnym sposobom (HTTP/BT).
 
 Zemnoy abzats:
-Eto «obraz sistemy»: zaarkhivirovali, poschitali khesh, polozhili manifest, dali ssylku — mozhno razvorachivat na drugikh uzlakh.
+This is “obraz sistemy”: zaarkhivirovali, poschitali khesh, polozhili manifest, dali ssylku - mozhno razvorachivat na drugikh uzlakh.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, io, tarfile, time, hashlib, json, shutil, subprocess
 from typing import Any, Dict, List
@@ -42,7 +40,7 @@ def create_snapshot(note: str = "") -> Dict[str, Any]:
     _ensure()
     ts = int(time.time())
     includes = _iter_include()
-    # sozdaem vremennyy tar.gz
+    # creates a temporary tar.gz
     tar_name = f"ester_snapshot_{ts}.tar.gz"
     tar_path = os.path.join(SNAP_DIR, tar_name)
     manifest: Dict[str, Any] = {"created_ts": ts, "includes": includes, "note": note, "files": []}
@@ -65,7 +63,7 @@ def create_snapshot(note: str = "") -> Dict[str, Any]:
                     manifest["files"].append(_manifest_entry(root))
                 except Exception:
                     pass
-    # khesh arkhiva
+    # archive hash
     arc_sha = _file_sha256(tar_path)
     man_path = os.path.join(SNAP_DIR, f"{tar_name}.manifest.json")
     manifest["archive"] = {"path": tar_name, "sha256": arc_sha, "size": os.path.getsize(tar_path)}
@@ -87,10 +85,8 @@ def list_snapshots() -> Dict[str, Any]:
     return {"ok": True, "items": items}
 
 def build_torrent(archive_name: str, webseed_url: str | None = None) -> Dict[str, Any]:
-    """
-    Pytaemsya sozdat .torrent legalno: nuzhen mktorrent ili transmission-create.
-    Bez SHELL — tolko opisanie «kak sdelat».
-    """
+    """We are trying to create a .torrent legally: we need mktorrent or transmission-create.
+    Without SHELL - only a “how to do” description."""
     allow_shell = bool(int(os.getenv("SELF_ALLOW_SHELL","0")))
     arc_path = os.path.join(SNAP_DIR, archive_name)
     if not os.path.isfile(arc_path):
@@ -111,7 +107,7 @@ def build_torrent(archive_name: str, webseed_url: str | None = None) -> Dict[str
             return {"ok": True, "torrent": os.path.basename(tor_path)}
         except Exception as e:
             return {"ok": False, "error": f"torrent tool failed: {e}"}
-    # Bez shell — tolko instruktsiya
+    # No shell - only instructions
     return {"ok": True, "hint": "run locally", "suggest": f"mktorrent -o {tor_path} -a udp://tracker.opentrackr.org:1337/announce -w {webseed_url or '<webseed>'} {arc_path}"}
 # c=a+b
 

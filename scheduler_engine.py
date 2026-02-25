@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules.scheduler_engine — minimalnyy offlayn-planirovschik.
+"""modules.scheduler_engine - minimalnyy offflayn-planirovschik.
 
 MOSTY:
 - Yavnyy: funktsii start()/stop()/status()/schedule()/cancel() ozhidayutsya routami.
-- Skrytyy #1: (A/B-sloty) ESTER_AB_SCHEDULER vliyaet na «maneru» otveta (telemetriya).
+- Skrytyy #1: (A/B-sloty) ESTER_AB_SCHEDULER vliyaet na “maneru” otveta (telemetriya).
 - Skrytyy #2: (Idempotentnost) vse operatsii — in-proc bez pobochnykh effektov.
 
 ZEMNOY ABZATs:
-Eto «raspisalka na stole»: mozhno polozhit zadanie, posmotret spisok i otmenit — bez vneshnikh servisov.
+This is “raspisalka na stole”: mozhno polozhit zadanie, posmotret spisok i otmenit - bez vneshnikh servisov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 import time
@@ -53,10 +51,8 @@ def status() -> Dict[str, Any]:
     }
 
 def schedule(spec: Dict[str, Any] | None = None) -> Dict[str, Any]:
-    """
-    Dobavit zadanie v raspisanie (minimum poley).
-    spec: proizvolnyy slovar; id generiruetsya, next_run — seychas.
-    """
+    """Add a task to the schedule (minimum fields).
+    special: custom dictionary; id is generated, next_run - now."""
     spec = dict(spec or {})
     job_id = spec.get("id") or str(uuid.uuid4())
     job = {
@@ -69,15 +65,13 @@ def schedule(spec: Dict[str, Any] | None = None) -> Dict[str, Any]:
     return {"ok": True, "job": job, "jobs_total": len(_STATE["jobs"])}
 
 def cancel(job_id: str | None = None) -> Dict[str, Any]:
-    """
-    Otmenit zadanie po id. Esli id ne peredan — no-op (ok dlya API-kontrakta).
-    """
+    """Cancel job by ID. If the ID is not transmitted, no-op (ok for an API contract)."""
     if not job_id:
         return {"ok": True, "canceled": 0, "reason": "empty_id"}
     removed = 1 if _STATE["jobs"].pop(job_id, None) is not None else 0
     return {"ok": True, "canceled": removed, "job_id": job_id, "jobs_total": len(_STATE["jobs"])}
 
-# Utilita dlya polucheniya spiska — mozhet ozhidatsya sosednimi vyzovami
+# List utility - may be expected by neighboring calls
 def list_jobs() -> List[Dict[str, Any]]:
     return list(_STATE["jobs"].values())
 

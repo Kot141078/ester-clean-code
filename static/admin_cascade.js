@@ -6,7 +6,7 @@
   }
   E('btnPlan').addEventListener('click', async ()=>{
     const goal = E('goal').value.trim();
-    if(!goal){ E('out').textContent='Ukazhi tsel'; return; }
+    if(!goal){ E('out').textContent='Specify a goal'; return; }
     const j = await post('/thinking/cascade/plan', {goal});
     E('out').textContent = JSON.stringify(j, null, 2);
   });
@@ -16,7 +16,7 @@
       const j = await post('/thinking/cascade/execute', {plan});
       E('out').textContent = JSON.stringify(j, null, 2);
     }catch(e){
-      E('out').textContent = 'Snachala poluchi plan (knopka «Splanirovat»).';
+      E('out').textContent = 'First get a plan (Plan button).';
     }
   });
 })();

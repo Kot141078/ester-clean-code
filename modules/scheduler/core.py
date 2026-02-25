@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/scheduler/core.py — prostoy planirovschik (cron-podobnye vyrazheniya) s khraneniem v JSON.
+"""modules/scheduler/core.py - prostoy planirovschik (cron-podobnye vyrazheniya) s khraneniem v JSON.
 
 Mosty:
 - Yavnyy: (Avtonomiya ↔ Operatsii) zapuskaet playbook-i/HTTP/exec po raspisaniyu.
-- Skrytyy #1: (Ostorozhnost ↔ Politiki) sozdanie zadach trebuet «pilyulyu».
+- Skrytyy #1: (Ostorozhnost ↔ Politiki) sozdanie zadach trebuet “pilyulyu”.
 - Skrytyy #2: (Nadezhnost ↔ Resilience) tick mozhno dergat iz cron/paneli.
 
 Zemnoy abzats:
-Kak budilnik s zapisnoy knizhkoy: kogda prozvenit — vypolnit nuzhnoe.
+Kak budilnik s zapisnoy knizhkoy: kogda prozvenit - vypolnit nuzhnoe.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, subprocess, shlex
 from typing import Any, Dict, List, Tuple
@@ -36,7 +34,7 @@ def add_job(kind: str, spec: str, cron: str, note: str = "") -> Dict[str,Any]:
     return {"ok": True, "job": job}
 
 def _cron_match(cron: str, t: time.struct_time) -> bool:
-    # minimalnaya podderzhka: */n dlya minut, ostalnye polya — zvezdochka
+    # minimum support: */n for minutes, other fields are asterisk
     parts=cron.strip().split()
     if len(parts)!=5: return False
     m, h, dom, mon, dow = parts
@@ -50,7 +48,7 @@ def _cron_match(cron: str, t: time.struct_time) -> bool:
         except:
             return False
     return m_ok(m, t.tm_min)
-    # (dlya kratkosti/stabilnosti — tolko minuty; rasshirenie vozmozhno bez smeny kontrakta)
+    # (for brevity/stability - only minutes; extension is possible without changing the contract)
 
 def _run_playbook(path: str) -> Dict[str,Any]:
     try:

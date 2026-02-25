@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/uploader_routes.py - REST: /uploader/prepare
+"""routes/uploader_routes.py - REST: /uploader/prepare
 
 Mosty:
 - Yavnyy: (Veb ↔ Ploschadki) gotovim metadannye pod zadannuyu platformu.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Parametry pod ploschadku - za doli sekundy, bez ruchnoy rutiny.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

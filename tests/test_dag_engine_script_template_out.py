@@ -14,7 +14,7 @@ PLAN = """\
 run_id: test_run_script_template_out_01
 branch_id: main
 context_init:
-  spec: "Proverka script: i update, i template+out odnovremenno."
+  spec: "Check script: i update, i template+out odnovremenno."
   items:
     - {file: "t1"}
 nodes:
@@ -25,15 +25,14 @@ nodes:
       b: "B={{ctx.spec}}"
     template: "TEMPLATE {{ctx.a}} + {{ctx.b}}"
     out: "tpl"
-    depends: []
-"""
+    depends: []"""
 
 
 def test_script_updates_and_template_out():
     with tempfile.TemporaryDirectory() as tmp:
         os.environ["DAG_RUN_ROOT"] = os.path.join(tmp, "runs")
         os.environ["DAG_BRANCH_ROOT"] = os.path.join(tmp, "branches")
-        os.environ["LLM_API_BASE"] = ""  # ne nuzhen LLM
+        os.environ["LLM_API_BASE"] = ""  # no need for LLM
         os.environ["LLM_MODEL"] = "gpt-4o-mini"
 
         eng = DAGEngine(load_plan_from_text(PLAN))
@@ -46,5 +45,5 @@ def test_script_updates_and_template_out():
         assert ctx.get("a", "").startswith("A=")
         assert ctx.get("b", "").startswith("B=")
         assert isinstance(ctx.get("tpl"), str)
-        # shablon dolzhen podkhvatit novye znacheniya
+        # the template should pick up the new values
         assert "A=" in ctx["tpl"] and "B=" in ctx["tpl"]

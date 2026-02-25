@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/security/test_rbac_matrix_loader.py — yunity dlya zagruzchika i matchinga RBAC-matritsy.
-"""
+"""tesc/security/test_rach_matrix_loader.po - units for the loader and matching of the rvach matrix."""
 from __future__ import annotations
 
 import os
@@ -41,13 +39,13 @@ def test_load_and_check(tmp_path, monkeypatch):
 
     m = load_matrix()
     assert "roles" in m and "rules" in m
-    # admin vsegda mozhno
+    # admin you can always
     assert check_access("/ops/restart", ["admin"], matrix=m) is True
     # ops imeet dostup k /ops/*
     assert check_access("/ops/rotate", ["ops"], matrix=m) is True
     # user — net
     assert check_access("/ops/rotate", ["user"], matrix=m) is False
-    # ingest — tolko k /ingest/*
+    # ingest - only to /ingest/*
     assert check_access("/ingest/file", ["ingest"], matrix=m) is True
     assert check_access("/providers/select", ["provider_manager"], matrix=m) is True
     # put bez pravil — propuskaem (sovmestimost)

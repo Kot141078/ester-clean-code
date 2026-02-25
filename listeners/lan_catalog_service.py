@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-listeners/lan_catalog_service.py — LAN Catalog Service:
-  • UDP-anons (multicast/broadcast) «ya tut»
+"""listeners/lan_catalog_service.py - LAN Catalog Service:
+  • UDP-anons (multicast/broadcast) “ya tut”
   • priem chuzhikh anonsov → kesh → HTTP GET /lan/catalog_export u soseda → kesh kataloga
 
 ENV:
@@ -14,15 +13,14 @@ ENV:
   LAN_CATALOG_BASE_URL=http://127.0.0.1:8000
 
 Zemnoy abzats:
-Legkiy «mayak»: periodicheski govorit «ya zdes, vot moy URL», i podbiraet chuzhie katalogi dlya adminki.
+Legkiy “mayak”: periodicheski govorit “ya zdes, vot my URL”, i podbiraet chuzhie katalogi dlya adminki.
 
 Mosty:
 - Yavnyy (Set ↔ Katalogi): UDP-mayak ↔ HTTP-katalog.
 - Skrytyy 1 (Infoteoriya): formaty beacon/catalog prosty i proveryaemy.
-- Skrytyy 2 (Praktika): stdlib sockets/urllib, offlayn (tolko LAN).
+- Skrytyy 2 (Praktika): stdlib sockets/urllib, offflayn (only LAN).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, os, socket, struct, threading, time, urllib.request, urllib.error
 
@@ -73,7 +71,7 @@ def _make_mcast_receiver(group: str, port: int):
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
         return sock
     except Exception:
-        # fallback: prosto slushaem broadcast na portu
+        # false: just listen to the broadcast on the port
         sock.close()
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -125,12 +123,12 @@ def run_loop():
                     base = (obj.get("base_url") or "").rstrip("/")
                     if base and base != my_base:
                         save_beacon(obj)
-                # periodicheski tyanem katalogi vsekh izvestnykh
+                # periodically pulls catalogs of all known
             except socket.timeout:
                 pass
 
             if now - last_pull >= pull_sec:
-                # perechen izvestnykh
+                # list of famous
                 try:
                     from modules.lan_catalog.peers import list_peers  # lazy
                     peers = list_peers().get("peers") or []

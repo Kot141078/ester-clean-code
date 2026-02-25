@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/styler.py — personalizatsiya teksta soobscheniya na osnove profilya roli.
+"""messaging/styler.py - personalizatsiya teksta soobscheniya na osnove profilya roli.
 
 MOSTY:
 - (Yavnyy) render_for_keys(keys, intent, adapt_kind?) → odin tekst, adaptirovannyy pod dominiruyuschiy profil poluchateley.
-- (Skrytyy #1) Profile podtyagivaetsya iz roles.store (cherez obratnyy indeks contact_key→agent_id).
+- (Skrytyy #1) Profile podtyagivaetsya iz roles.store (cherez obratnyy indexes contact_key→agent_id).
 - (Skrytyy #2) Myagkaya degradatsiya: esli profili neizvestny — vozvraschaetsya iskhodnyy intent.
 
 ZEMNOY ABZATs:
-Chtoby «ne pugat», Ester podstraivaet ton: yuristu — formalno i chetko, studentu — prosche i druzhelyubnee,
-koordinatoru — kratkiy brif.
+Chtoby “ne pugat”, Ester podstraivaet ton: yuristu - formalno i chetko, studentu - prosche i druzhelyubnee,
+koordinatoru — kratkiy brief.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import List, Dict, Any, Optional
@@ -49,7 +47,7 @@ def _style_params(vec: Dict[str,float], kind: Optional[str]) -> Dict[str,Any]:
     return {"formality":formality,"direct":direct,"empathy":empathy,"brevity":brevity}
 
 def _render(intent: str, p: Dict[str,Any]) -> str:
-    # prostaya stilizatsiya bez vneshnikh zavisimostey
+    # simple styling without external dependencies
     t = intent.strip()
     if p["formality"] >= 0.8:
         t = f"Uvedomlenie: {t}"

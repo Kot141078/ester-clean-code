@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/sisters/registry.py — reestr «sester» i prostoe raspredelenie zadach po HTTP.
+"""modules/sisters/registry.py - reestr "sister" i prostoe raspredelenie zadach po HTTP.
 
 Mosty:
 - Yavnyy: (P2P/Set ↔ Operatsii) tsentralizovannyy spisok uzlov i ikh capabilities.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Kvoty/Pravila ↔ Ostorozhnost) mozhno sochetat s ingest_guard i rules.
 
 Zemnoy abzats:
-Kak dispetcher na sklade: znaet, u kogo kakoy pogruzchik, i otsylaet «ekhat k doku №3».
+Kak dispetcher na sklade: znaet, u kogo kakoy pogruzchik, i otsylaet “ekhat k doku No. 3”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, urllib.request
 from typing import Any, Dict

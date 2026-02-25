@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.thinking.compat_actions — sovmestimye deystviya bez izmeneniya bazovogo yadra.
+"""modules.thinking.compat_actions - sovmestimye deystviya bez izmeneniya bazovogo yadra.
 
 Ekshen: think.rag_answer
 - Vyzov: rag_answer(q: str, top_k=3, mode='extractive')
@@ -14,9 +13,8 @@ Mosty:
 - Skrytyy #2: pri nalichii registry — myagkaya registratsiya v action_registry.
 
 Zemnoy abzats:
-Prakticheski — eto «vstroennyy konsultant po pamyati»: izvlekaem fragmenty iz lokalnoy bazy i otvechaem s kratkoy vyzhimkoy.
-# c=a+b
-"""
+Prakticheski - eto “vstroennyy konsultant po pamyati”: izvlekaem fragmenty iz lokalnoy bazy i otvechaem s kratkoy vyzhimkoy.
+# c=a+b"""
 import os
 from typing import Dict, Any, Optional, List, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -24,9 +22,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 AB = os.getenv("ESTER_THINK_RAG_AB","A").upper().strip() or "A"
 
 def _call_rag_answer(q: str, top_k:int=3, mode:str="extractive") -> str:
-    """
-    Pytaemsya vyzvat modules.rag.answer.answer; esli net — fallback na hub.search.
-    """
+    """We are trying to call modules.rag.answer.answer; if not, falsify on hub.search."""
     # Osnovnoy put
     try:
         from modules.rag import answer as ra  # type: ignore
@@ -35,16 +31,16 @@ def _call_rag_answer(q: str, top_k:int=3, mode:str="extractive") -> str:
             return str(fn(q, top_k=top_k, mode=mode))  # sovmestimost s suschestvuyuschim modulem
     except Exception:
         pass
-    # Fallback: hub.search + prostaya skleyka
+    # Falbatsk: noob.search + simple gluing
     try:
         from modules.rag import hub  # type: ignore
         res = hub.search(q, k=top_k)  # ozhidaetsya {'items':[{'text':..., 'score':...}]}
         items = [it.get("text","") for it in (res.get("items") or [])]
         if not items:
             return "net relevantnykh fragmentov"
-        # lakonichnyy otvet (1‑2 stroki)
+        # concise answer (1-2 lines)
         snippet = " ".join(items[:2])[:600]
-        return f"Otvet po istochnikam: {snippet}"
+        return f"Answer from sources: ZZF0Z"
     except Exception:
         return "RAG nedostupen"
 
@@ -61,21 +57,19 @@ def heuristic_should_rag(q: str) -> bool:
     q = (q or "").strip()
     if not q: 
         return False
-    # korotkie voprosy s voprositelnym znakom — tipichnyy sluchay RAG
+    # short questions with a question mark - a typical case of RAG
     return (len(q) <= 240) and ("?" in q or len(q.split()) <= 24)
 
 def try_register() -> Dict[str, Any]:
-    """
-    Pytaemsya myagko zaregistrirovat ekshen v suschestvuyuschem reestre deystviy.
-    Sovmestimost: bez isklyucheniy pri otsutstvii reestra.
-    """
+    """Attempts to soft-register an action into an existing action registry.
+    Compatibility: no exceptions in the absence of a registry."""
     registered = False
     detail = "no_registry"
     try:
         from modules.thinking import action_registry as ar  # type: ignore
         reg = getattr(ar, "register", None) or getattr(ar, "register_action", None) or getattr(ar, "add", None)
         if callable(reg):
-            # mnogie reestry ozhidayut imya i kollbek
+            # many registries expect a name and a callback
             try:
                 reg("think.rag_answer", rag_answer)  # type: ignore
             except TypeError:

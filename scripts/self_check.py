@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/self_check.py — CLI samoproverki Ester.
+"""scripts/self_check.py - CLI samoproverki Ester.
 
 MOSTY:
-- (Yavnyy) Zapuskaet health-statusy i optsionalno playbook «recover-db».
+- (Yavnyy) Zapuskaet health-statusy i optsionalno playbook “recover-db”.
 - (Skrytyy #1) Vyvodit JSON/tekst; kod vykhoda 0/1 po overall.
-- (Skrytyy #2) Bez setevykh zavisimostey; http-proby — tolko esli zadano ENV.
+- (Skrytyy #2) Bez setevykh zavisimostey; http-proby - tolko esli zadano ENV.
 
 ZEMNOY ABZATs:
-Udobno dlya cron/k8s liveness/readiness, a takzhe dlya ruchnoy diagnostiki: «chto s Ester pryamo seychas?».
+Udobno dlya cron/k8s liveness/readiness, a takzhe dlya ruchnoy diagnostiki: “What s Ester pryamo seychas?”
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse

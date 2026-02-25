@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/board_trace_overlay.py - HTML-UI dlya vizualizatsii overleya plana (bez vneshnikh zavisimostey).
+"""routes/board_trace_overlay.py - HTML-UI dlya vizualizatsii overleya plana (bez vneshnikh zavisimostey).
 
 MOSTY:
-- (Yavnyy) /board/overlay.html - vstavte JSON plana (ili poprobuyte podtyanut /board/data), nazhmite «Podsvetit».
-- (Skrytyy #1) Stranitsa ispolzuet /synergy/trace/overlay, tak chto logika rascheta edina s API.
+- (Yavnyy) /board/overlay.html - vstavte JSON plana (ili poprobuyte podtyanut /board/data), nazhmite "Podsvetit".
+- (Skrytyy #1) Stranitsa ispolzuet /synergy/trace/overlay, so what logika rascheta edina s API.
 - (Skrytyy #2) Myagkaya degradatsiya: esli /board/data net - prosto ruchnoy vvod.
 
 ZEMNOY ABZATs:
-Udobnyy «fonarik»: podsvetit, gde kandidat silnee podkhodit i s kem emu budet legche rabotat.
+Udobnyy “fonarik”: podsvetit, where kandidat silnee podkhodit i s kem emu budet legche rabotat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from fastapi import APIRouter, FastAPI
@@ -20,8 +18,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 router = APIRouter()
 
-_HTML = """
-<!doctype html><html><head><meta charset="utf-8"><title>Overlay</title>
+_HTML = """<!doctype html><html><head><meta charset="utf-8"><title>Overlay</title>
 <style>
 body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:16px;color:#222}
 .card{border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
@@ -80,7 +77,7 @@ async function calc(){
     const x = cand[k], ch = x.color_hint||'0';
     const badge = ch==='++'?'Ochen podkhodit':(ch==='+'?'Podkhodit':(ch==='-'?'Slaboe sootvetstvie':'Neytralno'));
     const labs = (x.labels||[]).map(l=>'<span class="badge">'+l+'</span>').join(' ');
-    const why  = (x.why||[]).join('; ');
+    const why = (x.why||[]).join('; ');
     return `<tr><td>${k}</td><td><span class="tag ${tag(ch)}">${badge}</span></td><td>${x.advice_bias}</td><td>${x.synergy_avg}</td><td>${labs}</td><td>${why}</td></tr>`;
   }).join('');
   document.getElementById('meta').innerHTML = 'team_bonus: <b>'+ (ov.team_bonus??0).toFixed(3) + '</b>';
@@ -91,8 +88,7 @@ async function calc(){
     </table>`;
 }
 </script>
-</body></html>
-"""
+</body></html>"""
 
 @router.get("/board/overlay.html", response_class=HTMLResponse)
 async def board_overlay_html():

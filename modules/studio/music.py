@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/studio/music.py — prostaya generatsiya WAV (sintez tonami po gamme).
+"""modules/studio/music.py - prostaya generatsiya WAV (sintez tonami po gamme).
 
 Mosty:
 - Yavnyy: (Muzyka ↔ Video/Audio) daet fonovuyu dorozhku bez vneshnikh zavisimostey.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Volya ↔ Flot) mozhno generirovat vo flite kak zadachu.
 
 Zemnoy abzats:
-Kak karmannyy sintezator: prostye noty i ritm — dostatochno dlya fona shortov.
+Kak karmannyy sintezator: prostye noty i ritm - dostatochno dlya fona shortov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, wave, struct, math, time
 from typing import Dict, Any, List

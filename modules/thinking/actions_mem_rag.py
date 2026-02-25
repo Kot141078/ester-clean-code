@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_mem_rag.py — eksheny «voli» dlya profilea, linkera i gibridnogo poiska.
+"""modules/thinking/actions_mem_rag.py - eksheny “voli” dlya profilea, linkera i gibridnogo poiska.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Memory/Poisk) korotkie komandy dlya zapisi profilea, razmetki suschnostey i RAG.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Planirovschik ↔ Avtonomiya) legko vklyuchit po taymeru/sobytiyu.
 
 Zemnoy abzats:
-Mozgu ne nuzhno pomnit URL — «zapishi profile», «razmet suschnosti», «naydi relevantnoe» i poekhali.
+Mozgu ne nuzhno pomnit URL - “zapishi profile”, “razmet suschnosti”, “naydi relevantnoe” i poekhali.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

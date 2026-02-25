@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-messaging/adapters/telegram.py — otpravka v Telegram Bot API bez vneshnikh zavisimostey.
+"""messaging/adapters/telegram.py — otpravka v Telegram Bot API bez vneshnikh zavisimostey.
 
 MOSTY:
 - (Yavnyy) send_message(chat_id, text) → dict {ok,http_status,message_id}; uchityvaet imitatsiyu nabora (typing).
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Filtr razreshennykh chatov (TELEGRAM_ALLOWED_CHATS) — zaschitnyy barer.
 
 ZEMNOY ABZATs:
-Ofitsialnyy i «tikhiy» sposob govorit cherez Telegram ot imeni bota s druzhelyubnym imenem bez slova «bot» v display-name.
+Ofitsialnyy i “tikhiy” sposob govorit cherez Telegram ot imeni bota s druzhelyubnym imenem bez slova “bot” v display-name.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json, os, time
@@ -56,10 +54,10 @@ def send_message(chat_id: str, text: str) -> Dict[str, Any]:
         record_attempt(channel, chat_id, text, 0, "skip:not-allowed", None, {})
         return {"sent": 0, "skipped": 1}
 
-    # imitatsiya nabora (neobyazatelno)
+    # imitation dial (optional)
     if TYPING_MS > 0:
         _call("sendChatAction", {"chat_id": chat_id, "action": "typing"})
-        # bez sleep — ne blokiruem tsikl; Telegram pokazhet kratkiy "typing" i tak
+        # without slap - we do not block the loop; Telegram will show a short “topping” and so on
 
     code, data = _call("sendMessage", {"chat_id": chat_id, "text": text, "disable_web_page_preview": True})
     ok = bool(data.get("ok")) and 200 <= code < 300

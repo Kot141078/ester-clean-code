@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_prov_entity_hybrid_quota_rbac.py — eksheny «voli» dlya ostavshikhsya 5 punktov.
+"""modules/thinking/actions_prov_entity_hybrid_quota_rbac.py — eksheny “voli” dlya ostavshikhsya 5 punktov.
 
 Mosty:
 - Yavnyy: (Mysli ↔ Memory/RAG/Ingest/Security) upravlyayuschie knopki i zaprosy.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Planner ↔ Avtonomiya) legko sobirat pravila i raspisaniya.
 
 Zemnoy abzats:
-Eti eksheny — kak bortovoy pult: shtamp pamyati, yarlyki, umnyy poisk, dozirovannaya podacha i okhrana.
+Eti eksheny - kak bortovoy pult: shtamp pamyati, yarlyki, umnyy poisk, dozirovannaya podacha i okhrana.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -40,8 +40,8 @@
         <select id="pMode">
           <option value="lmstudio" selected>lmstudio (po umolchaniyu)</option>
           <option value="local">local (zaglushka)</option>
-          <option value="cloud" disabled>cloud (poka otklyucheno)</option>
-          <option value="judge" disabled>judge (poka otklyucheno)</option>
+          <option value="cloud" disabled>cloud (disabled for now)</option>
+          <option value="judge" disabled>Yudzhe (disabled for now)</option>
         </select>
         <label class="row" style="gap:6px;margin-left:auto;">
           <input type="checkbox" id="pRag"> RAG
@@ -65,9 +65,9 @@
     <div class="card col">
       <b>Podskazki</b>
       <ul class="muted">
-        <li>GET <span class="kbd">/chat/health</span> pokazyvaet aktivnyy provayder.</li>
+        <li>GET <span class="kbd">/chat/health</span> shows the active provider.</li>
         <li>POST <span class="kbd">/chat/message</span> prinimaet <span class="kbd">{ message, mode, rag, temperature, sid? }</span>.</li>
-        <li>Rezhimy <i>cloud</i> i <i>judge</i> poka ne podklyucheny — vklyuchen fallback.</li>
+        <li>Rezhimy <i>cloud</i> i <i>judge</i> not yet connected - falsification is enabled.</li>
       </ul>
 
       <div class="muted" style="margin-top:8px">
@@ -82,7 +82,7 @@
 </div>
 
 <script>
-  // Prostaya obertka — odinakovo rabotaet i pri 4xx/5xx
+  // Simple wrapper - works the same at 4xx/5xx
   async function $fetch(url, opts={}){
     const r = await fetch(url, Object.assign({headers:{'Content-Type':'application/json'}}, opts));
     return r;
@@ -97,7 +97,7 @@
       const provider = (j && j.provider) ? j.provider : 'unknown';
       document.getElementById('pProvider').textContent = 'provider: '+provider;
       const sel = document.getElementById('pMode');
-      // esli bekend uzhe v lmstudio — vystavim selekt avtomaticheski
+      // if the backend is already in ltstudio, we’ll set the selector automatically
       if (['lmstudio','local','cloud','judge'].includes(provider)) { sel.value = provider; }
       document.getElementById('pDataDir').textContent = (j && j.data_dir) ? j.data_dir : '—';
       return j;
@@ -116,7 +116,7 @@
       const j = await r.json().catch(()=>({}));
       if(!r.ok || j.ok===false){ logLine('Oshibka: '+(j.error || r.statusText || r.status), 'm-bot'); return; }
       logLine(j.answer || j.message || JSON.stringify(j), 'm-bot');
-    }catch(e){ logLine('Oshibka seti: '+e.message, 'm-bot'); }
+    }catch(e){ logLine('Network Error:'+e.message, 'm-bot'); }
   }
 
   document.getElementById('pSend').onclick=sendMsg;

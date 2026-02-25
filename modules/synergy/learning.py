@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/learning.py — onlayn-adaptatsiya prigodnostey (EMA/bandit) + runtime-patch fit_roles_ext.
+"""modules/synergy/learning.py - onlayn-adaptatsiya prigodnostey (EMA/bandit) + runtime-patch fit_roles_ext.
 
 MOSTY:
 - (Yavnyy) Khranim vesa per (agent_id, role) v SQLite: uspekh ↑, neudacha ↓ v granitsakh [W_MIN..W_MAX].
@@ -8,11 +7,10 @@ MOSTY:
 - (Skrytyy #2) Patchim modules.synergy.role_model.fit_roles_ext bez smeny kontraktov: umnozhaem bazovye skora na vyuchennye vesa.
 
 ZEMNOY ABZATs:
-Sistema «uchitsya» na realnoy otdache: kogo stavit v operatora, kakuyu platformu predpochest i t.d.
-Esli zadacha zakrylas uspeshno — sootvetstvuyuschie pary agent-rol poluchayut legkiy bonus; esli proval — shtraf.
+Sistema “uchitsya” na realnoy otdache: kogo stavit v operatora, kakuyu platformu predpochest i t.d.
+Esli zadacha zakrylas uspeshno - sootvetstvuyuschie pary agent-rol poluchayut legkiy bonus; if fail - fine.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -50,7 +48,7 @@ CREATE TABLE IF NOT EXISTS learning_weights(
 """
 
 def _db_path() -> str:
-    # tot zhe fayl, chto u AssignmentStore
+    # the same file as AssignmentStore
     p = os.getenv("SYNERGY_DB_PATH")
     if p:
         return p
@@ -77,9 +75,7 @@ class Weight:
     updated_ts: int
 
 class LearningManager:
-    """
-    Prostoy kontur «obucheniya s podkrepleniem» dlya prigodnostey (bandit/EMA).
-    """
+    """A simple reinforcement learning loop for fitness (bandit/ETA)."""
 
     def __init__(self, conn: Optional[sqlite3.Connection] = None):
         self.conn = conn or _connect()
@@ -115,13 +111,11 @@ class LearningManager:
         rows = self.conn.execute("SELECT * FROM learning_weights").fetchall()
         return [Weight(r["agent_id"], r["role"], float(r["weight"]), int(r["n"]), int(r["updated_ts"])) for r in rows]
 
-    # --- obuchenie iz sobytiy ---
+    # --- learning from events ---
 
     @staticmethod
     def _reward(outcome: str) -> float:
-        """
-        Primitivnaya funktsiya nagrady: success -> +1, failure -> -1, partial -> +0.3, cancelled -> -0.2
-        """
+        """Primitive reward function: success -> +1, failure -> -1, partial -> +0.3, cancelled -> -0.2"""
         o = (outcome or "").strip().lower()
         if o == "success":
             return +1.0
@@ -134,19 +128,17 @@ class LearningManager:
         return 0.0
 
     def train_from_events(self, team_id: Optional[str] = None, since_ts: Optional[int] = None) -> int:
-        """
-        Nakhodit pary sobytiy (Planned -> OutcomeReported) i obnovlyaet vesa (EMA).
-        Vozvraschaet kolichestvo obnovlennykh (agent,role).
-        """
+        """Find pairs of events (Planned -> OutSomeReported) and update weights (ETA).
+        Returns the number of updated (agent, role)."""
         s = AssignmentStore.default()
-        # Poluchaem sobytiya (gipoteza: ikh ne bolshe desyatkov tysyach)
+        # We get events (hypothesis: there are no more than tens of thousands of them)
         events = s.list_events(team_id or "") if team_id else s.list_events(team_id="*")  # '*' — vse; sm. nizhe
-        # Esli '*' — podkhvatim vse komandy vruchnuyu
+        # If f*ck, we’ll pick up all the commands manually
         if team_id is None:
             # kostyl: metod list_events trebuet team_id; oboydem — progulyaemsya po izvestnym
             team_ids = set()
-            # dostanem iz sobytiy odnoy komandy (STORE ikh ne vydaet globalno) — ispolzuem obkhod id ot SQLite
-            # Uprostim: budem chitat po izvestnym, naydennym v uzhe poluchennom spiske
+            # let's get it from the events of one command (STORE does not issue them globally) - we use the ID bypass from SGLite
+            # Simplify: we will read according to the known ones found in the already received list
             for e in events:
                 team_ids.add(e.team_id)
             updated = 0
@@ -154,7 +146,7 @@ class LearningManager:
                 updated += self.train_from_events(team_id=t, since_ts=since_ts)
             return updated
 
-        # Filtruem nuzhnuyu komandu
+        # Filter the required command
         evs = [e for e in events if (since_ts is None or e.ts >= since_ts)]
         planned: Dict[str, Dict[str, Any]] = {}  # request_id -> assigned
         updated_pairs = 0
@@ -182,7 +174,7 @@ class LearningManager:
                 # EMA: w := clamp( w + alpha*rew*(1 - (w-1)^2) )
                 for role, agent_id in assigned.items():
                     w0 = self.get_weight(agent_id, role)
-                    # pri plokhom iskhode silnee nakazyvaem platformu/operatora
+                    # if the outcome is bad, we punish the platform/operator more severely
                     alpha = ALPHA * (1.4 if role in ("platform", "operator") and rew < 0 else 1.0)
                     w1 = w0 + alpha * rew * (1.0 - (w0 - 1.0) * (w0 - 1.0))
                     self.set_weight(agent_id, role, w1, inc_n=1)
@@ -193,9 +185,7 @@ class LearningManager:
     # --- primenenie vesov ---
 
     def adjust_scores_for_agent(self, agent: Dict[str, Any], base_scores: Dict[str, float]) -> Dict[str, float]:
-        """
-        Umnozhaet bazovye skora na vyuchennye vesa (per agent-role).
-        """
+        """Multiplies base scores by learned weights (per agent role)."""
         aid = agent.get("id") or ""
         out: Dict[str, float] = {}
         for role, s in base_scores.items():
@@ -215,10 +205,8 @@ _PATCHED = False
 _ORIG = None
 
 def enable_runtime_patch() -> bool:
-    """
-    Patchit modules.synergy.role_model.fit_roles_ext tak, chtoby on uchityval vyuchennye vesa.
-    Idempotenten: povtornyy vyzov nichego ne lomaet.
-    """
+    """Patch modules.synergy.role_model.fit_roles_is so that it takes into account the learned weights.
+    Idempotent: calling it again doesn't break anything."""
     global _PATCHED, _ORIG
     try:
         import modules.synergy.role_model as rm  # noqa: WPS433
@@ -246,7 +234,7 @@ def enable_runtime_patch() -> bool:
     _PATCHED = True
     return True
 
-# Avto-vklyuchenie po ENV (esli modul kto-to importiroval)
+# Automatic activation via ENV (if someone imported the module)
 if os.getenv("SYNERGY_LEARNING_PATCH", "0") == "1":
     try:
         enable_runtime_patch()

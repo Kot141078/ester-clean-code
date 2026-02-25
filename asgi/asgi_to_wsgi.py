@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-asgi/asgi_to_wsgi.py - minimalnyy adapter ASGI -> WSGI.
+"""asgi/asgi_to_wsgi.py - minimalnyy adapter ASGI -> WSGI.
 
 Zemnoy abzats:
 Pozvolyaet montirovat ASGI (FastAPI) pod WSGI (Flask) bez zavisimosti
-na AsgiToWsgi iz asgiref, kotoraya mozhet otsutstvovat v novykh versiyakh.
-"""
+na AsgiToWsgi iz asgiref, kotoraya mozhet otsutstvovat v novykh versiyakh."""
 from __future__ import annotations
 
 from http import HTTPStatus

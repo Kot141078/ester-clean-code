@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.reports.summary — svodnyy otchet (markdown).
+"""modules.reports.summary - svodnyy otchet (markdown).
 Mosty:
 - Yavnyy: build_summary() iz istochnikov → markdown cherez render_markdown().
 - Skrytyy #1: (DX ↔ Publikatsiya) — legkiy generator bez vneshnikh paketov.
 - Skrytyy #2: (Kachestvo ↔ Prozrachnost) — otchet daet konsolidirovannyy vzglyad dlya priemki.
 
 Zemnoy abzats:
-Prostoy tekstovyy otchet — kak «kardiogramma»: bystro ponyat zhiv li patsient i gde anomalii.
-# c=a+b
-"""
+Prostoy tekstovyy otchet - kak “kardiogramma”: bystro ponyat zhiv li patsient i where anomalii.
+# c=a+b"""
 from typing import Dict, Any, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def build_summary(sources: Dict[str, Any]) -> Dict[str, Any]:
-    # Prosteyshie agregatsii
+    # The simplest aggregations
     out = {
         "ok": True,
         "counts": {},

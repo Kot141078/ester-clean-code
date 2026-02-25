@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ingest/video_reports.py — chtenie poslednikh otchetov video-konveyera i agregirovanie prostykh metrik.
+"""modules/ingest/video_reports.py - chtenie poslednikh otchetov video-konveyera i agregirovanie prostykh metrik.
 
-Chto delaet:
+What does it do:
   • Skaniruet data/video_ingest/rep_*.json (sozdayutsya yadrom ingest_video).
   • Vozvraschaet poslednikh N zapisey dlya UI/portala.
   • Schitaet metriki (uspeshnye obrabotki po backend, summarnye simvoly transkriptov/konspektov, vremya poslednego).
 
 Mosty:
-- Yavnyy: (Memory ↔ Interfeysy) daet portalu i metrikam oporu na fakticheskie artefakty pamyati (dampy ingest).
+- Yavnyy: (Memory ↔ Interfeysy) daet portal i metrikam oporu na fakticheskie artefakty pamyati (dampy ingest).
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) ustoychivyy parser JSON-dampov s tolerantnostyu k nepolnym polyam.
-- Skrytyy #2: (Kibernetika ↔ Nablyudaemost) svodnye metriki — regulyator nagruzki i obratnaya svyaz dlya planirovschika.
+- Skrytyy #2: (Kibernetika ↔ Nablyudaemost) svodnye metriki - regulyator nagruzki i obratnaya svyaz dlya planirovschika.
 
 Zemnoy abzats:
-Eto «uchetchik na sklade»: perechityvaet nakladnye (rep_*.json), stroit vitrinu «chto prishlo» i svodku «skolko i kak».
+Eto “uchetchik na sklade”: perechityvaet nakladnye (rep_*.json), stroit vitrinu “what prishlo” i svodku “skolko i kak”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import glob
@@ -52,9 +50,7 @@ def _read_json(path: str) -> Optional[Dict[str, Any]]:
         return None
 
 def list_recent(limit: int = 20) -> List[Dict[str, Any]]:
-    """
-    Vozvraschaet spisok poslednikh zapisey (svernutaya kartochka dlya vidzheta/portala).
-    """
+    """Returns a list of recent posts (collapsed card for widget/portal)."""
     files = sorted(glob.glob(os.path.join(DATA_DIR, "rep_*.json")), key=lambda p: os.path.getmtime(p), reverse=True)
     out: List[Dict[str, Any]] = []
     for p in files[: max(1, limit)]:
@@ -83,10 +79,8 @@ def list_recent(limit: int = 20) -> List[Dict[str, Any]]:
     return out
 
 def compute_metrics() -> Dict[str, Any]:
-    """
-    Stroit prostye metriki po dampam: uspeshnye obrabotki i razmery tekstov.
-    Primechanie: oshibki, ne doshedshie do zapisi rep_*.json, zdes ne vidny.
-    """
+    """Build simple metrics based on dumps: successful processing and text sizes.
+    Note: errors that did not reach the record rap_*.zhsion are not visible here."""
     files = glob.glob(os.path.join(DATA_DIR, "rep_*.json"))
     by_backend: Dict[str, int] = {}
     total_sum_chars = 0

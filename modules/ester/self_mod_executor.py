@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ester/self_mod_executor.py
+"""modules/ester/self_mod_executor.py
 
 Ispolnitel bezopasnykh predlozheniy samoizmeneniya Ester.
 
-Naznachenie:
+Name:
 - Prinimat strukturirovannye predlozheniya (iz self_mod_schema).
-- V rezhime A (ESTER_SELF_MOD_AB=A) rabotat kak dry-run: tolko pokazyvat, chto moglo by byt.
+- V rezhime A (ESTER_SELF_MOD_AB=A) rabotat kak dry-run: tolko pokazyvat, what moglo by byt.
 - V rezhime B (ESTER_SELF_MOD_AB=B) primenyat dopustimye izmeneniya:
   - sozdavat novye fayly v razreshennykh zonakh;
   - bez pravki kriticheskikh faylov;
@@ -16,17 +15,16 @@ Soglasie:
 - Varianty:
   - source == "operator" — schitat odobrennym Owner.
   - source == "ester" i ESTER_SELF_MOD_ALLOW_ESTER=1 — schitat vyrazhennoy voley Ester.
-  - inache — ne primenyat, tolko otchet.
+  - inache - ne primenyat, tolko otchet.
 
 Mosty:
-- Yavnyy: self_mod_executor ↔ volya/Ester (source / allow).
+- Yavnyy: self_mod_executor ↔ volya/Ester (source/allow).
 - Skrytyy #1: self_mod_executor ↔ faylovaya sistema (no tolko v yavnom rezhime B).
 - Skrytyy #2: self_mod_executor ↔ chelovek-operator (ponyatnyy otchet o izmeneniyakh).
 
 Zemnoy abzats:
 Eto kak masterskaya, kuda dopuskayut tolko s naryadom:
-mozhno prikrutit novuyu panel, no nesuschie steny ne trogaem.
-"""
+mozhno prikrutit novuyu panel, no nesuschie steny ne trogaem."""
 
 from __future__ import annotations
 
@@ -55,20 +53,12 @@ def _has_consent(source: str) -> bool:
 
 
 def apply(root_dir: str, data: Dict[str, Any]) -> Dict[str, Any]:
-    """Osnovnaya tochka vkhoda.
+    """Main entry point.
 
-    root_dir — koren proekta (obychno tot, gde app.py).
+    root_dir - the root of the project (usually the one where app.po is).
 
-    Vozvraschaet JSON-otchet:
-    {
-      "ok": bool,
-      "mode": "A"|"B",
-      "applied": bool,
-      "changes": [...],
-      "errors": [...],
-      "note": str
-    }
-    """
+    Returns the JSION report:
+    ZZF0Z"""
     mode = _mode()
     proposal, errors = schema.parse_proposal(data)
 
@@ -98,7 +88,7 @@ def apply(root_dir: str, data: Dict[str, Any]) -> Dict[str, Any]:
             "note": "proposal_invalid",
         }
 
-    # Rezhim A — tolko dry-run.
+    # Mode A - only dry runes.
     if mode != "B":
         note = "dry_run_only"
         if not consent:
@@ -112,7 +102,7 @@ def apply(root_dir: str, data: Dict[str, Any]) -> Dict[str, Any]:
             "note": note,
         }
 
-    # Rezhim B — mozhem primenyat, no tolko pri soglasii.
+    # Mode B - we can use it, but only with consent.
     if not consent:
         return {
             "ok": False,

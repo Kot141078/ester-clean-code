@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-Proactive Pipeline for Ester: suggest/summarize/reflect/classify.
+"""Proactive Pipeline for Ester: suggest/summarize/reflect/classify.
 Sovmestimost:
 - Podderzhivaet oba vyzova:
     proactive_thought_pipeline(query, user, persona)
     proactive_thought_pipeline(query, user, relation, rules_path)
-- Esli rules_path ukazan i suschestvuet — gruzim YAML-pravila.
-"""
+- Esli rules_path ukazan i suschestvuet - gruzim YAML-pravila."""
 from __future__ import annotations
 
 import os
@@ -16,16 +14,16 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 try:
     import yaml  # type: ignore
 except Exception:
-    yaml = None  # yaml ne obyazatelen
+    yaml = None  # Yaml is not required
 
 DEFAULT_RULES = {
     "suggest": [
-        "sokhranit vazhnoe v kartochki",
+        "save important things to cards",
         "sdelat napominanie",
         "proverit novye fayly",
     ],
     "summarize": ["dat kratkoe rezyume dialoga"],
-    "reflect": ["svyazat s proshlymi faktami i delami"],
+    "reflect": ["relate to past facts and affairs"],
     "classify": ["opredelit ton i prioritet"],
 }
 

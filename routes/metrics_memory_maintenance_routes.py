@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-routes/metrics_memory_maintenance_routes.py — Prometheus metriki obsluzhivaniya pamyati.
+"""routes/metrics_memory_maintenance_routes.py - Prometheus metrics obsluzhivaniya pamyati.
 
 Endpoint:
   • GET /metrics/memory_maintenance
 
 Mosty:
 - Yavnyy: (Nablyudaemost v†" Memory) vidim posledniy zapusk Re statusy shagov.
-- Skrytyy #1: (Kibernetika v†" Planirovanie) mozhno alertit na «davno ne bylo snapshota».
+- Skrytyy #1: (Kibernetika v†" Planirovanie) mozhno alertit na "davno ne bylo snapshota".
 - Skrytyy #2: (Inzheneriya v†" Nadezhnost) otdelnyy put ne konfliktuet s drugimi metrikami.
 
 Zemnoy abzats:
 Nebolshoy tablo: kogda v posledniy raz ubrali i chto poluchilos.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

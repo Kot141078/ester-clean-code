@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tests/stress/test_p2p_backup_stress.py — rasshirenie testov P2P/backup do «stress».
+"""tests/stress/test_p2p_backup_stress.py - expand testov P2P/backup do “stress”.
 
 Zapusk vruchnuyu:
   ESTER_STRESS_RUN=1 pytest -q tests/stress/test_p2p_backup_stress.py
@@ -9,8 +8,7 @@ Po umolchaniyu v CI test propuskaetsya (tyazhelyy). Vklyuchaetsya yavnym flagom.
 Test:
   - ischet kritichnye endpointy cherez /routes
   - esli est /p2p/replicate i /backup/run — bombit ikh maloy nagruzkoy (bezopasnoy)
-  - sobiraet metriki i proveryaet, chto avtorizatsiya ne padaet (ne 401/403 dominiruyut)
-"""
+  - sobiraet metriki i proveryaet, chto avtorizatsiya ne padaet (ne 401/403 dominiruyut)"""
 from __future__ import annotations
 
 import json
@@ -48,13 +46,13 @@ def test_p2p_backup_stress_smoke():
     assert flask_app is not None, "Flask app import failed"
     client = flask_app.test_client()
 
-    # Proverim spisok marshrutov
+    # Check route list
     r = client.get("/routes")
     assert r.status_code == 200, "/routes should be available"
     routes = r.get_json()["routes"]
     rules = {i["rule"]: i["methods"] for i in routes}
 
-    # Opredelyaem tseli
+    # Defines goals
     rep = None
     for k in rules.keys():
         if k.startswith("/p2p/replicate"):
@@ -75,7 +73,7 @@ def test_p2p_backup_stress_smoke():
     token = mint_admin_jwt(jwt_secret)
     headers = {"Authorization": f"Bearer {token}"}
 
-    # Nebolshaya «nagruzka» (10*2 zaprosov) — bystraya proverka
+    # Small “load” (10*2 requests) - quick check
     ok2xx = 0
     auth_fail = 0
     other = 0
@@ -92,7 +90,7 @@ def test_p2p_backup_stress_smoke():
             else:
                 other += 1
 
-    # Vazhno: avtorizatsiya ne dolzhna padat
+    # Important: authorization should not fail
     assert auth_fail == 0, f"Auth failures seen: {auth_fail}"
-    # Khot chto-to dolzhno byt uspeshnym (2xx) ili «biznes-oshibki», no ne avtorizatsiya
+    # At least something must be successful (2xx) or “business errors”, but not authorization
 # assert (ok2xx + other) > 0

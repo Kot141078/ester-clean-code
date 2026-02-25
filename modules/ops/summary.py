@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/ops/summary.py — edinaya mashinnaya svodka sostoyaniya sistemy (JSON).
+"""modules/ops/summary.py - edinaya mashinnaya svodka sostoyaniya sistemy (JSON).
 
 Mosty:
-- Yavnyy: (Operatsii ↔ Mozg/Panel) daet bystryy snimok: LLM, volya, kvoty, media, KG, finansy i pr.
+- Yavnyy: (Operatsii ↔ Mozg/Panel) daet bystryy snimok: LLM, volya, kvoty, media, KG, finance i pr.
 - Skrytyy #1: (Nadezhnost ↔ Fayly) chitaet statusy napryamuyu iz data/*, dazhe bez HTTP-ruchek.
 - Skrytyy #2: (Samosoznanie ↔ Memory) mozhet byt sokhranen v pamyat cherez /self/manifest.
 
 Zemnoy abzats:
 Kak pribornaya panel avtomobilya: odnim vzglyadom vidno toplivo, temperaturu i lampochki.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, glob, shutil, time
 from typing import Any, Dict

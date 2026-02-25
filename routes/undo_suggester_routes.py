@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-routes/undo_suggester_routes.py - REST/UI dlya avto-undo.
+"""routes/undo_suggester_routes.py - REST/UI dlya avto-undo.
 
 Ruchki:
   POST /undo/suggest {"steps":[...]} -> {suggested:[...]}
-  POST /undo/patch   {"steps":[...]} -> {patched:[...],steps:[...] }
-  GET  /admin/undo_suggest
+  POST /undo/patch {"steps":[...]} -> {patched:[...],steps:[...] }
+  GET /admin/undo_suggest
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.coop.undo_suggester import suggest, patch

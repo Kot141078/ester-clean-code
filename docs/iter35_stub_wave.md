@@ -29,13 +29,13 @@
 
 ## Bridges
 
-- Explicit bridge (Ashby): uvelichivaem raznoobrazie moduley tolko pri nalichii regulyatora `stubs_gate` + smoke + zhurnalizatsii.
-- Hidden bridge #1 (Cover&Thomas): idem volnami po `ref_count`, chtoby snizhenie entropii pravok bylo vyshe shuma.
-- Hidden bridge #2 (Guyton/Hall): remontiruem funktsionalnyy sloy i lokalno chinim mojibake v zone operatsii, bez massovogo krovotecheniya diffov.
+- Explicit bridge (Ashby): increases the variety of modules only if there is a regulator estubs_gateyo + stock + logging.
+- Hidden bridge #1 (Carpet&Thomas): goes in waves along eref_koonto, so that the reduction in the entropy of edits is above the noise.
+- Hidden bridge #2 (Guyton/Hull): we repair the functional layer and locally repair the mojiwake in the operation area, without massive bleeding of the diffs.
 
 ## Earth Paragraph
 
-Eto kak kapitalnyy remont provodki: zaglushki pokhozhi na skrutki izolentoy v stene.  
-Poka ikh ne zamenit na normalnye avtomaty i klemmy, lyuboy novyy instrument riskovan.  
-Mojibake v kommentariyakh i strokakh pokhozh na stertuyu markirovku provodov: potom neyasno, chto kuda idet.  
+It's like a major wiring overhaul: the plugs are like twisting electrical tape in the wall.
+Until they are replaced with normal machines and terminals, any new tool is risky.
+Mozhiwake in comments and lines is like erased wire markings: then it is unclear what goes where.
 Poetomu posle Iter35 tsikl fiksirovan: `stubs_kill_list -> wave selection -> fix wave -> re-run list -> stubs_gate`.

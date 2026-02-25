@@ -3,13 +3,12 @@
 
 Forsirovannoe sozdanie/obnovlenie routes/memory_experience_routes_alias.py.
 
-Ispolzovanie:
+Use:
   python tools/force_memory_experience_routes_alias.py
 
-Invarianty:
+Invariance:
 - Drop-in: menyaem tolko alias-fayl i routes/__init__.py.
-- Ne trogaem modules.memory.*, cascade, portal i t.p.
-"""
+- Ne trogaem modules.memory.*, cascade, portal i t.p."""
 
 from __future__ import annotations
 
@@ -23,9 +22,9 @@ ALIAS_CODE = '''# -*- coding: utf-8 -*-
 
 HTTP-alias dlya chteniya profilya opyta Ester.
 
-Invarianty:
+Invariance:
 - Drop-in: ne trogaem suschestvuyuschuyu arkhitekturu.
-- Ispolzuem suschestvuyuschiy sloy `modules.memory.experience`.
+- Ispolzuem suschestvuyuschiy layer `modules.memory.experience`.
 - Tolko chtenie, bez pobochnykh effektov.
 """
 
@@ -35,10 +34,10 @@ from flask import Blueprint, jsonify
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 try:
-    from modules.memory import experience  # type: ignore
-except Exception as e:  # pragma: no cover
+    from modules.memory import experience # type: ignore
+except Exception as e: # pragma: no cover
     _experience_import_error = e
-    experience = None  # type: ignore
+    experience = None # type: ignore
 else:
     _experience_import_error = None
 
@@ -49,13 +48,13 @@ bp = Blueprint("memory_experience_routes_alias", __name__)
 def memory_experience_profile():
     """Vernut tekuschiy profil opyta.
 
-    Format otveta:
+    Format answer:
     {
       "ok": bool,
       "profile": {...}
     }
     """
-    if experience is None:  # pragma: no cover
+    if experience is None: # pragma: no cover
         return (
             jsonify({"ok": False, "error": f"import_error: {_experience_import_error!s}"}),
             500,
@@ -63,7 +62,7 @@ def memory_experience_profile():
 
     try:
         profile = experience.build_experience_profile()
-    except Exception as e:  # pragma: no cover
+    except Exception as e: # pragma: no cover
         return (
             jsonify({"ok": False, "error": f"profile_error: {e!s}"}),
             500,
@@ -71,8 +70,7 @@ def memory_experience_profile():
 
     ok = bool(getattr(profile, "get", lambda *_: False)("ok", True)) if isinstance(profile, dict) else True
 
-    return jsonify({"ok": ok, "profile": profile})
-'''
+    return jsonify({"ok": ok, "profile": profile})'''
 
 
 def main() -> None:

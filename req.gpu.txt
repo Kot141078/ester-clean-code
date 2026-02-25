@@ -1,10 +1,10 @@
 # req.gpu.txt
 # Mosty:
-#  • (GPU-stek ↔ Dev/CI) — edinaya tochka dlya tyazhelykh zavisimostey.
+#  • (GPU stack ↔ Dev/CI) - a single point for heavy dependencies.
 # Skrytye mosty:
 #  • (Torch/CUDA ↔ Faiss/ST) — soglasovannye versii dlya vektorki i embeddingov.
 #  • (Web-API ↔ Servis) — Flask-* i gunicorn svedeny v odnu matritsu.
-# Zemnoy abzats: «zhirnaya» sborka pod CUDA. Stav tolko esli deystvitelno nuzhen GPU-stek.
+# Earthly paragraph: “fat” assembly under WHERE. Install only if you really need a GPU stack.
 # c=a+b
 
 black>=24.0

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/synergy_routes_plus.py - dopolnitelnye API sinergii (assign v2, overrides, roli, politiki, outcome).
+"""routes/synergy_routes_plus.py - additional API sinergii (assign v2, overrides, role, politiki, outcome).
 
 MOSTY:
 - (Yavnyy) /synergy/assign/v2 s ruchnymi overraydami; /synergy/outcome dlya obratnoy svyazi.
 - (Skrytyy #1) /synergy/roles i /synergy/policies - prozrachnost modeli dlya operatora.
-- (Skrytyy #2) /synergy/board/data - JSON dlya «shakhmatki», /synergy/assign/override - bystryy seyv fiksatsiy.
+- (Skrytyy #2) /synergy/board/data - JSON dlya “shakhmatki”, /synergy/assign/override - bystryy seyv fiksatsiy.
 
 ZEMNOY ABZATs:
 Daet polnyy kontur upravleniya komandoy: posmotret, zakrepit, naznachit, podtverdit uspekh/proval - i vernutsya k rabote.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any
 from flask import Blueprint, request, jsonify
@@ -44,7 +42,7 @@ def assign_override():
 
 @bp.route("/roles", methods=["GET"])
 def roles():
-    # Sobiraem unifitsirovannyy spisok roley iz otsenok pervogo agenta (ili defoltnyy)
+    # We collect a unified list of roles from the ratings of the first agent (or default)
     agents = STORE.list_agents()
     if agents:
         roles = sorted(list(fit_roles_ext(agents[0]).keys()))

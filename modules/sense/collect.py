@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-modules/sense/collect.py — edinyy sloy «Sense» dlya agenta.
+"""modules/sense/collect.py - edinyy layer "Sense" dlya agenta.
 
 Funktsii:
-- journal_tail(n)        -> poslednie n sobytiy iz zhurnala vnimaniya
-- screen_snap(w,h)       -> PNG (base64) snimok ekrana s vozmozhnym daunskeylom
-- windows_list()         -> spisok okon (title, bbox, active)
-- proc_list(like=None)   -> spisok protsessov OS (name,pid,cpu%,mem%)
+- journal_tail(n) -> poslednie n sobytiy iz zhurnala vnimaniya
+- screen_snap(w,h) -> PNG (base64) snimok ekrana s vozmozhnym daunskeylom
+- windows_list() -> spisok okon (title, bbox, active)
+- proc_list(like=None) -> spisok protsessov OS (name,pid,cpu%,mem%)
 
 Vzaimodeystviya (k istochnikam vnutri Ester):
 - /attention/journal/list?n=...
@@ -15,15 +14,14 @@ Vzaimodeystviya (k istochnikam vnutri Ester):
 - /desktop/metrics/info — razmer ekrana (w,h)
 
 MOSTY:
-- Yavnyy: (Sensorika ↔ Planirovanie) vse vkhody plana dostupny cherez edinyy modul.
+- Yavnyy: (Sensorika ↔ Planning) vse vkhody plana dostupny cherez edinyy modul.
 - Skrytyy #1: (Inzheneriya ↔ Sovmestimost) myagkie fallback'i: esli spetsifichnyy istochnik nedostupen — vozvraschaem minimalnuyu strukturu.
 - Skrytyy #2: (Infoteoriya ↔ Prozrachnost) formaty prostye: JSON+PNG-b64.
 
 ZEMNOY ABZATs:
-Vnutrennie vyzovy — lokalnyy HTTP na 127.0.0.1:8000; izobrazhenie generiruem RGBA→PNG bez vneshnikh zavisimostey; protsessy — cherez psutil, no esli ego net, otdaem pustoy spisok (oflayn-sovmestimost).
+Vnutrennie vyzovy - lokalnyy HTTP na 127.0.0.1:8000; izobrazhenie generiruem RGBA→PNG bez vneshnikh zavisimostey; protsessy - cherez psutil, no esli ego net, otdaem empty spisok (oflayn-sovmestimost).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import json, base64, zlib, struct, time
@@ -65,7 +63,7 @@ def journal_tail(n: int = 100) -> Dict[str, Any]:
 
 # -------- Screen (PNG base64) --------
 def _compose_png(w: int, h: int) -> bytes:
-    # zaglushka prozrachnogo PNG nuzhnogo razmera
+    # transparent PNG plug of the required size
     rows=[]
     for y in range(h):
         row=bytearray([0])  # filtr 0
@@ -76,14 +74,14 @@ def _compose_png(w: int, h: int) -> bytes:
     return sig+chunk(b"IHDR",ihdr)+chunk(b"IDAT",zlib.compress(b"".join(rows),9))+chunk(b"IEND",b"")
 
 def screen_snap(w: int = 0, h: int = 0) -> Dict[str, Any]:
-    # snachala pytaemsya cherez suschestvuyuschiy rout
+    # first we try through the existing root
     snap=_get("/desktop/screen/snap")
     if isinstance(snap, dict) and snap.get("ok") and snap.get("png_b64"):
         png_b64=snap["png_b64"]
-        # optsionalnyy daunskeyl (na storone klienta luchshe, no ostavim parametr)
-        # zdes ne peresempliruem, prosto vozvraschaem original
+        # optional downscale (on the client side it’s better, but we’ll leave the parameter)
+        # We don't resample here, it just returns the original
         return {"ok": True, "png_b64": png_b64, "w": snap.get("w"), "h": snap.get("h"), "source": "desktop_api"}
-    # fallback: otdaem pustoy prozrachnyy PNG razmera ekrana
+    # False: give an empty transparent PNG of the screen size
     met=_get("/desktop/metrics/info")
     W=int(met.get("width", 1280)); H=int(met.get("height", 720))
     if w and h:
@@ -93,11 +91,11 @@ def screen_snap(w: int = 0, h: int = 0) -> Dict[str, Any]:
 
 # -------- Windows --------
 def windows_list() -> Dict[str, Any]:
-    # esli est sistemnyy rout — ispolzuem
+    # if there is a system route, use it
     li=_get("/desktop/windows/list")
     if isinstance(li, dict) and li.get("ok") and isinstance(li.get("windows"), list):
         return {"ok": True, "windows": li["windows"], "source": "desktop_api"}
-    # myagkaya zaglushka
+    # soft plug
     return {"ok": True, "windows": [], "source": "fallback_empty"}
 
 # -------- Processes --------

@@ -3,11 +3,11 @@ import os
 import logging
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Nastroyka logirovaniya v konsol
+# Setting up logging to the console
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 log = logging.getLogger("DIAG")
 
-print("=== 1. PROVERKA PUTEY MODULEY ===")
+print("=== 1. CHECKING MODULE PATHS ===")
 try:
     from modules import chat_api
     print(f" [OK] chat_api zagruzhen iz: {chat_api.__file__}")
@@ -30,7 +30,7 @@ try:
     if hasattr(net_bridge, "search"):
         print("      -> Metod .search() nayden.")
     else:
-        print("      -> [ALARM] Metod .search() OTSUTSTVUET!")
+        print("-> uALARM The .search() method is MISSING!")
 except ImportError:
     print(" [INFO] modules.net_bridge ne nayden")
 
@@ -47,7 +47,7 @@ if os.getenv("DIAG_NET_TEST", "0") == "1":
             res = google_cse_adapter.search("test", limit=1)
             print(f" Rezultat Google: {res}")
         except Exception as e:
-            print(f" Oshibka Google: {e}")
+            print(f"Google Error: ZZF0Z")
     try:
         from modules.web_search import search_web
         res = search_web("test", topk=1)
@@ -55,19 +55,19 @@ if os.getenv("DIAG_NET_TEST", "0") == "1":
     except Exception as e:
         print(f" Oshibka web_search: {e}")
 else:
-    print(" [SKIP] DIAG_NET_TEST=0 (setevoy test otklyuchen)")
+    print("uSKIP DIAG_NO_TEST=0 (network test disabled)")
 
 print("\n=== 3. TEST PROVAYDERA (LLM) ===")
 if os.getenv("DIAG_LLM_TEST", "0") == "1":
     try:
         from modules.providers import registry
-        print(" Otpravlyaem testovyy zapros v LLM (mode=judge)...")
+        print("We send a test request to LLM (mode=yuje)...")
         msg = [{"role": "user", "content": "Ping"}]
         res = registry.answer(messages=msg, mode="judge")
-        print(f" Otvet provaydera: {res}")
+        print(f"Provider response: ZZF0Z")
     except Exception as e:
-        print(f" Oshibka provaydera: {e}")
+        print(f"Provider error: ZZF0Z")
 else:
-    print(" [SKIP] DIAG_LLM_TEST=0 (LLM test otklyuchen)")
+    print("uSKIP DIAG_LLM_TEST=0 (LLM test disabled)")
 
 print("\n=== KONETs DIAGNOSTIKI ===")

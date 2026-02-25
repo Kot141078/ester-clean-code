@@ -86,7 +86,7 @@ async function bench(endpoint, model){
   await refresh();
 }
 async function bind(endpoint, model){
-  const alias = prompt('Alias dlya resursa', model);
+  const alias = prompt('Alias ​​for a resource', model);
   if(!alias) return;
   const r = await fetch('/admin/lmstudio/bind',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint, model, alias})});
   await refresh();

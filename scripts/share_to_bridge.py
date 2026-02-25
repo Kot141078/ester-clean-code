@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/share_to_bridge.py — CLI dlya otpravki teksta/HTML v Share Bridge (/share/capture).
+"""scripts/share_to_bridge.py - CLI dlya otpravki teksta/HTML v Share Bridge (/share/capture).
 Sovmestimo s kanonom, ne trebuet vneshnikh bibliotek.
 Primery:
-  echo "Privet Ester" | python scripts/share_to_bridge.py --title "Zametka"
+  echo "Hello Ester" | python scripts/share_to_bridge.py --title "Zametka"
   python scripts/share_to_bridge.py --file page.html --url https://example.com --tags notes,web
-  python scripts/share_to_bridge.py --batch items.json  # [{"title":"t","text":"...","tags":["x"]}, ...]
+  python scripts/share_to_bridge.py --batch items.json # [{"title":"t","text":"...","tags":["x"]}, ...]
 ENV:
-  BRIDGE_BASE (po umolchaniyu http://127.0.0.1:18081)
-"""
+  BRIDGE_BASE (by default http://127.0.0.1:18081)"""
 from __future__ import annotations
 
 import json
@@ -44,7 +42,7 @@ def main(argv: List[str]) -> int:
     ap = argparse.ArgumentParser(description="Ester Share Bridge CLI")
     ap.add_argument("--title", help="Zagolovok", default="untitled")
     ap.add_argument("--url", help="Istochnik URL", default="")
-    ap.add_argument("--tags", help="Spisok tegov cherez zapyatuyu", default="")
+    ap.add_argument("--tags", help="List of tags separated by commas", default="")
     ap.add_argument("--note", help="Zametka", default=None)
     ap.add_argument("--file", help="Put k faylu (html/txt)", default=None)
     ap.add_argument(
@@ -57,7 +55,7 @@ def main(argv: List[str]) -> int:
         items = json.loads(open(args.batch, "r", encoding="utf-8").read())
         if not isinstance(items, list):
             print(
-                "batch JSON dolzhen soderzhat massiv obektov",
+                "The JSION batch must contain an array of objects",
                 file=sys.stderr,
             )
             return 2
@@ -73,13 +71,13 @@ def main(argv: List[str]) -> int:
         print(json.dumps(resp, ensure_ascii=False, indent=2))
         return 0
 
-    # Odinochnaya otpravka: chitaem stdin ili fayl
+    # Single sending: reading stdin or file
     html = ""
     text = ""
     if args.file:
         data = open(args.file, "rb").read()
         try:
-            # grubaya proverka: esli est <html, schitaem kak html
+            # rough check: if there is <html, we count as html
             s = data.decode("utf-8", "ignore")
             if "<html" in s.lower() or "<!doctype" in s.lower():
                 html = s
@@ -90,7 +88,7 @@ def main(argv: List[str]) -> int:
     else:
         std = _read_stdin()
         if std.strip():
-            # esli v stdin prisutstvuyut html-tegi — otpravim kak html
+            # if the stdin contains HTML tags, we will send it as HTML
             low = std.lower()
             if "<html" in low or "<!doctype" in low or "<body" in low:
                 html = std

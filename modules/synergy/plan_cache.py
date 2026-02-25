@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/plan_cache.py — TTL-kesh prigodnostey i idempotentnykh planov.
+"""modules/synergy/plan_cache.py - TTL-kesh prigodnostey i idempotentnykh planov.
 
 MOSTY:
-- (Yavnyy) Keshiruet scores agentov na 1–5 minut (ENV SYNERGY_SCORES_TTL_SEC) i plany po request_id (ENV SYNERGY_IDEMP_TTL_SEC).
+- (Yavnyy) Keshiruet scores agents na 1–5 minut (ENV SYNERGY_SCORES_TTL_SEC) i plany po request_id (ENV SYNERGY_IDEMP_TTL_SEC).
 - (Skrytyy #1) Invalidatsiya po updated_at agenta: esli agent menyalsya — prigodnosti pereschitayutsya.
 - (Skrytyy #2) Potokobezopasnyy RLock, bez vneshnikh zavisimostey.
 
 ZEMNOY ABZATs:
-Snizhaet nagruzku i «drebezg»: ne schitaem odno i to zhe po sto raz, a povtornye zaprosy s odnim request_id vozvraschayut tot zhe plan.
+Snizhaet nagruzku i “drebezg”: ne schitaem odno i to zhe po sto raz, a povtornye zaprosy s odnim request_id vozvraschayut tot zhe plan.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, threading
 from typing import Any, Dict, Optional, Tuple, Callable

@@ -3,26 +3,24 @@
 from __future__ import annotations
 
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/will_scheduler_adapter.py — planirovschik voli dlya kaskadnogo myshleniya.
+"""modules/thinking/will_scheduler_adapter.py - planirovschik voli dlya kaskadnogo myshleniya.
 
 Mosty:
-- Yavnyy: (volition_registry/priority ↔ cascade_closed) — vybiraet, kakoy impuls dumat sleduyuschim.
+- Yavnyy: (volition_registry/priority ↔ cascade_closed) - vybiraet, kakoy impuls dumat sleduyuschim.
 - Skrytyy #1: (priority_adapter ↔ guard_adapter) — sochetaet vazhnost i zaschitu ot zatsiklivaniya.
 - Skrytyy #2: (Volya ↔ always_thinker) — predostavlyaet gotovuyu funktsiyu, prigodnuyu dlya fonovogo vorkera.
 
 A/B-slot:
     ESTER_WILL_SCHED_AB = "A" | "B"
-    A — minimalnoe vmeshatelstvo: odin impuls → odin kaskad.
-    B — rasshirennyy rezhim: prioritizatsiya, guard, mnogokontekstnyy kaskad.
+    A - minimalnoe vmeshatelstvo: odin impuls → odin kaskad.
+    B - rashirennyy rezhim: prioritizatsiya, guard, mnogokontekstnyy kaskad.
 
 Zemnoy abzats:
 Inzhener:
     from modules.thinking import will_scheduler_adapter as ws
     print(ws.process_next())
-Tak mozhno zapuskat «volevoe myshlenie» vruchnuyu ili iz demona.
-# c=a+b
-"""
+Tak mozhno zapuskat “volevoe myshlenie” vruchnuyu ili iz demona.
+# c=a+b"""
 import os
 from typing import Any, Dict, Optional
 
@@ -51,15 +49,13 @@ _SCHED_MODE = (os.environ.get("ESTER_WILL_SCHED_AB", "A") or "A").strip().upper(
 
 
 def _pull_impulse() -> Dict[str, Any]:
-    """
-    Poluchit sleduyuschiy impuls s uchetom rezhima.
+    """Poluchit sleduyuschiy impuls s uchetom rezhima.
 
     A:
         volition_registry.get_next_impulse()
     B:
-        vpa.get_next_weighted() esli dostupen,
-        inache volition_registry.get_next_impulse()
-    """
+        vpa.get_next_weighted() esli available,
+        inache volition_registry.get_next_impulse()"""
     if not volition_registry or not hasattr(volition_registry, "get_next_impulse"):
         return {"ok": False, "note": "volition_registry not available"}
 
@@ -72,9 +68,7 @@ def _pull_impulse() -> Dict[str, Any]:
 
 
 def _run_for_goal(goal: str) -> Dict[str, Any]:
-    """
-    Zapusk kaskada dlya tseli s uchetom guard i mnogokontekstnogo rezhima.
-    """
+    """Running a cascade for a target taking into account guard and multi-context mode."""
     def base_runner(g: str, p: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         if _SCHED_MODE == "B" and cmc and hasattr(cmc, "run"):
             mc = cmc.run(g, p or {})
@@ -92,17 +86,10 @@ def _run_for_goal(goal: str) -> Dict[str, Any]:
 
 
 def process_next() -> Dict[str, Any]:
-    """
-    Obrabotat sleduyuschiy volevoy impuls.
+    """Process the next volitional impulse.
 
-    Vozvrat:
-      {
-        "ok": bool,
-        "processed": bool,
-        "skipped": bool,
-        ...
-      }
-    """
+    Return:
+      ZZF0Z"""
     pulled = _pull_impulse()
     if not pulled.get("ok"):
         return {"ok": False, "processed": False, "error": pulled.get("note", "no-impulse-backend")}
@@ -111,7 +98,7 @@ def process_next() -> Dict[str, Any]:
     if not imp:
         return {"ok": True, "processed": False, "skipped": True, "reason": "no_impulse"}
 
-    goal = imp.get("goal") or "(neizvestnaya tsel)"
+    goal = imp.get("goal") or "(unknown target)"
     res = _run_for_goal(goal)
 
     if not res.get("ok") and res.get("skipped"):

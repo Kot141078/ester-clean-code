@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-messaging.adapters.whatsapp_hsm — shablonnye soobscheniya (minimum).
-# c=a+b
-"""
+"""messaging.adapter.whatsapp_hsm - template messages (minimum).
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

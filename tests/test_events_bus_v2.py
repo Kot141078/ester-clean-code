@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Testy dlya modules/events_bus.py:
- - append i feed po since/kind/limit
-"""
+"""Testy dlya modules/events_bus.py:
+ - append i feed po since/kind/limit"""
 
 import json
 import os
@@ -21,7 +19,7 @@ def clean_env(tmp_path, monkeypatch):
 def test_append_and_feed(clean_env):
     from modules.events_bus import append, feed, last_ts
 
-    # Pustaya lenta
+    # Blank tape
     assert last_ts() == 0.0
 
     e1 = append("ingest_done", {"file": "a.pdf"})

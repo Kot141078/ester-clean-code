@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/memory_linker_routes.py - linkovka kartochek pamyati k suschnostyam (1 klik).
+"""routes/memory_linker_routes.py - linkovka kartochek pamyati k suschnostyam (1 klik).
 
 MOSTY:
 - (Yavnyy) POST /mem/linker/link {doc_id, entity_id, entity_type, rel}
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Obnovlyaet entity.links i sozdaet "edge" v pamyati (semantic) bez izmeneniya starykh kontraktov.
 
 ZEMNOY ABZATs:
-«Stepler» mezhdu kartotekoy i zapisnoy knizhkoy: svyazali zametku s personoy - dalshe vse nakhoditsya mgnovenno.
+“Stepler” mezhdu kartotekoy i zapisnoy knizhkoy: svyazali zametku s personoy - dalshe vse nakhoditsya mgnovenno.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, uuid, re
 from typing import Dict, Any, List
@@ -72,7 +70,7 @@ def link():
     if not os.path.isfile(p):
         return jsonify({"ok": False, "error": "entity not found"}), 404
 
-    # 1) obnovim entity.links
+    # 1) update entity.links
     with open(p, "r", encoding="utf-8") as f:
         ent = json.load(f)
     links: List[Dict[str,Any]] = ent.get("links") or []
@@ -82,7 +80,7 @@ def link():
         with open(p, "w", encoding="utf-8") as f:
             json.dump(ent, f, ensure_ascii=False)
 
-    # 2) sozdadim semanticheskoe "rebro" v pamyati
+    # 2) create a semantic “edge” in memory
     edge = mem_store("semantic", f"edge:entity:{ent_id}::{rel}::doc:{doc_id}", {
         "a": f"entity:{ent_type}:{ent_id}",
         "b": f"doc:{doc_id}",

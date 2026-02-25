@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/run_rebuild_repair.py — CLI dlya skvoznogo Rebuild/Repair (Structured + Vector + KG).
+"""scripts/run_rebuild_repair.py - CLI dlya skvoznogo Rebuild/Repair (Structured + Vector + KG).
 
 Primery:
-  python -m scripts.run_rebuild_repair --json
-"""
+  python -m scripts.run_rebuild_repair --json"""
 
 from __future__ import annotations
 

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tools/verify_webhooks.py — CLI-proverka konfiguratsii vebkhukov.
+"""tools/verify_webhooks.py - CLI-verify configuratsii webhooks.
 
 MOSTY:
 - (Yavnyy) Pechataet podskazki URL/tokenov dlya Telegram/WhatsApp.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Udobnyy odnorazovyy progon bez zapuska servera.
 
 ZEMNOY ABZATs:
-«Proverili lampochki» do starta — vidno, gde ne khvataet tokena/URL.
+"Verified lampochki" do starta - vidno, where ne khvataet tokena/URL.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, hmac, hashlib, sys
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

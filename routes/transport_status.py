@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/transport_status.py — UI/REST «Transport uzlov».
+"""routes/transport_status.py - UI/REST “Transport uzlov”.
 
-Marshruty:
-  • GET  /admin/transport               — HTML-stranitsa
-  • GET  /admin/transport/peers         — JSON: reestr/dostupnost
-  • POST /admin/transport/ping          — ping odnogo base_url
-  • POST /admin/transport/testmsg       — otpravit test-soobschenie (mode=lan|telegram, payload opts.)
+Route:
+  • GET /admin/transport - HTML pages
+  • GET /admin/transport/peers - JSON: regestr/dostupnost
+  • POST /admin/transport/ping — ping same base_url
+  • POST /admin/transport/testmsg - otpravit test-soobschenie (mode=lan|telegram, payload opts.)
 
 Mosty:
-- Yavnyy (Kibernetika v†" UX): odin ekran pokazyvaet «chem Re s kem my govorim».
+- Yavnyy (Kibernetika v†" UX): odin ekran pokazyvaet "chem Re s kem my govorim".
 - Skrytyy 1 (Infoteoriya v†" Giagnostika): bystrye pingi Re ekho-testy, bez tyazhelykh zavisimostey.
-- Skrytyy 2 (Praktika v†" Vezopasnost): rezhim AB: A — tolko nablyudenie; B — razreshit otpravku testmsg.
+- Skrytyy 2 (Praktika v†" Vezopasnost): rezhim AB: A - tolko nablyudenie; B - razreshit otpravku testmsg.
 
 Zemnoy abzats:
-Stranitsa tekhnika: vidno sosedey po LAN, mozhno poslat «privet» vsem (ili cherez Telegram), chtoby ubeditsya v svyaznosti.
+Stranitsa tekhnika: vidno sosedey po LAN, mozhno poslat “privet” vsem (ili cherez Telegram), chtoby ubeditsya v svyaznosti.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

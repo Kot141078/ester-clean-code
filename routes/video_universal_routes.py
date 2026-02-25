@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-routes/video_universal_routes.py — HTTP-ruchki universalnogo videokonveyera.
+"""routes/video_universal_routes.py - HTTP-ruchki universalnogo videokonveyera.
 
-Endpointy:
-  • GET  /ingest/video/universal/probe?url=...|path=...
+Endpoint:
+  • GET /ingest/video/universal/probe?url=...|path=...
   • POST /ingest/video/universal/fetch {"url"|"path", "want":{...}, "lang"?:...}
 
 Mosty:
 - Yavnyy: (Bideo v†" Memory) pryamoy dostup k metadannym/sabam/chernoviku.
-- Skrytyy #1: (Infoteoriya v†" Nadezhnost) probe bezopasen — ne kachaet bolshie bayty.
+- Skrytyy #1: (Infoteoriya v†" Nadezhnost) probe bezopasen - ne kachaet bolshie bayty.
 - Skrytyy #2: (Kibernetika v†" Volya) rabotaet kak po zaprosu, tak Re po triggeram myshleniya.
 
 Zemnoy abzats:
-Eto udobnye «ruchki kombayna»: proveril i snyal urozhay (profile, subtitry, vyzhimku).
+Eto udobnye “ruchki kombayna”: proveril i snyal urozhay (profile, subtitry, vyzhimku).
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict

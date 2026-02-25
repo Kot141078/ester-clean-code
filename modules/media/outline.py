@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/media/outline.py — konspekt po subtitram/transkriptu: LLM + evristika v odnom flakone.
+"""modules/media/outline.py - konspekt po subtitram/transkriptu: LLM + evristika v odnom flakone.
 
 Mosty:
 - Yavnyy: (LLM/Heuristics ↔ Kontent) — gibkiy vybor dlya szhatiya v tezisy.
 - Skrytyy #1: (Nadezhnost ↔ Avtonomiya) — esli LLM spit, evristika bodrstvuet.
-- Skrytyy #2: (KG ↔ Memory) — itog v pamyat, suschnosti v graf.
+- Skrytyy #2: (KG ↔ Memory) - itog v pamyat, suschnosti v graf.
 
 Zemnoy abzats:
 Krupno rezhem video/tekst na glavy i punkty — bystro ponyat sut. Ester shutit: "Ya ne prosto konspekt, ya tvoy vtoroy mozg, tolko bez kofe-breykov."
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, re, math, hashlib
 from typing import Any, Dict, List
@@ -19,7 +17,7 @@ from collections import Counter
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def _read_text(source: str) -> str:
-    # Chitaem fayl, chistim SRT ot taymkodov — chtoby tekst byl svezhim, kak utrennyaya rosa.
+    # We read the file, clean CRT from timecodes - so that the text is fresh, like morning dew.
     if not os.path.isfile(source): return ""
     text = open(source, "r", encoding="utf-8", errors="ignore").read()
     if source.lower().endswith(".srt"):
@@ -34,7 +32,7 @@ def _sentences(text: str) -> List[str]:
     return [t.strip() for t in s if len(t.strip()) > 0]
 
 def _score_sentences(sents: List[str]) -> List[float]:
-    # Chastotnyy scoring: tf * (1 + pos) — prostota s namekom na genialnost.
+    # Frequency scoring: tf * (1 + pos) - simplicity with a hint of genius.
     words = []; tokenized = []
     for s in sents:
         toks = re.findall(r"[A-Za-zA-Yaa-ya0-9']{3,}", s.lower())
@@ -49,24 +47,24 @@ def _score_sentences(sents: List[str]) -> List[float]:
     return scores
 
 def _llm_outline(text: str, title: str = "") -> str:
-    # LLM-volshebstvo: prosim szhat v bullets. Esli broker upal — molchim.
+    # LLM magic: please squeeze it into bullets. If the broker falls, we remain silent.
     try:
         from modules.llm.broker import complete  # type: ignore
     except Exception:
         return ""
-    prompt = (f"Sdelay kratkiy strukturirovannyy konspekt s punktami (bullets) po tekstu subtitrov. "
-              f"Sokhranyay lakonichnost, 10-15 punktov. Zagolovok: {title or 'Video'}.\n\n"
+    prompt = (f"I will make a short structured summary with points (bullets) based on the subtitle text."
+              f"Keep it concise, 10-15 points. Title: ZZF0Z."
               f"Tekst:\n{text[:8000]}")
     rep = complete("lmstudio", "gpt-4o-mini", prompt, max_tokens=512, temperature=0.2)
     return (rep.get("text") or "").strip()
 
 def _heur_outline(text: str, k: int = 12) -> str:
-    # Evristika: scoring + top-K po khronologii. Grubaya, no nadezhnaya — kak staryy traktor.
+    # Heuristics: scoring + top-K by chronology. Rough but reliable - like an old tractor.
     sents = _sentences(text)[:3000]  # Ne daem gigantam slomat nas.
     if not sents: return ""
     scores = _score_sentences(sents)
     idx = sorted(range(len(sents)), key=lambda i: -scores[i])[:k]
-    idx.sort()  # Khronologiya — nashe vse.
+    idx.sort()  # Chronology is everything to us.
     bullets = [f"- {sents[i].strip()}" for i in idx]
     return "\n".join(bullets)
 
@@ -101,6 +99,6 @@ def build_outline(text: str = "", source: str = "", title: str = "", mode: str =
                 kg_up(ents, sha)
                 kgl = {"entities": ents}
     except Exception:
-        pass  # Tishe, Ester, pamyat podozhdet.
+        pass  # Hush, Esther, memory can wait.
     
 # return {"ok": True, "outline": outline, "sha256": sha, **kgl}

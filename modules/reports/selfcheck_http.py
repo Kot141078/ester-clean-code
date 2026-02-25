@@ -1,17 +1,15 @@
 
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.reports.selfcheck_http — HTTP‑router dlya self-check svodki.
+"""modules.reports.selfcheck_http — HTTP‑router dlya self-check svodki.
 Mosty:
 - Yavnyy: register_fastapi/register_flask pod prefiksom `/compat/selfcheck` (ENV `ESTER_SELFCHECK_PREFIX`).
-- Skrytyy #1: (DX ↔ Sovmestimost) — ispolzuem `modules.selfcheck.run` ili myagkiy folbek.
-- Skrytyy #2: (Kachestvo ↔ Prozrachnost) — markdown/JSON otvety dlya legkogo prosmotra.
+- Skrytyy #1: (DX ↔ Sovmestimost) — ispolzuem `modules.selfcheck.run` or myagkiy folbek.
+- Skrytyy #2: (Kachestvo ↔ Prozrachnost) - markdown/JSON otvety dlya legkogo prosmotra.
 
 Zemnoy abzats:
-Eto «bystryy osmotr» patsienta: vyvodim klyuchevye metriki self-check, ne vlezaya v detali.
-# c=a+b
-"""
+This is “bystryy osmotr” patsienta: vyvodim klyuchevye metriki self-check, ne vlezaya v details.
+# c=a+b"""
 import os, json
 from typing import Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

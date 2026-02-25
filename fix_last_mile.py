@@ -3,7 +3,7 @@ import os
 
 TARGET = "run_ester_fixed.py"
 
-# Peremennye, iz-za kotorykh ona padaet seychas
+# Variables that are causing it to fall now
 LAST_MILE_BLOCK = """
 # --- LAST MILE CONFIG ---
 MAX_FILE_CHARS = 20000              # Limit for file reading (RAG)

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/actions_codegen.py — eksheny CodeSmith+ dlya «voli»
+"""modules/thinking/actions_codegen.py — eksheny CodeSmith+ dlya “voli”
 
 Mosty:
 - Yavnyy: (Mysli ↔ Kodogeneratsiya) daem mozgu pryamye atomy deystviy.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Guard ↔ Nadezhnost) primenenie — cherez bezopasnuyu obertku.
 
 Zemnoy abzats:
-Teper lyuboe «ya khochu modul X» prevraschaetsya v spec→generatsiyu→test→akkuratnuyu ustanovku.
+Teper lyuboe “ya khochu modul X” prevraschaetsya v spec→generatsiyu→test→akkuratnuyu ustanovku.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

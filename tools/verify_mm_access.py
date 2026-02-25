@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-tools/verify_mm_access.py — oflayn-skaner na «obkhod get_mm».
+"""tools/verify_mm_access.py - oflayn-scanner na “obkhod get_mm”.
 
 Mosty:
 - Yavnyy: (Linter ↔ Kodovaya baza) ischet podozritelnye konstruktsii i flaguet cherez REST.
-- Skrytyy #1: (MM Guard ↔ Audit) pishet rezultaty v /mm/audit/flag.
+- Skrytyy #1: (MM Guard ↔ Audit) pishet result v /mm/audit/flag.
 - Skrytyy #2: (CI ↔ Kachestvo) mozhet ispolzovatsya v lokalnom pre-commit.
 
 Zemnoy abzats:
-Kak fonarik v arkhive: bystro podsvetit mesta, gde mogli napryamuyu lezt k pamyati, minuya fabriku.
+Kak fonarik v arkhive: bystro podsvetit mesta, where mogli napryamuyu lezt k pamyati, minuya fabriku.
 
-# c=a+b
-"""
+# c=a+b"""
 import os, re, json, urllib.request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 

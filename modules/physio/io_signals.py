@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-IO Signals — bezopasnye fizicheskie signaly (LED/zvuk/virt.indikator) dlya otrazheniya sostoyaniya Ester.
+"""IO Signals - bezopasnye fizicheskie signaly (LED/zvuk/virt.indikator) dlya otrazheniya sostoyaniya Ester.
 
 Mosty:
-- Yavnyy: (Servis ↔ Fizicheskiy mir) — preobrazuem logicheskie sobytiya v taktilnye/zvukovye/vizualnye signaly.
+- Yavnyy: (Servis ↔ Fizicheskiy mir) - preobrazuem logicheskie sobytiya v taktilnye/zvukovye/vizualnye signaly.
 - Skrytyy 1: (Nadezhnost ↔ A/B) — riskovannye vyzovy ustroystv izolirovany v slote B, zapis v fayl — v A.
-- Skrytyy 2: (Memory ↔ Diagnostika) — zhurnal signalov popadaet v state, viden UI i mozhet korrelirovat s logami.
+- Skrytyy 2: (Memory ↔ Diagnostika) — zhurnal signalov popadaet v state, visible UI i mozhet korrelirovat s logami.
 
 Zemnoy abzats:
-Eto «indikator na korpuse»: mignem, piknem ili prosto zapishem sobytie v fayl, chtoby chelovek ponyal — sistema zhiva,
-dumaet, oshiblas ili zhdet vvoda. Na zheleze — GPIO/zummer; v softe — zhurnal s taym-autom (TTL).
-"""
+Eto “indikator na korpuse”: mignem, piknem ili prosto zapishem sobytie v fayl, chtoby chelovek ponyal - sistema zhiva,
+dumaet, oshiblas or zhdet vvoda. Na zheleze - GPIO/zummer; v softe - zhurnal s taym-autom (TTL)."""
 from __future__ import annotations
 
 import os
@@ -37,7 +35,7 @@ def _append_event(ev: Dict[str, Any]) -> None:
     except Exception:
         arr = []
     arr.append(ev)
-    # ogranichim razmer
+    # limited size
     if len(arr) > 2000:
         arr = arr[-500:]
     try:
@@ -47,11 +45,9 @@ def _append_event(ev: Dict[str, Any]) -> None:
 
 
 def pulse(level: str = "info", ttl_ms: int = 500) -> Dict[str, Any]:
-    """
-    Dat «impuls» indikatsii: info|warn|error, dlitelnost v ms.
+    """Dat “impuls” indikatsii: info|warn|error, dlitelnost v ms.
     Slot A: tolko zhurnal v fayle.
-    Slot B: pytaemsya «piknut» (Windows) ili sistemnyy zvukovoy signal, zatem tozhe zhurnal.
-    """
+    Slot B: pytaemsya “piknut” (Windows) or sistemnyy zvukovoy signal, zatem tozhe zhurnal."""
     now = time.time()
     event = {
         "ts": now,
@@ -72,8 +68,8 @@ def pulse(level: str = "info", ttl_ms: int = 500) -> Dict[str, Any]:
                     dur = max(100, min(int(ttl_ms), 2000))
                     winsound.Beep(freq, dur)
                 else:
-                    # POSIX: popytka sistemnogo «bell»
-                    print("\a", end="", flush=True)  # mozhet byt otklyuchen terminalom — eto ok
+                    # POSYKH: attempt at system "bell"
+                    print("\a", end="", flush=True)  # can be disabled by the terminal - that's ok
             except Exception as e:
                 event["note"] = f"signal_failed:{type(e).__name__}"
 

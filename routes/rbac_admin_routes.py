@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/rbac_admin_routes.py - REST: prosmotr/naznachenie roley.
+"""routes/rbac_admin_routes.py - REST: prosmotr/naznachenie roley.
 
 Mosty:
 - Yavnyy: (Veb ↔ RBAC) upravlyaem kartoy roley.
-- Skrytyy #1: (Bootstrap ↔ Bezopasnost) trebuet sekret i/ili «pilyulyu».
+- Skrytyy #1: (Bootstrap ↔ Bezopasnost) trebuet sekret i/ili “pilyulyu”.
 - Skrytyy #2: (Integratsiya ↔ Ostorozhnost) drugie moduli mogut oprashivat allowed().
 
 Zemnoy abzats:
 Minimalnaya adminka roley - bez vneshney BD.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from typing import Any, Dict

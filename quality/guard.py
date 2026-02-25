@@ -1,16 +1,14 @@
 
 # -*- coding: utf-8 -*-
-"""
-quality.guard — sovmestimaya obertka.
+"""quality.guard - sovmestimaya obertka.
 Mosty:
 - Yavnyy: enable()/disable()/status() — bezopasnye defolty.
-- Skrytyy #1: (DX ↔ Sovmestimost) — esli v realnom modules/quality/guard.py est logika, ee mozhno vyzvat dopolnitelno.
-- Skrytyy #2: (A/B ↔ Otkat) — elementarnaya model vklyucheniya/vyklyucheniya.
+- Skrytyy #1: (DX ↔ Sovmestimost) - esli v realnom modules/quality/guard.py est logika, ee mozhno vyzvat dopolnitelno.
+- Skrytyy #2: (A/B ↔ Otkat) — elementary model vklyucheniya/vyklyucheniya.
 
 Zemnoy abzats:
-Vyzovy vida `from modules.quality.guard import enable` ne dolzhny padat — daem minimalnyy API.
-# c=a+b
-"""
+Vyzovy vida `from modules.quality.guard import enable` ne dolzhny padat - daem minimalnyy API.
+# c=a+b"""
 from __future__ import annotations
 import os
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

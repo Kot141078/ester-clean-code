@@ -1,7 +1,7 @@
 # rules/automation_rules.yaml
-# Iteratsiya B — edinyy fayl YAML-pravil avtomations.
+# Iteration B is a single file of YML automation rules.
 # Sovmestim s rule_engine.py (istochniki → paypy → usloviya → vykhody).
-# Pri neobkhodimosti rasshiryay — validator dolzhen propustit kak bazovyy keys.
+# Expand if necessary - the validator should pass it as a basic case.
 
 version: 1
 defaults:
@@ -10,7 +10,7 @@ defaults:
   user: "Owner"
 
 sources:
-  # Istochniki dannykh dlya avtomatizatsiy
+  # Data sources for automation
   - id: flashback_recent
     kind: flashback
     params:
@@ -59,7 +59,7 @@ pipes:
 
 rules:
 
-# Polzovatel pishet — zazhigaem gipotezu
+# The user writes - we spark a hypothesis
 - when: type == "chat.message.user"
   then:
     - action: run_pipe
@@ -78,7 +78,7 @@ rules:
         items: "{{ output.suggestions }}"
         context: "chat.message.user"
 
-# Ingest prishel — fiksiruem v KG i zovem refleksiyu
+# The ingest has arrived - we record it in the CG and call for reflection
 - when: type in ["ingest.file.accepted","ingest.text.accepted"]
   then:
     - action: emit
@@ -163,7 +163,7 @@ rules:
         notes: "{{ payload.notes }}"
         fingerprint: "{{ payload.fingerprint }}"
 
-# Lyuboy high-impact zapros oborachivaem v kvorum
+# We wrap any high impact request into a quorum
 - when: type in ["scheduler.cancel","kg.delete","system.shutdown.request"]
   then:
     - action: emit
@@ -171,4 +171,4 @@ rules:
       payload:
         target_type: "{{ type }}"
         target_payload: "{{ payload }}"
-    - action: drop   # iskhodnyy ne ispolnyaem napryamuyu
+    - action: drop   # the original is not directly executable

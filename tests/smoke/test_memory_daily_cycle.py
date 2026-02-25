@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-tests/smoke/test_memory_daily_cycle.py
+"""tests/smoke/test_memory_daily_cycle.py
 
 Bystryy smoke-test dlya modules.memory.daily_cycle:
 - importiruetsya bez oshibok;
 - run_cycle() vozvraschaet dict s bazovymi polyami;
-- status() posle zapuska soobschaet have_result=True.
-"""
+- status() after zapuska soobschaet have_result=True."""
 from __future__ import annotations
 
 import importlib

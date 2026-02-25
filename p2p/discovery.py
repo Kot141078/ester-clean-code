@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Prostoy Discovery: obedinyaem staticheskiy spisok i LAN (zeroconf), esli dostupen.
-Vozvraschaem spisok bazovykh URL pirov.
-"""
+"""Simple Discoverers: we combine the static list and LAN (zeroconf), if available.
+Returns a list of peers' base URLs."""
 from __future__ import annotations
 
 import os

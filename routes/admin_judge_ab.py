@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_judge_ab.py — UI/REST podskazok A/B dlya Judge (overlay-fayl).
+"""routes/admin_judge_ab.py - UI/REST podskazok A/B dlya Judge (overlay-fayl).
 
-Marshruty:
-  • GET  /admin/judge/ab           — HTML-stranitsa
-  • GET  /admin/judge/ab/suggest   — JSON-podskazki (bench optsionalen: ?bench=1)
-  • POST /admin/judge/ab/apply     — zapisat overlay-fayl (put iz ENV ili form)
+Route:
+  • GET /admin/judge/ab – HTML-pages
+  • GET /admin/judge/ab/suggest - JSON-podskazki (bench optsionalen: ?bench=1)
+  • POST /admin/judge/ab/apply - zapisat overlay-fayl (put iz ENV or form)
 
 Sovmestimost:
   • Drop-in: ne trogaem Judge, ne menyaem kontrakty; sozdaem ryadom fayl podskazok.
-  • Put fayla — ESTER_JUDGE_SLOTS_PATH (defolt ~/.ester/judge_slots.json).
+  • Put fayla - ESTER_JUDGE_SLOTS_PATH (defolt ~/.ester/judge_slots.json).
 
 Mosty:
   • Yavnyy (Kibernetika v†" Orkestratsiya): rekomendatsiya v†' yavnoe primenenie (po nazhatiyu).
-  • Skrytyy 1 (Infoteoriya v†" Kontrakty): JSON-overlay — minimalnyy kanal integratsii.
-  • Skrytyy 2 (Vayes v†" Vezopasnost): slotB — «eksperiment», slotA — opornyy.
+  • Skrytyy 1 (Infoteoriya v†" Kontrakty): JSON-overlay - minimalnyy kanal integratsii.
+  • Skrytyy 2 (Vayes v†" Vezopasnost): slotB - "eksperiment", slotA - opornyy.
 
 Zemnoy abzats:
-Stranitsa pozvolyaet uvidet, chto «zhelezo i modeli» predlagayut kak A/B, i sokhranit eto v fayl,
-kotoryy mozhet podkhvatit storozh/skript perezagruzki Judge. Esli storozha net — fayl prosto lezhit.
+Stranitsa pozvolyaet uvidet, chto “zhelezo i modeli” predlagayut kak A/B, i sokhranit eto v fayl,
+kotoryy mozhet podkhvatit storozh/skript perezagruzki Judge. Esli storozha net - fayl prosto lezhit.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json

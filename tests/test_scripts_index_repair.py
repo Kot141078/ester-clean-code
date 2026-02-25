@@ -39,7 +39,7 @@ def test_repair_vectorstores(tmp_path, monkeypatch):
     from vector_store import VectorStore
 
     vs = VectorStore(collection_name="t", persist_dir=str(tmp_path), use_embeddings=False)
-    # «lomaem» odnu zapis: pustoy tekst
+    # “breaking” one record: empty text
     raw = json.loads(open(vs.path, "r", encoding="utf-8").read())
     some_id = next(iter(raw["docs"].keys()))
     raw["docs"][some_id]["text"] = ""
@@ -48,5 +48,5 @@ def test_repair_vectorstores(tmp_path, monkeypatch):
     out = repair("t", str(tmp_path))
     assert os.path.isfile(out)
     fixed = json.loads(open(out, "r", encoding="utf-8").read())
-    # zapis bez teksta udalena
+    # post without text deleted
     assert some_id not in fixed["docs"]

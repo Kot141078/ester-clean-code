@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-tests/security/test_rbac_matrix_guard_integration.py — integratsionnyy test RBAC-guard.
+"""tests/security/test_rbac_matrix_guard_integration.py - integrationnyy test RBAC-guard.
 
-Ideya: dobavlyaem testovyy marshrut /ops/_test_guard, vklyuchaem before_request-guard iz rbac_matrix,
+Ideaya: addavlyaem testovyy route /ops/_test_guard, vklyuchaem before_request-guard iz rbac_matrix,
 inzhektim roli cherez zagolovok X-Test-Roles -> g.user_roles i proveryaem, chto:
   - user -> 403
-  - admin -> 200
-"""
+  - admin -> 200"""
 from __future__ import annotations
 
 import textwrap
@@ -44,7 +42,7 @@ def test_rbac_guard_blocks_user_allows_admin(tmp_path):
 
     flask_app.register_blueprint(bp)
 
-    # Inzhektor roley iz zagolovka pered RBAC-khukom
+    # Role injector from header before RVACH hook
     @flask_app.before_request
     def _inject_roles_from_header():
         roles = request.headers.get("X-Test-Roles", "")

@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
 # routes/telegram_admin_routes.py
-"""
-routes/telegram_admin_routes.py — lokalnye admin-ruchki dlya inspektsii Telegram-dannykh.
+"""routes/telegram_admin_routes.py - lokalnye admin-ruchki dlya inspektsii Telegram-dannykh.
 
-Prefiks: /tg/admin
-Marshruty (tolko lokalnyy dostup: 127.0.0.1/::1/192.168.*):
-  • GET /tg/admin/users        — soderzhimoe tg_users.json
-  • GET /tg/admin/state        — telegram_state.json (last_update_id)
-  • GET /tg/admin/chats        — agregirovannyy spisok chatov (iz tg_feed.jsonl)
-  • GET /tg/admin/tail?n=200   — khvost lenty (poslednie N sobytiy, po ubyvaniyu vremeni)
+Prefixes: /tg/admin
+Marshruty (only local dostup: 127.0.0.1/::1/192.168.*):
+  • GET /tg/admin/users - soderzhimoe tg_users.json
+  • GET /tg/admin/state - telegram_state.json (last_update_id)
+  • GET /tg/admin/chats — agregirovannyy spisok chatov (iz tg_feed.jsonl)
+  • GET /tg/admin/tail?n=200 - khvost lenty (poslednie N sobytiy, po ubyvaniyu vremeni)
 
 Zemnoy abzats (inzheneriya):
-Eto servisnaya panel «na stanke»: posmotret, kto obschaetsya, kakoy progress po apdeytam, chto v posledney struzhke (khvost lenty).
+Eto servisnaya panel “na stanke”: posmotret, kto obschaetsya, kakoy progress po apdeytam, chto v posledney struzhke (khvost lenty).
 
 Mosty:
-- Yavnyy (Kibernetika v†" Arkhitektura): lokalnaya diagnostika — klyuch k ustoychivomu konturu webhook/polling.
-- Skrytyy 1 (Infoteoriya v†" Khranilische): rabotaem s zhurnalami napryamuyu, bez VD — menshe tochek otkaza.
-- Skrytyy 2 (Anatomiya v†" PO): kak perkussiya u vracha — prostye «prostukivaniya» dayut mnogo informatsii.
+- Yavnyy (Kibernetika v†" Arkhitektura): lokalnaya diagnostika - klyuch k ustoychivomu konturu webhook/polling.
+- Skrytyy 1 (Infoteoriya v†" Khranilische): rabotaem s zhurnalami napryamuyu, bez VD - menshe tochek otkaza.
+- Skrytyy 2 (Anatomiya v†" PO): kak perkussiya u vracha - prostye “prostukivaniya” dayut mnogo informatsii.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -87,7 +85,7 @@ def tail():
     n = request.args.get("n", type=int) or 200
     n = max(1, min(n, 5000))
     rows = feed.latest(limit=n)
-    # otdaem v obratnom poryadke (svezhie vnizu v†' razvorachivaem dlya tail)
+    # give in reverse order (we unwrap the fresh ones at the bottom for thailing)
     rows = list(reversed(rows))
     return jsonify({"ok": True, "events": rows})
 

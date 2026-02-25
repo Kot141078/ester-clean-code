@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/video/subtitles/lang_detect.py — legkiy detektor yazyka dlya subtitrov/teksta (bez vneshnikh bibliotek).
+"""modules/video/subtitles/lang_detect.py - legkiy detector yazyka dlya subtitrov/teksta (bez vneshnikh bibliotek).
 
 Funktsii:
   • detect_lang(text:str, top_n:int=1) -> {"lang":"ru|en|unknown","conf":0..1}
@@ -11,14 +10,13 @@ Evristiki:
 
 Mosty:
 - Yavnyy: (Memory ↔ Video) podbiraem pravilnye dorozhki i saydkary bez ruchnogo vybora.
-- Skrytyy #1: (Infoteoriya ↔ Kachestvo) filtruem «ne tot yazyk», umenshaya shum v indeksatsii.
+- Skrytyy #1: (Infoteoriya ↔ Kachestvo) filtruem “ne tot yazyk”, umenshaya noise v indeksatsii.
 - Skrytyy #2: (Kibernetika ↔ Volya) pravila myshleniya mogut vybirat yazyk konfigom.
 
 Zemnoy abzats:
-Eto «nyukhach yazyka»: glyanul na paru abzatsev — ponyal, russkiy eto ili angliyskiy, i vzyal podkhodyaschie saby.
+Eto “nyukhach yazyka”: glyanul na paru abzatsev - ponyal, russkiy eto ili angliyskiy, i vzyal podkhodyaschie saby.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -38,7 +36,7 @@ def detect_lang(text: str, top_n: int = 1) -> Dict[str, float | str]:
     total = max(1, cyr + lat)
     p_ru = cyr / total
     p_en = lat / total
-    # chastotnye slova (ochen grubo)
+    # frequency words (very rude)
     tokens = re.findall(r"[a-za-yae]+", s)
     if any(t in RU_COMMON for t in tokens[:2000]):
         p_ru += 0.1

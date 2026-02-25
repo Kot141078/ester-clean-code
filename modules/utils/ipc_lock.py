@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/utils/ipc_lock.py
+"""modules/utils/ipc_lock.py
 
 Cross-platform inter-process file lock + safe JSONL append.
 
@@ -8,10 +7,9 @@ Explicit bridge: c=a+b -> (a) chelovecheskiy "profile" + (b) protsedurnyy lock/f
 Hidden bridges:
 - Ashby: "requisite variety" = vvodim rol writer/reader, chtoby sistema vyderzhivala bolshe rezhimov bez polomki.
 - Cover&Thomas: zaschischaem kanal zapisi (journal) ot kolliziy -> menshe entropii/poter.
-Earth (anatomiya/inzheneriya): kak klapan + sterilnoe pole — odin dostup, odna inektsiya za raz; inache sepsis dannykh.
+Earth (anatomiya/inzheneriya): kak klapan + sterilnoe pole - odin dostup, odna inektsiya za raz; inache sepsis dannykh.
 
-No external deps. Works on Windows + Linux.
-"""
+No external deps. Works on Windows + Linux."""
 
 from __future__ import annotations
 

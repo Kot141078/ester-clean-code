@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mem_entity_linker_routes.py — HTTP-ruchka avto-linkovki suschnostey dlya pamyati/gipotez.
+"""routes/mem_entity_linker_routes.py - HTTP-ruchka avto-linkovki suschnostey dlya pamyati/gipotez.
 
-Endpointy:
+Endpoint:
   • POST /mem/entity/link {"text":"...", "upsert":true} v†' {"entities":[...], "upsert":{...}}
 
 Mosty:
 - Yavnyy: (KG v†" Memory) svyazyvaem tekst zapisey s uzlami grafa.
-- Skrytyy #1: (Infoteoriya v†" Poisk) uvelichenie pokrytii suschnostyami — luchshe yakorya dlya RAG.
+- Skrytyy #1: (Infoteoriya v†" Poisk) uvelichenie pokrytii suschnostyami - luchshe yakorya dlya RAG.
 - Skrytyy #2: (Inzheneriya v†" Ustoychivost) chistyy fallback bez vneshnikh zavisimostey.
 
 Zemnoy abzats:
-Eto knopka «raspoznat i svyazat»: bystro proshtampovat imena/mesta v tekste zapisi.
+Eto knopka “raspoznat i svyazat”: bystro proshtampovat imena/mesta v tekste zapisi.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict

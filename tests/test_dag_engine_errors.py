@@ -25,7 +25,7 @@ PLAN_JOIN_NO_CHILDREN = """\
 run_id: test_run_join_no_children_01
 branch_id: main
 context_init:
-  spec: "Fanout generiruet 0 detey; join dolzhen otrabotat korrektno."
+  spec: "Fanout generate 0 children; join dolzhen otrabotat korrektno."
   items: []
 nodes:
   - id: outline
@@ -40,13 +40,12 @@ nodes:
     depends: ["outline"]
 
   - id: join_empty
-    type: join
+    type:join
     from: "fork"
     out: "joined"
     mode: list
     await_nodes: []
-    depends: ["fork"]
-"""
+    depends: ["fork"]"""
 
 
 def test_unknown_node_type_marks_failed_and_finishes():

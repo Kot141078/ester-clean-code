@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Odnorazovyy zapusk sverki/sinkhronizatsii (dlya cron/ruchnogo vyzova).
-"""
+"""One-time reconciliation/synchronization run (for crowns/manual call)."""
 from __future__ import annotations
 
 import json

@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-routes/knowledge_ops_routes.py - REST/UI dlya «kukhni znaniy».
+"""routes/knowledge_ops_routes.py - REST/UI dlya "kukhni znaniy".
 
 Ruchki (JSON):
-  POST /knowledge/source/add     {"url":"...","title":"...","meta":{...}}
-  GET  /knowledge/source/list
-  POST /knowledge/source/update  {"id":"...","title?":...,"score?":...,"meta?":{...}}
-  POST /knowledge/source/remove  {"id":"..."}
-  POST /knowledge/source/touch   {"id":"...","ok":true,"bytes":12345}
+  POST /knowledge/source/add {"url":"...","title":"...","meta":{...}}
+  GET /knowledge/source/list
+  POST /knowledge/source/update {"id":"...","title?":...,"score?":...,"meta?":{...}}
+  POST /knowledge/source/remove {"id":"..."}
+  POST /knowledge/source/touch {"id":"...","ok":true,"bytes":12345}
 
   POST /knowledge/evidence/build {"query":"...","top_k":12} | {"record_id":"..."}
-  POST /knowledge/evidence/cite  {"query":"..."} | {"record_id":"..."}
+  POST /knowledge/evidence/cite {"query":"..."} | {"record_id":"..."}
   POST /knowledge/answer/passport {"answer":"...","query":"..."} | {"answer":"...","record_id":"..."}
 
-  POST /knowledge/ingest/sample  {}  # sozdaet neskolko zapisey dlya demonstratsii
-  POST /knowledge/dedup/run      {"top_k":200}
+  POST /knowledge/ingest/sample {} # sozdaet neskolko zapisey dlya demonstratsii
+  POST /knowledge/dedup/run {"top_k":200}
 
-  GET  /admin/knowledge_ops
+  GET /admin/knowledge_ops
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.knowledge import registry as REG
@@ -78,15 +76,15 @@ def answer_passport():
 # ingest & dedup (demo)
 @bp.route("/ingest/sample", methods=["POST"])
 def ingest_sample():
-    # sozdadim neskolko zapisey s privyazkoy k source (esli est)
+    # create several records linked to the source (if any)
     items=[]
     src = REG.list_sources().get("items", [])
     src_id = src[0]["id"] if src else "mem"
     for t in [
-        "Fayl ProjectPlan.md: tseli, sroki, metriki. Plan na nedelyu.",
-        "Gray's Anatomy: opredelenie struktury pecheni i krovosnabzhenie.",
-        "Dkhammapada: kratkiy konspekt - puti preodoleniya stradaniya.",
-        "Povtor: Plan na nedelyu (to zhe soderzhanie)."
+        "File ProjectPlan.md: goals, deadlines, metrics. Plan for the week.",
+        "Grajs Anatomy: determination of liver structure and blood supply.",
+        "Dhammapada: a brief summary - ways to overcome suffering.",
+        "Repeat: Weekly plan (same content)."
     ]:
         r=memory_add("fact", t, {"source_id":src_id})
         items.append(r)

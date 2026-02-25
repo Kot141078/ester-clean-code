@@ -1,12 +1,12 @@
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 # -*- coding: utf-8 -*-
 # modules/self/engine_identity.py
-# Identifikatsiya "motora" myshleniya.
+# Identification of the "motor" of thinking.
 # c=a+b
 
 def engine_label(engine_id: str) -> str:
-    """Vozvraschaet cheloveko-chitaemoe opisanie tekuschego dvizhka."""
-    # Slovar realnykh podklyucheniy. Lishnee ubrano.
+    """Returns a human-readable description of the current engine."""
+    # Dictionary of real connections. The excess has been removed.
     mapping = {
         "lmstudio": "lokalnaya LM Studio",
         "lmstudio_ctx": "lokalnaya LM Studio (fast/ctx-budget)",
@@ -14,5 +14,5 @@ def engine_label(engine_id: str) -> str:
         "gemini_fallback": "oblachnyy Gemini (CLOUD FALLBACK)",
         "openai_main": "OpenAI GPT-4o"
     }
-    # Esli tochnogo sovpadeniya net, vozvraschaem ID kak est
+    # If there is no exact match, return the ID as is
     return mapping.get(engine_id, engine_id)

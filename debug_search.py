@@ -3,7 +3,7 @@ import json
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 url = "http://127.0.0.1:8090/ester/net/search"
-# Zapros, na kotorom ona "posypalas"
+# The request on which she "fell down"
 query = "RTX 5090 32 gb astral lc" 
 
 print(f"--- TEST POISKA: '{query}' ---")
@@ -19,7 +19,7 @@ try:
             print(f"[{i+1}] {item.get('title')} ({item.get('link')})")
             print(f"    {item.get('snippet')[:100]}...")
     else:
-        print(f"Oshibka servera: {resp.text}")
+        print(f"Server error: ZZF0Z")
 
 except Exception as e:
     print(f"CRITICAL ERROR: {e}")

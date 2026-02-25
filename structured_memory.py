@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-modules/memory/structured_memory.py
+"""modules/memory/structured_memory.py
 
-StructuredMemory — “strukturirovannaya” pamyat (JSON) dlya Ester.
+StructuredMemory - “strukturirovannaya” pamyat (JSON) dlya Ester.
 Khranit ne potok “mysley”, a proverennye fakty/resheniya/svodki, chtoby potom bystro izvlekat.
 
 MOSTY (kak ty trebuesh, vnutri artefakta):
 - Yavnyy most: QA → StructuredMemory (snachala proverka/filtr, potom zapis).
 - Skrytyy most #1: Ashby (kibernetika) → ustoychivost kontura: stats (nablyudaemost) + compact (korrektsiya).
-- Skrytyy most #2: Cover&Thomas (infoteoriya) → vysokiy SNR: dedup-okno i filtratsiya pustoty.
+- Skrytyy most #2: Cover&Thomas (infoteoriya) → vysokiy SNR: dedup-okno i filtratsiya empty.
 ZEMNOY ABZATs:
-Eto kak zhurnal tekhobsluzhivaniya: tuda pishut “chto sdelali i pochemu”, a ne kazhdoe chikhanie sistemy.
+Eto kak zhurnal tekhobsluzhivaniya: tuda pishut “what did you do i pochemu”, and ne kazhdoe chikhanie sistemy.
 
-Closed-box friendly: tolko standartnaya biblioteka, bez seti.
+Closed-box friendly: only standartnaya biblioteka, bez seti.
 
-Format fayla:
+Format files:
 {
   "records": [
      {
@@ -24,7 +23,7 @@ Format fayla:
        "kind": "fact|decision|summary|...",
        "weight": 0.5,
        "mtime": 1770...,
-       "meta": { ... }   # optsionalno
+       "meta": { ... } #optsionalno
      }
   ],
   "alias_map": { "old_id": "new_id", ... }
@@ -32,10 +31,9 @@ Format fayla:
 
 Sovmestimost:
 - Staroe: add_record(text, tags=None, weight=0.5) -> id
-- Novoe:  add_record(..., kind="fact", meta={...}, dedupe=True, force_save=False) -> id
+- Novoe: add_record(..., kind="fact", meta={...}, dedupe=True, force_save=False) -> id
 - Staroe: flashback(query, k=5) -> list
-- Novoe:  flashback(query, k=5, top_k=None, kind=..., tags_any=..., tags_all=...) -> list
-"""
+- Novoe: flashback(query, k=5, top_k=None, kind=..., tags_any=..., tags_all=...) -> list"""
 
 from __future__ import annotations
 
@@ -51,7 +49,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
-# tokeny: latinitsa/kirillitsa/tsifry, vklyuchaya E/e
+# tokens: Latin/Cyrillic/digits, including E/e
 _TOKEN_RE = re.compile(r"[A-Za-z0-9A-Yaa-yaEe]+", re.UNICODE)
 
 
@@ -73,9 +71,7 @@ def _default_structured_path() -> str:
 
 
 def _atomic_write_json(path: str, data: Any) -> None:
-    """
-    Atomarnaya zapis: tmp -> flush -> fsync -> replace.
-    """
+    """Atomic write: tmp -> flush -> fsink -> repay."""
     _ensure_dir_for_file(path)
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
@@ -105,7 +101,7 @@ def _normalize_tags(tags: Optional[List[str]]) -> List[str]:
             t2 = str(t).strip()
             if t2:
                 out.append(t2)
-    # determinizm (vazhno dlya dedup-klyucha)
+    # determinism (important for dedup key)
     return sorted(set(out))
 
 
@@ -119,9 +115,7 @@ def _tokenize(s: str) -> List[str]:
 
 
 def _overlap_score(qt: List[str], dt: List[str]) -> float:
-    """
-    Prostoy skoring: peresechenie tokenov / sqrt(|Q|*|D|).
-    """
+    """Simple scoring: intersection of tokens / skrt(|K|*|D|)."""
     if not qt or not dt:
         return 0.0
     qs = set(qt)
@@ -299,7 +293,7 @@ class StructuredMemory:
                 return False
             self.data["records"] = recs2
 
-            # udalit aliasy, ukazyvayuschie na rid
+            # remove aliases pointing to the read
             amap = self.data.get("alias_map", {}) or {}
             if isinstance(amap, dict):
                 dead = [k for k, v in amap.items() if str(v) == rid]
@@ -324,14 +318,12 @@ class StructuredMemory:
         dedupe: bool = True,
         force_save: bool = False,
     ) -> str:
-        """
-        Sovmestimo so starym API: add_record(text, tags=None, weight=0.5)
-        Rasshirenie: kind=..., meta=..., dedupe=..., force_save=...
+        """Sovmestimo so starym API: add_record(text, tags=None, weight=0.5)
+        Expansion: kind=..., meta=..., dedupe=..., force_save=...
 
         dedupe=True:
-        - esli v poslednie dedupe_window_sec uzhe byla tochno takaya zhe zapis (text+tags+kind),
-          vernet suschestvuyuschiy id i ne sozdast dubl.
-        """
+        - esli v poslednie dedupe_window_sec uzhe byla exactly takaya zhe zapis (text+tags+kind),
+          vernet suschestvuyuschiy id i ne sozdast dubl."""
         txt = _normalize_text(text)
         tags2 = _normalize_tags(tags)
         knd = (str(kind).strip() if kind is not None else "")
@@ -385,10 +377,8 @@ class StructuredMemory:
         tags_all: Optional[List[str]] = None,
         min_score: float = 0.0,
     ) -> List[Dict[str, Any]]:
-        """
-        Poisk po pamyati.
-        top_k — alias dlya k.
-        """
+        """Search by memory.
+        top_k - alias for k."""
         if top_k is not None:
             k = top_k
         k = max(1, int(k))
@@ -434,13 +424,13 @@ class StructuredMemory:
                 w = 0.5
             w = max(0.0, min(1.0, w))
 
-            # ochen myagkoe zatukhanie po vozrastu (ne ubivaet starye zapisi)
+            # very soft age decay (does not kill old recordings)
             try:
                 mt = int(r.get("mtime") or 0)
             except Exception:
                 mt = 0
             age = max(1, now - mt)
-            decay = 1.0 / (1.0 + (age / (3600 * 24 * 30)))  # ~mesyats kak edinitsa masshtaba
+            decay = 1.0 / (1.0 + (age / (3600 * 24 * 30)))  # ~month as a unit of scale
 
             score = base * (0.6 + 0.4 * w) * decay
             if score < float(min_score):
@@ -468,13 +458,11 @@ class StructuredMemory:
         keep: str = "newest",
         force_save: bool = True,
     ) -> Dict[str, Any]:
-        """
-        Ubiraet pustye zapisi, optsionalno slivaet dubli.
+        """Ubiraet pustye zapisi, optsionalno slivaet dubli.
 
         merge_duplicates=True:
         - dubl schitaetsya po (normalized_text + kind)
-        keep: newest|oldest — kakuyu zapis ostavit kak “nositel id”
-        """
+        keep: newest|oldest — kakuyu zapis ostavit kak “nositel id”"""
         keep = (keep or "newest").strip().lower()
         if keep not in ("newest", "oldest"):
             keep = "newest"
@@ -485,7 +473,7 @@ class StructuredMemory:
         deleted = 0
         merged = 0
 
-        # 1) udalit pustotu + normalizovat
+        # 1) remove void + normalize
         filtered: List[Dict[str, Any]] = []
         for r in recs:
             txt = _normalize_text(r.get("text") or "")
@@ -550,7 +538,7 @@ class StructuredMemory:
         with self._lock:
             self.data["records"] = filtered
 
-            # podchistit alias_map: ostavit tolko validnye
+            # clean up alias_map: leave only valid ones
             ids = {str(r.get("id")) for r in filtered}
             amap = self.data.get("alias_map", {}) or {}
             if isinstance(amap, dict):
@@ -567,7 +555,7 @@ class StructuredMemory:
         return {"deleted": deleted, "merged": merged, "dry_run": False}
 
 
-# ---- CLI (optsionalno, udobno dlya otladki) ----
+# ---- SLI (optional, convenient for debugging) ----
 
 def _cli() -> int:
     ap = argparse.ArgumentParser(description="StructuredMemory tool")

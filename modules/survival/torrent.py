@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/survival/torrent.py — generator .torrent (bencode): single/multi-file, SHA1 pieces.
+"""modules/survival/torrent.py - generator .torrent (bencode): single/multi-file, SHA1 pieces.
 
 Mosty:
 - Yavnyy: (Bandl ↔ P2P) prevraschaem arkhiv/direktoriyu v torrenty dlya samorasprostraneniya.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (P2P Bloom ↔ Set) kheshi faylov mozhno zaranee obyavit v bloom, chtoby ne dublirovat.
 
 Zemnoy abzats:
-Eto kak nakleit shtrikhkod i dobavit v razdachu: lyuboy uzel podtyanet to, chto nuzhno — bystro i bez tsentra.
+Eto kak nakleit shtrikhkod i dobavit v razdachu: lyuboy uzel podtyanet to, chto nuzhno - bystro i bez tsentra.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, hashlib, math, json
 from typing import List, Dict, Any
@@ -33,7 +31,7 @@ def _bencode(x)->bytes:
     if isinstance(x, list):
         return b"l"+b"".join(_bencode(i) for i in x)+b"e"
     if isinstance(x, dict):
-        # klyuchi dolzhny byt bayty po alfavitu
+        # keys must be bytes in alphabetical order
         out=[]
         for k in sorted(x.keys(), key=lambda k: (k if isinstance(k, bytes) else str(k).encode())):
             kb=k if isinstance(k, bytes) else str(k).encode()
@@ -79,7 +77,7 @@ def create(path: str, trackers: List[str]|None=None)->Dict[str,Any]:
     else:
         # multi-file
         pieces=[]
-        # dlya prostoty — skleivaem fayly posledovatelno v «virtualnyy potok»
+        # for simplicity, we glue the files sequentially into a “virtual stream”
         import io
         buf=io.BytesIO()
         for it in items:

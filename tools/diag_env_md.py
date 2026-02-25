@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-S0/tools/diag_env_md.py — Markdown-otchet po peremennym okruzheniya i ikh kachestvu (offlayn).
+"""S0/tools/diag_env_md.py - Markdown-otchet po peremennym okruzheniya i ikh kachestvu (offlayn).
 
 Mosty:
-- Yavnyy: Enderton (logika) — kazhdaya proverka formalizuetsya kak predikat nad (klyuch, znachenie), dayuschiy istinnost.
+- Yavnyy: Enderton (logika) - kazhdaya proverka formalizuetsya kak predikat nad (klyuch, znachenie), dayuschiy istinnost.
 - Skrytyy #1: Ashbi (kibernetika) — A/B-slot: A=permissive (ne ronyaet), B=strict (podnimaet trevogu), s avtokatbekom.
-- Skrytyy #2: Cover & Thomas (infoteoriya) — snizhaem «entropiyu» konfiguratsii: yavnyy spisok slabykh/pustykh sekretov.
+- Skrytyy #2: Cover & Thomas (infoteoriya) — snizhaem “entropiyu” konfiguratsii: yavnyy spisok slabykh/pustykh sekretov.
 
 Zemnoy abzats (inzheneriya):
-Ne izmenyaet rantaym, tolko chitaet ENV i pishet Markdown. Polezno klast ryadom s relizom.
-Po umolchaniyu pechataet v stdout; `--out env.md` — sokhranyaet v fayl. Bez vneshnikh zavisimostey.
+Ne izmenyaet rantaym, tolko chitaet ENV i pishet Markdown. Useful klast ryadom s relizom.
+Po umolchaniyu pechataet v stdout; `--out env.md` — sokhranyaet v fayl. No matter what.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse
 import os
@@ -28,10 +26,10 @@ RECOMMENDED: Dict[str, str] = {
     "JWT_SECRET": "<64+ simvolov, HS256>",
     "JWT_TTL": "3600",
     "JWT_REFRESH_TTL": "1209600",
-    "TELEGRAM_BOT_TOKEN": "<esli vklyuchen webhook>",
+    "TELEGRAM_BOT_TOKEN": "<if webhook is enabled>",
     "TELEGRAM_WEBHOOK_SECRET": "<sekret zagolovka>",
     "PUBLIC_URL": "https://host",
-    "ADMIN_TELEGRAM_ID": "<chislovoy id, optsionalno>",
+    "ADMIN_TELEGRAM_ID": "<numeric id, optional>",
 }
 
 WEAK = {"JWT_SECRET": {"devsecret", "REPLACE_ME", "REPLACE_ME_WITH_64_CHAR_RANDOM"}}
@@ -52,8 +50,8 @@ def _render_md(rows: List[List[str]]) -> str:
     return "\n".join(lines)
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Markdown-otchet po ENV")
-    ap.add_argument("--out", default="-", help="Put k faylu vyvoda ili '-' dlya stdout")
+    ap = argparse.ArgumentParser(description="Markdovn-report on ENV")
+    ap.add_argument("--out", default="-", help="Path to the output file or b for stdout")
     ap.add_argument("--mode", choices=["permissive","strict"], default=os.environ.get("CHECK_MODE","permissive"))
     args = ap.parse_args()
 
@@ -76,9 +74,9 @@ def main() -> int:
         try:
             with open(target, "w", encoding="utf-8") as f:
                 f.write(md)
-            print(f"[diag_env_md] Otchet zapisan v {target}")
+            print(f"yudiag_env_mdsch The report is recorded in ZZF0Z")
         except Exception as e:
-            print(f"[diag_env_md] WARN: ne udalos zapisat fayl: {e}")
+            print(f"yudiag_env_mdsch VARN: failed to write file: ZZF0Z")
             print(md)
     else:
         print(md)

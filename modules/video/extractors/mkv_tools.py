@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-modules/video/extractors/mkv_tools.py — rabota s MKV: spisok dorozhek, izvlechenie sabov s uchetom yazyka.
+"""modules/video/extractors/mkv_tools.py - rabota s MKV: spisok dorozhek, izvlechenie sabov s uchetom yazyka.
 
 Funktsii:
   • list_tracks(path:str) -> {"subs":[{"index":i,"lang":"ru|en|...","codec":...}], "audio":[...]}
-  • extract_best_subs(path:str, lang_pref:list[str]) -> Optional[str]  # put k .srt/.ass
+  • extract_best_subs(path:str, lang_pref:list[str]) -> Optional[str] # put k .srt/.ass
 
 Mosty:
 - Yavnyy: (Inzheneriya ↔ Video) pravilno vybiraem nuzhnuyu sab-dorozhku v multitrekovom konteynere.
@@ -12,10 +11,9 @@ Mosty:
 - Skrytyy #2: (Kibernetika ↔ Volya) ispolzuem poryadok yazykov iz ENV/konfiga.
 
 Zemnoy abzats:
-Eto «schiptsy dlya MKV»: akkuratno vytaschit pravilnye subtitry iz banki, esli oni tam est.
+Eto "schiptsy dlya MKV": akkuratno vytaschit pravilnye subtitry iz banki, esli oni tam est.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -64,7 +62,7 @@ _TEXT_CODECS = {"subrip", "ass", "srt", "ssa", "webvtt"}
 
 def extract_best_subs(path: str, lang_pref: List[str]) -> Optional[str]:
     tracks = list_tracks(path).get("subs") or []
-    # snachala tekstovye, zatem po yazykam
+    # first text, then by language
     def rank(t):
         score = 0
         if (t.get("codec") or "").lower() in _TEXT_CODECS:

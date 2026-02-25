@@ -3,10 +3,9 @@
 
 from __future__ import annotations
 
-"""
-memory_flashback.py — flashback poverkh VectorStore + KGStore, s optsionalnoy klasterizatsiey.
+"""memory_flashback.py - flashback poverkh VectorStore + KGStore, s optsionalnoy klasterizatsiey.
 
-Oshibka iz loga:
+Error from loga:
   attempted relative import with no known parent package
 
 Prichina:
@@ -14,24 +13,23 @@ Prichina:
       from .kg_store import KGStore
       from .vector_store import VectorStore
   Eto korrektno, tolko esli modul importiruetsya kak chast paketa.
-  Esli zhe loader/entrypoint gruzit fayl kak “prosto skript” (python memory_flashback.py ili SourceFileLoader),
-  __package__ pustoy → otnositelnye importy padayut.
+  Esli zhe loader/entrypoint gruzit fayl kak “just skript” (python memory_flashback.py or SourceFileLoader),
+  __package__ empty → otnositelnye importy padayut.
 
-Chto sdelano:
-  - “Ustoychivye importy”: snachala probuem otnositelnye, zatem lokalnye, zatem modules.memory.*.
-  - Myagkaya degradatsiya: esli sklearn net — flashback rabotaet, prosto bez clustering.
+What was done:
+  - “Ustoychivye importy”: snachala try otnositelnye, zatem lokalnye, zatem modules.memory.*.
+  - Myagkaya degradatsiya: esli sklearn net - flashback rabotaet, just bez clustering.
   - Uluchshena klasterizatsiya: random_state, n_init, zaschita ot malogo chisla tochek/pustykh embeddings.
-  - Puti khraneniya normalizovany cherez PERSIST_DIR (chtoby ne zaviset ot cwd).
-  - Dobavlena atomarnaya zapis clusters.json (cherez .tmp + replace).
+  - Puti khraneniya normalizovany cherez PERSIST_DIR (something ne zaviset ot cwd).
+  - Added atomarnaya zapis clusters.json (cherez .tmp + replace).
 
-Mosty (trebovanie):
+Mosty (demand):
   - Yavnyy most: VectorStore(query) → FlashbackClusterer(flashback) → KGStore(edges) = “svyazat pamyat s kontekstom”.
   - Skrytye mosty:
       (1) Infoteoriya ↔ praktika: klaster = szhatie/kvantizatsiya mnozhestva vospominaniy (umenshaem entropiyu opisaniya).
       (2) Kibernetika ↔ kod: rezhim degradatsii (net sklearn → tolko poisk) predotvraschaet otkaz kontura “vspominaniya”.
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 import json
 import logging
@@ -43,7 +41,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 logger = logging.getLogger(__name__)
 
-# Dlya klasterizatsii (optsionalno)
+# For clustering (optional)
 try:
     from sklearn.cluster import KMeans  # type: ignore
 except Exception:
@@ -67,8 +65,7 @@ def _resolve_stores() -> Tuple[Any, Any]:
     Poryadok:
       1) otnositelnye importy (kak chast paketa)
       2) lokalnye (v odnoy papke)
-      3) modules.memory.* (kak v ostalnoy arkhitekture Ester)
-    """
+      3) modules.memory.* (kak v ostalnoy arkhitekture Ester)"""
     KG = VS = None
 
     # 1) relative
@@ -128,7 +125,7 @@ class FlashbackConfig:
     default_top_k: int = 3
     default_num_clusters: int = 5
     random_state: int = 42
-    n_init: int = 10  # dlya sklearn<1.4 bezopasno
+    n_init: int = 10  # safe for sklearn<1.4
 
 
 class FlashbackClusterer:
@@ -151,10 +148,9 @@ class FlashbackClusterer:
         self.clusters: Dict[str, List[str]] = {}
 
     def cluster_memories(self, num_clusters: Optional[int] = None) -> List[List[str]]:
-        """Gruppiruet vospominaniya v klastery i svyazyvaet ikh v KG.
+        """Groups memories into clusters and links them into CG.
 
-        Vozvraschaet spisok klasterov: [[id,id,...], ...]
-        """
+        Returns a list of clusters: yuuid,id,...sch, ...sch"""
         if KMeans is None:
             logger.warning("sklearn not installed; clustering skipped")
             return []
@@ -184,7 +180,7 @@ class FlashbackClusterer:
 
         actual_clusters = min(n_clusters, len(embeddings))
         if actual_clusters <= 1:
-            # 0/1 klaster — nechego uchit; vse v odin meshok
+            # 0/1 cluster - nothing to learn; everything in one bag
             one = [ids]
             self.clusters = {"cluster_0": ids}
             self._link_clusters_to_kg()
@@ -214,7 +210,7 @@ class FlashbackClusterer:
         return list(self.clusters.values())
 
     def _link_clusters_to_kg(self) -> None:
-        """Svyazyvaet klastery v KG kak uzly/rebra. Best-effort."""
+        """Connects clusters in a CG as nodes/edges. Best-effort."""
         try:
             for cluster_id, mem_ids in self.clusters.items():
                 try:
@@ -230,7 +226,7 @@ class FlashbackClusterer:
             logger.debug("KG link skipped", exc_info=True)
 
     def flashback(self, query: str, top_k: Optional[int] = None) -> List[Dict[str, Any]]:
-        """Poisk vospominaniy s obogascheniem cluster_id (esli est)."""
+        """Search for memories with cluster_id enrichment (if any)."""
         k = int(top_k or self.config.default_top_k)
         if k <= 0:
             k = 1
@@ -246,7 +242,7 @@ class FlashbackClusterer:
         return results
 
     def _find_cluster(self, mem_id: str) -> Optional[str]:
-        """Nakhodit ID klastera, k kotoromu prinadlezhit vospominanie."""
+        """Finds the ID of the cluster to which the memory belongs."""
         try:
             neighbors = self.kg_store.get_neighbors(mem_id, "belongs_to")
             if neighbors:
@@ -290,13 +286,11 @@ class FlashbackClusterer:
 __all__ = ["FlashbackClusterer", "FlashbackConfig"]
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
-Flashback — eto kak “assotsiativnaya pamyat” v mozge: vy vspominaete ne po adresu, a po nameku.
-Klastery — eto kak gruppirovka neyronnykh ansambley: ne tochnaya karta, a ekonomiya energii pri poiske.
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
+Flashback - eto kak “assotsiativnaya pamyat” v mozge: vy vspominaete ne po adresu, a po nameku.
+Klastery - eto kak gruppirovka neyronnykh ensemble: ne tochnaya karta, a ekonomiya energii pri poiske.
 Inzhenerno eto pokhozhe na sklad:
-- vektornyy poisk — bystryy poisk po “pokhozhesti korobok”,
-- klaster — eto “zona sklada”, kuda korobki svalivayut po tipu,
+- vektornyy poisk - bystryy poisk po “pokhozhesti korobok”,
+- klaster - eto “zona sklada”, kuda korobki svalivayut po tipu,
 - KG‑svyazi — eto yarlyki “lezhit v zone X”.
-Esli lomaetsya klasterizatsiya — sklad vse ravno dolzhen vydavat tovar: poetomu rezhim degradatsii.
-"""
+Esli lomaetsya klasterizatsiya - sklad vse ravno dolzhen vydavat tovar: poetomu rezhim degradatsii."""

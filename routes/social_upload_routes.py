@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/social_upload_routes.py - REST: publikatsiya i status klyuchey.
+"""routes/social_upload_routes.py - REST: publikatsiya i status klyuchey.
 
 Mosty:
 - Yavnyy: (Veb ↔ Publikatsiya) odna ruchka initsiiruet upload (api|manual) i pishet zhurnal.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Profile ↔ Memory) modul uploaders uzhe pishet profile i ledzher.
 
 Zemnoy abzats:
-Eto knopka «Opublikovat»: s klyuchami - poydet v API; bez - dast idealnye instruktsii.
+Eto knopka “Opublikovat”: s klyuchami - poydet v API; bez - dast idealnye instructions.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 import os

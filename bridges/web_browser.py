@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-bridges/web_browser.py — polnotsennyy veb-brauzer dlya Ester.
+"""bridges/web_browser.py - polnotsennyy web-browser dlya Ester.
 
-PROBLEMA REShENA:
+PROBLEMA RESHENA:
 Ester govorila "dostup ogranichen" potomu chto u nee byl tolko POISK (ssylki),
-no ne bylo ChTENIYa (soderzhimoe stranits). Etot modul daet polnyy dostup.
+no ne bylo ChTENIYa (soderzhimoe stranits). This modul daet polnyy dostup.
 
 API:
   • browse(url) → WebPage — otkryt URL i poluchit kontent
@@ -13,26 +12,25 @@ API:
   • extract_links(html, base_url) → List[str] — izvlech vse ssylki
 
 Rezhimy (WEB_BROWSER_MODE):
-  • "light"  — tolko urllib + readability (po umolchaniyu, bystryy)
+  • "light" - tolko urllib + readability (by default, bystryy)
   • "medium" — requests-html s chastichnym JS
-  • "full"   — Playwright dlya slozhnykh sluchaev (trebuet ustanovki)
+  • "full" — Playwright dlya slozhnykh sluchaev (trebuet ustanovki)
 
 Mosty:
-- Yavnyy: (Poisk ↔ Chtenie) — search_and_read obedinyaet oba deystviya v odnu operatsiyu.
-- Skrytyy #1: (Infoteoriya ↔ Szhatie) — readability ubiraet shum, ostavlyaya sut.
+- Yavnyy: (Search ↔ Read) — search_and_read obedinyaet oba deystviya v odnu operatsiyu.
+- Skrytyy #1: (Infoteoriya ↔ Szhatie) - readability ubiraet noise, ostavlyaya sut.
 - Skrytyy #2: (Kibernetika ↔ Obratnaya svyaz) — fallback mezhdu rezhimami pri oshibkakh.
 
 Zemnoy abzats:
-Predstav veb-stranitsu kak zhivuyu tkan: HTML — eto skelet (kosti), CSS — kozha,
-JavaScript — myshtsy i nervy. Obychnyy urllib vidit tolko skelet. Readability
+Predstav web-stranitsu kak zhivuyu tkan: HTML - eto skelet (kosti), CSS - kozha,
+JavaScript - myshtsy i nervy. Obychnyy urllib vidit only skelet. Readability
 umeet otdelyat "myaso" (poleznyy tekst) ot "zhira" (reklama, navigatsiya).
-Playwright — eto polnotsennoe vskrytie s rabotayuschimi organami.
+Playwright - eto polnotsennoe vskrytie s rabotayuschimi organami.
 
 Ester poluchaet sposobnost ne prosto nakhodit istochniki, no i chitat ikh
-soderzhimoe — kak chelovek pered brauzerom.
+soderzhimoe - kak chelovek pered brauzerom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import hashlib
@@ -77,7 +75,7 @@ BLOCKED_DOMAINS = {
 
 @dataclass
 class WebPage:
-    """Rezultat otkrytiya veb-stranitsy."""
+    """The result of opening a web page."""
     url: str
     title: str = ""
     text: str = ""
@@ -94,7 +92,7 @@ class WebPage:
         return self.status == 200 and not self.error
 
     def summary(self, max_chars: int = 500) -> str:
-        """Kratkoe soderzhanie stranitsy."""
+        """Brief content of the page."""
         text = self.text[:max_chars]
         if len(self.text) > max_chars:
             text += "..."
@@ -105,7 +103,7 @@ class WebPage:
 
 
 class _PageCache:
-    """Prostoy TTL-kesh dlya stranits."""
+    """Simple TTL cache for pages."""
 
     def __init__(self, ttl_sec: int = 600):
         self.ttl = ttl_sec
@@ -147,10 +145,8 @@ _cache = _PageCache(WEB_BROWSER_CACHE_TTL)
 
 
 class _ReadabilityParser(HTMLParser):
-    """
-    Uproschennyy readability-parser: izvlekaet tekst, ignoriruya skripty,
-    stili, navigatsiyu i reklamu.
-    """
+    """Simplified readability parser: extracts text, ignoring scripts,
+    styles, navigation and advertising."""
 
     SKIP_TAGS = {"script", "style", "nav", "header", "footer", "aside", "noscript", "iframe", "svg"}
     BLOCK_TAGS = {"p", "div", "article", "section", "main", "h1", "h2", "h3", "h4", "h5", "h6", "li", "td", "th", "blockquote"}
@@ -197,7 +193,7 @@ class _ReadabilityParser(HTMLParser):
         if tag == "title":
             self._in_title = False
 
-        # Dobavlyaem perevod stroki posle blochnykh elementov
+        # Adding a line break after block elements
         if tag in self.BLOCK_TAGS and self.text_parts:
             self.text_parts.append("\n")
 
@@ -239,13 +235,13 @@ def extract_text(html: str) -> Tuple[str, str, str, List[str]]:
 
 
 def _is_blocked(url: str) -> bool:
-    """Proveryaet, zablokirovan li domen."""
+    """Checks if the domain is blocked."""
     try:
         host = urlparse(url).hostname or ""
         host = host.lower()
         if host in BLOCKED_DOMAINS:
             return True
-        # Proveryaem poddomeny
+        # Checking subdomains
         for blocked in BLOCKED_DOMAINS:
             if host.endswith("." + blocked):
                 return True
@@ -264,13 +260,13 @@ def _fetch_light(url: str) -> WebPage:
             "User-Agent": WEB_BROWSER_USER_AGENT,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "en-US,en;q=0.9,ru;q=0.8",
-            "Accept-Encoding": "identity",  # Bez szhatiya dlya prostoty
+            "Accept-Encoding": "identity",  # No compression for simplicity
         })
         with urlopen(req, timeout=WEB_BROWSER_TIMEOUT) as resp:
             page.status = resp.status
             content_type = resp.headers.get("Content-Type", "")
 
-            # Proveryaem chto eto HTML
+            # We check that it is NTML
             if "text/html" not in content_type.lower() and "application/xhtml" not in content_type.lower():
                 page.error = f"Not HTML: {content_type}"
                 return page
@@ -298,7 +294,7 @@ def _fetch_light(url: str) -> WebPage:
 
 
 def _fetch_medium(url: str) -> WebPage:
-    """Sredniy rezhim: requests-html s chastichnym JS (esli dostupen)."""
+    """Medium mode: regular-html with partial YS (if available)."""
     try:
         from requests_html import HTMLSession
         session = HTMLSession()
@@ -312,7 +308,7 @@ def _fetch_medium(url: str) -> WebPage:
             })
             page.status = resp.status_code
 
-            # Renderim JS (esli nuzhno)
+            # Render the JS (if necessary)
             try:
                 resp.html.render(timeout=10, sleep=1)
             except Exception:
@@ -341,7 +337,7 @@ def _fetch_medium(url: str) -> WebPage:
 
 
 def _fetch_full(url: str) -> WebPage:
-    """Polnyy rezhim: Playwright (headless Chrome)."""
+    """Full mode: Playvight (headless Chrome)."""
     try:
         from playwright.sync_api import sync_playwright
 
@@ -388,17 +384,15 @@ def _fetch_full(url: str) -> WebPage:
 
 
 def browse(url: str, mode: Optional[str] = None, use_cache: bool = True) -> WebPage:
-    """
-    Otkryvaet URL i vozvraschaet soderzhimoe stranitsy.
+    """Open URL i vozvraschaet soderzhimoe stranitsy.
 
     Args:
         url: URL dlya otkrytiya
-        mode: Rezhim ("light", "medium", "full"). Po umolchaniyu iz ENV.
+        mode: Rezhim ("light", "medium", "full"). By umolchaniyu iz ENV.
         use_cache: Ispolzovat kesh
 
     Returns:
-        WebPage s rezultatom
-    """
+        WebPage s resultatom"""
     if not WEB_BROWSER_ENABLED:
         return WebPage(url=url, error="Web browser disabled (WEB_BROWSER_ENABLED=0)")
 
@@ -421,7 +415,7 @@ def browse(url: str, mode: Optional[str] = None, use_cache: bool = True) -> WebP
     else:
         page = _fetch_light(url)
 
-    # Fallback pri oshibke
+    # Falbatsk on error
     if not page.ok() and mode != "light":
         logger.info(f"Fallback to light mode for {url}")
         page = _fetch_light(url)
@@ -439,18 +433,16 @@ def search_and_read(
     mode: Optional[str] = None,
     search_provider: Optional[str] = None
 ) -> List[WebPage]:
-    """
-    Vypolnyaet poisk i chitaet soderzhimoe top-k stranits.
+    """Vypolnyaet poisk i chitaet soderzhimoe top-k stranits.
 
     Args:
-        query: Poiskovyy zapros
-        k: Skolko stranits prochitat (maks. WEB_BROWSER_MAX_PAGES)
-        mode: Rezhim brauzera
-        search_provider: Provayder poiska (po umolchaniyu iz modules/web_search)
+        query: Poiskovyy requests
+        k: Skolko stranits prochitat (max. WEB_BROWSER_MAX_PAGES)
+        mode: Rezhim browser
+        search_provider: Provayder poiska (by umolchaniyu iz modules/web_search)
 
     Returns:
-        Spisok WebPage s rezultatami
-    """
+        Spisok WebPage s results"""
     k = max(1, min(k, WEB_BROWSER_MAX_PAGES))
 
     # Importiruem poisk
@@ -465,7 +457,7 @@ def search_and_read(
     if not hits:
         return []
 
-    # Chitaem stranitsy
+    # Reading the pages
     pages: List[WebPage] = []
     for hit in hits:
         if len(pages) >= k:
@@ -481,9 +473,7 @@ def search_and_read(
 
 
 def read_urls(urls: List[str], mode: Optional[str] = None) -> List[WebPage]:
-    """
-    Chitaet spisok URL parallelno (poka posledovatelno dlya prostoty).
-    """
+    """Reads the list of URLs in parallel (for now sequentially for simplicity)."""
     pages: List[WebPage] = []
     for url in urls[:WEB_BROWSER_MAX_PAGES]:
         pages.append(browse(url, mode=mode))
@@ -491,7 +481,7 @@ def read_urls(urls: List[str], mode: Optional[str] = None) -> List[WebPage]:
 
 
 def clear_cache() -> int:
-    """Ochischaet kesh, vozvraschaet kolichestvo udalennykh zapisey."""
+    """Clears the cache, returns the number of deleted entries."""
     return _cache.clear()
 
 
@@ -507,11 +497,11 @@ _stats = {
 
 
 def stats() -> Dict[str, Any]:
-    """Vozvraschaet statistiku ispolzovaniya."""
+    """Returns usage statistics."""
     return dict(_stats)
 
 
-# === CLI dlya testirovaniya ===
+# === SLI for testing ===
 
 
 if __name__ == "__main__":

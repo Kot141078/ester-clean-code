@@ -10,7 +10,7 @@ spec:
     - name: ester-rec-rules
       interval: 30s
       rules:
-        # Oshibki v dolyakh (burn-friendly)
+        # Errors in beats (burn-friendly)
         - record: job:ester:http_errors:rate5m
           expr: |
             clamp_max(

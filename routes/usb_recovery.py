@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-routes/usb_recovery.py - UI/REST «USB-Recovery».
+"""routes/usb_recovery.py - UI/REST “USB-Recovery”.
 
-Marshruty:
-  • GET  /admin/usb/recovery               - HTML
-  • GET  /admin/usb/recovery/status        - cfg + spisok tomov
-  • POST /admin/usb/recovery/scan          - {mount} → kandidaty
-  • POST /admin/usb/recovery/plan          - {mount} → plan
-  • POST /admin/usb/recovery/apply         - {mount, health_cmd?} → vosstanovlenie (AB uvazhaet)
-  • POST /admin/usb/recovery/save          - sokhranit nastroyki
+Route:
+  • GET /admin/usb/recovery - HTML
+  • GET /admin/usb/recovery/status - cfg + spisok tomov
+  • POST /admin/usb/recovery/scan - {mount} → kandidaty
+  • POST /admin/usb/recovery/plan - {mount} → plan
+  • POST /admin/usb/recovery/apply - {mount, health_cmd?} → vosstanovlenie (AB uvazhaet)
+  • POST /admin/usb/recovery/save - sokhranit nastroyki
 
 Mosty:
 - Yavnyy (UX ↔ Bezopasnost): odin ekran - skan, plan, vosstanovlenie.
@@ -16,10 +15,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Sovmestimost): uvazhaem A/B-sloty i suschestvuyuschie portable-puti.
 
 Zemnoy abzats:
-Eto «master pervoy pomoschi»: ukazhi fleshku - on vse sdelaet sam, akkuratno i s otkatom.
+Eto “master pervoy pomoschi”: ukazhi fleshku - on vse sdelaet sam, akkuratno i s otkatom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os

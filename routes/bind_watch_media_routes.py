@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/bind_watch_media_routes.py - REST: /bind/watch-media/* (config/status/run)
+"""routes/bind_watch_media_routes.py - REST: /bind/watch-media/* (config/status/run)
 
 Mosty:
 - Yavnyy: (Watch ↔ Media) knopki i API dlya avtozapuska inzhesta po papkam.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Cron/Rules ↔ Avtonomiya) legko zapuskat po taymeru ili sobytiyu.
 
 Zemnoy abzats:
-Para ruchek - i papka «vkhodyaschie video» nachinaet razbiratsya avtomaticheski, bez ruchnoy rutiny.
+Para ruchek - i papka “vkhodyaschie video” nachinaet razbiratsya avtomaticheski, bez ruchnoy rutiny.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

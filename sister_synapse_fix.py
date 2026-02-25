@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-patch_synapse_v2.py — patch dlya run_ester_fixed.py (sinaps s sestroy + zapros mneniya)
+"""patch_synapse_v2.py - patch dlya run_ester_fixed.py (sinaps s sestroy + zapros mneniya)
 
 YaVNYY MOST:
   c = a + b -> “sestra” (uzel) + protsedury (lokalnyy mozg) => sovmestnoe mnenie.
@@ -15,10 +14,9 @@ ZEMNOY ABZATs (anatomiya/inzheneriya):
   taymauty, i vsegda zakryvaem event loop (kak “zakryt klapan”, chtoby ne bylo utechek).
 
 A/B-sloty i avto-otkat:
-  A = originalnyy fayl (backup)
-  B = patchennaya versiya
-  Esli proverka tselostnosti ne prokhodit — otkat k A.
-"""
+  A = originalnyy file (backup)
+  B = patchennaya version
+  Esli proverka tselostnosti ne prokhodit - otkat k A."""
 
 import os
 import re
@@ -47,7 +45,7 @@ def sister_inbound():
 
     token = data.get('token')
 
-    # Proverka bezopasnosti
+    # Security check
     if not SISTER_SYNC_TOKEN or token != SISTER_SYNC_TOKEN:
         return jsonify({"status": "error", "message": "Invalid token"}), 403
 
@@ -69,7 +67,7 @@ def sister_inbound():
             except Exception:
                 pass
 
-    # Esli eto zapros na mnenie (thought), zapuskaem lokalnyy mozg
+    # If this is a request for an opinion (thught), we launch the local brain
     if context_type == "thought_request":
         try:
             messages = [
@@ -129,7 +127,7 @@ async def ask_sister_opinion(query_text: str) -> str:
 
 
 def _read_text(path: Path) -> str:
-    # Snachala strogo UTF-8; esli vdrug BOM — otkroetsya vtorym variantom
+    # First strictly UTF-8; if suddenly HERE - it will open as the second option
     try:
         return path.read_text(encoding="utf-8")
     except UnicodeDecodeError:
@@ -162,11 +160,11 @@ def apply_patch(target_file: str) -> int:
     patched = original
 
     # --- PATCh 1: datetime.now() -> datetime.datetime.now()
-    # (tochechno i bezopasno, esli v rannere import datetime)
+    # (precisely and safely if the runner imports datetime)
     patched = re.sub(r"\bdatetime\.now\(\)", "datetime.datetime.now()", patched)
 
-    # --- OSNOVNOY PATCh: zamenit blok sister_inbound (+ staryy send_to_sister, esli on vnutri)
-    # Ischem ot dekoratora /sister/inbound do opredeleniya run_flask_background (NE vklyuchaya ego)
+    # --- MAIN Patch: replace the sister_inbund block (+ old send_to_sister, if it is inside)
+    # We are looking from the decorator / sisters / inbund to the definition of rune_flask_background (NOT including it)
     synapse_re = re.compile(
         r"@flask_app\.route\(\s*['\"]/sister/inbound['\"]\s*,\s*methods\s*=\s*\[[^\]]*\]\s*\)\s*.*?(?=def\s+run_flask_background\s*\()",
         re.DOTALL
@@ -174,15 +172,15 @@ def apply_patch(target_file: str) -> int:
 
     m = synapse_re.search(patched)
     if not m:
-        print("❌ Ne nashel blok dlya zameny: /sister/inbound -> run_flask_background().")
-        print("   (Vozmozhnaya prichina: otlichaetsya format dekoratora/funktsiy.)")
-        print("↩️ Otkat: ostavlyayu vse kak bylo, backup uzhe sozdan.")
+        print("❌ I didn’t find a block to replace: /sister/inbound -> run flask background().")
+        print("(Possible reason: decorator/function format is different.)")
+        print("↩️ Rollback: I leave everything as it was, a backup has already been created.")
         return 3
 
     print("🧬 Nashel staryy blok svyazi. Vzhivlyayu novyy sinaps...")
     patched = synapse_re.sub(NEW_SYNAPSE_CODE + "\n\n", patched, count=1)
 
-    # --- Validatsiya (B-slot dolzhen byt “zhivym”)
+    # --- Validation (B-slot must be “live”)
     must_have = [
         "def sister_inbound():",
         "async def ask_sister_opinion",
@@ -197,7 +195,7 @@ def apply_patch(target_file: str) -> int:
 
     # Zapis (B-slot)
     _write_text_atomic(target, patched)
-    print("✅ Gotovo. Fayl obnovlen (B-slot).")
+    print("✅ Ready. Fayl updated (B-slot).")
     return 0
 
 
@@ -209,5 +207,5 @@ def main() -> int:
 if __name__ == "__main__":
     code = main()
     if code != 0:
-        print(f"\n⚠️ Zaversheno s kodom {code}. (Backup sokhranen.)")
-    input("\nNazhmi Enter dlya zaversheniya...")
+        print(f"⚠️ Zaversheno s kodom {code}. (Backup sokhranen.)")
+    input("Press Enter to complete...")

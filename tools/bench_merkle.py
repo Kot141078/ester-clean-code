@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Benchmark: postroenie Merkle i vychislenie listev dlya 10k klyuchey.
-Tsel DoD: lokalno ~<200ms/uzel (zavisit ot CPU; orientir).
+"""Benchmark: postroenie Merkle i vychislenie listev dlya 10k klyuchey.
+Tsel DoD: lokalno ~<200ms/uzel (depending on CPU; orientir).
 Zapusk:
-  python -m tools.bench_merkle [N=10000]
-"""
+  python -m tools.bench_merkle [N=10000]"""
 from __future__ import annotations
 
 import json

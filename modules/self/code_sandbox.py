@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/code_sandbox.py — bezopasnaya samo-modifikatsiya: chernoviki moduley, proverka, primenenie, otkat.
+"""modules/self/code_sandbox.py - bezopasnaya samo-modifikatsiya: chernoviki moduley, proverka, primenenie, otkat.
 
 API:
   • draft(name, content) -> dict
@@ -12,18 +11,17 @@ API:
 Politika:
   • Po umolchaniyu primenenie zaprescheno (SELF_CODE_ALLOW_APPLY=0).
   • A/B: SELF_CODE_AB=B — razresheny tolko draft/check/list (apply/revert → otkaz).
-  • Primenenie = perenos .py iz drafts → enabled i avtopodkhvat cherez dynamic_loader; pered perenosom — sintaksis+import.
+  • Primenenie = perenos .py iz drafts → enabled i avtopodkhvat cherez dynamic_loader; pered perenosom - sintaksis+import.
 
 Mosty:
-- Yavnyy: (Myshlenie ↔ Inzheneriya) «volya» mozhet sozdavat instrumenty, no s predokhranitelyami.
+- Yavnyy: (Myshlenie ↔ Inzheneriya) “volya” mozhet sozdavat instrumenty, no s predokhranitelyami.
 - Skrytyy #1: (Infoteoriya ↔ Audit) sha256, profile, zhurnal sostoyaniy — vosproizvodimost izmeneniy.
 - Skrytyy #2: (Kibernetika ↔ Kontrol) avtokatbek: pri sboe importa modul ne vklyuchaetsya.
 
 Zemnoy abzats:
-Eto bezopasnyy verstak: detali delaem zdes, primeryaem — i tolko potom prikruchivaem k mashine.
+This is bezopasnyy verstak: detail delaem zdes, primeryaem - i just potom prikruchivaem k machine.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import ast, hashlib, importlib.util, io, os, shutil, sys, time
@@ -54,7 +52,7 @@ def draft(name: str, content: str) -> Dict[str, Any]:
     if not name or not content:
         return {"ok": False, "error": "name and content required"}
     if AB == "B":
-        return {"ok": False, "error": "SELF_CODE_AB=B (draft disabled)"}  # zhestkiy rezhim
+        return {"ok": False, "error": "SELF_CODE_AB=B (draft disabled)"}  # hard mode
     # bystryy sintaksis
     try:
         ast.parse(content)
@@ -88,13 +86,13 @@ def check(name: str) -> Dict[str, Any]:
     bad = _deny_imports_check(content)
     if bad:
         return {"ok": False, "error": f"denied imports: {bad}"}
-    # probnyy import kak otdelnogo modulya
+    # trial import as a separate module
     spec = importlib.util.spec_from_file_location(f"extdraft_{name}", path)
     mod = importlib.util.module_from_spec(spec)
     try:
         loader = spec.loader
         assert loader is not None
-        loader.exec_module(mod)   # mozhet upast
+        loader.exec_module(mod)   # may fall
     except Exception as e:
         _CNT["checks_total"] += 1
         return {"ok": False, "error": f"import failed: {e}"}
@@ -117,7 +115,7 @@ def apply(name: str) -> Dict[str, Any]:
     if not os.path.isfile(src):
         return {"ok": False, "error": "draft not found"}
     content = open(src, "r", encoding="utf-8").read()
-    # import-proverka
+    # import-check
     chk = check(name)
     if not chk.get("ok"):
         _CNT["applies_fail"] += 1

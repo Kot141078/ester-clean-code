@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-patch_20251226_tg_lock_context_v2.py
+"""patch_20251226_tg_lock_context_v2.py
 
 YaVNYY MOST: c=a+b — kogda "b" (model/puller) molchit ili konfliktuet, "a" (interfeys) obyazan skazat pravdu.
 SKRYTYE MOSTY:
   - Ashby (requisite variety): raznye klassy oshibok -> raznye soobscheniya, a ne odin yarlyk.
-  - Cover&Thomas (limit kanala): odin getUpdates-kanal -> odin vladelets (lock), inache 409.
-ZEMNOY ABZATs: kak dva nasosa v odnu trubu dayut kavitatsiyu, tak dva getUpdates-pullera dayut 409 Conflict.
-"""
+  - Cover&Thomas (limit channel): odin getUpdates-kanal -> odin vladelets (lock), inache 409.
+ZEMNOY ABZATs: how dva nasosa v odnu trubu dayut kavitatsiyu, tak dva getUpdates-pullera dayut 409 Conflict."""
 
 import argparse
 import datetime
@@ -55,11 +53,10 @@ def _patch_chat_api(text: str) -> str:
                 last_import = i
         insert_at = last_import + 1
 
-    helper_lines = """
-# [CTX_OVERLOAD_PATCH_V2]
+    helper_lines = """# [CTX_OVERLOAD_PATCH_V2]
 # YaVNYY MOST: c=a+b — kogda "b" (model) molchit, "a" (interfeys) obyazan govorit chestno.
-# SKRYTYE MOSTY: (Ashby) raznoobrazie oshibok -> klassifikatsiya; (Cover&Thomas) limit kanala -> yavnoe soobschenie o perepolnenii.
-# ZEMNOY ABZATs: kak u myshts est predel nagruzki (i posle — sudoroga), tak u konteksta est predel tokenov.
+# HIDDEN BRIDGES: (Ashby) variety of errors -> classification; (Carpet&Thomas) channel limit -> explicit overflow message.
+# ZEMNOY ABZATs: how u myshts est predel nagruzki (i posle - sudoroga), tak u konteksta est predel tokenov.
 
 def _fallback_message(err):
     slot = os.getenv("ESTER_CHATAPI_OVERLOAD_SLOT", "B").strip().upper()
@@ -79,20 +76,21 @@ def _fallback_message(err):
         "output too large", "length of input",
     ]
     if any(k in el for k in ctx_keys):
-        return "Izvini, ya uperlas v limit konteksta (slishkom mnogo teksta/pamyati). Sokrati vopros ili skazhi: «otvet kratko»."
+        return "Izvini, ya uperlas v limit konteksta (slishkom mnogo teksta/pamyati). Sokrati vopros ili skazhi: “otvet kratko.”"
 
     if "timeout" in el or "timed out" in el:
         return "Izvini, taymaut u modeli. Povtori vopros (luchshe koroche)."
     if any(k in el for k in ["connection", "refused", "unreachable", "reset by peer", "502", "503", "504"]):
-        return "Izvini, model seychas nedostupna (soedinenie/shlyuz). Povtori vopros cherez minutu."
+        return "Izvini, model seychas nedostupna (soedinenie/shlyuz). Repeat questions cherez minutu."
 
-    return "Izvini, byl sboy pri otvete. Povtori vopros."
-""".strip("\n").splitlines()
+    return "Sorry, there was a failure while generating a reply. Repeat the question."
+
+""".lstrip("\n").splitlines()
 
     new_lines = lines[:insert_at] + [""] + helper_lines + [""] + lines[insert_at:]
     new_text = "\n".join(new_lines) + "\n"
 
-    # tochechnaya zamena staroy zaglushki
+    # spot replacement of old plug
     new_text = new_text.replace(
         '        answer = "Izvini, proizoshla peregruzka konteksta. Povtori vopros."',
         "        answer = _fallback_message(err)",
@@ -109,11 +107,10 @@ def _patch_run_ester_fixed(text: str) -> str:
     if idx == -1:
         return text
 
-    helper = """
-# [TG_LOCK_PATCH_V2]
+    helper = """# [TG_LOCK_PATCH_V2]
 # YaVNYY MOST: c=a+b — odin bot = odin kanal getUpdates, inache "b" sporit sam s soboy.
 # SKRYTYE MOSTY: (Ashby) stabilizatsiya cherez ogranichenie konkuriruyuschikh konturov; (Cover&Thomas) konkurentnyy dostup -> arbitrazh cherez lock.
-# ZEMNOY ABZATs: kak dva vodyanykh nasosa v odnu trubu dayut kavitatsiyu, tak dva poller'a v odin getUpdates dayut 409 Conflict.
+# ZEMNOY ABZATs: how dva vodyanykh nasosa v odnu trubu dayut kavitatsiyu, tak dva poller'a v odin getUpdates dayut 409 Conflict.
 
 def _tg_lock_path() -> str:
     p = (os.getenv("ESTER_TG_LOCK_PATH") or "").strip()
@@ -178,12 +175,11 @@ def _tg_release_lock(f):
             f.close()
         except Exception:
             pass
-
 """.lstrip()
 
     new_text = text[:idx] + helper + text[idx:]
 
-    # oborachivaem run_polling v lock (chtoby ne lovit 409 Conflict)
+    # wrap run_polling in gloss (so as not to catch 409 Conflict)
     new_text = new_text.replace(
         "    app.run_polling(drop_pending_updates=True)",
         "    _tg_lock_f = _tg_try_acquire_lock()\n"
@@ -200,7 +196,7 @@ def _tg_release_lock(f):
 
 
 def _patch_messaging_telegram_adapter(text: str) -> str:
-    # vyklyuchaem avtozapusk Telegram po umolchaniyu (chtoby app/autoload ne podnimali getUpdates sami)
+    # turn off Telegram autostart by default (so that app/autoload does not raise getUpdates themselves)
     new = text
     new = new.replace('_env_flag("ESTER_TELEGRAM_ENABLED", "1")', '_env_flag("ESTER_TELEGRAM_ENABLED", "0")')
     new = new.replace('_env_flag("ESTER_TELEGRAM_ADAPTER_AUTOSTART", "1")', '_env_flag("ESTER_TELEGRAM_ADAPTER_AUTOSTART", "0")')
@@ -214,7 +210,7 @@ def _apply(root_dir: Path) -> Optional[Path]:
         ("messaging/telegram_adapter.py", _patch_messaging_telegram_adapter),
     ]
 
-    # optsionalno: esli takie fayly est — poprobuem tozhe popravit defaults
+    # optional: if there are such files, we’ll also try to fix the defaults
     optional: List[Tuple[str, Callable[[str], str]]] = [
         ("bridges/telegram_adapter.py", _patch_messaging_telegram_adapter),
         ("services/telegram_adapter.py", _patch_messaging_telegram_adapter),
@@ -256,7 +252,7 @@ def _apply(root_dir: Path) -> Optional[Path]:
             patched_any = True
 
     if not patched_any:
-        # nichego ne menyali — chisto
+        # nothing changed - clean
         try:
             shutil.rmtree(backup_root)
         except Exception:

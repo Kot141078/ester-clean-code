@@ -1,25 +1,24 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""routes_emotions.py — HTTP routes dlya emotsionalnogo dvizhka Ester.
+"""routes_emotions.py - HTTP routes dlya emotsionalnogo dvizhka Ester.
 
-Teper, kogda est polnotsennyy `emotional_engine.py`, routy mozhno sdelat prosche i pryamee:
+Now, when est polnotsennyy `emotional_engine.py`, routy mozhno sdelat prosche i pryamee:
 - importiruem detect_emotions/top_emotions napryamuyu iz emotional_engine
 - ostavlyaem best-effort fallback na sluchay “pereezda” API/oshibok importa (chtoby kontur ne padal)
 
-Marshruty:
-- GET  /emotions/ping    (bez JWT) — diagnostika, kakoy dvizhok podklyuchen
-- POST /emotions/detect  (JWT)     — {text} -> {scores}
-- POST /emotions/top     (JWT)     — {text,k} -> {top}
+Route:
+- GET /emotions/ping (without JWT) — diagnostika, kakoy dvizhok podklyuchen
+- POST /emotions/detect (JWT) - {text} -> {scores}
+- POST /emotions/top (JWT) - {text,k} -> {top}
 
 Mosty:
 - Yavnyy: HTTP /emotions/* → emotional_engine → JSON.
 - Skrytye:
   1) Kibernetika ↔ nadezhnost: fallback ne daet sisteme “umeret” iz-za odnogo importa.
-  2) Infoteoriya ↔ ekonomiya: top-k + scores — korotkiy kanal obratnoy svyazi, ne taschim tekst obratno.
+  2) Infoteoriya ↔ ekonomiya: top-k + scores - korotkiy kanal obratnoy svyazi, ne taschim tekst obratno.
 
-ZEMNOY ABZATs: v kontse fayla.
-"""
+ZEMNOY ABZATs: v kontse fayla."""
 
 from typing import Any, Dict, List, Tuple
 
@@ -92,7 +91,7 @@ def top_emotions(text: str, k: int = 3) -> List[Tuple[str, float]]:
 
 
 def register_emotions_routes(app, memory_manager=None, url_prefix: str = "/emotions"):
-    """Vozvraschaet Blueprint. Registriruy ego snaruzhi cherez app.register_blueprint(bp)."""
+    """Returns Blueprint. Register it externally via app.register_blueprint(bp)."""
     bp = Blueprint("emotions", __name__)
 
     @bp.get(url_prefix + "/ping")
@@ -132,9 +131,7 @@ def register_emotions_routes(app, memory_manager=None, url_prefix: str = "/emoti
 __all__ = ["register_emotions_routes"]
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
 Eto kak podklyuchit normalnyy “analiz krovi” vmesto test‑poloski.
 Poloska (fallback) ostaetsya kak avariynyy variant, no v shtatnom rezhime my chitaem pokazateli iz nastoyaschey laboratorii —
-i pri etom interfeys dlya vneshnego mira (routy) ostaetsya stabilnym.
-"""
+i pri etom interfeys dlya vneshnego mira (routy) ostaetsya stabilnym."""

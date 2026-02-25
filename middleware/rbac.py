@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-middleware/rbac.py — prostaya rolevaya model poverkh JWT/lokalnoy karty.
+"""middleware/rbac.py - simple rolevaya model poverkh JWT/lokalnoy karty.
 
 Mosty:
 - Yavnyy: (Bezopasnost ↔ Routy) chek roli po subject.
 - Skrytyy #1: (DevOps ↔ Bootstrap) pervyy admin cherez sekret.
-- Skrytyy #2: (Ostorozhnost ↔ Caution) druzhit s «pilyulyami» cherez otdelnyy sloy.
+- Skrytyy #2: (Ostorozhnost ↔ Caution) druzhit s “pilyulyami” cherez otdelnyy layer.
 
 Zemnoy abzats:
-Komu mozhno nazhimat opasnye knopki — derzhim spisok i proveryaem.
+Komu mozhno nazhimat opasnye knopki - derzhim spisok i proveryaem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from typing import Any, Dict

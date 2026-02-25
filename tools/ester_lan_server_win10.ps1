@@ -3,8 +3,8 @@ Ester / LAN Server (Win10)
 
 Mosty:
 - Yavnyy: (SMB ↔ Ester-khranilische) — odna obschaya tochka pravdy dlya ingest/snapshots.
-- Skrytyy #1: (Sluzhby obnaruzheniya ↔ Provodnik) — publikatsiya uzla, chtoby ego videli bez vvoda IP.
-- Skrytyy #2: (Fayrvol ↔ Doverie) — tolko nuzhnye gruppy pravil, nichego lishnego.
+- Skrytyy #1: (Sluzhby obnaruzheniya ↔ Provodnik) - publikatsiya uzla, chtoby ego videli bez vvoda IP.
+- Skrytyy #2: (Fairvol ↔ Doverie) - tolko nuzhnye gruppy pravil, nichego lishnego.
 
 Zemnoy abzats (inzheneriya):
 Eto «stoyka s diskom i dvumya avtomatami»: sluzhba publikatsii — chtoby stoyku nashli, fayrvol — chtoby ne dulo, prava NTFS — chtoby nikto ne vydral shnur logicheski.
@@ -12,7 +12,7 @@ Eto «stoyka s diskom i dvumya avtomatami»: sluzhba publikatsii — chtoby stoy
 # c=a+b
 #>
 
-$SharePath = 'D:\LAN_Share'       # uzhe est — ne strashno, sozdadim pri otsutstvii
+$SharePath = 'D:\LAN_Share'       # already exists - no problem, we’ll create it if you don’t have it
 $ShareName = 'LAN_SHARE'
 $User      = 'lanuser'
 
@@ -38,7 +38,7 @@ foreach($s in 'FDResPub','fdPHost','SSDPSRV','upnphost','LanmanServer','LanmanWo
 Set-SmbServerConfiguration -EnableSMB2Protocol $true -EnableSMB1Protocol $false `
   -RequireSecuritySignature $false -EnableSecuritySignature $true -Force | Out-Null
 
-# Faervol (RU/EN gruppy — chto naydetsya)
+# Firewall (RU/EN groups - whatever you can find)
 'Network Discovery','Obnaruzhenie seti','File and Printer Sharing','Obschiy dostup k faylam i printeram' |
   % { Get-NetFirewallRule -DisplayGroup $_ -ErrorAction SilentlyContinue | Enable-NetFirewallRule | Out-Null }
 

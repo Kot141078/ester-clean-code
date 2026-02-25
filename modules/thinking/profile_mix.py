@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/profile_mix.py — «miksy» profiley: sloynaya kompozitsiya khotkeev.
+"""modules/thinking/profile_mix.py - “miksy” profiley: sloynaya kompozitsiya khotkeev.
 
 Khranilische: data/desktop/profile_mixes.json
-Struktura:
+Structure:
 {
   "mixes": { "mix_name": {"layers":["FPS_basic","Editor_notepad"]} },
   "bindings": [{"title":"Notepad","mix":"mix_name"}]
@@ -11,20 +10,19 @@ Struktura:
 
 API:
 - create_mix(name, layers:list[str])
-- get_mix(name) -> {"layers":[...], "hotkeys":[...], "pace":"..."}   # pace vychislyaetsya po dominiruyuschemu sloyu (pervomu)
+- get_mix(name) -> {"layers":[...], "hotkeys":[...], "pace":"..."} # pace vychislyaetsya po dominiruyuschemu sloyu (pervomu)
 - bind_mix(title, mix)
 - apply_for_title(title) -> poslat khotkei aktivnomu oknu (cherez window_ops.send_hotkey)
 
 MOSTY:
 - Yavnyy: (Igrovye/rabochie rezhimy ↔ Kontrol) sloi khotkeev obedinyayutsya pod tekuschuyu zadachu.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) deduplikatsiya khotkeev i opredelennyy poryadok sloev.
-- Skrytyy #2: (Kibernetika ↔ Volya) miks zadaet «rezhim motoriki» Ester.
+- Skrytyy #2: (Kibernetika ↔ Volya) miks zadaet “rezhim motoriki” Ester.
 
 ZEMNOY ABZATs:
-Prostoy JSON. Sovmestimo s uzhe suschestvuyuschim slovarem profiley (`game_profiles.py`). Bez storonnikh zavisimostey.
+Simple JSON. Sovmestimo s uzhe suschestvuyuschim slovarem profiley (`game_profiles.py`). No matter what.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json
 from typing import Dict, Any, List, Optional
@@ -98,7 +96,7 @@ def get_binding_for_title(title: str) -> Optional[Dict[str, Any]]:
     return None
 
 def apply_for_title(title: str) -> Dict[str, Any]:
-    # Prioritet: esli est bind miksa — primenyaem ego; inache fallback na obychnyy profil iz game_profiles.
+    # Priority: if there is a mix bind, apply it; otherwise fake to a regular profile from game_profiles.
     bm = get_binding_for_title(title)
     if bm:
         mx = get_mix(bm["mix"])
@@ -111,7 +109,7 @@ def apply_for_title(title: str) -> Dict[str, Any]:
             sent.append({"seq": seq, "ok": bool(ok)})
         return {"ok": True, "mode": "mix", "title": bm["title"], "mix": bm["mix"], "sent": sent, "pace": mx.get("pace")}
 
-    # fallback — obychnyy profil (esli ranee privyazyvali cherez game_profiles)
+    # false - regular profile (if previously linked via game_profiles)
     from modules.thinking.game_profiles import get_binding_for as gp_get
     b = gp_get(title or "")
     if b:

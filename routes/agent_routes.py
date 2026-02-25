@@ -1,16 +1,14 @@
 
 # -*- coding: utf-8 -*-
-"""
-routes/agent_routes.py - REST-ruchki planirovaniya agenta (bez vypolneniya).
+"""routes/agent_routes.py - REST-ruchki planirovaniya agenta (bez vypolneniya).
 
 Ruchki:
-  POST /agent/step  {"goal":"otkryt bloknot i sokhranit fayl"}
-  GET  /agent/queue
+  POST /agent/step {"goal":"otkryt bloknot i sokhranit fayl"}
+  GET /agent/queue
   POST /agent/clear {}
-  GET  /admin/agent_plan
+  GET /admin/agent_plan
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.thinking.loop import step as think_step

@@ -22,9 +22,7 @@ def ingest_skill(
     glob: str = "**/*",
     tag: str = "local_docs",
 ) -> Dict[str, Any]:
-    """
-    Inzhest teksta/fayla/direktorii v RAG-khab.
-    """
+    """Ingest text/file/directory into RAZH hub."""
     try:
         from modules.rag import hub  # type: ignore
     except Exception as e:

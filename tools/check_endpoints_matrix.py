@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-S0/tools/check_endpoints_matrix.py — Matritsa statusov endpointov (s/bez JWT) v Markdown.
+"""S0/tools/check_endpoints_matrix.py - Matritsa statusov endpointov (s/bez JWT) v Markdown.
 
 Mosty:
-- Yavnyy: Dzheynes (bayes) — statusy kodov eto «nablyudeniya», povyshayuschie/ponizhayuschie pravdopodobie gipotezy «sistema zdorova».
-- Skrytyy #1: Enderton (logika) — matritsa = kompozitsiya predikatov (metod, put, zagolovki), proveryaemaya bez izmeneniya koda.
+- Yavnyy: Dzheynes (bayes) - statusy kodov eto “nablyudeniya”, povyshayuschie/ponizhayuschie pravdopodobie gipotezy “sistema zdorova”.
+- Skrytyy #1: Enderton (logika) - matritsa = kompozitsiya predikatov (metod, put, zagolovki), proveryaemaya bez izmeneniya koda.
 - Skrytyy #2: Ashbi (kibernetika) — A/B-slot: A=myagkiy (net tokena → net padeniy), B=strogiy (trebuet JWT), s avtokatbekom.
 
 Zemnoy abzats (inzheneriya):
 Instrument chitaet spisok putey (po umolchaniyu iz tests/fixtures/endpoints.txt),
 khodit GET k kazhdomu v dvukh rezhimakh: bez tokena i s tokenom. Token beretsya iz ENV JWT_TOKEN,
-ili generiruetsya cherez tools/jwt_mint.py pri nalichii JWT_SECRET. Dlya webhook dobavlyaet sekretnyy zagolovok.
-Vykhod — Markdown-tablitsa, sokhranyaemaya v --out ili pechataemaya v stdout.
+ili generiruetsya cherez tools/jwt_mint.py pri nalichii JWT_SECRET. Dlya webhook add sekretnyy zagolovok.
+Vykhod - Markdown-tablitsa, sokhranyaemaya v --out ili pechataemaya v stdout.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse
 import base64
@@ -53,7 +51,7 @@ def _mint_jwt_fallback(name: str = "Owner", role: str = "admin", ttl: int = 600)
     if tok:
         return tok.strip()
 
-    # 2) Poprobuem vyzvat tools/jwt_mint.py (esli est) s ENV JWT_SECRET
+    # 2) Let's try to call tools/zhvt_mint.po (if available) from ENV ZhVT_SEKRET
     if os.path.isfile("tools/jwt_mint.py") and os.environ.get("JWT_SECRET"):
         try:
             token = subprocess.check_output(
@@ -94,7 +92,7 @@ def _render_md(rows: List[Tuple[str, str, str]]) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Matritsa statusov endpointov")
     ap.add_argument("--endpoints", default=DEFAULT_ENDPOINTS_FILE, help="Fayl so spiskom putey (po odnomu na stroku)")
-    ap.add_argument("--out", default="-", help="Fayl Markdown ili '-' dlya stdout")
+    ap.add_argument("--out", default="-", help="File Markdovn or ь for stdout")
     args = ap.parse_args()
 
     endpoints = _read_endpoints(args.endpoints)
@@ -106,14 +104,14 @@ def main() -> int:
         code_a, _ = _http_get(path)
         cell_a = f"`{code_a}`" if code_a is not None else "`-`"
 
-        # S JWT (esli est)
+        # With gastrointestinal tract (if any)
         hdrs = {}
         if token:
             hdrs["Authorization"] = f"Bearer {token}"
 
         # Osobyy sluchay: webhook sekret
         if path.endswith("/api/telegram/webhook") and os.environ.get("TELEGRAM_WEBHOOK_SECRET"):
-            # Dlya GET eto ne kritichno, no zagolovok dobavim, chtoby proyti bazovye proverki
+            # For GET this is not critical, but add the header to pass basic checks
             hdrs["X-Telegram-Bot-Api-Secret-Token"] = os.environ["TELEGRAM_WEBHOOK_SECRET"]
 
         code_b, _ = _http_get(path, headers=hdrs if token or hdrs else None)
@@ -125,9 +123,9 @@ def main() -> int:
         try:
             with open(args.out, "w", encoding="utf-8") as f:
                 f.write(md)
-            print(f"[check_endpoints_matrix] Otchet zapisan v {args.out}")
+            print(f"legal_endpoints_matrix Report recorded in ZZF0Z")
         except Exception as e:
-            print(f"[check_endpoints_matrix] WARN: ne udalos zapisat fayl ({e}). Pechatayu v stdout.")
+            print(f"yuchesk_endpoints_matrixsch VARN: failed to write file (ZZF0Z). I am typing in stdout.")
             print(md)
     else:
         print(md)

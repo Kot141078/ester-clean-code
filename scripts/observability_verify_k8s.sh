@@ -23,12 +23,12 @@ check_obj () {
   fi
 }
 
-# Proveryaem klyuchevye CRD-obekty iz charta Ester
+# Checking the key DC objects from the Esther chart
 check_obj "servicemonitor" "$(kubectl get servicemonitor -n "${NS}" --no-headers 2>/dev/null | awk '{print $1}' | head -n1 || echo ester)"
 check_obj "prometheusrule" "$(kubectl get prometheusrule -n "${NS}" --no-headers 2>/dev/null | awk '{print $1}' | grep -E 'slo|rr' || true)"
 check_obj "virtualservice" "$(kubectl get virtualservice -n "${NS}" --no-headers 2>/dev/null | awk '{print $1}' | head -n1 || echo ester)"
 
-# Proverim, chto servis publikuet port, i mozhno poluchit kod 200 ot /metrics ili /metrics/prom cherez pod exec
+# Let's check that the service publishes the port, and you can get code 200 from /matrix or /matrix/prom via under exe
 echo "[verify-k8s] Probing /metrics endpoints via a running pod..."
 POD="$(kubectl get pod -n "${NS}" -l app.kubernetes.io/name=ester -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)"
 if [[ -z "${POD}" ]]; then

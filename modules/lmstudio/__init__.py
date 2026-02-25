@@ -1,16 +1,14 @@
 
 # -*- coding: utf-8 -*-
-"""
-modules.lmstudio — tonkaya prosloyka nad llm.autoconfig_settings.
+"""modules.lmstudio - tonkaya prosloyka nad llm.autoconfig_settings.
 Mosty:
 - Yavnyy: (LM Studio ↔ Nastroyki) — funktsii detect()/client() sovmestimy so starymi vyzovami.
 - Skrytyy #1: (Bezopasnost) — ne ukhodit v set bez ENV.
-- Skrytyy #2: (Stabilnost) — sovmestim s modules.llm.broker.
+- Skrytyy #2: (Stabilnost) - sovmestim s modules.llm.broker.
 
 Zemnoy abzats:
 Nuzhen adres LM Studio i imya modeli, chtoby lokalno otvechat bez oblaka.
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from modules.llm.autoconfig_settings import detect_local_llm, LLMConfig
 import urllib.request, json
@@ -21,7 +19,7 @@ def detect() -> LLMConfig:
 
 def client():
     cfg = detect()
-    # Prostaya obertka HTTP; realnyy klient pust daet broker
+    # A simple HTTP wrapper; let the broker give the real client
     class _C:
         endpoint = cfg.endpoint
         model = cfg.model

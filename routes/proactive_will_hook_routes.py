@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/proactive_will_hook_routes.py - hook shlyuz dlya «voli» Ester: sobytie → auditoriya/namerenie → otpravka.
+"""routes/proactive_will_hook_routes.py - hook shlyuz dlya “voli” Ester: sobytie → auditoriya/namerenie → otpravka.
 
 MOSTY:
 - (Yavnyy) /proactive/hook/will prinimaet sobytie will/rrule/decision i proksiruet v /proactive/dispatch.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Idempotentnost po source_id s TTL, chtoby ne produblirovat rassylki.
 
 ZEMNOY ABZATs:
-Pozvolyaet podklyuchit uzhe suschestvuyuschuyu «volyu» bez pravok: prosto shlite sobytiya syuda - marshrutizatsiya proizoydet korrektno i «po-chelovecheski».
+Pozvolyaet podklyuchit uzhe suschestvuyuschuyu “volyu” bez pravok: prosto shlite sobytiya syuda - marshrutizatsiya proizoydet korrektno i “po-chelovecheski”.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, time, json, threading
 from typing import Any, Dict, Optional
@@ -55,7 +53,7 @@ def _resolve_route(ev: str, facts: Dict[str, Any]) -> Dict[str, Any]:
     will = _load_yaml(WILL_MAP_PATH).get("map", {})
     if ev in will:
         cfg = dict(will[ev] or {})
-        # Podstavlyaem znacheniya iz facts (naprimer, to, reference i t.p.)
+        # We substitute the values ​​from the fascia (for example, then, referent, etc.)
         for k, v in list(cfg.items()):
             if isinstance(v, str) and v.startswith("${") and v.endswith("}"):
                 key = v[2:-1]
@@ -69,15 +67,13 @@ def _resolve_route(ev: str, facts: Dict[str, Any]) -> Dict[str, Any]:
 
 @bp.route("/proactive/hook/will", methods=["POST"])
 def will_hook():
-    """
-    body:
+    """body:
     {
       "event": "bank.statement_check_due",
-      "facts": {...},          # lyubye proizvolnye fakty
-      "content": "optsionalno tekst",   # esli pusto - soberem iz facts v /presets (sverkhu urovnya)
+      "facts": {...}, # lyubye proizvolnye fakty
+      "content": "optsionalno tekst", # esli pusto - soberem iz facts v /presets (sverkhu urovnya)
       "source_id": "uuid-like" # dlya idempotentnosti
-    }
-    """
+    }"""
     j = request.get_json(force=True, silent=True) or {}
     source_id = (j.get("source_id") or "").strip()
     if source_id and not _idem_ok(source_id):
@@ -96,7 +92,7 @@ def will_hook():
     channel = (cfg.get("channel") or "").strip() or None
     to = cfg.get("to")
 
-    # Esli content ne zadan - poprobuem sobrat cherez presety, esli vnutri will_map ukazan preset
+    # If the content is not specified, we will try to assemble it through presets, if a preset is specified inside the villa_map
     preset_key = (cfg.get("preset") or "").strip()
     if not content and preset_key:
         try:

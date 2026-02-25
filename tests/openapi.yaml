@@ -91,7 +91,7 @@ paths:
         "401":
           $ref: "#/components/responses/Unauthorized"
 
-  # Aliasy tekh zhe ruchek pod /mem/* (reestr marshrutov dublirovan)
+  # Aliases of the same handles under /topic/* (the route registry is duplicated)
   /mem/flashback:
     get:
       tags: [Memory]

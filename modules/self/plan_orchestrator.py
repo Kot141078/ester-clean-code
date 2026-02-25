@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/self/plan_orchestrator.py — volevoy planirovschik: iz tseli v nabor shagov (bez polomki starykh kontraktov).
+"""modules/self/plan_orchestrator.py - volevoy planirovschik: iz tseli v nabor shagov (bez polomki starykh kontraktov).
 
 API:
   • make_plan(goal:str, constraints:dict|None=None) -> dict
@@ -8,14 +7,13 @@ API:
 
 Mosty:
 - Yavnyy: (Volya ↔ Deystviya) svyazyvaet tsel s zaregistrirovannymi actions i dostupnymi routami.
-- Skrytyy #1: (Infoteoriya ↔ Poisk) vklyuchaet uzel «rasshirit kontekst» pri nekhvatke znaniy.
-- Skrytyy #2: (Kibernetika ↔ Kontrol) safe/dry-run po umolchaniyu i A/B slot ne dayut «perestaratsya».
+- Skrytyy #1: (Infoteoriya ↔ Poisk) vklyuchaet uzel “rasshirit kontekst” pri nekhvatke znaniy.
+- Skrytyy #2: (Kibernetika ↔ Kontrol) safe/dry-run po umolchaniyu i A/B slot ne dayut “perestaratsya”.
 
 Zemnoy abzats:
-Eto dispetcher: «chto sdelat, v kakom poryadke, chem imenno» — i vozmozhnost vypolnit bezopasno/po shagam.
+Eto dispetcher: “what sdelat, v kakom poryadke, chem imenno” - i vozmozhnost vypolnit bezopasno/po shagam.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os
@@ -40,17 +38,17 @@ def make_plan(goal: str, constraints: Dict[str, Any] | None = None) -> Dict[str,
     # prostye evristiki vybora instrumentov
     need_video = any(k in g for k in ("video","video","youtube","rutube","videorolik"))
     need_search = any(k in g for k in ("nayti","search","iskat","poisk","istochniki"))
-    # 1) esli nuzhno iskat — dobavim rasshiritel konteksta
+    # 1) if you need to search, add a context expander
     if _have_route("/thinking/web_context/expand") and (need_search or "kontekst" in g):
         steps.append({"kind":"web_context.expand", "endpoint":"/thinking/web_context/expand", "body":{"q":goal, "k":5, "autofetch": False}})
-    # 2) esli video — universalnyy video-ingest
+    # 2) if the video is a universal video ingest
     if _have_route("/ingest/video/universal/fetch") and need_video:
         steps.append({"kind":"video.ingest", "endpoint":"/ingest/video/universal/fetch", "body":{"url":"<REQUIRED>", "want":{"subs":True,"summary":True,"meta":True}}})
         if _have_route("/video/index/build"):
             steps.append({"kind":"video.index", "endpoint":"/video/index/build", "body":{"dump":"<FROM_PREV>"}})
         if _have_route("/video/qa/search"):
             steps.append({"kind":"video.qa", "endpoint":"/video/qa/search", "body":{"q":goal, "k":5,"scope":{"dump":"<FROM_PREV>"}}})
-    # 3) obschaya pamyat/refleksiya
+    # 3) general memory/reflection
     if _have_route("/thinking/reflection/enqueue"):
         steps.append({"kind":"reflect.enqueue", "endpoint":"/thinking/reflection/enqueue", "body":{"item":{"text":goal, "meta":{"importance":0.7}}}})
     return {"ok": True, "goal": goal, "steps": steps, "ab": PLAN_AB}

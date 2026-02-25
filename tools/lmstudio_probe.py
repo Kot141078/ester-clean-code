@@ -18,10 +18,10 @@ def main():
     try:
         data = get(URL + "/models")
     except Exception as e:
-        print(f"[ERR] Net otveta ot {URL}/models: {e}")
+        print(f"yRRsch No response from ZZF0Z/models: ZZF1ZZ")
         return 2
     models = data.get("data") or data.get("models") or []
-    print(f"[OK] Podklyucheno: {URL}  modeley: {len(models)}")
+    print(f"yuOKsh Connected: ZZF0Z models: ZZF1ZZ")
     for m in models:
         mid = m.get("id") or m.get("name") or "<?>"
         own = m.get("owned_by") or m.get("format") or ""

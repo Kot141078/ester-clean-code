@@ -1,5 +1,5 @@
 # packaging/systemd/ester-lan-discovery.service
-# Yunit LAN discovery-agenta.
+# Unit LAN discovery agent.
 
 [Unit]
 Description=Ester LAN Discovery Agent

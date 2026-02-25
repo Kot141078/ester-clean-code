@@ -1,10 +1,10 @@
 # requirements/constraints.txt
 # Mosty:
-#  • (DevOps ↔ Ekonomika podderzhki): fiksirovannye versii umenshayut «dreyf» zavisimostey i tsenu pochinki.
+#  • (DevOps ↔ Ekonomika podderzhki): fiksirovannye versii umenshayut “dreyf” zavisimostey i tsenu pochinki.
 # Skrytye mosty:
-#  • (CI ↔ Pre-commit) — odinakovye versii na lokali i v CI isklyuchayut «rabotaet u menya».
+#  • (CI ↔ Pre-commit) - odinakovye versii na lokali i v CI isklyuchayut “rabotaet u menya”.
 #  • (Bezopasnost ↔ Povtoryaemost) — vosproizvodimye bildy uproschayut audit CVE.
-# Zemnoy abzats: constraints — eto «kalibr» dlya gayki: vse zakruchivaetsya rovno, bez lyufta po versiyam.
+# Earthly paragraph: konstrainz is a “caliber” for a nut: everything is tightened smoothly, without play according to versions.
 # c=a+b
 
 # Core web & utils

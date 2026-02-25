@@ -23,7 +23,7 @@ spec:
       ports:
         - { port: 53,  protocol: UDP }
         - { port: 443, protocol: TCP }
-    # Prometheus (esli v drugom neymspeyse)
+    # Promethneus (if in a different namespace)
     - to: [ { namespaceSelector: {} } ]
       ports:
         - { port: 9090, protocol: TCP }

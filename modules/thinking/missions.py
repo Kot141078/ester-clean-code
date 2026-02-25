@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-modules.thinking.missions — reestr «uchebnykh missiy» i progress.
+"""modules.thinking.missions - reestr “uchebnykh missiy” i progress.
 
 Mosty:
 - Yavnyy: REST-routy /missions/* ↔ etot modul (list_all/get/set_done/get_progress).
-- Skrytyy #1: (UI ↔ Navigatsiya) — summary pozvolyaet risovat progress-beydzhi bez dopolnitelnoy logiki.
+- Skrytyy #1: (UI ↔ Navigatsiya) — summary pozvolyaet risovat progress-beydzhi bez dopolnitelnoy logiciki.
 - Skrytyy #2: (Memory ↔ Planirovschik) — enabled mozhno ispolzovat kak flag dlya avtozapuska missiy.
 
 Zemnoy abzats:
-Eto nebolshoy «reestr zadaniy»: spisok missiy s flazhkami done/enabled i funktsiyami dlya UI.
-Khranenie — v pamyati protsessa (bez I/O), poetomu bezopasno dlya «zakrytoy korobki».
-# c=a+b
-"""
+Eto nebolshoy “reestr zadaniy”: spisok missiy s flazhkami done/enabled i funktsiyami dlya UI.
+Khranenie - v pamyati protsessa (bez I/O), poetomu bezopasno dlya “zakrytoy korobki”.
+# c=a+b"""
 from __future__ import annotations
 from typing import List, Dict, Optional, Any
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Bazovyy nabor missiy (mozhno rasshiryat v rantayme)
+# Basic set of missions (can be expanded at runtime)
 _M: List[Dict[str, Any]] = [
-    {"id": "daily-digest", "title": "Ezhednevnyy daydzhest",     "enabled": False, "done": False},
+    {"id": "daily-digest", "title": "Daily Digest",     "enabled": False, "done": False},
     {"id": "sync-index",   "title": "Sinkhronizatsiya indeksa",   "enabled": False, "done": False},
 ]
 
@@ -27,7 +25,7 @@ def list_all() -> List[Dict]:
     return [dict(m) for m in _M]
 
 def get(mid: str) -> Optional[Dict]:
-    """Nayti missiyu po id (kopiya)."""
+    """Find mission by ID (copy)."""
     for m in _M:
         if m["id"] == mid:
             return dict(m)
@@ -42,14 +40,12 @@ def set_done(mid: str, done: bool = True) -> Dict:
     return {"ok": False, "error": "not_found", "id": mid}
 
 def get_progress() -> Dict[str, Any]:
-    """
-    Sovmestimaya s routerom svodka progressa:
+    """Router-compatible progress summary:
       {
-        "done":    {"<id>": bool, ...},
-        "enabled": {"<id>": bool, ...},
-        "summary": {"total": N, "done": K, "enabled": E}
-      }
-    """
+        "done": ZZF0Z,
+        "enabled": ZZF1ZZ,
+        "summary": ZZF2ZZ
+      }"""
     done_map    = {m["id"]: bool(m.get("done"))    for m in _M}
     enabled_map = {m["id"]: bool(m.get("enabled")) for m in _M}
     total   = len(_M)

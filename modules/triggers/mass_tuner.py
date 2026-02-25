@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""
-modules/triggers/mass_tuner.py — massovyy tyuning triggerov.
+"""modules/triggers/mass_tuner.py - massovyy tyuning triggerov.
 
 Funktsii:
-- preview(opts) — vozvraschaet «plan pravok» bez primeneniya.
-- apply(opts)   — vozvraschaet tot zhe plan (dlya prozrachnosti) i pytaetsya primenit pravki cherez REST
-                 (esli v sisteme est /triggers/update; esli net — otdaem plan dlya ruchnogo primeneniya).
+- preview(opts) — vozvraschaet “plan pravok” bez primeneniya.
+- apply(opts) — vozvraschaet tot zhe plan (dlya prozrachnosti) i pytaetsya primenit pravki cherez REST
+                 (esli v sisteme est /triggers/update; esli net - otdaem plan dlya ruchnogo primeneniya).
 
-Parametry opts:
+Parameter options:
 {
   "lang": "eng+rus",         # dlya vsekh OCR-triggerov
   "threshold": 0.80,         # dlya vsekh template-triggerov (esli nizhe — povysit)
@@ -20,10 +19,9 @@ MOSTY:
 - Skrytyy #2: (Inzheneriya ↔ Prozrachnost) plan pravok otdelen ot primeneniya.
 
 ZEMNOY ABZATs:
-Tolko JSON i lokalnye ruchki. Nichego ne lomaem: esli obnovlenie nedostupno — vozvraschaem plan.
+Tolko JSON i lokalnye ruchki. Nothing ne lomaem: esli obnovlenie nedostupno - vozvraschaem plan.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Dict, Any, List
 import http.client, json
@@ -65,7 +63,7 @@ def _plan(opts: Dict[str, Any]) -> Dict[str, Any]:
             if th < thr:
                 new["threshold"] = thr
         if scale is not None:
-            # dobavim informativnoe pole dlya klientskikh moduley
+            # add an information field for client modules
             if cond.get("scale") != scale:
                 new["scale"] = scale
         if new:
@@ -80,6 +78,6 @@ def apply(opts: Dict[str, Any]) -> Dict[str, Any]:
     applied = []
     for ch in plan.get("changes", []):
         payload = {"index": ch["index"], "patch": ch["new"]}
-        r = _post("/triggers/update", payload)  # esli takogo endpointa net — vyzov vernet ok:false/raw
+        r = _post("/triggers/update", payload)  # if there is no such endpoint, the call will return ok:false/equal
         applied.append({"index": ch["index"], "ok": bool(r.get("ok")), "response": r})
     return {"ok": True, "plan": plan, "applied": applied}

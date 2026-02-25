@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-"""
-routes/admin_selfcare.py - panel Self-Care: status planirovschika, pravila, ruchnoy zapusk, tiket.
+"""routes/admin_selfcare.py - panel Self-Care: status planirovschika, pravila, ruchnoy zapusk, tiket.
 
-Marshruty:
-  • GET  /admin/selfcare              - HTML
-  • GET  /admin/selfcare/status       - ENV, intervaly, last history lines, rules summary
-  • POST /admin/selfcare/run_once     - vruchnuyu: otchet + plan pravil + (v B) avto-pochinka
-  • POST /admin/selfcare/rules        - {op:get|set, rules?}
-  • POST /admin/selfcare/ticket       - {mount?} → sobrat tiket (i kopiya na USB)
+Route:
+  • GET /admin/selfcare - HTML
+  • GET /admin/selfcare/status - ENV, intervaly, last history lines, rules summary
+  • POST /admin/selfcare/run_once - vruchnuyu: otchet + plan pravil + (v B) avto-pochinka
+  • POST /admin/selfcare/rules - {op:get|set, rules?}
+  • POST /admin/selfcare/ticket - {mount?} → sobrat tiket (i kopiya na USB)
 
 Mosty:
-- Yavnyy (UX ↔ Ekspluatatsiya): edinyy ekran dlya «posmotret/izmenit/zapustit».
+- Yavnyy (UX ↔ Ekspluatatsiya): edinyy ekran dlya “posmotret/izmenit/zapustit”.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): vse v JSON, dry-run v A, otchety v istoriyu.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): chistyy stdlib; yadro Ester ne trogaem.
 
 Zemnoy abzats:
-Eto «pult ukhoda»: proverit seychas, popravit pravila i srazu sobrat materialy dlya tiketa.
+Eto “pult ukhoda”: proverit seychas, popravit pravila i srazu sobrat materialy dlya tiketa.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, time
 from pathlib import Path
@@ -72,7 +70,7 @@ def run_once():
     actions = plan.get("plan", [])
     results=[]
     if AB == "B" and os.getenv("SELFCARE_AUTOFIX_ENABLE","1") == "1":
-        # ispolnim kak v planirovschike
+        # will execute as in the planner
         for item in actions:
             for a in item.get("actions", []):
                 act=a.get("action")

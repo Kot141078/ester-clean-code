@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-U2/tools/u2_cortex.py — «Ester sama zapuskaet»: orkestrator, kotoryy dumaet (proactive) i ispolnyaet plan.
+"""U2/tools/u2_cortex.py - “Ester sama zapuskaet”: orkestrator, kotoryy dumaet (proactive) i ispolnyaet plan.
 
 Mosty:
 - Yavnyy: Enderton — posledovatelnost determinirovannykh shagov (ingest→index→digest→rules→render→advice→slo→release).
-- Skrytyy #1: Ashbi — A/B-slot (B mozhet pereuporyadochit cherez lokalnyy LLM); pri sboe — avto-otkat v A.
+- Skrytyy #1: Ashbi — A/B-slot (B mozhet pereuporyadochit cherez lokalnyy LLM); pri sboe - avto-otkat v A.
 - Skrytyy #2: Cover & Thomas — minimalnyy otchet/metriki: zapisyvaem tolko fakt zapuska, vremya i RC.
 
 Zemnoy abzats (inzheneriya):
-Nikakikh demonov i seti. Fayl politiki zadaet porogi/vklyuchalki. Ispolnenie — cherez suschestvuyuschie CLI,
-s metrikami (R7). Sostoyanie tem sokhranyaetsya v `data/cortex/state.json`. Podkhodit dlya cron: «kazhdyy chas/den».
+Nikakikh demonov i seti. Fayl politiki zadaet porogi/vklyuchalki. Ispolnenie - through suschestvuyuschie CLI,
+s metrics (R7). Sostoyanie tem sokhranyaetsya v `data/cortex/state.json`. Podkhodit dlya cron: “kazhdyy chas/den.”
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse, json, os, subprocess, sys
 from typing import List
@@ -36,7 +34,7 @@ def main() -> int:
     ap.add_argument("--policy", default="", help="JSON s porogami i flagami (sm. tests/fixtures/cortex_policy.json)")
     ap.add_argument("--ingest-config", default=os.getenv("U1_INGEST_CONFIG") or "tests/fixtures/ingest_config.json")
     ap.add_argument("--rules", default=os.getenv("U1_RULES") or "tests/fixtures/rules_config.json")
-    ap.add_argument("--dry-run", action="store_true", help="Tolko pokazat plan, bez ispolneniya")
+    ap.add_argument("--dry-run", action="store_true", help="Just show the plan, no execution")
     args = ap.parse_args()
 
     plan = think_and_plan(args.policy if args.policy else None)
@@ -58,7 +56,7 @@ def main() -> int:
         elif a == "render":
             _run([sys.executable, "tools/r5_portal_render.py", "--out", "portal/index.html"])
         elif a == "advice":
-            # sovet uzhe gotovitsya U1, no na vsyakiy sluchay obnovim (bez konteksta chitaet pamyat)
+            # advice is already being prepared by U1, but just in case update (reads memory without context)
             _run([sys.executable, "tools/u1_advisor.py", "--top", "6", "--rules", args.rules, "--ingest-config", args.ingest_config])
         elif a == "slo":
             _run([sys.executable, "tools/r7_slo_report.py", "--config", "tests/fixtures/slo_config.json", "--out", "obs_report.md"])
@@ -68,7 +66,7 @@ def main() -> int:
             # neizvestnoe — propusk
             pass
 
-    # Fiksiruem otpechatok tem (dlya sleduyuschego shaga proact)
+    # We fix the fingerprint of topics (for the next step of the project)
     if plan.get("topics_fp"):
         commit_state(plan["topics_fp"])
     return 0

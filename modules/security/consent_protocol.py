@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-modules/security/consent_protocol.py — lokalnyy protokol razresheniy.
+"""modules/security/consent_protocol.py - lokalnyy protokol razresheniy.
 
 Ponyatiya:
 - Scope: "hotkey", "workflow", "mix_apply", "net_forward"
-- Target: zagolovok okna ili shablon deystviya
+- Target: zagolovok okna or shablon deystviya
 - TTL: srok deystviya razresheniya (sekundy)
 - Modes: "ask_always" | "remember_ttl" | "deny_all"
 
-Fayly:
+Faily:
 - data/security/consent.json (nastroyki)
 - data/security/consent_cache.json (vremennye razresheniya s istecheniem)
 
@@ -19,14 +18,13 @@ API:
 
 MOSTY:
 - Yavnyy: (Volya ↔ Deystvie) kazhdoe chuvstvitelnoe deystvie prokhodit yavnoe soglasie.
-- Skrytyy #1: (Infoteoriya ↔ Bezopasnost) protokoliruem «kto/chto/kuda».
+- Skrytyy #1: (Infoteoriya ↔ Bezopasnost) protokoliruem “kto/chto/kuda”.
 - Skrytyy #2: (Memory ↔ UX) TTL umenshaet trenie pri seriyakh odnorodnykh deystviy.
 
 ZEMNOY ABZATs:
-Prostoy JSON i kratkozhivuschie zapisi. UI pokazyvaet kartochku s voprosom.
+Simple JSON i kratkozhivuschie zapisi. UI pokazyvaet kartochku s voprosom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, uuid
 from typing import Dict, Any
@@ -63,13 +61,13 @@ def request(scope: str, target: str, meta: Dict[str, Any]) -> Dict[str, Any]:
     cfg = _load(CONF,_DEF); c = _cache()
     if cfg.get("mode") == "deny_all":
         return {"ok": True, "decision": "deny"}
-    # nayti aktivnoe razreshenie
+    # find active resolution
     now = _now()
     for p in list(c.get("permits", [])):
         if now > int(p.get("exp",0)): continue
         if p.get("scope")==scope and p.get("target")==target:
             return {"ok": True, "decision": "allow", "permit": p}
-    # esli remember — predlozhim sprosit i zapomnit
+    # if you’re a remember, we’ll suggest asking and remembering
     tid = str(uuid.uuid4())
     c["tickets"][tid] = {"scope":scope,"target":target,"meta":meta or {}, "ts": now}
     _save(CACHE, c)

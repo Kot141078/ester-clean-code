@@ -1,3 +1,3 @@
 # Nastroyka proizvoditelnosti
 
-Puly vorkerov, keshirovanie, I/O bekapy, RAG-payplayn, set, nablyudaemost, retry, sysctl, khvosty p99, CI-geyty.
+Worker bullets, caching, I/O backups, RAG pipeline, network, observability, retro, systl, p99 tails, SI gates.

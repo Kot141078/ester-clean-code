@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/thinking_autonomy_routes.py - REST/UI dlya proaktivnogo myshleniya.
+"""routes/thinking_autonomy_routes.py - REST/UI dlya proaktivnogo myshleniya.
 
 Ruchki:
-  GET  /thinking/autonomy/status
+  GET /thinking/autonomy/status
   POST /thinking/autonomy/enable
   POST /thinking/autonomy/disable
-  POST /thinking/autonomy/run_trigger   {"name":"...", "goal":"...", "params":{...}}
-  POST /thinking/autonomy/test_cascade  {"goal":"demo goal"}  # bystryy test kaskada
-  GET  /admin/thinking_autonomy
+  POST /thinking/autonomy/run_trigger {"name":"...", "goal":"...", "params":{...}}
+  POST /thinking/autonomy/test_cascade {"goal":"demo goal"} # bystryy test kaskada
+  GET /admin/thinking_autonomy
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.thinking import proactive, cascade

@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tests/nudges/test_sla_chain.py — proverka SLA-tsepochki T-60/T-15/Overdue.
+"""tests/nudges/test_sla_chain.py - proverka SLA-tsepochki T-60/T-15/Overdue.
 
 MOSTY:
 - (Yavnyy) NUDGES_SLA_CHAIN upravlyaet kolichestvom i vremenem due-nudzhey.
-- (Skrytyy #1) Planirovanie ne prevoskhodit NUDGES_MAX_PER_EVENT.
-- (Skrytyy #2) Prosrochennye shagi perenosyatsya na «seychas+1».
+- (Skrytyy #1) Planning ne prevoskhodit NUDGES_MAX_PER_EVENT.
+- (Skrytyy #2) Prosrochennye shagi perenosyatsya na “seychas+1”.
 
 ZEMNOY ABZATs:
-Daet uverennost, chto napominaniya prikhodyat vovremya — do i posle dedlayna.
+Daet uverennost, chto napominaniya prikhodyat vovremya - do i posle dedlayna.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import time, os
@@ -32,5 +30,5 @@ def test_sla_chain(monkeypatch):
         "payload": {"deadline_ts": dl, "actors":[{"agent_id":"pilot-1"}], "summary":"test"}
     }
     plans = plan(event)
-    # Dolzhny byt kak minimum 2 due do dedlayna (60,15) i 1 posle dedlayna
+    # There must be at least 2 dues before the deadline (60.15) and 1 after the deadline
     assert len(plans) >= 3

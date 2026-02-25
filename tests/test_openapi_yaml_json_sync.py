@@ -7,22 +7,22 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def test_openapi_yaml_vs_json_subset(client):
-    # /openapi.json dolzhen soderzhat kak minimum te zhe puti, chto i openapi.yaml
+    # /openapi.jsion must contain at least the same paths as openapi.yml
     r = client.get("/openapi.json")
     assert r.status_code == 200
     j = r.get_json()
     assert isinstance(j, dict)
     json_paths = set((j.get("paths") or {}).keys())
 
-    # chitaem lokalnyy fayl openapi.yaml
+    # read the local file openapi.yaml
     with open("openapi.yaml", "r", encoding="utf-8") as f:
         y = yaml.safe_load(f)
     yaml_paths = set((y.get("paths") or {}).keys())
 
-    # peresechenie dolzhno byt suschestvennym: minimum 70% putey iz yaml
+    # the intersection must be significant: at least 70% of the paths are from Yaml
     common = yaml_paths & json_paths
     assert yaml_paths, "openapi.yaml bez paths"
     ratio = len(common) / max(1, len(yaml_paths))
     assert (
         ratio >= 0.7
-), f"slishkom malo obschikh putey ({len(common)}/{len(yaml_paths)})"
+), f"too few common paths (ЗЗФ0З/ЗЗФ1ЗЗ)"

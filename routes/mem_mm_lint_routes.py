@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/mem_mm_lint_routes.py - REST: otchet lintera «ispolzuyte get_mm()».
+"""routes/mem_mm_lint_routes.py - REST: otchet lintera "ispolzuyte get_mm()".
 
 Mosty:
 - Yavnyy: (Veb ↔ Kachestvo) pokazat naydennye obkhody fabriki pamyati.
@@ -8,9 +7,8 @@ Mosty:
 - Skrytyy #2: (UX ↔ Panel) bystryy spisok dlya ispravleniy.
 
 Zemnoy abzats:
-Odin vyzov - i vidno, gde narushayut kontrakt pamyati.
-# c=a+b
-"""
+Odin vyzov - i vidno, where narushayut kontrakt pamyati.
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -8,7 +8,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 def test_state_branch_returns_slices():
     app = create_app()
     with app.test_client() as c:
-        # Podgotovim 16 zapisey, chtoby urovni byli rovnymi
+        # Let's prepare 16 records so that the levels are even
         for i in range(16):
             CRDT.add(Item(f"k{i}", {"v": i}))
         # Vozmem okno [3, 10) -> 7 listev
@@ -18,7 +18,7 @@ def test_state_branch_returns_slices():
         assert data["ok"] is True
         assert data["start"] == 3 and data["end"] == 10
         assert len(data["leaf_ids"]) == 7
-        # Proverim, chto na urovnyakh kolichestvo kheshey sokraschaetsya primerno popolam
+        # Let's check that at levels the number of hashes is reduced by approximately half
         branches = data["branches"]
         level0 = branches[0]
         level1 = branches[1]

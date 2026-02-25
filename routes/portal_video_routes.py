@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/portal_video_routes.py — stranitsy portala dlya video-konspektov:
+"""routes/portal_video_routes.py — stranitsy portala dlya video-konspektov:
   • /portal/video — polnoekrannaya stranitsa so spiskom poslednikh obrabotok
-  • /portal/widgets/videos?limit=N — HTML-vidzhet (fragment), mozhno vstraivat v drugie stranitsy ili iframe
+  • /portal/widgets/videos?limit=N - HTML-vidzhet (fragment), mozhno vstraivat v drugie stranitsy or iframe
 
 Mosty:
-- Yavnyy: (UX v†" Memory) polzovatel Re Ester vidyat poslednie «epizody» videoanaliza v odnom meste.
+- Yavnyy: (UX v†" Memory) polzovatel Re Ester vidyat poslednie "epizody" videoanaliza v odnom meste.
 - Skrytyy #1: (Logika v†" Navigatsiya) edinyy spisok daet bystrye tochki vkhoda k dampam/artefaktam.
-- Skrytyy #2: (Inzheneriya v†" Ekspluatatsiya) vidzhet — bez pravki suschestvuyuschikh shablonov portala, drop-in-rasshirenie.
+- Skrytyy #2: (Inzheneriya v†" Ekspluatatsiya) vidzhet - bez pravki suschestvuyuschikh shablonov portala, drop-in-expansive.
 
 Zemnoy abzats:
-Eto «stend u operatorskoy»: na tablo visyat poslednie partii — otkuda prishli, kak raspilili, chto v sukhom ostatke.
+Eto “stand u operatorskoy”: na tablo visyat poslednie partii - otkuda prishli, kak raspilili, chto v sukhom ostatke.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from flask import Blueprint, render_template, request

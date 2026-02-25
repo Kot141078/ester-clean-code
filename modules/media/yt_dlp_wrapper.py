@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/media/yt_dlp_wrapper.py — skachivanie onlayn-video/subtitrov cherez yt-dlp s uchetom lokalnoy politiki kroulinga.
+"""modules/media/yt_dlp_wrapper.py - download onlayn-video/subtitrov cherez yt-dlp s uchetom lokalnoy politiki kroulinga.
 
 Mosty:
 - Yavnyy: (Set ↔ Media) edinaya obertka dlya zagruzki, subtitrov, metadannykh.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Memory ↔ Profile) kladem JSON-manifest s sha/url.
 
 Zemnoy abzats:
-Kak «vezhlivyy zagruzchik»: sprosil «mozhno?», podozhdal, skachal, ostavil chek-list.
+Kak “vezhlivyy zagruzchik”: asked “mozhno?”, podozhdal, skachal, ostavil chek-list.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, time, subprocess
 from typing import Any, Dict
@@ -40,16 +38,16 @@ def fetch(url: str, prefer_subs_lang: str | None = None) -> Dict[str,Any]:
         return {"ok": False, "error":"crawl_denied", "policy": pol}
     if not ALLOW:
         return {"ok": False, "error":"download_disabled"}
-    # zaderzhka, esli ukazana
+    # delay if specified
     delay_ms = int(pol.get("delay_ms",0))
     if delay_ms>0: time.sleep(min(delay_ms/1000.0, 10.0))  # ne zasypaem nadolgo
-    # komanda yt-dlp
+    # team from-dlp
     outtpl = os.path.join(MEDIA_DIR, "%(title)s-%(id)s.%(ext)s")
     args = [YT_DLP, "-o", outtpl, "--restrict-filenames", "--no-playlist", "--no-color", url]
-    # subtitry, esli prosili
+    # subtitles if requested
     if prefer_subs_lang:
         args += ["--write-sub","--sub-lang", prefer_subs_lang, "--sub-format","srt"]
-    # pytaemsya skachat
+    # trying to download
     try:
         r = subprocess.run(args, capture_output=True, text=True, check=False)
         if r.returncode != 0:

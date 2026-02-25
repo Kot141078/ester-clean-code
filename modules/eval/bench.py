@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/eval/bench.py — minimalnyy regress-stend: lokalnye proverki bezopasnosti/soglasiya i karantina.
+"""modules/eval/bench.py ​​- minimalnyy regress-stend: lokalnye proverki bezopasnosti/soglasiya i karantina.
 
 Mosty:
-- Yavnyy: (Kachestvo ↔ Bezopasnost) avtomaticheskie «storozhki» na kriticheskie invarianty.
+- Yavnyy: (Kachestvo ↔ Bezopasnost) avtomaticheskie “storozhki” na kriticheskie invarianty.
 - Skrytyy #1: (Infoteoriya ↔ Audit) otchet so statusami i soobscheniyami.
 - Skrytyy #2: (Myshlenie ↔ Kontrol) mozhet zapuskatsya pered approve (preflight).
 
 Zemnoy abzats:
-Kak korotkiy chek-list pered vzletom: proverili tormoza — mozhno rulit na polosu.
+Kak korotkiy chek-list pered vzletom: proverili tormoza - mozhno rulit na polosu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from typing import Any, Dict, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

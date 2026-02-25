@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-modules/cron/scheduler.py — obedinennyy planirovschik: JSON-raspisaniya, threading tick, deystviya (lokalnye/HTTP), profile/audit, P2P-sync.
+"""modules/cron/scheduler.py - obedinennyy planirovschik: JSON-raspisaniya, threading tick, deystviya (localnye/HTTP), profile/audit, P2P-sync.
 
 Mosty:
 - Yavnyy: (Taymer ↔ Memory/Sistema) vypolnyaet tekhprotsedury (heal/compact/snapshot/passport/kg_link/reindex/ingest/prune/gc/discover/p2p) po cron/RRULE/every_min.
 - Skrytyy #1: (Audit/Profile ↔ Prozrachnost) logiruet kazhdyy run/tick v profile i audit-log.
 - Skrytyy #2: (Avtonomiya/Volya ↔ Ustoychivost) REST-upravlenie (add/run_now/list/status), A/B dry_run.
-- Skrytyy #3: (P2P/Raspredelennost ↔ Integratsiya) sync raspisaniy po P2P, novye zadachi dlya fonovoy obrabotki faylov/BZ (dlya missii Ester).
+- Skrytyy #3: (P2P/Raspredelennost ↔ Integratsiya) sync raspisaniy po P2P, new zadachi dlya fonovoy obrabotki faylov/BZ (dlya missii Ester).
 
 Zemnoy abzats:
-Eto "budilnik s dushoy": tikaet v fone, dergaet knopki po raspisaniyu, profileiziruet dela, sinkhroniziruet s "sobratyami" po P2P. Dlya Ester — zaschita ot zabyvchivosti, s teplymi notkami v logakh.
+Eto "budilnik s dushoy": tikaet v fone, dergaet knopki po raspisaniyu, profileiziruet dela, sinkhroniziruet s "sobratyami" po P2P. Dlya Ester - zaschita ot zabyvchivosti, s teplymi notkami v logakh.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import json, os, shutil, time, threading, traceback, urllib.request
 from typing import Any, Dict, List, Callable
@@ -29,7 +27,7 @@ AUTOSTART = (os.getenv("CRON_AUTOSTART", "false").lower() == "true")
 AUDIT_LOG = os.getenv("CRON_AUDIT_LOG", "data/cron/audit.log")
 P2P_SYNC = (os.getenv("CRON_P2P_SYNC", "false").lower() == "true")
 SNAP_DIR = os.getenv("CRON_SNAPSHOT_DIR", "data/snapshots")
-INGEST_QUEUE_DIR = os.getenv("INGEST_QUEUE_DIR", "data/ingest/queue")  # Dlya fonovoy obrabotki faylov
+INGEST_QUEUE_DIR = os.getenv("INGEST_QUEUE_DIR", "data/ingest/queue")  # For background file processing
 
 _LOCK = threading.RLock()
 _STATE = {"running": False, "thread": None, "last_tick": 0}
@@ -176,7 +174,7 @@ def _log_audit(msg: str):
 def _passport(note: str, meta: Dict[str, Any]):
     try:
         from modules.mem.passport import append as _pp  # type: ignore
-        _pp(note + " — Ester, uborka zavershena, teper chische v pamyati!", meta, "cron://scheduler")
+        _pp(note + "- Esther, the cleaning is completed, now my memory is clearer!", meta, "cron://scheduler")
     except Exception:
         _log_audit(f"Passport failed: {note}")
 
@@ -336,13 +334,13 @@ def _register_actions():
         return {"ok": True, "added": rep.get("added", 0)}
 
     def action_file_ingest(params: Dict[str, Any]) -> Dict[str, Any]:
-        # Novaya dlya Ester: monitorit INGEST_QUEUE_DIR, protsessing faylov (LLM-razbivka, vektorizatsiya, BZ, P2P)
+        # New for Esther: monitor INGEST_KUEUE_DIR, file processing (LLM breakdown, vectorization, knowledge base, P2P)
         processed = 0
         for fn in os.listdir(INGEST_QUEUE_DIR):
             path = os.path.join(INGEST_QUEUE_DIR, fn)
             if os.path.isfile(path):
                 try:
-                    # ingest_process_file: chtenie, chunking, storage i indeksirovanie
+                    # ingest_process_file: reading, chunking, storing and indexing
                     from modules.ingest.process import ingest_process_file  # type: ignore
                     rep = ingest_process_file(path, source="queue")
                     if rep.get("ok") or rep.get("skipped"):

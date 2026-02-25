@@ -7,7 +7,7 @@ Wants=network-online.target
 Type=oneshot
 WorkingDirectory=%h/ester
 Environment=PYTHONUNBUFFERED=1
-# Ukazhi peremennye pri neobkhodimosti JWT/portov:
+# Specify variables if necessary for gastrointestinal tract/ports:
 # Environment=JWT=<token_with_replicator>
 # Environment=PORT=5000
 ExecStart=/bin/sh -c 'curl -sSf -X POST ${JWT:+-H "Authorization: Bearer ${JWT}"} http://127.0.0.1:${PORT:-5000}/p2p/snapshot/export > %h/ester/dist/crdt_snapshot_$(date -u +%%Y-%%m-%%dT%%H:%%M:%%SZ).json'

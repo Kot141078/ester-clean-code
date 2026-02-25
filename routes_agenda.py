@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Agenda: prosmotr i prostye deystviya (Accept, Dismiss, Snooze).
-Memory khranit elementy kak {id, title, reason, priority, created_at, status}.
-"""
+"""Agenda: viewing and simple actions (Acceptance, Dismiss, Snooze).
+Memory store items as ZZF0Z."""
 from __future__ import annotations
 
 import os
@@ -13,11 +11,11 @@ from typing import List, Dict, Any, Optional
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Popytka importa JWT, esli ego net — ispolzuem zaglushku (Local Mode)
+# Trying to import ZhVT, if it doesn’t exist, use a stub (Local Mode)
 try:
     from flask_jwt_extended import jwt_required, get_jwt_identity
 except ImportError:
-    # Dekorator-pustyshka, prosto vyzyvaet funktsiyu
+    # Dummy decorator, just calls a function
     def jwt_required():
         def wrapper(fn):
             return fn
@@ -28,10 +26,8 @@ except ImportError:
 AGENDA_FILE = os.path.join("memory", "agenda.json")
 
 class AgendaManager:
-    """
-    Lokalnyy menedzher del.
-    Khranit sostoyanie v memory/agenda.json.
-    """
+    """Local case manager.
+    Store the state in memory/agenda.zsion."""
     def __init__(self):
         self._ensure_storage()
 
@@ -53,9 +49,9 @@ class AgendaManager:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
     def get_agenda(self, user: str) -> List[Dict]:
-        """Vozvraschaet tolko aktivnye (pending) zadachi."""
+        """Returns only active (pending) tasks."""
         all_items = self._load()
-        # Filtruem: status pending i (esli est snooze) vremya snooze isteklo
+        # Filter: pending status and (if there is snooze) snooze time has expired
         active = []
         now = time.time()
         for item in all_items:
@@ -87,7 +83,7 @@ class AgendaManager:
         return found
 
     def add_item(self, title: str, reason: str = "", priority: int = 1):
-        """Metod dlya dobavleniya zadachi (naprimer, iz Telegram)."""
+        """Method for adding a task (for example, from Telegram)."""
         items = self._load()
         new_item = {
             "id": f"task_{int(time.time())}_{len(items)}",
@@ -102,7 +98,7 @@ class AgendaManager:
         return new_item["id"]
 
     def smoketest(self) -> str:
-        """Proverka dostupa k faylu."""
+        """Checking file access."""
         try:
             self._ensure_storage()
             self._load()
@@ -111,14 +107,12 @@ class AgendaManager:
             return f"FAILED: {e}"
 
 
-# Globalnyy instans menedzhera (Singleton dlya modulya)
+# Global instance manager (Singleton for module)
 agenda_manager = AgendaManager()
 
 def register_agenda_routes(app, memory_manager=None, url_prefix="/agenda"):
-    """
-    Registratsiya marshrutov. 
-    memory_manager peredan dlya sovmestimosti, no po umolchaniyu ispolzuem svoy lokalnyy.
-    """
+    """Registration of routes. 
+    memory_manager is passed for compatibility, but by default uses its local one."""
     manager = memory_manager if memory_manager else agenda_manager
     bp = Blueprint("agenda", __name__)
 
@@ -162,6 +156,6 @@ def register_agenda_routes(app, memory_manager=None, url_prefix="/agenda"):
     app.register_blueprint(bp)
     logging.info(f"[Agenda] Routes registered at {url_prefix}")
 
-# Dlya sovmestimosti s HealthCheck
+# For compatibility with HelpnChesk
 def smoketest():
     return agenda_manager.smoketest()

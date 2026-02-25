@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-modules/nlp/ner_linker.py — legkiy izvlekatel suschnostey (NER) i linkovschik v KG/gipotezy.
+"""modules/nlp/ner_linker.py - legkiy izvlekatel suschnostey (NER) i linkovschik v KG/gipotezy.
 
-Kak rabotaet:
-  • Pytaetsya spaCy ('en_core_web_sm' / 'xx_ent_wiki_sm'); esli net — padenie obratno na prostoy regeks-pravila.
+How it works:
+  • Pytaetsya spaCy ('en_core_web_sm' / 'xx_ent_wiki_sm'); esli net - padenie obratno na prostoy regeks-pravila.
   • Izvlekaet PERSON/ORG/LOC/DATE (best-effort), normalizuet v {type, value, span}.
   • Upsert v KG: pytaetsya importirovat modules.kg (ili /mem/kg/* kontrakt), inache — pishet v fallback JSONL.
   • Linki k gipotezam: esli peredan hypothesis_id, sozdaet svyaz (best-effort).
@@ -19,10 +18,9 @@ Mosty:
 - Skrytyy #2: (Logika ↔ Memory) svyazi s gipotezami delayut obyasnimymi vyvody i retrival.
 
 Zemnoy abzats:
-Eto «shtempelevschik» na priemke: na kazhdoy korobke pishet, kto/chto/gde/kogda, i kleit yarlyk s ID v grafe.
+This is “shtempelevschik” na priemke: na kazhdoy korobke pishet, kto/chto/gde/kogda, i kleit yarlyk s ID v grafe.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import json
@@ -61,7 +59,7 @@ def extract_entities(text: str) -> List[Dict[str, Any]]:
             if e.label_ in ("PERSON", "ORG", "GPE", "LOC", "DATE"):
                 ents.append({"type": e.label_, "value": e.text, "span": [e.start_char, e.end_char]})
         return ents
-    # Prostoy fallback: PERSON/ORG kak posledovatelnosti Szagl slov; DATE kak YYYY ili Month YYYY
+    # A simple falsification: PERSON/ORG as a sequence of words; DATE as YYYY or Montn YYYY
     cap_seq = re.findall(r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3})\b", text)
     for v in cap_seq:
         ents.append({"type": "NAME", "value": v, "span": []})
@@ -70,7 +68,7 @@ def extract_entities(text: str) -> List[Dict[str, Any]]:
     return ents[:20]
 
 def _kg_upsert_batch(rows: List[Dict[str, Any]]) -> bool:
-    # Popytka 1: vnutrenniy modul KG
+    # Attempt 1: internal module KG
     try:
         from modules import kg  # type: ignore
         if hasattr(kg, "upsert_entities"):
@@ -78,7 +76,7 @@ def _kg_upsert_batch(rows: List[Dict[str, Any]]) -> bool:
             return True
     except Exception:
         pass
-    # Popytka 2: REST klient (esli dostupen requests)
+    # Attempt 2: REST client (if reguest is available)
     try:
         import requests  # type: ignore
         requests.post("http://127.0.0.1:8000/mem/kg/upsert", json={"entities": rows}, timeout=2)
@@ -102,7 +100,7 @@ def upsert_entities(entities: List[Dict[str, Any]]) -> Dict[str, Any]:
 def link_hypothesis(hypothesis_id: str, entities: List[Dict[str, Any]]) -> Dict[str, Any]:
     if not hypothesis_id or not entities:
         return {"ok": True, "linked": 0}
-    # Popytka 1: vnutrenniy modul gipotez
+    # Attempt 1: internal hypothesis module
     try:
         from modules import hypothesis  # type: ignore
         if hasattr(hypothesis, "link_entities"):
@@ -110,7 +108,7 @@ def link_hypothesis(hypothesis_id: str, entities: List[Dict[str, Any]]) -> Dict[
             return {"ok": True, "linked": len(entities)}
     except Exception:
         pass
-    # Popytka 2: REST
+    # Attempt 2: REST
     try:
         import requests  # type: ignore
         requests.post("http://127.0.0.1:8000/mem/hypothesis/link", json={"id": hypothesis_id, "entities": entities}, timeout=2)

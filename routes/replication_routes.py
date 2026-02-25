@@ -1,29 +1,27 @@
 # -*- coding: utf-8 -*-
-"""
-routes/replication_routes.py - P2P-replikatsiya: streaming/snapshot/E2EE/rotatsiya klyuchey.
+"""routes/replication_routes.py - P2P-replikatsiya: streaming/snapshot/E2EE/rotatsiya klyuchey.
 
-Registratsiya (istoricheskiy kontrakt):
+Registration (istoricheskiy kontrakt):
     from routes.replication_routes import register_replication_routes
     register_replication_routes(app, url_prefix="/replication")
 
-Endpointy:
-  GET  /replication/stream?since=<ts>&limit=<n>&encrypt=0|1
+Endpoint:
+  GET /replication/stream?since=<ts>&limit=<n>&encrypt=0|1
        → JSON [{id,ts,kind,payload}, ...] ILI application/octet-stream (E2EE)
        Zagolovki: X-Node-Id, X-Key-Id (esli encrypt=1), X-Signature
-  GET  /replication/snapshot?encrypt=0|1
-       → zip (JSON-fayly storadzhey) ILI zashifrovannyy blob; s podpisyu
-  POST /replication/rotate_keys  → smena E2EE klyucha
+  GET /replication/snapshot?encrypt=0|1
+       → zip (JSON-fayly storadzhey) ILI zashifrovannyy blob; s subscribe
+  POST /replication/rotate_keys → smena E2EE klyucha
 
 Mosty:
 - Yavnyy: (P2P ↔ Memory) potok sobytiy/snapshot dlya pervichnoy i inkrementalnoy sinkhronizatsii.
 - Skrytyy #1: (Kriptografiya ↔ Arkhitektura) podpis (HMAC) i E2EE zagolovki obespechivayut doverie i tselostnost.
 - Skrytyy #2: (Logika ↔ Kontrakty) determinirovannye zagolovki/tipy kontenta uproschayut payplayny.
-- Skrytyy #3: (Audit ↔ Prozrachnost) uzlovye ID i time-marks podkhodyat dlya «profilea» sobytiy.
+- Skrytyy #3: (Audit ↔ Prozrachnost) uzlovye ID i time-marks podkhodyat dlya “profilea” sobytiy.
 
 Zemnoy abzats:
-Eto kak «kapelnitsa» dannykh mezhdu uzlami: potok (stream) - dlya postoyannogo podliva,
-a snapshot - kak «litrovaya banka» na zapuske. Podpisyvaem i, pri neobkhodimosti, shifruem taru.
-"""
+Eto kak “kapelnitsa” dannykh mezhdu uzlami: potok (stream) - dlya postoyannogo podliva,
+a snapshot - like “litrovaya banka” na zapuske. Podpisyvaem i, pri neobkhodimosti, shifruem taru."""
 from __future__ import annotations
 
 import io
@@ -71,10 +69,8 @@ def _sign_and_build(body: bytes, encrypt: bool) -> Response:
 
 
 def _collect_snapshot_files() -> List[Tuple[str, str]]:
-    """
-    Sobiraem poleznye fayly storadzhey (suschestvuyuschie).
-    Vozvraschaet spisok par (arcname, abspath)
-    """
+    """We collect useful storage files (existing).
+    Returns a list of pairs (artznaime, abspath)"""
     base = _persist_dir()
     candidates = [
         ("knowledge_graph/nodes.json", os.path.join(base, "knowledge_graph", "nodes.json")),
@@ -96,9 +92,7 @@ def register_replication_routes(app, url_prefix: str = "/replication"):
     @app.get(f"{url_prefix}/stream")
     @jwt_required()
     def replication_stream():
-        """
-        Vozvraschaet srez sobytiynoy lenty s podpisyu i optsionalnym E2EE.
-        """
+        """Returns a slice of the event tape with a signature and optional E2EE."""
         try:
             since = float(request.args.get("since") or "0")
         except Exception:
@@ -131,9 +125,7 @@ def register_replication_routes(app, url_prefix: str = "/replication"):
     @app.get(f"{url_prefix}/snapshot")
     @jwt_required()
     def replication_snapshot():
-        """
-        Polnyy snapshot dannykh (zip) - dlya pervichnoy sinkhronizatsii.
-        """
+        """Full data snapshot (zip) - for initial synchronization."""
         encrypt = bool(int(request.args.get("encrypt", "0") or 0))
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -156,14 +148,14 @@ def register_replication_routes(app, url_prefix: str = "/replication"):
                 "X-Node-Id": _node_id(),
                 "X-Signature": header_signature(raw, key=get_hmac_key()),
             }
-            # Rasshirenie: sintez snapshota s MultiLLMIntegrator i otpravka v thinking
+            # Extension: synthesis of a snapshot with MultiLLMIIntegrator and sending to thinking
             if hasattr(app, "multi_llm"):
                 try:
-                    synth = app.multi_llm.synthesize("Snapshot dannykh dlya replikatsii")
-                    app.logger.info("Ester sozdala snapshot i podumala: 'Dannye v arkhiv, arkhiv v sintez!'")
+                    synth = app.multi_llm.synthesize("Snapshot of data for replication")
+                    app.logger.info("Esther created a snapshot and thought: Data for archive, archive for synthesis!")
                     try:
                         from thinking.think_core import init_thinking  # type: ignore
-                        init_thinking(synth)  # Otpravlyaem v thinking dlya razmyshleniy
+                        init_thinking(synth)  # Send to thinking for thought
                     except Exception:
                         app.logger.warning("thinking ne nayden. Propuskaem razmyshleniya.")
                 except Exception:
@@ -173,17 +165,15 @@ def register_replication_routes(app, url_prefix: str = "/replication"):
     @app.post(f"{url_prefix}/rotate_keys")
     @jwt_required()
     def replication_rotate_keys():
-        """
-        Rotatsiya E2EE-klyucha (lokalno). Vozvraschaet old/new key id.
-        """
+        """E2EE key rotation (locally). Returns old/new key ID."""
         try:
             out = e2ee.rotate_key()  # type: ignore[attr-defined]
-            # Rasshirenie: sintez posle rotatsii i otpravka v self-evo
+            # Expansion: synthesis after rotation and sending to self-evo
             if hasattr(app, "multi_llm"):
                 try:
-                    synth = app.multi_llm.synthesize("Rotatsiya klyuchey zavershena")
+                    synth = app.multi_llm.synthesize("Key rotation complete")
                     out["synth"] = synth
-                    app.logger.info("Ester povernula klyuchi i podumala: 'Novye sekrety dlya bezopasnosti!'")
+                    app.logger.info("Esther turned the keys and thought: New secrets for safety!")
                     try:
                         from selfevo.evo_engine import start_evolution  # type: ignore
                         start_evolution(json.dumps(out, ensure_ascii=False))
@@ -202,7 +192,7 @@ __all__ = ["register_replication_routes"]
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
 def register(app):
-    # vyzyvaem suschestvuyuschiy register_replication_routes(app) (url_prefix beretsya po umolchaniyu vnutri funktsii)
+    # calls an existing register_replication_rutes(app) (url_prefix is ​​taken by default inside the function)
     return register_replication_routes(app)
 
 # === /AUTOSHIM ===

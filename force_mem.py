@@ -16,10 +16,10 @@ def force_memory_limit():
     replaced_count = 0
     
     for line in lines:
-        # Ischem lyubuyu stroku, gde prisvaivaetsya SHORT_TERM_MAXLEN
-        # (ignoriruem kommentarii, esli oni ne v nachale stroki)
+        # We look for any line where SHORT_TERM_MAXLEN is assigned
+        # (ignore comments if they are not at the beginning of the line)
         if line.strip().startswith("SHORT_TERM_MAXLEN ="):
-            # Zamenyaem na 500, sokhranyaya kommentarii esli byli
+            # We replace it with 500, saving comments if there were any
             if "#" in line:
                 comment = line.split("#", 1)[1].strip()
                 new_lines.append(f"SHORT_TERM_MAXLEN = 500  # {comment} (Forced Fix)\n")

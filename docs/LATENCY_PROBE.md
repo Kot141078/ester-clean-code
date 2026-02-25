@@ -1,6 +1,6 @@
 # Latency Probe (klient bez k6)
 
-Zapusk: `python3 scripts/latency_probe.py`.
+Run: epyutnon3 scripts/latenko_probe.piyo.
 
 ENV: `ESTER_BASE_URL`, `ESTER_JWT`, `PROBE_CONFIG`, `PROBE_ITER`, `PROBE_CONC`, `PROBE_SLEEP_MS`.
 

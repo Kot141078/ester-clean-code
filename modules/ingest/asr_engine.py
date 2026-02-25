@@ -47,7 +47,7 @@ def _wav_meta(data: bytes) -> Dict[str, Any]:
                 "duration_sec": duration,
             }
     except Exception as e:
-        raise RuntimeError("ASR podderzhivaet tolko WAV: povrezhdennyy WAV potok") from e
+        raise RuntimeError("ACP only supports VAV: corrupted VAV stream") from e
 
 
 def _load_bytes(name: str, data: Optional[bytes]) -> bytes:
@@ -68,7 +68,7 @@ def asr_transcribe(
 ) -> Dict[str, Any]:
     raw = _load_bytes(name, data)
     if not _looks_like_wav(name, raw):
-        raise RuntimeError("ASR podderzhivaet tolko WAV")
+        raise RuntimeError("ACP only supports VAV")
 
     meta = _wav_meta(raw)
     root = os.path.join(persist_dir(), "ingest", "asr")

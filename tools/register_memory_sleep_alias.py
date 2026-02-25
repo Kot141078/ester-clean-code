@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-tools/register_memory_sleep_alias.py
+"""tools/register_memory_sleep_alias.py
 
 Utilita dlya bezopasnogo dobavleniya routes.memory_sleep_routes_alias
 v data/app/extra_routes.json.
@@ -11,9 +10,8 @@ MOSTY:
   • Skrytyy #2: Chelovek-operator ↔ avtomaticheskaya pamyat sna.
 
 ZEMNOY ABZATs:
-Po suti — eto "vstavit novyy avtomat v shinoprovod": dobavlyaem modul marshrutov
-v spisok avtozagruzki, ne lomaya suschestvuyuschie stroki i ne trogaya app.py vruchnuyu.
-"""
+Po suti - eto "vstavit novyy avtomat v shinoprovod": addavlyaem modul routetov
+v spisok avtozagruzki, ne lomaya suschestvuyuschie stroki i ne trogaya app.py vruchnuyu."""
 from __future__ import annotations
 
 import json

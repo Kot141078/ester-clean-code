@@ -2,7 +2,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 # -*- coding: utf-8 -*-
 def main():
-    # FastAPI: sobiraem router (esli fastapi v okruzhenii)
+    # FastAPI: assembling a router (if fastAPI is surrounded)
     try:
         from fastapi import FastAPI
         from modules.reports.http import register_fastapi

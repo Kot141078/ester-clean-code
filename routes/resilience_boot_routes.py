@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/resilience_boot_routes.py - REST: boot-status i repair.
+"""routes/resilience_boot_routes.py - REST: boot-status i repair.
 
 Mosty:
 - Yavnyy: (Veb ↔ DevOps) bystryy audit i pochinka struktury data/*.
@@ -10,8 +9,7 @@ Mosty:
 Zemnoy abzats:
 Esli chego-to ne khvataet - sozdaem po umolchaniyu i zapuskaem dalshe.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/security/rbac.py — gibridnyy RBAC: roli po JWT/header, pravila po path/method, guard/dekorator, config iz file/env.
+"""modules/security/rbac.py - gibridnyy RBAC: role po JWT/header, pravila po path/method, guard/dekorator, config iz file/env.
 
 Mosty:
 - Yavnyy: (JWT/Security ↔ Operatsii) kontrol dostupa bez sloma suschestvuyuschikh ruchek.
@@ -8,10 +7,9 @@ Mosty:
 - Skrytyy #2: (Policy ↔ Upravlenie) pravila/assign v JSON, s env-override i A/B.
 
 Zemnoy abzats:
-Kak strazh u vorot Ester: zritel smotrit, operator krutit ruchki, admin pravit mirom — a vse popytki fiksiruem, chtoby ne poteryat kontekst.
+Kak strazh u vorot Ester: zritel smotrit, operator krutit ruchki, admin pravit mirom - a vse popytki fiksiruem, chtoby ne poteryat kontekst.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import base64
 import os, json, re, fnmatch, time, threading
@@ -81,7 +79,7 @@ def _load() -> Dict[str, Any]:
             d = json.load(open(MAP_FILE, "r", encoding="utf-8"))
         except Exception:
             d = {"rules": _DEFAULT_RULES, "assign": _DEFAULT_ASSIGN}
-        # Env override dlya rules
+        # Env override for rules
         try:
             if os.getenv("RBAC_RULES_JSON"):
                 d["rules"].update(json.loads(os.getenv("RBAC_RULES_JSON")))
@@ -122,7 +120,7 @@ def _extract_role() -> str:
     return assign.get(user, assign.get("*", "viewer"))
 
 def _match_rule(path: str, method: str, rule: str) -> bool:
-    # Format "METHOD:pattern" (regex esli ^$, inache glob)
+    # Format "METHNOD:pattern" (regex if ^$, otherwise glob)
     if ":" not in rule:
         return False
     m, pat = rule.split(":", 1)

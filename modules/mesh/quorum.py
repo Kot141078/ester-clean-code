@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/mesh/quorum.py — kvorum resheniy (M-of-N) dlya deystviy v seti sester.
+"""modules/mesh/quorum.py - kvorum resheniy (M-of-N) dlya deystviy v seti sister.
 
 Mosty:
 - Yavnyy: (Set ↔ Upravlenie) fiksiruem predlozheniya i golosa.
-- Skrytyy #1: (Bezopasnost ↔ Trust) bez kvoruma — net «resheniya».
+- Skrytyy #1: (Bezopasnost ↔ Trust) bez kvoruma - net “resheniya”.
 - Skrytyy #2: (Inzheneriya ↔ Avtonomiya) legko povesit na guarded_apply / release.
 
 Zemnoy abzats:
-Prostaya demokratiya: poka ne nabrali minimum «za» — deystvie ne vypolnyaem.
+Prostaya demokratiya: poka ne nabrali minimum “za” - deystvie ne vypolnyaem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time
 from typing import Any, Dict

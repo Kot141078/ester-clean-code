@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-schemas/memory_types.py — tipy dannykh pamyati «kak u cheloveka».
-Edinaya skhema dlya epizodov, semantiki, kartochek, aliasov i flashback-paketov.
-"""
+"""schemas/memory_topes.po - “human-like” memory data types.
+A unified scheme for episodes, semantics, cards, aliases and flashback packages."""
 
 from __future__ import annotations
 
@@ -23,9 +21,7 @@ def gen_id(prefix: str) -> str:
 
 @dataclass
 class EpisodicEntry:
-    """
-    Epizody — «chto, gde, kogda» (syrye fragmenty opyta).
-    """
+    """Episodes - “what, where, when” (raw fragments of experience)."""
 
     id: str
     user: str
@@ -35,12 +31,12 @@ class EpisodicEntry:
     doc_id: (
         str  # stabilnyy identifikator dokumenta/istochnika
     )
-    weight: float = 1.0  # «sila vspominaniya» (decay ee ponizhaet)
+    weight: float = 1.0  # “the power of recollection” (desai lowers it)
     tokens: int = (
-        0  # priblizitelnaya dlina (dlya kompakta/ogranicheniy)
+        0  # approximate length (for compact/constraints)
     )
     summary: Optional[str] = (
-        None  # kompaktnaya svodka dlinnogo epizoda
+        None  # compact summary of a long episode
     )
     fragments: List[Dict[str, int]] = field(
         default_factory=list
@@ -49,15 +45,13 @@ class EpisodicEntry:
     meta: Dict[str, Any] = field(
         default_factory=dict
     )  # proizvolnye metadannye (topic, folder, page, etc.)
-    archived: bool = False  # «svernut» v semantiku (no ne udalen)
-    folded_into: Optional[str] = None  # id SemanticEntry, esli «slozhen» tuda
+    archived: bool = False  # "collapse" into semantics (but not deleted)
+    folded_into: Optional[str] = None  # Semantic Center id, if “folded” there
 
 
 @dataclass
 class SemanticEntry:
-    """
-    Semanticheskie uzly — «smyslovye sgustki» (agregatsiya tem/ponyatiy).
-    """
+    """Semantic nodes are “semantic clusters” (aggregation of topics/concepts)."""
 
     id: str
     user: str
@@ -69,17 +63,15 @@ class SemanticEntry:
     weight: float = 1.0
     doc_ids: List[str] = field(
         default_factory=list
-    )  # kakie doc_id podpityvayut etot uzel
+    )  # what doc_ids feed this node
     episode_ids: List[str] = field(
         default_factory=list
-    )  # kakie epizody byli svernuty/ssylayutsya
+    )  # which episodes were collapsed/referenced
 
 
 @dataclass
 class CardEntry:
-    """
-    Kartochki — «pod rukoy» (piny/fishki: opredeleniya, retsepty, chek-listy).
-    """
+    """Cards - “at hand” (pins/chips: definitions, recipes, checklists)."""
 
     id: str
     user: str
@@ -94,10 +86,8 @@ class CardEntry:
 
 @dataclass
 class AliasMap:
-    """
-    Vechnye aliasy doc_id — pereimenovanie bez lomki ssylok.
-    Khranim pryamuyu i obratnuyu karty dlya bystrogo razresheniya.
-    """
+    """Eternal aliases daughter_id - renaming without breaking links.
+    We store forward and reverse maps for quick resolution."""
 
     created_at: str
     updated_at: str
@@ -106,9 +96,7 @@ class AliasMap:
 
 
 class MemoryHit(TypedDict, total=False):
-    """
-    Unifitsirovannyy hit dlya RAG/Trace.
-    """
+    """Unified thread for RAG/Trace."""
 
     type: str  # "episode" | "semantic" | "card"
     id: str
@@ -120,14 +108,12 @@ class MemoryHit(TypedDict, total=False):
 
 
 class FlashbackBundle(TypedDict, total=False):
-    """
-    Flashback-paket — rezultat kontekstnogo vspominaniya.
-    """
+    """The flashbatch is the result of contextual recall."""
 
     episodes: List[MemoryHit]
     semantics: List[MemoryHit]
     cards: List[MemoryHit]
-    aliases: Dict[str, str]  # forward map (dlya klienta/trace)
+    aliases: Dict[str, str]  # forward map (for client/trace)
     stats: Dict[str, Any]  # ms, counts, notes
 
 

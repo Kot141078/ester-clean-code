@@ -7,7 +7,7 @@ import os
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
-# Generatsiya CSRF-tokena v sootvetstvii s security/auth_rbac.issue_csrf_token():
+# Generation of SSRF token in accordance with security/outn_rach.issue_SSRF_token():
 def _csrf_for(ua: str, ip: str) -> str:
     secret = (os.getenv("CSRF_SECRET", "ester-dev-csrf-secret")).encode("utf-8")
     msg = f"{ua}|{ip}".encode("utf-8")
@@ -39,7 +39,7 @@ def test_ingest_upload_and_status(client, auth_hdr_operator, monkeypatch):
     assert r2.status_code in (
         200,
         404,
-    ), r2.data  # mozhet esche ne naytis mgnovenno
+    ), r2.data  # may not yet be found instantly
 
 
 def test_ingest_unsupported_type(client, auth_hdr_operator):

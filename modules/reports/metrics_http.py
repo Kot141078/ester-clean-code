@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.reports.metrics_http — markdown-metriki kachestva.
+"""modules.reports.metrics_http - markdown-metrics quality.
 Rout: `/compat/reports/metrics.md` (FastAPI/Flask).
-# c=a+b
-"""
+# c=a+b"""
 import os
 from typing import Optional
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

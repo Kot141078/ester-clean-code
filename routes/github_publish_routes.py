@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-routes/github_publish_routes.py - publikatsiya «public-safe» v GitHub (po zhelaniyu).
+"""routes/github_publish_routes.py - publikatsiya “public-safe” v GitHub (po zhelaniyu).
 
 MOSTY:
 - (Yavnyy) GET /publish/status - sostoyanie eksporta; POST /publish/run {dry_run, push}
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Delegiruet push v tools/publish/github_publish.py pri push=true (bezopasno, offlayn-gotovo).
 
 ZEMNOY ABZATs:
-Knopka «upakovat i vylozhit»: sobiraem akkuratnyy publichnyy nabor i, esli nado, pushim na GitHub.
+Knopka “upakovat i vylozhit”: sobiraem akkuratnyy publichnyy nabor i, esli nado, pushim na GitHub.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, glob
 from flask import Blueprint, jsonify, request
@@ -53,7 +51,7 @@ def run():
     if not res.get("ok"):
         return jsonify(res), 500
 
-    # 2) Push (optsionalno)
+    # 2) Push (optional)
     if push and not dry:
         try:
             from tools.publish.github_publish import push_repo  # type: ignore

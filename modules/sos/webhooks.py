@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-modules/sos/webhooks.py — SOS-konfiguratsiya i vyzovy (webhook-first, bez integratsii s zakrytymi sistemami).
+"""modules/sos/webhooks.py - SOS-konfiguratsiya i vyzovy (webhook-first, bez integratsii s zakrytymi sistemami).
 
 Mosty:
-- Yavnyy: (Signaly ↔ Vebkhuki) universalnaya otpravka sobytiy v IFTTT/Make/Zapier/svoi servisy.
+- Yavnyy: (Signaly ↔ Webkhuki) universalnaya otpravka sobytiy v IFTTT/Make/Zapier/svoi servisy.
 - Skrytyy #1: (Profile ↔ Trassirovka) fiksiruem fakty vyzovov/oshibok.
-- Skrytyy #2: (RBAC ↔ Ostorozhnost) izmenenie konfiga — tolko dlya adminov.
+- Skrytyy #2: (RBAC ↔ Ostorozhnost) change config - tolko dlya adminov.
 
 Zemnoy abzats:
-Eto kak «krasnaya knopka» s neskolkimi provodami: zaranee podklyuchili, a v nuzhnyy moment — odin vyzov.
+This is how “krasnaya knopka” s neskolkimi provodami: zaranee podklyuchili, and v nuzhnyy moment - odin vyzov.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, json, time, urllib.request
 from typing import Any, Dict, List
@@ -36,7 +34,7 @@ def set_config(cfg: Dict[str,Any])->Dict[str,Any]:
 
 def get_config()->Dict[str,Any]:
     j=_load()
-    # klyuchi ne logiruem
+    # we don’t log keys
     safe={"webhooks":[{"name":x.get("name",""), "url":"***"} for x in j.get("webhooks",[])], "contacts": j.get("contacts",{})}
     return {"ok": True, "config": safe}
 

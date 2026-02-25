@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-roles/edges.py — graf «affinnosti» mezhdu agentami (sovmestnye aktivnosti/upominaniya), komandnaya prigodnost.
+"""roles/edges.py - graf "affinnosti" mezhdu agentami (sovmestnye aktivnosti/upominaniya), komandnaya prigodnost.
 
 MOSTY:
 - (Yavnyy) add_edge(agents, ctx, w) i team_affinity(agents) → chislovoy bonus [0..1] dlya orkestratora.
 - (Skrytyy #1) Zatukhanie reber po vremeni (ROLE_EDGE_DECAY) bez migratsiy i fonovykh dzhob — primenyaetsya pri chtenii/apdeyte.
-- (Skrytyy #2) Integratsiya s suschestvuyuschey BD (MESSAGING_DB_PATH) i rolyami (agent_id — tot zhe, chto v nudges/roles).
+- (Skrytyy #2) Integratsiya s suschestvuyuschey BD (MESSAGING_DB_PATH) i rolyami (agent_id - tot zhe, chto v nudges/roles).
 
 ZEMNOY ABZATs:
-Lyudi luchshe rabotayut s temi, s kem «priterlis». My uchityvaem sovmestnye vylety/smeny/chaty — i daem myagkiy bonus takoy komande.
+Lyudi luchshe rabotayut s temi, s kem “priterlis”. My uchityvaem sovmestnye vylety/smeny/chaty - i daem myagkiy bonus takoy komande.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import os, time, sqlite3, json
@@ -90,9 +88,7 @@ def _decay_weight(w: float, last_ts: float) -> float:
     return float(w) * (DECAY ** days)
 
 def add_edge(agents: List[str], context: Dict[str,Any] | None = None, weight: float = 1.0) -> int:
-    """
-    Usilivaet svyazi mezhdu vsemi parami agents (komplekt ≥2).
-    """
+    """Usilivaet svyazi mezhdu vsemi parami agents (komplekt ≥2)."""
     if not agents or len(agents) < 2:
         return 0
     now = time.time()
@@ -109,7 +105,7 @@ def add_edge(agents: List[str], context: Dict[str,Any] | None = None, weight: fl
             if row:
                 w0, ts0, ctx0 = float(row[0]), float(row[1]), row[2]
                 w = _decay_weight(w0, ts0) + float(weight)
-                # sokhranyaem posledniy kontekst
+                # saves last context
                 c.execute("UPDATE roles_edges SET weight=?, updated_ts=?, context_json=? WHERE a=? AND b=?",
                           (w, now, ctx, a, b))
             else:
@@ -128,9 +124,7 @@ def get_edge(a: str, b: str) -> Dict[str,Any]:
         return {"weight": w, "updated_ts": float(row[1])}
 
 def team_affinity(agents: List[str]) -> float:
-    """
-    Vozvraschaet [0..1]: normirovannaya summa poparnykh vesov.
-    """
+    """Returns ω0..1π: the normalized sum of pairwise weights."""
     ag = sorted(list({str(x) for x in (agents or [])}))
     if len(ag) < 2:
         return 0.0

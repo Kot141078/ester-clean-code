@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-REST-upravlenie kholostym myslitelnym tsiklom.
+"""REST-upravlenie kholostym myslitelnym tsiklom.
 
 Puti:
-  POST /idle/start            - zapustit potok
-  POST /idle/stop             - ostanovit potok
-  GET  /idle/status           - status
-  POST /idle/config           - {mode, gpu_mode} -> primenit
+  POST /idle/start - zapustit potok
+  POST /idle/stop - ostanovit potok
+  GET /idle/status - status
+  POST /idle/config - {mode, gpu_mode} -> primenit
 
 MOSTY:
-- Yavnyy: Volya Ester ↔ Protsessy - «rezhisser» upravlyaet potokom mysley.
+- Yavnyy: Volya Ester ↔ Protsessy - “rezhisser” upravlyaet potokom mysley.
 - Skrytyy 1: Operatsii ↔ Diagnostika - status/logi dostupny prostym JSON.
 - Skrytyy 2: UI/Health ↔ Nadezhnost - otdelnyy blyuprint, bez konfliktov imen.
 
 ZEMNOY ABZATs:
-Eto kak pult u elektrostantsii: knopki «start/stop», regulyatory «tikho/v pol».
-"""
+Eto kak pult u elektrostantsii: knopki “start/stop”, regulyatory “tikho/v pol”."""
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request
@@ -26,7 +24,7 @@ try:
         idle_start, idle_stop, idle_status, idle_configure
     )
 except Exception:
-    # esli modul esche ne sobralsya - bezopasnaya zaglushka
+    # if the module has not yet been assembled - a safe plug
     def _na(*args, **kwargs):
         return {"running": False, "error": "idle_engine not available"}
     idle_start = idle_stop = idle_status = _na  # type: ignore

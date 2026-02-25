@@ -1,30 +1,28 @@
 # -*- coding: utf-8 -*-
-"""
-modules/search/hybrid_retriever.py — gibridnyy retriver (BM25/Hier + Dense) s obedineniem i normirovkoy.
+"""modules/search/hybrid_retriever.py - hybrid retriever (BM25/Hier + Dense) s obedineniem i normirovkoy.
 
 API:
   • hybrid_search(q:str, k:int=8, scope:dict|None=None) -> dict
-  • counters() -> dict  — metriki
+  • counters() -> dict — metrics
 
-Algoritm:
-  1) Coarse/BM25: probuem ierarkhicheskiy indeks (esli est) ili faylovyy indeks video-segmentov (fallback).
-  2) Dense: probuem vektornyy sloy (esli dostupen) cherez standartnye klienty (best-effort).
+Algorithm:
+  1) Coarse/BM25: try ierarkhicheskiy indeks (esli est) or faylovyy indeks video-segmentov (fallback).
+  2) Dense: try vektornyy layer (esli dostupen) cherez standartnye klienty (best-effort).
   3) Sliyanie: normiruem [0..1], RRF (reciprocal rank fusion) + vesa, vyrezaem dublikaty po id/sha.
   4) Vozvraschaem edinyy spisok items: {"id","text","score","meta","tags"}.
 
 Mosty:
-- Yavnyy: (Memory ↔ Poisk) obedinyaem silnye storony sparse i dense retriva.
+- Yavnyy: (Memory ↔ Poisk) obedinyaem strong sideny sparse i dense retriva.
 - Skrytyy #1: (Infoteoriya ↔ Nadezhnost) RRF daet ustoychivost k promakham odnogo iz kanalov.
-- Skrytyy #2: (Logika ↔ Video) umeet chitat `.index.jsonl` segmenty (pakety VideoQA+Index).
+- Skrytyy #2: (Logika ↔ Video) umeet chitat `.index.jsonl` segmenty (packety VideoQA+Index).
 - Novoe: (Mesh/P2P ↔ Raspredelennost) sinkhronizatsiya kesha khitov mezhdu agentami Ester.
-- Novoe: (Cron ↔ Avtonomiya) refresh indeksa/cleanup kesha dlya svezhesti.
-- Novoe: (Monitoring ↔ Prozrachnost) webhook na low-hits/low-score dlya audita.
+- Novoe: (Cron ↔ Avtonomiya) refresh index/cleanup kesha dlya svezhesti.
+- Novoe: (Monitoring ↔ Prozrachnost) webhook on low-hits/low-score dlya audita.
 
 Zemnoy abzats:
-Eto «dvoynoy lokator»: snachala nakhodim rayon po slovam, zatem tochnee tselimsya po smyslu — i obedinyaem rezultaty, keshiruem, delimsya po P2P, obnovlyaem po cron — chtoby poisk Ester byl molnienosnym, bez promakhov v BZ.
+This is “dvoynoy lokator”: snachala nakhodim rayon po slovam, zatem tochnee tselimsya po smyslu - i obedinyaem rezultaty, keshiruem, delimsya po P2P, obnovlyaem po cron - chtoby poisk Ester byl molnienosnym, bez promakhov v BZ.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import glob, json, os, re, math, time, hashlib
 from typing import Any, Dict, List, Tuple

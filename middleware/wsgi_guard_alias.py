@@ -7,11 +7,9 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 WSGI_GUARD_AB = os.getenv("ESTER_WSGI_GUARD_AB", "B").upper()
 
 class _WSGIGuard(object):
-    """
-    WSGI-midlvar, spasaet ot TypeError: 'NoneType' object is not callable
-    (kogda gde-to v after_request vernuli None).
-    Dlya aliasov/favikonki prinuditelno daet bezopasnyy otvet.
-    """
+    """WSGI-midlvar, save ot TypeError: 'NoneType' object is not callable
+    (kogda somewhere-to v after_request vernuli None).
+    Dlya aliasov/favikonki prinuditelno daet bezopasnyy otvet."""
     def __init__(self, app):
         self.app = app
 
@@ -20,8 +18,8 @@ class _WSGIGuard(object):
         try:
             return self.app(environ, start_response)
         except TypeError as e:
-            # Tipichnyy sluchay "response(environ, start_response)" na None
-            # Otdaem bezopasnuyu zaglushku, bez padeniya, i logiruem v data/bringup_after_chain.log
+            # A typical case of "response(environ, start_response)" on Nona
+            # We give a safe plug, without falling, and log it to data/bringup_after_chain.log
             _log_guard("TypeError", path, e)
             status, body = _safe_status_body(path)
             headers = [("Content-Type", "text/plain; charset=utf-8"),
@@ -29,7 +27,7 @@ class _WSGIGuard(object):
             start_response(status, headers)
             return [body]
         except Exception as e:
-            # Dlya aliasov i favikonki — ne daem 500; dlya ostalnogo — probrasyvaem
+            # For aliases and favicons - does not give 500; for the rest - forward
             if path.startswith("/_alias/") or path.endswith("/favicon.ico") or "favicon" in path:
                 _log_guard("Exception", path, e)
                 status, body = _safe_status_body(path)
@@ -55,8 +53,6 @@ def _log_guard(kind, path, exc):
         pass
 
 def register(app):
-    """
-    Podklyuchenie cherez auto-register: app.wsgi_app = _WSGIGuard(app.wsgi_app)
-    """
+    """Connection via auto-register: app.vsgi_app = _VSGIGuard(app.vsgi_app)"""
     if WSGI_GUARD_AB == "B":
         app.wsgi_app = _WSGIGuard(app.wsgi_app)

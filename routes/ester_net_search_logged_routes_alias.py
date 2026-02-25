@@ -4,21 +4,21 @@
 # POST /ester/net/search_logged
 #
 # Naznachenie:
-# - Ispolzovat setevoy most tak, chtoby kazhdyy zapros:
-#   * prokhodil cherez politiku voli i avtonomii,
-#   * pri uspekhe fiksirovalsya v pamyati kak osoznannoe deystvie.
+# - Use a network bridge so that each request:
+#   * went through the politics of will and autonomy,
+#   * if successful, it was recorded in memory as a conscious action.
 #
-# Kontrakt zaprosa:
+# Request contract:
 # {
-#   "q": "stroka zaprosa",
+#   "to": "query string",
 #   "limit": 5,
 #   "source": "operator" | "ester"
 # }
 #
 # Invarianty:
-# - Ne sozdaet fonovykh zadach.
-# - Ne menyaet pamyat napryamuyu, tolko cherez events_unified_adapter (esli dostupen).
-# - Uvazhaet te zhe pravila, chto /ester/net/search.
+# - Does not create background tasks.
+# - Does not change memory directly, only through events_unified_adapter (if available).
+# - Respects the same rules as /ester/no/search.
 
 from __future__ import annotations
 

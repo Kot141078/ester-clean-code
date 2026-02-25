@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-modules/synergy/devices/ugv.py — adapter nazemnykh platform (UGV).
+"""modules/synergy/devices/ugv.py - adapter nazemnykh platform (UGV).
 
 MOSTY:
 - (Yavnyy) Konvertiruet t_ms/batt_min/cargo_kg → latentnost/vremya/peyload.
@@ -8,10 +7,9 @@ MOSTY:
 - (Skrytyy #2) Fallback na adekvatnye defolty, esli polya chastichno otsutstvuyut.
 
 ZEMNOY ABZATs:
-UGV ne «letaet», no orkestratoru udobnee imet odno pole vremeni avtonomnosti — runtime = flight_time_min.
+UGV ne "letaet", no orkestratoru udobnee imet odno pole vremeni avtonomnosti - runtime = flight_time_min.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict

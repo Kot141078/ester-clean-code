@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Proveryaet, chto observability/otel.py bezopasno rabotaet v okruzhenii bez OpenTelemetry.
-"""
+"""Verifies that observabilities/hotel.po works safely in an environment without OpenTelemeters."""
 
 import os
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -14,10 +12,10 @@ def test_otel_noop_without_packages(monkeypatch):
 
     import observability.otel as otel
 
-    # init i span ne dolzhny padat
+    # init and span should not crash
     otel.init_otel(service_name="ester-test")
     with otel.span("unit-test", {"k": "v"}):
         otel.record_metric("ester.metric.test", 1.0, {"unit": "test"})
 
-    # povtornyy import (reload) tozhe ne dolzhen lomatsya
+    # repeated import (reload) should not break either
 # reload(otel)

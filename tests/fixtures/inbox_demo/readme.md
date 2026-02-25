@@ -1,4 +1,4 @@
 # Privet, Ester
 
-Eto demo-fayl dlya ingensta iz **inbox**.
-On dolzhen popast v CardsMemory kak kartochka.
+This is a demo file for an engineer from **inbox**.
+It should go into CardsMemories as a card.

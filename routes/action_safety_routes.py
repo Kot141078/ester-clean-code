@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
-"""
-routes/action_safety_routes.py - REST/UI dlya bezopasnosti deystviy.
+"""routes/action_safety_routes.py - REST/UI dlya bezopasnosti deystviy.
 
 Ruchki:
-  GET  /thinking/action_safety/config
-  POST /thinking/action_safety/config        {enabled?, risk_tol?, cost_budget_daily?}
-  GET  /thinking/action_safety/budget
-  POST /thinking/action_safety/evaluate      {action, meta}
-  POST  /thinking/action_safety/simulate     {action, meta, trials?}
-  POST /thinking/action_safety/decide        {action, meta}   # evaluate + commit/consent/deny
-  GET  /admin/action_safety
+  GET /thinking/action_safety/config
+  POST /thinking/action_safety/config {enabled?, risk_tol?, cost_budget_daily?}
+  GET /thinking/action_safety/budget
+  POST /thinking/action_safety/evaluate {action, meta}
+  POST /thinking/action_safety/simulate {action, meta, trials?}
+  POST /thinking/action_safety/decide {action, meta} # evaluate + commit/consent/deny
+  GET /admin/action_safety
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.thinking import action_safety as AS

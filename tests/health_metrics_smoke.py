@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-tests/health_metrics_smoke.py — smoke dlya health/readiness/metrics Ester messaging.
+"""tests/health_metrics_smoke.py - smoke dlya health/readiness/metrics Ester messaging.
 
 MOSTY:
-- (Yavnyy) Registriruem rasshirennyy nabor marshrutov i proveryaem otvety 200 i strukturu poley.
+- (Yavnyy) Registriruem rasshirnnyy nabor marshrutov i proveryaem otvety 200 i strukturu poley.
 - (Skrytyy #1) Passivnaya proverka nalichiya ENV tokenov (boolean v otvete).
 - (Skrytyy #2) Nalichie metrik v otdelnom reestre — ne konfliktuet s obschim /metrics.
 
 ZEMNOY ABZATs:
-Daet bystryy «zelenyy» signal SRE: servis zhiv, gotov i nablyudaem.
+Daet bystryy “zelenyy” signal SRE: service zhiv, gotov i nablyudaem.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, pytest
 from flask import Flask

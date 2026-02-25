@@ -1,18 +1,16 @@
 
 # -*- coding: utf-8 -*-
-"""
-routes/p2p_probe.py - generatsiya HMAC-podpisi dlya P2P (primer dlya /api/v2/synergy/assign).
+"""routes/p2p_probe.py - generatsiya HMAC-podpisi dlya P2P (primer dlya /api/v2/synergy/assign).
 
 MOSTY:
 - (Yavnyy) GET/POST /p2p/sign_example - vozvraschaet canonical, ts, sha256(body), signature, gotovye curl/PS-shablony.
-- (Skrytyy #1) Ispolzuet P2P_HMAC_KEY iz .env; format: METHOD|PATH|TS|<hex_sha256>.
-- (Skrytyy #2) Rabotaet offlayn; telo mozhno peredat kak JSON (field "body") ili strokoy.
+- (Skrytyy #1) Use P2P_HMAC_KEY iz .env; format: METHOD|PATH|TS|<hex_sha256>.
+- (Skrytyy #2) Rabotaet offlayn; telo mozhno peredat kak JSON (field "body") or strokoy.
 
 ZEMNOY ABZATs:
-Kak «kalibrator klyucha»: poluchil tochnuyu podpis i tut zhe vstavil v komandu - bez plyasok s bubnom.
+Kak “kalibrator klyucha”: poluchil tochnuyu podpis i tut zhe vstavil v komandu - bez plyasok s bubnom.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os, hmac, hashlib, json, time
 from flask import Blueprint, request, jsonify

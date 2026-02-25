@@ -1,18 +1,16 @@
 # scripts/beacons_export.py
 # -*- coding: utf-8 -*-
-"""
-scripts/beacons_export.py — eksport mayakov aktivnosti v JSON.
+"""scripts/beacons_export.py - eksport mayakov aktivnosti v JSON.
 
 Zapusk:
   python scripts/beacons_export.py
-  # optsionalno:
-  #   LIMIT=500
-  #   SINCE=1737600000.0
-  #   KINDS=backup.run,backup.done,scheduler:tick
+  #optionalno:
+  # LIMIT=500
+  # SINCE=1737600000.0
+  # KINDS=backup.run,backup.done,scheduler:tick
 
 Vyvod:
-  Pechataet JSON s "items": [...], "count": N
-"""
+  Print JSON s "items": [...], "count": N"""
 from __future__ import annotations
 
 import json

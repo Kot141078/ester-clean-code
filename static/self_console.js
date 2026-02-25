@@ -28,7 +28,7 @@
   E('btnPlan').addEventListener('click', async () => {
     const goal = E('goal').value.trim();
     if (!goal) {
-      E('planOut').textContent = 'Ukazhi tsel';
+      E('planOut').textContent = 'Specify a goal';
       return;
     }
     const j = await POST('/self/plan', {goal});

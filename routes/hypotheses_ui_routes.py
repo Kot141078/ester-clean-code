@@ -4,7 +4,7 @@ from __future__ import annotations
 from flask import Blueprint, render_template
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Otdelnaya stranitsa dlya «Snov/Initsiativ»: /hypotheses/ui
+# Separate page for “Dreams/Initiatives”: /hopotneses/oh
 hyp_ui_bp = Blueprint("hypotheses_ui", __name__)
 
 
@@ -19,10 +19,8 @@ def hypotheses_ui_index_slash():
 
 
 def register_hypotheses_ui(app, url_prefix: str | None = None) -> None:
-    """
-    Sovmestimyy s dampom registrator. Po umolchaniyu registriruet /hypotheses/ui.
-    Esli peredan url_prefix — dobavit dubl po {url_prefix}/hypotheses/ui.
-    """
+    """Dump compatible logger. By default it registers /hopotnesses/oh.
+    If url_prefix is ​​passed, add a duplicate by ZZF0Z/hopotneses/oh."""
     if url_prefix:
         prefixed = Blueprint("hypotheses_ui_prefixed", __name__, url_prefix=url_prefix)
 

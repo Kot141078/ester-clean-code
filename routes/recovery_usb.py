@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-routes/recovery_usb.py - UI/REST «Recovery USB» (plan i sborka oflayn-fleshki).
+"""routes/recovery_usb.py - UI/REST “Recovery USB” (plan i sborka oflayn-fleshki).
 
-Marshruty:
-  • GET  /admin/recovery              - HTML
-  • GET  /admin/recovery/status       - USB toma + lokalnye pakety/installyatory
-  • POST /admin/recovery/plan         - {mount, options?} → plan_recovery_usb
-  • POST /admin/recovery/build        - {mount, options?} → build_recovery_usb (AB-aware)
+Route:
+  • GET /admin/recovery - HTML
+  • GET /admin/recovery/status - USB toma + lokalnye pakety/installyatory
+  • POST /admin/recovery/plan - {mount, options?} → plan_recovery_usb
+  • POST /admin/recovery/build - {mount, options?} → build_recovery_usb (AB-aware)
 
 Mosty:
-- Yavnyy (UX ↔ Ekspluatatsiya): knopka «Sobrat Recovery USB» dlya bystroy oflayn-razdachi Ester.
+- Yavnyy (UX ↔ Ekspluatatsiya): knopka “Sobrat Recovery USB” dlya bystroy oflayn-razdachi Ester.
 - Skrytyy 1 (Infoteoriya ↔ Prozrachnost): dry-plan v A - bez zapisi; predskazuemyy spisok artefaktov.
 - Skrytyy 2 (Praktika ↔ Sovmestimost): skripty pod Win/macOS/Linux; yadro Ester ne trogaem.
 
 Zemnoy abzats:
-Eto «master fleshki»: sobiraet na USB vse nuzhnoe - instruktsii, skripty, pakety, (opts.) installyator LM Studio.
+This is “master fleshki”: sobiraet na USB vse nuzhnoe - instruktsii, skripty, pakety, (opts.) installyator LM Studio.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import os
 from flask import Blueprint, jsonify, render_template, request

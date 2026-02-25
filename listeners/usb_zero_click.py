@@ -1,29 +1,28 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-"""listeners/usb_zero_click.py — watcher Zero-Click: doverennaya fleshka → deploy.
+"""listeners/usb_zero_click.py - watcher Zero-Click: trustennaya fleshka → deploy.
 
-Oshibka iz loga:
+Error from loga:
   expected an indented block after 'if' statement
 Prichina: v kontse fayla bylo `if __name__ == "__main__":` bez tela (main zakommentirovan).
 
-Chto sdelano:
+What was done:
 - Ispravlen __main__ (raise SystemExit(main())).
-- Ubrany krakozyabry v help/kommentariyakh (UTF-8).
-- Dobavlen flag --once (odin prokhod bez beskonechnogo tsikla) — udobno dlya testa.
-- Dobavlena zaschita ot sluchaynogo vklyucheniya: esli ESTER_USB_ZEROCLICK != "1",
+- Ubrany krakozyabry v help/commentariyakh (UTF-8).
+- Add flag --once (odin prokhod bez beskonechnogo tsikla) ​​— udobno dlya testa.
+- Added zaschita ot sluchaynogo vklyucheniya: esli ESTER_USB_ZEROCLICK != "1",
   watcher ne startuet, krome sluchaya zapuska s --force.
-- Logika idempotency sokhranena: in-memory cache mount->fingerprint.id, povtor podavlyaetsya do smeny id.
+- Logika idempotency sokhranena: in-memory cache mount->fingerprint.id, povtor podavlyaetsya do change id.
 - Myagkiy fallback sys.path, esli fayl gruzyat kak odinochku (chtoby modules.* importy zhili).
 
-Mosty (trebovanie):
-- Yavnyy most (Bezopasnost ↔ Orkestratsiya): tolko doverennye nositeli idut v avtodeploy.
+Mosty (demand):
+- Yavnyy most (Bezopasnost ↔ Orkestratsiya): tolko trustennye nositeli idut v avtodeploy.
 - Skrytye mosty:
-  1) Infoteoriya ↔ Diagnostika: fingerprint sostoyaniya nositelya — minimalnyy signal dlya podavleniya povtorov.
+  1) Infoteoriya ↔ Diagnostika: fingerprint sostoyaniya nositelya - minimalnyy signal dlya podavleniya povtorov.
   2) Praktika ↔ Sovmestimost: edinyy put deploya cherez deploy_from_mount (odin “shlyuz”).
 
-ZEMNOY ABZATs: vnizu.
-"""
+ZEMNOY ABZATs: vnizu."""
 
 import argparse
 import os
@@ -32,7 +31,7 @@ import time
 from pathlib import Path
 from typing import Dict, Optional
 
-# Esli etot fayl gruzyat kak odinochku (bez paketa), podlozhim project-root v sys.path
+# If this file is loaded as a single file (without a package), place the root project in the sys.path
 if __package__ in (None, ""):  # pragma: no cover
     try:
         _here = Path(__file__).resolve()
@@ -58,8 +57,8 @@ def _enabled_by_env() -> bool:
 def main(argv: Optional[list] = None) -> int:
     ap = argparse.ArgumentParser(description="Ester Zero-Click USB watcher")
     ap.add_argument("--interval", type=int, default=5, help="interval skanirovaniya (sek)")
-    ap.add_argument("--once", action="store_true", help="odin prokhod i vykhod (bez tsikla)")
-    ap.add_argument("--force", action="store_true", help="zapustit dazhe esli ESTER_USB_ZEROCLICK!=1")
+    ap.add_argument("--once", action="store_true", help="one pass and exit (no loop)")
+    ap.add_argument("--force", action="store_true", help="run even if ESTER_USB_ZEROSLICK!=1")
     args = ap.parse_args(argv)
 
     if not args.force and not _enabled_by_env():
@@ -91,7 +90,7 @@ def main(argv: Optional[list] = None) -> int:
                     continue
 
                 if seen.get(mount) == new_id:
-                    continue  # uzhe obrabatyvali eto sostoyanie
+                    continue  # have already handled this condition
 
                 dry = (AB != "B")
                 rep = deploy_from_mount(mount, profile_id=None, dry=dry) or {}
@@ -119,9 +118,7 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-ZEMNOY = """
-ZEMNOY ABZATs (anatomiya/inzheneriya):
+ZEMNOY = """ZEMNOY ABZATs (anatomiya/inzheneriya):
 Eto “dezhurnyy na vkhode”: uvidel znakomyy beydzh (trusted USB) — propuskaet i provodit do “sklada”
 bez vyzova operatora. No lyuboy vkhod dolzhen imet predokhranitel: poetomu AB_MODE (A=sukho),
-i flazhok ESTER_USB_ZEROCLICK=1, chtoby sluchayno ne vklyuchit avtodeploy ot lyubogo zapuska.
-"""
+i flazhok ESTER_USB_ZEROCLICK=1, chtoby sluchayno ne vklyuchit avtodeploy ot lyubogo zapuska."""

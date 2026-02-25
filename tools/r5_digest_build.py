@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R5/tools/r5_digest_build.py — CLI: sborka daydzhesta iz plana (JSON).
+"""R5/tools/r5_digest_build.py - CLI: sborka daydzhesta iz plana (JSON).
 
 Mosty:
-- Yavnyy: Enderton — predikaty plana (title/sections) → determinirovannyy rezultat (JSON/MD).
-- Skrytyy #1: Cover & Thomas — kompaktnye summary i gruppirovka po tegam — maksimum signala, minimum shuma.
-- Skrytyy #2: Ashbi — A/B-slot cherez R5_MODE (B s rasshireniyami; pri sboyakh — katbek).
+- Yavnyy: Enderton — predikaty plana (title/sections) → determinirovannyy result (JSON/MD).
+- Skrytyy #1: Cover & Thomas - kompaktnye summary i gruppirovka po tegam - maximum signala, minimum noise.
+- Skrytyy #2: Ashbi — A/B-slot cherez R5_MODE (B s rashirniyami; pri sboyakh — katbek).
 
 Zemnoy abzats:
-Chitaet plan (tests/fixtures/digest_plan.json ili svoy), stroit daydzhest cherez R4 (s fallback na A),
+Chitaet plan (tests/fixtures/digest_plan.json or svoy), build daydzhest cherez R4 (s fallback na A),
 sokhranyaet JSON i MD v `PERSIST_DIR/portal/digests/`. Vozvraschaet puti v stdout.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import argparse
 import json

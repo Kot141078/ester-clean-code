@@ -20,7 +20,7 @@ def test_ingest_supported_types(client, auth_hdr_user, name, ctype, data):
         headers=auth_hdr_user,
         content_type="multipart/form-data",
     )
-    # Dlya pdf dopustim kak 200 (prinyato), tak i 415 (esli parser pdf otklyuchen v konfige)
+    # For PDF, both 200 (accepted) and 415 (if the PDF parser is disabled in the config) are acceptable.
     assert r.status_code in (200, 415)
     if r.status_code == 200:
         j = r.get_json()

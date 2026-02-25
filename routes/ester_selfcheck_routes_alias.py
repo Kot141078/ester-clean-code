@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-routes/ester_selfcheck_routes_alias.py
+"""routes/ester_selfcheck_routes_alias.py
 
 Edinyy self-check Ester.
 
 GET /ester/selfcheck
 
-Agregiruet:
+Aggregate:
 - /ester/thinking/manifest
 - /ester/thinking/status
 - /ester/thinking/quality_once (probnyy vyzov, esli dostupen bezopasno)
@@ -14,7 +13,7 @@ Agregiruet:
 - /ester/memory/status
 
 Realizatsiya:
-- Ispolzuet internal test_client(), ne vneshniy HTTP.
+- Use internal test_client(), ne external HTTP.
 - Ne menyaet otvety bazovykh marshrutov.
 - Lyubye oshibki prevraschaet v warnings, ne lomaya yadro.
 
@@ -25,8 +24,7 @@ Mosty:
 
 Zemnoy abzats:
 Kak kontrolnaya panel na stoyke serverov: sobiraet lampochki voedino,
-no ne upravlyaet pitaniem napryamuyu.
-"""
+no ne upravlyaet pitaniem napryamuyu."""
 
 from __future__ import annotations
 
@@ -81,7 +79,7 @@ def create_blueprint() -> Blueprint:
             "/ester/thinking/quality_once",
             {"prompt": "internal self-check probe"},
         )
-        # 404/405 ne schitaem oshibkoy arkhitektury
+        # We don’t consider 404/405 an architectural error
         if not q["ok"] and q.get("code") in (404, 405):
             q["ok"] = True
             q["note"] = "quality_endpoint_optional"
@@ -90,7 +88,7 @@ def create_blueprint() -> Blueprint:
         # will status
         checks["will_status"] = _probe(client, "GET", "/ester/will/status")
 
-        # memory status (mozhet otsutstvovat)
+        # memory status (may be absent)
         m = _probe(client, "GET", "/ester/memory/status")
         if not m["ok"] and m.get("code") in (404, 405):
             m["ok"] = True
@@ -105,7 +103,7 @@ def create_blueprint() -> Blueprint:
                 ok = False
                 warnings.append(f"{key}_failed")
 
-        # Esli thinking_status ili quality_once ne ok — preduprezhdenie.
+        # If the thinking_status or gate_status is not ok - a warning.
         if not checks["thinking_status"]["ok"]:
             warnings.append("thinking_status_warn")
         if not checks["thinking_quality_once"]["ok"]:

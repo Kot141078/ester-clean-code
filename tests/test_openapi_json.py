@@ -5,6 +5,6 @@ def test_openapi_json_has_chat_message(client):
     assert r.status_code == 200
     j = r.get_json()
     assert isinstance(j, dict)
-    # Proverim nalichie puti /chat/message (ili sovmestimyy /chat)
+    # Check for the path /chat/message (or compatible /chat)
     paths = j.get("paths") or {}
     assert "/chat/message" in paths or "/chat" in paths

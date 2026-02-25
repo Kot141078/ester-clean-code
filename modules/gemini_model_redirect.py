@@ -1,10 +1,10 @@
 # modules/gemini_model_redirect.py
 #
-# Globalnyy patch dlya zaprosov k Gemini:
-# esli gde-to v kode zashit staryy put c "gemini-1.5-pro",
+# Global patch for requests to Gemini:
+# if somewhere in the code you sew up the old path to “gemini-1.5-pro”,
 # my perepisyvaem URL na model iz peremennoy okruzheniya GEMINI_MODEL.
 #
-# Eto tonkiy adapter nad requests, ne trogayuschiy ostalnoy kod Ester.
+# This is a thin adapter over the controller that does not affect the rest of Esther's code.
 
 import os
 import logging
@@ -17,18 +17,16 @@ log = logging.getLogger(__name__)
 
 # Khost Gemini API
 _TARGET_HOST = "generativelanguage.googleapis.com"
-# Staroe, «zashitoe» imya modeli, kotoroe daet 404 v tvoem proekte
+# The old, "protect" model name that gives 404 in your project
 _OLD_MODEL = "gemini-1.5-pro"
-# Novaya model — berem iz okruzheniya, po umolchaniyu gemini-2.5-flash
+# New model - we take it from the environment, by default Gemini 2.5-flush
 _NEW_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 
 def _install_patch() -> None:
-    """
-    Odin raz perekhvatyvaem Session.request i perepisyvaem URL,
-    esli on ukazyvaet na staruyu model Gemini.
-    """
-    # Chtoby ne patchit neskolko raz pri povtornom importe
+    """We intercept Session.request once and rewrite the URL,
+    if it points to the old Gemini model."""
+    # To avoid patching several times when re-importing
     if getattr(Session, "_ester_gemini_patched", False):
         log.info("[gemini_redirect] already patched, skipping")
         return
@@ -36,8 +34,8 @@ def _install_patch() -> None:
     original_request = Session.request
 
     def patched_request(self, method, url, *args, **kwargs):
-        # «Most 1» (yavnyy): svyaz mezhdu sloem setevykh vyzovov
-        # i urovnem modeley LLM — zdes my kak raz shem ikh vmeste.
+        # "Bridge 1" (explicit): communication between the network call layer
+        # and the level of LLM models - here we are just diagramming them together.
         if _TARGET_HOST in url and _OLD_MODEL in url:
             new_url = url.replace(_OLD_MODEL, _NEW_MODEL)
             if new_url != url:
@@ -60,8 +58,8 @@ def _install_patch() -> None:
     )
 
 
-# Ustanavlivaem patch pri importe modulya
+# Install the patch when importing a module
 try:
     _install_patch()
-except Exception as e:  # na vsyakiy sluchay ne valim ves protsess
+except Exception as e:  # just in case, don’t ruin the whole process
     log.exception("[gemini_redirect] failed to install patch: %s", e)

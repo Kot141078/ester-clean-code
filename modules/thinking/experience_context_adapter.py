@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-modules/thinking/experience_context_adapter.py — adapter sloya opyta dlya kaskada myshleniya.
+"""modules/thinking/experience_context_adapter.py - adapter layer opyta dlya kaskada myshleniya.
 
 Zadacha:
   - Dat kaskadu myshleniya prostoy, stabilnyy sposob poluchit "kontekst opyta" Ester.
   - Ispolzovat tolko publichnyy API modules.memory.experience.*
-  - Ne menyat cascade.py i ne navyazyvat integratsiyu — tolko optsionalnyy most.
+  - Ne menyat cascade.py i ne navyazyvat integratsiyu - tolko optsionalnyy most.
 
 MOSTY:
-- Yavnyy: (modules.memory.experience ↔ modules.thinking.*) — opyt stanovitsya dostupen myshleniyu.
+- Yavnyy: (modules.memory.experience ↔ modules.thinking.*) - opyt stanovitsya dostupen myshleniyu.
 - Skrytyy #1: (anchors/insights ↔ prompt/context) — agregirovannye opory upakovyvayutsya v kompaktnyy tekst.
 - Skrytyy #2: (A/B ↔ povedenie) — mozhno po ENV upravlyat, kogda i kak opyt podtyagivat.
 
@@ -17,8 +16,7 @@ Inzhenerno eto utilita formata "prepare_context()":
 kaskad ili lyuboy verkhniy sloy mozhet sprosit odin raz i poluchit tekstovyy blok
 s vyzhimkoy opyta vmesto togo, chtoby rukami lazit v pamyat.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 from typing import Dict, Any
@@ -54,14 +52,12 @@ def _max_chars(default: int = 1200) -> int:
 
 
 def get_experience_context() -> str:
-    """
-    Vozvraschaet kompaktnyy tekstovyy blok s opytom Ester.
+    """Vozvraschaet kompaktnyy tekstovyy blok s opytom Ester.
 
-    Garantii:
+    Guarantee:
       - Nikogda ne brosaet isklyucheniya naruzhu.
       - Pri otklyuchenii ili otsutstvii modulya experience vozvraschaet "".
-      - Format: chelovekochitaemyy, gotov dlya vklyucheniya v prompt / kontekst.
-    """
+      - Format: chelovekochitaemyy, gotov dlya vklyucheniya v prompt / kontekst."""
     if not _bool_env(ENABLED_ENV, default=True):
         return ""
 
@@ -86,7 +82,7 @@ def get_experience_context() -> str:
 
     if top_terms:
         terms_str = ", ".join(str(t) for t in top_terms[:12])
-        lines.append(f"- klyuchevye motivy: {terms_str}")
+        lines.append(f"- key motives: ZZF0Z")
 
     if sample:
         lines.append("- primery insaytov:")

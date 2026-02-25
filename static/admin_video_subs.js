@@ -28,7 +28,7 @@
       tbody.innerHTML = '';
       (j.subscriptions||[]).forEach(s => tbody.appendChild(row(s)));
     }catch(e){
-      out.textContent = 'Oshibka zagruzki: '+e;
+      out.textContent = 'Loading error:'+e;
     }
   }
 
@@ -42,16 +42,16 @@
       tags: E('tags').value.split(',').map(x=>x.trim()).filter(Boolean),
       enabled: E('enabled').checked ? 1 : 0
     };
-    if(!body.id){ out.textContent='Nuzhen id'; return; }
-    if(body.kind==='ytsearch' && !body.query){ out.textContent='Nuzhen query dlya ytsearch'; return; }
-    if((body.kind==='rss' || body.kind==='direct') && !body.url){ out.textContent='Nuzhen url dlya rss/direct'; return; }
+    if(!body.id){ out.textContent='Need ID'; return; }
+    if(body.kind==='ytsearch' && !body.query){ out.textContent='Need cuers for otsearch'; return; }
+    if((body.kind==='rss' || body.kind==='direct') && !body.url){ out.textContent='Need URL for rss/direct'; return; }
     try{
       const r = await fetch('/proactive/video/subs', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
       const j = await r.json();
       out.textContent = JSON.stringify(j, null, 2);
       await reload();
     }catch(e){
-      out.textContent = 'Oshibka sokhraneniya: '+e;
+      out.textContent = 'Saving error:'+e;
     }
   }
 
@@ -68,10 +68,10 @@
         out.textContent = JSON.stringify(j, null, 2);
         await reload();
       }catch(e){
-        out.textContent = 'Oshibka udaleniya: '+e;
+        out.textContent = 'Uninstall error:'+e;
       }
     }else if(op==='toggle'){
-      // Poluchim tekuschuyu zapis, invertiruem enabled
+      // Get the current record, invert enabled
       try{
         const r0 = await fetch('/proactive/video/subs');
         const j0 = await r0.json();
@@ -85,7 +85,7 @@
         out.textContent = JSON.stringify(j, null, 2);
         await reload();
       }catch(e){
-        out.textContent = 'Oshibka toggle: '+e;
+        out.textContent = 'Toggle error:'+e;
       }
     }
   }
@@ -96,7 +96,7 @@
       const j = await r.json();
       out.textContent = JSON.stringify(j, null, 2);
     }catch(e){
-      out.textContent = 'Oshibka zapuska: '+e;
+      out.textContent = 'Startup error:'+e;
     }
   }
 

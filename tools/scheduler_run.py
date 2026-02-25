@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-CLI — lokalnyy planirovschik: scan/apply "tikom" bez fonovykh demonov.
+"""CLI - lokalnyy planirovschik: scan/apply "tikom" bez fonovykh demonov.
 
 Most (yavnyy):
 - (CLI ↔ UI) Te zhe operatsii dostupny i v terminale, i v adminke.
@@ -10,11 +9,10 @@ Mosty (skrytye):
 - (Formaty ↔ Operatsii) Rabotaet s txt/md/pdf bez vneshnikh bibliotek — prosche deploy.
 
 Zemnoy abzats:
-Utilita skaniruet `ESTER/inbox/{txt,md,pdf}`, pokazyvaet plan i (v B) pishet zadaniya v
-`ESTER/state/queue/*.json`. V A — tolko prevyu.
+Utilita scaniruet `ESTER/inbox/{txt,md,pdf}`, pokazyvaet plan i (v B) pishet zadaniya v
+`ESTER/state/queue/*.json`. V A - just prevyu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -30,10 +28,10 @@ AB_MODE = (os.getenv("AB_MODE") or "A").strip().upper()
 
 def main():
     ap = argparse.ArgumentParser(description="Local scheduler tick (A/B).")
-    ap.add_argument("--scan", action="store_true", help="Tolko pokazat plan (dry)")
-    ap.add_argument("--apply", action="store_true", help="Sozdat zadachi (tolko v B)")
+    ap.add_argument("--scan", action="store_true", help="Just show the plan")
+    ap.add_argument("--apply", action="store_true", help="Create tasks (only in B)")
     ap.add_argument("--limit", type=int, default=None, help="Limit faylov za tik")
-    ap.add_argument("--no-chunk", action="store_true", help="Otklyuchit razbienie teksta")
+    ap.add_argument("--no-chunk", action="store_true", help="Disable text splitting")
     ap.add_argument("--max-bytes", type=int, default=None, help="Predel razmera fayla")
     args = ap.parse_args()
 

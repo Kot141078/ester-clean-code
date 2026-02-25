@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-scripts/usb_verify_cli.py — CLI-proverka fleshki Ester.
+"""scripts/usb_verify_cli.py - CLI-verify fleshki Ester.
 
 Primer:
   python -m scripts.usb_verify_cli --mount /media/USB
@@ -13,10 +12,9 @@ Mosty:
 - Skrytyy 2 (Praktika ↔ Bezopasnost): read-only, bez zapisi na nositel.
 
 Zemnoy abzats:
-Udobno dlya «sukhogo dopuska» — proverit fleshku avtomaticheski pered vydachey v rabotu.
+Udobno dlya “sukhogo dopuska” — proverit fleshku avtomaticheski pered vydachey v rabotu.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 
 import argparse
@@ -26,7 +24,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Ester USB Verify CLI")
-    ap.add_argument("--mount", required=True, help="tochka montirovaniya USB")
+    ap.add_argument("--mount", required=True, help="USB mount point")
     args = ap.parse_args(argv)
     rep = verify_usb(args.mount)
     print(json.dumps(rep, ensure_ascii=False, indent=2))

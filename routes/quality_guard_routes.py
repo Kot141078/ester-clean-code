@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-routes/quality_guard_routes.py - REST/UI dlya politiki kachestva.
+"""routes/quality_guard_routes.py - REST/UI dlya politiki kachestva.
 
 Ruchki:
-  POST /quality/enable  {"window_sec":60,"p90_ms":900,"error_rate":0.25,"hud_alerts":true}
+  POST /quality/enable {"window_sec":60,"p90_ms":900,"error_rate":0.25,"hud_alerts":true}
   POST /quality/disable {}
-  GET  /quality/status
-  POST /quality/ingest  {"ok":true,"t_ms":120,"op":"hotkey"}
-  POST /quality/check   {}   # ruchnoy progon periodic_check()
-  GET  /admin/quality
+  GET /quality/status
+  POST /quality/ingest {"ok":true,"t_ms":120,"op":"hotkey"}
+  POST /quality/check {} # ruchnoy progon periodic_check()
+  GET /admin/quality
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from modules.quality.guard import enable, disable, status as q_status, ingest, periodic_check

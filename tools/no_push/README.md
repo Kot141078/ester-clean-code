@@ -1,10 +1,10 @@
-# NoPush Guard (lokalnaya zaschita ot sluchaynykh pushey)
+# NoPush Guard (local protection against random pushes)
 
-**Chto delaet:** stavit `pre-push` khuk Git, kotoryy **po umolchaniyu** blokiruet `git push`, poka vy *osoznanno* ne razreshite operatsiyu.
+**What it does:** set the live hook, which **by default** blocks the live action until you *consciously* allow the operation.
 
-- Razreshenie na odin raz: `ALLOW_PUSH=1 git push`
-- Postoyanno razreshit do otmeny: `touch .allow_push`
-- Globalno zablokirovat: `touch .nopush` (sozdaetsya pri `install`)
+- Permission for one time: eALOV_PUSH=1 live freely
+- Will permanently allow until cancelled: yotuch .allov_poshe
+- Globally block: yetuch.nopushe (created during installation)
 
 ## Ustanovka
 

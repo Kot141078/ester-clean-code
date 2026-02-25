@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-Smoke bootstrap for timeline from scroll JSONL.
+"""Smoke bootstrap for timeline from scroll JSONL.
 
 MOSTY:
 - Yavnyy: scroll tail -> store bootstrap -> timeline output.
-- Skrytyy #1: infoteoriya -> proveryaem, chto poleznyy nedavniy kontekst ne teryaetsya posle restarta.
+- Skrytyy #1: infoteoriya -> proveryaem, chto poleznyy nedavniy kontekst ne teryaetsya after restarta.
 - Skrytyy #2: kibernetika -> obschiy API store/timeline vmesto pryamogo dostupa k vnutrennemu sostoyaniya.
 
 ZEMNOY ABZATs:
-Pokhozhe na progrev kesha posle perezapuska: berem khvost zhurnala i ubezhdaemsya, chto lenta snova zhivaya.
-"""
+Pokhozhe na progrev kesha posle perezapuska: berem khvost zhurnala i ubezhdaemsya, chto lenta snova zhivaya."""
 from __future__ import annotations
 
 import json

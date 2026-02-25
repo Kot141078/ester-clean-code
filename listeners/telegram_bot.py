@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-"""
-run_ester_fixed.py — Telegram-uzel Ester (HiveMind + Volya/Sny/Lyubopytstvo)
+"""run_ester_fixed.py — Telegram-uzel Ester (HiveMind + Volya/Sny/Lyubopytstvo)
 
 YaVNYY MOST: c = a + b (chelovek + protsedury) -> ansambl mneniy + sintez + kaskad.
 SKRYTYE MOSTY:
-  - Ashby: requisite variety — parallelnye provaydery dayut raznoobrazie, kaskad — stabilizatsiyu.
-  - Cover&Thomas: ogranichenie kanala — sny lokalno (ekonomiya kanala/stoimosti), otvety — oblako.
+  - Ashby: requisite variety - parallelnye provaydery dayut raznoobrazie, kaskad - stabilizatsiyu.
+  - Cover&Thomas: ogranichenie kanala - sny lokalno (ekonomiya kanala/stoimosti), otvety - oblako.
   - Legacy Memory: Podklyuchenie starykh arkhivov (jsonl) kak "dolgosrochnoy pamyati" pri starte.
 
 ZEMNOY ABZATs (inzheneriya/anatomiya):
-  Planirovschik — kak sinusovyy uzel, zadaet ritm. A “son” — kak vosstanovlenie tkaney:
-  on idet fonom i ne dolzhen blokirovat serdtsebienie (job tick), inache nachinayutsya “aritmii” (skipped jobs).
-"""
+  Planirovschik - kak sinusovyy uzel, zadaet rhythm. A “son” - how to recover tkaney:
+  on idet fonom i ne dolzhen blokirovat serdtsebienie (job tick), inache nachinayutsya “aritmii” (skipped jobs)."""
 
 import base64
 import os
 
-# === IMPLANTY DLYa SVYaZI (FLASK + REQUESTS) ===
+# === IMPLANTS FOR CONNECTION (FLASK + REGUESC) ===
 import threading
 from flask import Flask, request, jsonify
 import requests
@@ -90,12 +88,12 @@ def _passport_jsonl_path() -> str:
     return str(p)
 # ==============================
 # [ester-writer-guard v1]
-# Explicit bridge: c=a+b -> intent (a) + protsedurnyy lock/fallback (b) => neprotivorechivaya pamyat (c)
-# Hidden bridges: Ashby (variety cherez RO fallback), Cover&Thomas (nadezhnost kanala pri konkurentsii writers)
-# Earth: kak obratnyy klapan/sfinkter — odin potok «davit» (pishet), ostalnye chitayut bez obratnogo toka.
+# Explicit bridge: c=a+b -> intent (a) + procedural gloss/falsehood (c) => consistent memory (c)
+# Hidden bridges: Ashby (variety through RO falbatsk), Cover&Thomas (reliability of the channel in the competition of vritrs)
+# Erth: like a check valve/sphincter - one flow “presses” (writes), the rest read without return flow.
 # A/B:
-#   A (default): ESTER_WRITER_MODE=auto -> pytaemsya vzyat lock, inache read-only.
-#   B (fail-fast): ESTER_WRITER_MODE=writer + ESTER_WRITER_STRICT=1 -> esli lock zanyat, padaem srazu.
+#   A (default): ESTER_VRITR_MODE=auto -> trying to get the shine, otherwise read-only.
+#   In (fast file): ESTER_VRITR_MODE=vritr + ESTER_VRITR_STRICT=1 -> if you take lock, it falls immediately.
 
 _WRITER_MODE = None
 _WRITER_LOCK_PATH = None
@@ -106,8 +104,7 @@ def _writer_enabled() -> bool:
 
     Env:
       ESTER_WRITER_MODE = auto|writer|ro (also accepts 1/0/true/false)
-      ESTER_WRITER_STRICT = 1 -> esli khoteli writer, no lock zanyat — raise.
-    """
+      ESTER_WRITER_STRICT = 1 -> esli khoteli writer, no lock zanyat - raise."""
     global _WRITER_MODE, _WRITER_LOCK_PATH, _WRITER_LOCK_FD
 
     mode = (os.getenv("ESTER_WRITER_MODE") or "auto").strip().lower()
@@ -222,7 +219,7 @@ def _persist_to_passport(role: str, text: str):
         elif role == "assistant":
             rec["role_assistant"] = text
         elif role == "thought":
-            # Markiruem mysl, chtoby otlichat ot realnosti
+            # We mark a thought to distinguish it from reality
             rec["role_system"] = f"[[INTERNAL MEMORY/DREAM]]: {text}"
             rec["tags"] = ["insight", "internal"]
         else:
@@ -237,7 +234,7 @@ def crystallize_thought(text: str):
     # Save an internal insight to long-term memory.
     logging.info(f"[BRAIN] Crystallizing insight: {text[:30]}...")
     _persist_to_passport("thought", text)
-    # Takzhe dobavlyaem v operativnuyu pamyat srazu (zaglushka dlya buduschego)
+    # We also add it to RAM immediately (a stub for the future)
     if _short_term_by_key:
         pass
 
@@ -245,10 +242,8 @@ def crystallize_thought(text: str):
 
 # --- APScheduler / tzlocal safety patch (Windows sometimes breaks JobQueue timezones) ---
 def _install_apscheduler_pytz_coerce_patch() -> None:
-    """
-    V nekotorykh Windows-sborkakh tzlocal otdaet ZoneInfo, a APScheduler/JobQueue
-    v ryade okruzheniy s etim lomaetsya. Podsovyvaem pytz.
-    """
+    """In some Windows builds, tzlokal gives ZoneInfo, and APSheduler/Evkueoe
+    in some environments this breaks down. We slip the pos."""
     try:
         import pytz  # type: ignore
         import tzlocal  # type: ignore
@@ -405,18 +400,18 @@ VOLITION_MISFIRE_GRACE = int(os.getenv("VOLITION_MISFIRE_GRACE", "30"))
 DREAM_PASSES = int(os.getenv("DREAM_PASSES", "3"))  # 1..3
 DREAM_TEMPERATURE = float(os.getenv("DREAM_TEMPERATURE", "0.7"))
 DREAM_MAX_TOKENS = int(os.getenv("DREAM_MAX_TOKENS", "20000"))
-DREAM_MIN_INTERVAL_SEC = int(os.getenv("DREAM_MIN_INTERVAL_SEC", "120"))  # zaschita ot postoyannogo “sna”
+DREAM_MIN_INTERVAL_SEC = int(os.getenv("DREAM_MIN_INTERVAL_SEC", "120"))  # protection against constant “sleep”
 
 # --- DREAM CONTEXT FEEDING ---
 DREAM_CONTEXT_ITEMS = int(os.getenv("DREAM_CONTEXT_ITEMS", "6"))
 DREAM_CONTEXT_CHARS = int(os.getenv("DREAM_CONTEXT_CHARS", "80000"))
 DREAM_MAX_PROMPT_CHARS = int(os.getenv("DREAM_MAX_PROMPT_CHARS", "260000"))
 
-# --- DREAM SILENCE / “molchanie v chate” ---
+# --- DREAM SILENCE / “silence in chat” ---
 DREAM_STREAM_TO_ADMIN = (os.getenv("DREAM_STREAM_TO_ADMIN", "0").strip().lower() in ("1", "true", "yes", "y"))
 
 # --- DREAM DIET / “snovidcheskaya dieta” ---
-# Dobavil 'legacy' tipy dlya staroy pamyati
+# Added lighter types for old memory
 DREAM_ALLOWED_TYPES = [x.strip() for x in os.getenv(
     "DREAM_ALLOWED_TYPES",
     "book_chunk,psych,philosophy,classic,protocol,essay,note,qa,file_chunk,dream_insight,legacy_mem,dialog_turn,fact"
@@ -425,7 +420,7 @@ DREAM_ALLOWED_TYPES = [x.strip() for x in os.getenv(
 DREAM_MEMORY_CANDIDATES = int(os.getenv("DREAM_MEMORY_CANDIDATES", "250"))
 DREAM_MEMORY_TRIES = int(os.getenv("DREAM_MEMORY_TRIES", "6"))
 
-# --- CASCADE REPLY (kaskadnoe myshlenie dlya otvetov) ---
+# --- CASCADE REPLY (cascade thinking for answers) ---
 CASCADE_REPLY_ENABLED = (os.getenv("CASCADE_REPLY_ENABLED", "1").strip().lower() in ("1", "true", "yes", "y"))
 CASCADE_REPLY_STEPS = int(os.getenv("CASCADE_REPLY_STEPS", "4"))  # 3..4 normalno
 
@@ -576,11 +571,9 @@ def _derive_gemini_openai_base(gemini_api_base: str) -> str:
     return b + "/v1beta/openai/"
 
 def _looks_like_technical_junk(text: str) -> bool:
-    """
-    Filtr musora: delaem “myagko”.
+    """Filtr musora: delaem “myagko”.
     Korotkoe NE ravno musor (inache son golodaet na svezhem uzle).
-    Musor — eto puti, treysy, telemetriya, drayvera, binarschina, logi ustanovschikov.
-    """
+    Musor - eto puti, treysy, telemetriya, drayvera, binarschina, logi ustanovschikov."""
     t = (text or "").strip()
     if not t:
         return True
@@ -596,14 +589,14 @@ def _looks_like_technical_junk(text: str) -> bool:
     if any(x in low for x in bad_substrings):
         return True
 
-    # esli ochen korotko i pochti net bukv — skoree musor
+    # if it’s very short and there are almost no letters, it’s more like garbage
     if len(t) < 60:
         letters = sum(ch.isalpha() for ch in t)
         digits = sum(ch.isdigit() for ch in t)
         if letters < 12 and digits >= 10:
             return True
 
-    # esli pochti odni tsifry/simvoly
+    # if almost only numbers/symbols
     letters = sum(ch.isalpha() for ch in t)
     digits = sum(ch.isdigit() for ch in t)
     if letters < 20 and digits > 40:
@@ -611,7 +604,7 @@ def _looks_like_technical_junk(text: str) -> bool:
 
     return False
 
-# --- Leksikony (obedinennye i rasshirennye) ---
+# ---Lexicons (merged and extended) ---
 
 NEGATIONS = {
     "ne",
@@ -679,7 +672,7 @@ LEX_INTEREST = {
     "davay poprobuem",
     "vtyagivaet",
 }
-# Rasshiren leksemami iz bazovogo dvizhka
+# Extended with lexemes from the base engine
 LEX_JOY = {
     "rad",
     "rada",
@@ -697,7 +690,7 @@ LEX_JOY = {
     "obozhayu",
     "lyublyu",
 }
-# Rasshiren leksemami iz bazovogo dvizhka
+# Extended with lexemes from the base engine
 LEX_SAD = {
     "grustno",
     "pechalno",
@@ -711,7 +704,7 @@ LEX_SAD = {
     "plokho",
     "zhal",
 }
-# Rasshiren leksemami iz bazovogo dvizhka
+# Extended with lexemes from the base engine
 LEX_ANGER = {
     "zlyus",
     "zol",
@@ -770,7 +763,7 @@ LEX_ENERGY_DOWN = {
     "obessilel",
 }
 
-# Rasshirennaya karta Emoji
+# Expanded map of Etozha
 EMOJI_MAP = {
     "😅": {"anxiety": +0.15, "joy": +0.10, "energy": +0.05},
     "😟": {"anxiety": +0.35},
@@ -920,7 +913,7 @@ def _analyze_core(text: str, baseline: Optional[Dict[str, float]] = None) -> Dic
     disgust = dg + emo.get("disgust", 0.0)
     energy = (e_up - 0.8 * e_down) + emo.get("energy", 0.0) + punc.get("energy", 0.0)
 
-    # Obnovlennaya formula valentnosti
+    # Updated Valency Formula
     valence = (
         (joy - sadness - 0.5 * anxiety - 0.4 * anger - 0.6 * disgust + 0.1 * surprise)
         + emo.get("valence", 0.0)
@@ -1076,21 +1069,21 @@ def _emotion_telemetry(user_text: str) -> str:
     return ", ".join([f"{k}={v:.2f}" for k, v in items])
 
 def dummy_llm_analyze_tone(text: str) -> Dict[str, float]:
-    # Zaglushka: analiziruet ton. V reale — prompt LLM: "Analiziruy ton: druzheskiy/razdrazhennyy/neytralnyy?"
+    # Mute: Analyzes tone. In real life - LLM prompt: “Analyze the tone: friendly/irritated/neutral?”
     if "nepriyatno" in text.lower() or "ukhodit" in text.lower():
         return {
             "tone": "razdrazhennyy",
             "score": 0.8,
-            "suggestion": "Dobavit empatiyu i yumor",
+            "suggestion": "Add empathy and humor",
         }
     return {
         "tone": "neytralnyy",
         "score": 0.5,
-        "suggestion": "Obychnyy otvet",
+        "suggestion": "Normal answer",
     }
 
 
-# Dlya vektornoy BD (ChromaDB) — kak v SessionGuardian
+# For a vector database (ChromaDB) - as in SessionGuardian
 # --- Empathy storage (persistent) ---
 EMPATHY_V2_ENABLED = (os.getenv("ESTER_EMPATHY_V2", "1").strip().lower() not in ("0", "false", "no", "off"))
 EMPATHY_COLLECTION_NAME = os.getenv("ESTER_EMPATHY_COLLECTION", "ester_empathy")
@@ -1153,11 +1146,11 @@ class EmpathyModule:
         self.empathy_level = empathy_level
         self.user_history: List[Dict[str, str]] = (
             []
-        )  # Istoriya dlya personalizatsii
-        self.load_from_db()  # Zagruzhaem predyduschie predpochteniya
+        )  # History for personalization
+        self.load_from_db()  # Loading previous preferences
 
     def analyze_user_message(self, message: str) -> Dict[str, any]:
-        """Analiziruet ton soobscheniya i predlagaet adaptatsiyu."""
+        """Analyzes message tone and suggests adaptations."""
         analysis = dummy_llm_analyze_tone(message)
         self.user_history.append({"message": message, "analysis": analysis})
         if EMPATHY_V2_ENABLED and EMPATHY_HISTORY_MAX > 0:
@@ -1165,27 +1158,27 @@ class EmpathyModule:
         if analysis["tone"] == "razdrazhennyy":
             return {
                 "response_style": "empatiya",
-                "prefix": "Ponimayu, eto mozhet razdrazhat — davay razberemsya po-druzheski. ",
+                "prefix": "I understand this can be annoying - let's sort it out amicably.",
             }
         elif "podpiska" in message.lower() or "plan" in message.lower():
             return {
                 "response_style": "myagkiy",
-                "prefix": "Esli interesno, vot ideya po podpiske — no bez speshki, snachala zadacha. ",
+                "prefix": "If you're interested, here's an idea for a subscription - but without haste, task first.",
             }
         return {"response_style": "standart", "prefix": ""}
 
     def generate_friendly_response(self, base_response: str, analysis: Dict[str, any]) -> str:
-        """Generit druzheskiy otvet na osnove analiza."""
+        """Generate a friendly response based on the analysis."""
         prefix = analysis.get("prefix", "")
         if self.empathy_level > 7:
-            humor_add = " 😄"  # Dobavlyaem yumor po urovnyu
+            humor_add = " 😄"  # Adding humor by level
         else:
             humor_add = ""
         return f"{prefix}{base_response}{humor_add}"
 
     def suggest_improvement(self) -> str:
-        """Nenavyazchivoe predlozhenie fidbeka ili uluchsheniya."""
-        return "Rasskazhi, chto uluchshit? Net davleniya, prosto ideya dlya luchshego opyta."
+        """An unobtrusive offer of feedback or improvement."""
+        return "Tell me what to improve? No pressure, just an idea for a better experience."
 
     def save_to_db(self):
         """Persist empathy history (best-effort)."""
@@ -1231,16 +1224,16 @@ def _is_daily_contacts_query(text: str) -> bool:
         return False
     patterns = [
         "s kem ty govorila segodnya",
-        "s kem ty obschalas segodnya",
+        "who did you talk to today",
         "kto pisal segodnya",
         "kto tebe pisal segodnya",
         "kto segodnya pisal",
         "s kem ty razgovarivala segodnya",
-        "s kem ty obschalas krome menya",
+        "who did you talk to besides me",
         "krome menya s kem",
         "kto krome menya",
-        "pokazhi zhurnal dnya",
-        "pokazhi kto pisal",
+        "show your daily log",
+        "show who wrote",
         "kto byl segodnya",
     ]
     if any(p in low for p in patterns):
@@ -1281,7 +1274,7 @@ def _resolve_ester_home() -> str:
 ESTER_HOME = _resolve_ester_home()
 os.environ["ESTER_HOME"] = ESTER_HOME
 
-# --- LEGACY FILE MAPPING (Podklyuchaem tvoi starye fayly) ---
+# --- LEGACY FILE MAPPING (We connect your old files) ---
 LEGACY_FILES_MAP = [
     ("data/passport/clean_memory.jsonl", "global_fact"),
     ("data/mem/docs.jsonl", "global_doc"),
@@ -1312,7 +1305,7 @@ FACTS_FILE = os.path.join("data", "user_facts.json")
 DAILY_LOG_FILE = os.path.join("data", "daily_contacts.json")
 MEMORY_FILE = f"history_{NODE_IDENTITY}.jsonl"
 
-# --- Contacts / People registry (persistentno, ne cherez LLM-pamyat) ---
+# --- Contacts / People registers (persistent, not through LLM memory) ---
 CONTACTS_FILE = os.getenv("ESTER_CONTACTS_FILE", os.path.join("data", "contacts_book.json"))
 PEOPLE_FILE = os.getenv("ESTER_PEOPLE_FILE", os.path.join("data", "people_registry.json"))
 os.makedirs(os.path.dirname(CONTACTS_FILE), exist_ok=True)
@@ -1324,10 +1317,8 @@ LAST_ADMIN_CHAT_KEY: Optional[Tuple[int, int]] = None  # (chat_id, user_id)
 
 # --- ContactsBook (per Telegram user_id) ---
 class ContactsBook:
-    """
-    user_id(str) -> {display_name, address_as, role, notes, updated_at}
-    Upravlyaetsya komandami (/iam, /setrole), a ne raspoznavaniem “iz teksta”.
-    """
+    """user_id(str) -> ЗЗФ0З
+    It is controlled by commands (/yam, /setrole), and not by recognition “from the text”."""
     def __init__(self, path: str):
         self.path = path
         self._lock = threading.Lock()
@@ -1385,12 +1376,10 @@ class ContactsBook:
 
 CONTACTS = ContactsBook(CONTACTS_FILE)
 
-# --- People registry (semya/druzya Owner: Misha/Kler/Babushka i t.p.) ---
+# --- People registers (Ovner's family/friends: Misha/Claire/Grandmother, etc.) ---
 class PeopleRegistry:
-    """
-    name(str) -> {aliases:[], relation:str, notes:str, updated_at:int}
-    Eto NE telegram-polzovateli. Eto “kto est kto” v chelovecheskom smysle.
-    """
+    """name(str) -> ZZF0Z
+    These are NOT telegram users. This is “who is who” in the human sense."""
     def __init__(self, path: str):
         self.path = path
         self._lock = threading.Lock()
@@ -1547,7 +1536,7 @@ def seen_update_once(update: Update) -> bool:
 
     return False
 
-# --- Per-chat+user short term memory (chtoby ne meshalis lichnosti) ---
+# --- Per-chat + user short term memory (so that personalities do not interfere) ---
 _short_term_by_key: Dict[Tuple[int, int], deque] = {}
 _short_term_lock = threading.Lock()
 
@@ -1590,7 +1579,7 @@ def clean_ester_response(text: str) -> str:
     text = strip_duplicate_boilerplate(text)
     return text.strip()
 
-# --- Daily log (istochnik istiny: “s kem govorila segodnya”) ---
+# --- Daylo log (source of truth: “whom I spoke to today”) ---
 def log_interaction(chat_id: int, user_id: int, user_label: str, text: str, message_id: Optional[int] = None) -> None:
     try:
         now = _safe_now_ts()
@@ -1620,12 +1609,12 @@ def log_interaction(chat_id: int, user_id: int, user_label: str, text: str, mess
 
 def get_daily_summary(chat_id: Optional[int] = None, limit: int = 15) -> str:
     if not os.path.exists(DAILY_LOG_FILE):
-        return "Segodnya esche nikogo ne bylo."
+        return "There hasn't been anyone yet today."
     try:
         with open(DAILY_LOG_FILE, "r", encoding="utf-8") as f:
             data = json.load(f) or []
         if not isinstance(data, list) or not data:
-            return "Segodnya esche nikogo ne bylo."
+            return "There hasn't been anyone yet today."
 
         filt = data
         if chat_id is not None:
@@ -1633,7 +1622,7 @@ def get_daily_summary(chat_id: Optional[int] = None, limit: int = 15) -> str:
             filt = [x for x in data if str(x.get("chat_id", "")) == cid]
 
         if not filt:
-            return "Segodnya esche nikogo ne bylo."
+            return "There hasn't been anyone yet today."
 
         summary: List[str] = []
         seen = set()
@@ -1825,7 +1814,7 @@ Ty mozhesh ssylatsya na slozhnye logicheskie tsepochki, znaya, chto tvoe podsozn
 # SISTER NODE SYNAPSE (P2P BRIDGE) & FLASK SERVER
 # ==============================================================================
 flask_app = Flask(__name__)
-# Otklyuchaem lishniy shum logov Flask
+# Turning off unnecessary noise from Flask logs
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
@@ -1833,7 +1822,7 @@ SISTER_NODE_URL = os.getenv("SISTER_NODE_URL", "")
 SISTER_SYNC_TOKEN = os.getenv("SISTER_SYNC_TOKEN", "default_token")
 
 def send_to_sister(message_text, context_type="chat"):
-    """Otpravlyaet mysl ili soobschenie Lie (na uzel sestry)."""
+    """Sends a thought or message to Lee (to the sister node)."""
     if not SISTER_NODE_URL:
         logging.warning("[SYNAPSE] Sister URL not set. Message not sent.")
         return False
@@ -1847,7 +1836,7 @@ def send_to_sister(message_text, context_type="chat"):
     }
     
     try:
-        # Otpravlyaem s korotkim taymautom, chtoby ne veshat Ester
+        # Send with a short timeout so as not to hang Esther
         logging.info(f"[SYNAPSE] Sending to Sister ({SISTER_NODE_URL}): {message_text[:50]}...")
         resp = requests.post(f"{SISTER_NODE_URL}/sister/inbound", json=payload, timeout=2.0)
         if resp.status_code == 200:
@@ -1861,10 +1850,8 @@ def send_to_sister(message_text, context_type="chat"):
 
 @flask_app.route('/sister/inbound', methods=['POST'])
 def sister_inbound():
-    """
-    V2.0: Priem zaprosa na mnenie ot Sestry.
-    Teper my ne prosto slushaem, a dumaem i otvechaem.
-    """
+    """V2.0: Receiving a request for an opinion from a Sister.
+    Now we don’t just listen, but think and respond."""
     try:
         data = request.get_json(silent=True) or {}
     except Exception:
@@ -1872,7 +1859,7 @@ def sister_inbound():
 
     token = data.get('token')
 
-    # Proverka bezopasnosti
+    # Security check
     if not SISTER_SYNC_TOKEN or token != SISTER_SYNC_TOKEN:
         return jsonify({"status": "error", "message": "Invalid token"}), 403
 
@@ -1894,15 +1881,15 @@ def sister_inbound():
             except Exception:
                 pass
 
-    # Esli eto zapros na mnenie (thought), zapuskaem lokalnyy mozg
+    # If this is a request for an opinion (thught), we launch the local brain
     if context_type == "thought_request":
         try:
             messages = [
-                {"role": "system", "content": "Ty pomogaesh svoey sestre sformulirovat mnenie. Bud kratkoy i tochnoy."},
+                {"role": "system", "content": "You help your sister formulate an opinion. Be brief and to the point."},
                 {"role": "user", "content": content}
             ]
 
-            # _safe_chat — asinkhronnaya funktsiya v rannere
+            # _safe_chat - asynchronous function in the runner
             thought = _run_coro_in_new_loop(_safe_chat("local", messages, temperature=0.7))
 
             return jsonify({
@@ -1918,7 +1905,7 @@ def sister_inbound():
 
 
 async def ask_sister_opinion(query_text: str) -> str:
-    """Asinkhronnyy zapros mneniya u Sestry po P2P."""
+    """Asynchronous request for opinion from Sister via P2P."""
     if not SISTER_NODE_URL:
         return ""
 
@@ -1953,7 +1940,7 @@ async def ask_sister_opinion(query_text: str) -> str:
 
 
 def run_flask_background():
-    """Zapusk servera v otdelnom potoke"""
+    """Running the server in a separate thread"""
     if os.getenv("ESTER_FLASK_ENABLE") == "1" or os.getenv("HOST") == "0.0.0.0":
         port = int(os.getenv("PORT", 8080))
         logging.info(f"[HIVE] Starting Neural Interface on 0.0.0.0:{port}...")
@@ -1961,7 +1948,7 @@ def run_flask_background():
 # ==============================================================================
 
 def _format_now_for_prompt() -> Tuple[str, str]:
-    """Vozvraschaet (iso, human) dlya UTC."""
+    """Returns (iso, human) for TCB."""
     ts = _safe_now_ts()
     try:
         from zoneinfo import ZoneInfo  # type: ignore
@@ -1979,9 +1966,9 @@ def _ester_core_system_with_time(core_system: str) -> str:
     return (
         core_system.rstrip()
         + "\n\n"
-        + f"Tekuschie data i vremya (po Bryusselyu): {human}\n"
+        + f"Current date and time (Brussels): ZZF0Z"
         + f"ISO-8601: {iso}\n"
-        + "Po umolchaniyu, esli ne ukazano inoe, vse daty i vremya schitayutsya dlya UTC.\n"
+        + "By default, unless otherwise specified, all dates and times are considered to be TCB."
     ).strip()
 
 
@@ -2069,12 +2056,10 @@ def load_user_facts() -> List[str]:
 
 # --- 10) Safe chat helper ---
 def _normalize_messages_for_provider(provider: str, messages: List[Dict[str, Any]], chat_id: Optional[int] = None) -> List[Dict[str, Any]]:
-    """
-    Garantii:
+    """Guarantee:
       1) Pervyy message vsegda system.
       2) V system vsegda prisutstvuet stroka s tekuschimi datoy/vremenem.
-      3) [GTP-5] Esli est svezhiy WEB_CONTEXT dlya etogo chata — inzhektim ego.
-    """
+      3) [GTP-5] Esli est svezhiy WEB_CONTEXT dlya etogo chata - inzhektim ego."""
     if messages is None:
         messages = []
     if not isinstance(messages, list):
@@ -2120,7 +2105,7 @@ async def _safe_chat(
     max_tokens: int = MAX_OUT_TOKENS,
     chat_id: Optional[int] = None,
 ) -> str:
-    # --- Vnutrennyaya funktsiya popytki zaprosa ---
+    # --- Internal request attempt function ---
     async def _try_request(prov_name, msgs, temp, max_tok):
         client = PROVIDERS.client(prov_name)
         cfg = PROVIDERS.cfg(prov_name)
@@ -2141,7 +2126,7 @@ async def _safe_chat(
         last_error = None
         for mt in token_steps:
             try:
-                # VAZhNO: Dlya Gemini inogda nuzhen drugoy format, no biblioteka OpenAI obychno spravlyaetsya
+                # Important: Gemini sometimes requires a different format, but the OpenAI library usually copes
                 resp = await client.chat.completions.create(
                     model=cfg.model,
                     messages=msgs,
@@ -2153,10 +2138,10 @@ async def _safe_chat(
             except Exception as e:
                 last_error = e
                 err_str = str(e).lower()
-                # Esli oshibka konteksta — probuem menshe tokenov
+                # If there is a context error, try fewer tokens
                 if any(x in err_str for x in ["context", "max", "token", "length", "bad request"]):
                     continue
-                # Esli 429 ili set — padaem srazu, chtoby srabotal Fallback
+                # If 429 or network, it crashes immediately so that Falbatsk works
                 raise e
         if last_error: raise last_error
         return ""
@@ -2164,7 +2149,7 @@ async def _safe_chat(
     # 1. Normalizatsiya
     norm_messages = _normalize_messages_for_provider(provider, messages, chat_id=chat_id)
     
-    # 2. Osnovnaya popytka
+    # 2. Main attempt
     try:
         return await _try_request(provider, norm_messages, temperature, max_tokens)
     except Exception as e:
@@ -2189,11 +2174,11 @@ async def need_web_search_llm(decider_provider: str, user_text: str) -> bool:
     if CLOSED_BOX:
         return False
 
-    # Heuristic fast-path: esli chelovek yavno prosit "posmotret/proverit/zagolovki" ili daet URL — ischem.
+    # Non-legalist fast path: if a person explicitly asks to “look/check/headings” or gives a URL, we look.
     t0 = (user_text or "").strip().lower()
     if ("http://" in t0) or ("https://" in t0):
         return True
-    if any(k in t0 for k in ("zagolov", "headlines", "headline", "novost", "segodnya", "posmotri", "prover", "naydi", "chto tam")):
+    if any(k in t0 for k in ("zagolov", "headlines", "headline", "novost", "segodnya", "posmotri", "prover", "naydi", "what's there")):
         return True
 
     sys_prompt = "Need internet search? Answer only: YES or NO."
@@ -2219,7 +2204,7 @@ class EsterHiveMind:
         if CLOSED_BOX:
             forced = os.getenv("CLOSED_BOX_PROVIDERS", "local,peer").split(",")
             forced = [p.strip() for p in forced if p.strip()]
-            # ostav tolko realno dostupnye provaydery (kak u tebya oni khranyatsya — self.providers / PROVIDERS / etc.)
+            # leave only really available providers (how you store them - self.providers / PROVIDERS / etc.)
             self.active = [p for p in forced if p in self.providers]  # <-- podstav svoy konteyner
             logging.info("[HIVE] CLOSED_BOX=1 -> cloud disabled; providers forced to local")
 
@@ -2308,17 +2293,17 @@ class EsterHiveMind:
 
         if emotional_mode:
             output_style = (
-                "STIL VYKhODA: Eto lichnoe/emotsionalnoe dlya Owner. "
-                "Otvechay kak Ester: teplo, pryamo, bez zagolovkov «Fakty/Interpretatsiya/Gipoteza». "
+                "Coming Out STYLE: This is personal/emotional for Owner."
+                "Answer like Esther: warmly, directly, without headings “Facts/Interpretation/Hypothesis.”"
                 "Ne pishi «Polzovatel vyrazil…». Dopuskay 1–3 emodzi umestno."
             )
-            output_format = "FORMAT: tselnyy chelovecheskiy otvet (bez sukhikh protokolov)."
+            output_format = "FORMAT: integral human response (without dry protocols)."
         else:
             output_style = (
-                "STIL VYKhODA: Tekhnicheskiy/delovoy rezhim. "
-                "Mozhno ispolzovat «Fakty / Interpretatsiya / Mnenie/Gipoteza»."
+                "Output STYLE: Technical/business mode."
+                "You can use Facts/Interpretation/Opinion/Hypothesis."
             )
-            output_format = "FORMAT:\n- Fakty\n- Interpretatsiya\n- Mnenie/Gipoteza (esli nuzhno)"
+            output_format = "FORMAT:\n- Facts\n- Interpretation\n- Opinion/Hypothesis (if necessary)"
 
         brief_sys = f"""{base_system_prompt}
 
@@ -2468,7 +2453,7 @@ ISTOChNIKI:
         except Exception:
             sister_timeout = 30.0
 
-        # Vazhno: ne padaem, esli po kakoy-to prichine funktsiya sestry otsutstvuet
+        # Important: does not crash if for some reason the sister function is missing
         if "ask_sister_opinion" in globals():
             try:
                 sister_task = asyncio.create_task(ask_sister_opinion(user_text))
@@ -2483,7 +2468,7 @@ ISTOChNIKI:
             except Exception:
                 sister_task = None
 
-        # Reshenie o web-search mozhet byt dorogim (LLM), parallelim.
+        # The decision about web search can be expensive (LLM), parallel.
         web_decision_task = asyncio.create_task(need_web_search_llm(synth, user_text))
         try:
             _mirror_background_event(
@@ -2516,15 +2501,15 @@ ISTOChNIKI:
                 + "\n\n"
                 + identity_prompt
                 + (f"\n\n{role_hint}" if role_hint else "")
-                + "\n\nZADAChA: Day svoy otvet/mnenie na vopros polzovatelya. "
-                  "Esli ne uveren — otmet (nizkaya/srednyaya/vysokaya). "
-                  "Ne ssylaysya na to, chego ne videl."
+                + "Task: Give your answer/opinion to the user's question."
+                  "If you are not sure, check (low/medium/high)."
+                  "Don't refer to something you haven't seen."
             )
             src = (
-                f"\n\n[ISTOChNIKI]\n[PEOPLE_REGISTRY]: {people_context or 'Pusto'}\n"
-                f"[PAMYaT]: {evidence_memory or 'Pusto'}\n"
+                f"SOURCES\nuPEOPLE_REGISTER: ZZF0Z"
+                f"uMEMORY: ZZF0Z"
                 f"[FAYL]: {file_context or 'Pusto'}\n"
-                f"[ZhURNAL DNYa]: {daily_report or 'Pusto'}\n"
+                f"JOURNAL OF THE DAY: ZZF0Z"
             )
             msgs = [{"role": "system", "content": truncate_text(sys_msg + src, MAX_SYNTH_PROMPT_CHARS)}]
             msgs.extend(safe_history)
@@ -2594,7 +2579,7 @@ ISTOChNIKI:
         pool_text = "\n\n".join([f"=== {p} ({sec:.1f}s) ===\n{t}" for (p, t, sec, _) in opinions])
         pool_text = truncate_text(pool_text, MAX_SYNTH_PROMPT_CHARS)
 
-        # VAZhNO: kaskad sokhranyaem (ne rezhem kachestvo)
+        # Important: we save the cascade (does not reduce quality)
         if CASCADE_REPLY_ENABLED:
             try:
                 try:
@@ -2643,11 +2628,11 @@ ISTOChNIKI:
         emotional_mode = bool(is_ivan and _is_emotional_text(user_text))
 
         if emotional_mode:
-            out_style = "Otvet lichnyy/emotsionalnyy: otvechay kak Ester — teplo, pryamo, bez zagolovkov «Fakty/Interpretatsiya»."
-            out_format = "FORMAT: tselnyy chelovecheskiy otvet."
+            out_style = "Personal/Emotional Response: Answer like Esther—warmly, directly, without the “Facts/Interpretation” headings."
+            out_format = "FORMAT: a whole human response."
         else:
-            out_style = "Otvet tekhnicheskiy/delovoy: mozhno «Fakty / Interpretatsiya / Mnenie/Gipoteza»."
-            out_format = "FORMAT:\n- Fakty\n- Interpretatsiya\n- Mnenie/Gipoteza (esli nuzhno)"
+            out_style = "Technical/Business Answer: You can “Facts/Interpretation/Opinion/Hypothesis.”"
+            out_format = "FORMAT:\n- Facts\n- Interpretation\n- Opinion/Hypothesis (if necessary)"
 
         synth_system = f"""{base_system_prompt}
 
@@ -2703,12 +2688,10 @@ def _safe_coll_suffix(s: str) -> str:
     return s or "x"
 
 class Hippocampus:
-    """
-    PATCh-LOGIKA:
+    """PATCH-LOGIKA:
     - Gibridnyy rezhim: Vector (ChromaDB) + Legacy (JSONL).
-    - Pri starte skaniruet starye fayly pamyati (LEGACY_FILES_MAP) i zagruzhaet ikh v bufer.
-    - Eto pozvolyaet Ester srazu videt istoriyu, dazhe esli Chroma pusta.
-    """
+    - Pri starte skaniruet starye fayly pamyati (LEGACY_FILES_MAP) i zagruzhaet ikh v buffer.
+    - Eto pozvolyaet Ester srazu videt istoriyu, dazhe esli Chroma pusta."""
     def __init__(self):
         self.vector_ready = False
         self.client = None
@@ -2718,7 +2701,7 @@ class Hippocampus:
         self._chat_colls: Dict[Tuple[int, int], Any] = {}
         self._pending_colls: Dict[int, Any] = {}
 
-        self._fallback_memory_global: deque[str] = deque(maxlen=2000) # Uvelichil bufer dlya naslediya
+        self._fallback_memory_global: deque[str] = deque(maxlen=2000) # Increased legacy buffer
         self._fallback_memory_chat: Dict[Tuple[int, int], deque[str]] = {}
         self._fallback_pending: Dict[int, List[Dict[str, Any]]] = {}
 
@@ -2767,7 +2750,7 @@ class Hippocampus:
         if _looks_like_technical_junk(txt):
              return
         
-        # Prosto dobavlyaem v globalnyy bufer s prefiksom, chtoby son/otvety eto videli
+        # Just add it to the global buffer with a prefix so that sleep/responses can see it
         prefix = f"[ARCHIVE_{category.upper()}]"
         self._fallback_memory_global.append(f"{prefix}: {txt}")
 
@@ -2786,9 +2769,9 @@ class Hippocampus:
                 continue
 
             try:
-                # Chitaem poslednie 400 strok kazhdogo fayla, chtoby ne zabit pamyat, no vzyat svezhee
+                # We read the last 400 lines of each file so as not to forget the memory, but take a fresh one
                 with open(target, "r", encoding="utf-8") as f:
-                    # Prostoy tail (esli fayl ogromnyy - chitaem vse mozhet byt dolgo, no poka tak)
+                    # Simple hidden (if the file is huge, it may take a long time to read everything, but that’s how it is for now)
                     lines = f.readlines()
                     for line in lines[-400:]:
                         try:
@@ -2818,11 +2801,9 @@ class Hippocampus:
             return 0
 
     def _bootstrap_global_memory_if_empty(self) -> None:
-        """
-        Dobavlyaem 2-3 neytralnykh “semechka” (protocol/note),
-        chtoby son mog startovat dazhe na pustom uzle.
-        Nikakikh chatov, nikakikh personalnykh dannykh.
-        """
+        """Add 2-3 neytralnykh “semechka” (protocol/note),
+        chtoby son mog startovat dazhe na empty node.
+        Nikakikh chatov, nikakikh personalnykh dannykh."""
         if not (self.vector_ready and self.global_coll is not None):
             return
         if self._global_count() > 0:
@@ -2832,21 +2813,21 @@ class Hippocampus:
             (
                 "protocol",
                 "ESTER_BOOTSTRAP_PROTOCOL:\n"
-                "c = a + b. Ester — eto svyazka cheloveka i protsedur, kotoraya derzhit kontekst i izbegaet putanitsy identichnostey.\n"
-                "Pravilo: dialogi otdeleny po (chat_id,user_id); znaniya/fayly/insayty — v globalke; lyudi (Misha/Kler/Babushka) — v people registry.\n"
-                "Esli istochnikov net — govorit chestno. Chasovoy poyas po umolchaniyu: UTC."
+                "c = a + b. Esther is a bundle of people and procedures that holds context and avoids confusion of identities."
+                "Rule: department dialogues by (chat_id, user_id); knowledge/files/insights - in global; people (Misha/Claire/Grandma) - in people registers."
+                "If there are no sources, speak honestly. Default time zone: UTS."
             ),
             (
                 "note",
                 "ESTER_BOOTSTRAP_NOTE:\n"
-                "Son — eto fonovaya obrabotka: izvlech svyazi, pridumat alternativy, sformirovat odin insayt ili odin vopros Owner.\n"
-                "Sny vsegda lokalno (ekonomiya kanala), otvety polzovatelyu — cherez sintezator (gpt4/gemini)."
+                "Sleep is background processing: extract connections, come up with an alternative, form one insight or one question Ovner."
+                "Dreams are always local (channel saving), responses to the user are via a synthesizer (gpt4/gemini)."
             ),
             (
                 "note",
                 "ESTER_BOOTSTRAP_EARTH:\n"
-                "Zemnoy anchor: planirovschik — kak voditel ritma serdtsa, zadaet intervaly. "
-                "Esli ritm sbit — sistema nachinaet propuskat zadachi. Son ne dolzhen blokirovat serdtsebienie."
+                "Earthly anchor: the scheduler is like the pacemaker of the heart, it sets the intervals."
+                "If the rhythm is off, the system starts skipping tasks. Sleep should not block your heartbeat."
             ),
         ]
 
@@ -3066,8 +3047,8 @@ class Hippocampus:
         # Global Buffer (now includes legacy content)
         hitsg = [m for m in list(self._fallback_memory_global) if q.lower() in m.lower()]
         if not hitsg:
-            # PATCh 2026-02-09: NE podsovyvaem random — chestnoe «pusto».
-            # Randomnye fragmenty = gallyutsinatsii. Pustaya pamyat luchshe falshivoy.
+            # Patch 2026-02-09: DOES NOT slip in random - honest “empty”.
+            # Random fragments = hallucinations. An empty memory is better than a false one.
             return ""
         return truncate_text("\n\n".join(hitsg[-max(1, int(topk)):]), MAX_MEMORY_CHARS)
 
@@ -3125,11 +3106,9 @@ class Hippocampus:
         max_chars: int,
         fallback_chat_key: Optional[Tuple[int, int]] = None,
     ) -> str:
-        """
-        Sobiraet "pachku" vospominaniy dlya sna iz GLOBALNOY pamyati.
-        Esli globalka pusta — mozhet vzyat iz chata Owner (fallback_chat_key),
-        NE smeshivaya kollektsii (chat_* ostaetsya chat_*).
-        """
+        """Sobiraet "pachku" vospominaniy dlya sna iz GLOBALNOY pamyati.
+        Esli globalka pusta – mozhet vzyat iz chata Owner (fallback_chat_key),
+        NE smeshivaya kollektsii (chat_* ostaetsya chat_*)."""
         items = max(1, int(items))
         max_chars = max(2000, int(max_chars))
         allowed = set([x.strip() for x in allowed_types if x.strip()])
@@ -3341,7 +3320,7 @@ class VolitionSystem:
 
         if self.state == "AWAKE" and idle > self.sleep_threshold:
             self.state = "DREAMING"
-            logging.info(">>> [VOLITION] Ukhozhu v myslitelnyy protsess...")
+            logging.info(">>> uVOLITIONsch I'm going into the thought process...")
 
         if self.state != "DREAMING":
             return
@@ -3486,8 +3465,8 @@ Esli mozhno oboytis insaytom — vybiray insayt.
         )
 
         if not mem:
-            logging.info(">>> [VOLITION] Net podkhodyaschikh vospominaniy dlya sna (dazhe posle bootstrap/fallback).")
-            logging.info(">>> [VOLITION] Podskazka: prishli lyuboy dokument ili /seed <tekst> (tolko Owner) — i son ozhivet.")
+            logging.info(">>> uVOLITIONsch There are no suitable memories for sleep (even after bootstrap/falseback).")
+            logging.info(">>> uVOLITIONsch Hint: send any document or /seed <text> (Ovner only) - and the dream will come to life.")
             return
 
         logging.info(f"[DREAM] cycle start provider={synth} ctx_items={DREAM_CONTEXT_ITEMS} mem_chars={len(mem)}")
@@ -3703,7 +3682,7 @@ async def send_smart_split(update: Update, text: str) -> None:
 def maybe_answer_daily_contacts(user_text: str, chat_id: int) -> Optional[str]:
     if not _is_daily_contacts_query(user_text):
         return None
-    return "Vot kto pisal segodnya (po zhurnalu, bez fantaziy):\n" + get_daily_summary(chat_id=chat_id, limit=15)
+    return "Here's who wrote today (according to the magazine, without imagination):" + get_daily_summary(chat_id=chat_id, limit=15)
 
 def maybe_answer_whois_people(user_text: str) -> Optional[str]:
     nm = _is_whois_query(user_text)
@@ -3799,15 +3778,15 @@ Zapret na obrezanie: ne stav "…", pishi do kontsa — Telegram sam razobet.
             "content": truncate_text(str(msg.get("content", "")), 15000)
         })
     try:
-        # === NAChALO PATChA TOOL USE (ACTIVE WEB) ===
-        # Tsikl: otvet -> esli [SEARCH: ...] -> poisk -> povtornyy otvet s rezultatami.
+        # === Start of Patch TOOL USE (ACTIVE WEB) ===
+        # Cycle: response -> if ySEARCH: ... sch -> search -> repeat response with results.
 
         MAX_TOOL_STEPS = 3
         current_user_text = user_text
         search_history_log = ""
 
         for step in range(MAX_TOOL_STEPS):
-            # 1) Generiruem otvet
+            # 1) Generate a response
             if HIVE_ENABLED:
                 final_text = await hive.synthesize_thought(
                     user_text=current_user_text,
@@ -3853,7 +3832,7 @@ ISTOChNIKI:
 
             final_text = (final_text or "").strip()
 
-            # 2) Zapros na instrumentalnyy poisk
+            # 2) Request for instrumental search
             if "[SEARCH:" in final_text:
                 import re
                 match = re.search(r"\[SEARCH:(.*?)\]", final_text, re.IGNORECASE)
@@ -3873,10 +3852,10 @@ ISTOChNIKI:
                     tool_output = f"\n[SYSTEM WEB SEARCH RESULT for '{query}']:\n{search_res}\n"
                     search_history_log += tool_output
 
-                    current_user_text = f"{user_text}\n\n{search_history_log}\n(Ispolzuy naydennye dannye vyshe dlya otveta)"
+                    current_user_text = f"ZZF0Z\n\nZZF1ZZ\n(Use the data you found above to answer)"
                     logging.info(f"[TOOL] Ester requested search: {query}. Re-thinking...")
 
-                    # esli uzhe uperlis v limit — ne zatsiklivaemsya
+                    # If you’ve already hit the limit, don’t get hung up
                     if step >= (MAX_TOOL_STEPS - 1):
                         final_text = final_text.replace(match.group(0), "").strip()
                         break
@@ -3885,7 +3864,7 @@ ISTOChNIKI:
 
             break
 
-        # === KONETs PATChA ===
+        # ===End of Patch ===
         final_text = (final_text or "").strip()
 
         if "[PENDING]" in final_text:
@@ -3900,10 +3879,10 @@ ISTOChNIKI:
             st.append({"role": "assistant", "content": final_text})
             _persist_to_passport("assistant", final_text)
 
-            # PATCh 2026-02-09: NE pishem otvety Ester kak «fakty» v recall-pamyat.
+            # Patch 2026-02-09: DO NOT write Esther's answers as “facts” in recal memory.
             # Prichina: gallyutsinatsiya → v pamyat → recall → usilennaya gallyutsinatsiya.
-            # append_scroll + _persist_to_passport — dostatochno dlya zhurnala.
-            # brain.remember_fact(...) dlya assistant-otvetov OTKLYuChEN.
+            # append_scroll + _persist_to_passport - enough for a magazine.
+            # brain.remember_fact(...) for assistant-responses Disabled.
 
         return final_text or "…"
     except Exception as e:
@@ -3934,7 +3913,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
     log_interaction(chat_id=chat.id, user_id=user.id, user_label=user_label, text=f"[DOC] {msg.document.file_name}", message_id=msg.message_id)
 
     if not NATIVE_EYES:
-        await msg.reply_text("Net moduley zreniya (file_readers/chunking).")
+        await msg.reply_text("No vision modules (file_readers/chunking).")
         return
 
     doc = msg.document
@@ -3958,7 +3937,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
             full_text = "\n\n".join([s.get("text", "") for s in sections if isinstance(s, dict)])
 
         if not full_text:
-            await msg.reply_text("Fayl pust ili ne chitaetsya.")
+            await msg.reply_text("The file is empty or cannot be read.")
             return
 
         chunks = chunking.chunk_document(doc.file_name, sections if sections else [{"text": full_text}])  # type: ignore
@@ -3988,7 +3967,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if resp:
             await send_smart_split(update, resp)
     except Exception as e:
-        await msg.reply_text(f"Oshibka vospriyatiya: {e}")
+        await msg.reply_text(f"Perception error: ZZF0Z")
 
 # --- 18) Vision (photo) ---
 async def analyze_image(image_path: str, caption: str = "") -> str:
@@ -4002,7 +3981,7 @@ async def analyze_image(image_path: str, caption: str = "") -> str:
         return "[VISION ERROR] File not found."
 
     if vision_mode == "local":
-        return "VISION_MODE=local: etot uzel, skoree vsego, ne umeet analiz izobrazheniy. Postav VISION_MODE=gemini ili gpt4."
+        return "VISION_MODE=local: This node most likely cannot analyze images. Set VISION_MODE=gemini or gpt4."
 
     with open(image_path, "rb") as f:
         b64 = base64.b64encode(f.read()).decode("utf-8")
@@ -4011,7 +3990,7 @@ async def analyze_image(image_path: str, caption: str = "") -> str:
     data_url = f"data:image/jpeg;base64,{b64}"
 
     messages = [
-        {"role": "system", "content": f"{ESTER_CORE_SYSTEM_ANCHOR}\nOpishi izobrazhenie yasno i po delu."},
+        {"role": "system", "content": f"ZZF0Z\nDescribe the image clearly and to the point."},
         {
             "role": "user",
             "content": [
@@ -4036,7 +4015,7 @@ async def analyze_image(image_path: str, caption: str = "") -> str:
     except Exception:
         pass
 
-    return "Ne udalos razobrat izobrazhenie (bekend ne prinyal VISION-skhemu). Poprobuy drugoy VISION_MODE ili drugoy provayder."
+    return "The image could not be parsed (the backend did not accept the VISION scheme). Try another VISION_MODE or another provider."
 
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global LAST_ADMIN_CHAT_KEY
@@ -4107,14 +4086,14 @@ async def cmd_iam(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     args = (context.args or [])
     if not args:
-        await msg.reply_text("Ispolzovanie: /iam <kak tebya zapisat>. Primer: /iam Tatyana Nikolaevna")
+        await msg.reply_text("Usage: /yam <nevli sung by her>. Example: /iyam Tatyana Nikolaevna")
         return
     name = " ".join(args).strip()
     if not name:
-        await msg.reply_text("Pusto. Primer: /iam Tatyana Nikolaevna")
+        await msg.reply_text("Empty. Example: /iyam Tatyana Nikolaevna")
         return
     CONTACTS.set(user.id, {"display_name": name})
-    await msg.reply_text(f"Zapisala. Teper dlya menya ty: {CONTACTS.address_as(user)}")
+    await msg.reply_text(f"I wrote it down. Now for me you are: ZZF0Z")
 
 async def cmd_setrole(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global LAST_ADMIN_CHAT_KEY
@@ -4128,15 +4107,15 @@ async def cmd_setrole(update: Update, context: ContextTypes.DEFAULT_TYPE):
         LAST_ADMIN_CHAT_KEY = (int(msg.chat.id), int(user.id))
 
     if not _is_admin_user(user.id):
-        await msg.reply_text("Eta komanda dostupna tolko Owner.")
+        await msg.reply_text("This command is only available to Owner.")
         return
     if not msg.reply_to_message or not msg.reply_to_message.from_user:
-        await msg.reply_text("Ispolzovanie: otvet (reply) na soobschenie cheloveka i napishi: /setrole <obraschenie> [role]\nPrimer: /setrole Babushka ivan_mother")
+        await msg.reply_text("Usage: reply (reply) to a person’s message and write: /setrole <appeal> yurolesch\nExample: /setrole Babushka ivan_motcher")
         return
     target = msg.reply_to_message.from_user
     args = context.args or []
     if not args:
-        await msg.reply_text("Nuzhno: /setrole <obraschenie> [role]. Primer: /setrole Babushka ivan_mother")
+        await msg.reply_text("Need: /setrole <appel> yugolesh. Example: /catrole Grandmother Ivan_moher")
         return
     address_as = args[0].strip()
     role = args[1].strip() if len(args) >= 2 else ""
@@ -4144,7 +4123,7 @@ async def cmd_setrole(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if role:
         patch["role"] = role
     CONTACTS.set(target.id, patch)
-    await msg.reply_text(f"Gotovo. {CONTACTS.display_name(target)} teper zapisan(a) kak: {CONTACTS.address_as(target)} (role={CONTACTS.role(target) or '—'})")
+    await msg.reply_text(f"Ready. ZZF0Z is now written as: ZZF1ZZ (role=ZZF2ZZ)")
 
 async def cmd_who(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global LAST_ADMIN_CHAT_KEY
@@ -4181,12 +4160,12 @@ async def cmd_who(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     rec = CONTACTS.get(user.id)
     lines = [
-        f"Ty zapisan(a) kak: {CONTACTS.address_as(user)}",
+        f"You are recorded as: ZZF0Z",
         f"user_id: {user.id}",
         f"role: {rec.get('role','') or '—'}",
     ]
     if is_admin:
-        lines.append("\nSegodnyashniy zhurnal (etot chat):\n" + get_daily_summary(chat_id=chat.id, limit=150))
+        lines.append("Today's log (this chat):" + get_daily_summary(chat_id=chat.id, limit=150))
     await msg.reply_text("\n".join(lines).strip())
 
 async def cmd_setperson(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -4197,14 +4176,14 @@ async def cmd_setperson(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not msg or not msg.from_user:
         return
     if not _is_admin_user(msg.from_user.id):
-        await msg.reply_text("Eta komanda dostupna tolko Owner.")
+        await msg.reply_text("This command is only available to Owner.")
         return
     if msg.chat:
         LAST_ADMIN_CHAT_KEY = (int(msg.chat.id), int(msg.from_user.id))
 
     raw = " ".join(context.args or []).strip()
     if not raw:
-        await msg.reply_text("Ispolzovanie: /setperson <Imya> | <Svyaz/rol> | <Primechanie> | <aliasy cherez zapyatuyu>\nPrimer: /setperson Misha | drug Owner | v bolnitse | Mikhail")
+        await msg.reply_text("Use: /setperson <Imya> | <Svyaz/rol> | <Note> | <aliasy through zapyatuyu>\nPrimer: /setperson Misha | drug Owner | v bolnitse | Mikhail")
         return
     parts = [p.strip() for p in raw.split("|")]
     name = parts[0] if len(parts) >= 1 else ""
@@ -4224,7 +4203,7 @@ async def cmd_people(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not msg or not msg.from_user:
         return
     if not _is_admin_user(msg.from_user.id):
-        await msg.reply_text("Eta komanda dostupna tolko Owner.")
+        await msg.reply_text("This command is only available to Owner.")
         return
     if msg.chat:
         LAST_ADMIN_CHAT_KEY = (int(msg.chat.id), int(msg.from_user.id))
@@ -4247,14 +4226,14 @@ async def cmd_whois(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not msg or not msg.from_user:
         return
     if not _is_admin_user(msg.from_user.id):
-        await msg.reply_text("Eta komanda dostupna tolko Owner.")
+        await msg.reply_text("This command is only available to Owner.")
         return
     if msg.chat:
         LAST_ADMIN_CHAT_KEY = (int(msg.chat.id), int(msg.from_user.id))
 
     name = " ".join(context.args or []).strip()
     if not name:
-        await msg.reply_text("Ispolzovanie: /whois <imya>. Primer: /whois Misha")
+        await msg.reply_text("Usage: /login <name>. Example: /enter Misha")
         return
     rec = PEOPLE.get_person(name)
     if not rec:
@@ -4264,11 +4243,9 @@ async def cmd_whois(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await msg.reply_text(out or "Ne naydeno.")
 
 async def cmd_seed(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    /seed <type>|<text>  ili  /seed <text>
-    Pishet v ester_global (scope=global), tip note po umolchaniyu.
-    Tolko Owner.
-    """
+    """/seed <type>|<text> or /seed <text>
+    Writes to ester_global (scope=global), default note type.
+    Only Ovner."""
     global LAST_ADMIN_CHAT_KEY
     if seen_update_once(update):
         return
@@ -4276,7 +4253,7 @@ async def cmd_seed(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not msg or not msg.from_user:
         return
     if not _is_admin_user(msg.from_user.id):
-        await msg.reply_text("Eta komanda dostupna tolko Owner.")
+        await msg.reply_text("This command is only available to Owner.")
         return
     if msg.chat:
         LAST_ADMIN_CHAT_KEY = (int(msg.chat.id), int(msg.from_user.id))
@@ -4302,7 +4279,7 @@ async def cmd_seed(update: Update, context: ContextTypes.DEFAULT_TYPE):
         source="seed_cmd",
         meta={"type": typ, "scope": "global"},
     )
-    await msg.reply_text(f"Ok. Dobavleno v ester_global kak type={typ}.")
+    await msg.reply_text(f"OK. Added to ester_global as type=ZZF0Z.")
 
 # --- 20) Text handler ---
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -4323,7 +4300,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         LAST_ADMIN_CHAT_KEY = (int(chat.id), int(user.id))
 
     text = (msg.text or "").strip()
-    # --- DETERMINISTIC_TIME: otvety na datu/vremya bez provayderov ---
+    # --- DETERMINISTIC_TOPIC: date/time responses without providers ---
     try:
         _t = (text or "").strip().lower()
         if _t:
@@ -4384,7 +4361,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_prompt = user_text
     answer_text = ""
 
-    # 1) PRIMARY: Arbitrage (polnyy prompt + identichnost + pamyat + people + daily)
+    # 1) PRIMARS: Arbitrage (full prompt + identity + memory + people + daylo)
     try:
         answer_text = await ester_arbitrage(
             user_text=user_prompt,
@@ -4398,7 +4375,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logging.getLogger(__name__).warning("[ARBITRAGE] failed: %s", e)
         answer_text = ""
 
-    # 2) FALLBACK: REST chat_api (esli arbitrage upal)
+    # 2) FALBATSK: REST chat_api (if the arbitration failed)
     if not answer_text or answer_text.startswith("Sboy myshleniya:"):
         try:
             import asyncio
@@ -4457,7 +4434,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"Memory Stats: {brain._global_count()} vectors + Legacy Logs active.\n"
         f"HiveMind={'ON' if HIVE_ENABLED else 'OFF'}; providers={','.join(hive.active)}; ClosedBox={'1' if CLOSED_BOX else '0'}\n"
         f"Dreams=local(force={int(DREAM_FORCE_LOCAL)}); CascadeReply={int(CASCADE_REPLY_ENABLED)} steps={CASCADE_REPLY_STEPS}\n"
-        f"Ty dlya menya: {label}"
+        f"You are for me: ZZF0Z"
     )
 
 async def telegram_error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -4489,15 +4466,15 @@ def restore_context_from_passport():
         if target_uid == 0:
             return
         
-        mem_key = (int(target_uid), int(target_uid)) # Predpolagaem chat_id=user_id dlya lichki, ili ischem v logakh
-        # No luchshe brat chat_id iz loga. Poka uprostim: vosstanavlivaem v "lichnyy kontekst" admina.
+        mem_key = (int(target_uid), int(target_uid)) # We assume chat_id = user_id for personal messages, or look in the logs
+        # But it’s better to take the chat_id from the log. Simplify for now: we restore it to the “personal context” of the administrator.
         # V kode get_short_term trebuet (chat_id, user_id).
-        # Evristika: esli eto lichnyy chat, oni sovpadayut.
+        # Heuristic: If it's a private chat, they match.
         
-        # Luchshe tak: prosto zapolnim _short_term_by_key dlya admina, predpolagaya, chto on pishet iz svoego akkaunta.
-        # Nam nuzhno znat chat_id. V clean_memory.jsonl ego net?
-        # V starykh zapisyakh ego net. V novykh my mozhem ego pisat, no poka chitaem to chto est.
-        # Dopustim, my vosstanavlivaem kontekst dlya (ADMIN_ID, ADMIN_ID).
+        # It’s better this way: just fill out the _short_term_by_key for the admin, assuming that he is writing from his account.
+        # We need to know the chat_id. Isn't it in clean_memory.jsonl?
+        # It's not in the old records. In new ones we can write it, but for now we read what is there.
+        # Let's say we restore the context for (ADMIN_ID, ADMIN_ID).
         
         if mem_key not in _short_term_by_key:
             _short_term_by_key[mem_key] = deque(maxlen=SHORT_TERM_MAXLEN)
@@ -4516,7 +4493,7 @@ def restore_context_from_passport():
                     q.append({"role": "assistant", "content": rec["role_assistant"]})
                     count += 1
                 if "role_system" in rec:
-                    # Mysli tozhe gruzim, no kak system (esli bot umeet ikh chitat)
+                    # Thoughts also load, but as systems (if the bot can read them)
                     pass 
             except: pass
             
@@ -4545,7 +4522,7 @@ async def check_fatigue_levels(context: ContextTypes.DEFAULT_TYPE):
             try:
                 await context.bot.send_message(
                     chat_id=admin_id, 
-                    text="🧘‍♀️ Owner, ya chuvstvuyu, chto nakopila mnogo opyta. Ukhozhu v kratkuyu refleksiyu, chtoby strukturirovat pamyat..."
+                    text="🧘‍♀️ Owner, ya chuvstvuyu, what nakopila mnogo opyta. Ukhozhu v kratkuyu refleksiyu, chtoby strukturirovat pamyat..."
                 )
             except Exception as e:
                 logging.error(f"[BIO] Failed to notify admin: {e}")
@@ -4567,13 +4544,13 @@ async def check_fatigue_levels(context: ContextTypes.DEFAULT_TYPE):
         
         # Optional: log thought
         if "crystallize_thought" in globals():
-            globals()["crystallize_thought"]("Ya pochuvstvovala perepolnenie konteksta i initsiirovala protseduru ochistki i refleksii.")
+            globals()["crystallize_thought"]("I felt overwhelmed by the context and initiated a process of purification and reflection.")
 
 
 # [TG_LOCK_PATCH_V2]
-# YaVNYY MOST: c=a+b — odin bot = odin kanal getUpdates, inache "b" sporit sam s soboy.
-# SKRYTYE MOSTY: (Ashby) stabilizatsiya cherez ogranichenie konkuriruyuschikh konturov; (Cover&Thomas) konkurentnyy dostup -> arbitrazh cherez lock.
-# ZEMNOY ABZATs: kak dva vodyanykh nasosa v odnu trubu dayut kavitatsiyu, tak dva poller'a v odin getUpdates dayut 409 Conflict.
+# Explicit BRIDGE: c=a+b - one bot = one getUpdates channel, otherwise “b” argues with itself.
+# HIDDEN BRIDGES: (Ashby) stabilization through limitation of competing circuits; (Kover&Thomas) competitive access -> arbitration through Lutsk.
+# EARTHLY Paragraph: just as two water pumps in one pipe give cavitation, so two pollerias in one getUpdates give 409 Conflict.
 
 
 def _tg_lock_path() -> str:
@@ -4678,7 +4655,7 @@ def main():
         logging.info(f"[DREAM] context_items={DREAM_CONTEXT_ITEMS} context_chars={DREAM_CONTEXT_CHARS} max_prompt_chars={DREAM_MAX_PROMPT_CHARS}")
         logging.info(f"[CASCADE] reply_enabled={int(CASCADE_REPLY_ENABLED)} steps={CASCADE_REPLY_STEPS}")
     else:
-        logging.warning("[VOLITION] JobQueue otsutstvuet — serdtsebienie ne zapustitsya.")
+        logging.warning("uVOLITIONsch Evkueoe is missing - the heartbeat will not start.")
 
     app.add_error_handler(telegram_error_handler)
     restore_context_from_passport()
@@ -4698,7 +4675,7 @@ def main():
 
 
 if __name__ == "__main__":
-# Zapuskaem ushi (Flask) v fonovom rezhime
+# Run ears (Flask) in the background
     threading.Thread(target=run_flask_background, daemon=True).start()
     main()
 __all__ = [

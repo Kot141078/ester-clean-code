@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-"""
-modules.reports.rag_feedback_http — svodka RAG‑Feedback.
+"""modules.reports.rag_feedback_http - svodka RAG‑Feedback.
 Rout: `/compat/reports/rag_feedback.md` (FastAPI/Flask).
-# c=a+b
-"""
+# c=a+b"""
 import os, json, time
 from typing import Optional, List, Dict, Any
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
@@ -32,7 +30,7 @@ def _md() -> str:
     lines = ["# Ester — RAG Feedback", ""]
     lines.append(f"**events:** {len(items)}")
     if not items:
-        lines.append("poka pusto")
+        lines.append("empty for now")
         lines.append("")
         lines.append("_c=a+b_")
         return "\n".join(lines)

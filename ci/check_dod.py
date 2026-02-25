@@ -1,22 +1,20 @@
 # ci/check_dod.py
 # -*- coding: utf-8 -*-
-"""
-Proverka Definition of Done po pokrytiyu testami.
+"""Check Definition of Done po pokrytiyu testami.
 Sovmestimo s coverage.py XML (format Cobertura ot pytest-cov).
 
-- Chitaet coverage.xml.
-- Izvlekaet metriki: lines-covered/valid, branches-covered/valid i sootvetstvuyuschie rates.
+- Read coverage.xml.
+- Izvlekaet metrics: lines-covered/valid, branches-covered/valid i sootvetstvuyuschie rates.
 - Sravnivaet s porogami iz ENV:
-    DOD_LINES_MIN   (po umolchaniyu 0.85)
-    DOD_BRANCH_MIN  (po umolchaniyu 0.85)
-- Pishet dod_status.json s detalnoy svodkoy.
-- Kod vykhoda:
+    DOD_LINES_MIN (by default 0.85)
+    DOD_BRANCH_MIN (by default 0.85)
+- Pishet dod_status.json s detailnoy svodkoy.
+- Code vykhoda:
     0 — porogi soblyudeny
-    1 — porogi NE soblyudeny
-    2 — oshibka (naprimer, ne nayden fayl, parsing i t.p.)
+    1 - porogi NE soblyudeny
+    2 - oshibka (for example, ne nayden fayl, parsing i t.p.)
 
-Signatury/puti: drop-in dlya dampa (vyzyvaetsya iz ci/check_dod.sh).
-"""
+Signatury/puti: drop-in dlya dampa (vyzyvaetsya iz ci/check_dod.sh)."""
 from __future__ import annotations
 
 import argparse
@@ -58,11 +56,11 @@ def parse_coverage_xml(path: str) -> Tuple[float, float, int, int, int, int]:
     branches_covered = int(root.attrib.get("branches-covered", "0"))
     branches_valid = int(root.attrib.get("branches-valid", "0"))
 
-    # Na sluchay, esli nekotorye atributy otsutstvuyut — agregiruem vruchnuyu
-    # iz <packages>/<classes>/<lines>/<line> ili <class> metrics, no eto redko nuzhno.
-    # Pokryvaem fallback tolko esli rates == 0 i valid == 0.
+    # In case some attributes are missing, we aggregate manually
+    # from <packages>/<classes>/<lines>/<line> or <class> matrix, but this is rarely needed.
+    # We cover false information only if rate == 0 and valid == 0.
     if (line_rate == 0.0 and lines_valid == 0) or (branch_rate == 0.0 and branches_valid == 0):
-        # Poprobuem summirovat po klassam (v formate cobertura eto byvaet)
+        # Let's try to summarize by class (this happens in the Sobertour format)
         total_lines_valid = 0
         total_lines_covered = 0
         total_branches_valid = 0
@@ -74,12 +72,12 @@ def parse_coverage_xml(path: str) -> Tuple[float, float, int, int, int, int]:
             lr = _to_float(cls.attrib.get("line-rate"), None)
             br = _to_float(cls.attrib.get("branch-rate"), None)
 
-            # Esli dostupny podrobnye dannye o lines:
-            # Proydemsya po <lines>/<line hits="" branch="" condition-coverage="">
-            # No summirovat tochno neprosto — ispolzuem evristiku po rates, esli valid neizvestno.
-            # Chtoby ne uslozhnyat, esli valid ne dan, propuskaem — na praktike kornevye atributy est vsegda.
+            # If line details are available:
+            # Let's walk along the <lines>/<line pros="" brunch="" condition-soverage="">
+            # But it’s not easy to summarize accurately—we use rate heuristics if the validity is unknown.
+            # In order not to complicate things, if the valid is not a tribute, we skip it - in practice, there are always root attributes.
             if lr is not None:
-                # dopustim 1 klass = 1 edinitsa vesa; eto lish rezervnyy rezhim
+                # let's say 1 class = 1 weight unit; this is just a backup mode
                 total_lines_valid += 1
                 total_lines_covered += 1 if lr >= 1.0 else int(round(lr))
 

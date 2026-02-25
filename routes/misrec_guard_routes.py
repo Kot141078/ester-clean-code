@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""
-routes/misrec_guard_routes.py - REST dlya misrec-guard (detektor «oshibochnykh raspoznavaniy»).
+"""routes/misrec_guard_routes.py - REST dlya misrec-guard (detektor “oshibochnykh raspoznavaniy”).
 
 Ruchki:
-  POST /misrec/set    {"window":5,"max_fails":3}
+  POST /misrec/set {"window":5,"max_fails":3}
   POST /misrec/report {"success":true}
-  GET  /misrec/status
-  POST  /misrec/reset
+  GET /misrec/status
+  POST /misrec/reset
 
 Mosty:
-- Yavnyy: (Vvod ↔ Kontrol) pered deystviyami proveryaem blokirovku, posle - otchityvaemsya o rezultate.
-- Skrytyy #1: (Infoteoriya ↔ Ustoychivost) skolzyaschee okno snizhaet shum reaktsiy sistemy na vspleski oshibok.
+- Yavnyy: (Vvod ↔ Control) pered deystviyami proveryaem blokirovku, after - otchityvaemsya o resultate.
+- Skrytyy #1: (Infoteoriya ↔ Ustoychivost) skolzyaschee okno snizhaet noise reaktsiy sistemy na vspleski oshibok.
 - Skrytyy #2: (Kibernetika ↔ Obratnaya svyaz) /report zamykaet kontur upravleniya kachestvom.
 - Skrytyy #3: (Audit ↔ Prozrachnost) interfeysnyy sloy unifitsiruet JSON-kontrakty dlya zhurnalov/alertov.
 
 Zemnoy abzats:
-Dumay o module kak o «kolennoy chashechke» - esli podryad neskolko promakhov (mis-recognition),
-sistema reflektorno «prisedaet» (blocked=true), poka ne vosstanovitsya.
+Dumay o module kak o “kolennoy chashechke” - esli podryad neskolko promakhov (mis-recognition),
+sistema reflektorno “prisedaet” (blocked=true), until now vosstanovitsya.
 
-c=a+b
-"""
+c=a+b"""
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -27,7 +25,7 @@ from typing import Any, Dict
 from flask import Blueprint, jsonify, request
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-# Myagkiy import yadra
+# Soft kernel import
 try:
     from modules.vision.misrec_guard import (  # type: ignore
         set_policy as _set_policy,
@@ -43,7 +41,7 @@ bp = Blueprint("misrec_guard_routes", __name__)
 
 @bp.post("/misrec/set")
 def set_():
-    """Zadat parametry okna i poroga oshibok."""
+    """Set window and error threshold parameters."""
     if _set_policy is None:
         return jsonify({"ok": False, "error": "misrec_guard unavailable"}), 500
     d: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
@@ -62,7 +60,7 @@ def set_():
 
 @bp.post("/misrec/report")
 def rep():
-    """Soobschit rezultat operatsii (success=true/false)."""
+    """Report the result of the operation (success=three/false)."""
     if _report is None:
         return jsonify({"ok": False, "error": "misrec_guard unavailable"}), 500
     d: Dict[str, Any] = request.get_json(force=True, silent=True) or {}
@@ -75,7 +73,7 @@ def rep():
 
 @bp.get("/misrec/status")
 def st():
-    """Tekuschiy status: zablokirovano li vypolnenie deystviy (blocked/ok/metrics)."""
+    """Current status: whether the execution of actions is blocked (blocked/ok/matrix)."""
     if _status is None:
         return jsonify({"ok": False, "error": "misrec_guard unavailable"}), 500
     try:
@@ -89,7 +87,7 @@ def st():
 
 @bp.post("/misrec/reset")
 def rst():
-    """Sbros schetchikov okna/oshibok."""
+    """Reset window/error counters."""
     if _reset is None:
         return jsonify({"ok": False, "error": "misrec_guard unavailable"}), 500
     try:
@@ -99,12 +97,12 @@ def rst():
 
 
 def register(app):  # pragma: no cover
-    """Drop-in registratsiya blyuprinta (kontrakt proekta)."""
+    """Drop-in registration of blueprint (project contract)."""
     app.register_blueprint(bp)
 
 
 def init_app(app):  # pragma: no cover
-    """Sovmestimyy khuk initsializatsii (pattern iz dampa)."""
+    """Compatible initialization hook (pattern from dump)."""
     register(app)
 
 

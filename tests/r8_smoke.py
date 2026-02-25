@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-R8/tests/r8_smoke.py — myagkiy smouk bezopasnosti/reliza.
+"""R8/tests/r8_smoke.py - myagkiy smouk bezopasnosti/reliza.
 
 Mosty:
 - Yavnyy: Enderton — proveryaemye predikaty: otchet sekretov sozdan ∧ bundle+manifest zapisany.
-- Skrytyy #1: Ashbi — ustoychivost: pri otsutstvii faylov — akkuratnoe povedenie bez padeniy.
-- Skrytyy #2: Cover & Thomas — minimalnaya, no informativnaya svodka.
+- Skrytyy #1: Ashbi — ustoychivost: pri otsutstvii faylov — akkuratnoe behavior bez padeniy.
+- Skrytyy #2: Cover & Thomas — minimalnaya, no informativnaya summary.
 
 Zemnoy abzats (inzheneriya):
-Gonyaet skaner sekretov, zatem sobiraet bandl i vyvodit puti artefaktov. Podkhodit dlya CI.
+Gonyaet scaner sekretov, zatem sobiraet bandl i vyvodit puti artefaktov. Podkhodit dlya CI.
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 import subprocess, sys, json
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

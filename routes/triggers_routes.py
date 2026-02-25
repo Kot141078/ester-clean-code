@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-routes/triggers_routes.py - REST/UI dlya triggerov ekrana.
+"""routes/triggers_routes.py - REST/UI dlya triggerov ekrana.
 
 Ruchki:
-  GET  /triggers/list
-  POST /triggers/add    {"kind":"ocr_contains","cond":{"text":"Privet","lang":"eng+rus"},"action":{"type":"macro","name":"type_text","args":{"text":"OK"}}}
+  GET /triggers/list
+  POST /triggers/add {"kind":"ocr_contains","cond":{"text":"Privet","lang":"eng+rus"},"action":{"type":"macro","name":"type_text","args":{"text":"OK"}}}
   POST /triggers/clear
-  POST /triggers/start  {"interval_ms":600}
+  POST /triggers/start {"interval_ms":600}
   POST /triggers/stop
-  GET  /triggers/status
+  GET /triggers/status
 
 UI: /admin/triggers
 
-# c=a+b
-"""
+# c=a+b"""
 from __future__ import annotations
 from flask import Blueprint, jsonify, request, render_template
 from typing import Any, Dict

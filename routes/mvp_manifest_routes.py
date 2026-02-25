@@ -23,8 +23,8 @@ defaults:
 agents:
   - id: est.dispatcher.synergy_mvp.v1
     mission: >
-      Prinyat zadachu, utochnit tsel, vybrat luchshego ispolnitelya (ili svyazku) i vernut:
-      "kogo naznachit + pochemu + sleduyuschiy shag". Sam nichego ne menyaet (tolko chtenie/sovet).
+      Prinyat zadachu, utochnit tsel, vybrat luchshego ispolnitelya (ili svyazku) i return:
+      "kogo naznachit + pochemu + sleduyuschiy shag". Sam nichego ne menyaet (tolko chtenie/advice).
     runtime: { kind: mvp, id: director }
     capabilities:
       endpoints:
@@ -33,7 +33,7 @@ agents:
         - rag.hybrid.search
         - mem.passport.list
         - mem.kg.stats
-        - auth.roles.me
+        -auth.roles.me
     risk:
       level: low
       writes: []
@@ -59,7 +59,7 @@ agents:
         - ingest.guard.check
         - ingest.guard.config
         - mem.kg.stats
-        - auth.roles.me
+        -auth.roles.me
     risk:
       level: medium
       writes: ["ingest_guard_config (conditional)"]
@@ -74,7 +74,7 @@ agents:
   - id: est.librarian.knowledge_mvp.v1
     mission: >
       Vesti znanie: bezopasno iskat, proveryat limity ingest, predlagat fakty dlya profilea,
-      pomogat RAG.
+      help RAG.
     runtime: { kind: mvp, id: rag_researcher }
     capabilities:
       actions:
@@ -101,8 +101,8 @@ agents:
 
   - id: est.builder.suite_mvp.v1
     mission: >
-      Konstruktor agentov + otchety: opisat agenta, plan, sgenerit skelet.
-      Lyubye apply — tolko cherez geyty.
+      Konstruktor agentov + otchety: opisat agenta, plan, sgenerit skeleton.
+      Lyubye apply - only through geyty.
     runtime: { kind: mvp, id: maker_dev }
     capabilities:
       endpoints:
@@ -151,10 +151,8 @@ def _sha256(s: str) -> str:
 
 
 def _yaml_load(s: str) -> Dict[str, Any]:
-    """
-    Best-effort YAML load.
-    Accepts JSON-as-YAML too (PyYAML can parse JSON).
-    """
+    """Best-effort YAML load.
+    Accepts JSON-as-YAML too (PyYAML can parse JSON)."""
     try:
         import yaml  # type: ignore
     except Exception as e:
@@ -424,11 +422,9 @@ def manifest_apply():
 
 @bp.post("/mvp/agents/suite/run")
 def suite_run():
-    """
-    Run ester-agent by id using active manifest mapping -> /mvp/agents/run
+    """Run ester-agent by id using active manifest mapping -> /mvp/agents/run
     Contract (loose):
-      { "agent": "est.ops.health_mvp.v1", "text": "....", "payload": {...}, "dry_run": true }
-    """
+      { "agent": "est.ops.health_mvp.v1", "text": "....", "payload": {...}, "dry_run": true }"""
     body = request.get_json(silent=True) or {}
     agent = (body.get("agent") or body.get("id") or body.get("agent_id") or "").strip()
     text = body.get("text") or body.get("task") or body.get("input") or ""
@@ -489,9 +485,7 @@ def suite_run():
 
 @bp.post("/synergy/assign/advice")
 def synergy_assign_advice():
-    """
-    Minimal dispatcher: pick best ester-agent for task and return "who + why + next step"
-    """
+    """Minimal dispatcher: pick best ester-agent for task and return "who + why + next step"."""
     body = request.get_json(silent=True) or {}
     task = (body.get("task") or body.get("text") or body.get("input") or "").strip()
     if not task:
@@ -501,16 +495,16 @@ def synergy_assign_advice():
     # heuristics
     if any(k in t for k in ["health", "metrics", "metrik", "oshib", "tormoz", "slow", "lag"]):
         pick = "est.ops.health_mvp.v1"
-        why = "Pokhozhe na diagnostiku/metriki/sostoyanie."
+        why = "Sounds like diagnostics/metrics/status."
     elif any(k in t for k in ["nayd", "poisk", "rag", "tsitat", "dok", "kb", "profile", "knowledge"]):
         pick = "est.librarian.knowledge_mvp.v1"
-        why = "Pokhozhe na poisk/znaniya/RAG/tsitirovanie."
+        why = "Similar to search/knowledge/RAG/citation."
     elif any(k in t for k in ["novyy agent", "yaml", "skelet", "scaffold", "builder", "otch", "report", "manifest"]):
         pick = "est.builder.suite_mvp.v1"
-        why = "Pokhozhe na sborku/manifest/chernovik agenta."
+        why = "Looks like an agent build/manifest/draft."
     else:
         pick = "est.dispatcher.synergy_mvp.v1"
-        why = "Zadacha obschaya — snachala dispetcherizatsiya/utochnenie."
+        why = "The task is general - first dispatch/clarification."
 
     next_step = {
         "endpoint": "POST /mvp/agents/suite/run",
@@ -551,9 +545,9 @@ def autonomy_tick():
     need_task = body.get("task")
     if not isinstance(need_task, str) or not need_task.strip():
         if _STATE["autonomy_ticks"] % 3 == 1:
-            need_task = "U menya oshibki/tormoza — prover health/metrics i sostoyanie limitov ingest"
+            need_task = "I have errors/brakes - check health/matrix and the status of ingest limits"
         else:
-            need_task = "Prover, vse li ok, i esli net — predlozhi sleduyuschiy shag"
+            need_task = "Check if everything is ok, and if not, suggest the next step"
 
     # Call synergy advice internally
     client = current_app.test_client()

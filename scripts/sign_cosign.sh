@@ -2,7 +2,7 @@
 # Podpis konteynernogo obraza cosign.
 # Ispolzovanie:
 #   COSIGN_EXPERIMENTAL=1 ./scripts/sign_cosign.sh ghcr.io/owner/repo:tag
-# Podderzhka klyuchevogo i keyless rezhimov:
+# Support key and keyless modes:
 #   COSIGN_KEY_PATH=/path/to/cosign.key COSIGN_PASSWORD=... ./scripts/sign_cosign.sh <image>
 set -euo pipefail
 
