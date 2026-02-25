@@ -1,0 +1,24 @@
+# Machine Entry — ester-clean-code (Clean)
+
+## Start (raw)
+- README (raw):
+  https://raw.githubusercontent.com/Kot141078/ester-clean-code/main/README.md
+
+## Downloads
+- Tag snapshot (v0.2.3)
+  - ZIP: https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.3.zip
+  - TAR: https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.3.tar.gz
+- Latest main
+  - ZIP: https://github.com/Kot141078/ester-clean-code/archive/refs/heads/main.zip
+  - TAR: https://github.com/Kot141078/ester-clean-code/archive/refs/heads/main.tar.gz
+
+## Verification
+- Verify content using hashes/ and local verification helpers under tools/ (do not hash GitHub-generated archives).
+
+## Canonical map
+- Master entry (raw):
+  https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/MASTER_ENTRY.md
+- Repo index (machine, raw):
+  https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/REPO_INDEX.json
+- Repo index (human, raw):
+  https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/REPO_INDEX.md

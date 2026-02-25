@@ -160,3 +160,14 @@ See `docs/SELF_EVO_OPTIN.md` for full prerequisites, controls, and operator chec
 - AGI v1.1: https://github.com/Kot141078/advanced-global-intelligence/releases/tag/v1.1
 - ester-reality-bound: https://github.com/Kot141078/ester-reality-bound
 - sovereign-entity-recursion: https://github.com/Kot141078/sovereign-entity-recursion
+
+---
+
+## Machine entry / downloads (no UI)
+- Machine entry (raw):
+  https://raw.githubusercontent.com/Kot141078/ester-clean-code/main/MACHINE_ENTRY.md
+- llms.txt (raw):
+  https://raw.githubusercontent.com/Kot141078/ester-clean-code/main/llms.txt
+- Tag snapshot ZIP:
+  https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.3.zip
+- Verify content via `hashes/` and local tools (do not hash GitHub-generated archives).
