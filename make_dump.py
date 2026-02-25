@@ -48,7 +48,7 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 # === Izmenenie: defolt teper 5 MB ===
-DEFAULT_PART_MB = 8
+DEFAULT_PART_MB = 2
 
 PART_NAME = "Ester_dump_part_{:04d}.txt"
 MANIFEST = "ester_manifest.json"

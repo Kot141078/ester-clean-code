@@ -659,18 +659,20 @@ def _exec_files_sandbox_write(agent_id: str, args: Dict[str, Any]) -> Dict[str, 
     if not ok:
         return {"ok": False, "error": "invalid_relpath"}
     content = str(args.get("content") or "")
+    raw = content.encode("utf-8")
     root = _sandbox_root(agent_id)
     dst = (root / rel).resolve()
     if root not in dst.parents and dst != root:
         return {"ok": False, "error": "path_outside_sandbox"}
     dst.parent.mkdir(parents=True, exist_ok=True)
-    dst.write_text(content, encoding="utf-8")
-    digest = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    # Write exact bytes to avoid CRLF translation on Windows; verify reads raw bytes.
+    dst.write_bytes(raw)
+    digest = hashlib.sha256(raw).hexdigest()
     return {
         "ok": True,
         "stored_path": str(dst),
         "relpath": rel,
-        "bytes": len(content.encode("utf-8")),
+        "bytes": len(raw),
         "sha256": digest,
     }
 

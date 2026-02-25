@@ -382,6 +382,62 @@ def _find_agent_id_by_name(name: str) -> str:
     return ""
 
 
+def _agent_allowlist(agent_id: str) -> List[str]:
+    aid = str(agent_id or "").strip()
+    if not aid:
+        return []
+    try:
+        rep = agent_factory.get_agent(aid)
+    except Exception:
+        return []
+    if not bool(rep.get("ok")):
+        return []
+    spec = dict((rep.get("agent") or {}).get("spec") or {})
+    if not spec:
+        return []
+    try:
+        allow_rep = agent_factory.resolve_allowlist_for_spec(spec, slot_override=_slot())
+    except Exception:
+        allow_rep = {"ok": False}
+    if bool(allow_rep.get("ok")):
+        return [str(x) for x in list(allow_rep.get("allowed_actions") or []) if str(x).strip()]
+    return [str(x) for x in list(spec.get("allowed_actions") or []) if str(x).strip()]
+
+
+def _allowlist_covers(allowlist: List[str], required_actions: List[str]) -> bool:
+    if not required_actions:
+        return True
+    if not allowlist:
+        return False
+    return set(str(x) for x in required_actions if str(x).strip()).issubset(
+        set(str(x) for x in allowlist if str(x).strip())
+    )
+
+
+def _find_compatible_agent_by_name(name: str, required_actions: List[str]) -> Dict[str, Any]:
+    target = str(name or "").strip()
+    if not target:
+        return {"agent_id": "", "mismatched_ids": []}
+    try:
+        listing = agent_factory.list_agents()
+    except Exception:
+        return {"agent_id": "", "mismatched_ids": []}
+    mismatched_ids: List[str] = []
+    for row in list(listing.get("agents") or []):
+        if str((row or {}).get("name") or "").strip() != target:
+            continue
+        if bool((row or {}).get("enabled", True)) is False:
+            continue
+        aid = str((row or {}).get("agent_id") or (row or {}).get("id") or "").strip()
+        if not aid:
+            continue
+        allowlist = _agent_allowlist(aid)
+        if _allowlist_covers(allowlist, required_actions):
+            return {"agent_id": aid, "mismatched_ids": mismatched_ids}
+        mismatched_ids.append(aid)
+    return {"agent_id": "", "mismatched_ids": mismatched_ids}
+
+
 def _ensure_default_agent(
     *,
     dry: bool,
@@ -393,6 +449,7 @@ def _ensure_default_agent(
     default_name = "proactivity.enqueue.default"
     template_id = str(template.get("template_id") or "initiator.v1")
     template_caps = [str(x) for x in list(template.get("capabilities") or []) if str(x).strip()]
+    allowed_actions = _extract_allowed_actions(template, queue_plan)
     if dry:
         return {
             "ok": True,
@@ -404,17 +461,21 @@ def _ensure_default_agent(
             "capabilities": template_caps,
         }
 
-    listing = agent_factory.list_agents()
-    for row in list(listing.get("agents") or []):
-        if str(row.get("name") or "") == default_name:
-            return {
-                "ok": True,
-                "agent_id": str(row.get("agent_id") or row.get("id") or ""),
-                "created": False,
-                "name": default_name,
-            }
+    pick = _find_compatible_agent_by_name(default_name, allowed_actions)
+    existing_id = str(pick.get("agent_id") or "").strip()
+    if existing_id:
+        return {
+            "ok": True,
+            "agent_id": existing_id,
+            "created": False,
+            "name": default_name,
+        }
+    for stale_id in list(pick.get("mismatched_ids") or []):
+        try:
+            agent_factory.disable_agent(str(stale_id), reason="proactivity_default_allowlist_mismatch")
+        except Exception:
+            continue
 
-    allowed_actions = _extract_allowed_actions(template, queue_plan)
     create_rep = agent_factory.create_agent(
         {
             "name": default_name,
@@ -905,7 +966,10 @@ def _run_once_core(
         return out
 
     if (not dry) and _agent_create_requires_approval():
-        default_agent_id = _find_agent_id_by_name("proactivity.enqueue.default")
+        default_agent_name = "proactivity.enqueue.default"
+        default_allowed_actions = _extract_allowed_actions(template, queue_plan)
+        pick = _find_compatible_agent_by_name(default_agent_name, default_allowed_actions)
+        default_agent_id = str(pick.get("agent_id") or "").strip()
         if not default_agent_id:
             if agent_create_approval is None:
                 out["ok"] = False
@@ -938,10 +1002,10 @@ def _run_once_core(
             req_rep = agent_create_approval.request(
                 source="modules.proactivity.executor",
                 template_id=str(template_id or "initiator.v1"),
-                name="proactivity.enqueue.default",
+                name=default_agent_name,
                 goal=str(title or "proactivity enqueue"),
                 overrides={
-                    "name": "proactivity.enqueue.default",
+                    "name": default_agent_name,
                     "goal": str(title or "proactivity enqueue"),
                     "owner": "modules.proactivity.executor",
                 },
@@ -950,7 +1014,7 @@ def _run_once_core(
                     "plan_id": plan_id,
                     "chain_id": chain_id,
                 },
-                dedupe_key=f"proactivity.enqueue.default:{template_id}",
+                dedupe_key=f"{default_agent_name}:{template_id}",
             )
             if not bool(req_rep.get("ok")):
                 out["ok"] = False
