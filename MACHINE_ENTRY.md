@@ -18,3 +18,7 @@
 ## Canonical map
 - Master entry (raw):
   https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/MASTER_ENTRY.md
+- Repo index (machine, raw):
+  https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/REPO_INDEX.json
+- Repo index (human, raw):
+  https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/REPO_INDEX.md

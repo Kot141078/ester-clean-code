@@ -9,5 +9,9 @@
 ## Verify
 - hashes/ + tools/ local checks
 
+## Repo index
+- https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/REPO_INDEX.json
+- https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/REPO_INDEX.md
+
 ## Canonical map
 - https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/MASTER_ENTRY.md
