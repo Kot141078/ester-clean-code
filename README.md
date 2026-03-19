@@ -17,6 +17,13 @@
 - Not a hidden-background-task framework.
 - Not a storage for private runtime artifacts.
 
+## Operational Process Premise
+
+> “The future is not an event. It is a process.”
+> — Ivan Kotov
+
+Canonical note: see `Kot141078/advanced-global-intelligence` → `official/AUTHORIAL_PREMISES.md`
+
 ## Core Formula
 
 - `c = a + b`
