@@ -31,6 +31,14 @@ Canonical note: see `Kot141078/advanced-global-intelligence` → `official/AUTHO
 - `b` is bounded policy plus executable controls.
 - `c` is accountable behavior under constraints.
 
+## Entity-centered runtime rule
+
+- By default, `c` orchestrates agents; agents do not define `c`.
+- Agents are bounded runtime processes and tools invoked under `c`.
+- Continuity, privilege holding, and stopping authority remain at the `c` layer.
+- Model replacement or worker rotation does not by itself redefine the entity.
+- Canonical note: `docs/ENTITY_GOVERNS_AGENTS.md`
+
 ## L4 Reality Boundary
 
 L4 treats real-world constraints as first-class safety input.
@@ -98,6 +106,7 @@ This repository aligns with witness-first execution norms.
 - `ESTER/` contains runtime routes and surfaces.
 - `modules/` contains subsystem implementations.
 - `docs/` contains governance and operator docs.
+- `docs/ENTITY_GOVERNS_AGENTS.md` defines the runtime entity / agent hierarchy.
 - `tools/` contains local scanner and release helpers.
 
 ## Local Verification
