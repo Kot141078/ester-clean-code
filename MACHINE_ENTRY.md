@@ -1,6 +1,7 @@
 # Machine Entry — ester-clean-code (Clean)
 
 ## Entity-centered runtime rule
+
 - By default, `c` orchestrates agents; agents do not define `c`.
 - Agents are bounded runtime processes and tools invoked under `c`.
 - Continuity, privilege holding, and stopping authority remain at the `c` layer.
