@@ -68,3 +68,8 @@ The normative and visibility-facing side is intentionally separate and lives in:
 
 - `ester-reality-bound`
 - `docs/glitch-stack/`
+
+## Zenodo citations
+
+- Implementation Bridge to ester-clean-code v0.1 — version DOI: `10.5281/zenodo.19386014` ; all versions: `10.5281/zenodo.19386013`
+- Milestone M1 Specification v0.1 — version DOI: `10.5281/zenodo.19386143` ; all versions: `10.5281/zenodo.19386142`
