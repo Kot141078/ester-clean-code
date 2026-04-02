@@ -203,3 +203,8 @@ Subtrees:
 
 This subtree is intentionally code-facing:
 bridge, anatomy, validators, reducers, events, tests, and Milestone M1.
+
+### Published Zenodo records for the glitch-stack implementation side
+
+- Implementation Bridge to ester-clean-code v0.1 — version DOI: [10.5281/zenodo.19386014](https://doi.org/10.5281/zenodo.19386014), all versions: [10.5281/zenodo.19386013](https://doi.org/10.5281/zenodo.19386013)
+- Milestone M1 Specification v0.1 — version DOI: [10.5281/zenodo.19386143](https://doi.org/10.5281/zenodo.19386143), all versions: [10.5281/zenodo.19386142](https://doi.org/10.5281/zenodo.19386142)
