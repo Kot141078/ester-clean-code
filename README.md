@@ -176,6 +176,7 @@ See `docs/SELF_EVO_OPTIN.md` for full prerequisites, controls, and operator chec
 - AGI v1.1: https://github.com/Kot141078/advanced-global-intelligence/releases/tag/v1.1
 - ester-reality-bound: https://github.com/Kot141078/ester-reality-bound
 - sovereign-entity-recursion: https://github.com/Kot141078/sovereign-entity-recursion
+- Theoretical Foundations of the AGI Ecosystem: https://github.com/Kot141078/advanced-global-intelligence/blob/main/manifesto/Theoretical_Foundations_of_the_AGI_Ecosystem_EN.md
 
 ---
 
