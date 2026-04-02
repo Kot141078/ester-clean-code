@@ -187,3 +187,17 @@ See `docs/SELF_EVO_OPTIN.md` for full prerequisites, controls, and operator chec
 - Tag snapshot ZIP:
   https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.3.zip
 - Verify content via `hashes/` and local tools (do not hash GitHub-generated archives).
+
+## Glitch Stack — implementation bridge v0.1
+
+This repository now hosts the **implementation-facing** side of the glitch-stack package set.
+
+Primary entry:
+- [`docs/architecture/glitch-stack/INDEX.md`](docs/architecture/glitch-stack/INDEX.md)
+
+Subtrees:
+- [`docs/architecture/glitch-stack/implementation/`](docs/architecture/glitch-stack/implementation/)
+- [`docs/architecture/glitch-stack/milestone-m1/`](docs/architecture/glitch-stack/milestone-m1/)
+
+This subtree is intentionally code-facing:
+bridge, anatomy, validators, reducers, events, tests, and Milestone M1.
