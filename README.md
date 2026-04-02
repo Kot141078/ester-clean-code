@@ -177,6 +177,7 @@ See `docs/SELF_EVO_OPTIN.md` for full prerequisites, controls, and operator chec
 - ester-reality-bound: https://github.com/Kot141078/ester-reality-bound
 - sovereign-entity-recursion: https://github.com/Kot141078/sovereign-entity-recursion
 - Theoretical Foundations of the AGI Ecosystem: https://github.com/Kot141078/advanced-global-intelligence/blob/main/manifesto/Theoretical_Foundations_of_the_AGI_Ecosystem_EN.md
+- Zenodo citation for Theoretical Foundations of the AGI Ecosystem: https://doi.org/10.5281/zenodo.19384668 (all versions: https://doi.org/10.5281/zenodo.19384667)
 
 ---
 
