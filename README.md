@@ -219,5 +219,6 @@ bridge, anatomy, validators, reducers, events, tests, and Milestone M1.
 This repository now includes the implementation-facing ARL pack: a bounded bridge from the normative ARL package to `ester-clean-code` control surfaces. It covers freeze state, witness binding, quorum precedence, target file mapping, runtime hook points, minimal event types, dispute persistence, review routing, staged integration, and explicit anti-scope limits.
 
 Start here: `docs/architecture/arbitration-review-layer/README.md`
+Zenodo DOI: https://doi.org/10.5281/zenodo.19406479
 
 Normative ARL doctrine remains canonically upstream in the SER stack; this package is the ECC-facing implementation bridge.
