@@ -1,19 +1,26 @@
 cff-version: 1.2.0
-
-title: "Ester Clean Code"
-
-message: "If you use this software, please cite it."
-
+message: "If you use this repository, please cite it as below."
 type: software
-
+title: "Ester Clean Code"
 authors:
-  - name: "Ivan Kotov"
-    url: "https://github.com/Kot141078/ester-clean-code"
-
-license: "AGPL-3.0-or-later"
-
-version: "0.2.3"
-
-date-released: "2026-02-24"
-
+  - family-names: "Kotov"
+    given-names: "Ivan"
+    orcid: "https://orcid.org/0009-0009-6002-9845"
+url: "https://github.com/Kot141078/ester-clean-code"
 repository-code: "https://github.com/Kot141078/ester-clean-code"
+abstract: >-
+  Implementation-facing repository for accountable action under real
+  constraints, with local-first operational code, governance scaffolding, and
+  reviewable privileged actions. It includes the ECC-facing Arbitration /
+  Review Layer (ARL) implementation pack while the canonical normative ARL
+  home remains in the SER stack.
+keywords:
+  - "clean code"
+  - "accountable action"
+  - "local-first operations"
+  - "witness trail"
+  - "fail-closed systems"
+  - "arbitration review layer"
+license: "AGPL-3.0-or-later"
+version: "0.2.3"
+date-released: "2026-02-24"
