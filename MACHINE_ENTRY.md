@@ -30,3 +30,17 @@
   https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/REPO_INDEX.json
 - Repo index (human, raw):
   https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/REPO_INDEX.md
+
+## External canonical materials
+- Economic Layer package:
+  - canonical_home: `advanced-global-intelligence`
+  - url: `https://github.com/Kot141078/advanced-global-intelligence/tree/main/docs/economic-layer`
+  - role: external_canonical_package
+  - relation: implementation_facing_repo_consumes_but_does_not_own_normative_home
+  - local_status: pointer_only_not_duplicated_here
+- Pre-Lineage Boundary Note:
+  - canonical_home: `advanced-global-intelligence`
+  - url: `https://github.com/Kot141078/advanced-global-intelligence/blob/main/manifesto/Pre_Lineage_Boundary_Note_v0.1.md`
+  - role: external_boundary_note
+  - relation: reserved_cross_stack_boundary_note
+  - local_status: pointer_only_not_duplicated_here

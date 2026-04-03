@@ -179,6 +179,11 @@ See `docs/SELF_EVO_OPTIN.md` for full prerequisites, controls, and operator chec
 - Theoretical Foundations of the AGI Ecosystem: https://github.com/Kot141078/advanced-global-intelligence/blob/main/manifesto/Theoretical_Foundations_of_the_AGI_Ecosystem_EN.md
 - Zenodo citation for Theoretical Foundations of the AGI Ecosystem: https://doi.org/10.5281/zenodo.19384668 (all versions: https://doi.org/10.5281/zenodo.19384667)
 
+## Adjacent ecosystem materials in AGI
+
+- Economic Layer for Experience Artifacts (canonical in AGI; ECC is implementation-facing and pointer-only here): https://github.com/Kot141078/advanced-global-intelligence/tree/main/docs/economic-layer
+- Pre-Lineage Boundary Note (reserved cross-stack boundary note; pointer only here): https://github.com/Kot141078/advanced-global-intelligence/blob/main/manifesto/Pre_Lineage_Boundary_Note_v0.1.md
+
 ---
 
 ## Machine entry / downloads (no UI)
