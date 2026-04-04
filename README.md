@@ -22,6 +22,21 @@ git checkout v0.2.3
 
 To verify what you downloaded, use the files in `hashes/` together with the local verification tools in this repository.
 
+## For LLM-assisted reading
+
+Using an LLM to study this repository is normal and encouraged.
+
+If your model has a small context window, start with:
+
+- `README.md`
+- `MACHINE_ENTRY.md`
+- `llms.txt`
+- the stable snapshot of this repository
+
+Then load the key documents in small batches.
+
+For code-facing work, tools like Codex work best when code and documents are read together.
+
 ## What This Repository Is
 
 - A public clean-code repository.
