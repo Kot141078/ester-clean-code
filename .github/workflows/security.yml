@@ -33,7 +33,7 @@ jobs:
         push: false
         load: true
         tags: local/ester:ci
-    - uses: aquasecurity/trivy-action@0.24.0
+    - uses: aquasecurity/trivy-action@v0.24.0
       with:
         image-ref: local/ester:ci
         format: 'table'
