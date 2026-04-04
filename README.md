@@ -3,6 +3,25 @@
 > **Ester is not a chatbot.**
 > This repository publishes a clean-code core for accountable action under real constraints.
 
+## Download / Get the Code
+
+For most visitors, the easiest starting point is the stable snapshot of this repository.
+
+- Release page: https://github.com/Kot141078/ester-clean-code/releases/tag/v0.2.3
+- Stable source ZIP (v0.2.3): https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.3.zip
+- Stable source TAR.GZ (v0.2.3): https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.3.tar.gz
+- GitHub UI: click **Code** -> **Download ZIP**
+
+Clone locally:
+
+```bash
+git clone https://github.com/Kot141078/ester-clean-code.git
+cd ester-clean-code
+git checkout v0.2.3
+```
+
+To verify what you downloaded, use the files in `hashes/` together with the local verification tools in this repository.
+
 ## What This Repository Is
 
 - A public clean-code repository.
