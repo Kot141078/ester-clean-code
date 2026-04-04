@@ -37,6 +37,12 @@ Then load the key documents in small batches.
 
 For code-facing work, tools like Codex work best when code and documents are read together.
 
+## Canonical package entry points
+
+- `glitch-stack implementation subtree` — canonical here for the implementation-facing package entry. Path: `docs/architecture/glitch-stack/INDEX.md`
+- `ARL implementation pack` — canonical here; ECC-facing arbitration and review bridge. Path: `docs/architecture/arbitration-review-layer/README.md`
+- `ENTITY_GOVERNS_AGENTS note` — canonical here; entity and agent hierarchy note. Path: `docs/ENTITY_GOVERNS_AGENTS.md`
+
 ## What This Repository Is
 
 - A public clean-code repository.
