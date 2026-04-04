@@ -13,6 +13,7 @@
   https://raw.githubusercontent.com/Kot141078/ester-clean-code/main/README.md
 
 ## Downloads
+- Release page (verified): https://github.com/Kot141078/ester-clean-code/releases/tag/v0.2.3
 - Tag snapshot (v0.2.3)
   - ZIP: https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.3.zip
   - TAR: https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.3.tar.gz
