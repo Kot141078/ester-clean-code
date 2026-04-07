@@ -79,6 +79,18 @@ Canonical note: see `Kot141078/advanced-global-intelligence` → `official/AUTHO
 - Model replacement or worker rotation does not by itself redefine the entity.
 - Canonical note: `docs/ENTITY_GOVERNS_AGENTS.md`
 
+## Cross-repo interpretive clarification (non-normative)
+
+In the broader AGI / SER / L4 stack, `c` may be described as a **temporal entity of AI presence**.
+
+In this repository, that ecosystem-level claim appears operationally as:
+
+- accountable behavior under constraints
+- continuity, privilege holding, and stopping authority remaining at the `c` layer
+- agents remaining bounded runtime processes and tools invoked under `c`
+
+Canonical cross-repo note: `Kot141078/advanced-global-intelligence` → `official/C_AS_TEMPORAL_ENTITIES_OF_AI_PRESENCE.md`
+
 ## L4 Reality Boundary
 
 L4 treats real-world constraints as first-class safety input.
