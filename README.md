@@ -236,6 +236,18 @@ See `docs/SELF_EVO_OPTIN.md` for full prerequisites, controls, and operator chec
 - Economic Layer for Experience Artifacts (canonical in AGI; ECC is implementation-facing and pointer-only here): https://github.com/Kot141078/advanced-global-intelligence/tree/main/docs/economic-layer
 - Pre-Lineage Boundary Note (reserved cross-stack boundary note; pointer only here): https://github.com/Kot141078/advanced-global-intelligence/blob/main/manifesto/Pre_Lineage_Boundary_Note_v0.1.md
 
+## Continuity Bundle / Cold Wake v0.1 (canonical in AGI)
+
+Continuity Bundle / Cold Wake v0.1 is the implementation-facing continuity companion in the wider stack, but its canonical home is **not** this repository.
+
+Canonical entry:
+`..\advanced-global-intelligence\protocols\continuity-bundle\README.md`
+
+Role from the implementation side:
+- temporal suspension and bounded operational resume
+- continuity bundle and cold wake reporting as reviewable companion surfaces
+- companion to SER continuity and L4 wake constraints; not a replacement
+
 ---
 
 ## Machine entry / downloads (no UI)
