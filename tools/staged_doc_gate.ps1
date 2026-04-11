@@ -51,7 +51,7 @@ $touchList = @(
     "CHANGELOG.md",
     "CITATION.cff",
     "docs/RELEASE_CHECKLIST.md",
-    "docs/RELEASE_NOTES_v0.2.3.md",
+    "docs/RELEASE_NOTES_v0.2.4.md",
     "tools/staged_doc_gate.ps1"
 )
 

@@ -91,3 +91,13 @@ python -m compileall modules
   - Rewrote autonomy policy docs into strict multiline format
   - Added quick operator env snippet and disabled/missing-prereqs examples
   - Added staged doc gate to prevent minification regressions
+
+## Iter16 Release Record (v0.2.4)
+
+- Tag: `v0.2.4`
+- Commit hash: `<fill-after-commit>`
+- Release URL: `<fill-after-release>`
+- Stability items:
+  - Repointed public stable download links from old `v0.2.3` snapshots to the new stable tag
+  - Published the current `main` code state as a new stable release instead of rewriting the old tag
+  - Included the public-safe document recall layer in the stable snapshot
