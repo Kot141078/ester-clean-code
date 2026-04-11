@@ -14,6 +14,12 @@ from typing import Any, Dict, List, Optional, Tuple
 from modules.memory import store
 from modules.memory.facade import memory_add
 from modules.memory.vector import embed, cosine
+try:
+    from modules.memory.doc_lookup import build_doc_context as _build_doc_context  # type: ignore
+    from modules.memory.doc_lookup import resolve_doc_for_query as _resolve_doc_for_query  # type: ignore
+except Exception:
+    _build_doc_context = None  # type: ignore
+    _resolve_doc_for_query = None  # type: ignore
 
 try:
     from modules.rag.hybrid import _tok as _tok_hybrid  # type: ignore
@@ -25,9 +31,43 @@ DOC_QUERY_RE = re.compile(
     r"(?is)\b("
     r"doc|docs|document|documentation|readme|spec|specification|manual|guide|report|protocol|log|"
     r"pdf|docx|txt|md|html|page|citation|source|quoted|offset|"
-    r"dokument|doki|dokumentatsiya|speka|spetsifikats|manual|rukovodstvo|otchet|protokol|log|"
-    r"fayl|stranits|tsitat|istochnik|ssylka|smescheni|smeschenie"
+    r"документ|доки|документация|спека|спецификац|мануал|руководство|отчет|протокол|лог|"
+    r"файл|страниц|цитат|источник|ссылка|смещени|смещение"
     r")\b"
+)
+
+_INTERNAL_SIGNAL_SOURCES = {
+    "analyst",
+    "autoload",
+    "companion",
+    "discovery_loader",
+    "dream",
+    "initiative_engine",
+    "modules.proactivity.planner_v1",
+    "passport",
+    "planner_v1",
+    "proactivity",
+    "volition",
+}
+
+_INTERNAL_SIGNAL_TEXT_MARKERS = (
+    "planner_v1:",
+    "initiative candidate:",
+    "dream initiative:",
+    "[dream_",
+    "[volition_",
+    "[discovery_",
+    "[analyst_",
+    "[passport_",
+    "[tg_",
+    "[autoload_",
+    "[brain]",
+    "[companion]",
+    "[core]",
+    "[hive]",
+    "[initiative_autostart]",
+    "[register_all_ok]",
+    "[safe_chat]",
 )
 
 
@@ -48,6 +88,78 @@ def _norm_path(p: str) -> str:
 def _parse_citation_page(cite: str) -> Optional[int]:
     if not cite:
         return None
+
+
+def _normalize_signal_text(text: str) -> str:
+    return " ".join(str(text or "").strip().split())
+
+
+def _looks_machine_event(text: str) -> bool:
+    cleaned = _normalize_signal_text(text)
+    if not cleaned.startswith("["):
+        return False
+    end = cleaned.find("]")
+    if end <= 1:
+        return False
+    head = cleaned[1:end]
+    normalized = re.sub(r"[^A-Za-z0-9_:-]+", "", head)
+    if not normalized:
+        return False
+    letters = re.sub(r"[^A-Za-z]+", "", normalized)
+    return bool(letters) and letters.upper() == letters
+
+
+def _is_internal_signal_text(text: str) -> bool:
+    cleaned = _normalize_signal_text(text)
+    if not cleaned:
+        return False
+    low = cleaned.lower()
+    if any(low.startswith(marker) for marker in _INTERNAL_SIGNAL_TEXT_MARKERS):
+        return True
+    return _looks_machine_event(cleaned)
+
+
+def _is_internal_flashback_record(row: Dict[str, Any]) -> bool:
+    src = dict(row or {})
+    meta = src.get("meta") if isinstance(src.get("meta"), dict) else {}
+    text = str(src.get("text") or "").strip()
+    source_values = {
+        str(meta.get("source") or "").strip().lower(),
+        str(meta.get("type") or "").strip().lower(),
+    }
+    scope = str(meta.get("scope") or "").strip().lower()
+    kind = str(src.get("type") or src.get("kind") or "").strip().lower()
+    if scope == "internal":
+        return True
+    if any(value in _INTERNAL_SIGNAL_SOURCES for value in source_values if value):
+        return True
+    if _is_internal_signal_text(text):
+        return True
+    if kind in {"event", "trace"} and _looks_machine_event(text):
+        return True
+    return False
+
+
+def _scope_flashback_records(
+    rows: List[Dict[str, Any]],
+    *,
+    chat_id: Optional[int],
+    user_id: Optional[int],
+) -> Tuple[List[Dict[str, Any]], int]:
+    base = [dict(r) for r in rows if isinstance(r, dict) and not _is_internal_flashback_record(r)]
+    filtered_out = max(0, len(rows) - len(base))
+    if chat_id is None and user_id is None:
+        return base, filtered_out
+
+    scoped: List[Dict[str, Any]] = []
+    for r in base:
+        meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
+        if chat_id is not None and str(meta.get("chat_id") or "") not in ("", str(chat_id)):
+            continue
+        if user_id is not None and str(meta.get("user_id") or "") not in ("", str(user_id)):
+            continue
+        scoped.append(r)
+    return (scoped if scoped else base), filtered_out
     m = re.search(r"\bp\.\s*(\d+)\b", cite)
     if not m:
         return None
@@ -157,7 +269,7 @@ def _tfidf_tokens(text: str) -> List[str]:
             return _tok_hybrid(text)
         except Exception:
             pass
-    return re.findall(r"[A-Za-zA-Yaa-ya0-9_]+", (text or "").lower())
+    return re.findall(r"[A-Za-zА-Яа-я0-9_]+", (text or "").lower())
 
 
 def _tfidf_rank(query: str, docs: List[Dict[str, Any]], top_k: int = 6) -> List[Dict[str, Any]]:
@@ -264,11 +376,35 @@ def retrieve(
     stats = {
         "used": True,
         "doc_query": bool(is_doc_query(q)),
+        "resolved_doc": False,
         "summary_hits": 0,
         "chunk_hits": 0,
+        "semantic_doc_hits": 0,
         "flashback_hits": 0,
+        "flashback_filtered": 0,
         "cards_hits": 0,
     }
+
+    if _resolve_doc_for_query is not None and _build_doc_context is not None:
+        try:
+            resolved = _resolve_doc_for_query(q, chat_id=chat_id, user_id=user_id)
+        except Exception:
+            resolved = None
+        if isinstance(resolved, dict):
+            try:
+                payload = _build_doc_context(resolved, q)
+            except Exception:
+                payload = {}
+            ctx = str(payload.get("context") or "").strip() if isinstance(payload, dict) else ""
+            prov = list(payload.get("provenance") or []) if isinstance(payload, dict) else []
+            if ctx:
+                stats["resolved_doc"] = True
+                stats["summary_hits"] = 1 if "[SUMMARY]" in ctx else 0
+                stats["chunk_hits"] = max(0, len(prov) - 1)
+                reason = str(payload.get("reason") or "").strip() if isinstance(payload, dict) else ""
+                if reason.startswith("semantic_"):
+                    stats["semantic_doc_hits"] = 1
+                return _finalize_response([ctx], prov, stats)
 
     # 1) doc_summary
     doc_summaries = _vector_rank(q, _collect_records_by_type(["doc_summary"]), topk_summary)
@@ -315,16 +451,8 @@ def retrieve(
     # 3) structured flashback (facts/events)
     flash_types = ["fact", "event"]
     flash = _vector_rank(q, _collect_records_by_type(flash_types), topk_flashback)
-    if chat_id is not None or user_id is not None:
-        filtered: List[Dict[str, Any]] = []
-        for r in flash:
-            meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
-            if chat_id is not None and str(meta.get("chat_id") or "") not in ("", str(chat_id)):
-                continue
-            if user_id is not None and str(meta.get("user_id") or "") not in ("", str(user_id)):
-                continue
-            filtered.append(r)
-        flash = filtered if filtered else flash
+    flash, filtered_out = _scope_flashback_records(flash, chat_id=chat_id, user_id=user_id)
+    stats["flashback_filtered"] = int(filtered_out)
     if flash:
         stats["flashback_hits"] = len(flash)
         lines = []
@@ -344,14 +472,38 @@ def retrieve(
             lines.append(f"- {str(c.get('_txt') or '').strip()}")
         context_parts.append("[CARDS_TFIDF]\n" + "\n".join(lines))
 
+    return _finalize_response(context_parts, provenance, stats)
+
+
+_METRICS: Dict[str, int] = {
+    "calls_total": 0,
+    "router_used": 0,
+    "doc_queries": 0,
+    "summary_hits": 0,
+    "chunk_hits": 0,
+    "semantic_doc_hits": 0,
+    "flashback_hits": 0,
+    "cards_hits": 0,
+    "provenance_items": 0,
+    "last_ts": 0,
+}
+_LAST_LOG_TS = 0
+
+
+def _finalize_response(
+    context_parts: List[str],
+    provenance: List[Dict[str, Any]],
+    stats: Dict[str, Any],
+) -> Dict[str, Any]:
     _METRICS["calls_total"] += 1
     _METRICS["router_used"] += 1
-    if stats["doc_query"]:
+    if stats.get("doc_query"):
         _METRICS["doc_queries"] += 1
-    _METRICS["summary_hits"] += int(stats["summary_hits"] or 0)
-    _METRICS["chunk_hits"] += int(stats["chunk_hits"] or 0)
-    _METRICS["flashback_hits"] += int(stats["flashback_hits"] or 0)
-    _METRICS["cards_hits"] += int(stats["cards_hits"] or 0)
+    _METRICS["summary_hits"] += int(stats.get("summary_hits") or 0)
+    _METRICS["chunk_hits"] += int(stats.get("chunk_hits") or 0)
+    _METRICS["semantic_doc_hits"] += int(stats.get("semantic_doc_hits") or 0)
+    _METRICS["flashback_hits"] += int(stats.get("flashback_hits") or 0)
+    _METRICS["cards_hits"] += int(stats.get("cards_hits") or 0)
     _METRICS["provenance_items"] += int(len(provenance))
     _METRICS["last_ts"] = int(time.time())
     _maybe_log_self_evo(stats, len(provenance))
@@ -361,20 +513,6 @@ def retrieve(
         "provenance": provenance,
         "stats": stats,
     }
-
-
-_METRICS: Dict[str, int] = {
-    "calls_total": 0,
-    "router_used": 0,
-    "doc_queries": 0,
-    "summary_hits": 0,
-    "chunk_hits": 0,
-    "flashback_hits": 0,
-    "cards_hits": 0,
-    "provenance_items": 0,
-    "last_ts": 0,
-}
-_LAST_LOG_TS = 0
 
 def _maybe_log_self_evo(stats: Dict[str, Any], prov_len: int) -> None:
     global _LAST_LOG_TS
@@ -392,8 +530,9 @@ def _maybe_log_self_evo(stats: Dict[str, Any], prov_len: int) -> None:
             f"doc_query={int(bool(stats.get('doc_query')))} "
             f"prov={int(prov_len)} "
             f"summary={int(stats.get('summary_hits') or 0)} "
-            f"chunks={int(stats.get('chunk_hits') or 0)}"
-            f"flash={int(stats.get('flashback_hits') or 0)}"
+            f"chunks={int(stats.get('chunk_hits') or 0)} "
+            f"semantic_docs={int(stats.get('semantic_doc_hits') or 0)} "
+            f"flash={int(stats.get('flashback_hits') or 0)} "
             f"cards={int(stats.get('cards_hits') or 0)}"
         )
         memory_add("fact", text, meta={"type": "retrieval_router", "scope": "internal", "ts": now})
@@ -409,7 +548,8 @@ def snapshot_metrics_to_memory() -> None:
         text = (
             f"RETRIEVAL_ROUTER_SNAPSHOT calls={m.get('calls_total')} "
             f"doc_queries={m.get('doc_queries')} summary_hits={m.get('summary_hits')} "
-            f"chunk_hits={m.get('chunk_hits')} flash_hits={m.get('flashback_hits')} "
+            f"chunk_hits={m.get('chunk_hits')} semantic_doc_hits={m.get('semantic_doc_hits')} "
+            f"flash_hits={m.get('flashback_hits')} "
             f"cards_hits={m.get('cards_hits')} prov_items={m.get('provenance_items')}"
         )
         memory_add("fact", text, meta={"type": "retrieval_router_snapshot", "scope": "internal", "ts": int(time.time())})
@@ -437,6 +577,7 @@ def _append_snapshot_files(m: Dict[str, Any]) -> None:
         "doc_queries": m.get("doc_queries", 0),
         "summary_hits": m.get("summary_hits", 0),
         "chunk_hits": m.get("chunk_hits", 0),
+        "semantic_doc_hits": m.get("semantic_doc_hits", 0),
         "flashback_hits": m.get("flashback_hits", 0),
         "cards_hits": m.get("cards_hits", 0),
         "provenance_items": m.get("provenance_items", 0),
@@ -472,6 +613,7 @@ def get_metrics_text() -> str:
         f"retrieval_router_doc_queries_total {m['doc_queries']}\n"
         f"retrieval_router_summary_hits_total {m['summary_hits']}\n"
         f"retrieval_router_chunk_hits_total {m['chunk_hits']}\n"
+        f"retrieval_router_semantic_doc_hits_total {m['semantic_doc_hits']}\n"
         f"retrieval_router_flashback_hits_total {m['flashback_hits']}\n"
         f"retrieval_router_cards_hits_total {m['cards_hits']}\n"
         f"retrieval_router_provenance_items_total {m['provenance_items']}\n"

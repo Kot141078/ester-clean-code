@@ -13,6 +13,8 @@ data/
 state/
 logs/
 memory/
+!modules/memory/
+!modules/memory/**
 passport/
 scroll/
 chroma/
