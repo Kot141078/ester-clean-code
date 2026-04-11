@@ -12,7 +12,7 @@ Eto «stoyka s diskom i dvumya avtomatami»: sluzhba publikatsii — chtoby stoy
 # c=a+b
 #>
 
-$SharePath = 'D:\LAN_Share'       # already exists - no problem, we’ll create it if you don’t have it
+$SharePath = '<lan-share>'       # already exists - no problem, we’ll create it if you don’t have it
 $ShareName = 'LAN_SHARE'
 $User      = 'lanuser'
 

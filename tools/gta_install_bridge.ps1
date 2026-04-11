@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 param(
-  [string]$GameDir = "D:\Launcher\Grand Theft Auto V Enhanced"
+  [string]$GameDir = "<game-dir>"
 )
 
 $ErrorActionPreference = "Stop"

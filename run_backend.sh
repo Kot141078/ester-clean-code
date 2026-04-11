@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="${ESTER_REPO_ROOT:-$SCRIPT_DIR}"
+
 PY="$HOME/miniconda/envs/ester-gpu/bin/python"
 [[ -x "$PY" ]] || PY="$HOME/.conda/envs/ester-gpu/bin/python"
 command -v "$PY" >/dev/null 2>&1 || PY="$(command -v python)"
 
-cd /mnt/d/ester-project
+cd "$REPO_ROOT"
 
 PORT="${PORT:-8010}"             # defolt teper 8010
 export PORT
@@ -17,4 +20,4 @@ export ESTER_DEBUG="${ESTER_DEBUG:-$DEBUG}"
 echo "[run_backend] Using python: $PY"
 echo "[run_backend] PORT=$PORT FLASK_DEBUG=$FLASK_DEBUG DEBUG=$DEBUG"
 
-exec "$PY" /mnt/d/ester-project/serve_no_reload.py
+exec "$PY" "$REPO_ROOT/serve_no_reload.py"

@@ -27,7 +27,7 @@ Primery:
 
     # 3) realnaya zapis s bekapom (AB_MODE=A):
     set AB_MODE=A
-    python scripts/memory_reembed.py --backup-dir "D:\ester-project\_backup_manual" --report .\out_reembed\report_real.json
+    python scripts/memory_reembed.py --backup-dir "<repo-root>\_backup_manual" --report .\out_reembed\report_real.json
 
     # 4) bezopasnyy slot (AB_MODE=B) — just saydkary, originaly ne trogaem:
     set AB_MODE=B

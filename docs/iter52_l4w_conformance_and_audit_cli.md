@@ -19,7 +19,7 @@ Supported profiles: `BASE`, `HRO`, `FULL` (case-insensitive input, normalized to
 ```powershell
 python -B tools/auditor_verify_l4w.py --agent-id <id> --profile BASE --json
 python -B tools/auditor_verify_l4w.py --agent-id <id> --profile HRO --max-records 100 --json
-python -B tools/auditor_verify_l4w.py --agent-id <id> --profile FULL --persist-dir D:\ester-project\data --json
+python -B tools/auditor_verify_l4w.py --agent-id <id> --profile FULL --persist-dir <repo-root>\data --json
 ```
 
 Options:

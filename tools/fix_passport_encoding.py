@@ -7,7 +7,7 @@ One-time repair for Passport JSONL mojibake (UTF-8 bytes mistakenly decoded as C
 e.g. 'Nu tak ...' -> 'Nu tak ...'
 
 Usage (Windows PowerShell):
-  cd D:\ester-project
+  cd <repo-root>
   python .\tools\fix_passport_encoding.py
 
 It will create:

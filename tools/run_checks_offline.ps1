@@ -106,7 +106,7 @@ if (-not $WriteReport) {
 # ---- Paths ----
 $repoRoot = Get-RepoRoot
 if (-not $repoRoot) {
-  Fail "Not a git repository (git rev-parse failed). Run from inside D:\ester-project."
+  Fail "Not a git repository (git rev-parse failed). Run from inside <repo-root>."
 }
 Set-Location -LiteralPath $repoRoot
 

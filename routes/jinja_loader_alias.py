@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""routes/jinja_loader_alias.py - add vtoroy put shablonov (for example, D:\ester-project\templates)
+"""routes/jinja_loader_alias.py - add vtoroy put shablonov (for example, <repo-root>\templates)
 
 Mosty:
 - Yavnyy: (Flask ↔ UI) podklyuchaem vtoroy poiskovyy put dlya shablonov.

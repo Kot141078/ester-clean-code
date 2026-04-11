@@ -30,7 +30,7 @@
   App: <input id="app" type="text" value="chrome">
   <button onclick="check()">check</button>
   <button onclick="plan()">plan</button>
-  Source: <input id="src" type="text" placeholder="D:\\Installers\\ChromeSetup.exe">
+  Source: <input id="src" type="text" placeholder="<installer-source>\\ChromeSetup.exe">
   <button onclick="runInstall()">install.run</button>
 </div>
 
@@ -83,4 +83,3 @@ async function peer(){
   log(await r.json());
 }
 </script>
-

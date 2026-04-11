@@ -10,7 +10,7 @@ import sys, time, shutil
 from pathlib import Path
 import py_compile
 
-ROOT = Path(r"D:\ester-project").resolve()
+ROOT = Path(r"<repo-root>").resolve()
 sys.path.insert(0, str(ROOT))
 
 def backup(p: Path) -> Path:

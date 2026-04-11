@@ -46,7 +46,7 @@ Export CLI flags:
 ```powershell
 python -B tools/export_audit_bundle.py `
   --agent-id <id> `
-  --out D:\out\bundle `
+  --out <bundle-dir> `
   --sign-publisher `
   --include-publisher-pubkey `
   --json
@@ -54,8 +54,8 @@ python -B tools/export_audit_bundle.py `
 
 ## Verify example
 ```powershell
-python -B tools/auditor_verify_bundle.py --bundle D:\out\bundle --profile BASE --json
-python -B tools/auditor_verify_bundle.py --bundle D:\out\bundle.zip --profile HRO --json
+python -B tools/auditor_verify_bundle.py --bundle <bundle-dir> --profile BASE --json
+python -B tools/auditor_verify_bundle.py --bundle <bundle-dir>.zip --profile HRO --json
 ```
 
 Verifier options:

@@ -45,8 +45,8 @@
   <Actions Context="Author">
     <Exec>
       <Command>%SystemRoot%\System32\cmd.exe</Command>
-      <Arguments>/c "set ESTER_STATE_DIR=D:\ester-project\data\state&amp;&amp; set AB_MODE=b&amp;&amp; set ESTER_ZT_POLL_INTERVAL=5&amp;&amp; set ESTER_ZT_SEEN_TTL_SECONDS=86400&amp;&amp; set ESTER_ZT_JITTER_SECONDS=0.2&amp;&amp; set ESTER_ZT_DEPLOY_TIMEOUT_SECONDS=180&amp;&amp; set ESTER_ZT_LOCK_STALE_SECONDS=600&amp;&amp; D:\ester-project\.venv\Scripts\python.exe D:\ester-project\listeners\usb_one_question_agent_portable.py --headless"</Arguments>
-      <WorkingDirectory>D:\ester-project</WorkingDirectory>
+      <Arguments>/c "if not defined ESTER_HOME exit /b 1&amp;&amp; if not defined ESTER_STATE_DIR set ESTER_STATE_DIR=%ESTER_HOME%\data\state&amp;&amp; set AB_MODE=b&amp;&amp; set ESTER_ZT_POLL_INTERVAL=5&amp;&amp; set ESTER_ZT_SEEN_TTL_SECONDS=86400&amp;&amp; set ESTER_ZT_JITTER_SECONDS=0.2&amp;&amp; set ESTER_ZT_DEPLOY_TIMEOUT_SECONDS=180&amp;&amp; set ESTER_ZT_LOCK_STALE_SECONDS=600&amp;&amp; %ESTER_HOME%\.venv\Scripts\python.exe %ESTER_HOME%\listeners\usb_one_question_agent_portable.py --headless"</Arguments>
+      <WorkingDirectory>%ESTER_HOME%</WorkingDirectory>
     </Exec>
   </Actions>
 </Task>

@@ -1,5 +1,5 @@
 # PowerShell 5.x - Apply patch: TG lock + no-autostart + chat_api fallback
-# Run from D:\ester-project (project root)
+# Run from <repo-root> (project root)
 # Usage:
 #   powershell -ExecutionPolicy Bypass -File .\apply_patch_20251226_tg_lock_context.ps1
 Set-StrictMode -Version Latest

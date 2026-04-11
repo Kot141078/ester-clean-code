@@ -1,6 +1,6 @@
 Param(
   [string]$ShareName = "ester-data",
-  [string]$Path = "D:\ester-data",
+  [string]$Path = "<data-root>",
   [switch]$GrantEveryone = $true
 )
 # 1) Katalog

@@ -9,7 +9,7 @@ ZEMNOY ABZATs:
   Eto kak promarkirovat kabeli v servernoy: inache “vse rabotaet”, poka ne dernesh ne tot provod.
 
 Usage (luchshe na ostanovlennom servere):
-  cd D:\ester-project
+  cd <repo-root>
   python tools\\patches\\iter_A2g_env_rewrite_normalize.py
   (perezapusti Ester, chtoby .env perechitalsya)"""
 from __future__ import annotations

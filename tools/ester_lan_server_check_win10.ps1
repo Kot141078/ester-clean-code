@@ -1,6 +1,6 @@
 # Ester LAN server check (Win10)
 $ShareName = 'LAN_SHARE'
-$SharePath = 'D:\LAN_Share'
+$SharePath = '<lan-share>'
 $User      = 'lanuser'
 $Local     = "$env:COMPUTERNAME\$User"
 

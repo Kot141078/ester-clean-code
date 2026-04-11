@@ -3,10 +3,21 @@
 # Bezopasnye defolty, bez prav admina u ester.
 
 param(
-  [string]$User = "ester"
+  [string]$User = "ester",
+  [string]$BaseDir = ""
 )
 
 $ErrorActionPreference = "Stop"
+if (-not $BaseDir) {
+  $BaseDir = if ($env:ProgramData) { Join-Path $env:ProgramData "Ester" } else { Join-Path $env:SystemDrive "Ester" }
+}
+$LogsDir = Join-Path $BaseDir "logs"
+$ReleasesDir = Join-Path $BaseDir "releases"
+$SlotA = Join-Path $ReleasesDir "A"
+$SlotB = Join-Path $ReleasesDir "B"
+$BinDir = Join-Path $BaseDir "bin"
+$ActiveSlotFile = Join-Path $ReleasesDir "active.slot"
+$HealthLog = Join-Path $LogsDir "health.jsonl"
 
 Write-Host "==> Sozdanie lokalnogo polzovatelya $User (bez admin-prav)"
 if (-not (Get-LocalUser -Name $User -ErrorAction SilentlyContinue)) {
@@ -17,23 +28,23 @@ if (-not (Get-LocalUser -Name $User -ErrorAction SilentlyContinue)) {
   Write-Host "Polzovatel uzhe suschestvuet, propuskayu."
 }
 
-Write-Host "==> Katalogi C:\Ester\{logs,releases\A,releases\B,bin}"
-New-Item -ItemType Directory -Force -Path "C:\Ester\logs" | Out-Null
-New-Item -ItemType Directory -Force -Path "C:\Ester\releases\A" | Out-Null
-New-Item -ItemType Directory -Force -Path "C:\Ester\releases\B" | Out-Null
-New-Item -ItemType Directory -Force -Path "C:\Ester\bin" | Out-Null
+Write-Host "==> Katalogi $BaseDir"
+New-Item -ItemType Directory -Force -Path $LogsDir | Out-Null
+New-Item -ItemType Directory -Force -Path $SlotA | Out-Null
+New-Item -ItemType Directory -Force -Path $SlotB | Out-Null
+New-Item -ItemType Directory -Force -Path $BinDir | Out-Null
 
 Write-Host "==> Fayl slota i health-flagi"
-if (-not (Test-Path "C:\Ester\releases\active.slot")) {
-  Set-Content "C:\Ester\releases\active.slot" "A" -Encoding ASCII
+if (-not (Test-Path $ActiveSlotFile)) {
+  Set-Content $ActiveSlotFile "A" -Encoding ASCII
 }
-if (-not (Test-Path "C:\Ester\logs\health.jsonl")) {
-  Set-Content "C:\Ester\logs\health.jsonl" "" -Encoding ASCII
+if (-not (Test-Path $HealthLog)) {
+  Set-Content $HealthLog "" -Encoding ASCII
 }
 
 Write-Host "==> Kopirovanie tekuschikh versiy agenta v sloty A/B (esli fayly uzhe est — propuskayu)"
-$srcA = "C:\Ester\releases\A\ester_agent.ps1"
-$srcB = "C:\Ester\releases\B\ester_agent.ps1"
+$srcA = Join-Path $SlotA "ester_agent.ps1"
+$srcB = Join-Path $SlotB "ester_agent.ps1"
 if (-not (Test-Path $srcA)) { Copy-Item -Force "$PSScriptRoot\ester_agent.ps1" $srcA }
 if (-not (Test-Path $srcB)) { Copy-Item -Force "$PSScriptRoot\ester_agent.ps1" $srcB }
 

@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="${ESTER_REPO_ROOT:-$SCRIPT_DIR}"
+
 PY="$HOME/miniconda/envs/ester-gpu/bin/python"
 [[ -x "$PY" ]] || PY="$HOME/.conda/envs/ester-gpu/bin/python"
 command -v "$PY" >/dev/null 2>&1 || PY="$(command -v python)"
 
 export PYTHONUNBUFFERED=1
 export ESTER_API_BASE="${ESTER_API_BASE:-http://127.0.0.1:8010}"
+export ESTER_REPO_ROOT="$REPO_ROOT"
 
-cd /mnt/d/ester-project
+cd "$REPO_ROOT"
 
 # Important: ignore any system proxies in VSL
 unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY all_proxy NO_PROXY no_proxy
@@ -18,7 +22,8 @@ import os, sys
 from dotenv import load_dotenv
 
 # Explicitly loading .env
-load_dotenv('/mnt/d/ester-project/.env', override=True)
+repo_root = os.environ.get('ESTER_REPO_ROOT') or os.getcwd()
+load_dotenv(os.path.join(repo_root, '.env'), override=True)
 
 ester_api = os.getenv('ESTER_API_BASE')
 print(f'[run_bot] ESTER_API_BASE={ester_api}', flush=True)

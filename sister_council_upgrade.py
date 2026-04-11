@@ -309,9 +309,9 @@ def _ensure_passport_helper_and_fix_paths(content: str) -> tuple[str, bool]:
     changed = True
 
     # 3) Podmena hardcode v restore_context_from_passport
-    if r'passport_path = r"D:\ester-project\data\passport\clean_memory.jsonl"' in content:
+    if r'passport_path = r"<repo-root>\data\passport\clean_memory.jsonl"' in content:
         content = content.replace(
-            r'passport_path = r"D:\ester-project\data\passport\clean_memory.jsonl"',
+            r'passport_path = r"<repo-root>\data\passport\clean_memory.jsonl"',
             "passport_path = _passport_jsonl_path()"
         )
         changed = True
@@ -326,7 +326,7 @@ def _validate(content: str) -> tuple[bool, str]:
     if "datetime.datetime.datetime" in content:
         return False, "The construction left is datetime.datetime.datetime - this will definitely fall."
 
-    if r"D:\ester-project\data\passport\clean_memory.jsonl" in content:
+    if r"<repo-root>\data\passport\clean_memory.jsonl" in content:
         return False, "What remains is the hard-wired profile path D: eester-proekte... (patch 2 was not applied)."
 
     if "async def synthesize_thought" in content and "SISTER_OPINION_TIMEOUT" not in content:

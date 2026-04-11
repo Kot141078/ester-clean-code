@@ -4,7 +4,7 @@
 
 param(
   [string]$PythonExe = "python",
-  [string]$ProjectDir = "D:\ester-project"
+  [string]$ProjectDir = "<repo-root>"
 )
 
 $TaskName = "Ester_RPA_Tick"

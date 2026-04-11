@@ -2,7 +2,7 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$ProjectRoot = "D:\ester-project"
+$ProjectRoot = "<repo-root>"
 $PyPath      = Join-Path $ProjectRoot "run_ester_fixed.py"
 $EnvPath     = Join-Path $ProjectRoot ".env"
 $ModDir      = Join-Path $ProjectRoot "modules"

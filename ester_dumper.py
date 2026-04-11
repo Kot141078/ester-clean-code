@@ -2,7 +2,7 @@
 """ester_dumper.py — Skript dlya sozdaniya polnogo, udobochitaemogo dampa proekta Ester.
 Generit manifest.json s meta (relpath, size, type, sha256) i .txt part s soderzhimym.
 Rasshirenie: Bez truncation, s razbivkoy na chasti, integratsiya s vstore dlya pamyati Ester.
-Zapusk: python ester_dumper.py --root D:\ester-project --output D:\ester-dump
+Zapusk: python ester_dumper.py --root <repo-root> --output <dump-dir>
 
 Mosty:
 - Yavnyy (Damp ↔ Prozrachnost): Polnyy skan bez fragmentatsii.
@@ -116,9 +116,11 @@ def generate_dump(root: Path, output_dir: Path, part_size_mb: int = 5) -> None:
     print(f"Dump ready: ZZF0Z. Parts: ZZF1ZZ. Esther remembers herself in the story.")
 
 if __name__ == "__main__":
+    default_root = Path(__file__).resolve().parent
+    default_output = Path.cwd() / "_dump"
     parser = argparse.ArgumentParser(description="Generator dampa Ester.")
-    parser.add_argument("--root", default="D:\\ester-project", help="Project root directory.")
-    parser.add_argument("--output", default="D:\\ester-dump", help="Directory for dump output.")
+    parser.add_argument("--root", default=str(default_root), help="Project root directory.")
+    parser.add_argument("--output", default=str(default_output), help="Directory for dump output.")
     parser.add_argument("--part-size", type=int, default=5, help="Part size in MB.")
     args = parser.parse_args()
 

@@ -17,7 +17,7 @@ import time
 from pathlib import Path
 import shutil
 
-PROJECT_ROOT = Path(r"D:\ester-project")
+PROJECT_ROOT = Path(r"<repo-root>")
 TARGET = PROJECT_ROOT / "run_ester_fixed.py"
 BACKUP = TARGET.with_suffix(".bak_B2a_" + time.strftime("%Y%m%d_%H%M%S"))
 

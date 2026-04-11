@@ -1,4 +1,4 @@
-# D:\ester-project\tools\with_env.ps1
+# <repo-root>\tools\with_env.ps1
 # Loads KEY=VALUE from .env into *current process* env, then runs the given command.
 # Usage:
 #   .\tools\with_env.ps1 .\.env .\.venv\Scripts\python.exe .\tools\diag_openai_wire.py

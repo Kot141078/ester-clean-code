@@ -13,7 +13,7 @@ RESOLUTION:
 INSTRUKTsIYa PO PRIMENENIYu:
 
 1. Skopirovat fayly:
-   copy web_browser.py D:\ester-project\bridges\web_browser.py
+   copy web_browser.py <repo-root>\bridges\web_browser.py
 
 2.Adbavit v.env:
    WEB_BROWSER_ENABLED=1
@@ -215,7 +215,7 @@ def main():
         print("Usage: python integrate_web_browser.py <project_root> [web_browser.py]")
         print("")
         print("Example:")
-        print("  python integrate_web_browser.py D:\\ester-project web_browser.py")
+        print("  python integrate_web_browser.py <repo-root> web_browser.py")
         sys.exit(1)
     
     project_root = sys.argv[1]

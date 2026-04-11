@@ -3,18 +3,21 @@ import chromadb
 from chromadb.config import Settings
 import shutil
 import sys
+from pathlib import Path
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 # --- KONFIGURATsIYa ---
 
+ROOT = Path(__file__).resolve().parent
+
 # 1. WHERE it drains (Current active memory of Esther)
-TARGET_PATH = r"D:\ester-project\vstore\chroma"
+TARGET_PATH = str(ROOT / "vstore" / "chroma")
 
 # 2. OTKUDA zabiraem (Spisok starykh baz)
 # I use equal-strings so that Pothon can print the % and slashes correctly
 SOURCES = [
-    r"D:\ester-project\%ESTER_VSTORE_ROOT%\chroma",  # Tvoi 3 GB
-    r"D:\ester-project\%ESTER_HOME%\vstore\chroma"   # Tvoi 600 MB
+    os.path.expandvars(str(ROOT / "%ESTER_VSTORE_ROOT%" / "chroma")),
+    os.path.expandvars(str(Path(os.getenv("ESTER_HOME", str(ROOT))) / "vstore" / "chroma")),
 ]
 
 def migrate():

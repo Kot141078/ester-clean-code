@@ -17,7 +17,7 @@ function Get-ProjectRoot {
   $cand = (Resolve-Path (Join-Path $here "..\..")).Path
   if (Test-Path (Join-Path $cand "run_ester_fixed.py")) { return $cand }
 
-  throw "Project root not found. Run from D:\ester-project or place script under tools\patches\."
+  throw "Project root not found. Run from <repo-root> or place script under tools\patches\."
 }
 
 function Latest-File($dir, $filter){

@@ -1,6 +1,6 @@
 # Action Matrix (Iter37)
 
-Offline-first Agent OS v0.1 for `D:\ester-project`.
+Offline-first Agent OS v0.1 for `<repo-root>`.
 
 ## Core rule
 - Ester core invokes agents.

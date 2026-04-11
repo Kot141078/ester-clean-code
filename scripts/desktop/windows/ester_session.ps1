@@ -1,14 +1,20 @@
 # scripts\desktop\windows\ester_session.ps1
 # Purpose: to launch the agent in the user session "esther" and keep it alive.
 param(
-  [string]$User = "ester"
+  [string]$User = "ester",
+  [string]$BaseDir = ""
 )
 
 $ErrorActionPreference = "Stop"
+if (-not $BaseDir) {
+  $BaseDir = if ($env:ProgramData) { Join-Path $env:ProgramData "Ester" } else { Join-Path $env:SystemDrive "Ester" }
+}
+$ReleasesDir = Join-Path $BaseDir "releases"
+$ActiveSlotFile = Join-Path $ReleasesDir "active.slot"
 
 # Checking for an agent in the active slot
-$slot = (Get-Content "C:\Ester\releases\active.slot" -Encoding ASCII).Trim()
-$agentPath = "C:\Ester\releases\$slot\ester_agent.ps1"
+$slot = (Get-Content $ActiveSlotFile -Encoding ASCII).Trim()
+$agentPath = Join-Path $ReleasesDir "$slot\ester_agent.ps1"
 if (-not (Test-Path $agentPath)) {
   throw "Fayl agenta ne nayden: $agentPath"
 }
@@ -33,8 +39,9 @@ if (-not $ok) {
   Write-Host "Agent ne podnyalsya. Vypolnyayu avto-otkat."
   # Pereklyuchenie A<->B i povtor
   $new = if ($slot -eq 'A') { 'B' } else { 'A' }
-  Set-Content "C:\Ester\releases\active.slot" $new -Encoding ASCII
-  $cmd2 = "powershell -ExecutionPolicy Bypass -NoLogo -NoProfile -File `"C:\Ester\releases\$new\ester_agent.ps1`""
+  Set-Content $ActiveSlotFile $new -Encoding ASCII
+  $newAgentPath = Join-Path $ReleasesDir "$new\ester_agent.ps1"
+  $cmd2 = "powershell -ExecutionPolicy Bypass -NoLogo -NoProfile -File `"$newAgentPath`""
   Start-Process -FilePath "runas.exe" -ArgumentList "/user:$env:COMPUTERNAME\$User `"$cmd2`""
   Write-Host "Pereklyucheno na slot $new."
 }

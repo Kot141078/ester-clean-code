@@ -1,6 +1,9 @@
 $ErrorActionPreference = "Stop"
 $env:ESTER_ALIAS_MODE = "core"
-if (-not $env:ESTER_STATE_DIR) { $env:ESTER_STATE_DIR = "D:\ester-state" }
+if (-not $env:ESTER_STATE_DIR) {
+  $stateBase = if ($env:LOCALAPPDATA) { Join-Path $env:LOCALAPPDATA "Ester" } else { Join-Path $PWD "state" }
+  $env:ESTER_STATE_DIR = Join-Path $stateBase "state"
+}
 if (-not $env:HOST) { $env:HOST = "127.0.0.1" }
 if (-not $env:PORT) { $env:PORT = "8137" }
 

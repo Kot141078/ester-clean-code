@@ -1,5 +1,8 @@
 import sys
-sys.path.insert(0, r"D:\ester-project")
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 from flask import Flask
 from ESTER.routes.a00_ep_shim import register
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE

@@ -2,8 +2,8 @@
 """journal.py (root wrapper)
 
 Esli v proekte est DVA fayla:
-  D:\ester-project\journal.py
-  D:\ester-project\modules\memory\journal.py
+  <repo-root>\journal.py
+  <repo-root>\modules\memory\journal.py
 
 to `import journal` pochti navernyaka podkhvatit VERKhNIY (root) i nachnetsya ad.
 This fayl delaet root-journal bezopasnym: on prosto reeksportiruet kanonicheskiy modul.

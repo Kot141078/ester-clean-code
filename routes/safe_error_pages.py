@@ -1,4 +1,4 @@
-# D:\ester-project\routes/safe_error_pages.py
+# <repo-root>\routes/safe_error_pages.py
 # Polnyy fayl
 
 from flask import Response

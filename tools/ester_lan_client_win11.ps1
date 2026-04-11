@@ -3,7 +3,7 @@ $ShareName  = 'LAN_SHARE'
 $User       = "$ServerName\lanuser"
 $Pass       = 'Str0ngPass!'      # change me
 $Drive      = 'Z:'
-$DataRoot   = 'Z:\ester-data'
+$DataRoot   = '<data-root>'
 
 # 1) Private profile + services
 $iface = (Get-NetIPConfiguration | Where-Object { $_.IPv4DefaultGateway } | Select-Object -First 1).InterfaceAlias

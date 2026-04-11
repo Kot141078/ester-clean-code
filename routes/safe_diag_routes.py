@@ -1,4 +1,4 @@
-# D:\ester-project\routes\safe_diag_routes.py
+# <repo-root>\routes\safe_diag_routes.py
 # Polnyy fayl
 
 from flask import Blueprint, Response, current_app, request

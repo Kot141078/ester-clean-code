@@ -1,5 +1,5 @@
 param(
-  [string]$Target = "D:\ester-project\run_ester_fixed.py"
+  [string]$Target = "<repo-root>\run_ester_fixed.py"
 )
 
 $ErrorActionPreference = "Stop"
@@ -44,7 +44,7 @@ Set-Content -LiteralPath $Target -Value $patched -Encoding UTF8
 Write-Host "[OK] Written patched file: $Target"
 
 # Quick check: compilation
-& "D:\ester-project\.venv\Scripts\python.exe" -m py_compile $Target
+& "<repo-root>\.venv\Scripts\python.exe" -m py_compile $Target
 Write-Host "[OK] py_compile passed"
 
 Write-Host ""

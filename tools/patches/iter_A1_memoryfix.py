@@ -19,7 +19,7 @@ import time
 from pathlib import Path
 import py_compile
 
-ROOT = Path(r"D:\ester-project").resolve()
+ROOT = Path(r"<repo-root>").resolve()
 
 def backup(p: Path) -> Path:
     ts = time.strftime("%Y%m%d_%H%M%S")

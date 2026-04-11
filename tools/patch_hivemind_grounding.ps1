@@ -1,8 +1,12 @@
 param(
-  [string]$Path = "D:\ester-project\run_ester_fixed.py"
+  [string]$Path = ""
 )
 
 $ErrorActionPreference = "Stop"
+if (-not $Path) {
+  $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+  $Path = Join-Path $repoRoot "run_ester_fixed.py"
+}
 
 if (!(Test-Path -LiteralPath $Path)) {
   throw "File not found: $Path"
@@ -159,7 +163,9 @@ Write-Host "[OK] Written patched file: $Path"
 
 # quick compile check
 try {
-  & "D:\ester-project\.venv\Scripts\python.exe" -m py_compile $Path
+  $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+  $pythonExe = Join-Path $repoRoot ".venv\Scripts\python.exe"
+  & $pythonExe -m py_compile $Path
   Write-Host "[OK] py_compile passed"
 } catch {
   Write-Host "[FAIL] py_compile failed: $($_.Exception.Message)"

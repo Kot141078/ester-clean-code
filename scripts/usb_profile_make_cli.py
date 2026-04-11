@@ -3,7 +3,7 @@
 
 Primer:
   AB_MODE=B python -m scripts.usb_profile_make_cli --profile-id <ID> --mount /media/USB
-  AB_MODE=A python -m scripts.usb_profile_make_cli --profile-id <ID> --mount E:\\ --dry
+  AB_MODE=A python -m scripts.usb_profile_make_cli --profile-id <ID> --mount <mount-root>\\ --dry
 
 Mosty:
 - Yavnyy (Kibernetika ↔ Orkestratsiya): odna komanda - sobrat po sokhranennym nastroykam.

@@ -2,7 +2,7 @@
 <#
 Sozdanie VM Hyper-V dlya Ester.
 Primer:
-  .\hyperv_create_estervm.ps1 -VmName EsterVM -Vhd D:\VMs\EsterVM.vhdx -MemGB 6 -Switch EsterSwitch -Iso D:\ISO\Win11.iso
+  .\hyperv_create_estervm.ps1 -VmName EsterVM -Vhd <vm-root>\EsterVM.vhdx -MemGB 6 -Switch EsterSwitch -Iso <iso-path>\Win11.iso
 Trebovaniya: Windows 10/11 Pro, rol Hyper-V vklyuchena (Enable-WindowsOptionalFeature Microsoft-Hyper-V -All)
 #>
 

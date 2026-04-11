@@ -1,14 +1,16 @@
-# D:\ester-project\tools\dbg_fr.py
+# dbg_fr.py
 import os, sys, json
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+
 # 1) so that project modules are imported
-sys.path.insert(0, r"D:\ester-project")
+sys.path.insert(0, str(ROOT))
 
 # 2) pick up .env of this particular project
 try:
     from dotenv import load_dotenv
-    load_dotenv(dotenv_path=r"D:\ester-project\.env", override=True)
+    load_dotenv(dotenv_path=ROOT / ".env", override=True)
 except Exception as e:
     print(f"[warn] python-dotenv not loaded: {e}")
 

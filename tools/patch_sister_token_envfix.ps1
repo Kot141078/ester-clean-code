@@ -8,7 +8,7 @@
 # EARTHLY Paragraph: like a gasket on a thread - we don’t change the “liquid”, we only remove leakage at the joint (quotes/HERE/SR).
 
 param(
-  [string]$EnvPath = "D:\ester-project\.env",
+  [string]$EnvPath = "<repo-root>\.env",
   [int]$Port = 8090
 )
 

@@ -1,4 +1,4 @@
-# D:\ester-project\routes\root_fallback.py
+# <repo-root>\routes\root_fallback.py
 # Polnyy fayl
 
 from flask import Blueprint, Response, request

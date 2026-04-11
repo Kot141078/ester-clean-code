@@ -1,6 +1,7 @@
 import sys
 import os
 import logging
+from pathlib import Path
 from dotenv import load_dotenv
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
@@ -8,8 +9,9 @@ from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("PROV_DIAG")
 
-# Gruzim .env
-load_dotenv("D:\\ester-project\\.env")
+# Gruzim .env iz kornevoy papki repo
+ROOT = Path(__file__).resolve().parent
+load_dotenv(ROOT / ".env")
 
 print("=== DIAGNOSTIKA MOZGOV (PROVIDERS) ===\n")
 

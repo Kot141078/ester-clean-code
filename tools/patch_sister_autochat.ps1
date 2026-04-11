@@ -12,7 +12,7 @@ ZEMNOY ABZATs: kak predokhranitel v schitke — snachala backup, potom vmeshatel
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$Path = "D:\ester-project\run_ester_fixed.py"
+$Path = "<repo-root>\run_ester_fixed.py"
 if (-not (Test-Path $Path)) { throw "Net fayla: $Path" }
 
 # --- read as UTF-8 (bez plyasok s kodirovkoy) ---

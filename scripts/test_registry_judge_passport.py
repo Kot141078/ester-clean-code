@@ -4,7 +4,7 @@ Check it out:
     modules.providers.registry + profile Ester.
 
 What does it do:
-1. Add koren project (D:\ester-project) v sys.path.
+1. Add koren project (<repo-root>) v sys.path.
 2. Import registry i (po vozmozhnosti) passport.
 3. Pokazyvaet, kakoy provayder vybran dlya mode="judge".
 4. Pokazyvaet tekuschiy sistemnyy prompt identichnosti (sokraschennyy).
@@ -12,7 +12,7 @@ What does it do:
 
 Zapusk:
 
-    cd D:\ester-project
+    cd <repo-root>
     python scripts\test_registry_judge_passport.py"""
 
 from __future__ import annotations

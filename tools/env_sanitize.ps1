@@ -1,5 +1,5 @@
 param(
-  [string]$EnvPath = "D:\ester-project\.env"
+  [string]$EnvPath = "<repo-root>\.env"
 )
 
 $keys = @(

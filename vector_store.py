@@ -107,7 +107,7 @@ class VectorStore:
         # --- puti (po tvoemu .env) ---
         if not persist_dir:
             persist_dir = _env_path(
-                "ESTER_VECTOR_DIR",  # D:\ester-project\vstore\vectors
+                "ESTER_VECTOR_DIR",  # <repo-root>\vstore\vectors
                 default="",
             )
         if not persist_dir:

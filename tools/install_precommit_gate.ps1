@@ -16,7 +16,7 @@ function Fail($msg) {
 try {
   $repoRoot = (git rev-parse --show-toplevel) 2>$null
 } catch {
-  Fail "Not a git repository (git rev-parse failed). Run from inside D:\ester-project."
+  Fail "Not a git repository (git rev-parse failed). Run from inside <repo-root>."
 }
 
 if (-not $repoRoot) { Fail "Could not detect repo root." }

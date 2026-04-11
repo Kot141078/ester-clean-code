@@ -4,7 +4,7 @@
 Ruchki:
   GET /install/check?app=chrome -> {ok, installed:bool}
   POST /install/plan {"app":"chrome"} -> {ok, plan:{...}}
-  POST /install/run {"app":"chrome","source":"D:\\ChromeSetup.exe"} -> {ok}
+  POST /install/run {"app":"chrome","source":"<installer-source>\\\\ChromeSetup.exe"} -> {ok}
 
 Consens: domain "install.*" - dolzhen byt razreshen polzovatelem.
 

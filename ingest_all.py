@@ -11,7 +11,7 @@ What improved:
 - akkuratnyy chanking + metadannye (source, file_sha256, chunk_index, size, mtime).
 
 Zapusk (PowerShell):
-  python .\ingest_all.py --root D:\ester-project"""
+  python .\ingest_all.py --root <repo-root>"""
 
 import argparse
 import hashlib

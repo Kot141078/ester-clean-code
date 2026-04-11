@@ -2,7 +2,7 @@
 
 Simple smoke-test dlya modulya modules.mem.passport:
 
-1. Guarantee, chto koren proekta (D:\ester-project) est v sys.path.
+1. Guarantee, chto koren proekta (<repo-root>) est v sys.path.
 2. Pechataem, where lezhit ester_identity.md.
 3. Pechataem korotkuyu sistemnuyu vyzhimku profilea.
 4. Delaem odnu probnuyu zapis cherez upsert_with_passport(..).
@@ -10,7 +10,7 @@ Simple smoke-test dlya modulya modules.mem.passport:
 
 Zapusk iz kornya project:
 
-    cd D:\ester-project
+    cd <repo-root>
     python scripts\ester_passport_smoke.py"""
 
 from __future__ import annotations

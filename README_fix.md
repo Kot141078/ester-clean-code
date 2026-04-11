@@ -14,7 +14,7 @@ A set of drop-in files without editing existing modules: portal alias, favicon-f
    - `config\.env.example`
 2. **Zaregistrirovat routy** (odin raz):
    ```powershell
-   cd D:\ester-project
+   cd <repo-root>
    .\scripts\patch_extra_routes.ps1
    ```
 3. **Perezapustit** prilozhenie.

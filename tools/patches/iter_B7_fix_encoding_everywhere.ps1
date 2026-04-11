@@ -114,7 +114,7 @@ function Insert-Normalize-InFunc([string]$src, [string]$funcName, [string[]]$bod
 # --- Paths
 $proj = (Get-Location).Path
 $run  = Join-Path $proj "run_ester_fixed.py"
-if (!(Test-Path $run)) { throw "Ne nayden run_ester_fixed.py. Snachala: cd D:\ester-project" }
+if (!(Test-Path $run)) { throw "Ne nayden run_ester_fixed.py. Snachala: cd <repo-root>" }
 
 $pyVenv = Join-Path $proj ".venv\Scripts\python.exe"
 $py = $null

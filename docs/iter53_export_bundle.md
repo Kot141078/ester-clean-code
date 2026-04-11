@@ -23,12 +23,12 @@ By default, evidence files are excluded for privacy. Only evidence refs are expo
 ## Export
 Directory:
 ```powershell
-python -B tools/export_audit_bundle.py --agent-id <id> --out D:\out\bundle --profile BASE --json
+python -B tools/export_audit_bundle.py --agent-id <id> --out <bundle-dir> --profile BASE --json
 ```
 
 Zip:
 ```powershell
-python -B tools/export_audit_bundle.py --agent-id <id> --out D:\out\bundle --zip --profile BASE --json
+python -B tools/export_audit_bundle.py --agent-id <id> --out <bundle-dir> --zip --profile BASE --json
 ```
 
 Useful flags:
@@ -40,9 +40,9 @@ Useful flags:
 
 ## Verify
 ```powershell
-python -B tools/auditor_verify_bundle.py --bundle D:\out\bundle --profile BASE --json
-python -B tools/auditor_verify_bundle.py --bundle D:\out\bundle.zip --profile HRO --json
-python -B tools/auditor_verify_bundle.py --bundle D:\out\bundle --profile FULL --json
+python -B tools/auditor_verify_bundle.py --bundle <bundle-dir> --profile BASE --json
+python -B tools/auditor_verify_bundle.py --bundle <bundle-dir>.zip --profile HRO --json
+python -B tools/auditor_verify_bundle.py --bundle <bundle-dir> --profile FULL --json
 ```
 
 Optional external paths:

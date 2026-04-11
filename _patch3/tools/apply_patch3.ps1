@@ -5,8 +5,8 @@ Ester patch apply script (safe A/B with auto-rollback)
 
 Usage (PowerShell):
   1) Expand-Archive .\ester_patch3.zip -DestinationPath .\_patch3
-  2) cd D:\ester-project
-  3) PowerShell -ExecutionPolicy Bypass -File .\_patch3\tools\apply_patch3.ps1 -ProjectRoot "D:\ester-project" -PatchRoot ".\_patch3"
+  2) cd <repo-root>
+  3) PowerShell -ExecutionPolicy Bypass -File .\_patch3\tools\apply_patch3.ps1 -ProjectRoot "<repo-root>" -PatchRoot ".\_patch3"
 
 What it does:
 - creates timestamped backup of target files (Slot A)

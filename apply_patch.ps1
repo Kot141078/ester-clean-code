@@ -10,7 +10,7 @@
 # ==============================
 
 param(
-  [string]$ProjectRoot = "D:\ester-project"
+  [string]$ProjectRoot = $PSScriptRoot
 )
 
 $ErrorActionPreference = "Stop"

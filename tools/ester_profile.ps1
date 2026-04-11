@@ -3,7 +3,7 @@
 param(
   [Parameter(Mandatory=$true)][ValidateSet("day","night","eternity","status","restore")]
   [string]$Mode,
-  [string]$ProjectRoot = "D:\ester-project"
+  [string]$ProjectRoot = "<repo-root>"
 )
 
 try {

@@ -3,7 +3,7 @@
 # A/B safety: backup + py_compile + auto-rollback.
 
 param(
-  [string]$ProjectDir = "D:\ester-project",
+  [string]$ProjectDir = "<repo-root>",
   [string]$PyFile = "run_ester_fixed.py"
 )
 

@@ -23,8 +23,8 @@ Mosty:
 
 Zemnoy abzats:
   Kladi script v koren proekta. Zapusk:
-      python make_dump.py --mode source --output-dir D:\ester-dump
-      python make_dump.py --mode full --part-size 5 --output-dir D:\ester-dump
+      python make_dump.py --mode source --output-dir <dump-dir>
+      python make_dump.py --mode full --part-size 5 --output-dir <dump-dir>
   Vykhod: chasti po ≤5 MB, manifest s kontrolnymi summami.
 
 # c=a+b"""

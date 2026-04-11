@@ -5,7 +5,7 @@ import os, sys
 from pathlib import Path
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-ROOT = Path(r"D:\ester-project").resolve()
+ROOT = Path(r"<repo-root>").resolve()
 sys.path.insert(0, str(ROOT))
 
 try:

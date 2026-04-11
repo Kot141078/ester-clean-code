@@ -4,7 +4,7 @@
 Primery:
   AB_MODE=A python -m scripts.usb_make_cli --mount /media/usb --include-state
   AB_MODE=B python -m scripts.usb_make_cli --mount /media/usb --release ~/build/ester_release.tar.gz --dump ~/data/project/
-  python -m scripts.usb_make_cli --mount E:\\ --release C:\\tmp\\rel.zip --compute-sha --dry
+  python -m scripts.usb_make_cli --mount <mount-root>\\ --release <release-archive-path> --compute-sha --dry
 
 Flags:
   --mount <PATH> - tochka montirovaniya fleshki (obyazatelen)

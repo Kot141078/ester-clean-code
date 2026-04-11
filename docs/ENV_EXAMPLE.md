@@ -11,7 +11,7 @@ This project includes a safe template: `.env.example`.
 ## Quick start (PowerShell)
 
 ```powershell
-Set-Location "D:\Ester Code"
+Set-Location "<repo-root>"
 Copy-Item ".env.example" ".env"
 ```
 

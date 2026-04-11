@@ -17,3 +17,6 @@
 *.run binary
 
 logo/* binary
+
+artifacts/ export-ignore
+_patch3/ export-ignore

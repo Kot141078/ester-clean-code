@@ -57,7 +57,7 @@ jobs:
                         pytest pytest-cov coverage
           fi
 
-      - name: Smoke: show tree
+      - name: "Smoke: show tree"
         run: |
           ls -la
           test -d tests && ls -la tests || true

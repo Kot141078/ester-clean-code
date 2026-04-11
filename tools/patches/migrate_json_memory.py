@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any, Dict
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-ROOT = Path(r"D:\ester-project").resolve()
+ROOT = Path(r"<repo-root>").resolve()
 
 def _load_json(p: Path) -> Dict[str, Any]:
     try:

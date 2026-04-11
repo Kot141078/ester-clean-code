@@ -54,7 +54,7 @@ function _ParseDenyIdentities {
     foreach ($ln in $Lines) {
         if (-not $ln) { continue }
         # line forms:
-        #   D:\repo\.git SID:(DENY)...
+        #   <repo-root>\.git SID:(DENY)...
         #          SID:(OI)(CI)(IO)(DENY)...
         if ($ln -match '^\s*(?:\S+\s+)?(?<id>[^:]+):(?:\([A-Z]+\))*\(DENY\)') {
             $id = $Matches['id'].Trim()
@@ -104,7 +104,7 @@ function _TestLock {
 $repoRoot = _ResolveRepoRoot -RepoRootArg $RepoRoot
 
 # hard safety: expected workdir in this project
-$expected = "D:\ester-project"
+$expected = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 if ($repoRoot.TrimEnd('\') -ne $expected.TrimEnd('\')) {
     throw "WORKDIR violation: expected '$expected', got '$repoRoot'"
 }

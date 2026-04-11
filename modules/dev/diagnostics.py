@@ -24,8 +24,6 @@ def _data_root_candidates():
     env_root = os.getenv("ESTER_DATA_ROOT", "").strip()
     # 2) lokalnaya data/ (sentinel v repozitorii)
     local_data = str(Path("data").absolute())
-    # 3) historical Z:ester-date (if installed)
-    z_drive = "Z:\\ester-data"
     cands = []
     if env_root:
         # if ESTER_DATA_ROOT == "<PROJECT_ROOT_DRIVE>", the working database is stored in "<PROJECT_ROOT_DRIVE>essier-date"
@@ -36,7 +34,9 @@ def _data_root_candidates():
         else:
             cands.append(str(root / "ester-data"))
     cands.append(local_data)
-    cands.append(z_drive)
+    legacy_root = os.getenv("ESTER_LEGACY_DATA_ROOT", "").strip()
+    if legacy_root:
+        cands.append(legacy_root)
     # unikalnye, suschestvuyuschie
     out = []
     seen = set()

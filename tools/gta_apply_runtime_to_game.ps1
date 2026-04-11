@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 param(
-  [string]$GameDir = "D:\Launcher\Grand Theft Auto V Enhanced",
-  [string]$ProjectDir = "D:\ester-project"
+  [string]$GameDir = "<game-dir>",
+  [string]$ProjectDir = "<repo-root>"
 )
 
 $ErrorActionPreference = "Stop"

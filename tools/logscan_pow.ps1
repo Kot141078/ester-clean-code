@@ -4,7 +4,7 @@
 # Usage:
 #   powershell -NoProfile -ExecutionPolicy Bypass `
 #     -File .\tools\logscan_pow.ps1 `
-#     -LogPath "D:\ester-project\Log.txt" `
+#     -LogPath "<repo-root>\Log.txt" `
 #     -OutDir ".\out_log"
 
 param(

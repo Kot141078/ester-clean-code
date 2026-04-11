@@ -28,21 +28,24 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 $ErrorActionPreference = "Continue"
+$BaseDir = if ($env:ESTER_AGENT_BASE_DIR) { $env:ESTER_AGENT_BASE_DIR } elseif ($env:ProgramData) { Join-Path $env:ProgramData "Ester" } else { Join-Path $env:SystemDrive "Ester" }
+$LogsDir = Join-Path $BaseDir "logs"
+$ReleasesDir = Join-Path $BaseDir "releases"
 
 function Write-Log($msg) {
   $ts = (Get-Date).ToString("s")
   $line = @{ts=$ts; level="info"; msg=$msg} | ConvertTo-Json -Compress
-  Add-Content -LiteralPath "C:\Ester\logs\rpa.jsonl" -Value $line
+  Add-Content -LiteralPath (Join-Path $LogsDir "rpa.jsonl") -Value $line
 }
 
 function Heartbeat {
   $ts = [int][double]::Parse((Get-Date -UFormat %s))
   $hb = @{ts=$ts; agent="ester_agent"; ok=$true} | ConvertTo-Json -Compress
-  Add-Content -LiteralPath "C:\Ester\logs\health.jsonl" -Value $hb
+  Add-Content -LiteralPath (Join-Path $LogsDir "health.jsonl") -Value $hb
 }
 
 # Slot management
-$ActiveSlotPath = "C:\Ester\releases\active.slot"
+$ActiveSlotPath = Join-Path $ReleasesDir "active.slot"
 if (-not (Test-Path $ActiveSlotPath)) { Set-Content $ActiveSlotPath "A" -Encoding ASCII }
 $ActiveSlot = (Get-Content $ActiveSlotPath -Encoding ASCII).Trim()
 

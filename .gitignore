@@ -7,8 +7,14 @@ secrets/
 *.p12
 *.pfx
 *.crt
+secrets.*
 
 # Runtime/state data (not for public repository)
+.ester_env_state.json
+qa.json
+resp.json
+dod_status.json
+net_search_log_dump.json
 data/
 state/
 logs/
@@ -29,6 +35,9 @@ artifacts/
 private/
 Virtual Desktop for Ester/
 models--*/
+patch_backups/
+telegram_files/
+out_log/
 
 # Build/system caches
 __pycache__/
@@ -67,6 +76,18 @@ build/
 *_patched.py
 *.patched
 *.B*_patched
+errors.tsv
+warnings.tsv
+top_errors.tsv
+top_warnings.tsv
+http_requests.tsv
+tools/errors.tsv
+tools/warnings.tsv
+tools/top_errors.tsv
+tools/top_warnings.tsv
+tools/http_requests.tsv
+tools/env_sets.tsv
+tools/tail_200.txt
 tools/patches/*.patched*
 tools/patches/*_patched*
 tools/patches/_bak/

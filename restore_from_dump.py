@@ -7,7 +7,7 @@ Vosstanavlivaet proekt iz chastey (Ester_dump_part_*.txt) po manifestu ester_man
 Sozdaet fayly/katalogi zanovo, dekodiruet binarniki iz base64.
 
 Zapusk (primer):
-    python restore_from_dump.py --out "D:\ester-project_restored"
+    python restore_from_dump.py --out "<restore-root>"
 
 Optsii:
   --manifest PATH put k ester_manifest.json (po umolchaniyu ./ester_manifest.json)

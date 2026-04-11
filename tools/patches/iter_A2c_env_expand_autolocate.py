@@ -14,7 +14,7 @@ import os, re, sys, time, shutil, py_compile
 from pathlib import Path
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-ROOT = Path(r"D:\ester-project").resolve()
+ROOT = Path(r"<repo-root>").resolve()
 sys.path.insert(0, str(ROOT))
 
 def backup(p: Path, tag: str) -> Path:

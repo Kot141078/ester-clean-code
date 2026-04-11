@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 param(
   [string]$DownloadsDir = "$env:USERPROFILE\Downloads",
-  [string]$ProjectDir = "D:\ester-project"
+  [string]$ProjectDir = "<repo-root>"
 )
 
 $ErrorActionPreference = "Stop"

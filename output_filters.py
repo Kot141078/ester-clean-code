@@ -8,8 +8,8 @@ Eto pochti vsegda oznachaet, chto fayl `output_filters/__init__.py` (or analogic
 okazalsya obrezan/skleen/isporchen tak, chto slovar/stroka ne zakrylis. V tvoem zagruzhennom variante
 oshibka drugaya - tam prosto net `return`, no sintaksis tselyy. Poetomu ya dayu “kanonicheskiy” fayl,
 kotoryy kompiliruetsya i rabotaet, a ty polozhish ego v to place, kotoroe realno importiruetsya:
-- esli u tebya paket: D:\ester-project\output_filters\__init__.py ← VAZhNO
-- esli u tebya modul: D:\ester-project\output_filters.py
+- esli u tebya paket: <repo-root>\output_filters\__init__.py ← VAZhNO
+- esli u tebya modul: <repo-root>\output_filters.py
 
 API:
   filter_output(text: str) -> (cleaned_text: str, report: dict)

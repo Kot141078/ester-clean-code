@@ -36,11 +36,21 @@ bp = Blueprint("security_routes", __name__)
 
 def _rpa_log_paths() -> List[str]:
     # Windows / Linux vozmozhnye puti
-    return [
-        r"C:\Ester\logs\rpa.jsonl",
-        "/var/log/ester/rpa.log",
-        "/var/log/ester/rpa.jsonl"
-    ]
+    paths: List[str] = []
+    win_log_dir = os.getenv("ESTER_RPA_LOG_DIR", "").strip()
+    if not win_log_dir:
+        program_data = os.getenv("PROGRAMDATA", "").strip()
+        if program_data:
+            win_log_dir = str(Path(program_data) / "Ester" / "logs")
+    if win_log_dir:
+        paths.append(str(Path(win_log_dir) / "rpa.jsonl"))
+    paths.extend(
+        [
+            "/var/log/ester/rpa.log",
+            "/var/log/ester/rpa.jsonl",
+        ]
+    )
+    return paths
 
 @bp.route("/auth/status", methods=["GET"])
 def auth_status():

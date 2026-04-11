@@ -19,7 +19,7 @@ Auto-otkat:
 - Esli kompilyatsiya padaet, run_ester_fixed.py otkatyvaetsya na bekap.
 
 Zapusk:
-PS> cd D:\ester-project
+PS> cd <repo-root>
 PS> python tools\patches\iter_B2c_web_google_bridge.py"""
 
 from __future__ import annotations

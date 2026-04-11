@@ -4,16 +4,17 @@ import json
 import datetime
 import logging
 import requests
+from pathlib import Path
 from dotenv import load_dotenv
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 # Nastroyka putey
-BASE_DIR = r"D:\ester-project"
-MEMORY_FILE = os.path.join(BASE_DIR, "data", "passport", "clean_memory.jsonl")
-LOG_DIR = os.path.join(BASE_DIR, "data", "logs")
+BASE_DIR = Path(__file__).resolve().parent
+MEMORY_FILE = BASE_DIR / "data" / "passport" / "clean_memory.jsonl"
+LOG_DIR = BASE_DIR / "data" / "logs"
 
 # Load the config (to know the LLM address)
-load_dotenv(os.path.join(BASE_DIR, ".env"))
+load_dotenv(BASE_DIR / ".env")
 
 # Nastroyki LLM
 LLM_API_URL = os.getenv("LLM_API_BASE", "http://localhost:1234/v1") + "/chat/completions"
@@ -22,7 +23,7 @@ MODEL_NAME = os.getenv("LLM_MODEL_NAME", "local-model")
 
 def setup_logging():
     """Sets up logging and returns handlers to monitor resources."""
-    os.makedirs(LOG_DIR, exist_ok=True)
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
     logger = logging.getLogger("EsterSleep")
     logger.setLevel(logging.INFO)
     
@@ -33,7 +34,7 @@ def setup_logging():
     formatter = logging.Formatter("%(asctime)s - [SLEEP] - %(message)s")
     
     # File Handler
-    log_path = os.path.join(LOG_DIR, "sleep_cycles.log")
+    log_path = LOG_DIR / "sleep_cycles.log"
     fh = logging.FileHandler(log_path, encoding="utf-8")
     fh.setFormatter(formatter)
     
@@ -49,7 +50,7 @@ logger, file_handler = setup_logging()
 
 def get_todays_memories():
     """Reads the profile and returns events for the last 24 hours."""
-    if not os.path.exists(MEMORY_FILE):
+    if not MEMORY_FILE.exists():
         logger.warning("Memory file not found!")
         return []
 
@@ -58,7 +59,7 @@ def get_todays_memories():
     cutoff = now - datetime.timedelta(hours=24)
 
     try:
-        with open(MEMORY_FILE, "r", encoding="utf-8") as f:
+        with MEMORY_FILE.open("r", encoding="utf-8") as f:
             for line in f:
                 if not line.strip():
                     continue

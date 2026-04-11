@@ -6,7 +6,7 @@ TARGET = "run_ester_fixed.py"
 NEW_RESTORE_FUNC = r"""
 def restore_context_from_passport():
     # --- ESTER MEMORY RECALL (PASSPORT V2) ---
-    passport_path = r"D:\ester-project\data\passport\clean_memory.jsonl"
+    passport_path = r"<repo-root>\data\passport\clean_memory.jsonl"
     if not os.path.exists(passport_path):
         logging.info(f"[MEMORY] No passport found at {passport_path}")
         return

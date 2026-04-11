@@ -1,7 +1,7 @@
 #requires -Version 5.1
 [CmdletBinding()]
 param(
-  [string]$ProjectRoot = "D:\ester-project"
+  [string]$ProjectRoot = "<repo-root>"
 )
 
 # UTF-8 for console output

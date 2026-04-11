@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-04-11
+### Privacy/Hygiene
+- Removed tracked root-level runtime and debug dump artifacts from the public tree.
+- Added a tracked-files privacy scanner and a public release safety gate.
+- Hardened ignore and export rules to block common runtime, dump, and secret artifacts from re-entering the repository.
+
+### Release Truth
+- Aligned `VERSION`, `release/VERSION`, and stable download references to `v0.2.5`.
+- Added `docs/RELEASE_NOTES_v0.2.5.md` to document the cleanup and release posture.
+- Kept the already-published `v0.2.4` tag untouched for auditability.
+
+### CI/Workflow
+- Removed the malformed `lint-and-tests.yml` workflow and kept `ci.yml` as the canonical CI workflow.
+- Strengthened the publish sanitizer to fail closed on dirty trees and release-safety gate failures.
+
 ## [0.2.3] - 2026-02-24
 ### Documentation
 - Rewrote opt-in autonomy docs as strict multiline Markdown for audit readability.

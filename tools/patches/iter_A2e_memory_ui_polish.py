@@ -17,7 +17,7 @@ from __future__ import annotations
 import sys, time, shutil, py_compile
 from pathlib import Path
 
-ROOT = Path(r"D:\ester-project").resolve()
+ROOT = Path(r"<repo-root>").resolve()
 sys.path.insert(0, str(ROOT))
 
 def backup(p: Path) -> Path:

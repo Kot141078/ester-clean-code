@@ -1,5 +1,5 @@
 param(
-  [string]$ProjectRoot = "D:\ester-project",
+  [string]$ProjectRoot = "<repo-root>",
   [switch]$Rollback
 )
 

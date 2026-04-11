@@ -3,7 +3,7 @@
 
 Primery:
   python -m scripts.make_usb_headless --mount /media/USB --with-release --label ESTER_USB
-  python -m scripts.make_usb_headless --mount E:\\ --with-release --with-dump D:\\dump.tar.gz --dry
+  python -m scripts.make_usb_headless --mount <mount-root>\\ --with-release --with-dump <archive-path>\\dump.tar.gz --dry
 
 Mosty:
 - Yavnyy (Kibernetika ↔ Orkestratsiya): odin vyzov — vsya tsepochka.

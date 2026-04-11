@@ -1,4 +1,4 @@
-# D:\ester-project\routes/portal_safe_routes.py
+# <repo-root>\routes/portal_safe_routes.py
 # Polnyy fayl
 
 from flask import Blueprint, Response, render_template, current_app
