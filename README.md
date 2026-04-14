@@ -3,6 +3,33 @@
 > **Ester is not a chatbot.**
 > This repository publishes a clean-code core for accountable action under real constraints.
 
+Role:
+executable operational skeleton / runtime proof-of-possibility / local-first constraint-bearing implementation layer.
+
+## Corpus position
+
+This repo is not the normative home of the corpus.
+It does not define `c`; it implements bounded operational surfaces under `c`.
+It is an executable operational skeleton, not a commercial product.
+
+Next hop:
+
+- corpus entry: `Kot141078/advanced-global-intelligence` -> `CORPUS_PRIMER.json`
+- anti-confusion surface: `Kot141078/advanced-global-intelligence` -> `CANONICAL_DISTINCTIONS.md`
+- public objections/replies surface: `Kot141078/advanced-global-intelligence` -> `OBJECTIONS_AND_REPLIES.md`
+- citation / verification surface: `Kot141078/advanced-global-intelligence` -> `CITATION_AND_VERIFICATION.md`
+- claims / evidence crosswalk: `Kot141078/advanced-global-intelligence` -> `CLAIMS_AND_EVIDENCE_MAP.md`
+- status / maturity map: `Kot141078/advanced-global-intelligence` -> `STATUS_AND_MATURITY_MAP.md`
+- corpus sync discipline: `Kot141078/advanced-global-intelligence` -> `CHANGE_CONTROL_AND_SYNC.md`
+- corpus supersession / deprecation discipline: `Kot141078/advanced-global-intelligence` -> `SUPERSESSION_AND_DEPRECATION.md`
+- corpus terminology / alias policy: `Kot141078/advanced-global-intelligence` -> `TERMINOLOGY_AND_ALIAS_POLICY.md`
+- corpus acceptance / regression discipline: `Kot141078/advanced-global-intelligence` -> `ENTRY_ACCEPTANCE_AND_REGRESSION.md`
+- corpus assertion-strength / reading-boundary discipline: `Kot141078/advanced-global-intelligence` -> `ASSERTION_STRENGTH_AND_BOUNDARIES.md`
+- canonical ownership / package-home discipline: `Kot141078/advanced-global-intelligence` -> `CANONICAL_OWNERSHIP_AND_BOUNDARIES.md`
+- cross-layer invariant / contradiction discipline: `Kot141078/advanced-global-intelligence` -> `CROSS_LAYER_INVARIANTS_AND_CONTRADICTION_POLICY.md`
+- operational layer: `Kot141078/ester-reality-bound`
+- continuity stack: `Kot141078/sovereign-entity-recursion`
+
 ## Download / Get the Code
 
 For most visitors, the easiest starting point is the stable snapshot of this repository.
@@ -173,7 +200,7 @@ python -m compileall modules
 Run scanner:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\scan_repo.ps1 -Root .
+powershell -ExecutionPolicy Bypass -File ./tools/scan_repo.ps1 -Root .
 ```
 
 ## Opt-in Autonomy (Disabled By Default)
@@ -241,7 +268,7 @@ See `docs/SELF_EVO_OPTIN.md` for full prerequisites, controls, and operator chec
 Continuity Bundle / Cold Wake v0.1 is the implementation-facing continuity companion in the wider stack, but its canonical home is **not** this repository.
 
 Canonical entry:
-`..\advanced-global-intelligence\protocols\continuity-bundle\README.md`
+`https://github.com/Kot141078/advanced-global-intelligence/blob/main/protocols/continuity-bundle/README.md`
 
 Role from the implementation side:
 - temporal suspension and bounded operational resume

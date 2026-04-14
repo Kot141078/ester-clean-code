@@ -5,6 +5,10 @@ It is an operational **skeleton** that closes the loop of the public corpus:
 **theoretical claims → executable constraints → reviewable evidence**.
 
 The goal of this document is to show, in a *checkable* way, how the repo layout and norms “close” (operationalize) the core ideas: `c = a + b`, L4 Reality Boundary, and witness-first execution.
+For corpus-level precedence and resolution discipline, see `Kot141078/advanced-global-intelligence` -> `PRECEDENCE_AND_RESOLUTION.md`; this file proves bounded runtime closure and does not by itself override stronger doctrinal or witness sources.
+For stable artifact reference identity across path or name drift, see `Kot141078/advanced-global-intelligence` -> `ARTIFACT_ID_AND_REFERENCE_POLICY.md`; this runtime proof remains the same artifact even if its path later changes.
+For corpus-level package intake and integration discipline, see `Kot141078/advanced-global-intelligence` -> `PACKAGE_INTAKE_AND_INTEGRATION.md`; runtime-facing packages or bundles should not enter wider corpus routing until owner, status, and reference posture are fixed there.
+For bounded runtime-reading paths across audience types, see `Kot141078/advanced-global-intelligence` -> `AUDIENCE_PROFILES_AND_MINIMAL_READING_PATHS.md`; runtime-first orientation is intentionally narrower than doctrinal or audit review.
 
 ---
 
