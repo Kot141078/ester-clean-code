@@ -21,6 +21,23 @@ executable operational skeleton / runtime proof-of-possibility / local-first con
 - continuity stack:
   - `https://raw.githubusercontent.com/Kot141078/sovereign-entity-recursion/main/MACHINE_ENTRY.md`
 
+## ARQ v0.2 implementation-facing route
+
+- canonical repo:
+  - `https://raw.githubusercontent.com/Kot141078/sovereign-entity-recursion/main/MACHINE_ENTRY.md`
+- markdown package root:
+  - `protocol/arq/v0.2/`
+- package manifest:
+  - `hashes/SHA256SUMS_ARQ_Supplement_v0.2.txt`
+- minimal raw first hop:
+  - `https://raw.githubusercontent.com/Kot141078/sovereign-entity-recursion/main/protocol/arq/v0.2/README_ARQ_Supplement_v0.2.md`
+  - `https://raw.githubusercontent.com/Kot141078/sovereign-entity-recursion/main/protocol/arq/v0.2/ARQ_Capsule_and_Witness_Record_Schemas_v0.2.md`
+  - `https://raw.githubusercontent.com/Kot141078/sovereign-entity-recursion/main/protocol/arq/v0.2/ARQ_Implementation_Profiles_Classical_v0.2.md`
+  - `https://raw.githubusercontent.com/Kot141078/sovereign-entity-recursion/main/protocol/arq/v0.2/ARQ_Failure_Modes_and_Safe_Degradation_v0.2.md`
+  - `https://raw.githubusercontent.com/Kot141078/sovereign-entity-recursion/main/protocol/arq/v0.2/ARQ_Test_Audit_and_Conformance_Matrix_v0.2.md`
+- ECC role:
+  - implementation-facing pointer layer only; canonical ARQ payload remains in SER
+
 ## Corpus refs
 
 - `https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/CORPUS_PRIMER.json`

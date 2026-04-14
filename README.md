@@ -275,6 +275,23 @@ Role from the implementation side:
 - continuity bundle and cold wake reporting as reviewable companion surfaces
 - companion to SER continuity and L4 wake constraints; not a replacement
 
+## ARQ v0.2 bridge (canonical in SER)
+
+ARQ v0.2 remains an implementation-relevant adjacent protocol layer, but its canonical home is **not** this repository.
+
+Canonical home:
+- repo: `Kot141078/sovereign-entity-recursion`
+- markdown package: `protocol/arq/v0.2/`
+- package manifest: `hashes/SHA256SUMS_ARQ_Supplement_v0.2.txt`
+- minimal implementation-facing first hop:
+  - `https://github.com/Kot141078/sovereign-entity-recursion/blob/main/protocol/arq/v0.2/README_ARQ_Supplement_v0.2.md`
+  - `https://github.com/Kot141078/sovereign-entity-recursion/blob/main/protocol/arq/v0.2/ARQ_Capsule_and_Witness_Record_Schemas_v0.2.md`
+  - `https://github.com/Kot141078/sovereign-entity-recursion/blob/main/protocol/arq/v0.2/ARQ_Implementation_Profiles_Classical_v0.2.md`
+  - `https://github.com/Kot141078/sovereign-entity-recursion/blob/main/protocol/arq/v0.2/ARQ_Failure_Modes_and_Safe_Degradation_v0.2.md`
+  - `https://github.com/Kot141078/sovereign-entity-recursion/blob/main/protocol/arq/v0.2/ARQ_Test_Audit_and_Conformance_Matrix_v0.2.md`
+
+From the implementation side, ECC readers may care because ARQ v0.2 carries the bounded schema, profile, failure/degradation, and conformance surfaces that constrain mutation and witness-bound runtime handling without making ECC the package home.
+
 ---
 
 ## Machine entry / downloads (no UI)
