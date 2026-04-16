@@ -70,6 +70,14 @@ For code-facing work, tools like Codex work best when code and documents are rea
 - `ARL implementation pack` — canonical here; ECC-facing arbitration and review bridge. Path: `docs/architecture/arbitration-review-layer/README.md`
 - `ENTITY_GOVERNS_AGENTS note` — canonical here; entity and agent hierarchy note. Path: `docs/ENTITY_GOVERNS_AGENTS.md`
 
+### Actor Grounding Layer (AGL) v0.1
+
+AGL v0.1 is not implemented here as canonical doctrine. `ester-clean-code` should only carry implementation-facing bridges and runtime hooks derived from the canonical AGL layer.
+
+Canonical home: `ester-reality-bound` AGL package
+
+The grounding layer belongs canonically to the public L4 / reality-bound repository, not to the executable codebase. `ester-clean-code` may later carry implementation-facing bridges, hook points, state transitions, gate logic, and witness/event bindings related to AGL, but the codebase must not become a parallel normative source.
+
 ## What This Repository Is
 
 - A public clean-code repository.

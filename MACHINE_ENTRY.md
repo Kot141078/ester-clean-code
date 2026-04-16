@@ -38,6 +38,17 @@ executable operational skeleton / runtime proof-of-possibility / local-first con
 - ECC role:
   - implementation-facing pointer layer only; canonical ARQ payload remains in SER
 
+## AGL v0.1 implementation-facing route
+
+- canonical repo:
+  - `https://raw.githubusercontent.com/Kot141078/ester-reality-bound/main/MACHINE_ENTRY.md`
+- markdown package root:
+  - `docs/actor-grounding-layer/`
+- minimal raw first hop:
+  - `https://raw.githubusercontent.com/Kot141078/ester-reality-bound/main/docs/actor-grounding-layer/README.md`
+- ECC role:
+  - implementation-facing pointer layer only; canonical AGL payload remains in ERB
+
 ## Corpus refs
 
 - `https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/CORPUS_PRIMER.json`
