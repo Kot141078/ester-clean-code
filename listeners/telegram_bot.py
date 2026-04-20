@@ -18,6 +18,8 @@ import os
 import threading
 from flask import Flask, request, jsonify
 import requests
+from modules.telegram_runtime_helpers import document_delivery_failure_notice as _document_delivery_failure_notice
+from modules.telegram_runtime_helpers import passport_record_to_short_term_messages as _passport_record_to_short_term_messages
 
 
 # --- FATIGUE SYSTEM ---
@@ -3653,13 +3655,41 @@ Napishi emu korotko i po delu. Fakty: {truncate_text(knowledge, 2000)}
 
 will = VolitionSystem()
 
-# --- 14) Telegram splitter (anti-flood, no truncation) ---
-async def send_smart_split(update: Update, text: str) -> None:
+# --- 14) Telegram splitter (anti-flood, no truncation, with retries) ---
+async def _tg_reply_with_retry(message, text: str, attempts: int = 4) -> bool:
+    base_delay = float(os.getenv("TG_RETRY_BASE_DELAY", "0.7") or 0.7)
+    for i in range(max(1, int(attempts))):
+        try:
+            safe_text = str(text or "").strip()
+            if not safe_text:
+                return True
+            await message.reply_text(safe_text)
+            return True
+        except Exception as e:
+            try:
+                logging.warning(f"[TG] send failed (try {i+1}/{attempts}): {e}")
+            except Exception:
+                pass
+            try:
+                if isinstance(e, RetryAfter):
+                    await asyncio.sleep(float(e.retry_after) + 0.5)
+                    continue
+            except Exception:
+                pass
+            await asyncio.sleep(base_delay * (2 ** i))
+    return False
+
+
+async def send_smart_split(update: Update, text: str) -> bool:
     if not text:
-        return
+        return True
     t = text.strip()
     if not t:
-        return
+        return True
+
+    msg = update.effective_message
+    if msg is None:
+        return False
 
     parts: List[str] = []
     while len(t) > 0:
@@ -3673,10 +3703,15 @@ async def send_smart_split(update: Update, text: str) -> None:
             parts.append(t.strip())
             t = ""
 
+    overall_ok = True
     for part in parts:
         if part:
-            await update.effective_message.reply_text(part)
+            ok = await _tg_reply_with_retry(msg, part, attempts=4)
+            if not ok:
+                overall_ok = False
+                break
             await asyncio.sleep(TG_SEND_DELAY)
+    return overall_ok
 
 # --- 15) Deterministic answers (zhestkaya logika) ---
 def maybe_answer_daily_contacts(user_text: str, chat_id: int) -> Optional[str]:
@@ -3910,64 +3945,184 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_label = CONTACTS.address_as(user)
     user_name = CONTACTS.display_name(user)
 
-    log_interaction(chat_id=chat.id, user_id=user.id, user_label=user_label, text=f"[DOC] {msg.document.file_name}", message_id=msg.message_id)
-
-    if not NATIVE_EYES:
-        await msg.reply_text("No vision modules (file_readers/chunking).")
-        return
-
     doc = msg.document
-    safe_filename = time.strftime("%Y%m%d_%H%M%S_") + (doc.file_name or "file.bin")
+    orig_name = doc.file_name or "file.bin"
+
+    log_interaction(chat_id=chat.id, user_id=user.id, user_label=user_label, text=f"[DOC] {orig_name}", message_id=msg.message_id)
+
+    safe_base = re.sub(r"[^A-Za-z0-9._-]+", "_", orig_name).strip("._")
+    if not safe_base:
+        safe_base = "file.bin"
+
+    safe_filename = time.strftime("%Y%m%d_%H%M%S_") + safe_base
     permanent_path = os.path.join(PERMANENT_INBOX, safe_filename)
 
-    await msg.reply_text(f"📥 Beru: {doc.file_name}…")
-    new_file = await context.bot.get_file(doc.file_id)
-    await new_file.download_to_drive(permanent_path)
+    accepted_ok = await _tg_reply_with_retry(msg, f"📥 Беру: {orig_name}…", attempts=4)
+    if not accepted_ok:
+        logging.warning("[DOC_TG_SEND] accepted_notice_failed name=%s chat=%s", orig_name, int(chat.id))
 
+    resp = ""
+    doc_id = ""
     try:
+        new_file = await context.bot.get_file(doc.file_id)
+        await new_file.download_to_drive(permanent_path)
+
         with open(permanent_path, "rb") as f:
             raw_data = f.read()
 
-        if hasattr(file_readers, "detect_and_read"):
-            sections, full_text = file_readers.detect_and_read(doc.file_name, raw_data)  # type: ignore
-        else:
-            sections, full_text = [], ""
+        full_text = ""
+        count = 0
+        try:
+            from modules.ingest.process import ingest_process_bytes  # type: ignore
 
-        if sections and not full_text:
-            full_text = "\n\n".join([s.get("text", "") for s in sections if isinstance(s, dict)])
+            rep = ingest_process_bytes(
+                orig_name,
+                raw_data,
+                source="telegram",
+                meta={"chat_id": str(chat.id), "user_id": str(user.id)},
+                source_path=permanent_path,
+            )
+            doc_id = str(rep.get("doc_id") or "")
+            full_text = str(rep.get("full_text") or "")
+            try:
+                count = int(rep.get("chunks") or 0)
+            except Exception:
+                count = 0
+        except Exception:
+            rep = {}
+
+        if not full_text and NATIVE_EYES and hasattr(file_readers, "detect_and_read"):
+            try:
+                read_result = file_readers.detect_and_read(orig_name, raw_data)  # type: ignore
+                sections = []
+                if isinstance(read_result, tuple):
+                    if len(read_result) >= 2:
+                        sections = read_result[0] or []
+                        full_text = str(read_result[1] or "")
+                    elif len(read_result) == 1:
+                        sections = read_result[0] or []
+                if sections and not full_text:
+                    full_text = "\n\n".join([s.get("text", "") for s in sections if isinstance(s, dict)])
+            except Exception:
+                full_text = ""
 
         if not full_text:
-            await msg.reply_text("The file is empty or cannot be read.")
+            logging.warning("[DOC_PIPELINE] unreadable_or_empty name=%s path=%s", orig_name, permanent_path)
+            notice_ok = await _tg_reply_with_retry(msg, "Файл пуст или не читается.", attempts=4)
+            if not notice_ok:
+                logging.warning("[DOC_TG_SEND] unreadable_notice_failed name=%s chat=%s", orig_name, int(chat.id))
             return
 
-        chunks = chunking.chunk_document(doc.file_name, sections if sections else [{"text": full_text}])  # type: ignore
-        count = 0
-        for ch in chunks:
-            if isinstance(ch, dict) and ch.get("text"):
-                brain.remember_fact(
-                    f"File: {doc.file_name}\n{ch['text']}",
-                    source=permanent_path,
-                    meta={"type": "file_chunk", "scope": "global"},
+        try:
+            from modules.memory.doc_store import get_citations, update_summary  # type: ignore
+        except Exception:
+            update_summary = None  # type: ignore
+            get_citations = None  # type: ignore
+
+        sum_text = ""
+        if doc_id and (os.getenv("ESTER_DOC_SUMMARY_LLM", "0") or "0").strip() not in ("0", "false", "no", "off"):
+            try:
+                min_bytes = int(os.getenv("ESTER_DOC_SUMMARY_MIN_BYTES", "50000") or 50000)
+                if len(raw_data or b"") < min_bytes:
+                    raise RuntimeError("skip_small_doc")
+                sum_prompt = (
+                    "Сделай краткое резюме (5-8 предложений) без пафоса. "
+                    "Если это список/таблица — выдели ключевые пункты.\n\n"
+                    f"Текст:\n{truncate_text(full_text, 12000)}"
                 )
-                count += 1
+                sum_text = await _safe_chat(
+                    "local",
+                    [
+                        {"role": "system", "content": sum_prompt},
+                        {"role": "user", "content": "Сделай краткое резюме документа без пафоса."},
+                    ],
+                    temperature=0.2,
+                    max_tokens=450,
+                    chat_id=int(chat.id),
+                    stage_name="summary",
+                )
+                sum_text = (sum_text or "").strip()
+                if sum_text and update_summary:
+                    update_summary(doc_id, sum_text)
+            except Exception:
+                pass
 
-        base_prompt = msg.caption or f"Proanaliziruy fayl {doc.file_name}."
-        user_prompt = f"{base_prompt}\n\n(SISTEMA: Polnyy tekst fayla uzhe v kontekste [FAYL].)"
+        citations = []
+        try:
+            if doc_id and get_citations:
+                citations = get_citations(doc_id)
+        except Exception:
+            citations = []
+        citations_str = ""
+        if citations:
+            citations_str = "\n".join([f"- {c}" for c in citations[:50]])
 
-        resp = await ester_arbitrage(
-            user_text=user_prompt,
-            user_id=str(user.id),
-            user_name=user_name,
-            chat_id=chat.id,
-            address_as=user_label,
-            file_context=full_text
+        file_ctx = full_text
+        if citations_str:
+            file_ctx = f"{file_ctx}\n\n[CITATIONS]\n{citations_str}"
+
+        try:
+            from modules.llm.document_reply import build_document_reply_messages  # type: ignore
+
+            doc_messages = build_document_reply_messages(
+                caption=msg.caption or "",
+                orig_name=orig_name,
+                file_context=file_ctx,
+            )
+            resp = await _safe_chat(
+                hive.pick_reply_synth(),
+                doc_messages,
+                temperature=0.15,
+                max_tokens=min(MAX_OUT_TOKENS, 900),
+                chat_id=int(chat.id),
+                stage_name="document",
+            )
+            resp = (resp or "").strip()
+        except Exception:
+            resp = ""
+
+        if not resp:
+            base_prompt = msg.caption or f"Проанализируй файл {orig_name}."
+            user_prompt = (
+                f"{base_prompt}\n\n"
+                f"(СИСТЕМА: Полный текст файла уже в контексте [ФАЙЛ]. "
+                f"Используй формат цитирования [source | p. N].)"
+            )
+            resp = await ester_arbitrage(
+                user_text=user_prompt,
+                user_id=str(user.id),
+                user_name=user_name,
+                chat_id=chat.id,
+                address_as=user_label,
+                file_context=file_ctx,
+            )
+
+        logging.info(
+            "[DOC_PIPELINE] reasoning_ready name=%s doc_id=%s chunks=%s text_chars=%s",
+            orig_name,
+            (doc_id[:10] if doc_id else "-"),
+            int(count),
+            len(full_text or ""),
         )
-
-        await msg.reply_text(f"✅ Usvoeno {count} blokov.")
-        if resp:
-            await send_smart_split(update, resp)
     except Exception as e:
-        await msg.reply_text(f"Perception error: ZZF0Z")
+        logging.warning("[DOC_PIPELINE] failed name=%s err=%s", orig_name, e)
+        notice_ok = await _tg_reply_with_retry(msg, f"Ошибка обработки файла: {e}", attempts=4)
+        if not notice_ok:
+            logging.warning("[DOC_TG_SEND] processing_error_notice_failed name=%s chat=%s err=%s", orig_name, int(chat.id), e)
+        return
+
+    ack_text = f"✅ Усвоено {count} блоков. doc_id={doc_id[:10]}" if doc_id else f"✅ Усвоено {count} блоков."
+    ack_ok = await _tg_reply_with_retry(msg, ack_text, attempts=4)
+    if not ack_ok:
+        logging.warning("[DOC_TG_SEND] processed_ack_failed name=%s chat=%s doc_id=%s", orig_name, int(chat.id), doc_id[:10] if doc_id else "-")
+
+    if resp:
+        sent_ok = await send_smart_split(update, resp)
+        if not sent_ok:
+            logging.warning("[DOC_TG_FINAL_SEND] failed name=%s chat=%s doc_id=%s", orig_name, int(chat.id), doc_id[:10] if doc_id else "-")
+            notice_ok = await _tg_reply_with_retry(msg, _document_delivery_failure_notice(orig_name), attempts=4)
+            if not notice_ok:
+                logging.warning("[DOC_TG_SEND] final_delivery_notice_failed name=%s chat=%s doc_id=%s", orig_name, int(chat.id), doc_id[:10] if doc_id else "-")
 
 # --- 18) Vision (photo) ---
 async def analyze_image(image_path: str, caption: str = "") -> str:
@@ -4486,11 +4641,8 @@ def restore_context_from_passport():
         for line in lines:
             try:
                 rec = json.loads(line)
-                if "role_user" in rec:
-                    q.append({"role": "user", "content": rec["role_user"]})
-                    count += 1
-                if "role_assistant" in rec:
-                    q.append({"role": "assistant", "content": rec["role_assistant"]})
+                for msg in _passport_record_to_short_term_messages(rec):
+                    q.append(msg)
                     count += 1
                 if "role_system" in rec:
                     # Thoughts also load, but as systems (if the bot can read them)

@@ -18,6 +18,8 @@ import os
 import threading
 from flask import Flask, request, jsonify
 import requests
+from modules.telegram_runtime_helpers import document_delivery_failure_notice as _document_delivery_failure_notice
+from modules.telegram_runtime_helpers import passport_record_to_short_term_messages as _passport_record_to_short_term_messages
 
 
 # --- FATIGUE SYSTEM ---
@@ -31,6 +33,8 @@ WEB_CONTEXT_BY_CHAT = {}  # type: ignore
 WEB_CONTEXT_TTL = 120  # sekund
 # --- RECENT ACTIVITY CACHE (per-chat) ---
 RECENT_ACTIVITY_CACHE_BY_CHAT = {}  # type: ignore
+RECENT_DOC_BY_CHAT = {}  # type: ignore
+RECENT_DOC_TTL_SEC = int(os.getenv("RECENT_DOC_TTL_SEC", "21600") or 21600)
 
 import sys
 import re
@@ -96,6 +100,10 @@ try:
     from modules.proactivity import template_bridge as _proactivity_template_bridge  # type: ignore
 except Exception:
     _proactivity_template_bridge = None  # type: ignore
+try:
+    from modules.proactivity import role_allocator as _proactivity_role_allocator  # type: ignore
+except Exception:
+    _proactivity_role_allocator = None  # type: ignore
 try:
     from modules.proactivity import agent_create_approval as _agent_create_approval  # type: ignore
 except Exception:
@@ -170,6 +178,42 @@ def _passport_jsonl_path() -> str:
     except Exception:
         pass
     return str(p)
+
+
+def _remember_recent_doc_context(
+    chat_id: Optional[int],
+    *,
+    doc_id: str,
+    name: str,
+    summary: str,
+    citations: List[str],
+    source_path: str = "",
+) -> None:
+    if chat_id is None:
+        return
+    key = str(chat_id)
+    rec = {
+        "ts": int(time.time()),
+        "doc_id": str(doc_id or "").strip(),
+        "name": str(name or "").strip(),
+        "summary": str(summary or "")[:2600],
+        "citations": [str(c or "").strip() for c in (citations or []) if str(c or "").strip()][:12],
+        "source_path": str(source_path or "").strip(),
+    }
+    RECENT_DOC_BY_CHAT[key] = rec
+    try:
+        from modules.memory.recent_docs import remember_recent_doc as _persist_recent_doc  # type: ignore
+
+        _persist_recent_doc(
+            chat_id,
+            doc_id=rec["doc_id"],
+            name=rec["name"],
+            summary=rec["summary"],
+            citations=rec["citations"],
+            source_path=rec["source_path"],
+        )
+    except Exception:
+        pass
 
 def _passport_index_mode() -> str:
     return (os.getenv("ESTER_PASSPORT_INDEX_MODE") or "B").strip().upper()
@@ -5108,11 +5152,38 @@ def _select_template_for_agent_goal(goal: str, route: Dict[str, Any]) -> Tuple[s
                 template_id = _agent_role_round_robin_template()
                 via = "role_round_robin"
 
+    allocation: Dict[str, Any] = {}
+    if _proactivity_role_allocator is not None:
+        try:
+            allocation = dict(
+                _proactivity_role_allocator.allocate_for_goal(  # type: ignore[attr-defined]
+                    goal,
+                    fallback_template_id=template_id or "planner.v1",
+                    candidate_templates=_proactivity_role_allocator.candidate_templates_for_goal(  # type: ignore[attr-defined]
+                        goal,
+                        fallback_template_id=template_id or "planner.v1",
+                    ),
+                    apply_templates=_proactivity_role_allocator.candidate_templates_for_goal(  # type: ignore[attr-defined]
+                        goal,
+                        fallback_template_id=template_id or "planner.v1",
+                    ),
+                    source="telegram_agent_idea",
+                )
+                or {}
+            )
+        except Exception:
+            allocation = {}
+    if bool(allocation.get("apply_template")):
+        applied_template_id = str(allocation.get("applied_template_id") or "").strip()
+        if applied_template_id:
+            template_id = applied_template_id
+            via = str(allocation.get("via") or "self_role_allocator")
+
     if not _template_exists(template_id):
         template_id = "planner.v1"
         via = "fallback_planner"
 
-    return template_id, {"route_template_id": route_tid, "selected_via": via}
+    return template_id, {"route_template_id": route_tid, "selected_via": via, "role_allocation": allocation}
 
 
 def _agent_live_pressure_for(aid: str, queue_items: List[Dict[str, Any]], now_ts: int) -> Tuple[int, int, int]:
@@ -12627,10 +12698,6 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message_id=msg.message_id,
     )
 
-    if not NATIVE_EYES:
-        await msg.reply_text("No vision modules (file_readers/chunking).")
-        return
-
     # safe filename (no ../ and weird characters)
     safe_base = re.sub(r"[^A-Za-z0-9._-]+", "_", orig_name).strip("._")
     if not safe_base:
@@ -12639,11 +12706,15 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
     safe_filename = time.strftime("%Y%m%d_%H%M%S_") + safe_base
     permanent_path = os.path.join(PERMANENT_INBOX, safe_filename)
 
-    await msg.reply_text(f"📥 Beru: {orig_name}…")
-    new_file = await context.bot.get_file(doc.file_id)
-    await new_file.download_to_drive(permanent_path)
+    accepted_ok = await _tg_reply_with_retry(msg, f"📥 Беру: {orig_name}…", attempts=4)
+    if not accepted_ok:
+        logging.warning("[DOC_TG_SEND] accepted_notice_failed name=%s chat=%s", orig_name, int(chat.id))
 
+    resp = ""
     try:
+        new_file = await context.bot.get_file(doc.file_id)
+        await new_file.download_to_drive(permanent_path)
+
         with open(permanent_path, "rb") as f:
             raw_data = f.read()
 
@@ -12667,9 +12738,16 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception:
             rep = {}
 
-        if not full_text and hasattr(file_readers, "detect_and_read"):
+        if not full_text and NATIVE_EYES and hasattr(file_readers, "detect_and_read"):
             try:
-                sections, full_text = file_readers.detect_and_read(orig_name, raw_data)  # type: ignore
+                read_result = file_readers.detect_and_read(orig_name, raw_data)  # type: ignore
+                sections = []
+                if isinstance(read_result, tuple):
+                    if len(read_result) >= 2:
+                        sections = read_result[0] or []
+                        full_text = str(read_result[1] or "")
+                    elif len(read_result) == 1:
+                        sections = read_result[0] or []
                 if sections and not full_text:
                     full_text = "\n\n".join(
                         [s.get("text", "") for s in sections if isinstance(s, dict)]
@@ -12678,10 +12756,12 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 full_text = ""
 
         if not full_text:
-            await msg.reply_text("The file is empty or cannot be read.")
+            logging.warning("[DOC_PIPELINE] unreadable_or_empty name=%s path=%s", orig_name, permanent_path)
+            notice_ok = await _tg_reply_with_retry(msg, "Файл пуст или не читается.", attempts=4)
+            if not notice_ok:
+                logging.warning("[DOC_TG_SEND] unreadable_notice_failed name=%s chat=%s", orig_name, int(chat.id))
             return
 
-        base_prompt = msg.caption or f"Proanaliziruy fayl {orig_name}."
         # Optional LLM summary for doc object
         try:
             from modules.memory.doc_store import update_summary, get_citations  # type: ignore
@@ -12689,6 +12769,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
             update_summary = None  # type: ignore
             get_citations = None  # type: ignore
 
+        sum_text = ""
         if doc_id and (os.getenv("ESTER_DOC_SUMMARY_LLM", "0") or "0").strip() not in ("0", "false", "no", "off"):
             try:
                 # size gate: only for large docs
@@ -12696,16 +12777,20 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 if len(raw_data or b"") < min_bytes:
                     raise RuntimeError("skip_small_doc")
                 sum_prompt = (
-                    "Make a short summary (5-8 sentences) without pathos."
-                    "If this is a list/table, you have seen the key points."
-                    f"Tekst:\n{truncate_text(full_text, 12000)}"
+                    "Сделай краткое резюме (5-8 предложений) без пафоса. "
+                    "Если это список/таблица — выдели ключевые пункты.\n\n"
+                    f"Текст:\n{truncate_text(full_text, 12000)}"
                 )
                 sum_text = await _safe_chat(
                     "local",
-                    [{"role": "system", "content": sum_prompt}],
+                    [
+                        {"role": "system", "content": sum_prompt},
+                        {"role": "user", "content": "Сделай краткое резюме документа без пафоса."},
+                    ],
                     temperature=0.2,
                     max_tokens=450,
                     chat_id=int(chat.id),
+                    stage_name="summary",
                 )
                 sum_text = (sum_text or "").strip()
                 if sum_text and update_summary:
@@ -12722,43 +12807,99 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if citations:
             citations_str = "\n".join([f"- {c}" for c in citations[:50]])
 
-        user_prompt = (
-            f"{base_prompt}\n\n"
-            f"(SISTEMA: Polnyy tekst fayla uzhe v kontekste [FAYL]. "
-            f"Ispolzuy format tsitirovaniya [source | p. N].)"
-        )
-
         file_ctx = full_text
         if citations_str:
             file_ctx = f"{file_ctx}\n\n[CITATIONS]\n{citations_str}"
 
-        resp = await ester_arbitrage(
-            user_text=user_prompt,
-            user_id=str(user.id),
-            user_name=user_name,
-            chat_id=chat.id,
-            address_as=user_label,
-            tone_context="",
-            file_context=file_ctx,
+        try:
+            _remember_recent_doc_context(
+                chat.id,
+                doc_id=doc_id,
+                name=orig_name,
+                summary=sum_text or full_text,
+                citations=citations,
+                source_path=permanent_path,
+            )
+        except Exception:
+            pass
+
+        try:
+            from modules.llm.document_reply import build_document_reply_messages  # type: ignore
+
+            doc_messages = build_document_reply_messages(
+                caption=msg.caption or "",
+                orig_name=orig_name,
+                file_context=file_ctx,
+            )
+            resp = await _safe_chat(
+                hive.pick_reply_synth(),
+                doc_messages,
+                temperature=0.15,
+                max_tokens=min(MAX_OUT_TOKENS, 900),
+                chat_id=int(chat.id),
+                stage_name="document",
+            )
+            resp = (resp or "").strip()
+        except Exception:
+            resp = ""
+
+        if not resp:
+            base_prompt = msg.caption or f"Проанализируй файл {orig_name}."
+            user_prompt = (
+                f"{base_prompt}\n\n"
+                f"(СИСТЕМА: Полный текст файла уже в контексте [ФАЙЛ]. "
+                f"Используй формат цитирования [source | p. N].)"
+            )
+            resp = await ester_arbitrage(
+                user_text=user_prompt,
+                user_id=str(user.id),
+                user_name=user_name,
+                chat_id=chat.id,
+                address_as=user_label,
+                tone_context="",
+                file_context=file_ctx,
+            )
+
+        logging.info(
+            "[DOC_PIPELINE] reasoning_ready name=%s doc_id=%s chunks=%s text_chars=%s",
+            orig_name,
+            (doc_id[:10] if doc_id else "-"),
+            int(count),
+            len(full_text or ""),
         )
 
-        if doc_id:
-            await msg.reply_text(f"✅ Usvoeno {count} blokov. doc_id={doc_id[:10]}")
-        else:
-            await msg.reply_text(f"✅ Usvoeno {count} blokov.")
-        if resp:
-            try:
-                if doc_id:
-                    meta_note = f"[DOC_ID:{doc_id}]"
-                    mirror_interaction_memory(f"[DOC] {orig_name} {meta_note}", resp, chat_id=int(chat.id), user_id=int(user.id), user_label=user_label)
-                else:
-                    mirror_interaction_memory(f"[DOC] {orig_name}", resp, chat_id=int(chat.id), user_id=int(user.id), user_label=user_label)
-            except Exception:
-                pass
-            await send_smart_split(update, resp)
-
     except Exception as e:
-        await msg.reply_text(f"Perception error: ZZF0Z")
+        logging.warning("[DOC_PIPELINE] failed name=%s err=%s", orig_name, e)
+        notice_ok = await _tg_reply_with_retry(msg, f"Ошибка обработки файла: {e}", attempts=4)
+        if not notice_ok:
+            logging.warning("[DOC_TG_SEND] processing_error_notice_failed name=%s chat=%s err=%s", orig_name, int(chat.id), e)
+        return
+
+    ack_text = f"✅ Усвоено {count} блоков. doc_id={doc_id[:10]}" if doc_id else f"✅ Усвоено {count} блоков."
+    ack_ok = await _tg_reply_with_retry(msg, ack_text, attempts=4)
+    if not ack_ok:
+        logging.warning("[DOC_TG_SEND] processed_ack_failed name=%s chat=%s doc_id=%s", orig_name, int(chat.id), doc_id[:10] if doc_id else "-")
+
+    if resp:
+        try:
+            if doc_id:
+                meta_note = f"[DOC_ID:{doc_id}]"
+                mirror_interaction_memory(f"[DOC] {orig_name} {meta_note}", resp, chat_id=int(chat.id), user_id=int(user.id), user_label=user_label)
+            else:
+                mirror_interaction_memory(f"[DOC] {orig_name}", resp, chat_id=int(chat.id), user_id=int(user.id), user_label=user_label)
+        except Exception:
+            pass
+        sent_ok = await send_smart_split(update, resp)
+        if not sent_ok:
+            logging.warning("[DOC_TG_FINAL_SEND] failed name=%s chat=%s doc_id=%s", orig_name, int(chat.id), doc_id[:10] if doc_id else "-")
+            notice_ok = await _tg_reply_with_retry(msg, _document_delivery_failure_notice(orig_name), attempts=4)
+            if not notice_ok:
+                logging.warning(
+                    "[DOC_TG_SEND] final_delivery_notice_failed name=%s chat=%s doc_id=%s",
+                    orig_name,
+                    int(chat.id),
+                    doc_id[:10] if doc_id else "-",
+                )
 
 
 # --- 18) Vision (photo) ---
@@ -13925,13 +14066,8 @@ def restore_context_from_passport():
 
             try:
                 rec = json.loads(line)
-
-                if "role_user" in rec:
-                    q.append({"role": "user", "content": rec["role_user"]})
-                    count += 1
-
-                if "role_assistant" in rec:
-                    q.append({"role": "assistant", "content": rec["role_assistant"]})
+                for msg in _passport_record_to_short_term_messages(rec):
+                    q.append(msg)
                     count += 1
 
                 if "role_system" in rec:

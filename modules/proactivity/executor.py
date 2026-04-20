@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from modules.garage import agent_factory, agent_queue
-from modules.proactivity import planner_v1, template_bridge
+from modules.proactivity import planner_v1, planner_v2, template_bridge
 from modules.thinking.action_registry import invoke_guarded
 from modules.volition import journal as volition_journal
 from modules.volition.volition_gate import VolitionContext, get_default_gate
@@ -319,6 +319,23 @@ def _normalize_plan_for_queue(plan: Dict[str, Any], *, initiative_id: str, templ
 def _plan_hash(plan: Dict[str, Any]) -> str:
     encoded = json.dumps(plan, ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()
+
+
+def _template_from_plan(target: Dict[str, Any], plan_raw: Dict[str, Any]) -> Dict[str, Any]:
+    meta = dict((dict(plan_raw or {})).get("meta") or {})
+    exec_profile = dict(meta.get("execution_profile") or {})
+    preferred_template_id = str(exec_profile.get("target_template_id") or meta.get("target_template_id") or "").strip()
+    if preferred_template_id:
+        try:
+            from modules.garage.templates import get_template  # type: ignore
+
+            tpl = get_template(preferred_template_id)
+            if isinstance(tpl, dict):
+                return tpl
+        except Exception:
+            pass
+        return {"template_id": preferred_template_id}
+    return template_bridge.select_template(dict(target))
 
 
 def _dedupe_hit(initiative_id: str, plan_hash: str, cooldown_sec: int) -> Dict[str, Any]:
@@ -824,8 +841,18 @@ def _run_once_core(
         )
         return out
 
-    plan_raw = planner_v1.build_plan(dict(target), dict(budgets))
-    template = template_bridge.select_template(dict(target))
+    planner_error = ""
+    try:
+        plan_raw = planner_v2.build_plan(dict(target), dict(budgets))
+    except Exception as exc:
+        planner_error = f"{exc.__class__.__name__}: {exc}"
+        plan_raw = planner_v1.build_plan(dict(target), dict(budgets))
+        plan_raw = dict(plan_raw or {})
+        meta_fallback = dict(plan_raw.get("meta") or {})
+        meta_fallback["planner_version"] = "v1_fallback"
+        meta_fallback["planner_fallback_error"] = planner_error
+        plan_raw["meta"] = meta_fallback
+    template = _template_from_plan(dict(target), dict(plan_raw or {}))
     template_id = str(template.get("template_id") or "planner.v1")
     queue_plan = _normalize_plan_for_queue(plan_raw, initiative_id=initiative_id, template_id=template_id)
     plan_id = str(queue_plan.get("plan_id") or "")
@@ -1356,4 +1383,3 @@ def run_once(
 
 
 __all__ = ["run_once"]
-
