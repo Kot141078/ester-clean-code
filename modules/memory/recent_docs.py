@@ -163,6 +163,12 @@ def remember_recent_doc(
         by_chat[key] = entries[:max_per_chat]
         store["updated_at"] = int(time.time())
         _save_store_unlocked(store)
+    try:
+        from modules.memory import memory_index  # type: ignore
+
+        memory_index.ensure_materialized()
+    except Exception:
+        pass
     return rec
 
 
@@ -199,6 +205,12 @@ def remember_last_resolved_document(
         bindings[key] = rec
         store["updated_at"] = int(time.time())
         _save_store_unlocked(store)
+    try:
+        from modules.memory import memory_index  # type: ignore
+
+        memory_index.ensure_materialized()
+    except Exception:
+        pass
     return rec
 
 
