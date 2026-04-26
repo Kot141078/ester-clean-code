@@ -1,0 +1,43 @@
+"""Beacon Profile sidecar contracts."""
+
+from .profile import (
+    AssuranceClass,
+    BeaconBundle,
+    BeaconDecision,
+    BeaconIssuer,
+    BeaconProfileStore,
+    BeaconValidationError,
+    ChallengePolicy,
+    ContinuityEvidence,
+    ContinuityWindow,
+    IdentityLineage,
+    PrivacyPolicy,
+    PrivilegeContinuity,
+    ReceiverVerification,
+    SlotAVerdict,
+    SlotBVerdict,
+    classify_beacon_bundle,
+    to_record,
+    validate_beacon_bundle,
+)
+
+__all__ = [
+    "AssuranceClass",
+    "BeaconBundle",
+    "BeaconDecision",
+    "BeaconIssuer",
+    "BeaconProfileStore",
+    "BeaconValidationError",
+    "ChallengePolicy",
+    "ContinuityEvidence",
+    "ContinuityWindow",
+    "IdentityLineage",
+    "PrivacyPolicy",
+    "PrivilegeContinuity",
+    "ReceiverVerification",
+    "SlotAVerdict",
+    "SlotBVerdict",
+    "classify_beacon_bundle",
+    "to_record",
+    "validate_beacon_bundle",
+]
