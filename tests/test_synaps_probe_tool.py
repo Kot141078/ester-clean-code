@@ -1,9 +1,11 @@
 import json
+import os
 import subprocess
 import sys
 
 from modules.synaps import SynapsConfig, SynapsMessageType
 from tools.synaps_probe import (
+    bootstrap_env_from_argv,
     build_probe_request,
     load_env_file,
     redacted_request_summary,
@@ -29,6 +31,75 @@ def test_load_env_file_parses_without_exporting_token(tmp_path):
     assert values["SISTER_NODE_URL"] == "http://sister.local"
     assert values["SISTER_SYNC_TOKEN"] == "shared-secret"
     assert values["ESTER_NODE_ID"] == "ester-test"
+
+
+def test_bootstrap_env_from_argv_loads_missing_values_without_overwrite(tmp_path):
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(
+            [
+                "SISTER_NODE_URL=http://sister.local",
+                "SISTER_SYNC_TOKEN=from-file",
+                "ESTER_NET_ALLOW_CIDRS=127.0.0.1/32,192.0.2.10/32",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    env = {"SISTER_SYNC_TOKEN": "already-set"}
+
+    bootstrap_env_from_argv(["--env-file", str(env_file)], environ=env)
+
+    assert env["SISTER_NODE_URL"] == "http://sister.local"
+    assert env["SISTER_SYNC_TOKEN"] == "already-set"
+    assert env["ESTER_NET_ALLOW_CIDRS"] == "127.0.0.1/32,192.0.2.10/32"
+
+
+def test_main_bootstraps_env_file_before_synaps_import(tmp_path):
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(
+            [
+                "SISTER_NODE_URL=http://sister.local",
+                "SISTER_SYNC_TOKEN=shared-secret",
+                "ESTER_NODE_ID=ester-test",
+                "ESTER_NET_ALLOW_CIDRS=127.0.0.1/32,::1/128,192.0.2.10/32",
+                "ESTER_NET_ALLOW_HOSTS=localhost,sister.local",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    code = "\n".join(
+        [
+            "import contextlib, io, json",
+            "import importlib.util",
+            "spec = importlib.util.spec_from_file_location('synaps_probe_under_test', 'tools/synaps_probe.py')",
+            "synaps_probe = importlib.util.module_from_spec(spec)",
+            "spec.loader.exec_module(synaps_probe)",
+            f"env_file = {json.dumps(str(env_file))}",
+            "buf = io.StringIO()",
+            "with contextlib.redirect_stdout(buf):",
+            "    rc = synaps_probe.main(['--env-file', env_file, '--type', 'health'])",
+            "from modules.runtime.network_deny import get_stats",
+            "print(json.dumps({'rc': rc, 'stats': get_stats()}, sort_keys=True))",
+        ]
+    )
+    env = os.environ.copy()
+    env["ESTER_OFFLINE"] = "1"
+    env.pop("ESTER_NET_ALLOW_CIDRS", None)
+    env.pop("ESTER_NET_ALLOW_HOSTS", None)
+
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        check=True,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    payload = json.loads(result.stdout.splitlines()[-1])
+
+    assert payload["rc"] == 0
+    assert "192.0.2.10/32" in payload["stats"]["allow_cidrs"]
+    assert "sister.local" in payload["stats"]["allow_hosts"]
 
 
 def test_build_health_probe_request_uses_schema_payload_and_send_timeout():
