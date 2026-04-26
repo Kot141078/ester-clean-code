@@ -6814,7 +6814,11 @@ def sister_inbound():
 
         thought = _run_coro_sync(_safe_chat("local", messages, temperature=0.7))
         thought = (thought or "").strip()
-        if envelope.metadata.get("probe") != "synaps_probe":
+        if (
+            envelope.metadata.get("probe") != "synaps_probe"
+            and envelope.metadata.get("memory") != "off"
+            and envelope.metadata.get("autochat_window") != "oneshot"
+        ):
             try:
                 _mirror_background_event(
                     f"[SISTER_THOUGHT_REQUEST] from={envelope.sender}: {content}\nA: {thought}",

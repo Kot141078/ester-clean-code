@@ -18,6 +18,8 @@ def test_synaps_thought_probe_does_not_write_background_mirror():
     block = _extract_block(RUN_SOURCE, r"def _sister_thought_handler\(envelope\):", r"return thought")
 
     assert 'envelope.metadata.get("probe") != "synaps_probe"' in block
+    assert 'envelope.metadata.get("memory") != "off"' in block
+    assert 'envelope.metadata.get("autochat_window") != "oneshot"' in block
     guard_pos = block.index('envelope.metadata.get("probe") != "synaps_probe"')
     mirror_pos = block.index("_mirror_background_event")
 
