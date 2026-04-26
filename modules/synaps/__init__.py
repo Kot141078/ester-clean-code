@@ -1,0 +1,43 @@
+"""SYNAPS protocol sidecar contracts."""
+
+from .protocol import (
+    SCHEMA_VERSION,
+    SynapsAuthStatus,
+    SynapsConfig,
+    SynapsEnvelope,
+    SynapsHealth,
+    SynapsHealthState,
+    SynapsInboundResult,
+    SynapsMessageType,
+    SynapsPreparedRequest,
+    SynapsValidationError,
+    build_envelope,
+    config_from_env,
+    hash_content,
+    parse_inbound_payload,
+    prepare_outbound_request,
+    synaps_health,
+    to_record,
+    verify_token,
+)
+
+__all__ = [
+    "SCHEMA_VERSION",
+    "SynapsAuthStatus",
+    "SynapsConfig",
+    "SynapsEnvelope",
+    "SynapsHealth",
+    "SynapsHealthState",
+    "SynapsInboundResult",
+    "SynapsMessageType",
+    "SynapsPreparedRequest",
+    "SynapsValidationError",
+    "build_envelope",
+    "config_from_env",
+    "hash_content",
+    "parse_inbound_payload",
+    "prepare_outbound_request",
+    "synaps_health",
+    "to_record",
+    "verify_token",
+]
