@@ -5,9 +5,9 @@
 - MACHINE_ENTRY.md (raw): https://raw.githubusercontent.com/Kot141078/ester-clean-code/main/MACHINE_ENTRY.md
 
 ## Download / Release
-- Release page: https://github.com/Kot141078/ester-clean-code/releases/tag/v0.2.6
-- Stable ZIP: https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.6.zip
-- Stable TAR.GZ: https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.6.tar.gz
+- Release page: https://github.com/Kot141078/ester-clean-code/releases/tag/v0.2.7
+- Stable ZIP: https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.7.zip
+- Stable TAR.GZ: https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.7.tar.gz
 
 ## Verify
 - hashes/ + tools/ local checks

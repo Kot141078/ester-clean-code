@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+## [0.2.7] - 2026-04-26
+### Runtime / Architecture Sidecars
+- Added implementation-facing Glitch Stack M1, ARL, AGL, ARQ, Beacon Profile, and SYNAPS sidecars with focused contract coverage.
+- Added SYNAPS protocol, route adapter, listener bridge, and `run_ester_fixed.py` entrypoint wiring while keeping legacy-compatible boundaries.
+- Added SYNAPS dry-run-first probe tooling for health, chat, and bounded thought-request checks.
+
+### SYNAPS Live Safety
+- Completed manual SYNAPS probe contour with Lii for health, chat, and bounded thought_request in both directions.
+- Kept tokens redacted and runtime memory/passport/vector stores out of the public release.
+- Added probe safeguards so `metadata.probe=synaps_probe` thought requests do not write `[SISTER_THOUGHT_REQUEST]` background mirror records.
+- Added a two-key autochat guard: `SISTER_AUTOCHAT=1` alone is inert; initiator start also requires `SISTER_AUTOCHAT_ARMED=1`.
+- Added `SISTER_AUTOCHAT_ONESHOT=1` support for future explicitly authorized one-shot windows.
+
+### Release Truth / Hygiene
+- Aligned `VERSION`, `release/VERSION`, stable download references, and the release-safety default tag to `v0.2.7`.
+- Kept autochat disabled in live coordination and preserved a manual-only SYNAPS posture for this release.
+
 ## [0.2.6] - 2026-04-26
 ### Runtime / Memory
 - Added public-safe M1 memory diagnostic materialization for reply traces, self-diagnostics, internal trace coverage, and operator-facing memory status.

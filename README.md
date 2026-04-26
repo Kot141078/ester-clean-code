@@ -34,9 +34,9 @@ Next hop:
 
 For most visitors, the easiest starting point is the stable snapshot of this repository.
 
-- Release page: https://github.com/Kot141078/ester-clean-code/releases/tag/v0.2.6
-- Stable source ZIP (v0.2.6): https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.6.zip
-- Stable source TAR.GZ (v0.2.6): https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.6.tar.gz
+- Release page: https://github.com/Kot141078/ester-clean-code/releases/tag/v0.2.7
+- Stable source ZIP (v0.2.7): https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.7.zip
+- Stable source TAR.GZ (v0.2.7): https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.7.tar.gz
 - GitHub UI: click **Code** -> **Download ZIP**
 
 Clone locally:
@@ -44,7 +44,7 @@ Clone locally:
 ```bash
 git clone https://github.com/Kot141078/ester-clean-code.git
 cd ester-clean-code
-git checkout v0.2.6
+git checkout v0.2.7
 ```
 
 To verify what you downloaded, use the files in `hashes/` together with the local verification tools in this repository.
@@ -308,7 +308,7 @@ From the implementation side, ECC readers may care because ARQ v0.2 carries the 
 - llms.txt (raw):
   https://raw.githubusercontent.com/Kot141078/ester-clean-code/main/llms.txt
 - Tag snapshot ZIP:
-  https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.6.zip
+  https://github.com/Kot141078/ester-clean-code/archive/refs/tags/v0.2.7.zip
 - Verify content via `hashes/` and local tools (do not hash GitHub-generated archives).
 
 ## Glitch Stack — implementation bridge v0.1
