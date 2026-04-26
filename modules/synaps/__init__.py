@@ -36,10 +36,28 @@ from .listener_bridge import (
     read_payload_safely,
     run_awaitable_in_new_loop,
 )
+from .window import (
+    CONVERSATION_WINDOW_CONFIRM_PHRASE,
+    CONVERSATION_WINDOW_MODE,
+    DEFAULT_WINDOW_TOPIC,
+    ConversationWindowGate,
+    ConversationWindowPolicy,
+    ConversationWindowStore,
+    build_conversation_metadata,
+    build_conversation_turn_request,
+    conversation_window_arm_status,
+    validate_conversation_send_gate,
+)
 
 __all__ = [
     "DEFAULT_SISTER_SYSTEM_PROMPT",
+    "DEFAULT_WINDOW_TOPIC",
+    "CONVERSATION_WINDOW_CONFIRM_PHRASE",
+    "CONVERSATION_WINDOW_MODE",
     "SCHEMA_VERSION",
+    "ConversationWindowGate",
+    "ConversationWindowPolicy",
+    "ConversationWindowStore",
     "SynapsAuthStatus",
     "SynapsConfig",
     "SynapsEnvelope",
@@ -51,9 +69,12 @@ __all__ = [
     "SynapsRouteResponse",
     "SynapsValidationError",
     "build_envelope",
+    "build_conversation_metadata",
+    "build_conversation_turn_request",
     "build_safe_chat_thought_handler",
     "config_from_env",
     "config_from_legacy_listener_values",
+    "conversation_window_arm_status",
     "hash_content",
     "handle_inbound_payload",
     "handle_inbound_payload_async",
@@ -67,5 +88,6 @@ __all__ = [
     "run_awaitable_in_new_loop",
     "synaps_health",
     "to_record",
+    "validate_conversation_send_gate",
     "verify_token",
 ]
