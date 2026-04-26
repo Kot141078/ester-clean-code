@@ -395,6 +395,73 @@ def decide_evidence(
     return updated, event
 
 
+def route_review(
+    record: ArlDisputeRecord,
+    *,
+    review_mode: ReviewMode,
+    reason_code: str,
+    plan_id: str = "",
+    template_id: str = "",
+    queue_ref: str = "",
+    needs_oracle: bool = False,
+    oracle_request_ids: Iterable[str] = (),
+    occurred_at: str | None = None,
+) -> tuple[ArlDisputeRecord, tuple[ArlEvent, ...]]:
+    issues = _routing_issues(
+        record,
+        review_mode=review_mode,
+        template_id=template_id,
+        needs_oracle=needs_oracle,
+    )
+    _raise_if_invalid(issues)
+    ts = occurred_at or _now_iso()
+    next_state = DisputeState.REVIEW_ACTIVE
+    updated = replace(
+        record,
+        updated_ts=ts,
+        state_prev=record.state_current,
+        state_current=next_state,
+        state_changed_ts=ts,
+        state_reason_code=reason_code,
+        review_open=True,
+        review_mode=review_mode,
+        plan_id=str(plan_id or ""),
+        template_id=str(template_id or ""),
+        queue_ref=str(queue_ref or ""),
+        needs_oracle=bool(needs_oracle),
+        oracle_request_ids=tuple(str(item) for item in oracle_request_ids if str(item)),
+        authority_effect=_authority_for_state(next_state, record.authority_effect),
+    )
+    _raise_if_invalid(validate_dispute_record(updated))
+    routed_event = ArlEvent(
+        event_type=ArlEventType.REVIEW_ROUTED,
+        event_id=_event_id("review-routed"),
+        dispute_id=record.dispute_id,
+        occurred_at=ts,
+        payload={
+            "review_mode": review_mode.value,
+            "plan_id": updated.plan_id,
+            "template_id": updated.template_id,
+            "queue_ref": updated.queue_ref,
+            "needs_oracle": updated.needs_oracle,
+            "oracle_request_ids": list(updated.oracle_request_ids),
+            "reason_code": reason_code,
+        },
+    )
+    state_event = ArlEvent(
+        event_type=ArlEventType.STATE_CHANGED,
+        event_id=_event_id("state-changed"),
+        dispute_id=record.dispute_id,
+        occurred_at=ts,
+        payload={
+            "state_prev": record.state_current.value,
+            "state_current": next_state.value,
+            "reason_code": reason_code,
+        },
+    )
+    return updated, (routed_event, state_event)
+
+
 def validate_dispute_record(record: ArlDisputeRecord) -> list[TransitionIssue]:
     issues: list[TransitionIssue] = []
     if not str(record.dispute_id or "").strip():
@@ -423,6 +490,57 @@ def validate_dispute_record(record: ArlDisputeRecord) -> list[TransitionIssue]:
             TransitionIssue(
                 "ARL_IRREVERSIBLE_STATE_REQUIRED",
                 "irreversible_flag requires IRREVERSIBLE_LOSS_ACKNOWLEDGED state.",
+            )
+        )
+    return issues
+
+
+def _routing_issues(
+    record: ArlDisputeRecord,
+    *,
+    review_mode: ReviewMode,
+    template_id: str,
+    needs_oracle: bool,
+) -> list[TransitionIssue]:
+    issues: list[TransitionIssue] = []
+    if record.standing_status == StandingStatus.REJECTED:
+        issues.append(
+            TransitionIssue(
+                "ARL_ROUTE_STANDING_REJECTED",
+                "Rejected standing cannot be routed to active review.",
+            )
+        )
+    if record.state_current in {
+        DisputeState.RESOLVED,
+        DisputeState.DEADLOCKED,
+        DisputeState.IRREVERSIBLE_LOSS_ACKNOWLEDGED,
+    }:
+        issues.append(
+            TransitionIssue(
+                "ARL_ROUTE_TERMINAL_STATE",
+                "Terminal or memory-bearing ARL states cannot be routed to active review.",
+                details={"state_current": record.state_current.value},
+            )
+        )
+    if review_mode == ReviewMode.NONE:
+        issues.append(
+            TransitionIssue(
+                "ARL_ROUTE_MODE_REQUIRED",
+                "Review routing requires a concrete review mode.",
+            )
+        )
+    if review_mode == ReviewMode.TEMPLATE and not str(template_id or "").strip():
+        issues.append(
+            TransitionIssue(
+                "ARL_ROUTE_TEMPLATE_REQUIRED",
+                "Template review routing requires template_id.",
+            )
+        )
+    if review_mode == ReviewMode.ORACLE_BOUNDED and not needs_oracle:
+        issues.append(
+            TransitionIssue(
+                "ARL_ROUTE_ORACLE_FLAG_REQUIRED",
+                "Oracle-bounded review routing must mark needs_oracle.",
             )
         )
     return issues
