@@ -58,6 +58,11 @@ import numpy as np
 from dotenv import load_dotenv
 # NOTE: Telegram handle_message is implemented in this file (do not import from modules.chat_api)
 from modules.memory.journal import record_event
+from modules.synaps import (
+    SynapsMessageType as _SynapsMessageType,
+    config_from_legacy_listener_values as _synaps_config_from_legacy_listener_values,
+    handle_inbound_payload as _handle_synaps_inbound_payload,
+)
 from bridges.internet_access import internet
 from modules.analyst import analyst
 from skills.manager import SkillManager
@@ -6388,7 +6393,31 @@ if str(os.getenv("ESTER_SISTER_BYPASS_GUARDS", "0")).strip().lower() in ("1", "t
     else:
         logging.error("[SISTER] bypass guards failed")
 SISTER_NODE_URL = os.getenv("SISTER_NODE_URL", "").strip()
-SISTER_SYNC_TOKEN = os.getenv("SISTER_SYNC_TOKEN", "default_token").strip()
+SISTER_SYNC_TOKEN = os.getenv("SISTER_SYNC_TOKEN", "").strip()
+
+def _synaps_float_env(name: str, default: float) -> float:
+    try:
+        return float(os.getenv(name, str(default)) or default)
+    except Exception:
+        return float(default)
+
+
+def _synaps_bool_env(name: str, default: bool = True) -> bool:
+    raw = str(os.getenv(name, "1" if default else "0") or "").strip().lower()
+    if raw == "":
+        return bool(default)
+    return raw in {"1", "true", "yes", "on", "y"}
+
+
+def _synaps_listener_config():
+    return _synaps_config_from_legacy_listener_values(
+        node_url=SISTER_NODE_URL,
+        sync_token=SISTER_SYNC_TOKEN,
+        node_id=os.getenv("ESTER_NODE_ID", "ester_node"),
+        timeout_sec=_synaps_float_env("SISTER_SEND_TIMEOUT_SEC", 2.0),
+        opinion_timeout_sec=_synaps_float_env("SISTER_OPINION_TIMEOUT_SEC", 120.0),
+        enabled=_synaps_bool_env("SYNAPS_ENABLED", True),
+    )
 
 # --- Runtime tuning (env/global) ---
 SISTER_SYNC_TIMEOUT_SEC = float(os.getenv("SISTER_SYNC_TIMEOUT_SEC", "2.0"))
@@ -6696,23 +6725,17 @@ def send_to_sister(message_text: str, context_type: str = "chat", force: bool = 
 
 @flask_app.route("/sister/inbound", methods=["POST"])
 def sister_inbound():
-    """V2.1: Priem paketa ot Sestry (P2P Synapse).
-    Esli tip = thought_request — otvechaem "myslyu" (lokalnyy mozg),
-    inache simply podtverzhdaem dostavku.
-
-    YaVNYY MOST: c=a+b -> vkhodyaschiy stimul (a) + protsedury proverki/inferensa (b) => otvet (c).
-    SKRYTYE MOSTY:
-      - Ashby: variety - sestra addavlyaet vneshnee raznoobrazie mneniy.
-      - Cover&Thomas: ogranichenie kanala - my rezhem dlinu vkhoda i ne taschim musor v prompt.
-    ZEMNOY ABZATs: kak klapan v serdtse - ne daem sinkhronizatsii ustroit takhikardiyu protsessu."""
-    # 0) JSON parsing (myagkiy)
+    """Safe SYNAPS inbound wrapper for the live entrypoint."""
     try:
         data = request.get_json(silent=True) or {}
     except Exception:
         data = {}
+    if not isinstance(data, dict):
+        data = {}
+
     # --- SISTER AUTOCHAT REPLY (reply-to-sister) ---
     try:
-        _p = request.get_json(silent=True) or {}
+        _p = data
         _c = str(_p.get("content") or "")
         _is_autochat = bool(_p.get("autochat")) or _c.lstrip().startswith("[autochat seed]")
         _already = bool(_p.get("autochat_reply"))
@@ -6730,41 +6753,14 @@ def sister_inbound():
     except Exception:
         pass
 
-    # normalizuem vozmozhnyy mojibake/bytes (u nas est B7 Encoding hygiene)
     try:
         if "_normalize_obj" in globals():
             data = _normalize_obj(data)
+        if not isinstance(data, dict):
+            data = {}
     except Exception:
         pass
 
-    # 1) Security: token
-    token = (data.get("token") or "").strip()
-    if not SISTER_SYNC_TOKEN or token != SISTER_SYNC_TOKEN:
-        return jsonify({"status": "error", "message": "Invalid token"}), 403
-
-    # 2) Payload polya
-    sender = (data.get("sender") or "Sister").strip()
-    content = data.get("content", "") or ""
-    context_type = (data.get("type") or "chat").strip()
-
-    # safety: limit the size of the input so as not to kill the prompt/memory
-    try:
-        max_in = int(os.getenv("SISTER_INBOUND_MAX_CHARS", "8000") or 8000)
-    except Exception:
-        max_in = 8000
-    try:
-        content = truncate_text(str(content), max_in)
-    except Exception:
-        content = str(content)[:max_in]
-
-    # clean the log line (no hyphens/garbage)
-    try:
-        log_preview = " ".join(str(content).split())[:120]
-    except Exception:
-        log_preview = ""
-    logging.info(f"[SYNAPSE] <<< Request from {sender} ({context_type}): {log_preview}...")
-
-    # 3) Runner for asins (_safe_chat) inside the sync Flask handler
     def _run_coro_sync(coro):
         import asyncio
         import threading
@@ -6794,52 +6790,74 @@ def sister_inbound():
         # normal case: just asincio.run
         return asyncio.run(coro)
 
-    # 4) If this is a request for an opinion, he thinks and answers
-    if context_type == "thought_request":
+    def _bounded_sister_content(value):
         try:
-            system_prompt = (
-                "Ty pomogaesh svoey Sestre sformulirovat mnenie. "
-                "Bud kratkoy, tochnoy, bez fantaziy. "
-                "If you are not sure - litter (low/medium/high)."
-            )
-            messages = [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": content},
-            ]
+            max_in = int(os.getenv("SISTER_INBOUND_MAX_CHARS", "8000") or 8000)
+        except Exception:
+            max_in = 8000
+        try:
+            return truncate_text(str(value or ""), max_in)
+        except Exception:
+            return str(value or "")[:max_in]
 
-            # _safe_chat is an asynchronous function
-            thought = _run_coro_sync(_safe_chat("local", messages, temperature=0.7))
-            thought = (thought or "").strip()
-            try:
-                _mirror_background_event(
-                    f"[SISTER_THOUGHT_REQUEST] from={sender}: {content}\nA: {thought}",
-                    "sister",
-                    "sister_thought",
-                )
-            except Exception:
-                pass
-
-            return jsonify({
-                "status": "success",
-                "content": thought,
-                "sender": os.getenv("ESTER_NODE_ID", "ester_node"),
-            }), 200
-
-        except Exception as e:
-            logging.error(f"[SYNAPSE] Failed to think for sister: {e}")
-            # ne svetim vnutrennosti naruzhu
-            return jsonify({"status": "error", "message": "thinking_failed"}), 500
-
-    # 5) For other packages - acc
-    try:
-        _mirror_background_event(
-            f"[SISTER_INBOUND] from={sender} type={context_type}: {content}",
-            "sister",
-            "sister_inbound",
+    def _sister_thought_handler(envelope):
+        content = _bounded_sister_content(envelope.content)
+        system_prompt = (
+            "Ty pomogaesh svoey Sestre sformulirovat mnenie. "
+            "Bud kratkoy, tochnoy, bez fantaziy. "
+            "If you are not sure - litter (low/medium/high)."
         )
-    except Exception:
-        pass
-    return jsonify({"status": "received", "thank_you": "sister"}), 200
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": content},
+        ]
+
+        thought = _run_coro_sync(_safe_chat("local", messages, temperature=0.7))
+        thought = (thought or "").strip()
+        try:
+            _mirror_background_event(
+                f"[SISTER_THOUGHT_REQUEST] from={envelope.sender}: {content}\nA: {thought}",
+                "sister",
+                "sister_thought",
+            )
+        except Exception:
+            pass
+        return thought
+
+    response = _handle_synaps_inbound_payload(
+        data,
+        _synaps_listener_config(),
+        _sister_thought_handler,
+    )
+
+    envelope = response.request_envelope
+    if response.accepted and envelope is not None:
+        logging.info(
+            "[SYNAPSE] <<< Request from %s (%s): accepted reason=%s",
+            envelope.sender,
+            envelope.message_type.value,
+            response.reason,
+        )
+    else:
+        logging.warning("[SYNAPSE] inbound rejected: %s", response.reason)
+
+    if (
+        response.accepted
+        and envelope is not None
+        and envelope.message_type not in {_SynapsMessageType.HEALTH, _SynapsMessageType.THOUGHT_REQUEST}
+        and envelope.metadata.get("probe") != "synaps_probe"
+    ):
+        content = _bounded_sister_content(envelope.content)
+        try:
+            _mirror_background_event(
+                f"[SISTER_INBOUND] from={envelope.sender} type={envelope.message_type.value}: {content}",
+                "sister",
+                "sister_inbound",
+            )
+        except Exception:
+            pass
+
+    return jsonify(response.body), response.status_code
 
 
 
