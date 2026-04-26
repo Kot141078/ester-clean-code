@@ -18,6 +18,10 @@ import os
 import threading
 from flask import Flask, request, jsonify
 import requests
+from modules.synaps import (
+    config_from_legacy_listener_values as _synaps_config_from_legacy_listener_values,
+    make_sister_inbound_view as _make_synaps_sister_inbound_view,
+)
 from modules.telegram_runtime_helpers import document_delivery_failure_notice as _document_delivery_failure_notice
 from modules.telegram_runtime_helpers import passport_record_to_short_term_messages as _passport_record_to_short_term_messages
 
@@ -1821,7 +1825,29 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 SISTER_NODE_URL = os.getenv("SISTER_NODE_URL", "")
-SISTER_SYNC_TOKEN = os.getenv("SISTER_SYNC_TOKEN", "default_token")
+SISTER_SYNC_TOKEN = os.getenv("SISTER_SYNC_TOKEN", "")
+
+def _synaps_float_env(name, default):
+    try:
+        return float(os.getenv(name, str(default)) or default)
+    except Exception:
+        return float(default)
+
+def _synaps_bool_env(name, default=True):
+    raw = str(os.getenv(name, "1" if default else "0") or "").strip().lower()
+    if raw == "":
+        return bool(default)
+    return raw in {"1", "true", "yes", "on", "y"}
+
+def _synaps_listener_config():
+    return _synaps_config_from_legacy_listener_values(
+        node_url=SISTER_NODE_URL,
+        sync_token=SISTER_SYNC_TOKEN,
+        node_id=os.getenv("ESTER_NODE_ID", "ester_node"),
+        timeout_sec=_synaps_float_env("SISTER_SEND_TIMEOUT_SEC", 2.0),
+        opinion_timeout_sec=_synaps_float_env("SISTER_OPINION_TIMEOUT_SEC", 120.0),
+        enabled=_synaps_bool_env("SYNAPS_ENABLED", True),
+    )
 
 def send_to_sister(message_text, context_type="chat"):
     """Sends a thought or message to Lee (to the sister node)."""
@@ -1852,58 +1878,15 @@ def send_to_sister(message_text, context_type="chat"):
 
 @flask_app.route('/sister/inbound', methods=['POST'])
 def sister_inbound():
-    """V2.0: Receiving a request for an opinion from a Sister.
-    Now we don’t just listen, but think and respond."""
-    try:
-        data = request.get_json(silent=True) or {}
-    except Exception:
-        data = {}
-
-    token = data.get('token')
-
-    # Security check
-    if not SISTER_SYNC_TOKEN or token != SISTER_SYNC_TOKEN:
-        return jsonify({"status": "error", "message": "Invalid token"}), 403
-
-    sender = data.get('sender', 'Sister')
-    content = data.get('content', '') or ''
-    context_type = data.get('type', 'chat') or 'chat'
-
-    logging.info(f"[SYNAPSE] <<< Request from {sender}: {content[:80]}...")
-
-    def _run_coro_in_new_loop(coro):
-        import asyncio
-        loop = asyncio.new_event_loop()
-        try:
-            asyncio.set_event_loop(loop)
-            return loop.run_until_complete(coro)
-        finally:
-            try:
-                loop.close()
-            except Exception:
-                pass
-
-    # If this is a request for an opinion (thught), we launch the local brain
-    if context_type == "thought_request":
-        try:
-            messages = [
-                {"role": "system", "content": "You help your sister formulate an opinion. Be brief and to the point."},
-                {"role": "user", "content": content}
-            ]
-
-            # _safe_chat - asynchronous function in the runner
-            thought = _run_coro_in_new_loop(_safe_chat("local", messages, temperature=0.7))
-
-            return jsonify({
-                "status": "success",
-                "content": thought,
-                "sender": os.getenv("ESTER_NODE_ID", "ester_node")
-            }), 200
-        except Exception as e:
-            logging.error(f"[SYNAPSE] Failed to think for sister: {e}")
-            return jsonify({"status": "error", "message": str(e)}), 500
-
-    return jsonify({"status": "received", "thank_you": "sister"}), 200
+    """Safe SYNAPS inbound wrapper."""
+    view = _make_synaps_sister_inbound_view(
+        payload_reader=lambda: request.get_json(silent=True) or {},
+        jsonifier=jsonify,
+        config_factory=_synaps_listener_config,
+        safe_chat=_safe_chat,
+        logger=logging,
+    )
+    return view()
 
 
 async def ask_sister_opinion(query_text: str) -> str:
