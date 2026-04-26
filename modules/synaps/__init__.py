@@ -20,6 +20,13 @@ from .protocol import (
     to_record,
     verify_token,
 )
+from .adapter import (
+    SynapsRouteResponse,
+    handle_inbound_payload,
+    handle_inbound_payload_async,
+    prepare_chat_message,
+    prepare_thought_request,
+)
 
 __all__ = [
     "SCHEMA_VERSION",
@@ -31,12 +38,17 @@ __all__ = [
     "SynapsInboundResult",
     "SynapsMessageType",
     "SynapsPreparedRequest",
+    "SynapsRouteResponse",
     "SynapsValidationError",
     "build_envelope",
     "config_from_env",
     "hash_content",
+    "handle_inbound_payload",
+    "handle_inbound_payload_async",
     "parse_inbound_payload",
+    "prepare_chat_message",
     "prepare_outbound_request",
+    "prepare_thought_request",
     "synaps_health",
     "to_record",
     "verify_token",
