@@ -6814,14 +6814,15 @@ def sister_inbound():
 
         thought = _run_coro_sync(_safe_chat("local", messages, temperature=0.7))
         thought = (thought or "").strip()
-        try:
-            _mirror_background_event(
-                f"[SISTER_THOUGHT_REQUEST] from={envelope.sender}: {content}\nA: {thought}",
-                "sister",
-                "sister_thought",
-            )
-        except Exception:
-            pass
+        if envelope.metadata.get("probe") != "synaps_probe":
+            try:
+                _mirror_background_event(
+                    f"[SISTER_THOUGHT_REQUEST] from={envelope.sender}: {content}\nA: {thought}",
+                    "sister",
+                    "sister_thought",
+                )
+            except Exception:
+                pass
         return thought
 
     response = _handle_synaps_inbound_payload(
