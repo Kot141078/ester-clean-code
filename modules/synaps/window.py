@@ -117,6 +117,8 @@ class ConversationWindowStore:
         latest = self._latest_open_record()
         if not latest:
             return ConversationWindowGate(ok=True)
+        if self._does_not_count_for_cooldown(str(latest.get("window_id", ""))):
+            return ConversationWindowGate(ok=True)
 
         opened_at = _parse_utc(str(latest.get("opened_at", "")))
         if opened_at is None:
@@ -220,6 +222,40 @@ class ConversationWindowStore:
             if isinstance(record, dict) and record.get("event") == "opened":
                 latest = record
         return latest
+
+    def _does_not_count_for_cooldown(self, window_id: str) -> bool:
+        if not window_id:
+            return False
+        events = self._read_window_events(window_id)
+        close_reason = ""
+        saw_no_http_failure = False
+        for event in events:
+            if event.get("event") == "closed":
+                close_reason = str(event.get("reason") or "")
+            if event.get("event") == "turn" and str(event.get("status") or "") == "0":
+                extra = event.get("extra")
+                if isinstance(extra, Mapping) and extra.get("ok") is False:
+                    saw_no_http_failure = True
+        if close_reason in {"send_failed_no_http", "local_network_denied"}:
+            return True
+        return close_reason == "send_failed" and saw_no_http_failure
+
+    def _read_window_events(self, window_id: str) -> list[dict[str, Any]]:
+        path = self._window_events_path(window_id)
+        if not path.is_file():
+            return []
+        out: list[dict[str, Any]] = []
+        for line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+            except Exception:
+                continue
+            if isinstance(record, dict):
+                out.append(record)
+        return out
 
     def _append_index(self, record: Mapping[str, Any]) -> None:
         self._append_jsonl(self.index_path, record)

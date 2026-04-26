@@ -1,3 +1,4 @@
+import ast
 import json
 import subprocess
 import sys
@@ -40,6 +41,27 @@ def test_store_blocks_second_window_inside_hour(tmp_path):
     assert gate.ok is False
     assert gate.problems == ("conversation_window_cooldown_active",)
     assert gate.last_window_id == "w1"
+
+
+def test_store_allows_retry_after_no_http_send_failure(tmp_path):
+    store = ConversationWindowStore(tmp_path)
+    policy = ConversationWindowPolicy()
+    now = datetime(2026, 4, 26, 12, 0, tzinfo=timezone.utc)
+
+    store.open_window(policy, "status", now=now, window_id="w1")
+    store.record_turn("w1", direction="outbound", message_index=1, content="status", status="prepared", policy=policy)
+    store.record_turn(
+        "w1",
+        direction="inbound",
+        message_index=2,
+        content='{"error": "NetworkDenyError"}',
+        status="0",
+        policy=policy,
+        extra={"ok": False},
+    )
+    store.close_window("w1", "send_failed_no_http", policy, message_count=2)
+
+    assert store.can_open(policy, now=now + timedelta(minutes=1)).ok is True
 
 
 def test_turn_request_uses_memory_off_and_window_metadata():
@@ -152,3 +174,17 @@ def test_cli_send_fails_closed_without_window_confirm_or_flags(tmp_path):
     assert "SISTER_CONVERSATION_WINDOW_not_enabled" in payload["result"]["body"]["problems"]
     assert "shared-secret" not in result.stdout
     assert not (tmp_path / "ledger").exists()
+
+
+def test_cli_bootstraps_env_before_modules_imports():
+    source = open("tools/synaps_conversation_window.py", encoding="utf-8").read()
+    tree = ast.parse(source)
+    unsafe_top_level_imports = [
+        node.module
+        for node in tree.body
+        if isinstance(node, ast.ImportFrom)
+        and (str(node.module or "").startswith("modules.") or str(node.module or "").startswith("tools."))
+    ]
+
+    assert unsafe_top_level_imports == []
+    assert source.index("bootstrap_env_from_argv(raw_argv)") < source.index("from modules.synaps import")

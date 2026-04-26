@@ -7,30 +7,34 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any, Mapping, MutableMapping
+from typing import TYPE_CHECKING, Any, Mapping, MutableMapping
+
+if TYPE_CHECKING:
+    from modules.synaps.window import ConversationWindowPolicy
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from modules.synaps.window import (  # noqa: E402
-    CONVERSATION_WINDOW_CONFIRM_PHRASE,
-    DEFAULT_WINDOW_TOPIC,
-    ConversationWindowPolicy,
-    ConversationWindowStore,
-    build_conversation_turn_request,
-    conversation_window_arm_status,
-    validate_conversation_send_gate,
-)
-from tools.synaps_autochat_window import (  # noqa: E402
-    load_env_file,
-    redacted_request_summary,
-    redacted_send_result,
-    send_prepared_request,
-)
-
 
 DEFAULT_LEDGER_ROOT = Path("data") / "synaps" / "conversation_windows"
+
+
+def load_env_file(path: str | Path) -> dict[str, str]:
+    env_path = Path(path)
+    if not env_path.is_file():
+        return {}
+
+    values: dict[str, str] = {}
+    for raw_line in env_path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if key:
+            values[key] = _strip_env_value(value)
+    return values
 
 
 def bootstrap_env_from_argv(argv: list[str], environ: MutableMapping[str, str] | None = None) -> None:
@@ -52,6 +56,16 @@ def main(argv: list[str] | None = None) -> int:
     bootstrap_env_from_argv(raw_argv)
 
     from modules.synaps import config_from_env, synaps_health, to_record
+    from modules.synaps.window import (
+        CONVERSATION_WINDOW_CONFIRM_PHRASE,
+        DEFAULT_WINDOW_TOPIC,
+        ConversationWindowPolicy,
+        ConversationWindowStore,
+        build_conversation_turn_request,
+        conversation_window_arm_status,
+        validate_conversation_send_gate,
+    )
+    from tools.synaps_autochat_window import redacted_request_summary, redacted_send_result, send_prepared_request
 
     parser = argparse.ArgumentParser(description="Dry-run-first SYNAPS conversation window controller.")
     parser.add_argument("--topic", default=DEFAULT_WINDOW_TOPIC, help="Bounded first-turn topic.")
@@ -152,13 +166,15 @@ def main(argv: list[str] | None = None) -> int:
             extra={"ok": bool(result.get("ok"))},
         )
         if not result.get("ok"):
-            store.close_window(actual_window_id, "send_failed", policy, message_count=2)
+            reason = "send_failed_no_http" if int(result.get("status") or 0) == 0 else "send_failed_http"
+            store.close_window(actual_window_id, reason, policy, message_count=2)
+            output["ok"] = False
         output["request"] = redacted_request_summary(request, config)
         output["window"] = open_record
         output["result"] = redacted_send_result(result, config.sync_token)
 
     print(json.dumps(redacted_send_result(output, config.sync_token), ensure_ascii=False, indent=2, sort_keys=True))
-    return 0
+    return 0 if output.get("ok") else 2
 
 
 def _env_file_from_argv(argv: list[str]) -> str:
@@ -168,6 +184,13 @@ def _env_file_from_argv(argv: list[str]) -> str:
         if item.startswith("--env-file="):
             return item.split("=", 1)[1]
     return ".env"
+
+
+def _strip_env_value(value: str) -> str:
+    stripped = value.strip()
+    if len(stripped) >= 2 and stripped[0] == stripped[-1] and stripped[0] in {"'", '"'}:
+        return stripped[1:-1]
+    return stripped
 
 
 def _result_content(result: Mapping[str, Any]) -> str:
