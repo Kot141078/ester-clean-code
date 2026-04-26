@@ -9,13 +9,15 @@ Sister AutoChat (background initiator)
 ЗЕМНОЙ АБЗАЦ: как дыхание во сне — автономно, но с предохранителями, чтобы не перейти в гипервентиляцию.
 
 Режимы:
-- SISTER_AUTOCHAT=1 включает модуль
+- SISTER_AUTOCHAT=1 разрешает модуль
+- SISTER_AUTOCHAT_ARMED=1 явно вооружает initiator/both запуск
 - SISTER_AUTOCHAT_ROLE=initiator|responder|both (по умолчанию initiator)
   * initiator/both: запускает фоновый цикл, который иногда делает thought_request к сестре
   * responder: цикл не стартует (но mark_user_activity можно дергать без вреда)
 
 Важно:
 - Это НЕ “вечный чат”. Это безопасный “самопуск” обмена мнением, без петель.
+- SISTER_AUTOCHAT=1 без SISTER_AUTOCHAT_ARMED=1 не стартует отправитель.
 """
 
 import os
@@ -120,6 +122,8 @@ def _network_allowed_for_url(url: str) -> bool:
 class SisterAutoChat:
     def __init__(self) -> None:
         self.enabled = _env_bool("SISTER_AUTOCHAT", "0")
+        self.armed = _env_bool("SISTER_AUTOCHAT_ARMED", "0")
+        self.oneshot = _env_bool("SISTER_AUTOCHAT_ONESHOT", "0")
         self.role = (os.getenv("SISTER_AUTOCHAT_ROLE", "initiator") or "initiator").strip().lower()
 
         self.base_url = (os.getenv("SISTER_NODE_URL", "") or "").strip().rstrip("/")
@@ -186,6 +190,8 @@ class SisterAutoChat:
     def _should_start(self) -> bool:
         if not self.enabled:
             return False
+        if not self.armed:
+            return False
         if self._disabled_reason:
             return False
         if self.role not in ("initiator", "both"):
@@ -233,7 +239,7 @@ class SisterAutoChat:
                 pass
 
     def run_forever(self) -> None:
-        if not self.enabled or self.role not in ("initiator", "both"):
+        if not self.enabled or not self.armed or self.role not in ("initiator", "both"):
             return
 
         # небольшая рассинхронизация при старте
@@ -308,6 +314,11 @@ class SisterAutoChat:
                         except Exception:
                             pass
 
+                    if self.oneshot:
+                        self._log("[AUTOCHAT] oneshot_complete")
+                        self._stop.set()
+                        continue
+
                 time.sleep(2)
             except Exception as e:
                 err = str(e)
@@ -372,7 +383,7 @@ def start_sister_autochat_background() -> Optional[SisterAutoChat]:
     Возвращает объект для mark_user_activity()/stop(), иначе None.
     """
     ac = SisterAutoChat()
-    if not ac.enabled or ac.role not in ("initiator", "both"):
+    if not ac.enabled or not ac.armed or ac.role not in ("initiator", "both"):
         try:
             _mirror_background_event(
                 "[AUTOCHAT_START_SKIP]",
