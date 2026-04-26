@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-04-26
+### Runtime / Memory
+- Added public-safe M1 memory diagnostic materialization for reply traces, self-diagnostics, internal trace coverage, and operator-facing memory status.
+- Added Windows-resilient diagnostic writes so materialized reports recover cleanly when atomic replace is denied.
+- Added report endpoints and CLI status surfaces for overview, health, timeline, operator status, reply trace, and self-diagnostics.
+
+### Runtime Helpers
+- Added UTF-8 bootstrap helpers, memory-core import bootstrap support, and Ollama launcher/proxy helpers for local-first operation.
+- Updated the Ollama launcher path handling to avoid machine-specific hardcoded public paths.
+
+### Release Truth / Hygiene
+- Aligned `VERSION`, `release/VERSION`, stable download references, and the release-safety default tag to `v0.2.6`.
+- Kept live runtime memory, diagnostics payloads, local logs, and private stores out of the public release.
+- Sanitized release fixtures to avoid personal-looking data in public tests and probes.
+
 ## [0.2.5] - 2026-04-11
 ### Privacy/Hygiene
 - Removed tracked root-level runtime and debug dump artifacts from the public tree.

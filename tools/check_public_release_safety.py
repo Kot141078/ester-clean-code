@@ -13,7 +13,7 @@ import privacy_scan
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_EXPECTED_TAG = "v0.2.5"
+DEFAULT_EXPECTED_TAG = "v0.2.6"
 DEFAULT_REPORT = REPO_ROOT / "artifacts" / "reports" / "public_release_safety_report.md"
 FORBIDDEN_ROOT_FILES = [
     ".ester_env_state.json",
