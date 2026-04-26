@@ -23,6 +23,14 @@ from .layer import (
     transition_state,
     validate_dispute_record,
 )
+from .witness import (
+    ArlWitnessFootprint,
+    ArlWitnessLedger,
+    build_witness_footprint,
+    event_hash,
+    payload_hash,
+    verify_witness_footprint,
+)
 
 __all__ = [
     "ArlDisputeRecord",
@@ -46,4 +54,10 @@ __all__ = [
     "to_record",
     "transition_state",
     "validate_dispute_record",
+    "ArlWitnessFootprint",
+    "ArlWitnessLedger",
+    "build_witness_footprint",
+    "event_hash",
+    "payload_hash",
+    "verify_witness_footprint",
 ]
