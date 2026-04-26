@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
-"""modules.kg_beacons_query - fasad po "mayakam".
+"""
+modules.kg_beacons_query — фасад по «маякам».
 
-MOSTY:
-- Yavnyy: status(), search(), list_beacons(), beacons_stats().
-- Skrytyy #1: ustoychivye otvety bez vneshnikh indeksov.
-- Skrytyy #2: odinakovye signatury vo vsekh vyzovakh.
+МОСТЫ:
+- Явный: status(), search(), list_beacons(), beacons_stats().
+- Скрытый #1: устойчивые ответы без внешних индексов.
+- Скрытый #2: одинаковые сигнатуры во всех вызовах.
 
-ZEMNOY ABZATs:
-Dazhe bez BD mozhno otrisovat spisok/statku i ne padat na importe.
+ЗЕМНОЙ АБЗАЦ:
+Даже без БД можно отрисовать список/статку и не падать на импорте.
 
-# c=a+b"""
+# c=a+b
+"""
 from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
-from modules.memory.facade import memory_add, ESTER_MEM_FACADE
+from typing import Any, Dict, Iterable, List, Tuple
 
 BEACONS_DB = os.getenv("KG_BEACONS_DB", "data/kg/beacons.json").strip() or "data/kg/beacons.json"
 
@@ -50,9 +51,59 @@ def _load_store() -> Tuple[List[Dict[str, Any]], str]:
                 "id": rid,
                 "score": float(row.get("score") or 0.0),
                 "label": str(row.get("label") or row.get("name") or rid),
+                **_optional_beacon_fields(row),
             }
         )
     return items, ""
+
+
+def _optional_beacon_fields(row: Dict[str, Any]) -> Dict[str, Any]:
+    out: Dict[str, Any] = {}
+    kind = str(row.get("kind") or row.get("type") or row.get("event") or "").strip()
+    if kind:
+        out["kind"] = kind
+    ts = _coerce_ts(
+        row.get("ts")
+        or row.get("timestamp")
+        or row.get("created_ts")
+        or row.get("created_at")
+        or row.get("time")
+    )
+    if ts is not None:
+        out["ts"] = ts
+    return out
+
+
+def _coerce_ts(value: Any) -> float | None:
+    if value is None or value == "":
+        return None
+    try:
+        return float(value)
+    except Exception:
+        return None
+
+
+def _kind_set(kinds: Iterable[str] | None) -> set[str]:
+    return {str(kind).strip() for kind in (kinds or []) if str(kind).strip()}
+
+
+def _filter_items(
+    items: List[Dict[str, Any]],
+    *,
+    since: float | None = None,
+    kinds: Iterable[str] | None = None,
+) -> List[Dict[str, Any]]:
+    kind_filter = _kind_set(kinds)
+    out: List[Dict[str, Any]] = []
+    for item in items:
+        if since is not None:
+            ts = _coerce_ts(item.get("ts"))
+            if ts is None or ts < float(since):
+                continue
+        if kind_filter and str(item.get("kind") or "").strip() not in kind_filter:
+            continue
+        out.append(item)
+    return out
 
 
 def status() -> Dict[str, Any]:
@@ -89,15 +140,35 @@ def search(query: str = "", limit: int = 10) -> Dict[str, Any]:
     scored.sort(key=lambda x: x[0], reverse=True)
     return {"ok": True, "items": [it for _, it in scored[:max_items]]}
 
-def list_beacons(limit: int = 50) -> List[Dict[str, Any]]:
+def list_beacons(
+    limit: int = 50,
+    since: float | None = None,
+    kinds: Iterable[str] | None = None,
+) -> List[Dict[str, Any]]:
     items, _ = _load_store()
     max_items = max(0, int(limit))
+    items = _filter_items(items, since=since, kinds=kinds)
     if items:
         return items[:max_items]
+    if since is not None or _kind_set(kinds):
+        return []
     return [{"id": f"b{i}", "score": 0.0, "label": f"b{i}"} for i in range(max_items)]
 
-def beacons_stats() -> Dict[str, Any]:
+def beacons_stats(
+    limit: int = 1000,
+    since: float | None = None,
+    kinds: Iterable[str] | None = None,
+) -> Dict[str, Any]:
     st = status()
-    return {"ok": bool(st.get("ok")), "beacons": int(st.get("beacons_count", 0)), "last_error": st.get("last_error", "")}
+    rows = list_beacons(limit=limit, since=since, kinds=kinds)
+    return {
+        "ok": bool(st.get("ok")),
+        "beacons": len(rows),
+        "stored_beacons": int(st.get("beacons_count", 0)),
+        "limit": max(0, int(limit)),
+        "since": since,
+        "kinds": sorted(_kind_set(kinds)),
+        "last_error": st.get("last_error", ""),
+    }
 
 # c=a+b

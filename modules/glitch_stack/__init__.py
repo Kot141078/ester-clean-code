@@ -1,0 +1,78 @@
+"""Glitch Stack contracts.
+
+This package is intentionally additive: it models documented Glitch M1
+objects and guards without wiring them into live runtime control.
+"""
+
+from .m1 import (
+    CanonicalEvent,
+    EvidenceRecord,
+    EvidenceState,
+    GlitchNode,
+    GlitchValidationError,
+    GuardDecision,
+    Lane,
+    NodeKind,
+    NodeRef,
+    RenderMode,
+    ReopenabilityState,
+    ResearchNode,
+    RuntimeLockType,
+    StatusTuple,
+    TimeWindow,
+    ValidationIssue,
+    WitnessRef,
+    attach_collision_witness,
+    authorize_runtime_from_evidence,
+    derive_research_node,
+    open_collision_challenge_window,
+    register_runtime_collision,
+    store_research_node,
+    to_record,
+    validate_glitch_node,
+    validate_research_node,
+    validate_status_tuple,
+    validate_transition,
+)
+from .adapters import (
+    AdapterResult,
+    build_m1_bundle_from_quarantine_row,
+    lock_type_from_quarantine_row,
+)
+from .store import GlitchM1Store, persist_m1_bundle
+
+__all__ = [
+    "CanonicalEvent",
+    "EvidenceRecord",
+    "EvidenceState",
+    "GlitchNode",
+    "GlitchValidationError",
+    "GuardDecision",
+    "Lane",
+    "NodeKind",
+    "NodeRef",
+    "RenderMode",
+    "ReopenabilityState",
+    "ResearchNode",
+    "RuntimeLockType",
+    "StatusTuple",
+    "TimeWindow",
+    "ValidationIssue",
+    "WitnessRef",
+    "attach_collision_witness",
+    "authorize_runtime_from_evidence",
+    "derive_research_node",
+    "open_collision_challenge_window",
+    "register_runtime_collision",
+    "store_research_node",
+    "to_record",
+    "validate_glitch_node",
+    "validate_research_node",
+    "validate_status_tuple",
+    "validate_transition",
+    "AdapterResult",
+    "build_m1_bundle_from_quarantine_row",
+    "lock_type_from_quarantine_row",
+    "GlitchM1Store",
+    "persist_m1_bundle",
+]

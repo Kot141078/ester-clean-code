@@ -1,14 +1,16 @@
 # routes/beacons_routes.py
 # -*- coding: utf-8 -*-
-"""routes/beacons_routes.py - REST-ruchki dlya prosmotra mayakov (beacons) aktivnosti.
+"""
+routes/beacons_routes.py — REST-ручки для просмотра маяков (beacons) активности.
 
-Endpoynty (JWT):
-  GET /beacons/list?limit=200&since=<ts>&kinds=backup.done,scheduler:tick
-  GET /beacons/stats?limit=1000&since=<ts>
+Эндпойнты (JWT):
+  GET  /beacons/list?limit=200&since=<ts>&kinds=backup.done,scheduler:tick
+  GET  /beacons/stats?limit=1000&since=<ts>
 
-Registration:
+Р егистрация:
   from routes.beacons_routes import register_beacons_routes
-  register_beacons_routes(app, url_prefix="/beacons")"""
+  register_beacons_routes(app, url_prefix="/beacons")
+"""
 from __future__ import annotations
 
 from typing import List, Optional
@@ -17,7 +19,6 @@ from flask import jsonify, request
 from flask_jwt_extended import jwt_required  # type: ignore
 
 from modules.kg_beacons_query import beacons_stats, list_beacons
-from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def register_beacons_routes(app, url_prefix: str = "/beacons"):
@@ -55,12 +56,12 @@ def register_beacons_routes(app, url_prefix: str = "/beacons"):
             since_ts = None
 
         data = beacons_stats(limit=limit, since=since_ts)
-# return jsonify(data)
+        return jsonify(data)
 
 
 # === AUTOSHIM: added by tools/fix_no_entry_routes.py ===
 def register(app):
-    # calls an existing register_veasons_rutes(app) (url_prefix is ​​taken by default inside the function)
+    # вызываем существующий register_beacons_routes(app) (url_prefix берётся по умолчанию внутри функции)
     return register_beacons_routes(app)
 
 # === /AUTOSHIM ===
