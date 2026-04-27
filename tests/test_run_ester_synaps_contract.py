@@ -25,3 +25,13 @@ def test_synaps_thought_probe_does_not_write_background_mirror():
 
     assert guard_pos < mirror_pos
     assert "[SISTER_THOUGHT_REQUEST]" in block
+
+
+def test_synaps_file_manifest_uses_quarantine_and_skips_background_mirror():
+    block = _extract_block(RUN_SOURCE, r"def sister_inbound\(\):", r"return jsonify\(response.body\), response.status_code")
+    post_adapter_block = block[block.index("response = _handle_synaps_inbound_payload") :]
+
+    assert "_sister_file_manifest_handler" in block
+    assert "_handle_synaps_file_manifest" in block
+    assert "_SynapsMessageType.FILE_MANIFEST" in post_adapter_block
+    assert post_adapter_block.index("_SynapsMessageType.FILE_MANIFEST") < post_adapter_block.index("_mirror_background_event")

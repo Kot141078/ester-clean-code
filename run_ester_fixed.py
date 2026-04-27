@@ -61,6 +61,7 @@ from modules.memory.journal import record_event
 from modules.synaps import (
     SynapsMessageType as _SynapsMessageType,
     config_from_legacy_listener_values as _synaps_config_from_legacy_listener_values,
+    handle_synaps_file_manifest as _handle_synaps_file_manifest,
     handle_inbound_payload as _handle_synaps_inbound_payload,
 )
 from bridges.internet_access import internet
@@ -6829,10 +6830,15 @@ def sister_inbound():
                 pass
         return thought
 
+    def _sister_file_manifest_handler(envelope):
+        root = os.getenv("SYNAPS_FILE_QUARANTINE_ROOT", "data/synaps/quarantine")
+        return _handle_synaps_file_manifest(envelope, root=root)
+
     response = _handle_synaps_inbound_payload(
         data,
         _synaps_listener_config(),
         _sister_thought_handler,
+        _sister_file_manifest_handler,
     )
 
     envelope = response.request_envelope
@@ -6849,7 +6855,8 @@ def sister_inbound():
     if (
         response.accepted
         and envelope is not None
-        and envelope.message_type not in {_SynapsMessageType.HEALTH, _SynapsMessageType.THOUGHT_REQUEST}
+        and envelope.message_type
+        not in {_SynapsMessageType.HEALTH, _SynapsMessageType.THOUGHT_REQUEST, _SynapsMessageType.FILE_MANIFEST}
         and envelope.metadata.get("probe") != "synaps_probe"
     ):
         content = _bounded_sister_content(envelope.content)

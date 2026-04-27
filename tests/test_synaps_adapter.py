@@ -134,6 +134,14 @@ def test_health_payload_returns_redacted_health_record():
     assert "shared-secret" not in str(response.body)
 
 
+def test_file_manifest_without_handler_fails_closed_after_auth():
+    response = handle_inbound_payload(_payload(SynapsMessageType.FILE_MANIFEST, "{}"), _config())
+
+    assert response.status_code == 503
+    assert response.accepted is True
+    assert response.reason == "file_manifest_handler_missing"
+
+
 def test_async_thought_handler_is_supported_without_owning_runtime_loop():
     async def run():
         async def handler(envelope):

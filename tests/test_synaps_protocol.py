@@ -98,6 +98,22 @@ def test_parse_inbound_payload_accepts_valid_legacy_payload():
     assert result.envelope.content_hash == hash_content("What risk should we watch?")
 
 
+def test_parse_inbound_payload_accepts_file_manifest_type():
+    payload = {
+        "sender": "lii-test",
+        "type": "file_manifest",
+        "content": "{}",
+        "token": "shared-secret",
+        "timestamp": "2026-04-26T00:00:00+00:00",
+    }
+
+    result = parse_inbound_payload(payload, expected_token="shared-secret")
+
+    assert result.accepted is True
+    assert result.envelope is not None
+    assert result.envelope.message_type == SynapsMessageType.FILE_MANIFEST
+
+
 def test_parse_inbound_payload_rejects_bad_token_and_hash_mismatch():
     invalid_token = parse_inbound_payload(
         {"content": "hello", "token": "wrong"},

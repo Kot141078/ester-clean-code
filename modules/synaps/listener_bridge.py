@@ -11,7 +11,7 @@ import inspect
 from collections.abc import Awaitable, Callable, Mapping
 from typing import Any
 
-from .adapter import SynapsRouteResponse, handle_inbound_payload
+from .adapter import FileManifestHandler, SynapsRouteResponse, handle_inbound_payload
 from .protocol import SynapsConfig, SynapsEnvelope
 
 
@@ -105,6 +105,7 @@ def make_sister_inbound_view(
     config_factory: ConfigFactory,
     safe_chat: SafeChatCallable,
     logger: Any | None = None,
+    file_manifest_handler: FileManifestHandler | None = None,
     **safe_chat_kwargs: Any,
 ) -> Callable[[], tuple[Any, int]]:
     """Build a Flask-compatible view function without importing Flask."""
@@ -113,7 +114,7 @@ def make_sister_inbound_view(
 
     def _view() -> tuple[Any, int]:
         payload = read_payload_safely(payload_reader)
-        response = handle_inbound_payload(payload, config_factory(), thought_handler)
+        response = handle_inbound_payload(payload, config_factory(), thought_handler, file_manifest_handler)
         log_synaps_route_response(logger, response)
         return jsonifier(response.body), response.status_code
 

@@ -16,6 +16,7 @@ from .protocol import (
     SynapsEnvelope,
     SynapsMessageType,
     SynapsPreparedRequest,
+    SynapsValidationError,
     build_envelope,
     parse_inbound_payload,
     prepare_outbound_request,
@@ -26,6 +27,7 @@ from .protocol import (
 
 ThoughtHandler = Callable[[SynapsEnvelope], str]
 AsyncThoughtHandler = Callable[[SynapsEnvelope], Awaitable[str]]
+FileManifestHandler = Callable[[SynapsEnvelope], Mapping[str, Any]]
 
 
 @dataclass(frozen=True)
@@ -42,6 +44,7 @@ def handle_inbound_payload(
     payload: Mapping[str, Any],
     config: SynapsConfig,
     thought_handler: ThoughtHandler | None = None,
+    file_manifest_handler: FileManifestHandler | None = None,
 ) -> SynapsRouteResponse:
     """Handle a legacy-compatible `/sister/inbound` payload.
 
@@ -77,6 +80,32 @@ def handle_inbound_payload(
             )
         return _thought_reply(config, envelope, thought)
 
+    if envelope.message_type is SynapsMessageType.FILE_MANIFEST:
+        if file_manifest_handler is None:
+            return _error_response(
+                503,
+                "file_manifest_handler_missing",
+                request_envelope=envelope,
+                accepted=True,
+            )
+        try:
+            result = dict(file_manifest_handler(envelope) or {})
+        except SynapsValidationError:
+            return _error_response(
+                400,
+                "file_manifest_rejected",
+                request_envelope=envelope,
+                accepted=True,
+            )
+        except Exception:
+            return _error_response(
+                500,
+                "file_manifest_handler_failed",
+                request_envelope=envelope,
+                accepted=True,
+            )
+        return _file_manifest_response(config, envelope, result)
+
     if envelope.message_type is SynapsMessageType.HEALTH:
         return _health_response(config, envelope)
 
@@ -87,6 +116,7 @@ async def handle_inbound_payload_async(
     payload: Mapping[str, Any],
     config: SynapsConfig,
     thought_handler: AsyncThoughtHandler | None = None,
+    file_manifest_handler: FileManifestHandler | None = None,
 ) -> SynapsRouteResponse:
     """Async twin for runtimes that already own an event loop."""
 
@@ -117,6 +147,32 @@ async def handle_inbound_payload_async(
                 accepted=True,
             )
         return _thought_reply(config, envelope, thought)
+
+    if envelope.message_type is SynapsMessageType.FILE_MANIFEST:
+        if file_manifest_handler is None:
+            return _error_response(
+                503,
+                "file_manifest_handler_missing",
+                request_envelope=envelope,
+                accepted=True,
+            )
+        try:
+            result = dict(file_manifest_handler(envelope) or {})
+        except SynapsValidationError:
+            return _error_response(
+                400,
+                "file_manifest_rejected",
+                request_envelope=envelope,
+                accepted=True,
+            )
+        except Exception:
+            return _error_response(
+                500,
+                "file_manifest_handler_failed",
+                request_envelope=envelope,
+                accepted=True,
+            )
+        return _file_manifest_response(config, envelope, result)
 
     if envelope.message_type is SynapsMessageType.HEALTH:
         return _health_response(config, envelope)
@@ -246,6 +302,45 @@ def _thought_reply(
         status_code=200,
         accepted=True,
         reason="thought_reply",
+        request_envelope=request_envelope,
+        response_envelope=response_envelope,
+    )
+
+
+def _file_manifest_response(
+    config: SynapsConfig,
+    request_envelope: SynapsEnvelope,
+    result: Mapping[str, Any],
+) -> SynapsRouteResponse:
+    safe_result = {
+        key: result[key]
+        for key in ("status", "transfer_id", "file_count", "written_count", "auto_ingest", "memory")
+        if key in result
+    }
+    response_envelope = build_envelope(
+        config,
+        "file_manifest_received",
+        SynapsMessageType.ACK,
+        correlation_id=request_envelope.message_id,
+        metadata={
+            "reply_to": request_envelope.message_id,
+            "transfer_id": safe_result.get("transfer_id", ""),
+            "mode": "synaps_file_transfer",
+        },
+    )
+    return SynapsRouteResponse(
+        body={
+            "status": str(safe_result.get("status") or "manifest_received"),
+            "schema": SCHEMA_VERSION,
+            "sender": config.node_id,
+            "message_id": response_envelope.message_id,
+            "correlation_id": response_envelope.correlation_id,
+            "content_hash": response_envelope.content_hash,
+            "file_transfer": dict(safe_result),
+        },
+        status_code=200,
+        accepted=True,
+        reason="file_manifest",
         request_envelope=request_envelope,
         response_envelope=response_envelope,
     )

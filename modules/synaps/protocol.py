@@ -44,6 +44,7 @@ class SynapsMessageType(str, Enum):
     CHAT = "chat"
     THOUGHT_REQUEST = "thought_request"
     THOUGHT_REPLY = "thought_reply"
+    FILE_MANIFEST = "file_manifest"
     HEALTH = "health"
     ACK = "ack"
     ERROR = "error"
