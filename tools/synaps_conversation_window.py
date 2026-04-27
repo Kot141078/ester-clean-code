@@ -169,6 +169,8 @@ def main(argv: list[str] | None = None) -> int:
             reason = "send_failed_no_http" if int(result.get("status") or 0) == 0 else "send_failed_http"
             store.close_window(actual_window_id, reason, policy, message_count=2)
             output["ok"] = False
+        else:
+            store.close_window(actual_window_id, "single_turn_complete", policy, message_count=2)
         output["request"] = redacted_request_summary(request, config)
         output["window"] = open_record
         output["result"] = redacted_send_result(result, config.sync_token)

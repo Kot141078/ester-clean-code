@@ -1,7 +1,9 @@
 import ast
+import importlib.util
 import json
 import subprocess
 import sys
+import urllib.request
 from datetime import datetime, timedelta, timezone
 
 from modules.synaps import SynapsConfig
@@ -174,6 +176,76 @@ def test_cli_send_fails_closed_without_window_confirm_or_flags(tmp_path):
     assert "SISTER_CONVERSATION_WINDOW_not_enabled" in payload["result"]["body"]["problems"]
     assert "shared-secret" not in result.stdout
     assert not (tmp_path / "ledger").exists()
+
+
+def test_cli_successful_send_writes_closed_event(tmp_path, monkeypatch, capsys):
+    env_file = tmp_path / ".env"
+    ledger_root = tmp_path / "ledger"
+    env_file.write_text(
+        "\n".join(
+            [
+                "SISTER_NODE_URL=http://sister.local",
+                "SISTER_SYNC_TOKEN=shared-secret",
+                "ESTER_NODE_ID=ester-test",
+                "SISTER_CONVERSATION_WINDOW=1",
+                "SISTER_CONVERSATION_WINDOW_ARMED=1",
+                "SISTER_AUTOCHAT=0",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    class FakeResponse:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, _exc_type, _exc, _tb):
+            return False
+
+        def read(self, _limit=-1):
+            return json.dumps({"status": "success", "content": "ready"}).encode("utf-8")
+
+    monkeypatch.setattr(urllib.request, "urlopen", lambda *_args, **_kwargs: FakeResponse())
+    for key in (
+        "SISTER_NODE_URL",
+        "SISTER_SYNC_TOKEN",
+        "ESTER_NODE_ID",
+        "SISTER_CONVERSATION_WINDOW",
+        "SISTER_CONVERSATION_WINDOW_ARMED",
+        "SISTER_AUTOCHAT",
+    ):
+        monkeypatch.delenv(key, raising=False)
+
+    spec = importlib.util.spec_from_file_location(
+        "synaps_conversation_window_under_test",
+        "tools/synaps_conversation_window.py",
+    )
+    assert spec and spec.loader
+    tool = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(tool)
+
+    exit_code = tool.main(
+        [
+            "--env-file",
+            str(env_file),
+            "--ledger-root",
+            str(ledger_root),
+            "--send",
+            "--confirm",
+            CONVERSATION_WINDOW_CONFIRM_PHRASE,
+        ]
+    )
+    payload = json.loads(capsys.readouterr().out)
+    events_path = ledger_root / payload["window"]["window_id"] / "events.jsonl"
+    events = [json.loads(line) for line in events_path.read_text(encoding="utf-8").splitlines()]
+
+    assert exit_code == 0
+    assert payload["ok"] is True
+    assert [event["event"] for event in events] == ["opened", "turn", "turn", "closed"]
+    assert events[-1]["reason"] == "single_turn_complete"
+    assert events[-1]["message_count"] == 2
 
 
 def test_cli_bootstraps_env_before_modules_imports():
