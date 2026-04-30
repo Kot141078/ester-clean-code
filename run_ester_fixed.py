@@ -6841,13 +6841,39 @@ def sister_inbound():
         _sister_file_manifest_handler,
     )
 
+    def _synaps_safe_log_value(value):
+        if isinstance(value, bool):
+            return "true" if value else "false"
+        text = str(value or "").strip()
+        if not text:
+            return ""
+        safe = "".join(ch if ch.isalnum() or ch in {"-", "_", ".", ":"} else "_" for ch in text)
+        return safe[:120]
+
+    def _synaps_safe_metadata_log(envelope):
+        try:
+            metadata = getattr(envelope, "metadata", {}) or {}
+            fields = []
+            for key in ("window_id", "mode", "operator_window", "message_index", "transfer_id"):
+                if key not in metadata:
+                    continue
+                value = _synaps_safe_log_value(metadata.get(key))
+                if value:
+                    fields.append(f"{key}={value}")
+            if fields:
+                return " metadata." + " metadata.".join(fields)
+        except Exception:
+            return ""
+        return ""
+
     envelope = response.request_envelope
     if response.accepted and envelope is not None:
         logging.info(
-            "[SYNAPSE] <<< Request from %s (%s): accepted reason=%s",
+            "[SYNAPSE] <<< Request from %s (%s): accepted reason=%s%s",
             envelope.sender,
             envelope.message_type.value,
             response.reason,
+            _synaps_safe_metadata_log(envelope),
         )
     else:
         logging.warning("[SYNAPSE] inbound rejected: %s", response.reason)

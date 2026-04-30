@@ -22,13 +22,14 @@ def _config() -> SynapsConfig:
     )
 
 
-def _payload(message_type: SynapsMessageType, content: str = "hello") -> dict:
+def _payload(message_type: SynapsMessageType, content: str = "hello", metadata: dict | None = None) -> dict:
     envelope = build_envelope(
         _config(),
         content,
         message_type,
         message_id="incoming-1",
         created_at="2026-04-26T00:00:00+00:00",
+        metadata=metadata or {},
     )
     return prepare_outbound_request(_config(), envelope).json
 
@@ -125,6 +126,41 @@ def test_view_sanitizes_handler_failure_and_logs_without_content():
     assert "prompt body" not in str(logger.lines)
     assert "shared-secret" not in str(logger.lines)
     assert logger.lines[0][0] == "error"
+
+
+def test_view_logs_safe_operator_metadata_without_content_or_token():
+    logger = _Logger()
+
+    async def safe_chat(_provider, _messages, **_kwargs):
+        return "bounded reply"
+
+    view = make_sister_inbound_view(
+        payload_reader=lambda: _payload(
+            SynapsMessageType.THOUGHT_REQUEST,
+            "prompt body",
+            metadata={
+                "window_id": "synaps-window-test",
+                "mode": "synaps_operator_gate",
+                "operator_window": True,
+                "message_index": 1,
+            },
+        ),
+        jsonifier=lambda body: body,
+        config_factory=_config,
+        safe_chat=safe_chat,
+        logger=logger,
+    )
+
+    _body, status = view()
+    line = logger.lines[0][1]
+
+    assert status == 200
+    assert "metadata.window_id=synaps-window-test" in line
+    assert "metadata.mode=synaps_operator_gate" in line
+    assert "metadata.operator_window=true" in line
+    assert "metadata.message_index=1" in line
+    assert "prompt body" not in line
+    assert "shared-secret" not in line
 
 
 def test_view_rejects_invalid_token_before_safe_chat():

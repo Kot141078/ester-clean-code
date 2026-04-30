@@ -35,3 +35,12 @@ def test_synaps_file_manifest_uses_quarantine_and_skips_background_mirror():
     assert "_handle_synaps_file_manifest" in block
     assert "_SynapsMessageType.FILE_MANIFEST" in post_adapter_block
     assert post_adapter_block.index("_SynapsMessageType.FILE_MANIFEST") < post_adapter_block.index("_mirror_background_event")
+
+
+def test_synaps_inbound_log_includes_safe_operator_metadata_only():
+    block = _extract_block(RUN_SOURCE, r"def sister_inbound\(\):", r"return jsonify\(response.body\), response.status_code")
+
+    assert "def _synaps_safe_metadata_log(envelope):" in block
+    assert '"window_id", "mode", "operator_window", "message_index", "transfer_id"' in block
+    assert "accepted reason=%s%s" in block
+    assert "_synaps_safe_metadata_log(envelope)" in block

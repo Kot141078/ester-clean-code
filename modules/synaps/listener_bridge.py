@@ -129,10 +129,11 @@ def log_synaps_route_response(logger: Any | None, response: SynapsRouteResponse)
     envelope = response.request_envelope
     sender = envelope.sender if envelope is not None else ""
     message_type = envelope.message_type.value if envelope is not None else ""
+    metadata = _safe_log_metadata(envelope)
     message = (
         "[SYNAPS] inbound "
         f"status={response.status_code} reason={response.reason} "
-        f"accepted={response.accepted} sender={sender} type={message_type}"
+        f"accepted={response.accepted} sender={sender} type={message_type}{metadata}"
     )
     try:
         if response.status_code >= 500 and hasattr(logger, "error"):
@@ -143,3 +144,29 @@ def log_synaps_route_response(logger: Any | None, response: SynapsRouteResponse)
             logger.info(message)
     except Exception:
         return
+
+
+def _safe_log_metadata(envelope: SynapsEnvelope | None) -> str:
+    if envelope is None:
+        return ""
+    metadata = envelope.metadata or {}
+    fields = []
+    for key in ("window_id", "mode", "operator_window", "message_index", "transfer_id"):
+        if key not in metadata:
+            continue
+        value = _safe_log_value(metadata.get(key))
+        if value:
+            fields.append(f"{key}={value}")
+    if not fields:
+        return ""
+    return " metadata." + " metadata.".join(fields)
+
+
+def _safe_log_value(value: Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    safe = "".join(ch if ch.isalnum() or ch in {"-", "_", ".", ":"} else "_" for ch in text)
+    return safe[:120]
