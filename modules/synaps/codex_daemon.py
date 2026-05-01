@@ -187,6 +187,13 @@ class CodexDaemon:
                 output["result"] = {"ok": False, "error": "daemon_gate_failed", "problems": problems}
                 return output
             for transfer in transfers:
+                self._mark_promote_seen(
+                    str(transfer["transfer_id"]),
+                    operator,
+                    {"ok": True, "status": "baseline_existing", "source": transfer["source"]},
+                )
+                if not set(transfer.get("kinds") or []).intersection(_TASK_KINDS):
+                    continue
                 self._mark_handoff_seen(
                     str(transfer["transfer_id"]),
                     operator,
@@ -205,6 +212,8 @@ class CodexDaemon:
             if not item.get("ok") or item.get("status") != "ready":
                 continue
             transfer_id = str(item["transfer_id"])
+            if self._promote_seen_path(transfer_id).exists():
+                continue
             action: dict[str, Any] = {"action": "promote_mailbox", "transfer_id": transfer_id, "dry_run": not apply}
             if apply:
                 result = promote_codex_mailbox_transfer(
@@ -217,7 +226,9 @@ class CodexDaemon:
                     operator=operator,
                 )
                 action["result"] = _compact_result(result)
-                self._append_event({"event": "mailbox_promoted", "transfer_id": transfer_id, "operator": operator})
+                if result.get("ok"):
+                    self._mark_promote_seen(transfer_id, operator, {"ok": True, "status": "promoted"})
+                    self._append_event({"event": "mailbox_promoted", "transfer_id": transfer_id, "operator": operator})
             actions.append(action)
         return actions
 
@@ -226,7 +237,14 @@ class CodexDaemon:
         if self.inbox_root.exists():
             for item in sorted(self.inbox_root.iterdir(), key=lambda entry: entry.name):
                 if item.is_dir():
-                    candidates[item.name] = {"transfer_id": item.name, "source": "inbox", "seen": self._handoff_seen_path(item.name).exists()}
+                    candidates[item.name] = {
+                        "transfer_id": item.name,
+                        "source": "inbox",
+                        "seen": self._promote_seen_path(item.name).exists(),
+                        "promote_seen": self._promote_seen_path(item.name).exists(),
+                        "handoff_seen": self._handoff_seen_path(item.name).exists(),
+                        "kinds": [],
+                    }
 
         listing = list_codex_mailbox_transfers(self.quarantine_root, self.inbox_root)
         for item in listing.get("transfers") or []:
@@ -236,12 +254,26 @@ class CodexDaemon:
             if not item.get("ok") or item.get("status") not in {"ready", "already_promoted"}:
                 continue
             kinds = set(item.get("kinds") or [])
-            if not kinds.intersection(_TASK_KINDS):
-                continue
-            candidates.setdefault(
-                transfer_id,
-                {"transfer_id": transfer_id, "source": "quarantine", "seen": self._handoff_seen_path(transfer_id).exists()},
-            )
+            promote_seen = self._promote_seen_path(transfer_id).exists()
+            handoff_seen = self._handoff_seen_path(transfer_id).exists()
+            seen = promote_seen and (handoff_seen if kinds.intersection(_TASK_KINDS) else True)
+            record = {
+                "transfer_id": transfer_id,
+                "source": "quarantine",
+                "seen": seen,
+                "promote_seen": promote_seen,
+                "handoff_seen": handoff_seen,
+                "kinds": sorted(kinds),
+            }
+            if transfer_id in candidates:
+                existing = candidates[transfer_id]
+                existing["source"] = "inbox+quarantine" if existing.get("source") == "inbox" else existing.get("source")
+                existing["kinds"] = sorted(kinds)
+                existing["promote_seen"] = promote_seen
+                existing["handoff_seen"] = handoff_seen
+                existing["seen"] = seen
+            else:
+                candidates[transfer_id] = record
         return [item for item in sorted(candidates.values(), key=lambda row: str(row["transfer_id"])) if not item["seen"]]
 
     def _enqueue_promoted_handoffs(self, *, apply: bool, operator: str) -> list[dict[str, Any]]:
@@ -397,8 +429,19 @@ class CodexDaemon:
     def _handoff_seen_path(self, transfer_id: str) -> Path:
         return self.root / "inbox_seen" / f"{_safe_identifier(transfer_id)}.json"
 
+    def _promote_seen_path(self, transfer_id: str) -> Path:
+        return self.root / "promote_seen" / f"{_safe_identifier(transfer_id)}.json"
+
     def _mark_handoff_seen(self, transfer_id: str, operator: str, result: Mapping[str, Any]) -> None:
         path = self._handoff_seen_path(transfer_id)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps({"transfer_id": transfer_id, "operator": operator, "result": dict(result), "created_at": _iso_now()}, ensure_ascii=False, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+
+    def _mark_promote_seen(self, transfer_id: str, operator: str, result: Mapping[str, Any]) -> None:
+        path = self._promote_seen_path(transfer_id)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(
             json.dumps({"transfer_id": transfer_id, "operator": operator, "result": dict(result), "created_at": _iso_now()}, ensure_ascii=False, indent=2, sort_keys=True),

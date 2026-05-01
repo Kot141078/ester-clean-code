@@ -127,9 +127,39 @@ def test_baseline_apply_marks_existing_handoff_and_prevents_enqueue(tmp_path):
     assert baseline["ok"] is True
     assert baseline["result"]["count"] == 1
     assert (tmp_path / "daemon" / "inbox_seen" / "synaps-file-test.json").is_file()
-    assert (tmp_path / "inbox" / "synaps-file-test").is_dir()
+    assert (tmp_path / "daemon" / "promote_seen" / "synaps-file-test.json").is_file()
+    assert not (tmp_path / "inbox" / "synaps-file-test").exists()
     assert not (tmp_path / "requests" / "codex-bridge-synaps-file-test").exists()
-    assert [action["action"] for action in cycle["actions"]] == ["promote_mailbox"]
+    assert cycle["actions"] == []
+
+
+def test_after_baseline_new_handoff_can_promote_and_enqueue(tmp_path):
+    _quarantine_transfer(tmp_path, transfer_id="synaps-file-old")
+    daemon = _daemon(tmp_path)
+
+    daemon.baseline_existing(env=_armed_env(), apply=True, confirm=CODEX_DAEMON_BASELINE_CONFIRM_PHRASE)
+    _quarantine_transfer(tmp_path, transfer_id="synaps-file-new")
+    cycle = daemon.cycle(env=_armed_env(), apply=True, confirm=CODEX_DAEMON_CONFIRM_PHRASE)
+
+    assert [action["action"] for action in cycle["actions"]] == ["promote_mailbox", "enqueue_handoff"]
+    assert cycle["actions"][0]["transfer_id"] == "synaps-file-new"
+    assert cycle["actions"][1]["transfer_id"] == "synaps-file-new"
+    assert not (tmp_path / "requests" / "codex-bridge-synaps-file-old").exists()
+    assert (tmp_path / "requests" / "codex-bridge-synaps-file-new").is_dir()
+
+
+def test_baseline_marks_non_task_reports_so_promote_skips_old_reports(tmp_path):
+    _quarantine_transfer(tmp_path, transfer_id="synaps-file-report", kind="codex_report", name="report.md")
+    daemon = _daemon(tmp_path)
+
+    baseline = daemon.baseline_existing(env=_armed_env(), apply=True, confirm=CODEX_DAEMON_BASELINE_CONFIRM_PHRASE)
+    cycle = daemon.cycle(env=_armed_env(), apply=True, confirm=CODEX_DAEMON_CONFIRM_PHRASE)
+
+    assert baseline["ok"] is True
+    assert (tmp_path / "daemon" / "promote_seen" / "synaps-file-report.json").is_file()
+    assert not (tmp_path / "daemon" / "inbox_seen" / "synaps-file-report.json").exists()
+    assert cycle["actions"] == []
+    assert not (tmp_path / "requests").exists()
 
 
 def test_baseline_apply_requires_gate(tmp_path):
