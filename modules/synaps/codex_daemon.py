@@ -373,8 +373,6 @@ class CodexDaemon:
             str(Path(self.policy.workdir).resolve()),
             "--sandbox",
             self.policy.sandbox,
-            "--ask-for-approval",
-            "never",
             "--output-last-message",
             str(output_path),
             "-",

@@ -190,6 +190,9 @@ def test_runner_uses_fake_codex_and_completes_request(tmp_path):
     fake = tmp_path / "fake_codex.py"
     fake.write_text(
         "import sys\n"
+        "if '--ask-for-approval' in sys.argv:\n"
+        "    print('unsupported approval flag', file=sys.stderr)\n"
+        "    raise SystemExit(17)\n"
         "out=''\n"
         "for i,a in enumerate(sys.argv):\n"
         "    if a == '--output-last-message' and i + 1 < len(sys.argv): out=sys.argv[i+1]\n"
