@@ -77,6 +77,16 @@ from .operator_gate import (
     operator_gate_arm_status,
     validate_operator_gate_send_gate,
 )
+from .scheduler import (
+    DEFAULT_SCHEDULER_LEDGER_ROOT,
+    SCHEDULER_CONFIRM_PHRASE,
+    SCHEDULER_MODE,
+    SchedulerPolicy,
+    SchedulerTickDecision,
+    SchedulerTickStore,
+    scheduler_arm_status,
+    validate_scheduler_send_gate,
+)
 
 __all__ = [
     "DEFAULT_SISTER_SYSTEM_PROMPT",
@@ -84,6 +94,7 @@ __all__ = [
     "ACTION_FILE_TRANSFER",
     "DEFAULT_OPERATOR_GATE_LEDGER_ROOT",
     "DEFAULT_QUARANTINE_ROOT",
+    "DEFAULT_SCHEDULER_LEDGER_ROOT",
     "DEFAULT_WINDOW_TOPIC",
     "CONVERSATION_WINDOW_CONFIRM_PHRASE",
     "CONVERSATION_WINDOW_MODE",
@@ -92,6 +103,8 @@ __all__ = [
     "FILE_TRANSFER_MODE",
     "OPERATOR_GATE_CONFIRM_PHRASE",
     "OPERATOR_GATE_MODE",
+    "SCHEDULER_CONFIRM_PHRASE",
+    "SCHEDULER_MODE",
     "SCHEMA_VERSION",
     "ConversationWindowGate",
     "ConversationWindowPolicy",
@@ -101,6 +114,9 @@ __all__ = [
     "OperatorGateDecision",
     "OperatorGatePolicy",
     "OperatorGateStore",
+    "SchedulerPolicy",
+    "SchedulerTickDecision",
+    "SchedulerTickStore",
     "SynapsQuarantineStore",
     "SynapsAuthStatus",
     "SynapsConfig",
@@ -138,10 +154,12 @@ __all__ = [
     "prepare_thought_request",
     "read_payload_safely",
     "run_awaitable_in_new_loop",
+    "scheduler_arm_status",
     "synaps_health",
     "to_record",
     "validate_conversation_send_gate",
     "validate_file_transfer_send_gate",
     "validate_operator_gate_send_gate",
+    "validate_scheduler_send_gate",
     "verify_token",
 ]

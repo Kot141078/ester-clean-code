@@ -1,5 +1,6 @@
 import ast
 import json
+import os
 import subprocess
 import sys
 import urllib.request
@@ -210,21 +211,34 @@ def test_cli_successful_conversation_send_writes_operator_and_window_ledgers(tmp
     tool = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(tool)
 
-    exit_code = tool.main(
-        [
-            "--env-file",
-            str(env_file),
-            "--ledger-root",
-            str(operator_root),
-            "--conversation-ledger-root",
-            str(conversation_root),
-            "--send",
-            "--confirm",
-            OPERATOR_GATE_CONFIRM_PHRASE,
-            "--confirm-conversation",
-            CONVERSATION_WINDOW_CONFIRM_PHRASE,
-        ]
-    )
+    try:
+        exit_code = tool.main(
+            [
+                "--env-file",
+                str(env_file),
+                "--ledger-root",
+                str(operator_root),
+                "--conversation-ledger-root",
+                str(conversation_root),
+                "--send",
+                "--confirm",
+                OPERATOR_GATE_CONFIRM_PHRASE,
+                "--confirm-conversation",
+                CONVERSATION_WINDOW_CONFIRM_PHRASE,
+            ]
+        )
+    finally:
+        for key in (
+            "SISTER_NODE_URL",
+            "SISTER_SYNC_TOKEN",
+            "ESTER_NODE_ID",
+            "SISTER_OPERATOR_GATE",
+            "SISTER_OPERATOR_GATE_ARMED",
+            "SISTER_CONVERSATION_WINDOW",
+            "SISTER_CONVERSATION_WINDOW_ARMED",
+            "SISTER_AUTOCHAT",
+        ):
+            os.environ.pop(key, None)
     payload = json.loads(capsys.readouterr().out)
     operator_events = [json.loads(line) for line in (operator_root / "events.jsonl").read_text(encoding="utf-8").splitlines()]
     conversation_events = [
@@ -293,24 +307,38 @@ def test_cli_successful_file_transfer_send_writes_operator_ledger(tmp_path, monk
     tool = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(tool)
 
-    exit_code = tool.main(
-        [
-            "--action",
-            "file-transfer",
-            "--env-file",
-            str(env_file),
-            "--ledger-root",
-            str(operator_root),
-            "--file",
-            str(source),
-            "--include-payload",
-            "--send",
-            "--confirm",
-            OPERATOR_GATE_CONFIRM_PHRASE,
-            "--confirm-file-transfer",
-            FILE_TRANSFER_CONFIRM_PHRASE,
-        ]
-    )
+    try:
+        exit_code = tool.main(
+            [
+                "--action",
+                "file-transfer",
+                "--env-file",
+                str(env_file),
+                "--ledger-root",
+                str(operator_root),
+                "--file",
+                str(source),
+                "--include-payload",
+                "--send",
+                "--confirm",
+                OPERATOR_GATE_CONFIRM_PHRASE,
+                "--confirm-file-transfer",
+                FILE_TRANSFER_CONFIRM_PHRASE,
+            ]
+        )
+    finally:
+        for key in (
+            "SISTER_NODE_URL",
+            "SISTER_SYNC_TOKEN",
+            "ESTER_NODE_ID",
+            "SISTER_OPERATOR_GATE",
+            "SISTER_OPERATOR_GATE_ARMED",
+            "SISTER_FILE_TRANSFER",
+            "SISTER_FILE_TRANSFER_ARMED",
+            "SISTER_AUTOCHAT",
+            "SISTER_CONVERSATION_WINDOW",
+        ):
+            os.environ.pop(key, None)
     stdout = capsys.readouterr().out
     payload = json.loads(stdout)
     operator_events = [json.loads(line) for line in (operator_root / "events.jsonl").read_text(encoding="utf-8").splitlines()]

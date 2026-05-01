@@ -1,6 +1,7 @@
 import ast
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 import urllib.request
@@ -226,17 +227,28 @@ def test_cli_successful_send_writes_closed_event(tmp_path, monkeypatch, capsys):
     tool = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(tool)
 
-    exit_code = tool.main(
-        [
-            "--env-file",
-            str(env_file),
-            "--ledger-root",
-            str(ledger_root),
-            "--send",
-            "--confirm",
-            CONVERSATION_WINDOW_CONFIRM_PHRASE,
-        ]
-    )
+    try:
+        exit_code = tool.main(
+            [
+                "--env-file",
+                str(env_file),
+                "--ledger-root",
+                str(ledger_root),
+                "--send",
+                "--confirm",
+                CONVERSATION_WINDOW_CONFIRM_PHRASE,
+            ]
+        )
+    finally:
+        for key in (
+            "SISTER_NODE_URL",
+            "SISTER_SYNC_TOKEN",
+            "ESTER_NODE_ID",
+            "SISTER_CONVERSATION_WINDOW",
+            "SISTER_CONVERSATION_WINDOW_ARMED",
+            "SISTER_AUTOCHAT",
+        ):
+            os.environ.pop(key, None)
     payload = json.loads(capsys.readouterr().out)
     events_path = ledger_root / payload["window"]["window_id"] / "events.jsonl"
     events = [json.loads(line) for line in events_path.read_text(encoding="utf-8").splitlines()]
