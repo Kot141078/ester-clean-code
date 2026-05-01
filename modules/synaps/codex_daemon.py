@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import shlex
 import subprocess
 from dataclasses import asdict, dataclass
@@ -366,7 +367,7 @@ class CodexDaemon:
             (lease_dir / "released.json").write_text(json.dumps({"released_at": _iso_now()}, sort_keys=True), encoding="utf-8")
 
     def _run_codex(self, prompt_path: Path, output_path: Path, run_dir: Path) -> dict[str, Any]:
-        command_prefix = shlex.split(self.policy.codex_command, posix=(os.name != "nt"))
+        command_prefix = _resolve_command_prefix(self.policy.codex_command)
         command = command_prefix + [
             "exec",
             "--cd",
@@ -494,6 +495,18 @@ def _iso_now() -> str:
 
 def _preview(text: str, limit: int) -> str:
     return str(text or "")[:limit]
+
+
+def _resolve_command_prefix(command: str) -> list[str]:
+    parts = shlex.split(str(command or "codex"), posix=(os.name != "nt"))
+    if not parts:
+        parts = ["codex"]
+    executable = parts[0]
+    if not any(sep in executable for sep in ("/", "\\")):
+        resolved = shutil.which(executable)
+        if resolved:
+            parts[0] = resolved
+    return parts
 
 
 def _redact(text: str) -> str:

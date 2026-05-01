@@ -20,6 +20,7 @@ from modules.synaps import (
     CodexDaemonPolicy,
     CodexRequestStore,
 )
+from modules.synaps.codex_daemon import _resolve_command_prefix
 
 
 def _config() -> SynapsConfig:
@@ -220,6 +221,17 @@ def test_runner_uses_fake_codex_and_completes_request(tmp_path):
     assert payload["actions"][0]["result"]["status"] == REQUEST_STATUS_COMPLETED
     assert request["status"] == REQUEST_STATUS_COMPLETED
     assert "fake codex completed" in request["events"][-1]["summary"]["summary"]
+
+
+def test_runner_resolves_bare_command_from_path(tmp_path, monkeypatch):
+    tool = tmp_path / ("codex.cmd" if sys.platform.startswith("win") else "codex")
+    tool.write_text("", encoding="utf-8")
+    tool.chmod(0o755)
+    monkeypatch.setenv("PATH", str(tmp_path))
+
+    prefix = _resolve_command_prefix("codex")
+
+    assert prefix[0].lower() == str(tool).lower()
 
 
 def test_cli_status_is_dry_run(tmp_path):
