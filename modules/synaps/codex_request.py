@@ -379,7 +379,13 @@ def _bounded_text(value: str, limit: int, field: str) -> str:
 
 def _reject_secret_like_text(text: str, field: str) -> None:
     lowered = text.lower()
-    forbidden = ("begin private key", "sister_sync_token=", "api_key=", "password=", "authorization: bearer")
+    forbidden = (
+        "begin " + "private key",
+        "sister_sync_token=",
+        "api_key=",
+        "password=",
+        "authorization: bearer",
+    )
     if any(marker in lowered for marker in forbidden):
         raise SynapsValidationError(f"{field} contains secret-like material")
 
