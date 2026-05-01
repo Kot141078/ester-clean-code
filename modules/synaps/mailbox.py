@@ -25,7 +25,7 @@ CODEX_MAILBOX_RECEIPT_SCHEMA = "ester.synaps.codex_mailbox_receipt.v1"
 DEFAULT_CODEX_MAILBOX_ROOT = Path("data") / "synaps" / "codex_bridge"
 DEFAULT_CODEX_INBOX_ROOT = DEFAULT_CODEX_MAILBOX_ROOT / "inbox"
 DEFAULT_CODEX_RECEIPT_LEDGER = DEFAULT_CODEX_MAILBOX_ROOT / "receipts" / "events.jsonl"
-CODEX_MAILBOX_KINDS = frozenset({"codex_contract", "codex_report", "codex_patch", "codex_receipt"})
+CODEX_MAILBOX_KINDS = frozenset({"codex_contract", "codex_handoff", "codex_report", "codex_patch", "codex_receipt"})
 CODEX_MAILBOX_SUFFIXES = frozenset({".md", ".txt", ".patch", ".json"})
 
 
