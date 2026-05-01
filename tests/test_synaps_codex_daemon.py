@@ -1,10 +1,12 @@
 import json
+import os
 import subprocess
 import sys
 
 from modules.synaps import (
     CODEX_DAEMON_BASELINE_CONFIRM_PHRASE,
     CODEX_DAEMON_CONFIRM_PHRASE,
+    CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE,
     CODEX_MAILBOX_CONFIRM_PHRASE,
     REQUEST_STATUS_COMPLETED,
     REQUEST_STATUS_QUEUED,
@@ -16,6 +18,7 @@ from modules.synaps import (
     codex_daemon_arm_status,
     inspect_codex_mailbox_transfer,
     validate_codex_daemon_gate,
+    validate_codex_daemon_persistent_gate,
     CodexDaemon,
     CodexDaemonPolicy,
     CodexRequestStore,
@@ -86,6 +89,25 @@ def test_daemon_gate_requires_enable_arm_confirm_and_blocks_autochat():
     assert "SISTER_AUTOCHAT_must_remain_disabled" in validate_codex_daemon_gate(
         {**env, "SISTER_AUTOCHAT": "1"},
         CODEX_DAEMON_CONFIRM_PHRASE,
+    )
+
+
+def test_persistent_gate_requires_extra_arm_and_blocks_runner():
+    missing = validate_codex_daemon_persistent_gate(_armed_env(), CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE)
+    assert "SYNAPS_CODEX_DAEMON_PERSISTENT_not_enabled" in missing
+    assert "SYNAPS_CODEX_DAEMON_PERSISTENT_ARMED_not_enabled" in missing
+
+    armed = _armed_env(SYNAPS_CODEX_DAEMON_PERSISTENT="1", SYNAPS_CODEX_DAEMON_PERSISTENT_ARMED="1")
+    assert validate_codex_daemon_persistent_gate(armed, CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE) == []
+
+    runner = _armed_env(
+        SYNAPS_CODEX_DAEMON_PERSISTENT="1",
+        SYNAPS_CODEX_DAEMON_PERSISTENT_ARMED="1",
+        SYNAPS_CODEX_DAEMON_RUNNER="1",
+    )
+    assert "SYNAPS_CODEX_DAEMON_RUNNER_must_remain_disabled_for_persistent" in validate_codex_daemon_persistent_gate(
+        runner,
+        CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE,
     )
 
 
@@ -252,6 +274,66 @@ def test_cli_status_is_dry_run(tmp_path):
     assert payload["ok"] is True
     assert payload["dry_run"] is True
     assert payload["confirm_required"] == CODEX_DAEMON_CONFIRM_PHRASE
+
+
+def test_cli_daemon_persistent_fails_closed_without_persistent_gate(tmp_path):
+    env = os.environ.copy()
+    env.update(_armed_env())
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "tools/synaps_codex_daemon.py",
+            "daemon",
+            "--daemon-root",
+            str(tmp_path / "daemon"),
+            "--apply",
+            "--confirm",
+            CODEX_DAEMON_CONFIRM_PHRASE,
+        ],
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=10,
+    )
+    payload = json.loads(result.stdout)
+
+    assert result.returncode == 2
+    assert payload["result"]["error"] == "persistent_daemon_gate_failed"
+    assert "SYNAPS_CODEX_DAEMON_PERSISTENT_not_enabled" in payload["result"]["problems"]
+    assert not (tmp_path / "daemon").exists()
+
+
+def test_cli_daemon_one_cycle_still_uses_normal_gate(tmp_path):
+    env = os.environ.copy()
+    env.update(_armed_env(SYNAPS_CODEX_DAEMON_PROMOTE_MAILBOX="0", SYNAPS_CODEX_DAEMON_ENQUEUE_HANDOFFS="0"))
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "tools/synaps_codex_daemon.py",
+            "daemon",
+            "--daemon-root",
+            str(tmp_path / "daemon"),
+            "--request-root",
+            str(tmp_path / "requests"),
+            "--apply",
+            "--confirm",
+            CODEX_DAEMON_CONFIRM_PHRASE,
+            "--max-cycles",
+            "1",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=10,
+    )
+    payload = json.loads(result.stdout)
+
+    assert payload["ok"] is True
+    assert payload["actions"] == []
+    assert (tmp_path / "daemon" / "events.jsonl").is_file()
 
 
 def test_cli_baseline_dry_run_writes_nothing(tmp_path):

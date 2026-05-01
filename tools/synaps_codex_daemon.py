@@ -51,6 +51,7 @@ def main(argv: list[str] | None = None) -> int:
     from modules.synaps import (
         CODEX_DAEMON_BASELINE_CONFIRM_PHRASE,
         CODEX_DAEMON_CONFIRM_PHRASE,
+        CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE,
         DEFAULT_CODEX_DAEMON_ROOT,
         DEFAULT_CODEX_INBOX_ROOT,
         DEFAULT_CODEX_RECEIPT_LEDGER,
@@ -59,6 +60,7 @@ def main(argv: list[str] | None = None) -> int:
         CodexDaemon,
         CodexDaemonPolicy,
         codex_daemon_arm_status,
+        validate_codex_daemon_persistent_gate,
     )
 
     parser = argparse.ArgumentParser(description="Run one dry-run/apply cycle of the SYNAPS Codex daemon.")
@@ -92,6 +94,7 @@ def main(argv: list[str] | None = None) -> int:
             "dry_run": True,
             "confirm_required": CODEX_DAEMON_CONFIRM_PHRASE,
             "baseline_confirm_required": CODEX_DAEMON_BASELINE_CONFIRM_PHRASE,
+            "persistent_confirm_required": CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE,
             "arm_status": codex_daemon_arm_status(env),
             "policy": policy.to_record(),
         }
@@ -108,9 +111,28 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
         return 0 if payload.get("ok") else 2
 
+    persistent_mode = args.max_cycles == 0
+    if persistent_mode:
+        problems = validate_codex_daemon_persistent_gate(env, args.confirm)
+        if problems:
+            payload = {
+                "ok": False,
+                "dry_run": not args.apply,
+                "action": "daemon",
+                "confirm_required": CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE,
+                "arm_status": codex_daemon_arm_status(env),
+                "policy": policy.to_record(),
+                "result": {"ok": False, "error": "persistent_daemon_gate_failed", "problems": problems},
+                "auto_ingest": False,
+                "memory": "off",
+            }
+            print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
+            return 2
+
     cycles = 0
+    cycle_confirm = CODEX_DAEMON_CONFIRM_PHRASE if persistent_mode else args.confirm
     while True:
-        payload = daemon.cycle(env=env, apply=args.apply, confirm=args.confirm, operator=args.operator)
+        payload = daemon.cycle(env=env, apply=args.apply, confirm=cycle_confirm, operator=args.operator)
         print(json.dumps(payload, ensure_ascii=False, sort_keys=True), flush=True)
         if not payload.get("ok"):
             return 2

@@ -37,6 +37,7 @@ from .protocol import SynapsValidationError
 
 CODEX_DAEMON_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_DAEMON_RUN"
 CODEX_DAEMON_BASELINE_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_DAEMON_BASELINE"
+CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_DAEMON_PERSISTENT_RUN"
 CODEX_DAEMON_EVENT_SCHEMA = "ester.synaps.codex_daemon_event.v1"
 DEFAULT_CODEX_DAEMON_ROOT = Path("data") / "synaps" / "codex_bridge" / "daemon"
 DEFAULT_CODEX_DAEMON_LEDGER = DEFAULT_CODEX_DAEMON_ROOT / "events.jsonl"
@@ -81,6 +82,8 @@ def codex_daemon_arm_status(env: Mapping[str, str]) -> dict[str, bool]:
     return {
         "daemon": _env_bool(env.get("SYNAPS_CODEX_DAEMON", "0")),
         "armed": _env_bool(env.get("SYNAPS_CODEX_DAEMON_ARMED", "0")),
+        "persistent": _env_bool(env.get("SYNAPS_CODEX_DAEMON_PERSISTENT", "0")),
+        "persistent_armed": _env_bool(env.get("SYNAPS_CODEX_DAEMON_PERSISTENT_ARMED", "0")),
         "promote_mailbox": _env_bool(env.get("SYNAPS_CODEX_DAEMON_PROMOTE_MAILBOX", "0")),
         "enqueue_handoffs": _env_bool(env.get("SYNAPS_CODEX_DAEMON_ENQUEUE_HANDOFFS", "0")),
         "runner": _env_bool(env.get("SYNAPS_CODEX_DAEMON_RUNNER", "0")),
@@ -107,6 +110,18 @@ def validate_codex_daemon_gate(
         problems.append("SYNAPS_CODEX_DAEMON_KILL_SWITCH_enabled")
     if status["legacy_autochat"]:
         problems.append("SISTER_AUTOCHAT_must_remain_disabled")
+    return problems
+
+
+def validate_codex_daemon_persistent_gate(env: Mapping[str, str], confirm: str) -> list[str]:
+    status = codex_daemon_arm_status(env)
+    problems = validate_codex_daemon_gate(env, confirm, CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE)
+    if not status["persistent"]:
+        problems.append("SYNAPS_CODEX_DAEMON_PERSISTENT_not_enabled")
+    if not status["persistent_armed"]:
+        problems.append("SYNAPS_CODEX_DAEMON_PERSISTENT_ARMED_not_enabled")
+    if status["runner"]:
+        problems.append("SYNAPS_CODEX_DAEMON_RUNNER_must_remain_disabled_for_persistent")
     return problems
 
 
