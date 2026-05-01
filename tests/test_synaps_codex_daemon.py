@@ -3,6 +3,7 @@ import subprocess
 import sys
 
 from modules.synaps import (
+    CODEX_DAEMON_BASELINE_CONFIRM_PHRASE,
     CODEX_DAEMON_CONFIRM_PHRASE,
     CODEX_MAILBOX_CONFIRM_PHRASE,
     REQUEST_STATUS_COMPLETED,
@@ -116,6 +117,35 @@ def test_cycle_apply_promotes_and_enqueues_handoff_without_running(tmp_path):
     assert (tmp_path / "daemon" / "inbox_seen" / "synaps-file-test.json").is_file()
 
 
+def test_baseline_apply_marks_existing_handoff_and_prevents_enqueue(tmp_path):
+    _quarantine_transfer(tmp_path)
+    daemon = _daemon(tmp_path)
+
+    baseline = daemon.baseline_existing(env=_armed_env(), apply=True, confirm=CODEX_DAEMON_BASELINE_CONFIRM_PHRASE)
+    cycle = daemon.cycle(env=_armed_env(), apply=True, confirm=CODEX_DAEMON_CONFIRM_PHRASE)
+
+    assert baseline["ok"] is True
+    assert baseline["result"]["count"] == 1
+    assert (tmp_path / "daemon" / "inbox_seen" / "synaps-file-test.json").is_file()
+    assert (tmp_path / "inbox" / "synaps-file-test").is_dir()
+    assert not (tmp_path / "requests" / "codex-bridge-synaps-file-test").exists()
+    assert [action["action"] for action in cycle["actions"]] == ["promote_mailbox"]
+
+
+def test_baseline_apply_requires_gate(tmp_path):
+    _quarantine_transfer(tmp_path)
+
+    payload = _daemon(tmp_path).baseline_existing(
+        env={"SISTER_AUTOCHAT": "0"},
+        apply=True,
+        confirm=CODEX_DAEMON_BASELINE_CONFIRM_PHRASE,
+    )
+
+    assert payload["ok"] is False
+    assert payload["result"]["error"] == "daemon_gate_failed"
+    assert not (tmp_path / "daemon").exists()
+
+
 def test_cycle_apply_requires_gate(tmp_path):
     _quarantine_transfer(tmp_path)
 
@@ -177,3 +207,30 @@ def test_cli_status_is_dry_run(tmp_path):
     assert payload["ok"] is True
     assert payload["dry_run"] is True
     assert payload["confirm_required"] == CODEX_DAEMON_CONFIRM_PHRASE
+
+
+def test_cli_baseline_dry_run_writes_nothing(tmp_path):
+    _quarantine_transfer(tmp_path)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "tools/synaps_codex_daemon.py",
+            "baseline",
+            "--daemon-root",
+            str(tmp_path / "daemon"),
+            "--quarantine-root",
+            str(tmp_path / "quarantine"),
+            "--inbox-root",
+            str(tmp_path / "inbox"),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    payload = json.loads(result.stdout)
+
+    assert payload["ok"] is True
+    assert payload["dry_run"] is True
+    assert payload["count"] == 1
+    assert not (tmp_path / "daemon").exists()

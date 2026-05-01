@@ -35,6 +35,7 @@ from .protocol import SynapsValidationError
 
 
 CODEX_DAEMON_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_DAEMON_RUN"
+CODEX_DAEMON_BASELINE_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_DAEMON_BASELINE"
 CODEX_DAEMON_EVENT_SCHEMA = "ester.synaps.codex_daemon_event.v1"
 DEFAULT_CODEX_DAEMON_ROOT = Path("data") / "synaps" / "codex_bridge" / "daemon"
 DEFAULT_CODEX_DAEMON_LEDGER = DEFAULT_CODEX_DAEMON_ROOT / "events.jsonl"
@@ -88,10 +89,14 @@ def codex_daemon_arm_status(env: Mapping[str, str]) -> dict[str, bool]:
     }
 
 
-def validate_codex_daemon_gate(env: Mapping[str, str], confirm: str) -> list[str]:
+def validate_codex_daemon_gate(
+    env: Mapping[str, str],
+    confirm: str,
+    expected_confirm: str = CODEX_DAEMON_CONFIRM_PHRASE,
+) -> list[str]:
     status = codex_daemon_arm_status(env)
     problems: list[str] = []
-    if confirm != CODEX_DAEMON_CONFIRM_PHRASE:
+    if confirm != expected_confirm:
         problems.append("missing_confirm_phrase")
     if not status["daemon"]:
         problems.append("SYNAPS_CODEX_DAEMON_not_enabled")
@@ -154,6 +159,43 @@ class CodexDaemon:
             self._append_event({"event": "cycle", "operator": operator, "action_count": len(output["actions"])})
         return output
 
+    def baseline_existing(
+        self,
+        *,
+        env: Mapping[str, str],
+        apply: bool = False,
+        confirm: str = "",
+        operator: str = "codex-daemon",
+    ) -> dict[str, Any]:
+        status = codex_daemon_arm_status(env)
+        transfers = self._baseline_candidates()
+        output: dict[str, Any] = {
+            "ok": True,
+            "dry_run": not apply,
+            "action": "baseline",
+            "confirm_required": CODEX_DAEMON_BASELINE_CONFIRM_PHRASE,
+            "arm_status": status,
+            "count": len(transfers),
+            "transfers": transfers,
+            "auto_ingest": False,
+            "memory": "off",
+        }
+        if apply:
+            problems = validate_codex_daemon_gate(env, confirm, CODEX_DAEMON_BASELINE_CONFIRM_PHRASE)
+            if problems:
+                output["ok"] = False
+                output["result"] = {"ok": False, "error": "daemon_gate_failed", "problems": problems}
+                return output
+            for transfer in transfers:
+                self._mark_handoff_seen(
+                    str(transfer["transfer_id"]),
+                    operator,
+                    {"ok": True, "status": "baseline_existing", "source": transfer["source"]},
+                )
+            self._append_event({"event": "baseline_existing", "operator": operator, "count": len(transfers)})
+            output["result"] = {"ok": True, "status": "baselined", "count": len(transfers)}
+        return output
+
     def _promote_ready_mailbox(self, *, apply: bool, operator: str) -> list[dict[str, Any]]:
         listing = list_codex_mailbox_transfers(self.quarantine_root, self.inbox_root)
         actions: list[dict[str, Any]] = []
@@ -178,6 +220,29 @@ class CodexDaemon:
                 self._append_event({"event": "mailbox_promoted", "transfer_id": transfer_id, "operator": operator})
             actions.append(action)
         return actions
+
+    def _baseline_candidates(self) -> list[dict[str, Any]]:
+        candidates: dict[str, dict[str, Any]] = {}
+        if self.inbox_root.exists():
+            for item in sorted(self.inbox_root.iterdir(), key=lambda entry: entry.name):
+                if item.is_dir():
+                    candidates[item.name] = {"transfer_id": item.name, "source": "inbox", "seen": self._handoff_seen_path(item.name).exists()}
+
+        listing = list_codex_mailbox_transfers(self.quarantine_root, self.inbox_root)
+        for item in listing.get("transfers") or []:
+            transfer_id = str(item.get("transfer_id") or "")
+            if not transfer_id:
+                continue
+            if not item.get("ok") or item.get("status") not in {"ready", "already_promoted"}:
+                continue
+            kinds = set(item.get("kinds") or [])
+            if not kinds.intersection(_TASK_KINDS):
+                continue
+            candidates.setdefault(
+                transfer_id,
+                {"transfer_id": transfer_id, "source": "quarantine", "seen": self._handoff_seen_path(transfer_id).exists()},
+            )
+        return [item for item in sorted(candidates.values(), key=lambda row: str(row["transfer_id"])) if not item["seen"]]
 
     def _enqueue_promoted_handoffs(self, *, apply: bool, operator: str) -> list[dict[str, Any]]:
         actions: list[dict[str, Any]] = []

@@ -49,6 +49,7 @@ def main(argv: list[str] | None = None) -> int:
     bootstrap_env_from_argv(raw_argv)
 
     from modules.synaps import (
+        CODEX_DAEMON_BASELINE_CONFIRM_PHRASE,
         CODEX_DAEMON_CONFIRM_PHRASE,
         DEFAULT_CODEX_DAEMON_ROOT,
         DEFAULT_CODEX_INBOX_ROOT,
@@ -61,7 +62,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     parser = argparse.ArgumentParser(description="Run one dry-run/apply cycle of the SYNAPS Codex daemon.")
-    parser.add_argument("action", choices=("status", "cycle", "daemon"), nargs="?", default="cycle")
+    parser.add_argument("action", choices=("status", "baseline", "cycle", "daemon"), nargs="?", default="cycle")
     parser.add_argument("--env-file", default=".env")
     parser.add_argument("--daemon-root", default=str(DEFAULT_CODEX_DAEMON_ROOT))
     parser.add_argument("--quarantine-root", default=str(DEFAULT_QUARANTINE_ROOT))
@@ -90,11 +91,17 @@ def main(argv: list[str] | None = None) -> int:
             "ok": True,
             "dry_run": True,
             "confirm_required": CODEX_DAEMON_CONFIRM_PHRASE,
+            "baseline_confirm_required": CODEX_DAEMON_BASELINE_CONFIRM_PHRASE,
             "arm_status": codex_daemon_arm_status(env),
             "policy": policy.to_record(),
         }
         print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
         return 0
+
+    if args.action == "baseline":
+        payload = daemon.baseline_existing(env=env, apply=args.apply, confirm=args.confirm, operator=args.operator)
+        print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
+        return 0 if payload.get("ok") else 2
 
     if args.action == "cycle":
         payload = daemon.cycle(env=env, apply=args.apply, confirm=args.confirm, operator=args.operator)
