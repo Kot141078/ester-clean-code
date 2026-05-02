@@ -64,6 +64,18 @@ def test_runner_window_gate_requires_arm_and_read_only():
     )
 
 
+def test_runner_window_gate_blocks_live_send_flags():
+    policy = CodexDaemonPolicy(sandbox="read-only")
+
+    for key in ("SISTER_SCHEDULE", "SISTER_CONVERSATION_WINDOW", "SISTER_FILE_TRANSFER"):
+        problems = validate_codex_runner_window_gate(
+            _window_env(**{key: "1"}),
+            CODEX_RUNNER_WINDOW_CONFIRM_PHRASE,
+            policy,
+        )
+        assert "SYNAPS_live_send_flags_must_remain_disabled_for_runner_window" in problems
+
+
 def test_runner_window_dry_run_writes_nothing(tmp_path):
     store = CodexRequestStore(tmp_path / "requests")
     _request(store, "req-window-dry")
