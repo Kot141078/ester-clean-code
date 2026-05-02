@@ -57,6 +57,7 @@ class CodexDaemonPolicy:
     poll_interval_sec: int = 30
     max_promotions_per_cycle: int = 5
     max_requests_per_cycle: int = 1
+    max_reports_per_cycle: int = 5
     runner_timeout_sec: int = 900
     max_task_chars: int = 3000
     max_output_chars: int = 3000
@@ -72,6 +73,7 @@ class CodexDaemonPolicy:
             poll_interval_sec=_bounded_int(source.get("SYNAPS_CODEX_DAEMON_POLL_SEC"), 30, 5, 3600),
             max_promotions_per_cycle=_bounded_int(source.get("SYNAPS_CODEX_DAEMON_MAX_PROMOTIONS"), 5, 0, 20),
             max_requests_per_cycle=_bounded_int(source.get("SYNAPS_CODEX_DAEMON_MAX_REQUESTS"), 1, 0, 5),
+            max_reports_per_cycle=_bounded_int(source.get("SYNAPS_CODEX_DAEMON_MAX_REPORTS"), 5, 0, 20),
             runner_timeout_sec=_bounded_int(source.get("SYNAPS_CODEX_DAEMON_TIMEOUT_SEC"), 900, 60, 7200),
             max_task_chars=_bounded_int(source.get("SYNAPS_CODEX_DAEMON_MAX_TASK_CHARS"), 3000, 200, 8000),
             max_output_chars=_bounded_int(source.get("SYNAPS_CODEX_DAEMON_MAX_OUTPUT_CHARS"), 3000, 200, 12000),
@@ -93,6 +95,8 @@ def codex_daemon_arm_status(env: Mapping[str, str]) -> dict[str, bool]:
         "persistent_armed": _env_bool(env.get("SYNAPS_CODEX_DAEMON_PERSISTENT_ARMED", "0")),
         "promote_mailbox": _env_bool(env.get("SYNAPS_CODEX_DAEMON_PROMOTE_MAILBOX", "0")),
         "enqueue_handoffs": _env_bool(env.get("SYNAPS_CODEX_DAEMON_ENQUEUE_HANDOFFS", "0")),
+        "observe_reports": _env_bool(env.get("SYNAPS_CODEX_DAEMON_OBSERVE_REPORTS", "0")),
+        "observe_reports_armed": _env_bool(env.get("SYNAPS_CODEX_DAEMON_OBSERVE_REPORTS_ARMED", "0")),
         "runner": _env_bool(env.get("SYNAPS_CODEX_DAEMON_RUNNER", "0")),
         "runner_armed": _env_bool(env.get("SYNAPS_CODEX_DAEMON_RUNNER_ARMED", "0")),
         "worker_available": _worker_available(env),
@@ -119,6 +123,8 @@ def validate_codex_daemon_gate(
         problems.append("SYNAPS_CODEX_DAEMON_KILL_SWITCH_enabled")
     if status["legacy_autochat"]:
         problems.append("SISTER_AUTOCHAT_must_remain_disabled")
+    if status["observe_reports"] and not status["observe_reports_armed"]:
+        problems.append("SYNAPS_CODEX_DAEMON_OBSERVE_REPORTS_ARMED_not_enabled")
     return problems
 
 
@@ -198,6 +204,8 @@ class CodexDaemon:
 
         if status["promote_mailbox"]:
             output["actions"].extend(self._promote_ready_mailbox(apply=apply, operator=operator))
+        if status["observe_reports"]:
+            output["actions"].extend(self._observe_reports(apply=apply, operator=operator))
         if status["enqueue_handoffs"]:
             output["actions"].extend(self._enqueue_promoted_handoffs(apply=apply, operator=operator))
         if status["runner"]:
@@ -323,6 +331,37 @@ class CodexDaemon:
             else:
                 candidates[transfer_id] = record
         return [item for item in sorted(candidates.values(), key=lambda row: str(row["transfer_id"])) if not item["seen"]]
+
+    def _observe_reports(self, *, apply: bool, operator: str) -> list[dict[str, Any]]:
+        listing = list_codex_mailbox_transfers(self.quarantine_root, self.inbox_root)
+        actions: list[dict[str, Any]] = []
+        for item in listing.get("transfers") or []:
+            if len(actions) >= self.policy.max_reports_per_cycle:
+                break
+            if not item.get("ok") or item.get("status") not in {"ready", "already_promoted"}:
+                continue
+            kinds = set(item.get("kinds") or [])
+            if "codex_report" not in kinds:
+                continue
+            transfer_id = str(item["transfer_id"])
+            if self._promote_seen_path(transfer_id).exists():
+                continue
+            action: dict[str, Any] = {
+                "action": "observe_report",
+                "transfer_id": transfer_id,
+                "dry_run": not apply,
+                "file_count": item.get("file_count", 0),
+                "kinds": sorted(kinds),
+                "auto_ingest": False,
+                "memory": "off",
+            }
+            if apply:
+                result = {"ok": True, "status": "report_observed", "source": "quarantine"}
+                self._mark_promote_seen(transfer_id, operator, result)
+                self._append_event({"event": "report_observed", "transfer_id": transfer_id, "operator": operator})
+                action["result"] = result
+            actions.append(action)
+        return actions
 
     def _enqueue_promoted_handoffs(self, *, apply: bool, operator: str) -> list[dict[str, Any]]:
         actions: list[dict[str, Any]] = []

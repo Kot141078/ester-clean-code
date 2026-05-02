@@ -97,9 +97,26 @@ def test_daemon_gate_requires_enable_arm_confirm_and_blocks_autochat():
     )
 
 
+def test_report_observer_requires_second_arm():
+    env = _armed_env(SYNAPS_CODEX_DAEMON_OBSERVE_REPORTS="1")
+
+    assert codex_daemon_arm_status(env)["observe_reports"] is True
+    assert "SYNAPS_CODEX_DAEMON_OBSERVE_REPORTS_ARMED_not_enabled" in validate_codex_daemon_gate(
+        env,
+        CODEX_DAEMON_CONFIRM_PHRASE,
+    )
+
+    armed = _armed_env(
+        SYNAPS_CODEX_DAEMON_OBSERVE_REPORTS="1",
+        SYNAPS_CODEX_DAEMON_OBSERVE_REPORTS_ARMED="1",
+    )
+    assert validate_codex_daemon_gate(armed, CODEX_DAEMON_CONFIRM_PHRASE) == []
+
+
 def test_policy_from_env_defaults_runner_sandbox_to_read_only():
     assert CodexDaemonPolicy.from_env({}).sandbox == "read-only"
     assert CodexDaemonPolicy.from_env({"SYNAPS_CODEX_DAEMON_SANDBOX": "workspace-write"}).sandbox == "workspace-write"
+    assert CodexDaemonPolicy.from_env({"SYNAPS_CODEX_DAEMON_MAX_REPORTS": "7"}).max_reports_per_cycle == 7
 
 
 def test_persistent_gate_requires_extra_arm_and_blocks_runner():
@@ -220,6 +237,40 @@ def test_baseline_marks_non_task_reports_so_promote_skips_old_reports(tmp_path):
     assert not (tmp_path / "daemon" / "inbox_seen" / "synaps-file-report.json").exists()
     assert cycle["actions"] == []
     assert not (tmp_path / "requests").exists()
+
+
+def test_report_observer_marks_report_seen_without_promoting_or_reading_worker(tmp_path):
+    _quarantine_transfer(tmp_path, transfer_id="synaps-file-report", kind="codex_report", name="report.md")
+    daemon = _daemon(tmp_path)
+    env = _armed_env(
+        SYNAPS_CODEX_DAEMON_PROMOTE_MAILBOX="0",
+        SYNAPS_CODEX_DAEMON_ENQUEUE_HANDOFFS="0",
+        SYNAPS_CODEX_DAEMON_OBSERVE_REPORTS="1",
+        SYNAPS_CODEX_DAEMON_OBSERVE_REPORTS_ARMED="1",
+    )
+
+    dry_run = daemon.cycle(env=env, apply=False)
+    apply = daemon.cycle(env=env, apply=True, confirm=CODEX_DAEMON_CONFIRM_PHRASE)
+    repeat = daemon.cycle(env=env, apply=False)
+
+    assert dry_run["actions"] == [
+        {
+            "action": "observe_report",
+            "transfer_id": "synaps-file-report",
+            "dry_run": True,
+            "file_count": 1,
+            "kinds": ["codex_report"],
+            "auto_ingest": False,
+            "memory": "off",
+        }
+    ]
+    assert apply["ok"] is True
+    assert apply["actions"][0]["result"]["status"] == "report_observed"
+    assert (tmp_path / "daemon" / "promote_seen" / "synaps-file-report.json").is_file()
+    assert not (tmp_path / "inbox" / "synaps-file-report").exists()
+    assert not (tmp_path / "requests").exists()
+    assert "report_observed" in (tmp_path / "daemon" / "events.jsonl").read_text(encoding="utf-8")
+    assert repeat["actions"] == []
 
 
 def test_baseline_apply_requires_gate(tmp_path):
