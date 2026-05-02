@@ -19,6 +19,7 @@ from uuid import uuid4
 
 from .codex_daemon import (
     CODEX_WORKER_SANDBOX_BLOCKED_REASON,
+    CODEX_WORKER_SANDBOX_BLOCK_MARKERS,
     codex_daemon_arm_status,
     _redact,
     _resolve_command_prefix,
@@ -30,6 +31,8 @@ from .protocol import SynapsValidationError
 CODEX_WORKER_PREFLIGHT_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_WORKER_PREFLIGHT"
 CODEX_WORKER_PREFLIGHT_EVENT_SCHEMA = "ester.synaps.codex_worker_preflight_event.v1"
 CODEX_WORKER_PREFLIGHT_MODE = "codex_worker_preflight"
+CODEX_WORKER_PREFLIGHT_AVAILABLE_LINE = "CODEX_WORKER_PREFLIGHT_AVAILABLE"
+CODEX_WORKER_PREFLIGHT_BLOCKED_LINE = "CODEX_WORKER_PREFLIGHT_BLOCKED"
 DEFAULT_CODEX_WORKER_PREFLIGHT_ROOT = Path("data") / "synaps" / "codex_bridge" / "worker_preflight"
 
 
@@ -228,6 +231,12 @@ def _run_preflight_codex(
 
 
 def _classify_preflight_result(result: Mapping[str, Any]) -> str:
+    last_message = str(result.get("last_message") or "")
+    if _ends_with_exact_line(last_message, CODEX_WORKER_PREFLIGHT_BLOCKED_LINE):
+        if _contains_sandbox_marker(last_message) or result.get("blocked_reason") == CODEX_WORKER_SANDBOX_BLOCKED_REASON:
+            result["blocked_reason"] = CODEX_WORKER_SANDBOX_BLOCKED_REASON  # type: ignore[index]
+            return "worker_sandbox_blocked"
+        return "worker_failed"
     if result.get("blocked_reason") == CODEX_WORKER_SANDBOX_BLOCKED_REASON:
         return "worker_sandbox_blocked"
     if result.get("blocked_reason"):
@@ -245,8 +254,8 @@ def _preflight_prompt(target_file: str) -> str:
             "Do not read .codex memories, .codex sessions, .env, memory/passport/vector/chroma/RAG, or any live SYNAPS state.",
             "Do not edit files. Do not run tests. Do not run live sends.",
             f"Target file: {target_file}",
-            "If the file can be inspected, end with exact line: CODEX_WORKER_PREFLIGHT_AVAILABLE.",
-            "If blocked, report the blocker and end with exact line: CODEX_WORKER_PREFLIGHT_BLOCKED.",
+            f"If the file can be inspected, end with exact line: {CODEX_WORKER_PREFLIGHT_AVAILABLE_LINE}.",
+            f"If blocked, report the blocker and end with exact line: {CODEX_WORKER_PREFLIGHT_BLOCKED_LINE}.",
         ]
     )
 
@@ -290,3 +299,13 @@ def _iso_now() -> str:
 
 def _preview(text: str, limit: int) -> str:
     return str(text or "")[:limit]
+
+
+def _ends_with_exact_line(text: str, expected: str) -> bool:
+    lines = [line.strip() for line in str(text or "").splitlines() if line.strip()]
+    return bool(lines and lines[-1] == expected)
+
+
+def _contains_sandbox_marker(text: str) -> bool:
+    normalized = str(text or "").lower()
+    return any(marker in normalized for marker in CODEX_WORKER_SANDBOX_BLOCK_MARKERS)

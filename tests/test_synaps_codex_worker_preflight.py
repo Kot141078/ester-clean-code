@@ -191,6 +191,34 @@ def test_preflight_does_not_block_on_quoted_bwrap_marker_from_file_content(tmp_p
     assert payload["result"]["blocked_reason"] == ""
 
 
+def test_preflight_classifies_markdown_bwrap_blocked_sentinel(tmp_path):
+    fake = tmp_path / "fake_codex_markdown_blocked.py"
+    fake.write_text(
+        "import sys\n"
+        "out=''\n"
+        "for i,a in enumerate(sys.argv):\n"
+        "    if a == '--output-last-message' and i + 1 < len(sys.argv): out=sys.argv[i+1]\n"
+        "message='Could not inspect target.\\n`bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted`\\n\\nCODEX_WORKER_PREFLIGHT_BLOCKED'\n"
+        "if out: open(out, 'w', encoding='utf-8').write(message)\n"
+        "print(message)\n",
+        encoding="utf-8",
+    )
+    policy = CodexWorkerPreflightPolicy(workdir=str(tmp_path), codex_command=f"{sys.executable} {fake}", sandbox="read-only")
+
+    payload = run_codex_worker_preflight(
+        env=_env(),
+        apply=True,
+        confirm=CODEX_WORKER_PREFLIGHT_CONFIRM_PHRASE,
+        root=tmp_path / "preflight",
+        policy=policy,
+        preflight_id="preflight-markdown-bwrap-blocked",
+    )
+
+    assert payload["ok"] is True
+    assert payload["result"]["status"] == "worker_sandbox_blocked"
+    assert payload["result"]["blocked_reason"] == "worker_sandbox_blocked"
+
+
 def test_cli_preflight_dry_run_writes_nothing(tmp_path):
     result = subprocess.run(
         [
