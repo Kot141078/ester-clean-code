@@ -8,6 +8,7 @@ from modules.synaps import (
     CODEX_DAEMON_CONFIRM_PHRASE,
     CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE,
     CODEX_DAEMON_RUNNER_CONFIRM_PHRASE,
+    CODEX_WORKER_SANDBOX_BLOCKED_REASON,
     CODEX_MAILBOX_CONFIRM_PHRASE,
     REQUEST_STATUS_COMPLETED,
     REQUEST_STATUS_QUEUED,
@@ -322,6 +323,50 @@ def test_runner_worker_command_uses_isolated_codex_flags(tmp_path, monkeypatch):
     assert "--ephemeral" in captured["command"]
     assert "--ignore-rules" in captured["command"]
     assert captured["kwargs"]["cwd"] == str(tmp_path.resolve())
+
+
+def test_runner_marks_bwrap_loopback_worker_sandbox_block_as_blocked(tmp_path):
+    fake = tmp_path / "fake_codex_bwrap.py"
+    fake.write_text(
+        "import sys\n"
+        "out=''\n"
+        "for i,a in enumerate(sys.argv):\n"
+        "    if a == '--output-last-message' and i + 1 < len(sys.argv): out=sys.argv[i+1]\n"
+        "message='bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted\\n0044 worker sandbox blocked'\n"
+        "if out: open(out, 'w', encoding='utf-8').write(message)\n"
+        "print(message)\n",
+        encoding="utf-8",
+    )
+    store = CodexRequestStore(tmp_path / "requests")
+    store.create_request(
+        store.build_request(
+            request_id="req-bwrap-blocked",
+            title="Bwrap blocked",
+            task="Use fake Codex.",
+            requester="test",
+            origin="test",
+        )
+    )
+    policy = CodexDaemonPolicy(workdir=str(tmp_path), codex_command=f"{sys.executable} {fake}", sandbox="read-only")
+    daemon = _daemon(tmp_path, policy=policy)
+    env = _armed_env(
+        SYNAPS_CODEX_DAEMON_PROMOTE_MAILBOX="0",
+        SYNAPS_CODEX_DAEMON_ENQUEUE_HANDOFFS="0",
+        SYNAPS_CODEX_DAEMON_RUNNER="1",
+        SYNAPS_CODEX_DAEMON_RUNNER_ARMED="1",
+    )
+
+    payload = daemon.cycle(env=env, apply=True, confirm=CODEX_DAEMON_RUNNER_CONFIRM_PHRASE)
+    request = CodexRequestStore(tmp_path / "requests").inspect_request("req-bwrap-blocked")
+
+    assert payload["ok"] is True
+    result = payload["actions"][0]["result"]
+    assert result["ok"] is False
+    assert result["status"] == "blocked"
+    assert result["returncode"] == 0
+    run_json = json.loads(next((tmp_path / "daemon" / "runs" / "req-bwrap-blocked").glob("*/run.json")).read_text(encoding="utf-8"))
+    assert run_json["blocked_reason"] == CODEX_WORKER_SANDBOX_BLOCKED_REASON
+    assert request["status"] == "blocked"
 
 
 def test_runner_apply_fails_closed_without_runner_gate(tmp_path):

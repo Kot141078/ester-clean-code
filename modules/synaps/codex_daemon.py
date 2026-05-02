@@ -42,6 +42,11 @@ CODEX_DAEMON_RUNNER_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_DAEMON_RUNNER_RUN"
 CODEX_DAEMON_EVENT_SCHEMA = "ester.synaps.codex_daemon_event.v1"
 DEFAULT_CODEX_DAEMON_ROOT = Path("data") / "synaps" / "codex_bridge" / "daemon"
 DEFAULT_CODEX_DAEMON_LEDGER = DEFAULT_CODEX_DAEMON_ROOT / "events.jsonl"
+CODEX_WORKER_SANDBOX_BLOCKED_REASON = "worker_sandbox_blocked"
+CODEX_WORKER_SANDBOX_BLOCK_MARKERS = (
+    "bwrap: loopback: failed rtm_newaddr: operation not permitted",
+    "failed rtm_newaddr: operation not permitted",
+)
 
 _TASK_KINDS = {"codex_contract", "codex_handoff"}
 
@@ -393,11 +398,11 @@ class CodexDaemon:
             prompt_path.write_text(self._build_prompt(request), encoding="utf-8")
             result = self._run_codex(prompt_path, output_path, run_dir)
             summary = _preview(result.get("last_message") or result.get("stderr") or result.get("stdout") or "no output", self.policy.max_output_chars)
-            final_status = "completed" if result["returncode"] == 0 else "blocked"
+            final_status = "completed" if result.get("ok") else "blocked"
             self.request_store.complete_request(request_id, operator=operator, summary=summary, status=final_status)
             (run_dir / "run.json").write_text(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
             self._append_event({"event": "request_ran", "request_id": request_id, "returncode": result["returncode"], "status": final_status})
-            return {"ok": result["returncode"] == 0, "status": final_status, "run_dir": str(run_dir), "returncode": result["returncode"]}
+            return {"ok": bool(result.get("ok")), "status": final_status, "run_dir": str(run_dir), "returncode": result["returncode"]}
         except Exception as exc:
             self._append_event({"event": "request_run_failed", "request_id": request_id, "error": exc.__class__.__name__})
             return {"ok": False, "status": "blocked", "error": exc.__class__.__name__, "message": str(exc)}
@@ -435,7 +440,15 @@ class CodexDaemon:
             last_message = _redact(_preview(output_path.read_text(encoding="utf-8", errors="replace"), self.policy.max_output_chars))
         (run_dir / "stdout.txt").write_text(stdout, encoding="utf-8")
         (run_dir / "stderr.txt").write_text(stderr, encoding="utf-8")
-        return {"ok": proc.returncode == 0, "returncode": proc.returncode, "stdout": stdout, "stderr": stderr, "last_message": last_message}
+        sandbox_blocked = _worker_sandbox_blocked(stdout, stderr, last_message)
+        return {
+            "ok": proc.returncode == 0 and not sandbox_blocked,
+            "returncode": proc.returncode,
+            "stdout": stdout,
+            "stderr": stderr,
+            "last_message": last_message,
+            "blocked_reason": CODEX_WORKER_SANDBOX_BLOCKED_REASON if sandbox_blocked else "",
+        }
 
     def _build_prompt(self, request: Mapping[str, Any]) -> str:
         return "\n".join(
@@ -564,3 +577,8 @@ def _redact(text: str) -> str:
             lower = redacted.lower()
             start = lower.find(marker.lower(), start + len(marker))
     return redacted
+
+
+def _worker_sandbox_blocked(*texts: str) -> bool:
+    combined = "\n".join(str(text or "") for text in texts).lower()
+    return any(marker in combined for marker in CODEX_WORKER_SANDBOX_BLOCK_MARKERS)
