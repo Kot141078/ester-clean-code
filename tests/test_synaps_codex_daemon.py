@@ -298,6 +298,32 @@ def test_runner_prompt_blocks_local_codex_memory_access(tmp_path):
     assert ".codex/sessions" in prompt
 
 
+def test_runner_worker_command_uses_isolated_codex_flags(tmp_path, monkeypatch):
+    captured = {}
+
+    def fake_run(command, **kwargs):
+        captured["command"] = command
+        captured["kwargs"] = kwargs
+        output_path = tmp_path / "last_message.md"
+        output_path.write_text("isolated fake completed", encoding="utf-8")
+        return subprocess.CompletedProcess(command, 0, stdout="ok", stderr="")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    daemon = _daemon(tmp_path, policy=CodexDaemonPolicy(workdir=str(tmp_path), codex_command="codex", sandbox="read-only"))
+    prompt_path = tmp_path / "prompt.md"
+    output_path = tmp_path / "last_message.md"
+    run_dir = tmp_path / "run"
+    prompt_path.write_text("bounded task", encoding="utf-8")
+    run_dir.mkdir()
+
+    result = daemon._run_codex(prompt_path, output_path, run_dir)
+
+    assert result["ok"] is True
+    assert "--ephemeral" in captured["command"]
+    assert "--ignore-rules" in captured["command"]
+    assert captured["kwargs"]["cwd"] == str(tmp_path.resolve())
+
+
 def test_runner_apply_fails_closed_without_runner_gate(tmp_path):
     store = CodexRequestStore(tmp_path / "requests")
     store.create_request(
