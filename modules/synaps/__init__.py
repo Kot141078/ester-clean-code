@@ -127,6 +127,12 @@ from .codex_handoff_pointer import (
     validate_operator_pointer_text,
     write_codex_handoff_pointer,
 )
+from .codex_report_observer import (
+    CODEX_REPORT_OBSERVER_CONFIRM_PHRASE,
+    CODEX_REPORT_OBSERVER_SCHEMA,
+    observe_expected_codex_report,
+    validate_codex_report_observer_gate,
+)
 from .codex_worker_preflight import (
     CODEX_WORKER_PREFLIGHT_CONFIRM_PHRASE,
     CODEX_WORKER_PREFLIGHT_EVENT_SCHEMA,
@@ -190,6 +196,8 @@ __all__ = [
     "CODEX_RUNNER_WINDOW_EVENT_SCHEMA",
     "CODEX_HANDOFF_POINTER_CONFIRM_PHRASE",
     "CODEX_HANDOFF_POINTER_SCHEMA",
+    "CODEX_REPORT_OBSERVER_CONFIRM_PHRASE",
+    "CODEX_REPORT_OBSERVER_SCHEMA",
     "CODEX_WORKER_PREFLIGHT_CONFIRM_PHRASE",
     "CODEX_WORKER_PREFLIGHT_EVENT_SCHEMA",
     "CODEX_WORKER_PREFLIGHT_MODE",
@@ -270,6 +278,7 @@ __all__ = [
     "log_synaps_route_response",
     "normalize_action",
     "normalize_actions",
+    "observe_expected_codex_report",
     "operator_gate_arm_status",
     "make_sister_inbound_view",
     "parse_inbound_payload",
@@ -292,6 +301,7 @@ __all__ = [
     "validate_codex_daemon_gate",
     "validate_codex_daemon_persistent_gate",
     "validate_codex_daemon_runner_gate",
+    "validate_codex_report_observer_gate",
     "validate_codex_runner_window_gate",
     "validate_codex_worker_preflight_gate",
     "validate_operator_pointer_text",
