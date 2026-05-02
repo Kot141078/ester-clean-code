@@ -38,6 +38,7 @@ from .protocol import SynapsValidationError
 CODEX_DAEMON_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_DAEMON_RUN"
 CODEX_DAEMON_BASELINE_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_DAEMON_BASELINE"
 CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_DAEMON_PERSISTENT_RUN"
+CODEX_DAEMON_RUNNER_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_DAEMON_RUNNER_RUN"
 CODEX_DAEMON_EVENT_SCHEMA = "ester.synaps.codex_daemon_event.v1"
 DEFAULT_CODEX_DAEMON_ROOT = Path("data") / "synaps" / "codex_bridge" / "daemon"
 DEFAULT_CODEX_DAEMON_LEDGER = DEFAULT_CODEX_DAEMON_ROOT / "events.jsonl"
@@ -55,7 +56,7 @@ class CodexDaemonPolicy:
     max_output_chars: int = 3000
     workdir: str = "."
     codex_command: str = "codex"
-    sandbox: str = "workspace-write"
+    sandbox: str = "read-only"
     model: str = ""
 
     @classmethod
@@ -87,6 +88,7 @@ def codex_daemon_arm_status(env: Mapping[str, str]) -> dict[str, bool]:
         "promote_mailbox": _env_bool(env.get("SYNAPS_CODEX_DAEMON_PROMOTE_MAILBOX", "0")),
         "enqueue_handoffs": _env_bool(env.get("SYNAPS_CODEX_DAEMON_ENQUEUE_HANDOFFS", "0")),
         "runner": _env_bool(env.get("SYNAPS_CODEX_DAEMON_RUNNER", "0")),
+        "runner_armed": _env_bool(env.get("SYNAPS_CODEX_DAEMON_RUNNER_ARMED", "0")),
         "kill_switch": _env_bool(env.get("SYNAPS_CODEX_DAEMON_KILL_SWITCH", "0"))
         or _env_bool(env.get("CODEX_DAEMON_KILL_SWITCH", "0")),
         "legacy_autochat": _env_bool(env.get("SISTER_AUTOCHAT", "0")),
@@ -125,6 +127,24 @@ def validate_codex_daemon_persistent_gate(env: Mapping[str, str], confirm: str) 
     return problems
 
 
+def validate_codex_daemon_runner_gate(
+    env: Mapping[str, str],
+    confirm: str,
+    policy: "CodexDaemonPolicy",
+) -> list[str]:
+    status = codex_daemon_arm_status(env)
+    problems = validate_codex_daemon_gate(env, confirm, CODEX_DAEMON_RUNNER_CONFIRM_PHRASE)
+    if not status["runner"]:
+        problems.append("SYNAPS_CODEX_DAEMON_RUNNER_not_enabled")
+    if not status["runner_armed"]:
+        problems.append("SYNAPS_CODEX_DAEMON_RUNNER_ARMED_not_enabled")
+    if status["persistent"] or status["persistent_armed"]:
+        problems.append("SYNAPS_CODEX_DAEMON_PERSISTENT_must_remain_disabled_for_runner")
+    if str(policy.sandbox or "").strip().lower() != "read-only":
+        problems.append("SYNAPS_CODEX_DAEMON_SANDBOX_must_be_read_only_for_runner")
+    return problems
+
+
 class CodexDaemon:
     def __init__(
         self,
@@ -158,7 +178,10 @@ class CodexDaemon:
             "memory": "off",
         }
         if apply:
-            problems = validate_codex_daemon_gate(env, confirm)
+            if status["runner"]:
+                problems = validate_codex_daemon_runner_gate(env, confirm, self.policy)
+            else:
+                problems = validate_codex_daemon_gate(env, confirm)
             if problems:
                 output["ok"] = False
                 output["result"] = {"ok": False, "error": "daemon_gate_failed", "problems": problems}

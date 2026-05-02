@@ -7,6 +7,7 @@ from modules.synaps import (
     CODEX_DAEMON_BASELINE_CONFIRM_PHRASE,
     CODEX_DAEMON_CONFIRM_PHRASE,
     CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE,
+    CODEX_DAEMON_RUNNER_CONFIRM_PHRASE,
     CODEX_MAILBOX_CONFIRM_PHRASE,
     REQUEST_STATUS_COMPLETED,
     REQUEST_STATUS_QUEUED,
@@ -19,6 +20,7 @@ from modules.synaps import (
     inspect_codex_mailbox_transfer,
     validate_codex_daemon_gate,
     validate_codex_daemon_persistent_gate,
+    validate_codex_daemon_runner_gate,
     CodexDaemon,
     CodexDaemonPolicy,
     CodexRequestStore,
@@ -108,6 +110,26 @@ def test_persistent_gate_requires_extra_arm_and_blocks_runner():
     assert "SYNAPS_CODEX_DAEMON_RUNNER_must_remain_disabled_for_persistent" in validate_codex_daemon_persistent_gate(
         runner,
         CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE,
+    )
+
+
+def test_runner_gate_requires_extra_arm_confirm_and_read_only():
+    policy = CodexDaemonPolicy(sandbox="read-only")
+    runner = _armed_env(SYNAPS_CODEX_DAEMON_RUNNER="1")
+
+    missing = validate_codex_daemon_runner_gate(runner, CODEX_DAEMON_CONFIRM_PHRASE, policy)
+
+    assert "missing_confirm_phrase" in missing
+    assert "SYNAPS_CODEX_DAEMON_RUNNER_ARMED_not_enabled" in missing
+    assert validate_codex_daemon_runner_gate(
+        {**runner, "SYNAPS_CODEX_DAEMON_RUNNER_ARMED": "1"},
+        CODEX_DAEMON_RUNNER_CONFIRM_PHRASE,
+        policy,
+    ) == []
+    assert "SYNAPS_CODEX_DAEMON_SANDBOX_must_be_read_only_for_runner" in validate_codex_daemon_runner_gate(
+        {**runner, "SYNAPS_CODEX_DAEMON_RUNNER_ARMED": "1"},
+        CODEX_DAEMON_RUNNER_CONFIRM_PHRASE,
+        CodexDaemonPolicy(sandbox="workspace-write"),
     )
 
 
@@ -232,17 +254,48 @@ def test_runner_uses_fake_codex_and_completes_request(tmp_path):
         origin="test",
     )
     store.create_request(record)
-    policy = CodexDaemonPolicy(workdir=str(tmp_path), codex_command=f"{sys.executable} {fake}")
+    policy = CodexDaemonPolicy(workdir=str(tmp_path), codex_command=f"{sys.executable} {fake}", sandbox="read-only")
     daemon = _daemon(tmp_path, policy=policy)
-    env = _armed_env(SYNAPS_CODEX_DAEMON_PROMOTE_MAILBOX="0", SYNAPS_CODEX_DAEMON_ENQUEUE_HANDOFFS="0", SYNAPS_CODEX_DAEMON_RUNNER="1")
+    env = _armed_env(
+        SYNAPS_CODEX_DAEMON_PROMOTE_MAILBOX="0",
+        SYNAPS_CODEX_DAEMON_ENQUEUE_HANDOFFS="0",
+        SYNAPS_CODEX_DAEMON_RUNNER="1",
+        SYNAPS_CODEX_DAEMON_RUNNER_ARMED="1",
+    )
 
-    payload = daemon.cycle(env=env, apply=True, confirm=CODEX_DAEMON_CONFIRM_PHRASE)
+    payload = daemon.cycle(env=env, apply=True, confirm=CODEX_DAEMON_RUNNER_CONFIRM_PHRASE)
     request = CodexRequestStore(tmp_path / "requests").inspect_request("req-runner")
 
     assert payload["ok"] is True
     assert payload["actions"][0]["result"]["status"] == REQUEST_STATUS_COMPLETED
     assert request["status"] == REQUEST_STATUS_COMPLETED
     assert "fake codex completed" in request["events"][-1]["summary"]["summary"]
+
+
+def test_runner_apply_fails_closed_without_runner_gate(tmp_path):
+    store = CodexRequestStore(tmp_path / "requests")
+    store.create_request(
+        store.build_request(
+            request_id="req-runner-gate",
+            title="Run fake",
+            task="Use fake Codex.",
+            requester="test",
+            origin="test",
+        )
+    )
+    daemon = _daemon(tmp_path, policy=CodexDaemonPolicy(workdir=str(tmp_path), sandbox="read-only"))
+    env = _armed_env(
+        SYNAPS_CODEX_DAEMON_PROMOTE_MAILBOX="0",
+        SYNAPS_CODEX_DAEMON_ENQUEUE_HANDOFFS="0",
+        SYNAPS_CODEX_DAEMON_RUNNER="1",
+    )
+
+    payload = daemon.cycle(env=env, apply=True, confirm=CODEX_DAEMON_CONFIRM_PHRASE)
+
+    assert payload["ok"] is False
+    assert payload["result"]["error"] == "daemon_gate_failed"
+    assert "SYNAPS_CODEX_DAEMON_RUNNER_ARMED_not_enabled" in payload["result"]["problems"]
+    assert CodexRequestStore(tmp_path / "requests").inspect_request("req-runner-gate")["status"] == REQUEST_STATUS_QUEUED
 
 
 def test_runner_resolves_bare_command_from_path(tmp_path, monkeypatch):
@@ -274,6 +327,7 @@ def test_cli_status_is_dry_run(tmp_path):
     assert payload["ok"] is True
     assert payload["dry_run"] is True
     assert payload["confirm_required"] == CODEX_DAEMON_CONFIRM_PHRASE
+    assert payload["runner_confirm_required"] == CODEX_DAEMON_RUNNER_CONFIRM_PHRASE
 
 
 def test_cli_daemon_persistent_fails_closed_without_persistent_gate(tmp_path):

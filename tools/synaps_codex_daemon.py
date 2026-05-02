@@ -52,6 +52,7 @@ def main(argv: list[str] | None = None) -> int:
         CODEX_DAEMON_BASELINE_CONFIRM_PHRASE,
         CODEX_DAEMON_CONFIRM_PHRASE,
         CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE,
+        CODEX_DAEMON_RUNNER_CONFIRM_PHRASE,
         DEFAULT_CODEX_DAEMON_ROOT,
         DEFAULT_CODEX_INBOX_ROOT,
         DEFAULT_CODEX_RECEIPT_LEDGER,
@@ -95,6 +96,7 @@ def main(argv: list[str] | None = None) -> int:
             "confirm_required": CODEX_DAEMON_CONFIRM_PHRASE,
             "baseline_confirm_required": CODEX_DAEMON_BASELINE_CONFIRM_PHRASE,
             "persistent_confirm_required": CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE,
+            "runner_confirm_required": CODEX_DAEMON_RUNNER_CONFIRM_PHRASE,
             "arm_status": codex_daemon_arm_status(env),
             "policy": policy.to_record(),
         }

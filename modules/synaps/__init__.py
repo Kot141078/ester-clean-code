@@ -97,6 +97,7 @@ from .codex_daemon import (
     CODEX_DAEMON_CONFIRM_PHRASE,
     CODEX_DAEMON_EVENT_SCHEMA,
     CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE,
+    CODEX_DAEMON_RUNNER_CONFIRM_PHRASE,
     DEFAULT_CODEX_DAEMON_LEDGER,
     DEFAULT_CODEX_DAEMON_ROOT,
     CodexDaemon,
@@ -104,6 +105,7 @@ from .codex_daemon import (
     codex_daemon_arm_status,
     validate_codex_daemon_gate,
     validate_codex_daemon_persistent_gate,
+    validate_codex_daemon_runner_gate,
 )
 from .operator_gate import (
     ACTION_CONVERSATION,
@@ -150,6 +152,7 @@ __all__ = [
     "CODEX_DAEMON_CONFIRM_PHRASE",
     "CODEX_DAEMON_BASELINE_CONFIRM_PHRASE",
     "CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE",
+    "CODEX_DAEMON_RUNNER_CONFIRM_PHRASE",
     "CODEX_DAEMON_EVENT_SCHEMA",
     "CODEX_REQUEST_EVENT_SCHEMA",
     "CODEX_REQUEST_SCHEMA",
@@ -238,6 +241,7 @@ __all__ = [
     "validate_codex_request_gate",
     "validate_codex_daemon_gate",
     "validate_codex_daemon_persistent_gate",
+    "validate_codex_daemon_runner_gate",
     "validate_scheduler_send_gate",
     "verify_token",
 ]
