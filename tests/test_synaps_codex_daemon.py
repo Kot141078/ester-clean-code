@@ -238,8 +238,10 @@ def test_cycle_apply_requires_gate(tmp_path):
 
 def test_runner_uses_fake_codex_and_completes_request(tmp_path):
     fake = tmp_path / "fake_codex.py"
+    argv_log = tmp_path / "fake_codex_argv.txt"
     fake.write_text(
         "import sys\n"
+        f"open({str(argv_log)!r}, 'w', encoding='utf-8').write('\\n'.join(sys.argv))\n"
         "if '--ask-for-approval' in sys.argv:\n"
         "    print('unsupported approval flag', file=sys.stderr)\n"
         "    raise SystemExit(17)\n"
@@ -275,6 +277,25 @@ def test_runner_uses_fake_codex_and_completes_request(tmp_path):
     assert payload["actions"][0]["result"]["status"] == REQUEST_STATUS_COMPLETED
     assert request["status"] == REQUEST_STATUS_COMPLETED
     assert "fake codex completed" in request["events"][-1]["summary"]["summary"]
+    fake_argv = argv_log.read_text(encoding="utf-8")
+    assert "--ephemeral" in fake_argv
+    assert "--ignore-rules" in fake_argv
+
+
+def test_runner_prompt_blocks_local_codex_memory_access(tmp_path):
+    daemon = _daemon(tmp_path)
+    request = {
+        "request_id": "req-prompt",
+        "title": "Prompt guard",
+        "task": "Inspect one repo file.",
+        "related_transfer_ids": [],
+    }
+
+    prompt = daemon._build_prompt(request)
+
+    assert "Do not read, search, summarize, or write local Codex memory/session/history files" in prompt
+    assert ".codex/memories" in prompt
+    assert ".codex/sessions" in prompt
 
 
 def test_runner_apply_fails_closed_without_runner_gate(tmp_path):

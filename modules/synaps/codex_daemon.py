@@ -408,6 +408,8 @@ class CodexDaemon:
         command_prefix = _resolve_command_prefix(self.policy.codex_command)
         command = command_prefix + [
             "exec",
+            "--ephemeral",
+            "--ignore-rules",
             "--cd",
             str(Path(self.policy.workdir).resolve()),
             "--sandbox",
@@ -441,6 +443,8 @@ class CodexDaemon:
                 "You are a local Codex worker in the SYNAPS family coordination mesh.",
                 "Complete the bounded request below and write a concise final report.",
                 "Hard constraints: do not expose secrets; do not edit .env; do not touch memory/passport/vector/chroma/RAG; do not run live SYNAPS sends, scheduler, hourly, or autochat unless the request explicitly includes a matching approved gate.",
+                "Do not read, search, summarize, or write local Codex memory/session/history files, including .codex/memories and .codex/sessions, unless the request explicitly grants that access.",
+                "Prefer inspecting only repo-local files named by the request, plus the minimum directly related repo files needed to answer it.",
                 "Use dry-run and tests first. If blocked, report the blocker and stop.",
                 "",
                 f"Request id: {request.get('request_id')}",
