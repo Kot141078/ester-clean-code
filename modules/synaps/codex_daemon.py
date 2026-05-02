@@ -580,5 +580,22 @@ def _redact(text: str) -> str:
 
 
 def _worker_sandbox_blocked(*texts: str) -> bool:
-    combined = "\n".join(str(text or "") for text in texts).lower()
-    return any(marker in combined for marker in CODEX_WORKER_SANDBOX_BLOCK_MARKERS)
+    for text in texts:
+        for line in str(text or "").splitlines():
+            if _sandbox_block_line(line):
+                return True
+    return False
+
+
+def _sandbox_block_line(line: str) -> bool:
+    normalized = str(line or "").strip().lower()
+    if not normalized:
+        return False
+    for marker in CODEX_WORKER_SANDBOX_BLOCK_MARKERS:
+        marker_index = normalized.find(marker)
+        if marker_index < 0:
+            continue
+        prefix = normalized[:marker_index].strip()
+        if not prefix or prefix.endswith(("error:", "fatal:", "failed:", "blocked:")):
+            return True
+    return False
