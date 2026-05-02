@@ -118,6 +118,15 @@ from .codex_runner_window import (
     run_codex_runner_window,
     validate_codex_runner_window_gate,
 )
+from .codex_handoff_pointer import (
+    CODEX_HANDOFF_POINTER_CONFIRM_PHRASE,
+    CODEX_HANDOFF_POINTER_SCHEMA,
+    DEFAULT_CODEX_HANDOFF_POINTER_ROOT,
+    CodexHandoffPointerPolicy,
+    build_codex_handoff_pointer,
+    validate_operator_pointer_text,
+    write_codex_handoff_pointer,
+)
 from .codex_worker_preflight import (
     CODEX_WORKER_PREFLIGHT_CONFIRM_PHRASE,
     CODEX_WORKER_PREFLIGHT_EVENT_SCHEMA,
@@ -179,6 +188,8 @@ __all__ = [
     "CODEX_WORKER_SANDBOX_BLOCKED_REASON",
     "CODEX_RUNNER_WINDOW_CONFIRM_PHRASE",
     "CODEX_RUNNER_WINDOW_EVENT_SCHEMA",
+    "CODEX_HANDOFF_POINTER_CONFIRM_PHRASE",
+    "CODEX_HANDOFF_POINTER_SCHEMA",
     "CODEX_WORKER_PREFLIGHT_CONFIRM_PHRASE",
     "CODEX_WORKER_PREFLIGHT_EVENT_SCHEMA",
     "CODEX_WORKER_PREFLIGHT_MODE",
@@ -191,6 +202,7 @@ __all__ = [
     "DEFAULT_CODEX_RECEIPT_LEDGER",
     "DEFAULT_CODEX_REQUEST_ROOT",
     "DEFAULT_CODEX_RUNNER_WINDOW_ROOT",
+    "DEFAULT_CODEX_HANDOFF_POINTER_ROOT",
     "DEFAULT_CODEX_WORKER_PREFLIGHT_ROOT",
     "FILE_MANIFEST_SCHEMA",
     "FILE_TRANSFER_CONFIRM_PHRASE",
@@ -213,6 +225,7 @@ __all__ = [
     "CodexDaemon",
     "CodexDaemonPolicy",
     "CodexRunnerWindowStore",
+    "CodexHandoffPointerPolicy",
     "CodexWorkerPreflightPolicy",
     "FileManifestHandler",
     "FileTransferPolicy",
@@ -238,6 +251,7 @@ __all__ = [
     "build_conversation_turn_request",
     "build_file_manifest",
     "build_file_manifest_request",
+    "build_codex_handoff_pointer",
     "build_safe_chat_thought_handler",
     "config_from_env",
     "config_from_legacy_listener_values",
@@ -280,6 +294,8 @@ __all__ = [
     "validate_codex_daemon_runner_gate",
     "validate_codex_runner_window_gate",
     "validate_codex_worker_preflight_gate",
+    "validate_operator_pointer_text",
     "validate_scheduler_send_gate",
     "verify_token",
+    "write_codex_handoff_pointer",
 ]
