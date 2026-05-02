@@ -94,6 +94,11 @@ def test_daemon_gate_requires_enable_arm_confirm_and_blocks_autochat():
     )
 
 
+def test_policy_from_env_defaults_runner_sandbox_to_read_only():
+    assert CodexDaemonPolicy.from_env({}).sandbox == "read-only"
+    assert CodexDaemonPolicy.from_env({"SYNAPS_CODEX_DAEMON_SANDBOX": "workspace-write"}).sandbox == "workspace-write"
+
+
 def test_persistent_gate_requires_extra_arm_and_blocks_runner():
     missing = validate_codex_daemon_persistent_gate(_armed_env(), CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE)
     assert "SYNAPS_CODEX_DAEMON_PERSISTENT_not_enabled" in missing

@@ -71,7 +71,7 @@ class CodexDaemonPolicy:
             max_output_chars=_bounded_int(source.get("SYNAPS_CODEX_DAEMON_MAX_OUTPUT_CHARS"), 3000, 200, 12000),
             workdir=str(source.get("SYNAPS_CODEX_DAEMON_WORKDIR") or "."),
             codex_command=str(source.get("SYNAPS_CODEX_COMMAND") or "codex"),
-            sandbox=str(source.get("SYNAPS_CODEX_DAEMON_SANDBOX") or "workspace-write"),
+            sandbox=str(source.get("SYNAPS_CODEX_DAEMON_SANDBOX") or "read-only"),
             model=str(source.get("SYNAPS_CODEX_DAEMON_MODEL") or ""),
         )
 
