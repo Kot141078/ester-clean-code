@@ -8,6 +8,7 @@ from modules.synaps import (
     CODEX_DAEMON_CONFIRM_PHRASE,
     CODEX_DAEMON_PERSISTENT_CONFIRM_PHRASE,
     CODEX_DAEMON_RUNNER_CONFIRM_PHRASE,
+    CODEX_WORKER_CAPABILITY_AVAILABLE,
     CODEX_WORKER_SANDBOX_BLOCKED_REASON,
     CODEX_MAILBOX_CONFIRM_PHRASE,
     REQUEST_STATUS_COMPLETED,
@@ -43,6 +44,7 @@ def _armed_env(**extra):
         "SYNAPS_CODEX_DAEMON_ARMED": "1",
         "SYNAPS_CODEX_DAEMON_PROMOTE_MAILBOX": "1",
         "SYNAPS_CODEX_DAEMON_ENQUEUE_HANDOFFS": "1",
+        "SYNAPS_CODEX_WORKER_CAPABILITY": CODEX_WORKER_CAPABILITY_AVAILABLE,
         "SISTER_AUTOCHAT": "0",
     }
     env.update(extra)
@@ -127,6 +129,13 @@ def test_runner_gate_requires_extra_arm_confirm_and_read_only():
 
     assert "missing_confirm_phrase" in missing
     assert "SYNAPS_CODEX_DAEMON_RUNNER_ARMED_not_enabled" in missing
+    no_capability = {**runner, "SYNAPS_CODEX_DAEMON_RUNNER_ARMED": "1"}
+    no_capability.pop("SYNAPS_CODEX_WORKER_CAPABILITY", None)
+    assert "SYNAPS_CODEX_WORKER_CAPABILITY_must_be_available_for_runner" in validate_codex_daemon_runner_gate(
+        no_capability,
+        CODEX_DAEMON_RUNNER_CONFIRM_PHRASE,
+        policy,
+    )
     assert validate_codex_daemon_runner_gate(
         {**runner, "SYNAPS_CODEX_DAEMON_RUNNER_ARMED": "1"},
         CODEX_DAEMON_RUNNER_CONFIRM_PHRASE,

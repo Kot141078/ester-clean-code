@@ -4,6 +4,7 @@ import sys
 
 from modules.synaps import (
     CODEX_RUNNER_WINDOW_CONFIRM_PHRASE,
+    CODEX_WORKER_CAPABILITY_AVAILABLE,
     CodexDaemonPolicy,
     CodexRequestStore,
     codex_runner_window_arm_status,
@@ -41,6 +42,7 @@ def _window_env(**extra):
     env = {
         "SYNAPS_CODEX_RUNNER_WINDOW": "1",
         "SYNAPS_CODEX_RUNNER_WINDOW_ARMED": "1",
+        "SYNAPS_CODEX_WORKER_CAPABILITY": CODEX_WORKER_CAPABILITY_AVAILABLE,
         "SISTER_AUTOCHAT": "0",
     }
     env.update(extra)
@@ -54,6 +56,11 @@ def test_runner_window_gate_requires_arm_and_read_only():
     assert validate_codex_runner_window_gate(_window_env(), CODEX_RUNNER_WINDOW_CONFIRM_PHRASE, policy) == []
     assert "SYNAPS_CODEX_RUNNER_WINDOW_ARMED_not_enabled" in validate_codex_runner_window_gate(
         {"SYNAPS_CODEX_RUNNER_WINDOW": "1", "SISTER_AUTOCHAT": "0"},
+        CODEX_RUNNER_WINDOW_CONFIRM_PHRASE,
+        policy,
+    )
+    assert "SYNAPS_CODEX_WORKER_CAPABILITY_must_be_available_for_runner_window" in validate_codex_runner_window_gate(
+        {"SYNAPS_CODEX_RUNNER_WINDOW": "1", "SYNAPS_CODEX_RUNNER_WINDOW_ARMED": "1", "SISTER_AUTOCHAT": "0"},
         CODEX_RUNNER_WINDOW_CONFIRM_PHRASE,
         policy,
     )

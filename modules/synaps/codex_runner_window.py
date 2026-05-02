@@ -76,6 +76,7 @@ def codex_runner_window_arm_status(env: Mapping[str, str]) -> dict[str, bool]:
         "persistent_armed": daemon_status["persistent_armed"],
         "promote_mailbox": daemon_status["promote_mailbox"],
         "enqueue_handoffs": daemon_status["enqueue_handoffs"],
+        "worker_available": daemon_status["worker_available"],
         "scheduler": _env_bool(env.get("SISTER_SCHEDULE", "0")),
         "conversation_window": _env_bool(env.get("SISTER_CONVERSATION_WINDOW", "0")),
         "file_transfer": _env_bool(env.get("SISTER_FILE_TRANSFER", "0")),
@@ -103,6 +104,8 @@ def validate_codex_runner_window_gate(
         problems.append("SYNAPS_CODEX_DAEMON_PERSISTENT_must_remain_disabled_for_runner_window")
     if status["promote_mailbox"] or status["enqueue_handoffs"]:
         problems.append("SYNAPS_CODEX_DAEMON_PROMOTE_ENQUEUE_must_remain_disabled_for_runner_window")
+    if not status["worker_available"]:
+        problems.append("SYNAPS_CODEX_WORKER_CAPABILITY_must_be_available_for_runner_window")
     if status["scheduler"] or status["conversation_window"] or status["file_transfer"]:
         problems.append("SYNAPS_live_send_flags_must_remain_disabled_for_runner_window")
     if str(policy.sandbox or "").strip().lower() != "read-only":

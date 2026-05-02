@@ -42,6 +42,7 @@ CODEX_DAEMON_RUNNER_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_DAEMON_RUNNER_RUN"
 CODEX_DAEMON_EVENT_SCHEMA = "ester.synaps.codex_daemon_event.v1"
 DEFAULT_CODEX_DAEMON_ROOT = Path("data") / "synaps" / "codex_bridge" / "daemon"
 DEFAULT_CODEX_DAEMON_LEDGER = DEFAULT_CODEX_DAEMON_ROOT / "events.jsonl"
+CODEX_WORKER_CAPABILITY_AVAILABLE = "available"
 CODEX_WORKER_SANDBOX_BLOCKED_REASON = "worker_sandbox_blocked"
 CODEX_WORKER_SANDBOX_BLOCK_MARKERS = (
     "bwrap: loopback: failed rtm_newaddr: operation not permitted",
@@ -94,6 +95,7 @@ def codex_daemon_arm_status(env: Mapping[str, str]) -> dict[str, bool]:
         "enqueue_handoffs": _env_bool(env.get("SYNAPS_CODEX_DAEMON_ENQUEUE_HANDOFFS", "0")),
         "runner": _env_bool(env.get("SYNAPS_CODEX_DAEMON_RUNNER", "0")),
         "runner_armed": _env_bool(env.get("SYNAPS_CODEX_DAEMON_RUNNER_ARMED", "0")),
+        "worker_available": _worker_available(env),
         "kill_switch": _env_bool(env.get("SYNAPS_CODEX_DAEMON_KILL_SWITCH", "0"))
         or _env_bool(env.get("CODEX_DAEMON_KILL_SWITCH", "0")),
         "legacy_autochat": _env_bool(env.get("SISTER_AUTOCHAT", "0")),
@@ -145,6 +147,8 @@ def validate_codex_daemon_runner_gate(
         problems.append("SYNAPS_CODEX_DAEMON_RUNNER_ARMED_not_enabled")
     if status["persistent"] or status["persistent_armed"]:
         problems.append("SYNAPS_CODEX_DAEMON_PERSISTENT_must_remain_disabled_for_runner")
+    if not status["worker_available"]:
+        problems.append("SYNAPS_CODEX_WORKER_CAPABILITY_must_be_available_for_runner")
     if str(policy.sandbox or "").strip().lower() != "read-only":
         problems.append("SYNAPS_CODEX_DAEMON_SANDBOX_must_be_read_only_for_runner")
     return problems
@@ -530,6 +534,10 @@ def _bounded_int(raw: str | None, default: int, minimum: int, maximum: int) -> i
 
 def _env_bool(raw: str) -> bool:
     return str(raw or "0").strip().lower() in {"1", "true", "yes", "on", "y", "enabled"}
+
+
+def _worker_available(env: Mapping[str, str]) -> bool:
+    return str(env.get("SYNAPS_CODEX_WORKER_CAPABILITY") or "").strip().lower() == CODEX_WORKER_CAPABILITY_AVAILABLE
 
 
 def _safe_identifier(raw: str) -> str:
