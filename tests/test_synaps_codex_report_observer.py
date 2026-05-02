@@ -6,6 +6,7 @@ import sys
 from modules.synaps import (
     CODEX_REPORT_OBSERVER_CONFIRM_PHRASE,
     CODEX_REPORT_WATCHER_CONFIRM_PHRASE,
+    CodexDaemon,
     CodexReportWatcherPolicy,
     SynapsConfig,
     SynapsMessageType,
@@ -132,6 +133,36 @@ def test_report_observer_fails_closed_when_multiple_reports_are_pending(tmp_path
     assert payload["result"]["status"] == "expected_transfer_mismatch"
     assert "expected_exactly_one_observe_report_action:2" in payload["problems"]
     assert not (tmp_path / "daemon" / "promote_seen" / "synaps-file-report.json").exists()
+
+
+def test_report_observer_rechecks_before_apply_when_new_report_arrives(tmp_path, monkeypatch):
+    _quarantine_report(tmp_path, transfer_id="synaps-file-report")
+    original_cycle = CodexDaemon.cycle
+    calls = 0
+
+    def wrapped_cycle(self, *args, **kwargs):
+        nonlocal calls
+        result = original_cycle(self, *args, **kwargs)
+        if not kwargs.get("apply") and calls == 0:
+            _quarantine_report(tmp_path, transfer_id="synaps-file-other")
+        calls += 1
+        return result
+
+    monkeypatch.setattr(CodexDaemon, "cycle", wrapped_cycle)
+
+    payload = observe_expected_codex_report(
+        expected_transfer_id="synaps-file-report",
+        env=_armed_env(),
+        apply=True,
+        confirm=CODEX_REPORT_OBSERVER_CONFIRM_PHRASE,
+        **_observer_roots(tmp_path),
+    )
+
+    assert payload["ok"] is False
+    assert payload["result"]["status"] == "pre_apply_mismatch"
+    assert "expected_exactly_one_observe_report_action:2" in payload["problems"]
+    assert not (tmp_path / "daemon" / "promote_seen" / "synaps-file-report.json").exists()
+    assert not (tmp_path / "daemon" / "promote_seen" / "synaps-file-other.json").exists()
 
 
 def test_report_observer_apply_marks_expected_report_only(tmp_path):

@@ -19,7 +19,7 @@ from .codex_daemon import (
     CodexDaemonPolicy,
     codex_daemon_arm_status,
 )
-from .mailbox import DEFAULT_CODEX_INBOX_ROOT, DEFAULT_CODEX_RECEIPT_LEDGER
+from .mailbox import DEFAULT_CODEX_INBOX_ROOT, DEFAULT_CODEX_RECEIPT_LEDGER, inspect_codex_mailbox_transfer
 from .codex_request import DEFAULT_CODEX_REQUEST_ROOT
 from .file_transfer import DEFAULT_QUARANTINE_ROOT
 from .protocol import SynapsValidationError
@@ -135,14 +135,29 @@ def observe_expected_codex_report(
         payload["result"] = {"ok": False, "status": "expected_transfer_mismatch", "problems": match_problems}
         return payload
 
-    result = daemon.cycle(env=actual_env, apply=True, confirm=CODEX_DAEMON_CONFIRM_PHRASE, operator=operator)
-    apply_problems = _expected_action_problems(result.get("actions") or [], safe_transfer_id)
-    payload["apply"] = _compact_cycle(result)
+    fresh_preview = daemon.cycle(env=actual_env, apply=False, operator=operator)
+    fresh_problems = _expected_action_problems(fresh_preview.get("actions") or [], safe_transfer_id)
+    payload["pre_apply"] = _compact_cycle(fresh_preview)
+    if fresh_problems:
+        payload["ok"] = False
+        payload["problems"].extend(fresh_problems)
+        payload["result"] = {"ok": False, "status": "pre_apply_mismatch", "problems": fresh_problems}
+        return payload
+
+    result = _apply_expected_report_observation(
+        daemon=daemon,
+        transfer_id=safe_transfer_id,
+        quarantine_root=quarantine_root,
+        inbox_root=inbox_root,
+        operator=operator,
+    )
+    apply_problems = result.get("problems") or []
+    payload["apply"] = _compact_exact_apply(result)
     payload["ok"] = bool(result.get("ok")) and not apply_problems
     payload["problems"].extend(apply_problems)
     payload["result"] = {
         "ok": payload["ok"],
-        "status": "report_observed" if payload["ok"] else "apply_result_mismatch",
+        "status": "report_observed" if payload["ok"] else str(result.get("status") or "apply_result_mismatch"),
         "problems": apply_problems,
     }
     return payload
@@ -274,6 +289,57 @@ def _compact_cycle(payload: Mapping[str, Any]) -> dict[str, Any]:
         "ok": bool(payload.get("ok")),
         "dry_run": bool(payload.get("dry_run")),
         "actions": list(payload.get("actions") or []),
+        "auto_ingest": False,
+        "memory": "off",
+    }
+
+
+def _apply_expected_report_observation(
+    *,
+    daemon: CodexDaemon,
+    transfer_id: str,
+    quarantine_root: str | Path,
+    inbox_root: str | Path,
+    operator: str,
+) -> dict[str, Any]:
+    problems: list[str] = []
+    inspection = inspect_codex_mailbox_transfer(transfer_id, quarantine_root, inbox_root)
+    files = list(inspection.get("files") or [])
+    kinds = sorted({str(item.get("kind") or "") for item in files if item.get("kind")})
+    action: dict[str, Any] = {
+        "action": "observe_report",
+        "transfer_id": transfer_id,
+        "dry_run": False,
+        "file_count": len(files),
+        "kinds": kinds,
+        "auto_ingest": False,
+        "memory": "off",
+    }
+    if not inspection.get("ok"):
+        problems.extend(list(inspection.get("problems") or ["inspection_failed"]))
+    if inspection.get("status") not in {"ready", "already_promoted"}:
+        problems.append(f"unexpected_report_status:{inspection.get('status')}")
+    if "codex_report" not in set(kinds):
+        problems.append("expected_transfer_is_not_codex_report")
+    if daemon._promote_seen_path(transfer_id).exists():
+        problems.append("expected_transfer_already_observed")
+    if problems:
+        action["result"] = {"ok": False, "status": "exact_apply_rejected", "problems": problems}
+        return {"ok": False, "status": "exact_apply_rejected", "problems": problems, "action": action}
+
+    result = {"ok": True, "status": "report_observed", "source": "quarantine"}
+    daemon._mark_promote_seen(transfer_id, operator, result)
+    daemon._append_event({"event": "report_observed", "transfer_id": transfer_id, "operator": operator})
+    action["result"] = result
+    return {"ok": True, "status": "report_observed", "problems": [], "action": action}
+
+
+def _compact_exact_apply(payload: Mapping[str, Any]) -> dict[str, Any]:
+    action = payload.get("action")
+    return {
+        "ok": bool(payload.get("ok")),
+        "dry_run": False,
+        "actions": [dict(action)] if isinstance(action, Mapping) else [],
         "auto_ingest": False,
         "memory": "off",
     }
