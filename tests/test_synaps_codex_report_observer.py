@@ -5,6 +5,8 @@ import sys
 
 from modules.synaps import (
     CODEX_REPORT_OBSERVER_CONFIRM_PHRASE,
+    CODEX_REPORT_WATCHER_CONFIRM_PHRASE,
+    CodexReportWatcherPolicy,
     SynapsConfig,
     SynapsMessageType,
     SynapsQuarantineStore,
@@ -12,6 +14,7 @@ from modules.synaps import (
     build_file_manifest,
     observe_expected_codex_report,
     validate_codex_report_observer_gate,
+    watch_expected_codex_report,
 )
 
 
@@ -113,6 +116,24 @@ def test_report_observer_apply_fails_closed_on_transfer_mismatch(tmp_path):
     assert not (tmp_path / "daemon" / "promote_seen" / "synaps-file-report.json").exists()
 
 
+def test_report_observer_fails_closed_when_multiple_reports_are_pending(tmp_path):
+    _quarantine_report(tmp_path, transfer_id="synaps-file-report")
+    _quarantine_report(tmp_path, transfer_id="synaps-file-other")
+
+    payload = observe_expected_codex_report(
+        expected_transfer_id="synaps-file-report",
+        env=_armed_env(),
+        apply=True,
+        confirm=CODEX_REPORT_OBSERVER_CONFIRM_PHRASE,
+        **_observer_roots(tmp_path),
+    )
+
+    assert payload["ok"] is False
+    assert payload["result"]["status"] == "expected_transfer_mismatch"
+    assert "expected_exactly_one_observe_report_action:2" in payload["problems"]
+    assert not (tmp_path / "daemon" / "promote_seen" / "synaps-file-report.json").exists()
+
+
 def test_report_observer_apply_marks_expected_report_only(tmp_path):
     _quarantine_report(tmp_path)
 
@@ -162,6 +183,118 @@ def test_cli_report_observer_apply(tmp_path):
             "--apply",
             "--confirm",
             CODEX_REPORT_OBSERVER_CONFIRM_PHRASE,
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    payload = json.loads(result.stdout)
+
+    assert payload["ok"] is True
+    assert payload["result"]["status"] == "report_observed"
+    assert (tmp_path / "daemon" / "promote_seen" / "synaps-file-report.json").is_file()
+
+
+def test_report_watcher_dry_run_reports_not_observed_without_writing(tmp_path):
+    payload = watch_expected_codex_report(
+        expected_transfer_id="synaps-file-report",
+        env=_armed_env(),
+        watcher_policy=CodexReportWatcherPolicy(max_cycles=3, sleep_sec=0),
+        **_observer_roots(tmp_path),
+    )
+
+    assert payload["ok"] is True
+    assert payload["matched"] is False
+    assert payload["result"]["status"] == "not_observed_yet"
+    assert len(payload["cycles"]) == 1
+    assert not (tmp_path / "daemon").exists()
+
+
+def test_report_watcher_apply_requires_confirm(tmp_path):
+    _quarantine_report(tmp_path)
+
+    payload = watch_expected_codex_report(
+        expected_transfer_id="synaps-file-report",
+        env=_armed_env(),
+        apply=True,
+        confirm="",
+        watcher_policy=CodexReportWatcherPolicy(max_cycles=1, sleep_sec=0),
+        **_observer_roots(tmp_path),
+    )
+
+    assert payload["ok"] is False
+    assert payload["result"]["status"] == "gate_failed"
+    assert "missing_codex_report_watcher_confirm_phrase" in payload["result"]["problems"]
+    assert not (tmp_path / "daemon" / "promote_seen" / "synaps-file-report.json").exists()
+
+
+def test_report_watcher_apply_times_out_without_expected_report(tmp_path):
+    sleeps = []
+
+    payload = watch_expected_codex_report(
+        expected_transfer_id="synaps-file-report",
+        env=_armed_env(),
+        apply=True,
+        confirm=CODEX_REPORT_WATCHER_CONFIRM_PHRASE,
+        watcher_policy=CodexReportWatcherPolicy(max_cycles=2, sleep_sec=0.01),
+        sleep_fn=sleeps.append,
+        **_observer_roots(tmp_path),
+    )
+
+    assert payload["ok"] is False
+    assert payload["result"]["status"] == "expected_transfer_not_observed"
+    assert len(payload["cycles"]) == 2
+    assert sleeps == [0.01]
+
+
+def test_report_watcher_apply_observes_expected_report(tmp_path):
+    _quarantine_report(tmp_path)
+
+    payload = watch_expected_codex_report(
+        expected_transfer_id="synaps-file-report",
+        env=_armed_env(),
+        apply=True,
+        confirm=CODEX_REPORT_WATCHER_CONFIRM_PHRASE,
+        watcher_policy=CodexReportWatcherPolicy(max_cycles=2, sleep_sec=0),
+        **_observer_roots(tmp_path),
+    )
+
+    assert payload["ok"] is True
+    assert payload["result"]["status"] == "report_observed"
+    assert (tmp_path / "daemon" / "promote_seen" / "synaps-file-report.json").is_file()
+    assert not (tmp_path / "inbox").exists()
+    assert not (tmp_path / "requests").exists()
+
+
+def test_cli_report_watcher_apply(tmp_path):
+    _quarantine_report(tmp_path)
+    env = os.environ.copy()
+    env.update(_armed_env())
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "tools/synaps_codex_report_watcher.py",
+            "--env-file",
+            "",
+            "--expect-transfer-id",
+            "synaps-file-report",
+            "--daemon-root",
+            str(tmp_path / "daemon"),
+            "--quarantine-root",
+            str(tmp_path / "quarantine"),
+            "--inbox-root",
+            str(tmp_path / "inbox"),
+            "--request-root",
+            str(tmp_path / "requests"),
+            "--max-cycles",
+            "2",
+            "--sleep-sec",
+            "0",
+            "--apply",
+            "--confirm",
+            CODEX_REPORT_WATCHER_CONFIRM_PHRASE,
         ],
         check=True,
         capture_output=True,

@@ -130,8 +130,13 @@ from .codex_handoff_pointer import (
 from .codex_report_observer import (
     CODEX_REPORT_OBSERVER_CONFIRM_PHRASE,
     CODEX_REPORT_OBSERVER_SCHEMA,
+    CODEX_REPORT_WATCHER_CONFIRM_PHRASE,
+    CODEX_REPORT_WATCHER_SCHEMA,
+    CodexReportWatcherPolicy,
     observe_expected_codex_report,
     validate_codex_report_observer_gate,
+    validate_codex_report_watcher_gate,
+    watch_expected_codex_report,
 )
 from .codex_worker_preflight import (
     CODEX_WORKER_PREFLIGHT_CONFIRM_PHRASE,
@@ -198,6 +203,8 @@ __all__ = [
     "CODEX_HANDOFF_POINTER_SCHEMA",
     "CODEX_REPORT_OBSERVER_CONFIRM_PHRASE",
     "CODEX_REPORT_OBSERVER_SCHEMA",
+    "CODEX_REPORT_WATCHER_CONFIRM_PHRASE",
+    "CODEX_REPORT_WATCHER_SCHEMA",
     "CODEX_WORKER_PREFLIGHT_CONFIRM_PHRASE",
     "CODEX_WORKER_PREFLIGHT_EVENT_SCHEMA",
     "CODEX_WORKER_PREFLIGHT_MODE",
@@ -234,6 +241,7 @@ __all__ = [
     "CodexDaemonPolicy",
     "CodexRunnerWindowStore",
     "CodexHandoffPointerPolicy",
+    "CodexReportWatcherPolicy",
     "CodexWorkerPreflightPolicy",
     "FileManifestHandler",
     "FileTransferPolicy",
@@ -302,10 +310,12 @@ __all__ = [
     "validate_codex_daemon_persistent_gate",
     "validate_codex_daemon_runner_gate",
     "validate_codex_report_observer_gate",
+    "validate_codex_report_watcher_gate",
     "validate_codex_runner_window_gate",
     "validate_codex_worker_preflight_gate",
     "validate_operator_pointer_text",
     "validate_scheduler_send_gate",
     "verify_token",
+    "watch_expected_codex_report",
     "write_codex_handoff_pointer",
 ]
