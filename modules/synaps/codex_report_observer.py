@@ -27,6 +27,8 @@ from .protocol import SynapsValidationError
 
 CODEX_REPORT_OBSERVER_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_REPORT_OBSERVER_APPLY"
 CODEX_REPORT_OBSERVER_SCHEMA = "ester.synaps.codex_report_observer.v1"
+CODEX_REPORT_SELECTOR_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_REPORT_SELECTOR_APPLY"
+CODEX_REPORT_SELECTOR_SCHEMA = "ester.synaps.codex_report_selector.v1"
 CODEX_REPORT_WATCHER_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_REPORT_WATCHER_RUN"
 CODEX_REPORT_WATCHER_SCHEMA = "ester.synaps.codex_report_watcher.v1"
 _EXACT_OBSERVER_SCAN_LIMIT = 20
@@ -44,6 +46,18 @@ class CodexReportWatcherPolicy:
             max_cycles=_bounded_int(source.get("SYNAPS_CODEX_REPORT_WATCHER_MAX_CYCLES"), 3, 1, 20),
             sleep_sec=_bounded_float(source.get("SYNAPS_CODEX_REPORT_WATCHER_SLEEP_SEC"), 5.0, 0.0, 300.0),
         )
+
+    def to_record(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class CodexReportSelector:
+    expected_name: str
+    expected_sender: str = ""
+    note_contains: str = ""
+    expected_sha256: str = ""
+    expected_size: int | None = None
 
     def to_record(self) -> dict[str, Any]:
         return asdict(self)
@@ -163,6 +177,181 @@ def observe_expected_codex_report(
     return payload
 
 
+def select_codex_report_by_manifest(
+    *,
+    selector: CodexReportSelector,
+    env: Mapping[str, str] | None = None,
+    apply: bool = False,
+    confirm: str = "",
+    operator: str = "codex-report-selector",
+    daemon_root: str | Path = DEFAULT_CODEX_DAEMON_ROOT,
+    quarantine_root: str | Path = DEFAULT_QUARANTINE_ROOT,
+    inbox_root: str | Path = DEFAULT_CODEX_INBOX_ROOT,
+    receipt_ledger: str | Path = DEFAULT_CODEX_RECEIPT_LEDGER,
+    request_root: str | Path = DEFAULT_CODEX_REQUEST_ROOT,
+    policy: CodexDaemonPolicy | None = None,
+) -> dict[str, Any]:
+    actual_env = os.environ if env is None else env
+    safe_selector = _safe_selector(selector)
+    actual_policy = replace(policy or CodexDaemonPolicy.from_env(actual_env), max_reports_per_cycle=_EXACT_OBSERVER_SCAN_LIMIT)
+    daemon = CodexDaemon(
+        daemon_root=daemon_root,
+        quarantine_root=quarantine_root,
+        inbox_root=inbox_root,
+        receipt_ledger=receipt_ledger,
+        request_root=request_root,
+        policy=actual_policy,
+    )
+    gate_problems = validate_codex_report_selector_gate(actual_env, apply=apply, confirm=confirm)
+    candidates = _manifest_selector_candidates(safe_selector, daemon=daemon, quarantine_root=quarantine_root, inbox_root=inbox_root)
+    match_problems = _selector_match_problems(candidates)
+    selected_transfer_id = candidates[0]["transfer_id"] if len(candidates) == 1 else ""
+    payload: dict[str, Any] = {
+        "schema": CODEX_REPORT_SELECTOR_SCHEMA,
+        "ok": not gate_problems if not apply else not gate_problems and not match_problems,
+        "dry_run": not apply,
+        "confirm_required": CODEX_REPORT_SELECTOR_CONFIRM_PHRASE,
+        "selector": safe_selector.to_record(),
+        "matched": len(candidates) == 1,
+        "selected_transfer_id": selected_transfer_id,
+        "candidates": candidates,
+        "problems": [*gate_problems, *match_problems],
+        "auto_ingest": False,
+        "memory": "off",
+    }
+    if not apply:
+        payload["result"] = {"ok": not gate_problems and not match_problems, "status": "would_select" if len(candidates) == 1 else "not_selected"}
+        return payload
+    if gate_problems:
+        payload["result"] = {"ok": False, "status": "gate_failed", "problems": gate_problems}
+        return payload
+    if match_problems:
+        payload["result"] = {"ok": False, "status": "selector_mismatch", "problems": match_problems}
+        return payload
+
+    fresh_candidates = _manifest_selector_candidates(safe_selector, daemon=daemon, quarantine_root=quarantine_root, inbox_root=inbox_root)
+    fresh_problems = _selector_match_problems(fresh_candidates)
+    payload["pre_apply"] = {"candidates": fresh_candidates, "problems": fresh_problems}
+    if fresh_problems or fresh_candidates[0].get("transfer_id") != selected_transfer_id:
+        problems = fresh_problems or ["selected_transfer_changed"]
+        payload["ok"] = False
+        payload["problems"].extend(problems)
+        payload["result"] = {"ok": False, "status": "pre_apply_selector_mismatch", "problems": problems}
+        return payload
+
+    result = _apply_expected_report_observation(
+        daemon=daemon,
+        transfer_id=str(selected_transfer_id),
+        quarantine_root=quarantine_root,
+        inbox_root=inbox_root,
+        operator=operator,
+    )
+    apply_problems = result.get("problems") or []
+    payload["apply"] = _compact_exact_apply(result)
+    payload["ok"] = bool(result.get("ok")) and not apply_problems
+    payload["problems"].extend(apply_problems)
+    payload["result"] = {
+        "ok": payload["ok"],
+        "status": "report_observed" if payload["ok"] else str(result.get("status") or "apply_result_mismatch"),
+        "problems": apply_problems,
+    }
+    return payload
+
+
+def watch_codex_report_by_manifest(
+    *,
+    selector: CodexReportSelector,
+    env: Mapping[str, str] | None = None,
+    apply: bool = False,
+    confirm: str = "",
+    operator: str = "codex-report-selector",
+    daemon_root: str | Path = DEFAULT_CODEX_DAEMON_ROOT,
+    quarantine_root: str | Path = DEFAULT_QUARANTINE_ROOT,
+    inbox_root: str | Path = DEFAULT_CODEX_INBOX_ROOT,
+    receipt_ledger: str | Path = DEFAULT_CODEX_RECEIPT_LEDGER,
+    request_root: str | Path = DEFAULT_CODEX_REQUEST_ROOT,
+    daemon_policy: CodexDaemonPolicy | None = None,
+    watcher_policy: CodexReportWatcherPolicy | None = None,
+    sleep_fn=time.sleep,
+) -> dict[str, Any]:
+    actual_env = os.environ if env is None else env
+    safe_selector = _safe_selector(selector)
+    actual_watcher_policy = watcher_policy or CodexReportWatcherPolicy.from_env(actual_env)
+    gate_problems = validate_codex_report_selector_gate(actual_env, apply=apply, confirm=confirm)
+    output: dict[str, Any] = {
+        "schema": CODEX_REPORT_SELECTOR_SCHEMA,
+        "ok": not gate_problems,
+        "dry_run": not apply,
+        "confirm_required": CODEX_REPORT_SELECTOR_CONFIRM_PHRASE,
+        "selector": safe_selector.to_record(),
+        "policy": actual_watcher_policy.to_record(),
+        "cycles": [],
+        "problems": list(gate_problems),
+        "auto_ingest": False,
+        "memory": "off",
+    }
+    if gate_problems:
+        output["result"] = {"ok": False, "status": "gate_failed", "problems": gate_problems}
+        return output
+
+    for index in range(actual_watcher_policy.max_cycles):
+        preview = select_codex_report_by_manifest(
+            selector=safe_selector,
+            env=actual_env,
+            apply=False,
+            operator=operator,
+            daemon_root=daemon_root,
+            quarantine_root=quarantine_root,
+            inbox_root=inbox_root,
+            receipt_ledger=receipt_ledger,
+            request_root=request_root,
+            policy=daemon_policy,
+        )
+        cycle = {
+            "cycle": index + 1,
+            "matched": bool(preview.get("matched")),
+            "selected_transfer_id": preview.get("selected_transfer_id"),
+            "candidates": list(preview.get("candidates") or []),
+            "problems": list(preview.get("problems") or []),
+        }
+        output["cycles"].append(cycle)
+        if preview.get("matched"):
+            output["matched"] = True
+            output["selected_transfer_id"] = preview.get("selected_transfer_id")
+            if not apply:
+                output["result"] = {"ok": True, "status": "would_select"}
+                return output
+            applied = select_codex_report_by_manifest(
+                selector=safe_selector,
+                env=actual_env,
+                apply=True,
+                confirm=CODEX_REPORT_SELECTOR_CONFIRM_PHRASE,
+                operator=operator,
+                daemon_root=daemon_root,
+                quarantine_root=quarantine_root,
+                inbox_root=inbox_root,
+                receipt_ledger=receipt_ledger,
+                request_root=request_root,
+                policy=daemon_policy,
+            )
+            cycle["apply"] = applied.get("apply")
+            output["ok"] = bool(applied.get("ok"))
+            output["result"] = dict(applied.get("result") or {})
+            output["problems"].extend(list(applied.get("problems") or []))
+            return output
+        if not apply:
+            output["matched"] = False
+            output["result"] = {"ok": True, "status": "not_observed_yet"}
+            return output
+        if index + 1 < actual_watcher_policy.max_cycles and actual_watcher_policy.sleep_sec:
+            sleep_fn(actual_watcher_policy.sleep_sec)
+
+    output["matched"] = False
+    output["ok"] = False if apply else output["ok"]
+    output["result"] = {"ok": False, "status": "expected_report_not_selected", "cycles": actual_watcher_policy.max_cycles}
+    return output
+
+
 def watch_expected_codex_report(
     *,
     expected_transfer_id: str,
@@ -271,6 +460,18 @@ def validate_codex_report_watcher_gate(
     return problems
 
 
+def validate_codex_report_selector_gate(
+    env: Mapping[str, str],
+    *,
+    apply: bool = False,
+    confirm: str = "",
+) -> list[str]:
+    problems = validate_codex_report_observer_gate(env, apply=False)
+    if apply and confirm != CODEX_REPORT_SELECTOR_CONFIRM_PHRASE:
+        problems.append("missing_codex_report_selector_confirm_phrase")
+    return problems
+
+
 def _expected_action_problems(actions: list[Mapping[str, Any]], expected_transfer_id: str) -> list[str]:
     if len(actions) != 1:
         return [f"expected_exactly_one_observe_report_action:{len(actions)}"]
@@ -281,6 +482,73 @@ def _expected_action_problems(actions: list[Mapping[str, Any]], expected_transfe
         return [f"unexpected_transfer_id:{action.get('transfer_id')}"]
     if action.get("auto_ingest") is not False or action.get("memory") != "off":
         return ["unsafe_observe_report_action"]
+    return []
+
+
+def _manifest_selector_candidates(
+    selector: CodexReportSelector,
+    *,
+    daemon: CodexDaemon,
+    quarantine_root: str | Path,
+    inbox_root: str | Path,
+) -> list[dict[str, Any]]:
+    root = Path(quarantine_root)
+    candidates: list[dict[str, Any]] = []
+    if not root.exists():
+        return candidates
+    for item in sorted(root.iterdir(), key=lambda entry: entry.name):
+        if not item.is_dir():
+            continue
+        transfer_id = item.name
+        if daemon._promote_seen_path(transfer_id).exists():
+            continue
+        try:
+            inspection = inspect_codex_mailbox_transfer(transfer_id, root, inbox_root)
+        except Exception:
+            continue
+        if not inspection.get("ok") or inspection.get("status") not in {"ready", "already_promoted"}:
+            continue
+        manifest = inspection.get("manifest") or {}
+        if manifest.get("memory") != "off" or manifest.get("auto_ingest") is not False:
+            continue
+        if selector.expected_sender and str(manifest.get("received_from") or "") != selector.expected_sender:
+            continue
+        if selector.note_contains and selector.note_contains not in str(manifest.get("note") or ""):
+            continue
+        files = [item for item in inspection.get("files") or [] if _selector_file_matches(selector, item)]
+        if len(files) != 1:
+            continue
+        file_record = files[0]
+        candidates.append(
+            {
+                "transfer_id": transfer_id,
+                "file_name": file_record.get("name"),
+                "sha256": file_record.get("sha256"),
+                "size": file_record.get("size"),
+                "received_from": manifest.get("received_from"),
+                "note": manifest.get("note"),
+                "auto_ingest": False,
+                "memory": "off",
+            }
+        )
+    return candidates
+
+
+def _selector_file_matches(selector: CodexReportSelector, item: Mapping[str, Any]) -> bool:
+    if str(item.get("kind") or "") != "codex_report":
+        return False
+    if str(item.get("name") or "") != selector.expected_name:
+        return False
+    if selector.expected_sha256 and str(item.get("sha256") or "").lower() != selector.expected_sha256:
+        return False
+    if selector.expected_size is not None and int(item.get("size") or -1) != selector.expected_size:
+        return False
+    return bool(item.get("ok"))
+
+
+def _selector_match_problems(candidates: list[Mapping[str, Any]]) -> list[str]:
+    if len(candidates) != 1:
+        return [f"expected_exactly_one_manifest_report:{len(candidates)}"]
     return []
 
 
@@ -350,6 +618,19 @@ def _safe_transfer_id(raw: str) -> str:
     if not safe:
         raise SynapsValidationError("expected transfer id is required")
     return safe[:120]
+
+
+def _safe_selector(selector: CodexReportSelector) -> CodexReportSelector:
+    expected_name = str(selector.expected_name or "").strip()
+    if not expected_name or Path(expected_name).name != expected_name:
+        raise SynapsValidationError("expected report filename is required")
+    return CodexReportSelector(
+        expected_name=expected_name[:240],
+        expected_sender=str(selector.expected_sender or "").strip()[:120],
+        note_contains=str(selector.note_contains or "").strip()[:240],
+        expected_sha256=str(selector.expected_sha256 or "").strip().lower()[:64],
+        expected_size=selector.expected_size if selector.expected_size is None else max(0, int(selector.expected_size)),
+    )
 
 
 def _bounded_int(raw: str | None, default: int, minimum: int, maximum: int) -> int:
