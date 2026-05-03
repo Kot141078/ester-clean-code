@@ -229,6 +229,7 @@ def _run_session_step(
             note_contains=str(step.get("note_contains") or ""),
             expected_sha256=str(step.get("expect_sha256") or ""),
             expected_size=_optional_int(step.get("expect_size")),
+            expected_name_aliases=tuple(str(item) for item in list(step.get("expect_name_aliases") or [])[:5]),
         )
     cycle_root = Path(str(step.get("cycle_root") or (session_root / session_id / f"{index:02d}_{phase}")))
     return run_codex_coordination_cycle_phase(

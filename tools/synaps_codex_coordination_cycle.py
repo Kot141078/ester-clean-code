@@ -91,6 +91,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--note-contains", default="")
     parser.add_argument("--expect-sha256", default="")
     parser.add_argument("--expect-size", type=int, default=-1)
+    parser.add_argument(
+        "--expect-name-alias",
+        action="append",
+        default=[],
+        help="Additional pre-approved report filename alias for wait_report exact selection.",
+    )
     parser.add_argument("--scanner-root", default=str(DEFAULT_CODEX_COORDINATION_SCANNER_ROOT))
     parser.add_argument("--quarantine-root", default=str(DEFAULT_QUARANTINE_ROOT))
     parser.add_argument("--inbox-root", default=str(DEFAULT_CODEX_INBOX_ROOT))
@@ -144,6 +150,7 @@ def main(argv: list[str] | None = None) -> int:
             note_contains=args.note_contains,
             expected_sha256=args.expect_sha256,
             expected_size=None if args.expect_size < 0 else args.expect_size,
+            expected_name_aliases=tuple(args.expect_name_alias),
         )
 
     send_spec = None

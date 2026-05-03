@@ -65,6 +65,8 @@ def _quarantine_report(
         message_id="incoming-report",
     )
     SynapsQuarantineStore(tmp_path / "quarantine").receive_manifest(envelope)
+    file_record = manifest["files"][0]
+    return {"sha256": file_record["sha256"], "size": file_record["size"], "transfer_id": transfer_id}
 
 
 def _observer_roots(tmp_path):
@@ -366,6 +368,64 @@ def test_report_selector_dry_run_matches_by_manifest_without_writing(tmp_path):
     assert payload["matched"] is True
     assert payload["selected_transfer_id"] == "synaps-file-report"
     assert not (tmp_path / "daemon" / "promote_seen" / "synaps-file-report.json").exists()
+
+
+def test_report_selector_accepts_preapproved_name_alias_with_same_hash(tmp_path):
+    text = "# report\nsame safe body\n"
+    record = _quarantine_report(
+        tmp_path,
+        transfer_id="synaps-file-report",
+        name="actual-complete.md",
+        text=text,
+        sender="liah-test",
+        note="0095 alias",
+    )
+
+    payload = select_codex_report_by_manifest(
+        selector=CodexReportSelector(
+            expected_name="expected-complete.md",
+            expected_name_aliases=("actual-complete.md",),
+            expected_sender="liah-test",
+            note_contains="0095",
+            expected_sha256=record["sha256"],
+            expected_size=record["size"],
+        ),
+        env=_armed_env(),
+        **_observer_roots(tmp_path),
+    )
+
+    assert payload["ok"] is True
+    assert payload["matched"] is True
+    assert payload["selected_transfer_id"] == "synaps-file-report"
+    assert payload["candidates"][0]["file_name"] == "actual-complete.md"
+    assert not (tmp_path / "daemon" / "promote_seen" / "synaps-file-report.json").exists()
+
+
+def test_report_selector_alias_fails_closed_on_multiple_candidates(tmp_path):
+    text = "# report\nsame safe body\n"
+    record = _quarantine_report(tmp_path, transfer_id="synaps-file-a", name="expected.md", text=text, sender="liah-test", note="0095 alias")
+    _quarantine_report(tmp_path, transfer_id="synaps-file-b", name="alias.md", text=text, sender="liah-test", note="0095 alias")
+
+    payload = select_codex_report_by_manifest(
+        selector=CodexReportSelector(
+            expected_name="expected.md",
+            expected_name_aliases=("alias.md",),
+            expected_sender="liah-test",
+            note_contains="0095",
+            expected_sha256=record["sha256"],
+            expected_size=record["size"],
+        ),
+        env=_armed_env(),
+        apply=True,
+        confirm=CODEX_REPORT_SELECTOR_CONFIRM_PHRASE,
+        **_observer_roots(tmp_path),
+    )
+
+    assert payload["ok"] is False
+    assert payload["result"]["status"] == "selector_mismatch"
+    assert "expected_exactly_one_manifest_report:2" in payload["problems"]
+    assert not (tmp_path / "daemon" / "promote_seen" / "synaps-file-a.json").exists()
+    assert not (tmp_path / "daemon" / "promote_seen" / "synaps-file-b.json").exists()
 
 
 def test_report_selector_fails_closed_on_multiple_manifest_matches(tmp_path):

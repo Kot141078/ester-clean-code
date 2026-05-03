@@ -61,6 +61,12 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser(description="Select and optionally observe one expected Codex report by manifest metadata.")
     parser.add_argument("--expect-name", required=True, help="Exact expected report filename from the quarantined manifest.")
+    parser.add_argument(
+        "--expect-name-alias",
+        action="append",
+        default=[],
+        help="Additional pre-approved report filename accepted only with the same sender/note/SHA/size selector.",
+    )
     parser.add_argument("--expect-sender", default="", help="Optional exact manifest received_from value.")
     parser.add_argument("--note-contains", default="", help="Optional substring expected in manifest note.")
     parser.add_argument("--expect-sha256", default="", help="Optional exact file SHA256 from manifest.")
@@ -91,6 +97,7 @@ def main(argv: list[str] | None = None) -> int:
         note_contains=args.note_contains,
         expected_sha256=args.expect_sha256,
         expected_size=None if args.expect_size < 0 else args.expect_size,
+        expected_name_aliases=tuple(args.expect_name_alias),
     )
     payload = watch_codex_report_by_manifest(
         selector=selector,

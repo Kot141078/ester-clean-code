@@ -60,6 +60,7 @@ class CodexReportSelector:
     note_contains: str = ""
     expected_sha256: str = ""
     expected_size: int | None = None
+    expected_name_aliases: tuple[str, ...] = ()
 
     def to_record(self) -> dict[str, Any]:
         return asdict(self)
@@ -657,7 +658,8 @@ def _manifest_selector_candidates(
 def _selector_file_matches(selector: CodexReportSelector, item: Mapping[str, Any]) -> bool:
     if str(item.get("kind") or "") != "codex_report":
         return False
-    if str(item.get("name") or "") != selector.expected_name:
+    allowed_names = {selector.expected_name, *selector.expected_name_aliases}
+    if str(item.get("name") or "") not in allowed_names:
         return False
     if selector.expected_sha256 and str(item.get("sha256") or "").lower() != selector.expected_sha256:
         return False
@@ -749,13 +751,32 @@ def _safe_selector(selector: CodexReportSelector) -> CodexReportSelector:
     expected_name = str(selector.expected_name or "").strip()
     if not expected_name or Path(expected_name).name != expected_name:
         raise SynapsValidationError("expected report filename is required")
+    aliases = _safe_report_name_aliases(selector.expected_name_aliases, expected_name)
     return CodexReportSelector(
         expected_name=expected_name[:240],
         expected_sender=str(selector.expected_sender or "").strip()[:120],
         note_contains=str(selector.note_contains or "").strip()[:240],
         expected_sha256=str(selector.expected_sha256 or "").strip().lower()[:64],
         expected_size=selector.expected_size if selector.expected_size is None else max(0, int(selector.expected_size)),
+        expected_name_aliases=aliases,
     )
+
+
+def _safe_report_name_aliases(raw_aliases: tuple[str, ...] | list[str] | None, primary_name: str) -> tuple[str, ...]:
+    aliases: list[str] = []
+    seen = {primary_name}
+    for raw in list(raw_aliases or [])[:5]:
+        alias = str(raw or "").strip()
+        if not alias:
+            continue
+        if Path(alias).name != alias:
+            raise SynapsValidationError("expected report filename alias must be a basename")
+        alias = alias[:240]
+        if alias in seen:
+            continue
+        seen.add(alias)
+        aliases.append(alias)
+    return tuple(aliases)
 
 
 def _bounded_int(raw: str | None, default: int, minimum: int, maximum: int) -> int:

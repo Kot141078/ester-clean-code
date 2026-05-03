@@ -309,6 +309,41 @@ def test_coordination_cycle_wait_report_observes_and_repeat_checks(tmp_path):
     assert not (tmp_path / "requests").exists()
 
 
+def test_coordination_cycle_wait_report_accepts_preapproved_name_alias(tmp_path):
+    record = _quarantine_file(
+        tmp_path,
+        transfer_id="synaps-file-report",
+        name="actual-complete.md",
+        kind="codex_report",
+        note="0095 alias",
+    )
+
+    payload = run_codex_coordination_cycle_phase(
+        phase="wait_report",
+        nonce="nonce-report-alias",
+        env=_cycle_env(),
+        env_file="",
+        selector=CodexReportSelector(
+            expected_name="expected-complete.md",
+            expected_name_aliases=("actual-complete.md",),
+            note_contains="0095",
+            expected_sha256=record["sha256"],
+            expected_size=record["size"],
+        ),
+        apply=True,
+        confirm=CODEX_COORDINATION_CYCLE_CONFIRM_PHRASE,
+        policy=CodexCoordinationCyclePolicy(max_cycles=1, sleep_sec=0),
+        **_roots(tmp_path),
+    )
+
+    phase = payload["phase_results"][0]
+    assert payload["ok"] is True
+    assert phase["selected_transfer_id"] == "synaps-file-report"
+    assert phase["result"]["status"] == "report_observed"
+    assert phase["repeat_check"]["candidate_count"] == 0
+    assert (tmp_path / "daemon" / "promote_seen" / "synaps-file-report.json").is_file()
+
+
 def test_cli_coordination_cycle_send_file_dry_run(tmp_path):
     source = tmp_path / "handoffs" / "contract.md"
     source.parent.mkdir()

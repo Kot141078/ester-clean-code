@@ -249,6 +249,7 @@ def _wait_report_step(source: Mapping[str, Any], *, default_nonce: str, default_
         "phase": "wait_report",
         "nonce": str(source.get("nonce") or default_nonce),
         "expect_name": _required(source, "expect_name"),
+        "expect_name_aliases": _optional_name_aliases(source.get("expect_name_aliases")),
         "expect_kind": str(source.get("expect_kind") or "codex_report"),
         "expect_sender": _required(source, "expect_sender"),
         "note_contains": str(source.get("note_contains") or default_note),
@@ -279,6 +280,19 @@ def _required(source: Mapping[str, Any], key: str) -> str:
     if not value:
         raise SynapsValidationError(f"{key} is required")
     return value
+
+
+def _optional_name_aliases(raw: Any) -> list[str]:
+    if raw is None or raw == "":
+        return []
+    if not isinstance(raw, list):
+        raise SynapsValidationError("expect_name_aliases must be a list")
+    aliases: list[str] = []
+    for item in raw[:5]:
+        alias = str(item or "").strip()
+        if alias:
+            aliases.append(alias)
+    return aliases
 
 
 def _required_sha(source: Mapping[str, Any], key: str) -> str:
