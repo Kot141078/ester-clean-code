@@ -442,8 +442,38 @@ def test_report_selector_watcher_apply(tmp_path):
 
     assert payload["ok"] is True
     assert payload["selected_transfer_id"] == "synaps-file-report"
+    assert payload["cycle_count"] == 1
     assert payload["result"]["status"] == "report_observed"
     assert (tmp_path / "daemon" / "promote_seen" / "synaps-file-report.json").is_file()
+
+
+def test_report_selector_watcher_apply_waits_for_delayed_report(tmp_path):
+    sleeps = []
+
+    def delayed_report_sleep(seconds):
+        sleeps.append(seconds)
+        _quarantine_report(tmp_path, transfer_id="synaps-file-delayed", name="expected.md", note="0058 report")
+
+    payload = watch_codex_report_by_manifest(
+        selector=CodexReportSelector(expected_name="expected.md", note_contains="0058"),
+        env=_armed_env(),
+        apply=True,
+        confirm=CODEX_REPORT_SELECTOR_CONFIRM_PHRASE,
+        watcher_policy=CodexReportWatcherPolicy(max_cycles=2, sleep_sec=0.01),
+        sleep_fn=delayed_report_sleep,
+        **_observer_roots(tmp_path),
+    )
+
+    assert payload["ok"] is True
+    assert payload["cycle_count"] == 2
+    assert payload["selected_transfer_id"] == "synaps-file-delayed"
+    assert payload["result"]["status"] == "report_observed"
+    assert sleeps == [0.01]
+    assert payload["cycles"][0]["matched"] is False
+    assert payload["cycles"][1]["matched"] is True
+    assert (tmp_path / "daemon" / "promote_seen" / "synaps-file-delayed.json").is_file()
+    assert not (tmp_path / "inbox").exists()
+    assert not (tmp_path / "requests").exists()
 
 
 def test_cli_report_selector_apply(tmp_path):

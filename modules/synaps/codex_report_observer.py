@@ -292,7 +292,7 @@ def watch_codex_report_by_manifest(
     }
     if gate_problems:
         output["result"] = {"ok": False, "status": "gate_failed", "problems": gate_problems}
-        return output
+        return _finish_watch(output)
 
     for index in range(actual_watcher_policy.max_cycles):
         preview = select_codex_report_by_manifest(
@@ -320,7 +320,7 @@ def watch_codex_report_by_manifest(
             output["selected_transfer_id"] = preview.get("selected_transfer_id")
             if not apply:
                 output["result"] = {"ok": True, "status": "would_select"}
-                return output
+                return _finish_watch(output)
             applied = select_codex_report_by_manifest(
                 selector=safe_selector,
                 env=actual_env,
@@ -338,18 +338,18 @@ def watch_codex_report_by_manifest(
             output["ok"] = bool(applied.get("ok"))
             output["result"] = dict(applied.get("result") or {})
             output["problems"].extend(list(applied.get("problems") or []))
-            return output
+            return _finish_watch(output)
         if not apply:
             output["matched"] = False
             output["result"] = {"ok": True, "status": "not_observed_yet"}
-            return output
+            return _finish_watch(output)
         if index + 1 < actual_watcher_policy.max_cycles and actual_watcher_policy.sleep_sec:
             sleep_fn(actual_watcher_policy.sleep_sec)
 
     output["matched"] = False
     output["ok"] = False if apply else output["ok"]
     output["result"] = {"ok": False, "status": "expected_report_not_selected", "cycles": actual_watcher_policy.max_cycles}
-    return output
+    return _finish_watch(output)
 
 
 def watch_expected_codex_report(
@@ -386,7 +386,7 @@ def watch_expected_codex_report(
     }
     if gate_problems:
         output["result"] = {"ok": False, "status": "gate_failed", "problems": gate_problems}
-        return output
+        return _finish_watch(output)
 
     for index in range(actual_watcher_policy.max_cycles):
         preview = observe_expected_codex_report(
@@ -412,7 +412,7 @@ def watch_expected_codex_report(
             output["matched"] = True
             if not apply:
                 output["result"] = {"ok": True, "status": "would_observe"}
-                return output
+                return _finish_watch(output)
             applied = observe_expected_codex_report(
                 expected_transfer_id=safe_transfer_id,
                 env=actual_env,
@@ -430,11 +430,11 @@ def watch_expected_codex_report(
             output["ok"] = bool(applied.get("ok"))
             output["result"] = dict(applied.get("result") or {})
             output["problems"].extend(list(applied.get("problems") or []))
-            return output
+            return _finish_watch(output)
         if not apply:
             output["matched"] = False
             output["result"] = {"ok": True, "status": "not_observed_yet"}
-            return output
+            return _finish_watch(output)
         if index + 1 < actual_watcher_policy.max_cycles and actual_watcher_policy.sleep_sec:
             sleep_fn(actual_watcher_policy.sleep_sec)
 
@@ -445,7 +445,7 @@ def watch_expected_codex_report(
         "status": "expected_transfer_not_observed",
         "cycles": actual_watcher_policy.max_cycles,
     }
-    return output
+    return _finish_watch(output)
 
 
 def validate_codex_report_watcher_gate(
@@ -611,6 +611,11 @@ def _compact_exact_apply(payload: Mapping[str, Any]) -> dict[str, Any]:
         "auto_ingest": False,
         "memory": "off",
     }
+
+
+def _finish_watch(payload: dict[str, Any]) -> dict[str, Any]:
+    payload["cycle_count"] = len(payload.get("cycles") or [])
+    return payload
 
 
 def _safe_transfer_id(raw: str) -> str:
