@@ -23,6 +23,15 @@ from .codex_coordination_relay import (
     run_codex_coordination_relay,
 )
 from .codex_daemon import codex_daemon_arm_status
+from .codex_front_claim import (
+    CODEX_FRONT_CLAIM_CLOSE_CONFIRM_PHRASE,
+    CODEX_FRONT_CLAIM_CONFIRM_PHRASE,
+    DEFAULT_CODEX_FRONT_CLAIM_ROOT,
+    CodexFrontClaimPolicy,
+    build_codex_front_claim,
+    close_codex_front_claim,
+    write_codex_front_claim,
+)
 from .protocol import SynapsValidationError
 
 
@@ -173,6 +182,9 @@ def run_codex_coordination_relay_tick(
     output["selected_plan"] = _candidate_record(candidate)
     lock_path = roots["ledger_path"].parent / "locks" / f"{candidate['safe_id']}.lock"
     lock_acquired = False
+    front_claim_plan: dict[str, Any] | None = None
+    front_claim_written = False
+    front_claim_id = ""
     try:
         _acquire_lock(lock_path, candidate)
         lock_acquired = True
@@ -180,6 +192,19 @@ def run_codex_coordination_relay_tick(
         plan = _load_plan(candidate["path"], actual_policy)
         if before != _fingerprint(candidate["path"]):
             raise SynapsValidationError("relay_plan_changed_during_load")
+        front_claim_plan = _front_claim_plan(plan)
+        if front_claim_plan:
+            operator = _safe_token(str(plan.get("operator") or "codex-coordination-relay-tick"), "operator")
+            front_claim_payload = _write_relay_tick_front_claim(front_claim_plan, env=actual_env, operator=operator, now=_utc_now())
+            output["front_claim"] = _redacted(front_claim_payload)
+            front_claim_written = bool(front_claim_payload.get("ok"))
+            front_claim_id = str((front_claim_payload.get("claim") or {}).get("claim_id") or "")
+            if not front_claim_written:
+                output["ok"] = False
+                output.setdefault("problems", []).append("front_claim_write_failed")
+                output["mark"] = _write_mark(roots["failed_root"], candidate, status="failed", reason="front_claim_write_failed")
+                output["result"] = {"ok": False, "status": "relay_tick_failed", "error": "front_claim_write_failed"}
+                return _finish_tick(output, roots, started, time_fn, actual_policy, env_path, env_before, postcheck_roots, actual_env)
         relay_env = dict(actual_env)
         relay_env["SYNAPS_CODEX_COORDINATION_RELAY"] = "1"
         relay_env["SYNAPS_CODEX_COORDINATION_RELAY_ARMED"] = "1"
@@ -197,17 +222,43 @@ def run_codex_coordination_relay_tick(
         if before != _fingerprint(candidate["path"]):
             raise SynapsValidationError("relay_plan_changed_before_mark")
         status = "completed" if relay_payload.get("ok") else "failed"
+        if front_claim_plan and front_claim_written and front_claim_plan.get("close_on_exit", True):
+            close_payload = _close_relay_tick_front_claim(
+                front_claim_plan,
+                claim_id=front_claim_id,
+                env=actual_env,
+                operator=_safe_token(str(plan.get("operator") or "codex-coordination-relay-tick"), "operator"),
+                status=status,
+            )
+            output["front_claim_close"] = _redacted(close_payload)
+            if not close_payload.get("ok"):
+                output.setdefault("problems", []).append("front_claim_close_failed")
+                status = "failed"
         output["mark"] = _write_mark(
             roots["completed_root"] if status == "completed" else roots["failed_root"],
             candidate,
             status=status,
             reason=str((relay_payload.get("result") or {}).get("status") or status),
         )
-        output["ok"] = bool(relay_payload.get("ok"))
+        output["ok"] = bool(relay_payload.get("ok")) and status == "completed"
         output["result"] = {"ok": output["ok"], "status": f"relay_tick_{status}", "relay_status": (relay_payload.get("result") or {}).get("status")}
     except Exception as exc:
         output["ok"] = False
         output.setdefault("problems", []).append(str(exc))
+        if front_claim_plan and front_claim_written and front_claim_plan.get("close_on_exit", True):
+            try:
+                close_payload = _close_relay_tick_front_claim(
+                    front_claim_plan,
+                    claim_id=front_claim_id,
+                    env=actual_env,
+                    operator="codex-coordination-relay-tick",
+                    status="failed",
+                )
+                output["front_claim_close"] = _redacted(close_payload)
+                if not close_payload.get("ok"):
+                    output.setdefault("problems", []).append("front_claim_close_failed")
+            except Exception as close_exc:
+                output.setdefault("problems", []).append(f"front_claim_close_exception:{close_exc.__class__.__name__}")
         try:
             output["mark"] = _write_mark(roots["failed_root"], candidate, status="failed", reason=str(exc))
         except Exception:
@@ -296,6 +347,103 @@ def _load_plan(path: Path, policy: CodexCoordinationRelayTickPolicy) -> dict[str
     if not isinstance(data, Mapping):
         raise SynapsValidationError("relay plan must be object")
     return dict(data)
+
+
+def _front_claim_plan(plan: Mapping[str, Any]) -> dict[str, Any] | None:
+    raw = plan.get("front_claim")
+    if raw in (None, "", False):
+        return None
+    if not isinstance(raw, Mapping):
+        raise SynapsValidationError("front_claim must be object")
+    return dict(raw)
+
+
+def _front_claim_expected_report(front_claim: Mapping[str, Any]) -> dict[str, Any]:
+    nested = front_claim.get("expected_report")
+    if isinstance(nested, Mapping):
+        return dict(nested)
+    return {
+        "name": front_claim.get("expect_name") or "",
+        "sender": front_claim.get("expect_sender") or "",
+        "note_contains": front_claim.get("expect_note_contains") or front_claim.get("note_contains") or "",
+        "sha256": front_claim.get("expect_sha256") or "",
+        "size": front_claim.get("expect_size") if "expect_size" in front_claim else None,
+        "kind": front_claim.get("expect_kind") or "codex_report",
+    }
+
+
+def _front_claim_env(base_env: Mapping[str, str]) -> dict[str, str]:
+    env = dict(base_env)
+    for key in (
+        "SISTER_AUTOCHAT",
+        "SISTER_CONVERSATION_WINDOW",
+        "SISTER_CONVERSATION_WINDOW_ARMED",
+        "SISTER_OPERATOR_GATE",
+        "SISTER_OPERATOR_GATE_ARMED",
+        "SISTER_SCHEDULE",
+        "SISTER_SCHEDULE_ARMED",
+        "SYNAPS_CODEX_DAEMON_PROMOTE_MAILBOX",
+        "SYNAPS_CODEX_DAEMON_ENQUEUE_HANDOFFS",
+        "SYNAPS_CODEX_DAEMON_RUNNER",
+        "SYNAPS_CODEX_DAEMON_RUNNER_ARMED",
+        "SYNAPS_CODEX_DAEMON_PERSISTENT",
+        "SYNAPS_CODEX_DAEMON_PERSISTENT_ARMED",
+        "SYNAPS_CODEX_DAEMON_KILL_SWITCH",
+    ):
+        env[key] = "0"
+    return env
+
+
+def _write_relay_tick_front_claim(
+    front_claim: Mapping[str, Any],
+    *,
+    env: Mapping[str, str],
+    operator: str,
+    now: str,
+) -> dict[str, Any]:
+    claim_env = _front_claim_env(env)
+    claim = build_codex_front_claim(
+        front_id=str(front_claim.get("front_id") or ""),
+        owner=str(front_claim.get("owner") or operator),
+        marker=str(front_claim.get("marker") or ""),
+        title=str(front_claim.get("title") or ""),
+        status=str(front_claim.get("status") or "claimed"),
+        lease_seconds=_bounded_int(front_claim.get("lease_sec"), 1800, 60, 24 * 3600),
+        supersedes=[str(item) for item in list(front_claim.get("supersedes") or [])[:8]],
+        expected_report=_front_claim_expected_report(front_claim),
+        created_at=now,
+    )
+    return write_codex_front_claim(
+        claim,
+        env=claim_env,
+        root=front_claim.get("root") or DEFAULT_CODEX_FRONT_CLAIM_ROOT,
+        apply=True,
+        confirm=CODEX_FRONT_CLAIM_CONFIRM_PHRASE,
+        operator=operator,
+        policy=CodexFrontClaimPolicy.from_env(claim_env),
+    )
+
+
+def _close_relay_tick_front_claim(
+    front_claim: Mapping[str, Any],
+    *,
+    claim_id: str,
+    env: Mapping[str, str],
+    operator: str,
+    status: str,
+) -> dict[str, Any]:
+    claim_env = _front_claim_env(env)
+    return close_codex_front_claim(
+        claim_id,
+        status=status,
+        reason=str(front_claim.get("close_reason") or "coordination relay tick finished"),
+        env=claim_env,
+        root=front_claim.get("root") or DEFAULT_CODEX_FRONT_CLAIM_ROOT,
+        apply=True,
+        confirm=CODEX_FRONT_CLAIM_CLOSE_CONFIRM_PHRASE,
+        operator=operator,
+        policy=CodexFrontClaimPolicy.from_env(claim_env),
+    )
 
 
 def _write_mark(root: Path, candidate: Mapping[str, Any], *, status: str, reason: str) -> dict[str, Any]:
@@ -405,6 +553,13 @@ def _sha256_file(path: Path) -> str:
 def _safe_plan_id(name: str, sha256: str) -> str:
     safe_name = "".join(ch if ch.isalnum() or ch in {"-", "_", "."} else "-" for ch in name)[:80]
     return f"{safe_name}.{sha256[:12]}"
+
+
+def _safe_token(raw: str, label: str) -> str:
+    value = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "-" for ch in str(raw or "").strip()).strip("-_")
+    if not value:
+        raise SynapsValidationError(f"{label} is required")
+    return value[:120]
 
 
 def _collect_markers(payload: Mapping[str, Any]) -> list[str]:

@@ -9,6 +9,7 @@ from modules.synaps import (
     CODEX_COORDINATION_RELAY_TICK_CONFIRM_PHRASE,
     CODEX_COORDINATION_RELAY_TICK_SCHEMA,
     CodexCoordinationRelayPlanSelector,
+    list_codex_front_claims,
     run_codex_coordination_relay_tick,
     validate_codex_coordination_relay_tick_gate,
 )
@@ -52,6 +53,25 @@ def _write_relay_plan(tmp_path, name="relay.json"):
     queue = tmp_path / "queue"
     queue.mkdir(exist_ok=True)
     path = queue / name
+    path.write_text(json.dumps(plan), encoding="utf-8")
+    return path
+
+
+def _add_front_claim(path, tmp_path, *, marker="claim-guarded-relay-tick"):
+    plan = json.loads(path.read_text(encoding="utf-8"))
+    plan["front_claim"] = {
+        "root": str(tmp_path / "front_claims"),
+        "front_id": "0102",
+        "owner": "ester-test",
+        "marker": marker,
+        "title": "claim guarded relay tick",
+        "lease_sec": 600,
+        "expect_name": "final.md",
+        "expect_sender": "liah-test",
+        "expect_note_contains": "relay tick marker",
+        "expect_sha256": "b" * 64,
+        "expect_size": 1,
+    }
     path.write_text(json.dumps(plan), encoding="utf-8")
     return path
 
@@ -113,6 +133,85 @@ def test_relay_tick_runs_one_plan_marks_completed(tmp_path):
     assert "payload_b64" not in ledger
     assert "shared-secret" not in ledger
     assert '"content"' not in ledger
+
+
+def test_relay_tick_front_claim_guard_closes_on_success(tmp_path):
+    _add_front_claim(_write_relay_plan(tmp_path), tmp_path)
+
+    def fake_relay(**kwargs):
+        assert kwargs["env"]["SYNAPS_CODEX_COORDINATION_RELAY"] == "1"
+        assert kwargs["env"]["SYNAPS_CODEX_COORDINATION_RELAY_ARMED"] == "1"
+        return {"ok": True, "result": {"status": "relay_complete"}, "session": {"steps": []}}
+
+    payload = run_codex_coordination_relay_tick(
+        env=_env(SYNAPS_CODEX_FRONT_CLAIM="1", SYNAPS_CODEX_FRONT_CLAIM_ARMED="1"),
+        env_file="",
+        confirm=CODEX_COORDINATION_RELAY_TICK_CONFIRM_PHRASE,
+        relay_fn=fake_relay,
+        **_roots(tmp_path),
+    )
+    claims = list_codex_front_claims(tmp_path / "front_claims")
+
+    assert payload["ok"] is True
+    assert payload["front_claim"]["result"]["status"] == "front_claim_written"
+    assert payload["front_claim_close"]["result"]["status"] == "front_claim_closed"
+    assert payload["front_claim_close"]["claim"]["status"] == "completed"
+    assert payload["result"]["status"] == "relay_tick_completed"
+    assert claims["claim_count"] == 1
+    assert claims["active_count"] == 0
+    assert claims["claims"][0]["status"] == "completed"
+    assert list((tmp_path / "completed").glob("*.json"))
+
+
+def test_relay_tick_front_claim_guard_fails_closed_without_claim_gate(tmp_path):
+    _add_front_claim(_write_relay_plan(tmp_path), tmp_path, marker="claim-gate-missing")
+    calls = []
+
+    def fake_relay(**kwargs):
+        calls.append(kwargs)
+        return {"ok": True, "result": {"status": "relay_complete"}}
+
+    payload = run_codex_coordination_relay_tick(
+        env=_env(),
+        env_file="",
+        confirm=CODEX_COORDINATION_RELAY_TICK_CONFIRM_PHRASE,
+        relay_fn=fake_relay,
+        **_roots(tmp_path),
+    )
+
+    assert payload["ok"] is False
+    assert calls == []
+    assert payload["result"]["status"] == "relay_tick_failed"
+    assert payload["result"]["error"] == "front_claim_write_failed"
+    assert payload["front_claim"]["result"]["status"] == "front_claim_gate_failed"
+    assert "SYNAPS_CODEX_FRONT_CLAIM_not_enabled" in payload["front_claim"]["problems"]
+    assert list((tmp_path / "failed").glob("*.json"))
+    assert not (tmp_path / "front_claims" / "claims").exists()
+
+
+def test_relay_tick_front_claim_guard_closes_failed_on_relay_failure(tmp_path):
+    _add_front_claim(_write_relay_plan(tmp_path), tmp_path, marker="claim-relay-failed")
+
+    def fake_relay(**kwargs):
+        return {"ok": False, "result": {"status": "relay_failed"}, "problems": ["boom"]}
+
+    payload = run_codex_coordination_relay_tick(
+        env=_env(SYNAPS_CODEX_FRONT_CLAIM="1", SYNAPS_CODEX_FRONT_CLAIM_ARMED="1"),
+        env_file="",
+        confirm=CODEX_COORDINATION_RELAY_TICK_CONFIRM_PHRASE,
+        relay_fn=fake_relay,
+        **_roots(tmp_path),
+    )
+    claims = list_codex_front_claims(tmp_path / "front_claims")
+
+    assert payload["ok"] is False
+    assert payload["front_claim"]["result"]["status"] == "front_claim_written"
+    assert payload["front_claim_close"]["result"]["status"] == "front_claim_closed"
+    assert payload["front_claim_close"]["claim"]["status"] == "failed"
+    assert payload["result"]["status"] == "relay_tick_failed"
+    assert claims["active_count"] == 0
+    assert claims["claims"][0]["status"] == "failed"
+    assert list((tmp_path / "failed").glob("*.json"))
 
 
 def test_relay_tick_failed_plan_marks_failed_and_repeat_no_work(tmp_path):
