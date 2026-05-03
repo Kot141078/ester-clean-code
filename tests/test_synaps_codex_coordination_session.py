@@ -12,6 +12,7 @@ from modules.synaps import (
     SynapsQuarantineStore,
     build_envelope,
     build_file_manifest,
+    list_codex_front_claims,
     run_codex_coordination_session,
     validate_codex_coordination_session_gate,
 )
@@ -196,6 +197,111 @@ def test_coordination_session_wait_report_apply_uses_exact_and_repeat(tmp_path):
     assert step["phase_results"][0]["repeat_check"]["candidate_count"] == 0
     assert not (tmp_path / "inbox").exists()
     assert not (tmp_path / "requests").exists()
+
+
+def test_coordination_session_front_claim_guard_closes_on_success(tmp_path):
+    record = _quarantine_file(
+        tmp_path,
+        transfer_id="synaps-file-session-claim-report",
+        name="report.md",
+        kind="codex_report",
+        note="claim guarded session",
+    )
+    claim_root = tmp_path / "front_claims"
+    plan = {
+        "schema": CODEX_COORDINATION_SESSION_PLAN_SCHEMA,
+        "session_id": "session-claim-guard",
+        "operator": "ester-test",
+        "front_claim": {
+            "root": str(claim_root),
+            "front_id": "0099",
+            "owner": "ester-test",
+            "marker": "claim-guarded-session",
+            "title": "claim guarded test",
+            "lease_sec": 600,
+            "expect_name": "report.md",
+            "expect_sender": "liah-test",
+            "expect_note_contains": "claim guarded",
+            "expect_sha256": record["sha256"],
+            "expect_size": record["size"],
+        },
+        "steps": [
+            {
+                "phase": "wait_report",
+                "nonce": "session-claim-guard-step",
+                "expect_name": "report.md",
+                "expect_sender": "liah-test",
+                "note_contains": "claim guarded",
+                "expect_sha256": record["sha256"],
+                "expect_size": record["size"],
+                "quarantine_root": str(tmp_path / "quarantine"),
+                "daemon_root": str(tmp_path / "daemon"),
+                "inbox_root": str(tmp_path / "inbox"),
+                "receipt_ledger": str(tmp_path / "receipts" / "events.jsonl"),
+                "request_root": str(tmp_path / "requests"),
+                "apply": True,
+            }
+        ],
+    }
+
+    payload = run_codex_coordination_session(
+        plan=plan,
+        env=_env(SYNAPS_CODEX_FRONT_CLAIM="1", SYNAPS_CODEX_FRONT_CLAIM_ARMED="1"),
+        env_file="",
+        session_root=tmp_path / "session",
+        confirm=CODEX_COORDINATION_SESSION_CONFIRM_PHRASE,
+    )
+    claims = list_codex_front_claims(claim_root)
+
+    assert payload["ok"] is True
+    assert payload["front_claim"]["result"]["status"] == "front_claim_written"
+    assert payload["front_claim_close"]["result"]["status"] == "front_claim_closed"
+    assert payload["front_claim_close"]["claim"]["status"] == "completed"
+    assert claims["claim_count"] == 1
+    assert claims["active_count"] == 0
+    assert claims["claims"][0]["status"] == "completed"
+
+
+def test_coordination_session_front_claim_guard_fails_closed_without_claim_gate(tmp_path):
+    plan = {
+        "schema": CODEX_COORDINATION_SESSION_PLAN_SCHEMA,
+        "session_id": "session-claim-missing-gate",
+        "front_claim": {
+            "root": str(tmp_path / "front_claims"),
+            "front_id": "0099",
+            "owner": "ester-test",
+            "marker": "claim-missing-gate",
+            "expect_name": "report.md",
+            "expect_sender": "liah-test",
+            "expect_note_contains": "claim missing",
+            "expect_sha256": "a" * 64,
+            "expect_size": 123,
+        },
+        "steps": [
+            {
+                "phase": "wait_report",
+                "expect_name": "report.md",
+                "expect_sender": "liah-test",
+                "note_contains": "claim missing",
+                "expect_sha256": "a" * 64,
+                "expect_size": 123,
+                "apply": True,
+            }
+        ],
+    }
+
+    payload = run_codex_coordination_session(
+        plan=plan,
+        env=_env(),
+        env_file="",
+        session_root=tmp_path / "session",
+        confirm=CODEX_COORDINATION_SESSION_CONFIRM_PHRASE,
+    )
+
+    assert payload["ok"] is False
+    assert "front_claim_write_failed" in payload["problems"]
+    assert payload["front_claim"]["result"]["status"] == "front_claim_gate_failed"
+    assert "SYNAPS_CODEX_FRONT_CLAIM_not_enabled" in payload["front_claim"]["problems"]
 
 
 def test_coordination_session_wait_contract_apply_uses_exact_and_repeat(tmp_path):

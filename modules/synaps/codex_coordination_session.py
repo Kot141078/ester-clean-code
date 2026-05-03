@@ -26,6 +26,15 @@ from .codex_coordination_cycle import (
 )
 from .codex_coordination_scanner import CodexCoordinationSelector
 from .codex_daemon import DEFAULT_CODEX_DAEMON_ROOT, codex_daemon_arm_status
+from .codex_front_claim import (
+    CODEX_FRONT_CLAIM_CLOSE_CONFIRM_PHRASE,
+    CODEX_FRONT_CLAIM_CONFIRM_PHRASE,
+    DEFAULT_CODEX_FRONT_CLAIM_ROOT,
+    CodexFrontClaimPolicy,
+    build_codex_front_claim,
+    close_codex_front_claim,
+    write_codex_front_claim,
+)
 from .codex_report_observer import DEFAULT_CODEX_RECEIPT_LEDGER, CodexReportSelector
 from .codex_request import DEFAULT_CODEX_REQUEST_ROOT
 from .file_transfer import DEFAULT_QUARANTINE_ROOT, FILE_TRANSFER_CONFIRM_PHRASE
@@ -147,6 +156,23 @@ def run_codex_coordination_session(
         output["result"] = {"ok": False, "status": "session_gate_failed", "problems": output["problems"]}
         return _finish_session(output, root, started, time_fn, actual_policy)
 
+    front_claim_plan = _front_claim_plan(safe_plan)
+    front_claim_id = ""
+    if front_claim_plan:
+        front_claim_payload = _write_session_front_claim(
+            front_claim_plan,
+            env=actual_env,
+            operator=operator,
+            now=_utc_now(),
+        )
+        output["front_claim"] = _redacted(front_claim_payload)
+        front_claim_id = str(front_claim_payload.get("claim", {}).get("claim_id") or "")
+        if not front_claim_payload.get("ok"):
+            output["ok"] = False
+            output["problems"].append("front_claim_write_failed")
+            output["result"] = {"ok": False, "status": "session_gate_failed", "problems": output["problems"]}
+            return _finish_session(output, root, started, time_fn, actual_policy)
+
     for index, step in enumerate(safe_plan["steps"], start=1):
         if time_fn() - started > actual_policy.max_wall_clock_sec:
             output["ok"] = False
@@ -169,6 +195,19 @@ def run_codex_coordination_session(
             output["ok"] = False
             output["problems"].append(f"step_{index}_failed")
             break
+
+    if front_claim_plan and front_claim_plan.get("close_on_exit", True):
+        close_payload = _close_session_front_claim(
+            front_claim_plan,
+            claim_id=front_claim_id,
+            env=actual_env,
+            operator=operator,
+            status="completed" if output.get("ok") else "failed",
+        )
+        output["front_claim_close"] = _redacted(close_payload)
+        if not close_payload.get("ok"):
+            output["ok"] = False
+            output["problems"].append("front_claim_close_failed")
 
     output["result"] = {
         "ok": bool(output.get("ok")),
@@ -319,7 +358,117 @@ def _plan_problems(plan: Mapping[str, Any], policy: CodexCoordinationSessionPoli
                 problems.append(f"step_{index}_expected_sha256_required")
             if _optional_int(step.get("expect_size")) is None:
                 problems.append(f"step_{index}_expected_size_required")
+    front_claim = plan.get("front_claim")
+    if front_claim not in (None, "", False):
+        if not isinstance(front_claim, Mapping):
+            problems.append("front_claim_must_be_object")
+        else:
+            expected = _front_claim_expected_report(front_claim)
+            for key in ("front_id", "owner", "marker"):
+                if not str(front_claim.get(key) or "").strip():
+                    problems.append(f"front_claim_{key}_required")
+            if not expected.get("name"):
+                problems.append("front_claim_expected_name_required")
+            if len(str(expected.get("sha256") or "")) != 64:
+                problems.append("front_claim_expected_sha256_required")
+            if _optional_int(expected.get("size")) is None:
+                problems.append("front_claim_expected_size_required")
     return problems
+
+
+def _front_claim_plan(plan: Mapping[str, Any]) -> dict[str, Any] | None:
+    raw = plan.get("front_claim")
+    if raw in (None, "", False):
+        return None
+    return dict(raw)
+
+
+def _front_claim_expected_report(front_claim: Mapping[str, Any]) -> dict[str, Any]:
+    nested = front_claim.get("expected_report")
+    if isinstance(nested, Mapping):
+        return dict(nested)
+    return {
+        "name": front_claim.get("expect_name") or "",
+        "sender": front_claim.get("expect_sender") or "",
+        "note_contains": front_claim.get("expect_note_contains") or front_claim.get("note_contains") or "",
+        "sha256": front_claim.get("expect_sha256") or "",
+        "size": front_claim.get("expect_size") if "expect_size" in front_claim else None,
+        "kind": front_claim.get("expect_kind") or "codex_report",
+    }
+
+
+def _front_claim_env(base_env: Mapping[str, str]) -> dict[str, str]:
+    env = dict(base_env)
+    for key in (
+        "SISTER_AUTOCHAT",
+        "SISTER_CONVERSATION_WINDOW",
+        "SISTER_CONVERSATION_WINDOW_ARMED",
+        "SISTER_OPERATOR_GATE",
+        "SISTER_OPERATOR_GATE_ARMED",
+        "SISTER_SCHEDULE",
+        "SISTER_SCHEDULE_ARMED",
+        "SYNAPS_CODEX_DAEMON_PROMOTE_MAILBOX",
+        "SYNAPS_CODEX_DAEMON_ENQUEUE_HANDOFFS",
+        "SYNAPS_CODEX_DAEMON_RUNNER",
+        "SYNAPS_CODEX_DAEMON_RUNNER_ARMED",
+        "SYNAPS_CODEX_DAEMON_PERSISTENT",
+        "SYNAPS_CODEX_DAEMON_PERSISTENT_ARMED",
+        "SYNAPS_CODEX_DAEMON_KILL_SWITCH",
+    ):
+        env[key] = "0"
+    return env
+
+
+def _write_session_front_claim(
+    front_claim: Mapping[str, Any],
+    *,
+    env: Mapping[str, str],
+    operator: str,
+    now: str,
+) -> dict[str, Any]:
+    claim_env = _front_claim_env(env)
+    claim = build_codex_front_claim(
+        front_id=str(front_claim.get("front_id") or ""),
+        owner=str(front_claim.get("owner") or operator),
+        marker=str(front_claim.get("marker") or ""),
+        title=str(front_claim.get("title") or ""),
+        status=str(front_claim.get("status") or "claimed"),
+        lease_seconds=_bounded_int(front_claim.get("lease_sec"), 1800, 60, 24 * 3600),
+        supersedes=[str(item) for item in list(front_claim.get("supersedes") or [])[:8]],
+        expected_report=_front_claim_expected_report(front_claim),
+        created_at=now,
+    )
+    return write_codex_front_claim(
+        claim,
+        env=claim_env,
+        root=front_claim.get("root") or DEFAULT_CODEX_FRONT_CLAIM_ROOT,
+        apply=True,
+        confirm=CODEX_FRONT_CLAIM_CONFIRM_PHRASE,
+        operator=operator,
+        policy=CodexFrontClaimPolicy.from_env(claim_env),
+    )
+
+
+def _close_session_front_claim(
+    front_claim: Mapping[str, Any],
+    *,
+    claim_id: str,
+    env: Mapping[str, str],
+    operator: str,
+    status: str,
+) -> dict[str, Any]:
+    claim_env = _front_claim_env(env)
+    return close_codex_front_claim(
+        claim_id,
+        status=status,
+        reason=str(front_claim.get("close_reason") or "coordination session finished"),
+        env=claim_env,
+        root=front_claim.get("root") or DEFAULT_CODEX_FRONT_CLAIM_ROOT,
+        apply=True,
+        confirm=CODEX_FRONT_CLAIM_CLOSE_CONFIRM_PHRASE,
+        operator=operator,
+        policy=CodexFrontClaimPolicy.from_env(claim_env),
+    )
 
 
 def _finish_session(
