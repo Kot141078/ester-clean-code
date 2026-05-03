@@ -48,23 +48,28 @@ def main(argv: list[str] | None = None) -> int:
     bootstrap_env_from_argv(raw_argv)
 
     from modules.synaps import (
+        CODEX_FRONT_CLAIM_CLOSE_CONFIRM_PHRASE,
         CODEX_FRONT_CLAIM_CONFIRM_PHRASE,
         DEFAULT_CODEX_FRONT_CLAIM_ROOT,
         CodexFrontClaimPolicy,
         build_codex_front_claim,
+        close_codex_front_claim,
         list_codex_front_claims,
         write_codex_front_claim,
     )
 
     parser = argparse.ArgumentParser(description="Write or list bounded SYNAPS Codex front claims.")
-    parser.add_argument("--mode", choices=["write", "list"], default="write")
+    parser.add_argument("--mode", choices=["write", "list", "close"], default="write")
     parser.add_argument("--env-file", default=".env")
     parser.add_argument("--root", default=str(DEFAULT_CODEX_FRONT_CLAIM_ROOT))
     parser.add_argument("--front-id", default="")
+    parser.add_argument("--claim-id", default="")
     parser.add_argument("--owner", default="")
     parser.add_argument("--marker", default="")
     parser.add_argument("--title", default="")
     parser.add_argument("--status", default="claimed")
+    parser.add_argument("--close-status", default="completed")
+    parser.add_argument("--close-reason", default="")
     parser.add_argument("--lease-sec", type=int, default=1800)
     parser.add_argument("--supersedes", action="append", default=[])
     parser.add_argument("--expect-name", default="")
@@ -74,12 +79,30 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--expect-size", type=int, default=0)
     parser.add_argument("--operator", default="codex-front-claim")
     parser.add_argument("--apply", action="store_true")
-    parser.add_argument("--confirm", default="", help=f"Required for --apply: {CODEX_FRONT_CLAIM_CONFIRM_PHRASE}")
+    parser.add_argument(
+        "--confirm",
+        default="",
+        help=f"Required for write --apply: {CODEX_FRONT_CLAIM_CONFIRM_PHRASE}; close --apply: {CODEX_FRONT_CLAIM_CLOSE_CONFIRM_PHRASE}",
+    )
     args = parser.parse_args(raw_argv)
 
     env = merged_env(args.env_file)
     if args.mode == "list":
         payload = list_codex_front_claims(args.root)
+        print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
+        return 0 if payload.get("ok") else 2
+    if args.mode == "close":
+        payload = close_codex_front_claim(
+            args.claim_id,
+            status=args.close_status,
+            reason=args.close_reason,
+            env=env,
+            root=args.root,
+            apply=args.apply,
+            confirm=args.confirm,
+            operator=args.operator,
+            policy=CodexFrontClaimPolicy.from_env(env),
+        )
         print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
         return 0 if payload.get("ok") else 2
 

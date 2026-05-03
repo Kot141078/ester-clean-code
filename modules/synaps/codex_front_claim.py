@@ -20,9 +20,11 @@ from .protocol import SynapsValidationError
 
 CODEX_FRONT_CLAIM_SCHEMA = "ester.synaps.codex_front_claim.v1"
 CODEX_FRONT_CLAIM_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_FRONT_CLAIM_WRITE"
+CODEX_FRONT_CLAIM_CLOSE_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_FRONT_CLAIM_CLOSE"
 DEFAULT_CODEX_FRONT_CLAIM_ROOT = Path("data") / "synaps" / "codex_bridge" / "front_claims"
 _ACTIVE_STATUSES = frozenset({"claimed", "accepted", "in_progress"})
-_STATUSES = _ACTIVE_STATUSES | frozenset({"completed", "deferred", "failed", "superseded"})
+_CLOSED_STATUSES = frozenset({"completed", "deferred", "failed", "released", "superseded"})
+_STATUSES = _ACTIVE_STATUSES | _CLOSED_STATUSES
 
 
 @dataclass(frozen=True)
@@ -69,11 +71,19 @@ def codex_front_claim_arm_status(env: Mapping[str, str]) -> dict[str, bool]:
     }
 
 
-def validate_codex_front_claim_gate(env: Mapping[str, str], *, apply: bool = False, confirm: str = "") -> list[str]:
+def validate_codex_front_claim_gate(
+    env: Mapping[str, str],
+    *,
+    apply: bool = False,
+    confirm: str = "",
+    operation: str = "write",
+) -> list[str]:
     status = codex_front_claim_arm_status(env)
     problems: list[str] = []
-    if apply and confirm != CODEX_FRONT_CLAIM_CONFIRM_PHRASE:
-        problems.append("missing_codex_front_claim_confirm_phrase")
+    confirm_phrase = CODEX_FRONT_CLAIM_CLOSE_CONFIRM_PHRASE if operation == "close" else CODEX_FRONT_CLAIM_CONFIRM_PHRASE
+    if apply and confirm != confirm_phrase:
+        problem = "missing_codex_front_claim_close_confirm_phrase" if operation == "close" else "missing_codex_front_claim_confirm_phrase"
+        problems.append(problem)
     if apply and not status["claim"]:
         problems.append("SYNAPS_CODEX_FRONT_CLAIM_not_enabled")
     if apply and not status["armed"]:
@@ -202,6 +212,82 @@ def write_codex_front_claim(
     return output
 
 
+def close_codex_front_claim(
+    claim_id: str,
+    *,
+    status: str = "completed",
+    reason: str = "",
+    env: Mapping[str, str] | None = None,
+    root: str | Path = DEFAULT_CODEX_FRONT_CLAIM_ROOT,
+    apply: bool = False,
+    confirm: str = "",
+    operator: str = "codex-front-claim",
+    policy: CodexFrontClaimPolicy | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    actual_env = dict(os.environ if env is None else env)
+    actual_policy = policy or CodexFrontClaimPolicy.from_env(actual_env)
+    safe_claim_id = _safe_token(claim_id, "claim_id", max_len=140)
+    close_status = _safe_closed_status(status)
+    root_path = _safe_root(root)
+    claim_path = root_path / "claims" / f"{safe_claim_id}.json"
+    gate_problems = validate_codex_front_claim_gate(actual_env, apply=apply, confirm=confirm, operation="close")
+    output: dict[str, Any] = {
+        "schema": CODEX_FRONT_CLAIM_SCHEMA,
+        "ok": not gate_problems,
+        "dry_run": not apply,
+        "confirm_required": CODEX_FRONT_CLAIM_CLOSE_CONFIRM_PHRASE,
+        "operator": _safe_token(operator, "operator", max_len=80),
+        "claim_id": safe_claim_id,
+        "policy": actual_policy.to_record(),
+        "problems": list(gate_problems),
+        "auto_ingest": False,
+        "memory": "off",
+        "persistent": False,
+    }
+    if gate_problems:
+        output["result"] = {"ok": False, "status": "front_claim_close_gate_failed", "problems": gate_problems}
+        return output
+    if not claim_path.exists():
+        output["ok"] = False
+        output["problems"].append("front_claim_not_found")
+        output["result"] = {"ok": False, "status": "front_claim_not_found", "problems": output["problems"]}
+        return output
+
+    claim = _validate_claim(json.loads(claim_path.read_text(encoding="utf-8")))
+    output["claim"] = _claim_record(claim)
+    output["path"] = str(claim_path)
+    if claim.get("status") not in _ACTIVE_STATUSES:
+        output["result"] = {"ok": True, "status": "front_claim_already_closed"}
+        return output
+    if not apply:
+        output["result"] = {"ok": True, "status": "would_close_front_claim", "close_status": close_status}
+        return output
+
+    closed = dict(claim)
+    closed["previous_status"] = closed["status"]
+    closed["status"] = close_status
+    closed["closed_at"] = (now or datetime.now(timezone.utc)).isoformat()
+    closed["closed_by"] = output["operator"]
+    closed["close_reason"] = _safe_reason(reason)
+    closed = _validate_claim(closed)
+    claim_text = _canonical_json(closed)
+    if len(claim_text.encode("utf-8")) > actual_policy.max_claim_bytes:
+        output["ok"] = False
+        output["problems"].append("front_claim_too_large")
+        output["result"] = {"ok": False, "status": "front_claim_close_rejected", "problems": output["problems"]}
+        return output
+
+    claim_path.write_text(claim_text, encoding="utf-8", newline="\n")
+    _append_event(
+        root_path / "events.jsonl",
+        {"event": "front_claim_closed", "operator": output["operator"], "claim": _claim_record(closed)},
+    )
+    output["claim"] = _claim_record(closed)
+    output["result"] = {"ok": True, "status": "front_claim_closed", "close_status": close_status}
+    return output
+
+
 def list_codex_front_claims(root: str | Path = DEFAULT_CODEX_FRONT_CLAIM_ROOT, *, now: datetime | None = None) -> dict[str, Any]:
     root_path = _safe_root(root)
     now_dt = now or datetime.now(timezone.utc)
@@ -268,6 +354,11 @@ def _validate_claim(raw: dict[str, Any]) -> dict[str, Any]:
     _parse_datetime(raw.get("expires_at"))
     raw["supersedes"] = _safe_supersedes(raw.get("supersedes") or [])
     raw["expected_report"] = _safe_expected_report(raw.get("expected_report") or {})
+    if raw.get("closed_at"):
+        raw["closed_at"] = _parse_datetime(raw.get("closed_at")).isoformat()
+    raw["closed_by"] = _safe_token(raw.get("closed_by"), "closed_by", max_len=80) if str(raw.get("closed_by") or "").strip() else ""
+    raw["close_reason"] = _safe_reason(raw.get("close_reason", ""))
+    raw["previous_status"] = _safe_status(raw["previous_status"]) if str(raw.get("previous_status") or "").strip() else ""
     raw["auto_ingest"] = False
     raw["memory"] = "off"
     raw["persistent"] = False
@@ -304,7 +395,7 @@ def _is_active(claim: Mapping[str, Any], now: datetime) -> bool:
 
 
 def _claim_record(claim: Mapping[str, Any]) -> dict[str, Any]:
-    return {
+    record = {
         "claim_id": claim.get("claim_id"),
         "front_id": claim.get("front_id"),
         "owner": claim.get("owner"),
@@ -314,6 +405,10 @@ def _claim_record(claim: Mapping[str, Any]) -> dict[str, Any]:
         "supersedes": list(claim.get("supersedes") or []),
         "expected_report": dict(claim.get("expected_report") or {}),
     }
+    for key in ("closed_at", "closed_by", "close_reason", "previous_status"):
+        if claim.get(key):
+            record[key] = claim.get(key)
+    return record
 
 
 def _claim_id(front_id: str, owner: str, marker: str) -> str:
@@ -355,6 +450,17 @@ def _safe_status(raw: str) -> str:
     if status not in _STATUSES:
         raise SynapsValidationError("unsupported front claim status")
     return status
+
+
+def _safe_closed_status(raw: str) -> str:
+    status = _safe_status(raw)
+    if status in _ACTIVE_STATUSES:
+        raise SynapsValidationError("front claim close status must be inactive")
+    return status
+
+
+def _safe_reason(raw: Any) -> str:
+    return str(raw or "").strip()[:240]
 
 
 def _safe_supersedes(raw: list[str]) -> list[str]:
