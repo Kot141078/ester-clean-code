@@ -1,6 +1,7 @@
 import ast
 import base64
 import json
+import os
 import subprocess
 import sys
 
@@ -62,6 +63,26 @@ def test_build_manifest_request_uses_file_manifest_type_and_memory_off(tmp_path)
     assert request.json["metadata"]["memory"] == "off"
     assert request.json["metadata"]["auto_ingest"] is False
     assert request.json["metadata"]["file_count"] == 1
+
+
+def test_multi_file_manifest_request_round_trips_through_inbound_parser(tmp_path):
+    first = tmp_path / "first.txt"
+    second = tmp_path / "second.txt"
+    first.write_text("alpha", encoding="utf-8")
+    second.write_text("beta", encoding="utf-8")
+    manifest = build_file_manifest([first, second], include_payload=True, transfer_id="transfer-multi")
+
+    request = build_file_manifest_request(_config(), manifest)
+    response = handle_inbound_payload(
+        request.json,
+        _config(),
+        file_manifest_handler=lambda incoming: SynapsQuarantineStore(tmp_path / "quarantine").receive_manifest(incoming),
+    )
+
+    assert response.status_code == 200
+    assert response.body["status"] == "quarantined"
+    assert response.body["file_transfer"]["file_count"] == 2
+    assert response.body["file_transfer"]["written_count"] == 2
 
 
 def test_file_transfer_gate_requires_explicit_arm_and_no_autochat():
@@ -191,6 +212,105 @@ def test_cli_dry_run_redacts_token_and_embedded_payload(tmp_path):
     assert "shared-secret" not in result.stdout
     assert raw_payload not in result.stdout
     assert "<redacted base64 len=" in result.stdout
+
+
+def test_cli_split_files_dry_run_builds_single_file_manifests_and_redacts_payloads(tmp_path):
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(
+            [
+                "SISTER_NODE_URL=http://sister.local",
+                "SISTER_SYNC_TOKEN=shared-secret",
+                "ESTER_NODE_ID=ester-test",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    first = tmp_path / "first.txt"
+    second = tmp_path / "second.txt"
+    first.write_text("alpha", encoding="utf-8")
+    second.write_text("beta", encoding="utf-8")
+    first_payload = base64.b64encode(first.read_bytes()).decode("ascii")
+    second_payload = base64.b64encode(second.read_bytes()).decode("ascii")
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "tools/synaps_file_transfer.py",
+            "--env-file",
+            str(env_file),
+            "--file",
+            str(first),
+            "--file",
+            str(second),
+            "--include-payload",
+            "--split-files",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    payload = json.loads(result.stdout)
+
+    assert payload["ok"] is True
+    assert payload["dry_run"] is True
+    assert payload["transfer"]["split_files"] is True
+    assert payload["transfer"]["manifest_count"] == 2
+    assert len(payload["transfers"]) == 2
+    assert all(item["file_count"] == 1 for item in payload["transfers"])
+    assert first_payload not in result.stdout
+    assert second_payload not in result.stdout
+    assert "shared-secret" not in result.stdout
+
+
+def test_cli_live_multi_file_send_fails_closed_without_split_or_override(tmp_path):
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(
+            [
+                "SISTER_NODE_URL=http://sister.local",
+                "SISTER_SYNC_TOKEN=shared-secret",
+                "ESTER_NODE_ID=ester-test",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    first = tmp_path / "first.txt"
+    second = tmp_path / "second.txt"
+    first.write_text("alpha", encoding="utf-8")
+    second.write_text("beta", encoding="utf-8")
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "tools/synaps_file_transfer.py",
+            "--env-file",
+            str(env_file),
+            "--file",
+            str(first),
+            "--file",
+            str(second),
+            "--include-payload",
+            "--send",
+            "--confirm",
+            FILE_TRANSFER_CONFIRM_PHRASE,
+        ],
+        env={
+            **os.environ,
+            "SISTER_FILE_TRANSFER": "1",
+            "SISTER_FILE_TRANSFER_ARMED": "1",
+            "SISTER_AUTOCHAT": "0",
+        },
+        capture_output=True,
+        text=True,
+    )
+    payload = json.loads(result.stdout)
+
+    assert result.returncode == 2
+    assert payload["ok"] is False
+    assert payload["result"]["body"]["error"] == "send_gate_failed"
+    assert "multi_file_envelope_blocked_use_split_files_or_explicit_override" in payload["result"]["body"]["problems"]
+    assert "shared-secret" not in result.stdout
 
 
 def test_cli_send_fails_closed_without_file_transfer_flags(tmp_path):

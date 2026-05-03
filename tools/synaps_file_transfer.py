@@ -132,6 +132,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--note", default="", help="Short operator note for the manifest.")
     parser.add_argument("--env-file", default=".env", help="Env file to merge if process env misses keys.")
     parser.add_argument("--include-payload", action="store_true", help="Embed capped payload for quarantine write.")
+    parser.add_argument(
+        "--split-files",
+        action="store_true",
+        help="Send repeated --file inputs as separate single-file manifests.",
+    )
+    parser.add_argument(
+        "--allow-multi-file-envelope",
+        action="store_true",
+        help="Permit one live envelope with multiple files. Prefer --split-files for sister compatibility.",
+    )
     parser.add_argument("--send", action="store_true", help="Actually POST the manifest.")
     parser.add_argument("--confirm", default="", help=f"Required for --send: {FILE_TRANSFER_CONFIRM_PHRASE}")
     args = parser.parse_args(raw_argv)
@@ -142,15 +152,30 @@ def main(argv: list[str] | None = None) -> int:
     status = file_transfer_arm_status(env)
 
     try:
-        manifest = build_file_manifest(
-            args.file,
-            policy,
-            include_payload=args.include_payload,
-            base_dir=args.base_dir,
-            kind=args.kind,
-            note=args.note,
-        )
-        request = build_file_manifest_request(config, manifest)
+        if args.split_files:
+            manifests = [
+                build_file_manifest(
+                    [file_path],
+                    policy,
+                    include_payload=args.include_payload,
+                    base_dir=args.base_dir,
+                    kind=args.kind,
+                    note=args.note,
+                )
+                for file_path in args.file
+            ]
+        else:
+            manifests = [
+                build_file_manifest(
+                    args.file,
+                    policy,
+                    include_payload=args.include_payload,
+                    base_dir=args.base_dir,
+                    kind=args.kind,
+                    note=args.note,
+                )
+            ]
+        requests = [build_file_manifest_request(config, manifest) for manifest in manifests]
     except Exception as exc:
         print(
             json.dumps(
@@ -170,6 +195,19 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
 
+    total_files = sum(len(manifest["files"]) for manifest in manifests)
+    total_bytes = sum(int(manifest["total_bytes"]) for manifest in manifests)
+    transfer_records = [
+        {
+            "transfer_id": manifest["transfer_id"],
+            "mode": manifest["mode"],
+            "file_count": len(manifest["files"]),
+            "total_bytes": manifest["total_bytes"],
+            "auto_ingest": False,
+            "memory": "off",
+        }
+        for manifest in manifests
+    ]
     output: dict[str, Any] = {
         "ok": True,
         "dry_run": not args.send,
@@ -177,24 +215,34 @@ def main(argv: list[str] | None = None) -> int:
         "confirm_required": FILE_TRANSFER_CONFIRM_PHRASE,
         "policy": policy.to_record(),
         "transfer": {
-            "transfer_id": manifest["transfer_id"],
-            "mode": manifest["mode"],
-            "file_count": len(manifest["files"]),
-            "total_bytes": manifest["total_bytes"],
+            "transfer_id": manifests[0]["transfer_id"] if len(manifests) == 1 else "",
+            "mode": manifests[0]["mode"] if len(manifests) == 1 else "split_single_file_manifests",
+            "file_count": total_files,
+            "total_bytes": total_bytes,
             "auto_ingest": False,
             "memory": "off",
+            "split_files": bool(args.split_files),
+            "manifest_count": len(manifests),
         },
-        "request": redacted_file_request_summary(request, config),
+        "transfers": transfer_records,
+        "request": redacted_file_request_summary(requests[0], config) if len(requests) == 1 else None,
+        "requests": [redacted_file_request_summary(request, config) for request in requests],
     }
 
     if args.send:
         problems = validate_file_transfer_send_gate(env, args.confirm)
+        if not args.split_files and total_files > 1 and not args.allow_multi_file_envelope:
+            problems.append("multi_file_envelope_blocked_use_split_files_or_explicit_override")
         if problems:
             output["ok"] = False
             output["result"] = {"ok": False, "status": 0, "body": {"error": "send_gate_failed", "problems": problems}}
             print(json.dumps(redacted_send_result(output, config.sync_token), ensure_ascii=False, indent=2, sort_keys=True))
             return 2
-        output["result"] = redacted_send_result(send_prepared_request(request), config.sync_token)
+        results = [redacted_send_result(send_prepared_request(request), config.sync_token) for request in requests]
+        output["results"] = results
+        output["result"] = results[0] if len(results) == 1 else {"ok": all(item.get("ok") for item in results), "items": results}
+        if not all(item.get("ok") for item in results):
+            output["ok"] = False
 
     print(json.dumps(redacted_send_result(output, config.sync_token), ensure_ascii=False, indent=2, sort_keys=True))
     return 0 if output.get("ok") else 2
