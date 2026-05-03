@@ -367,6 +367,60 @@ def test_cli_split_send_stops_after_first_failed_subsend(monkeypatch, tmp_path, 
     assert "shared-secret" not in stdout
 
 
+def test_cli_chunk_files_dry_run_creates_index_and_chunks(tmp_path):
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(
+            [
+                "SISTER_NODE_URL=http://sister.local",
+                "SISTER_SYNC_TOKEN=shared-secret",
+                "ESTER_NODE_ID=ester-test",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    source = tmp_path / "large.patch"
+    source.write_text("a" * 600, encoding="utf-8")
+    raw_payload = base64.b64encode(source.read_bytes()).decode("ascii")
+    out_dir = tmp_path / "chunks-out"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "tools/synaps_file_transfer.py",
+            "--env-file",
+            str(env_file),
+            "--file",
+            str(source),
+            "--kind",
+            "codex_contract",
+            "--note",
+            "chunk smoke",
+            "--chunk-files",
+            "--chunk-bytes",
+            "256",
+            "--chunk-out-dir",
+            str(out_dir),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    payload = json.loads(result.stdout)
+    index = json.loads((out_dir / "large.patch.chunk-index.json").read_text(encoding="utf-8"))
+
+    assert payload["ok"] is True
+    assert payload["dry_run"] is True
+    assert payload["chunked"]["chunk_count"] == 3
+    assert payload["transfer"]["split_files"] is True
+    assert payload["transfer"]["manifest_count"] == 4
+    assert index["source_size"] == 600
+    assert index["chunk_count"] == 3
+    assert (out_dir / "chunks" / "large.patch.part001of003").stat().st_size == 256
+    assert raw_payload not in result.stdout
+    assert "shared-secret" not in result.stdout
+
+
 def test_cli_send_fails_closed_without_file_transfer_flags(tmp_path):
     env_file = tmp_path / ".env"
     env_file.write_text(

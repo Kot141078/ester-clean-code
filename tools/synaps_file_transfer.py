@@ -13,6 +13,7 @@ memory, passport, vector, chroma, RAG, or reply context.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -20,6 +21,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any, Mapping, MutableMapping
+from uuid import uuid4
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
@@ -142,6 +144,17 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Permit one live envelope with multiple files. Prefer --split-files for sister compatibility.",
     )
+    parser.add_argument(
+        "--chunk-files",
+        action="store_true",
+        help="Split one large --file into an index plus payload chunks, then use split-file manifests.",
+    )
+    parser.add_argument("--chunk-bytes", type=int, default=2048, help="Max bytes per generated chunk.")
+    parser.add_argument(
+        "--chunk-out-dir",
+        default=None,
+        help="Directory for generated chunk bundle. Defaults to data/synaps/file_transfer_chunks/outbox/<id>.",
+    )
     parser.add_argument("--send", action="store_true", help="Actually POST the manifest.")
     parser.add_argument("--confirm", default="", help=f"Required for --send: {FILE_TRANSFER_CONFIRM_PHRASE}")
     args = parser.parse_args(raw_argv)
@@ -152,25 +165,41 @@ def main(argv: list[str] | None = None) -> int:
     status = file_transfer_arm_status(env)
 
     try:
-        if args.split_files:
+        chunked: dict[str, Any] | None = None
+        file_paths = list(args.file)
+        base_dir = args.base_dir
+        split_files = bool(args.split_files)
+        include_payload = bool(args.include_payload)
+        if args.chunk_files:
+            chunked = _prepare_chunk_bundle(
+                file_paths,
+                base_dir=base_dir,
+                out_dir=args.chunk_out_dir,
+                chunk_bytes=args.chunk_bytes,
+            )
+            file_paths = list(chunked["files"])
+            base_dir = str(chunked["base_dir"])
+            split_files = True
+            include_payload = True
+        if split_files:
             manifests = [
                 build_file_manifest(
                     [file_path],
                     policy,
-                    include_payload=args.include_payload,
-                    base_dir=args.base_dir,
+                    include_payload=include_payload,
+                    base_dir=base_dir,
                     kind=args.kind,
                     note=args.note,
                 )
-                for file_path in args.file
+                for file_path in file_paths
             ]
         else:
             manifests = [
                 build_file_manifest(
-                    args.file,
+                    file_paths,
                     policy,
-                    include_payload=args.include_payload,
-                    base_dir=args.base_dir,
+                    include_payload=include_payload,
+                    base_dir=base_dir,
                     kind=args.kind,
                     note=args.note,
                 )
@@ -221,9 +250,10 @@ def main(argv: list[str] | None = None) -> int:
             "total_bytes": total_bytes,
             "auto_ingest": False,
             "memory": "off",
-            "split_files": bool(args.split_files),
+            "split_files": bool(split_files),
             "manifest_count": len(manifests),
         },
+        "chunked": chunked,
         "transfers": transfer_records,
         "request": redacted_file_request_summary(requests[0], config) if len(requests) == 1 else None,
         "requests": [redacted_file_request_summary(request, config) for request in requests],
@@ -231,7 +261,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.send:
         problems = validate_file_transfer_send_gate(env, args.confirm)
-        if not args.split_files and total_files > 1 and not args.allow_multi_file_envelope:
+        if not split_files and total_files > 1 and not args.allow_multi_file_envelope:
             problems.append("multi_file_envelope_blocked_use_split_files_or_explicit_override")
         if problems:
             output["ok"] = False
@@ -275,6 +305,99 @@ def _redact_manifest_content(content: str) -> str:
         clean["files"] = files
         return json.dumps(clean, ensure_ascii=False, sort_keys=True)
     return "<invalid file manifest>"
+
+
+def _prepare_chunk_bundle(
+    file_paths: list[str],
+    *,
+    base_dir: str | None,
+    out_dir: str | None,
+    chunk_bytes: int,
+) -> dict[str, Any]:
+    if len(file_paths) != 1:
+        raise ValueError("chunk-files requires exactly one --file")
+    if chunk_bytes < 256 or chunk_bytes > 16 * 1024:
+        raise ValueError("chunk-bytes must be between 256 and 16384")
+
+    source = Path(file_paths[0]).resolve()
+    if not source.is_file():
+        raise FileNotFoundError(source.name)
+    relative_name = _safe_relative_chunk_source(source, base_dir)
+    transfer_id = f"synaps-chunks-{uuid4()}"
+    bundle_dir = Path(out_dir).resolve() if out_dir else REPO_ROOT / "data" / "synaps" / "file_transfer_chunks" / "outbox" / transfer_id
+    bundle_dir.mkdir(parents=True, exist_ok=False)
+    chunks_dir = bundle_dir / "chunks"
+    chunks_dir.mkdir(parents=True, exist_ok=False)
+
+    payload = source.read_bytes()
+    chunks: list[dict[str, Any]] = []
+    chunk_paths: list[str] = []
+    total = len(payload)
+    count = max(1, (total + chunk_bytes - 1) // chunk_bytes)
+    for index in range(count):
+        start = index * chunk_bytes
+        chunk = payload[start : start + chunk_bytes]
+        chunk_name = f"{source.name}.part{index + 1:03d}of{count:03d}"
+        chunk_path = chunks_dir / chunk_name
+        chunk_path.write_bytes(chunk)
+        chunk_paths.append(str(chunk_path))
+        chunks.append(
+            {
+                "index": index + 1,
+                "name": f"chunks/{chunk_name}",
+                "size": len(chunk),
+                "sha256": _sha256_bytes(chunk),
+            }
+        )
+
+    index_path = bundle_dir / f"{source.name}.chunk-index.json"
+    index_record = {
+        "schema": "ester.synaps.file_transfer_chunks.v1",
+        "transfer_id": transfer_id,
+        "source_name": relative_name,
+        "source_size": total,
+        "source_sha256": _sha256_bytes(payload),
+        "chunk_bytes": chunk_bytes,
+        "chunk_count": count,
+        "chunks": chunks,
+        "reconstruct": {
+            "ordered_names": [item["name"] for item in chunks],
+            "expected_sha256": _sha256_bytes(payload),
+            "expected_size": total,
+        },
+    }
+    index_path.write_text(json.dumps(index_record, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return {
+        "schema": index_record["schema"],
+        "transfer_id": transfer_id,
+        "source_name": relative_name,
+        "source_size": total,
+        "source_sha256": index_record["source_sha256"],
+        "chunk_bytes": chunk_bytes,
+        "chunk_count": count,
+        "index_name": index_path.name,
+        "base_dir": str(bundle_dir),
+        "files": [str(index_path), *chunk_paths],
+    }
+
+
+def _safe_relative_chunk_source(source: Path, base_dir: str | None) -> str:
+    if base_dir:
+        try:
+            name = str(source.relative_to(Path(base_dir).resolve()))
+        except ValueError:
+            name = source.name
+    else:
+        name = source.name
+    safe = name.replace("\\", "/").strip().lstrip("/")
+    parts = [part for part in safe.split("/") if part not in {"", "."}]
+    if not parts or any(part == ".." or ":" in part for part in parts):
+        return source.name
+    return "/".join(parts)
+
+
+def _sha256_bytes(payload: bytes) -> str:
+    return hashlib.sha256(payload).hexdigest()
 
 
 def _strip_env_value(value: str) -> str:
