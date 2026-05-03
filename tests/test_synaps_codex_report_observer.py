@@ -6,6 +6,7 @@ import sys
 from modules.synaps import (
     CODEX_REPORT_OBSERVER_CONFIRM_PHRASE,
     CODEX_REPORT_SELECTOR_CONFIRM_PHRASE,
+    CODEX_REPORT_WAITER_CONFIRM_PHRASE,
     CODEX_REPORT_WATCHER_CONFIRM_PHRASE,
     CodexDaemon,
     CodexReportSelector,
@@ -18,6 +19,7 @@ from modules.synaps import (
     observe_expected_codex_report,
     select_codex_report_by_manifest,
     validate_codex_report_observer_gate,
+    wait_for_codex_report_by_manifest,
     watch_codex_report_by_manifest,
     watch_expected_codex_report,
 )
@@ -474,6 +476,142 @@ def test_report_selector_watcher_apply_waits_for_delayed_report(tmp_path):
     assert (tmp_path / "daemon" / "promote_seen" / "synaps-file-delayed.json").is_file()
     assert not (tmp_path / "inbox").exists()
     assert not (tmp_path / "requests").exists()
+
+
+def test_report_waiter_dry_run_waits_bounded_cycles_without_writing(tmp_path):
+    sleeps = []
+
+    payload = wait_for_codex_report_by_manifest(
+        selector=CodexReportSelector(expected_name="expected.md", note_contains="0059"),
+        env=_armed_env(),
+        watcher_policy=CodexReportWatcherPolicy(max_cycles=2, sleep_sec=0.01),
+        sleep_fn=sleeps.append,
+        **_observer_roots(tmp_path),
+    )
+
+    assert payload["ok"] is True
+    assert payload["dry_run"] is True
+    assert payload["matched"] is False
+    assert payload["cycle_count"] == 2
+    assert payload["result"]["status"] == "not_observed_yet"
+    assert sleeps == [0.01]
+    assert not (tmp_path / "daemon").exists()
+    assert not (tmp_path / "inbox").exists()
+    assert not (tmp_path / "requests").exists()
+
+
+def test_report_waiter_apply_waits_for_delayed_report(tmp_path):
+    sleeps = []
+
+    def delayed_report_sleep(seconds):
+        sleeps.append(seconds)
+        _quarantine_report(tmp_path, transfer_id="synaps-file-delayed-0059", name="expected.md", note="0059 report")
+
+    payload = wait_for_codex_report_by_manifest(
+        selector=CodexReportSelector(expected_name="expected.md", note_contains="0059"),
+        env=_armed_env(),
+        apply=True,
+        confirm=CODEX_REPORT_WAITER_CONFIRM_PHRASE,
+        watcher_policy=CodexReportWatcherPolicy(max_cycles=2, sleep_sec=0.01),
+        sleep_fn=delayed_report_sleep,
+        **_observer_roots(tmp_path),
+    )
+
+    assert payload["ok"] is True
+    assert payload["cycle_count"] == 2
+    assert payload["selected_transfer_id"] == "synaps-file-delayed-0059"
+    assert payload["result"]["status"] == "report_observed"
+    assert sleeps == [0.01]
+    assert (tmp_path / "daemon" / "promote_seen" / "synaps-file-delayed-0059.json").is_file()
+    assert not (tmp_path / "inbox").exists()
+    assert not (tmp_path / "requests").exists()
+
+
+def test_report_waiter_fails_closed_on_multiple_candidates(tmp_path):
+    _quarantine_report(tmp_path, transfer_id="synaps-file-report-a", name="expected.md", note="0059 report")
+    _quarantine_report(tmp_path, transfer_id="synaps-file-report-b", name="expected.md", note="0059 report")
+
+    payload = wait_for_codex_report_by_manifest(
+        selector=CodexReportSelector(expected_name="expected.md", note_contains="0059"),
+        env=_armed_env(),
+        apply=True,
+        confirm=CODEX_REPORT_WAITER_CONFIRM_PHRASE,
+        watcher_policy=CodexReportWatcherPolicy(max_cycles=2, sleep_sec=0),
+        **_observer_roots(tmp_path),
+    )
+
+    assert payload["ok"] is False
+    assert payload["result"]["status"] == "selector_mismatch"
+    assert "expected_exactly_one_manifest_report:2" in payload["problems"]
+    assert not (tmp_path / "daemon" / "promote_seen" / "synaps-file-report-a.json").exists()
+    assert not (tmp_path / "daemon" / "promote_seen" / "synaps-file-report-b.json").exists()
+
+
+def test_report_waiter_does_not_reselect_observed_report(tmp_path):
+    _quarantine_report(tmp_path, transfer_id="synaps-file-report", name="expected.md", note="0059 report")
+    first = wait_for_codex_report_by_manifest(
+        selector=CodexReportSelector(expected_name="expected.md", note_contains="0059"),
+        env=_armed_env(),
+        apply=True,
+        confirm=CODEX_REPORT_WAITER_CONFIRM_PHRASE,
+        watcher_policy=CodexReportWatcherPolicy(max_cycles=1, sleep_sec=0),
+        **_observer_roots(tmp_path),
+    )
+    repeat = wait_for_codex_report_by_manifest(
+        selector=CodexReportSelector(expected_name="expected.md", note_contains="0059"),
+        env=_armed_env(),
+        watcher_policy=CodexReportWatcherPolicy(max_cycles=1, sleep_sec=0),
+        **_observer_roots(tmp_path),
+    )
+
+    assert first["ok"] is True
+    assert repeat["ok"] is True
+    assert repeat["matched"] is False
+    assert repeat["cycles"][0]["candidate_count"] == 0
+
+
+def test_cli_report_waiter_apply(tmp_path):
+    _quarantine_report(tmp_path, transfer_id="synaps-file-report", name="expected.md", sender="liah-test")
+    env = os.environ.copy()
+    env.update(_armed_env())
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "tools/synaps_codex_report_waiter.py",
+            "--env-file",
+            "",
+            "--expect-name",
+            "expected.md",
+            "--expect-sender",
+            "liah-test",
+            "--daemon-root",
+            str(tmp_path / "daemon"),
+            "--quarantine-root",
+            str(tmp_path / "quarantine"),
+            "--inbox-root",
+            str(tmp_path / "inbox"),
+            "--request-root",
+            str(tmp_path / "requests"),
+            "--max-cycles",
+            "2",
+            "--sleep-sec",
+            "0",
+            "--apply",
+            "--confirm",
+            CODEX_REPORT_WAITER_CONFIRM_PHRASE,
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    payload = json.loads(result.stdout)
+
+    assert payload["ok"] is True
+    assert payload["selected_transfer_id"] == "synaps-file-report"
+    assert payload["result"]["status"] == "report_observed"
+    assert (tmp_path / "daemon" / "promote_seen" / "synaps-file-report.json").is_file()
 
 
 def test_cli_report_selector_apply(tmp_path):

@@ -31,6 +31,8 @@ CODEX_REPORT_SELECTOR_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_REPORT_SELECTOR_AP
 CODEX_REPORT_SELECTOR_SCHEMA = "ester.synaps.codex_report_selector.v1"
 CODEX_REPORT_WATCHER_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_REPORT_WATCHER_RUN"
 CODEX_REPORT_WATCHER_SCHEMA = "ester.synaps.codex_report_watcher.v1"
+CODEX_REPORT_WAITER_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_REPORT_WAITER_RUN"
+CODEX_REPORT_WAITER_SCHEMA = "ester.synaps.codex_report_waiter.v1"
 _EXACT_OBSERVER_SCAN_LIMIT = 20
 
 
@@ -448,6 +450,112 @@ def watch_expected_codex_report(
     return _finish_watch(output)
 
 
+def wait_for_codex_report_by_manifest(
+    *,
+    selector: CodexReportSelector,
+    env: Mapping[str, str] | None = None,
+    apply: bool = False,
+    confirm: str = "",
+    operator: str = "codex-report-waiter",
+    daemon_root: str | Path = DEFAULT_CODEX_DAEMON_ROOT,
+    quarantine_root: str | Path = DEFAULT_QUARANTINE_ROOT,
+    inbox_root: str | Path = DEFAULT_CODEX_INBOX_ROOT,
+    receipt_ledger: str | Path = DEFAULT_CODEX_RECEIPT_LEDGER,
+    request_root: str | Path = DEFAULT_CODEX_REQUEST_ROOT,
+    daemon_policy: CodexDaemonPolicy | None = None,
+    watcher_policy: CodexReportWatcherPolicy | None = None,
+    sleep_fn=time.sleep,
+) -> dict[str, Any]:
+    """Wait bounded cycles for one report by manifest metadata.
+
+    Unlike selector dry-run, this wrapper keeps polling in dry-run mode. It is
+    still one-shot and exits after max_cycles; it never becomes a daemon.
+    """
+    actual_env = os.environ if env is None else env
+    safe_selector = _safe_selector(selector)
+    actual_watcher_policy = watcher_policy or CodexReportWatcherPolicy.from_env(actual_env)
+    gate_problems = validate_codex_report_waiter_gate(actual_env, apply=apply, confirm=confirm)
+    output: dict[str, Any] = {
+        "schema": CODEX_REPORT_WAITER_SCHEMA,
+        "ok": not gate_problems,
+        "dry_run": not apply,
+        "confirm_required": CODEX_REPORT_WAITER_CONFIRM_PHRASE,
+        "selector": safe_selector.to_record(),
+        "policy": actual_watcher_policy.to_record(),
+        "cycles": [],
+        "problems": list(gate_problems),
+        "auto_ingest": False,
+        "memory": "off",
+        "persistent": False,
+    }
+    if gate_problems:
+        output["result"] = {"ok": False, "status": "gate_failed", "problems": gate_problems}
+        return _finish_watch(output)
+
+    for index in range(actual_watcher_policy.max_cycles):
+        preview = select_codex_report_by_manifest(
+            selector=safe_selector,
+            env=actual_env,
+            apply=False,
+            operator=operator,
+            daemon_root=daemon_root,
+            quarantine_root=quarantine_root,
+            inbox_root=inbox_root,
+            receipt_ledger=receipt_ledger,
+            request_root=request_root,
+            policy=daemon_policy,
+        )
+        candidates = list(preview.get("candidates") or [])
+        problems = list(preview.get("problems") or [])
+        cycle = {
+            "cycle": index + 1,
+            "matched": bool(preview.get("matched")),
+            "selected_transfer_id": preview.get("selected_transfer_id"),
+            "candidate_count": len(candidates),
+            "candidates": candidates,
+            "problems": problems,
+        }
+        output["cycles"].append(cycle)
+        if preview.get("matched"):
+            output["matched"] = True
+            output["selected_transfer_id"] = preview.get("selected_transfer_id")
+            if not apply:
+                output["result"] = {"ok": True, "status": "would_select"}
+                return _finish_watch(output)
+            applied = select_codex_report_by_manifest(
+                selector=safe_selector,
+                env=actual_env,
+                apply=True,
+                confirm=CODEX_REPORT_SELECTOR_CONFIRM_PHRASE,
+                operator=operator,
+                daemon_root=daemon_root,
+                quarantine_root=quarantine_root,
+                inbox_root=inbox_root,
+                receipt_ledger=receipt_ledger,
+                request_root=request_root,
+                policy=daemon_policy,
+            )
+            cycle["apply"] = applied.get("apply")
+            output["ok"] = bool(applied.get("ok"))
+            output["result"] = dict(applied.get("result") or {})
+            output["problems"].extend(list(applied.get("problems") or []))
+            return _finish_watch(output)
+        if candidates:
+            output["matched"] = False
+            output["ok"] = False
+            output["problems"].extend(problems)
+            output["result"] = {"ok": False, "status": "selector_mismatch", "problems": problems}
+            return _finish_watch(output)
+        if index + 1 < actual_watcher_policy.max_cycles and actual_watcher_policy.sleep_sec:
+            sleep_fn(actual_watcher_policy.sleep_sec)
+
+    output["matched"] = False
+    output["ok"] = False if apply else output["ok"]
+    status = "expected_report_not_selected" if apply else "not_observed_yet"
+    output["result"] = {"ok": not apply, "status": status, "cycles": actual_watcher_policy.max_cycles}
+    return _finish_watch(output)
+
+
 def validate_codex_report_watcher_gate(
     env: Mapping[str, str],
     *,
@@ -457,6 +565,18 @@ def validate_codex_report_watcher_gate(
     problems = validate_codex_report_observer_gate(env, apply=False)
     if apply and confirm != CODEX_REPORT_WATCHER_CONFIRM_PHRASE:
         problems.append("missing_codex_report_watcher_confirm_phrase")
+    return problems
+
+
+def validate_codex_report_waiter_gate(
+    env: Mapping[str, str],
+    *,
+    apply: bool = False,
+    confirm: str = "",
+) -> list[str]:
+    problems = validate_codex_report_observer_gate(env, apply=False)
+    if apply and confirm != CODEX_REPORT_WAITER_CONFIRM_PHRASE:
+        problems.append("missing_codex_report_waiter_confirm_phrase")
     return problems
 
 
