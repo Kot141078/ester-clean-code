@@ -6,6 +6,7 @@ import subprocess
 import sys
 
 import pytest
+from tools import synaps_file_transfer as transfer_cli
 
 from modules.synaps import (
     FILE_TRANSFER_CONFIRM_PHRASE,
@@ -311,6 +312,59 @@ def test_cli_live_multi_file_send_fails_closed_without_split_or_override(tmp_pat
     assert payload["result"]["body"]["error"] == "send_gate_failed"
     assert "multi_file_envelope_blocked_use_split_files_or_explicit_override" in payload["result"]["body"]["problems"]
     assert "shared-secret" not in result.stdout
+
+
+def test_cli_split_send_stops_after_first_failed_subsend(monkeypatch, tmp_path, capsys):
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(
+            [
+                "SISTER_NODE_URL=http://sister.local",
+                "SISTER_SYNC_TOKEN=shared-secret",
+                "ESTER_NODE_ID=ester-test",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    first = tmp_path / "first.txt"
+    second = tmp_path / "second.txt"
+    first.write_text("alpha", encoding="utf-8")
+    second.write_text("beta", encoding="utf-8")
+    calls = []
+
+    def fake_send(request):
+        calls.append(request)
+        return {"ok": False, "status": 400, "body": {"message": "content_hash_mismatch"}}
+
+    monkeypatch.setattr(transfer_cli, "send_prepared_request", fake_send)
+    monkeypatch.setenv("SISTER_FILE_TRANSFER", "1")
+    monkeypatch.setenv("SISTER_FILE_TRANSFER_ARMED", "1")
+    monkeypatch.setenv("SISTER_AUTOCHAT", "0")
+
+    rc = transfer_cli.main(
+        [
+            "--env-file",
+            str(env_file),
+            "--file",
+            str(first),
+            "--file",
+            str(second),
+            "--include-payload",
+            "--split-files",
+            "--send",
+            "--confirm",
+            FILE_TRANSFER_CONFIRM_PHRASE,
+        ]
+    )
+    stdout = capsys.readouterr().out
+    payload = json.loads(stdout)
+
+    assert rc == 2
+    assert len(calls) == 1
+    assert payload["ok"] is False
+    assert payload["result"]["failed_index"] == 1
+    assert len(payload["results"]) == 1
+    assert "shared-secret" not in stdout
 
 
 def test_cli_send_fails_closed_without_file_transfer_flags(tmp_path):

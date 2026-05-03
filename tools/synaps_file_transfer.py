@@ -238,11 +238,20 @@ def main(argv: list[str] | None = None) -> int:
             output["result"] = {"ok": False, "status": 0, "body": {"error": "send_gate_failed", "problems": problems}}
             print(json.dumps(redacted_send_result(output, config.sync_token), ensure_ascii=False, indent=2, sort_keys=True))
             return 2
-        results = [redacted_send_result(send_prepared_request(request), config.sync_token) for request in requests]
-        output["results"] = results
-        output["result"] = results[0] if len(results) == 1 else {"ok": all(item.get("ok") for item in results), "items": results}
-        if not all(item.get("ok") for item in results):
-            output["ok"] = False
+        results = []
+        for index, request in enumerate(requests, start=1):
+            item = redacted_send_result(send_prepared_request(request), config.sync_token)
+            results.append(item)
+            if not item.get("ok"):
+                output["ok"] = False
+                output["results"] = results
+                output["result"] = {"ok": False, "failed_index": index, "items": results}
+                break
+        else:
+            output["results"] = results
+            output["result"] = (
+                results[0] if len(results) == 1 else {"ok": all(item.get("ok") for item in results), "items": results}
+            )
 
     print(json.dumps(redacted_send_result(output, config.sync_token), ensure_ascii=False, indent=2, sort_keys=True))
     return 0 if output.get("ok") else 2
