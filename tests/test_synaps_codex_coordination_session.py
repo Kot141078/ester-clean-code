@@ -110,6 +110,48 @@ def test_coordination_session_send_file_dry_run_redacts_payload(tmp_path):
     assert (tmp_path / "session" / "events.jsonl").is_file()
 
 
+def test_coordination_session_send_file_uses_step_send_timeout(tmp_path):
+    source = tmp_path / "handoffs" / "contract.md"
+    source.parent.mkdir()
+    source.write_text("# contract\n", encoding="utf-8")
+    seen_timeouts = []
+    plan = {
+        "schema": CODEX_COORDINATION_SESSION_PLAN_SCHEMA,
+        "session_id": "session-send-timeout",
+        "steps": [
+            {
+                "phase": "send_file",
+                "nonce": "session-send-timeout-step",
+                "file": str(source),
+                "base_dir": str(source.parent),
+                "kind": "codex_contract",
+                "note": "session send timeout",
+                "include_payload": True,
+                "send": True,
+                "send_timeout_sec": 12.5,
+            }
+        ],
+    }
+
+    def fake_send(request):
+        seen_timeouts.append(request.timeout_sec)
+        return {"ok": True, "status": 200, "body": {"status": "quarantined"}}
+
+    payload = run_codex_coordination_session(
+        plan=plan,
+        env=_env(),
+        env_file="",
+        session_root=tmp_path / "session",
+        confirm=CODEX_COORDINATION_SESSION_CONFIRM_PHRASE,
+        postcheck_roots=[tmp_path / "memory"],
+        send_fn=fake_send,
+    )
+
+    assert payload["ok"] is True
+    assert seen_timeouts == [12.5]
+    assert payload["steps"][0]["phase_results"][0]["request"]["timeout_sec"] == 12.5
+
+
 def test_coordination_session_wait_report_apply_uses_exact_and_repeat(tmp_path):
     record = _quarantine_file(
         tmp_path,

@@ -195,6 +195,8 @@ def _run_session_step(
     step_nonce = _safe_token(str(step.get("nonce") or f"{session_id}-{index}-{phase}"), "step_nonce")
     step_operator = _safe_token(str(step.get("operator") or f"{operator}-{index}"), "step_operator")
     step_env = _phase_env(base_env, phase=phase, mutate=bool(step.get("apply") or step.get("send")))
+    if phase == PHASE_SEND_FILE and "send_timeout_sec" in step:
+        step_env["SISTER_SEND_TIMEOUT_SEC"] = str(_bounded_float(step.get("send_timeout_sec"), 10.0, 0.1, 30.0))
     cycle_policy = CodexCoordinationCyclePolicy(
         max_cycles=_bounded_int(step.get("max_cycles"), 1, 1, 120),
         sleep_sec=_bounded_float(step.get("sleep_sec"), 0.0, 0.0, 300.0),

@@ -60,6 +60,7 @@ def _relay_plan(tmp_path):
             "file": str(response),
             "base_dir": str(source),
             "kind": "codex_report",
+            "send_timeout_sec": 12.5,
         },
         "final_report": {
             "expect_name": "final.md",
@@ -99,8 +100,10 @@ def test_build_coordination_relay_session_plan_has_four_safe_steps(tmp_path):
         "wait_report",
     ]
     assert session_plan["steps"][0]["send"] is True
+    assert session_plan["steps"][0]["send_timeout_sec"] == 10.0
     assert session_plan["steps"][1]["apply"] is True
     assert session_plan["steps"][2]["kind"] == "codex_report"
+    assert session_plan["steps"][2]["send_timeout_sec"] == 12.5
     assert session_plan["steps"][3]["expect_sha256"] == "b" * 64
 
 

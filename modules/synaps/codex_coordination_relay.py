@@ -223,6 +223,7 @@ def _send_step(source: Mapping[str, Any], *, default_nonce: str, default_kind: s
         "max_cycles": _bounded_int(source.get("max_cycles"), 1, 1, 1),
         "sleep_sec": _bounded_float(source.get("sleep_sec"), 0.0, 0.0, 0.0),
         "max_wall_clock_sec": _bounded_float(source.get("max_wall_clock_sec"), 60.0, 1.0, 3600.0),
+        "send_timeout_sec": _bounded_float(source.get("send_timeout_sec"), 10.0, 0.1, 30.0),
     }
 
 
