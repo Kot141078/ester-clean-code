@@ -421,6 +421,63 @@ def test_cli_chunk_files_dry_run_creates_index_and_chunks(tmp_path):
     assert "shared-secret" not in result.stdout
 
 
+def test_cli_auto_chunk_bytes_avoids_large_chunk_index(tmp_path):
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(
+            [
+                "SISTER_NODE_URL=http://sister.local",
+                "SISTER_SYNC_TOKEN=shared-secret",
+                "ESTER_NODE_ID=ester-test",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    source = tmp_path / "large.patch"
+    source.write_text("a" * 28646, encoding="utf-8")
+    out_dir = tmp_path / "chunks-out"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "tools/synaps_file_transfer.py",
+            "--env-file",
+            str(env_file),
+            "--file",
+            str(source),
+            "--kind",
+            "codex_contract",
+            "--note",
+            "auto chunk smoke",
+            "--chunk-files",
+            "--chunk-bytes",
+            "1200",
+            "--auto-chunk-bytes",
+            "--chunk-index-target-bytes",
+            "4096",
+            "--chunk-out-dir",
+            str(out_dir),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    payload = json.loads(result.stdout)
+    index_path = out_dir / "large.patch.chunk-index.json"
+    index = json.loads(index_path.read_text(encoding="utf-8"))
+
+    assert payload["ok"] is True
+    assert payload["chunked"]["auto_chunk_bytes"] is True
+    assert payload["chunked"]["requested_chunk_bytes"] == 1200
+    assert payload["chunked"]["chunk_bytes"] == 3000
+    assert payload["chunked"]["chunk_count"] == 10
+    assert payload["chunked"]["index_size"] <= 4096
+    assert index["chunk_bytes"] == 3000
+    assert index["chunk_count"] == 10
+    assert index_path.stat().st_size <= 4096
+    assert "shared-secret" not in result.stdout
+
+
 def test_cli_send_fails_closed_without_file_transfer_flags(tmp_path):
     env_file = tmp_path / ".env"
     env_file.write_text(

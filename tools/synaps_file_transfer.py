@@ -151,6 +151,17 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--chunk-bytes", type=int, default=2048, help="Max bytes per generated chunk.")
     parser.add_argument(
+        "--auto-chunk-bytes",
+        action="store_true",
+        help="Increase chunk size when many small chunks would make the chunk index too large.",
+    )
+    parser.add_argument(
+        "--chunk-index-target-bytes",
+        type=int,
+        default=4096,
+        help="Target maximum chunk-index file size used by --auto-chunk-bytes, with safety headroom.",
+    )
+    parser.add_argument(
         "--chunk-out-dir",
         default=None,
         help="Directory for generated chunk bundle. Defaults to data/synaps/file_transfer_chunks/outbox/<id>.",
@@ -176,6 +187,8 @@ def main(argv: list[str] | None = None) -> int:
                 base_dir=base_dir,
                 out_dir=args.chunk_out_dir,
                 chunk_bytes=args.chunk_bytes,
+                auto_chunk_bytes=args.auto_chunk_bytes,
+                chunk_index_target_bytes=args.chunk_index_target_bytes,
             )
             file_paths = list(chunked["files"])
             base_dir = str(chunked["base_dir"])
@@ -313,6 +326,8 @@ def _prepare_chunk_bundle(
     base_dir: str | None,
     out_dir: str | None,
     chunk_bytes: int,
+    auto_chunk_bytes: bool = False,
+    chunk_index_target_bytes: int = 4096,
 ) -> dict[str, Any]:
     if len(file_paths) != 1:
         raise ValueError("chunk-files requires exactly one --file")
@@ -330,6 +345,15 @@ def _prepare_chunk_bundle(
     chunks_dir.mkdir(parents=True, exist_ok=False)
 
     payload = source.read_bytes()
+    requested_chunk_bytes = chunk_bytes
+    if auto_chunk_bytes:
+        chunk_bytes = _select_chunk_bytes(
+            payload,
+            source_name=source.name,
+            relative_name=relative_name,
+            requested_chunk_bytes=chunk_bytes,
+            target_index_bytes=chunk_index_target_bytes,
+        )
     chunks: list[dict[str, Any]] = []
     chunk_paths: list[str] = []
     total = len(payload)
@@ -367,18 +391,100 @@ def _prepare_chunk_bundle(
         },
     }
     index_path.write_text(json.dumps(index_record, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    index_size = index_path.stat().st_size
     return {
         "schema": index_record["schema"],
         "transfer_id": transfer_id,
         "source_name": relative_name,
         "source_size": total,
         "source_sha256": index_record["source_sha256"],
+        "requested_chunk_bytes": requested_chunk_bytes,
         "chunk_bytes": chunk_bytes,
         "chunk_count": count,
+        "auto_chunk_bytes": bool(auto_chunk_bytes),
+        "chunk_index_target_bytes": _bounded_int(str(chunk_index_target_bytes), default=4096, minimum=512, maximum=64 * 1024),
+        "chunk_index_effective_target_bytes": _effective_chunk_index_target(chunk_index_target_bytes),
+        "index_size": index_size,
         "index_name": index_path.name,
         "base_dir": str(bundle_dir),
         "files": [str(index_path), *chunk_paths],
     }
+
+
+def _select_chunk_bytes(
+    payload: bytes,
+    *,
+    source_name: str,
+    relative_name: str,
+    requested_chunk_bytes: int,
+    target_index_bytes: int,
+) -> int:
+    target = _effective_chunk_index_target(target_index_bytes)
+    candidates = sorted(
+        {
+            requested_chunk_bytes,
+            2048,
+            3000,
+            4096,
+            6144,
+            8192,
+            12288,
+            16 * 1024,
+        }
+    )
+    for candidate in candidates:
+        if candidate < requested_chunk_bytes or candidate < 256 or candidate > 16 * 1024:
+            continue
+        if _estimated_chunk_index_size(payload, source_name=source_name, relative_name=relative_name, chunk_bytes=candidate) <= target:
+            return candidate
+    return max(256, min(16 * 1024, max(candidates)))
+
+
+def _effective_chunk_index_target(target_index_bytes: int) -> int:
+    target = _bounded_int(str(target_index_bytes), default=4096, minimum=512, maximum=64 * 1024)
+    return max(512, (target * 3) // 4)
+
+
+def _bounded_int(raw: str | None, *, default: int, minimum: int, maximum: int) -> int:
+    try:
+        value = int(raw) if raw is not None else default
+    except (TypeError, ValueError):
+        value = default
+    return max(minimum, min(maximum, value))
+
+
+def _estimated_chunk_index_size(payload: bytes, *, source_name: str, relative_name: str, chunk_bytes: int) -> int:
+    total = len(payload)
+    count = max(1, (total + chunk_bytes - 1) // chunk_bytes)
+    chunks = []
+    for index in range(count):
+        start = index * chunk_bytes
+        chunk = payload[start : start + chunk_bytes]
+        chunk_name = f"{source_name}.part{index + 1:03d}of{count:03d}"
+        chunks.append(
+            {
+                "index": index + 1,
+                "name": f"chunks/{chunk_name}",
+                "size": len(chunk),
+                "sha256": _sha256_bytes(chunk),
+            }
+        )
+    record = {
+        "schema": "ester.synaps.file_transfer_chunks.v1",
+        "transfer_id": "synaps-chunks-estimate",
+        "source_name": relative_name,
+        "source_size": total,
+        "source_sha256": _sha256_bytes(payload),
+        "chunk_bytes": chunk_bytes,
+        "chunk_count": count,
+        "chunks": chunks,
+        "reconstruct": {
+            "ordered_names": [item["name"] for item in chunks],
+            "expected_sha256": _sha256_bytes(payload),
+            "expected_size": total,
+        },
+    }
+    return len((json.dumps(record, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8"))
 
 
 def _safe_relative_chunk_source(source: Path, base_dir: str | None) -> str:
