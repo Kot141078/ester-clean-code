@@ -367,6 +367,184 @@ def test_cli_split_send_stops_after_first_failed_subsend(monkeypatch, tmp_path, 
     assert "shared-secret" not in stdout
 
 
+def test_cli_split_send_retries_transport_failure_then_continues(monkeypatch, tmp_path, capsys):
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(
+            [
+                "SISTER_NODE_URL=http://sister.local",
+                "SISTER_SYNC_TOKEN=shared-secret",
+                "ESTER_NODE_ID=ester-test",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    first = tmp_path / "first.txt"
+    second = tmp_path / "second.txt"
+    first.write_text("alpha", encoding="utf-8")
+    second.write_text("beta", encoding="utf-8")
+    calls = []
+    sleeps = []
+
+    def fake_send(request):
+        calls.append(request)
+        if len(calls) == 1:
+            return {"ok": False, "status": 0, "body": {"error": "TimeoutError"}}
+        return {"ok": True, "status": 200, "body": {"status": "quarantined"}}
+
+    monkeypatch.setattr(transfer_cli, "send_prepared_request", fake_send)
+    monkeypatch.setattr(transfer_cli.time, "sleep", lambda value: sleeps.append(value))
+    monkeypatch.setenv("SISTER_FILE_TRANSFER", "1")
+    monkeypatch.setenv("SISTER_FILE_TRANSFER_ARMED", "1")
+    monkeypatch.setenv("SISTER_AUTOCHAT", "0")
+
+    rc = transfer_cli.main(
+        [
+            "--env-file",
+            str(env_file),
+            "--file",
+            str(first),
+            "--file",
+            str(second),
+            "--include-payload",
+            "--split-files",
+            "--send-attempts",
+            "2",
+            "--send-retry-delay-sec",
+            "0.1",
+            "--send-delay-sec",
+            "0.2",
+            "--send",
+            "--confirm",
+            FILE_TRANSFER_CONFIRM_PHRASE,
+        ]
+    )
+    stdout = capsys.readouterr().out
+    payload = json.loads(stdout)
+
+    assert rc == 0
+    assert len(calls) == 3
+    assert payload["ok"] is True
+    assert payload["send_policy"]["attempts"] == 2
+    assert payload["results"][0]["attempt_count"] == 2
+    assert [item["status"] for item in payload["results"][0]["attempts"]] == [0, 200]
+    assert payload["results"][1]["attempt_count"] == 1
+    assert sleeps == [0.1, 0.2]
+    assert "shared-secret" not in stdout
+
+
+def test_cli_split_send_does_not_retry_http_failure(monkeypatch, tmp_path, capsys):
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(
+            [
+                "SISTER_NODE_URL=http://sister.local",
+                "SISTER_SYNC_TOKEN=shared-secret",
+                "ESTER_NODE_ID=ester-test",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    first = tmp_path / "first.txt"
+    second = tmp_path / "second.txt"
+    first.write_text("alpha", encoding="utf-8")
+    second.write_text("beta", encoding="utf-8")
+    calls = []
+
+    def fake_send(request):
+        calls.append(request)
+        return {"ok": False, "status": 400, "body": {"message": "content_hash_mismatch"}}
+
+    monkeypatch.setattr(transfer_cli, "send_prepared_request", fake_send)
+    monkeypatch.setenv("SISTER_FILE_TRANSFER", "1")
+    monkeypatch.setenv("SISTER_FILE_TRANSFER_ARMED", "1")
+    monkeypatch.setenv("SISTER_AUTOCHAT", "0")
+
+    rc = transfer_cli.main(
+        [
+            "--env-file",
+            str(env_file),
+            "--file",
+            str(first),
+            "--file",
+            str(second),
+            "--include-payload",
+            "--split-files",
+            "--send-attempts",
+            "3",
+            "--send",
+            "--confirm",
+            FILE_TRANSFER_CONFIRM_PHRASE,
+        ]
+    )
+    stdout = capsys.readouterr().out
+    payload = json.loads(stdout)
+
+    assert rc == 2
+    assert len(calls) == 1
+    assert payload["result"]["failed_index"] == 1
+    assert payload["results"][0]["attempt_count"] == 1
+    assert [item["status"] for item in payload["results"][0]["attempts"]] == [400]
+    assert "shared-secret" not in stdout
+
+
+def test_cli_split_send_exhausts_transport_retries_before_stopping(monkeypatch, tmp_path, capsys):
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(
+            [
+                "SISTER_NODE_URL=http://sister.local",
+                "SISTER_SYNC_TOKEN=shared-secret",
+                "ESTER_NODE_ID=ester-test",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    first = tmp_path / "first.txt"
+    second = tmp_path / "second.txt"
+    first.write_text("alpha", encoding="utf-8")
+    second.write_text("beta", encoding="utf-8")
+    calls = []
+
+    def fake_send(request):
+        calls.append(request)
+        return {"ok": False, "status": 0, "body": {"error": "TimeoutError"}}
+
+    monkeypatch.setattr(transfer_cli, "send_prepared_request", fake_send)
+    monkeypatch.setattr(transfer_cli.time, "sleep", lambda value: None)
+    monkeypatch.setenv("SISTER_FILE_TRANSFER", "1")
+    monkeypatch.setenv("SISTER_FILE_TRANSFER_ARMED", "1")
+    monkeypatch.setenv("SISTER_AUTOCHAT", "0")
+
+    rc = transfer_cli.main(
+        [
+            "--env-file",
+            str(env_file),
+            "--file",
+            str(first),
+            "--file",
+            str(second),
+            "--include-payload",
+            "--split-files",
+            "--send-attempts",
+            "3",
+            "--send",
+            "--confirm",
+            FILE_TRANSFER_CONFIRM_PHRASE,
+        ]
+    )
+    stdout = capsys.readouterr().out
+    payload = json.loads(stdout)
+
+    assert rc == 2
+    assert len(calls) == 3
+    assert payload["result"]["failed_index"] == 1
+    assert len(payload["results"]) == 1
+    assert payload["results"][0]["attempt_count"] == 3
+    assert [item["status"] for item in payload["results"][0]["attempts"]] == [0, 0, 0]
+    assert "shared-secret" not in stdout
+
+
 def test_cli_chunk_files_dry_run_creates_index_and_chunks(tmp_path):
     env_file = tmp_path / ".env"
     env_file.write_text(

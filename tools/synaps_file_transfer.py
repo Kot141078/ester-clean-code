@@ -17,6 +17,7 @@ import hashlib
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -166,6 +167,24 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Directory for generated chunk bundle. Defaults to data/synaps/file_transfer_chunks/outbox/<id>.",
     )
+    parser.add_argument(
+        "--send-attempts",
+        type=int,
+        default=1,
+        help="Bounded attempts per manifest; retries only transport-level status=0 failures.",
+    )
+    parser.add_argument(
+        "--send-retry-delay-sec",
+        type=float,
+        default=0.0,
+        help="Delay between retry attempts for one manifest.",
+    )
+    parser.add_argument(
+        "--send-delay-sec",
+        type=float,
+        default=0.0,
+        help="Delay between split manifest sends after a successful manifest.",
+    )
     parser.add_argument("--send", action="store_true", help="Actually POST the manifest.")
     parser.add_argument("--confirm", default="", help=f"Required for --send: {FILE_TRANSFER_CONFIRM_PHRASE}")
     args = parser.parse_args(raw_argv)
@@ -174,6 +193,9 @@ def main(argv: list[str] | None = None) -> int:
     config = config_from_env(env)
     policy = FileTransferPolicy.from_env(env)
     status = file_transfer_arm_status(env)
+    send_attempts = _bounded_int(str(args.send_attempts), default=1, minimum=1, maximum=5)
+    retry_delay_sec = _bounded_float(str(args.send_retry_delay_sec), default=0.0, minimum=0.0, maximum=30.0)
+    manifest_delay_sec = _bounded_float(str(args.send_delay_sec), default=0.0, minimum=0.0, maximum=30.0)
 
     try:
         chunked: dict[str, Any] | None = None
@@ -267,6 +289,12 @@ def main(argv: list[str] | None = None) -> int:
             "manifest_count": len(manifests),
         },
         "chunked": chunked,
+        "send_policy": {
+            "attempts": send_attempts,
+            "retry_delay_sec": retry_delay_sec,
+            "manifest_delay_sec": manifest_delay_sec,
+            "retry_on_status": [0],
+        },
         "transfers": transfer_records,
         "request": redacted_file_request_summary(requests[0], config) if len(requests) == 1 else None,
         "requests": [redacted_file_request_summary(request, config) for request in requests],
@@ -283,13 +311,20 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         results = []
         for index, request in enumerate(requests, start=1):
-            item = redacted_send_result(send_prepared_request(request), config.sync_token)
+            item = _send_prepared_request_with_retries(
+                request,
+                token=config.sync_token,
+                attempts=send_attempts,
+                retry_delay_sec=retry_delay_sec,
+            )
             results.append(item)
             if not item.get("ok"):
                 output["ok"] = False
                 output["results"] = results
                 output["result"] = {"ok": False, "failed_index": index, "items": results}
                 break
+            if index < len(requests) and manifest_delay_sec:
+                time.sleep(manifest_delay_sec)
         else:
             output["results"] = results
             output["result"] = (
@@ -298,6 +333,36 @@ def main(argv: list[str] | None = None) -> int:
 
     print(json.dumps(redacted_send_result(output, config.sync_token), ensure_ascii=False, indent=2, sort_keys=True))
     return 0 if output.get("ok") else 2
+
+
+def _send_prepared_request_with_retries(
+    request: "SynapsPreparedRequest",
+    *,
+    token: str,
+    attempts: int,
+    retry_delay_sec: float,
+) -> dict[str, Any]:
+    safe_attempts = _bounded_int(str(attempts), default=1, minimum=1, maximum=5)
+    delay_sec = _bounded_float(str(retry_delay_sec), default=0.0, minimum=0.0, maximum=30.0)
+    attempt_records: list[dict[str, Any]] = []
+    for attempt_index in range(1, safe_attempts + 1):
+        item = redacted_send_result(send_prepared_request(request), token)
+        attempt_records.append(item)
+        if item.get("ok") or not _should_retry_send(item) or attempt_index == safe_attempts:
+            result = dict(item)
+            result["attempt_count"] = attempt_index
+            result["attempts"] = attempt_records
+            return result
+        if delay_sec:
+            time.sleep(delay_sec)
+    result = dict(attempt_records[-1])
+    result["attempt_count"] = len(attempt_records)
+    result["attempts"] = attempt_records
+    return result
+
+
+def _should_retry_send(result: Mapping[str, Any]) -> bool:
+    return int(result.get("status") or 0) == 0
 
 
 def _redact_manifest_content(content: str) -> str:
@@ -448,6 +513,14 @@ def _effective_chunk_index_target(target_index_bytes: int) -> int:
 def _bounded_int(raw: str | None, *, default: int, minimum: int, maximum: int) -> int:
     try:
         value = int(raw) if raw is not None else default
+    except (TypeError, ValueError):
+        value = default
+    return max(minimum, min(maximum, value))
+
+
+def _bounded_float(raw: str | None, *, default: float, minimum: float, maximum: float) -> float:
+    try:
+        value = float(raw) if raw is not None else default
     except (TypeError, ValueError):
         value = default
     return max(minimum, min(maximum, value))
