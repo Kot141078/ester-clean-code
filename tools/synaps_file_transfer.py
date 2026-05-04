@@ -390,7 +390,7 @@ def _prepare_chunk_bundle(
             "expected_size": total,
         },
     }
-    index_path.write_text(json.dumps(index_record, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    index_path.write_text(json.dumps(index_record, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
     index_size = index_path.stat().st_size
     return {
         "schema": index_record["schema"],
@@ -471,7 +471,7 @@ def _estimated_chunk_index_size(payload: bytes, *, source_name: str, relative_na
         )
     record = {
         "schema": "ester.synaps.file_transfer_chunks.v1",
-        "transfer_id": "synaps-chunks-estimate",
+        "transfer_id": "synaps-chunks-00000000-0000-0000-0000-000000000000",
         "source_name": relative_name,
         "source_size": total,
         "source_sha256": _sha256_bytes(payload),

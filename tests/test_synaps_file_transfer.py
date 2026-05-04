@@ -472,9 +472,59 @@ def test_cli_auto_chunk_bytes_avoids_large_chunk_index(tmp_path):
     assert payload["chunked"]["chunk_bytes"] == 3000
     assert payload["chunked"]["chunk_count"] == 10
     assert payload["chunked"]["index_size"] <= 4096
+    assert payload["chunked"]["index_size"] <= payload["chunked"]["chunk_index_effective_target_bytes"]
     assert index["chunk_bytes"] == 3000
     assert index["chunk_count"] == 10
     assert index_path.stat().st_size <= 4096
+    assert "shared-secret" not in result.stdout
+
+
+def test_cli_auto_chunk_bytes_uses_realistic_index_id_headroom(tmp_path):
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(
+            [
+                "SISTER_NODE_URL=http://sister.local",
+                "SISTER_SYNC_TOKEN=shared-secret",
+                "ESTER_NODE_ID=ester-test",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    source = tmp_path / "0001-feat-add-codex-gate-dashboard.patch"
+    source.write_text("a" * 17175, encoding="utf-8")
+    out_dir = tmp_path / "chunks-out"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "tools/synaps_file_transfer.py",
+            "--env-file",
+            str(env_file),
+            "--file",
+            str(source),
+            "--kind",
+            "codex_contract",
+            "--note",
+            "realistic index headroom",
+            "--chunk-files",
+            "--chunk-bytes",
+            "1200",
+            "--auto-chunk-bytes",
+            "--chunk-index-target-bytes",
+            "4096",
+            "--chunk-out-dir",
+            str(out_dir),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    payload = json.loads(result.stdout)
+
+    assert payload["ok"] is True
+    assert payload["chunked"]["index_size"] <= payload["chunked"]["chunk_index_effective_target_bytes"]
+    assert payload["chunked"]["index_size"] <= 4096
     assert "shared-secret" not in result.stdout
 
 
