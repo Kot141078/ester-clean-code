@@ -1,0 +1,6 @@
+# SHA256SUMS - C-node profile v0.1
+# Date: 2026-05-13
+# Scope: ECC minimum C-node profile placement.
+87786d12c199e7e3f163ad5a1ba668b6f656be761979726fb0af2f935bece6ba  docs/profiles/MINIMUM_C_NODE_PROFILE_v0.1.md
+f09682e5da7ef077b2155043289708f2c1ed4eee4590eba4d5257da28b698873  docs/profiles/README.md
+bdec8e51054a733abee1c541f821dbd3b825027f8e3051ad3dc50e8eb6f32217  docs/profiles/pdf/Minimum_C-Node_Profile_v0.1_academic.pdf

@@ -49,6 +49,19 @@ executable operational skeleton / runtime proof-of-possibility / local-first con
 - ECC role:
   - implementation-facing pointer layer only; canonical AGL payload remains in ERB
 
+## Minimum C-node profile v0.1
+
+- markdown:
+  - `docs/profiles/MINIMUM_C_NODE_PROFILE_v0.1.md`
+- pdf:
+  - `docs/profiles/pdf/Minimum_C-Node_Profile_v0.1_academic.pdf`
+- manifest:
+  - `docs/profiles/hashes/SHA256SUMS_cnode_profile_v0.1_2026-05-13.txt`
+- role:
+  - practical profile for local-first `c` runtime / operational lower bounds
+- boundary:
+  - not a commercial product spec, legal regime, rights charter, or final implementation standard
+
 ## Corpus refs
 
 - `https://raw.githubusercontent.com/Kot141078/advanced-global-intelligence/main/CORPUS_PRIMER.json`
@@ -115,6 +128,7 @@ executable operational skeleton / runtime proof-of-possibility / local-first con
 
 - `README.md`
 - `MACHINE_ENTRY.md`
+- `docs/profiles/README.md`
 - `docs/ENTITY_GOVERNS_AGENTS.md`
 - `docs/architecture/glitch-stack/INDEX.md`
 

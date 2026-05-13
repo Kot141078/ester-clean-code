@@ -68,6 +68,7 @@ For code-facing work, tools like Codex work best when code and documents are rea
 
 - `glitch-stack implementation subtree` — canonical here for the implementation-facing package entry. Path: `docs/architecture/glitch-stack/INDEX.md`
 - `ARL implementation pack` — canonical here; ECC-facing arbitration and review bridge. Path: `docs/architecture/arbitration-review-layer/README.md`
+- `Minimum C-Node Profile v0.1` — practical profile for local-first `c` runtime lower bounds. Path: `docs/profiles/MINIMUM_C_NODE_PROFILE_v0.1.md` | PDF: `docs/profiles/pdf/Minimum_C-Node_Profile_v0.1_academic.pdf`
 - `ENTITY_GOVERNS_AGENTS note` — canonical here; entity and agent hierarchy note. Path: `docs/ENTITY_GOVERNS_AGENTS.md`
 
 ### Actor Grounding Layer (AGL) v0.1
@@ -270,6 +271,12 @@ See `docs/SELF_EVO_OPTIN.md` for full prerequisites, controls, and operator chec
 
 - Economic Layer for Experience Artifacts (canonical in AGI; ECC is implementation-facing and pointer-only here): https://github.com/Kot141078/advanced-global-intelligence/tree/main/docs/economic-layer
 - Pre-Lineage Boundary Note (reserved cross-stack boundary note; pointer only here): https://github.com/Kot141078/advanced-global-intelligence/blob/main/manifesto/Pre_Lineage_Boundary_Note_v0.1.md
+
+## Minimum C-Node Profile v0.1
+
+`docs/profiles/MINIMUM_C_NODE_PROFILE_v0.1.md` maps ontology into practical runtime surfaces: local raw custody, memory, permissions, witness, budgets, oracle routing, backup/restore, stop/freeze, and human-readable control.
+
+It is not a commercial product spec, legal regime, rights charter, or final implementation standard.
 
 ## Continuity Bundle / Cold Wake v0.1 (canonical in AGI)
 
