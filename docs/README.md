@@ -29,7 +29,7 @@
 
 - Onboarding: `QUICKSTART.md`, then `ARCHITECTURE.md`.
 - Policy review: `L4W_ALIGNMENT.md`, then `THREAT_MODEL.md`.
-- Profiles: `profiles/README.md`.
+- Profiles: `profiles/README.md`; the minimum C-node profile is the implementation/profile companion to the AGI-led package facade at https://github.com/Kot141078/advanced-global-intelligence/blob/main/docs/c-node-boundary-docs/README.md.
 - Opt-in autonomy: `SELF_EVO_OPTIN.md` for exact env checklist and fail-closed examples.
 - Quick operator snippet: see `README.md` section `Opt-in Autonomy (Disabled By Default)`.
 - Release prep: `RELEASE_CHECKLIST.md` end to end.

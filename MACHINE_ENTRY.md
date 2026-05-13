@@ -59,6 +59,9 @@ executable operational skeleton / runtime proof-of-possibility / local-first con
   - `docs/profiles/hashes/SHA256SUMS_cnode_profile_v0.1_2026-05-13.txt`
 - role:
   - practical profile for local-first `c` runtime / operational lower bounds
+- agi_package_facade:
+  - `https://github.com/Kot141078/advanced-global-intelligence/blob/main/docs/c-node-boundary-docs/README.md`
+  - relationship: implementation/profile companion to the AGI-led C-node boundary package facade
 - boundary:
   - not a commercial product spec, legal regime, rights charter, or final implementation standard
 

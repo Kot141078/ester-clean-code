@@ -69,6 +69,7 @@ For code-facing work, tools like Codex work best when code and documents are rea
 - `glitch-stack implementation subtree` — canonical here for the implementation-facing package entry. Path: `docs/architecture/glitch-stack/INDEX.md`
 - `ARL implementation pack` — canonical here; ECC-facing arbitration and review bridge. Path: `docs/architecture/arbitration-review-layer/README.md`
 - `Minimum C-Node Profile v0.1` — practical profile for local-first `c` runtime lower bounds. Path: `docs/profiles/MINIMUM_C_NODE_PROFILE_v0.1.md` | PDF: `docs/profiles/pdf/Minimum_C-Node_Profile_v0.1_academic.pdf`
+- `AGI C-Node Boundary Documents v0.1.1` — AGI-led package facade for the minimum C-node profile companion. Path: https://github.com/Kot141078/advanced-global-intelligence/blob/main/docs/c-node-boundary-docs/README.md
 - `ENTITY_GOVERNS_AGENTS note` — canonical here; entity and agent hierarchy note. Path: `docs/ENTITY_GOVERNS_AGENTS.md`
 
 ### Actor Grounding Layer (AGL) v0.1
@@ -275,6 +276,8 @@ See `docs/SELF_EVO_OPTIN.md` for full prerequisites, controls, and operator chec
 ## Minimum C-Node Profile v0.1
 
 `docs/profiles/MINIMUM_C_NODE_PROFILE_v0.1.md` maps ontology into practical runtime surfaces: local raw custody, memory, permissions, witness, budgets, oracle routing, backup/restore, stop/freeze, and human-readable control.
+
+It is the implementation/profile companion to the AGI-led C-node boundary package facade: https://github.com/Kot141078/advanced-global-intelligence/blob/main/docs/c-node-boundary-docs/README.md
 
 It is not a commercial product spec, legal regime, rights charter, or final implementation standard.
 
