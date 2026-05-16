@@ -36,6 +36,10 @@ mutagen>=1.47
 # --- NLP ---
 sentence-transformers==2.7.0
 
+# --- Multimodal I/O ---
+faster-whisper>=1.2,<2
+edge-tts>=7.2,<8
+
 # --- Security (Ed25519/HMAC utils) ---
 PyNaCl>=1.5.0
 tokenizers==0.20.3
