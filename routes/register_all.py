@@ -62,6 +62,7 @@ def register(app: Any) -> Any:
         "routes.health_routes",
         "routes.docs_routes",
         "routes.memory_routes",
+        "routes.capability_router_routes",
         "routes.telegram_routes",
         "routes.whatsapp_routes",
         "routes.chat_api_routes",

@@ -17,6 +17,7 @@ ROUTE_MODULES: Sequence[str] = [
     "routes.mem_kg_routes",
     "routes.research_routes",
     "routes.routes_trace",
+    "routes.capability_router_routes",
     # Iter18-20 runtime/perimeter
     "routes.dreams_routes",
     "routes.initiative_routes",
