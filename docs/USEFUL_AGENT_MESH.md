@@ -45,9 +45,14 @@ ESTER_AGENT_SUPERVISOR_ENABLED=0
 ESTER_AGENT_ROLE_POOL_ENABLED=0
 ESTER_AGENT_ROLE_PREWARM_ENABLED=0
 ESTER_AGENT_WINDOW_AUTO_ENABLED=0
+ESTER_PROACTIVITY_LEGACY_AGENT_QUEUE_ENABLED=0
 ```
 
 The useful mesh scheduler opens its own short execution window only when it has queued bounded work.
+
+When the useful mesh is enabled, legacy `proactivity_enqueue:*` agent queue writes are held in `plan_only` unless
+`ESTER_PROACTIVITY_LEGACY_AGENT_QUEUE_ENABLED=1` is set. The lower-level queue also rejects direct proactivity
+enqueue attempts that do not carry `plan.meta.governed_mesh=true`.
 
 ## Files
 

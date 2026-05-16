@@ -49,7 +49,26 @@ def _slot_b_fail_max() -> int:
 def _enqueue_enabled() -> bool:
     env_primary = _truthy(os.getenv("ESTER_PROACTIVITY_ENQUEUE_ENABLED", "1"))
     env_compat = _truthy(os.getenv("ESTER_PROACTIVITY_REAL_ACTIONS_ENABLED", "1"))
-    return bool(env_primary and env_compat)
+    return bool(env_primary and env_compat and not _legacy_queue_blocked_by_useful_mesh())
+
+
+def _legacy_proactivity_agent_queue_enabled() -> bool:
+    return _truthy(os.getenv("ESTER_PROACTIVITY_LEGACY_AGENT_QUEUE_ENABLED", "0"))
+
+
+def _legacy_queue_blocked_by_useful_mesh() -> bool:
+    useful_mesh = _truthy(os.getenv("ESTER_USEFUL_AGENT_MESH_ENABLED", "0"))
+    return bool(useful_mesh and not _legacy_proactivity_agent_queue_enabled())
+
+
+def _enqueue_disabled_reason() -> str:
+    env_primary = _truthy(os.getenv("ESTER_PROACTIVITY_ENQUEUE_ENABLED", "1"))
+    env_compat = _truthy(os.getenv("ESTER_PROACTIVITY_REAL_ACTIONS_ENABLED", "1"))
+    if not env_primary or not env_compat:
+        return "enqueue_disabled_by_env"
+    if _legacy_queue_blocked_by_useful_mesh():
+        return "legacy_proactivity_agent_queue_blocked_by_governed_mesh"
+    return ""
 
 
 def _allow_enqueue_in_slot_a() -> bool:
@@ -723,9 +742,10 @@ def _run_once_core(
     if _SLOTB_DISABLED:
         effective_mode = "plan_only"
         mode_reasons.append("slot_b_disabled_in_process")
-    if not _enqueue_enabled():
+    enqueue_disabled_reason = _enqueue_disabled_reason()
+    if enqueue_disabled_reason:
         effective_mode = "plan_only"
-        mode_reasons.append("enqueue_disabled_by_env")
+        mode_reasons.append(enqueue_disabled_reason)
     if fallback_reason:
         mode_reasons.append(str(fallback_reason))
 

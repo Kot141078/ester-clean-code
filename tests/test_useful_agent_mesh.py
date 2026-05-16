@@ -73,6 +73,48 @@ def test_enqueue_due_tasks_are_contractual_and_bounded(tmp_path, monkeypatch):
         assert plan["meta"]["governed_mesh"] is True
 
 
+def test_legacy_proactivity_enqueue_is_denied_without_governed_mesh_contract(tmp_path, monkeypatch):
+    monkeypatch.setenv("PERSIST_DIR", str(tmp_path))
+    monkeypatch.delenv("ESTER_PROACTIVITY_LEGACY_AGENT_QUEUE_ENABLED", raising=False)
+    monkeypatch.setenv("ESTER_VOLITION_SLOT", "A")
+    monkeypatch.setattr(agent_queue, "_agent_enabled_state", lambda aid: True)
+    monkeypatch.setattr(agent_queue, "_agent_requires_approval", lambda aid: None)
+
+    rep = agent_queue.enqueue(
+        {
+            "plan_id": "plan_legacy_proactivity",
+            "steps": [{"action": "messages.outbox.enqueue", "args": {"text": "legacy"}}],
+            "meta": {"plan_kind": "repair_follow_up"},
+        },
+        queue_id="q_legacy_proactivity",
+        agent_id="agent_legacy",
+        actor="ester",
+        reason="proactivity_enqueue:initiative_legacy",
+        challenge_sec=0,
+    )
+
+    assert rep["ok"] is False
+    assert rep["error"] == "legacy_proactivity_queue_denied"
+    assert agent_queue.fold_state()["live_total"] == 0
+
+
+def test_governed_mesh_enqueue_is_still_allowed_with_proactivity_gate(tmp_path, monkeypatch):
+    monkeypatch.setenv("PERSIST_DIR", str(tmp_path))
+    monkeypatch.delenv("ESTER_PROACTIVITY_LEGACY_AGENT_QUEUE_ENABLED", raising=False)
+    monkeypatch.setenv("ESTER_USEFUL_AGENT_MESH_ROLES", "sentinel")
+    monkeypatch.setenv("ESTER_VOLITION_SLOT", "A")
+
+    governed_mesh.reconcile(create_missing=True)
+    rep = governed_mesh.enqueue_due_tasks(force=True)
+
+    assert rep["ok"] is True
+    assert rep["enqueued_total"] == 1
+    state = agent_queue.fold_state()
+    assert state["live_total"] == 1
+    item = state["live"][0]
+    assert item["plan"]["meta"]["governed_mesh"] is True
+
+
 def test_role_report_runs_through_agent_runner(tmp_path, monkeypatch):
     monkeypatch.setenv("PERSIST_DIR", str(tmp_path))
     monkeypatch.setenv("ESTER_USEFUL_AGENT_MESH_ROLES", "sentinel")

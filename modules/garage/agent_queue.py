@@ -78,6 +78,34 @@ def _as_bool(value: Any, default: bool = False) -> bool:
     return bool(default)
 
 
+def _env_bool(name: str, default: bool = False) -> bool:
+    raw = os.getenv(str(name or ""), "")
+    if str(raw).strip() == "":
+        return bool(default)
+    return _as_bool(raw, default)
+
+
+def _plan_is_governed_mesh(plan: Any) -> bool:
+    if not isinstance(plan, dict):
+        return False
+    meta = plan.get("meta")
+    if not isinstance(meta, dict):
+        return False
+    return bool(meta.get("governed_mesh"))
+
+
+def _is_legacy_proactivity_enqueue(*, actor: str, reason: str) -> bool:
+    clean_actor = str(actor or "").strip().lower()
+    clean_reason = str(reason or "").strip().lower()
+    if not (clean_actor == "ester" or clean_actor.startswith("ester:")):
+        return False
+    return clean_reason.startswith("proactivity_enqueue:")
+
+
+def _legacy_proactivity_queue_allowed() -> bool:
+    return _env_bool("ESTER_PROACTIVITY_LEGACY_AGENT_QUEUE_ENABLED", False)
+
+
 def _template_requires_approval(template_id: str) -> Optional[bool]:
     tid = str(template_id or "").strip()
     if not tid:
@@ -470,6 +498,21 @@ def enqueue(
     normalized_plan = prep.get("plan")
     if not isinstance(normalized_plan, dict):
         normalized_plan = {"steps": []}
+
+    if (
+        _is_legacy_proactivity_enqueue(actor=actor, reason=reason)
+        and not _plan_is_governed_mesh(normalized_plan)
+        and not _legacy_proactivity_queue_allowed()
+    ):
+        return {
+            "ok": False,
+            "error": "legacy_proactivity_queue_denied",
+            "error_code": "LEGACY_PROACTIVITY_QUEUE_DENIED",
+            "reason": "direct proactivity enqueue requires governed_mesh task contract",
+            "slot": _slot(),
+            "plan_hash": str(prep.get("plan_hash") or ""),
+            "requires_governed_mesh": True,
+        }
 
     qid = str(queue_id or ("q_" + uuid.uuid4().hex[:12])).strip()
     now = _now_ts()
