@@ -886,6 +886,14 @@ def _run_once_core(
 
     elapsed_ms = int((time.monotonic() - t0) * 1000.0)
     if elapsed_ms > int(budgets.get("max_work_ms") or 0):
+        _mark_processed(
+            dry=dry,
+            initiative_id=initiative_id,
+            status="planned_timeout",
+            note="max_work_ms_exceeded",
+            agent_id="",
+            chain_id=chain_id,
+        )
         out["ok"] = True
         out["reason"] = "max_work_ms_exceeded"
         out["error"] = ""
