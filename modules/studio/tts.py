@@ -12,7 +12,7 @@ Prakticheski - “mikrofon v korobke”: esli est edge-tts ili coqui - zagovorim
 
 # c=a+b"""
 from __future__ import annotations
-import os, json, time, subprocess, tempfile, wave, struct, math, shutil
+import os, json, time, subprocess, tempfile, wave, struct, math, shutil, sys
 from typing import Any, Dict, List
 from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
@@ -42,6 +42,14 @@ def _passport(note: str, meta: dict) -> None:
 def _have(cmd: str) -> bool:
     return shutil.which(cmd.split(" ")[0]) is not None
 
+def _python_bin() -> str:
+    venv = os.getenv("VIRTUAL_ENV", "").strip()
+    if venv:
+        candidate = os.path.join(venv, "Scripts", "python.exe")
+        if os.path.isfile(candidate):
+            return candidate
+    return sys.executable or "python"
+
 def _mp3_to_wav(mp3_path: str, wav_path: str) -> bool:
     if not _have(FFMPEG): return False
     try:
@@ -52,9 +60,10 @@ def _mp3_to_wav(mp3_path: str, wav_path: str) -> bool:
         return False
 
 def _edge_tts(text: str, voice: str | None, out_wav: str) -> bool:
-    if not _have("python"): return False
+    py = _python_bin()
+    if not (os.path.isfile(py) or _have(py)): return False
     tmp_mp3 = out_wav.replace(".wav", ".mp3")
-    cmd = ["python", "-m", "edge_tts", "--text", text]
+    cmd = [py, "-m", "edge_tts", "--text", text]
     if voice: cmd += ["--voice", voice]
     cmd += ["--write-media", tmp_mp3]
     try:
@@ -190,7 +199,6 @@ def drama(title: str, roles: List[Dict[str, Any]], script: List[Dict[str, Any]])
 
 # Exports for other modules
 # __all__ = ["_speech", "concat_wavs", "drama"]
-
 
 
 
