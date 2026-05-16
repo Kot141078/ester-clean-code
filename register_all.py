@@ -45,6 +45,7 @@ _ROUTE_MODULES_FALLBACK: Sequence[str] = [
     "routes.docs_routes",
     "routes.memory_routes",
     "routes.capability_router_routes",
+    "routes.useful_agent_mesh_routes",
     "routes.dreams_routes",
     "routes.metrics_prom",
     "routes.runtime_ab_routes",

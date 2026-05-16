@@ -4,7 +4,7 @@ from __future__ import annotations
 import os
 import time
 import uuid
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from modules.garage import agent_factory, agent_queue, agent_runner
 from modules.runtime import execution_window
@@ -66,7 +66,28 @@ def _journal(
     return row
 
 
-def tick_once(*, actor: str = "ester", reason: str = "", dry_run: bool = False) -> Dict[str, Any]:
+def _queue_item_is_governed_mesh(item: Dict[str, Any]) -> bool:
+    meta = dict((dict(item or {}).get("plan") or {}).get("meta") or {})
+    return bool(meta.get("governed_mesh"))
+
+
+def _governed_mesh_only_state(state: Dict[str, Any]) -> Dict[str, Any]:
+    out = dict(state or {})
+    items = [dict(x or {}) for x in list(out.get("items") or []) if _queue_item_is_governed_mesh(dict(x or {}))]
+    out["items"] = items
+    out["live"] = [row for row in items if str(row.get("status") or "") in {"enqueued", "claimed", "running"}]
+    out["live_total"] = len(out["live"])
+    return out
+
+
+def tick_once(
+    *,
+    actor: str = "ester",
+    reason: str = "",
+    dry_run: bool = False,
+    skip_maintenance: bool = False,
+    only_governed_mesh: bool = False,
+) -> Dict[str, Any]:
     start_mon = time.monotonic()
     now = int(time.time())
     clean_actor = str(actor or "ester").strip() or "ester"
@@ -74,10 +95,13 @@ def tick_once(*, actor: str = "ester", reason: str = "", dry_run: bool = False) 
     chain_id = "chain_supervisor_" + uuid.uuid4().hex[:10]
     maintenance: Dict[str, Any] = {}
 
-    try:
-        maintenance = agent_factory.garage_maintenance(actor=clean_actor)
-    except Exception as exc:
-        maintenance = {"ok": False, "error": f"maintenance_failed:{exc.__class__.__name__}"}
+    if bool(skip_maintenance):
+        maintenance = {"ok": True, "skipped": True, "reason": "caller_skip_maintenance"}
+    else:
+        try:
+            maintenance = agent_factory.garage_maintenance(actor=clean_actor)
+        except Exception as exc:
+            maintenance = {"ok": False, "error": f"maintenance_failed:{exc.__class__.__name__}"}
 
     if not _actor_allowed(clean_actor):
         _journal(
@@ -124,6 +148,8 @@ def tick_once(*, actor: str = "ester", reason: str = "", dry_run: bool = False) 
         }
 
     state = agent_queue.fold_state()
+    if bool(only_governed_mesh):
+        state = _governed_mesh_only_state(state)
     selected = agent_queue.select_next(now_ts=now, state=state)
     if not bool(selected.get("found")):
         sel_reason = str(selected.get("reason") or "queue_empty")
@@ -440,4 +466,48 @@ def tick_once(*, actor: str = "ester", reason: str = "", dry_run: bool = False) 
     }
 
 
-__all__ = ["tick_once"]
+def drain(
+    *,
+    actor: str = "ester",
+    reason: str = "",
+    dry_run: bool = False,
+    max_runs: int = 1,
+    skip_maintenance: bool = False,
+    only_governed_mesh: bool = False,
+) -> Dict[str, Any]:
+    limit = max(1, int(max_runs or 1))
+    results: List[Dict[str, Any]] = []
+    last_rep: Dict[str, Any] = {}
+    for _ in range(limit):
+        rep = dict(
+            tick_once(
+                actor=actor,
+                reason=reason,
+                dry_run=dry_run,
+                skip_maintenance=skip_maintenance,
+                only_governed_mesh=only_governed_mesh,
+            )
+            or {}
+        )
+        last_rep = rep
+        if bool(rep.get("ran")):
+            results.append(rep)
+            continue
+        break
+    out: Dict[str, Any] = {
+        "ok": bool(last_rep.get("ok", True) if last_rep else True),
+        "ran": bool(results),
+        "runs_count": len(results),
+        "queue_ids": [str(x.get("queue_id") or "") for x in results if str(x.get("queue_id") or "").strip()],
+        "agent_ids": [str(x.get("agent_id") or "") for x in results if str(x.get("agent_id") or "").strip()],
+        "results": results,
+        "last": last_rep,
+    }
+    if last_rep:
+        for key in ("blocked", "idle", "error", "reason", "policy_hit", "chain_id", "window_id"):
+            if key in last_rep and key not in out:
+                out[key] = last_rep.get(key)
+    return out
+
+
+__all__ = ["tick_once", "drain"]

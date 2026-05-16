@@ -1036,6 +1036,10 @@ def _exec_action(agent_id: str, action_id: str, args: Dict[str, Any], gate: Any,
         return _exec_files_sandbox_write(agent_id, args)
     if action_id == "files.sha256_verify":
         return _exec_files_sha256_verify(agent_id, args)
+    if action_id == "governed_mesh.role_report":
+        from modules.agents import governed_mesh
+
+        return governed_mesh.role_report(agent_id, args)
     if action_id in {
         "plan.build",
         "memory.add_note",

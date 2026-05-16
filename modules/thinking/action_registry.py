@@ -22,6 +22,7 @@ _EXTRA_EXEC_ACTIONS = {
     "files.sha256_verify",
     "plan.build",
     "oracle.openai.call",
+    "governed_mesh.role_report",
     "local.search",
     "local.extract",
     "local.crosscheck",

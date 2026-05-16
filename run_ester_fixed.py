@@ -95,6 +95,10 @@ try:
 except Exception:
     _agent_supervisor = None  # type: ignore
 try:
+    from modules.agents import governed_mesh as _governed_mesh  # type: ignore
+except Exception:
+    _governed_mesh = None  # type: ignore
+try:
     from modules.runtime import execution_window as _execution_window  # type: ignore
 except Exception:
     _execution_window = None  # type: ignore
@@ -895,6 +899,19 @@ ESTER_AGENT_SWARM_GOAL = (
     or "Maintain a safe planned contour and prepares steps for execution under operator supervision."
 )
 ESTER_AGENT_SWARM_NOTIFY_ON_CREATE = (os.getenv("ESTER_AGENT_SWARM_NOTIFY_ON_CREATE", "1").strip().lower() in ("1", "true", "yes", "y"))
+
+ESTER_USEFUL_AGENT_MESH_ENABLED = (os.getenv("ESTER_USEFUL_AGENT_MESH_ENABLED", "0").strip().lower() in ("1", "true", "yes", "y"))
+ESTER_USEFUL_AGENT_MESH_INTERVAL_SEC = max(60, int(os.getenv("ESTER_USEFUL_AGENT_MESH_INTERVAL_SEC", "300") or 300))
+ESTER_USEFUL_AGENT_MESH_DRAIN_BATCH = max(1, int(os.getenv("ESTER_USEFUL_AGENT_MESH_DRAIN_BATCH", "2") or 2))
+ESTER_USEFUL_AGENT_MESH_WINDOW_TTL_SEC = max(60, int(os.getenv("ESTER_USEFUL_AGENT_MESH_WINDOW_TTL_SEC", "300") or 300))
+ESTER_USEFUL_AGENT_MESH_WINDOW_BUDGET_SECONDS = max(
+    30,
+    int(os.getenv("ESTER_USEFUL_AGENT_MESH_WINDOW_BUDGET_SECONDS", "240") or 240),
+)
+ESTER_USEFUL_AGENT_MESH_WINDOW_BUDGET_ENERGY = max(
+    1,
+    int(os.getenv("ESTER_USEFUL_AGENT_MESH_WINDOW_BUDGET_ENERGY", "40") or 40),
+)
 
 ESTER_AGENT_SUPERVISOR_ENABLED = (os.getenv("ESTER_AGENT_SUPERVISOR_ENABLED", "1").strip().lower() in ("1", "true", "yes", "y"))
 ESTER_AGENT_SUPERVISOR_INTERVAL_SEC = max(10, int(os.getenv("ESTER_AGENT_SUPERVISOR_INTERVAL_SEC", "12") or 12))
@@ -4926,6 +4943,84 @@ async def _agent_supervisor_tick_job(context: ContextTypes.DEFAULT_TYPE) -> None
             logging.warning(f"[AGENT_SUPERVISOR] tick failed: {rep}")
     except Exception as e:
         logging.warning(f"[AGENT_SUPERVISOR] tick exception: {e}")
+
+
+_USEFUL_AGENT_MESH_TASK: Optional[asyncio.Task[Any]] = None
+
+
+async def _useful_agent_mesh_job(context: ContextTypes.DEFAULT_TYPE) -> None:
+    del context
+    if not ESTER_USEFUL_AGENT_MESH_ENABLED:
+        return
+    if _governed_mesh is None:
+        return
+    global _USEFUL_AGENT_MESH_TASK
+    task = _USEFUL_AGENT_MESH_TASK
+    if task is not None and not task.done():
+        return
+    _USEFUL_AGENT_MESH_TASK = asyncio.create_task(
+        _run_useful_agent_mesh_once(),
+        name="ester_useful_agent_mesh",
+    )
+
+
+async def _run_useful_agent_mesh_once() -> None:
+    if not ESTER_USEFUL_AGENT_MESH_ENABLED or _governed_mesh is None:
+        return
+    try:
+        rep = await asyncio.to_thread(_governed_mesh.maintain, enqueue_due=True, force_enqueue=False)
+        rec = dict(rep.get("reconcile") or {})
+        enq = dict(rep.get("enqueue") or {})
+        enqueued_total = int(enq.get("enqueued_total") or 0)
+        if int(rec.get("created_total") or 0) > 0 or enqueued_total > 0:
+            logging.info(
+                "[USEFUL_AGENT_MESH] registered=%s created=%s enqueued=%s",
+                int(rec.get("registered_total") or 0),
+                int(rec.get("created_total") or 0),
+                enqueued_total,
+            )
+        if enqueued_total <= 0:
+            return
+
+        if _execution_window is not None:
+            try:
+                cur = _execution_window.current_window()
+                if not bool(cur.get("open")):
+                    _execution_window.open_window(
+                        actor="ester:useful_mesh",
+                        reason="governed_mesh_scheduled_heartbeat",
+                        ttl_sec=int(ESTER_USEFUL_AGENT_MESH_WINDOW_TTL_SEC),
+                        budget_seconds=int(ESTER_USEFUL_AGENT_MESH_WINDOW_BUDGET_SECONDS),
+                        budget_energy=int(ESTER_USEFUL_AGENT_MESH_WINDOW_BUDGET_ENERGY),
+                        meta={"source": "useful_agent_mesh"},
+                    )
+            except Exception as e:
+                logging.warning(f"[USEFUL_AGENT_MESH] execution window open failed: {e}")
+
+        if _agent_supervisor is not None:
+            drain = await asyncio.to_thread(
+                _agent_supervisor.drain,
+                actor="ester:useful_mesh",
+                reason="governed_mesh_scheduled_heartbeat",
+                dry_run=False,
+                max_runs=int(ESTER_USEFUL_AGENT_MESH_DRAIN_BATCH),
+                skip_maintenance=True,
+                only_governed_mesh=True,
+            )
+            if int(drain.get("runs_count") or 0) > 0:
+                logging.info(
+                    "[USEFUL_AGENT_MESH] drained runs=%s queue_ids=%s agent_ids=%s",
+                    int(drain.get("runs_count") or 0),
+                    ", ".join(str(x) for x in list(drain.get("queue_ids") or [])[:8]),
+                    ", ".join(str(x) for x in list(drain.get("agent_ids") or [])[:8]),
+                )
+                _mirror_background_event(
+                    f"[USEFUL_AGENT_MESH] drained runs={drain.get('runs_count')} queue_ids={','.join(str(x) for x in list(drain.get('queue_ids') or [])[:4])}",
+                    "proactivity",
+                    "useful_agent_mesh",
+                )
+    except Exception as e:
+        logging.warning(f"[USEFUL_AGENT_MESH] tick exception: {e}")
 
 
 def _agent_approval_state_bucket(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -14593,6 +14688,32 @@ def main():
                 logging.info("[PROACTIVE] agent_approval=off")
         except Exception as e:
             logging.warning(f"[PROACTIVE] agent approval scheduler failed: {e}")
+
+        try:
+            if ESTER_USEFUL_AGENT_MESH_ENABLED and (_governed_mesh is not None):
+                useful_mesh_interval = max(60, int(ESTER_USEFUL_AGENT_MESH_INTERVAL_SEC))
+                app.job_queue.run_repeating(
+                    _useful_agent_mesh_job,
+                    interval=useful_mesh_interval,
+                    first=35,
+                    job_kwargs={
+                        "max_instances": 1,
+                        "coalesce": True,
+                        "misfire_grace_time": 120,
+                    },
+                )
+                logging.info(
+                    "[PROACTIVE] useful_agent_mesh=on interval=%ss drain_batch=%s task_interval=%s",
+                    int(useful_mesh_interval),
+                    int(ESTER_USEFUL_AGENT_MESH_DRAIN_BATCH),
+                    os.getenv("ESTER_USEFUL_AGENT_MESH_TASK_INTERVAL_SEC", "900"),
+                )
+            elif ESTER_USEFUL_AGENT_MESH_ENABLED:
+                logging.info("[PROACTIVE] useful_agent_mesh=off (module unavailable)")
+            else:
+                logging.info("[PROACTIVE] useful_agent_mesh=off")
+        except Exception as e:
+            logging.warning(f"[PROACTIVE] useful agent mesh scheduler failed: {e}")
 
         try:
             if ESTER_AGENT_SWARM_ENABLED:

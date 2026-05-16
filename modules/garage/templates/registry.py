@@ -21,6 +21,7 @@ CAPABILITY_ACTIONS: Dict[str, List[str]] = {
     "cap.messages.outbox": ["messages.outbox.enqueue"],
     "cap.messages.telegram": ["messages.telegram.send"],
     "cap.oracle.remote.call": ["llm.remote.call"],
+    "cap.governed_mesh.role_report": ["governed_mesh.role_report"],
 }
 
 # Template-stable IDs -> project action IDs.
@@ -45,6 +46,7 @@ STABLE_ACTION_ALIASES: Dict[str, List[str]] = {
     "route_return_lint": ["tools.route_return_lint", "checks.route_return_lint", "route_return_lint"],
     "agent.run_once": ["agent.run_once"],
     "llm.remote.call": ["oracle.openai.call", "llm.remote.call"],
+    "governed_mesh.role_report": ["governed_mesh.role_report"],
 }
 
 _DIRECT_RUNNER_ACTIONS = {
@@ -57,6 +59,7 @@ _DIRECT_RUNNER_ACTIONS = {
     "messages.outbox.enqueue",
     "messages.telegram.send",
     "oracle.openai.call",
+    "governed_mesh.role_report",
 }
 
 _BOOL_TRUE = {"1", "true", "yes", "on", "y"}

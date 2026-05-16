@@ -409,6 +409,21 @@ def _load_spec(agent_id: str) -> Dict[str, Any]:
     return {}
 
 
+def _safe_extra_spec_fields(raw_spec: Dict[str, Any]) -> Dict[str, Any]:
+    allowed = {
+        "governed_mesh_role",
+        "governed_mesh_profile",
+        "security_policy",
+        "task_contract_template",
+        "cli_agent_handshake_profile",
+    }
+    out: Dict[str, Any] = {}
+    for key in sorted(allowed):
+        if key in raw_spec:
+            out[key] = raw_spec.get(key)
+    return out
+
+
 def create_agent(spec: Any) -> Dict[str, Any]:
     raw_spec = dict(spec or {})
     strict = bool(_strict_enabled())
@@ -491,6 +506,7 @@ def create_agent(spec: Any) -> Dict[str, Any]:
     folder = _agent_folder(agent_id)
     spec_path = _spec_path(agent_id)
     payload = spec_obj.to_dict()
+    payload.update(_safe_extra_spec_fields(raw_spec))
     payload.update(
         {
             "agent_id": agent_id,
