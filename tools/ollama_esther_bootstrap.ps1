@@ -3,8 +3,11 @@ param(
     [string]$OllamaExe = "",
     [string]$PythonExe = "python",
     [string]$ProxyScript = "",
-    [string]$ModelName = "esther-qwen3-32b",
-    [string]$BaseModel = "qwen3:32b",
+    [string]$ModelName = "qwen2.5:32b",
+    [string]$BaseModel = "qwen2.5:32b",
+    [string]$VisionModel = "",
+    [int]$VisionPreload = 0,
+    [string]$VisionKeepAlive = "-1",
     [string]$Modelfile = "",
     [string]$OllamaApi = "http://127.0.0.1:11434",
     [string]$ProxyApi = "http://127.0.0.1:1234"
@@ -21,10 +24,6 @@ if ([string]::IsNullOrWhiteSpace($OllamaExe)) {
 if ([string]::IsNullOrWhiteSpace($ProxyScript)) {
     $ProxyScript = Join-Path $ProjectDir "tools\ollama_openai_proxy.py"
 }
-if ([string]::IsNullOrWhiteSpace($Modelfile)) {
-    $Modelfile = Join-Path $ProjectDir "tools\ollama_esther_qwen3_32b.Modelfile"
-}
-
 function Resolve-VenvBasePython {
     param(
         [string]$CandidatePython,
@@ -103,9 +102,14 @@ if ($LASTEXITCODE -ne 0) {
         }
     }
 
-    & $OllamaExe create $ModelName -f $Modelfile
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to create model: $ModelName"
+    if ($ModelName -ne $BaseModel) {
+        if ([string]::IsNullOrWhiteSpace($Modelfile)) {
+            throw "Modelfile is required when ModelName differs from BaseModel"
+        }
+        & $OllamaExe create $ModelName -f $Modelfile
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to create model: $ModelName"
+        }
     }
 }
 
@@ -120,7 +124,18 @@ foreach ($alias in @("local-model", "gpt-4o-mini")) {
     }
 }
 
-Write-Host "[4/5] Ensuring OpenAI-compat proxy is running..."
+Write-Host "[4/6] Ensuring vision model exists..."
+if (-not [string]::IsNullOrWhiteSpace($VisionModel)) {
+    & $OllamaExe show $VisionModel *> $null
+    if ($LASTEXITCODE -ne 0) {
+        & $OllamaExe pull $VisionModel
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to pull vision model: $VisionModel"
+        }
+    }
+}
+
+Write-Host "[5/6] Ensuring OpenAI-compat proxy is running..."
 $env:OLLAMA_BASE = $OllamaApi
 $env:OLLAMA_PROXY_PORT = "1234"
 $env:OLLAMA_PROXY_DEFAULT_MODEL = $ModelName
@@ -132,7 +147,7 @@ try {
     Wait-HttpOk -Uri "$ProxyApi/__proxy/health" -TimeoutSec 30
 }
 
-Write-Host "[5/5] Preloading model into GPU memory..."
+Write-Host "[6/6] Preloading model into GPU memory..."
 $body = @{
     model = $ModelName
     prompt = ""
@@ -140,3 +155,19 @@ $body = @{
     stream = $false
 } | ConvertTo-Json -Compress
 Invoke-RestMethod -Method Post -Uri "$OllamaApi/api/generate" -ContentType "application/json" -Body $body | Out-Null
+
+if ((-not [string]::IsNullOrWhiteSpace($VisionModel)) -and ($VisionPreload -eq 1)) {
+    $visionKeepAliveValue = $VisionKeepAlive
+    $visionKeepAliveInt = 0
+    if ([int]::TryParse($VisionKeepAlive, [ref]$visionKeepAliveInt)) {
+        $visionKeepAliveValue = $visionKeepAliveInt
+    }
+    $visionBody = @{
+        model = $VisionModel
+        messages = @(@{ role = "user"; content = "ok" })
+        keep_alive = $visionKeepAliveValue
+        stream = $false
+        options = @{ num_predict = 8 }
+    } | ConvertTo-Json -Depth 8 -Compress
+    Invoke-RestMethod -Method Post -Uri "$OllamaApi/api/chat" -ContentType "application/json" -Body $visionBody | Out-Null
+}
