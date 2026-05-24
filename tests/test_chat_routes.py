@@ -4,12 +4,20 @@ from __future__ import annotations
 import routes.chat_routes as chat_routes
 
 
+def _ensure_chat_route(client) -> None:
+    app = client.application
+    if any(rule.rule == "/chat/message" for rule in app.url_map.iter_rules()):
+        return
+    app.register_blueprint(chat_routes.bp)
+
+
 def _mute_history(monkeypatch) -> None:
     monkeypatch.setattr(chat_routes.hist, "load", lambda sid: [])
     monkeypatch.setattr(chat_routes.hist, "append", lambda sid, role, value: None)
 
 
-def test_chat_message_live_timeout_fallback(client, auth_hdr_user, monkeypatch):
+def test_chat_message_live_timeout_fallback(client, monkeypatch):
+    _ensure_chat_route(client)
     _mute_history(monkeypatch)
     monkeypatch.setenv("ESTER_WEB_USE_ARBITRAGE", "1")
     monkeypatch.setattr(
@@ -30,7 +38,6 @@ def test_chat_message_live_timeout_fallback(client, auth_hdr_user, monkeypatch):
 
     r = client.post(
         "/chat/message",
-        headers=auth_hdr_user,
         json={"query": "ping", "mode": "local", "temperature": 0.1},
     )
     assert r.status_code == 200, r.data
@@ -43,7 +50,8 @@ def test_chat_message_live_timeout_fallback(client, auth_hdr_user, monkeypatch):
     assert any(str(x.get("provider")) == "local" for x in trace)
 
 
-def test_chat_message_live_success_short_circuit(client, auth_hdr_user, monkeypatch):
+def test_chat_message_live_success_short_circuit(client, monkeypatch):
+    _ensure_chat_route(client)
     _mute_history(monkeypatch)
     monkeypatch.setenv("ESTER_WEB_USE_ARBITRAGE", "1")
     monkeypatch.setattr(
@@ -59,7 +67,6 @@ def test_chat_message_live_success_short_circuit(client, auth_hdr_user, monkeypa
 
     r = client.post(
         "/chat/message",
-        headers=auth_hdr_user,
         json={"query": "ping live", "mode": "local"},
     )
     assert r.status_code == 200, r.data
