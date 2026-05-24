@@ -49,3 +49,4 @@ python-telegram-bot>=20.0,<22
 # --- Test/CI ---
 pytest>=8.0
 pytz>=2024.1
+APScheduler>=3.10
