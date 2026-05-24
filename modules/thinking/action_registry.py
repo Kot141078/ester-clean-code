@@ -38,6 +38,53 @@ def _slot() -> str:
     return "B" if raw == "B" else "A"
 
 
+def _generic_args_digest(args: Dict[str, Any]) -> str:
+    encoded = json.dumps(dict(args or {}), ensure_ascii=True, sort_keys=True, separators=(",", ":"), default=str)
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def _record_conflict_safely(**kwargs: Any) -> None:
+    # Observe-only: ledger failure must never change the already-computed policy decision.
+    try:
+        from modules.volition import conflict_ledger
+
+        conflict_ledger.record_conflict(**kwargs)
+    except Exception:
+        return
+
+
+def _record_gate_conflict(kind: str, args: Dict[str, Any], vctx: Any, decision: Any, *, source: str) -> None:
+    policy = dict(getattr(decision, "policy_snapshot", {}) or {})
+    metadata = dict(getattr(vctx, "metadata", {}) or {})
+    reason_code = str(getattr(decision, "reason_code", "") or "")
+    reason = str(getattr(decision, "reason", "") or "")
+    if source == "volition_gate.observe":
+        # Slot A remains permissive; would-deny is only recorded for later review.
+        reason_code = str(policy.get("would_reason_code") or reason_code)
+        reason = str(policy.get("would_reason") or reason)
+    policy_hit = reason_code if source.startswith("volition_gate.") else str(metadata.get("policy_hit") or reason_code or "")
+    _record_conflict_safely(
+        source=source,
+        action_id=str(kind or getattr(vctx, "action_kind", "") or ""),
+        policy_hit=policy_hit,
+        reason_code=reason_code,
+        reason=reason,
+        slot=str(getattr(decision, "slot", "") or ""),
+        actor=str(getattr(vctx, "actor", "") or "ester"),
+        chain_id=str(getattr(vctx, "chain_id", "") or ""),
+        step=str(getattr(vctx, "step", "") or ""),
+        intent_summary=str(getattr(vctx, "intent", "") or ""),
+        agent_id=str(metadata.get("agent_id") or ""),
+        plan_id=str(metadata.get("plan_id") or ""),
+        step_index=metadata.get("step_index"),
+        args_digest=str(metadata.get("args_digest") or _generic_args_digest(dict(args or {}))),
+        prompt_digest=str(metadata.get("prompt_digest") or ""),
+        decision_id=str(getattr(decision, "id", "") or ""),
+        metadata=metadata,
+        policy_snapshot=policy,
+    )
+
+
 def _enqueue_journal(
     *,
     allowed: bool,
@@ -82,6 +129,25 @@ def _enqueue_journal(
         volition_journal.append(row)
     except Exception:
         return
+    if not bool(allowed):
+        _record_conflict_safely(
+            # Agent queue denials are observed after policy/allowlist logic, not delegated to the ledger.
+            source="action_registry.agent_queue",
+            action_id="agent.queue.enqueue",
+            policy_hit=str((metadata or {}).get("policy_hit") or "agent.queue.enqueue"),
+            reason_code=str(reason_code or "DENY"),
+            reason=str(reason or ""),
+            slot=str(row.get("slot") or ""),
+            actor="ester",
+            chain_id=str(row.get("chain_id") or ""),
+            step="agent.queue.enqueue",
+            intent_summary="agent_queue_enqueue",
+            agent_id=str(agent_id or ""),
+            plan_id=str(plan_hash or ""),
+            args_digest=str((metadata or {}).get("args_digest") or _generic_args_digest(dict(metadata or {}))),
+            metadata=dict(metadata or {}),
+            policy_snapshot={"manual_enqueue_allowed": bool(allowed)},
+        )
 
 
 def _plan_actions_for_enqueue(plan: Any, plan_path: str = "") -> Tuple[List[str], str]:
@@ -445,6 +511,25 @@ def _append_oracle_deny_volition(payload: Dict[str, Any], rep: Dict[str, Any]) -
         "duration_ms": 0,
     }
     volition_journal.append(row)
+    _record_conflict_safely(
+        # Oracle denial metadata is persisted as digests/summaries, never the raw prompt.
+        source="action_registry.oracle",
+        action_id=action_id,
+        policy_hit=policy_hit,
+        reason_code="DENY_ORACLE",
+        reason=reason,
+        slot=str(rep.get("slot") or ""),
+        actor=actor,
+        chain_id=chain_id,
+        step="action",
+        intent_summary=str(payload.get("purpose") or "llm.remote.call"),
+        agent_id=agent_id,
+        plan_id=plan_id,
+        step_index=step_index,
+        args_digest=args_digest,
+        metadata=dict(row.get("metadata") or {}),
+        policy_snapshot={"allowed": False, "policy_hit": policy_hit},
+    )
 
 
 def _action_llm_remote_call(args: Dict[str, Any]) -> Dict[str, Any]:
@@ -1474,6 +1559,7 @@ def invoke_guarded(
 
         decision = gate.decide(vctx)
         if not decision.allowed:
+            _record_gate_conflict(str(kind), dict(args or {}), vctx, decision, source="volition_gate.deny")
             return {
                 "ok": False,
                 "error": "volition_denied",
@@ -1482,6 +1568,8 @@ def invoke_guarded(
                 "slot": decision.slot,
                 "kind": str(kind),
             }
+        if decision.slot == "A" and not bool((decision.policy_snapshot or {}).get("would_allow", True)):
+            _record_gate_conflict(str(kind), dict(args or {}), vctx, decision, source="volition_gate.observe")
     except Exception as exc:
         return {
             "ok": False,
@@ -1511,6 +1599,31 @@ def invoke_guarded(
             rep.setdefault("volition", vol)
         except Exception:
             pass
+        if str(kind) == "drift.quarantine.clear" and not bool(rep.get("ok")):
+            # Downstream quarantine-clear denial remains unchanged; the ledger only records it.
+            md = {}
+            try:
+                md = dict((decision.to_dict().get("metadata") or {}))
+            except Exception:
+                md = {}
+            _record_conflict_safely(
+                source="action_registry.result",
+                action_id="drift.quarantine.clear",
+                policy_hit=str(rep.get("error_code") or rep.get("policy_hit") or "drift.quarantine.clear"),
+                reason_code=str(rep.get("error_code") or "DENY_QUARANTINE_CLEAR"),
+                reason=str(rep.get("error") or ""),
+                slot=str(getattr(decision, "slot", "") or ""),
+                actor=str(getattr(vctx, "actor", "") or "ester"),
+                chain_id=str(getattr(vctx, "chain_id", "") or ""),
+                step=str(getattr(vctx, "step", "") or "action"),
+                intent_summary=str(getattr(vctx, "intent", "") or "drift.quarantine.clear"),
+                agent_id=str((args or {}).get("agent_id") or md.get("agent_id") or ""),
+                plan_id=str(md.get("plan_id") or ""),
+                step_index=md.get("step_index"),
+                args_digest=str(md.get("args_digest") or _generic_args_digest(dict(args or {}))),
+                metadata={**md, "error_code": str(rep.get("error_code") or ""), "error": str(rep.get("error") or "")},
+                policy_snapshot=dict(getattr(decision, "policy_snapshot", {}) or {}),
+            )
     return rep
 
 

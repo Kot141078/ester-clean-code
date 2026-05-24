@@ -47,6 +47,22 @@ def score_item(item: Dict[str, Any]) -> float:
     imp_n = _clip(imp, 0.0, 1.0)
     recency = 1.0 / (1.0 + age / 3600.0)          # last hour ≈ high weight
     score = 0.40 * aro_n + 0.25 * val_n + 0.25 * imp_n + 0.10 * recency
+    # Attention rebalance is default-off; dry-run preserves score, and apply only lowers priority.
+    # The bridge never authorizes actions; the candidate stays queued for reflection/review.
+    try:
+        from modules.volition.attention_runtime_bridge import get_runtime_attention_bias
+
+        bias = get_runtime_attention_bias(
+            source="reflection",
+            signal_type=str(meta.get("signal_type") or "reflection_signal"),
+            proposed_action=str(meta.get("action_id") or item.get("action_id") or ""),
+            policy_hit=str(meta.get("policy_hit") or item.get("policy_hit") or ""),
+            digest=str(meta.get("signal_digest") or meta.get("summary_digest") or ""),
+            meta=meta,
+        )
+        score *= float(bias.get("salience_multiplier") or 1.0)
+    except Exception:
+        pass
     return _clip(score, 0.0, 1.0)
 
 def enqueue(item: Dict[str, Any]) -> Dict[str, Any]:
