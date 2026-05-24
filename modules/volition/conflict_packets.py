@@ -79,7 +79,7 @@ def _safe_runtime_identity_text(value: Any, limit: int = 120) -> str:
         return ""
     if "\\" in text or "/" in text or ":" in text:
         return ""
-    if low.startswith("traceback") or "traceback (most recent call last)" in low or "file \"" in low:
+    if low.startswith("traceback") or "traceback (most recent call last)" in low or 'file "' in low:
         return ""
     if len(text) > limit:
         text = text[:limit]
@@ -330,7 +330,8 @@ def maybe_create_review_packet(
             existing = _read_packet(path)
             if existing:
                 created_at = int(existing.get("created_at") or 0)
-                # Packet cooldown limits duplicate review files only; it never suppresses runtime attempts or ledger rows.
+                # Packet cooldown limits duplicate review files only; it never
+                # suppresses runtime attempts or ledger rows.
                 if created_at > 0 and ts - created_at < cooldown:
                     return {
                         "ok": True,

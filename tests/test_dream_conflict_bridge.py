@@ -7,9 +7,8 @@ from modules.volition import conflict_ledger, dream_conflict_bridge
 
 
 def _raw_storage() -> str:
-    return (
-        conflict_ledger.conflicts_path().read_text(encoding="utf-8")
-        + conflict_ledger.state_path().read_text(encoding="utf-8")
+    return conflict_ledger.conflicts_path().read_text(encoding="utf-8") + conflict_ledger.state_path().read_text(
+        encoding="utf-8"
     )
 
 

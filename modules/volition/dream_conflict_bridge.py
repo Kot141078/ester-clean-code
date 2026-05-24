@@ -5,7 +5,6 @@ import hashlib
 import json
 from typing import Any, Dict
 
-
 _SENSITIVE_TOKENS = ("api_key", "apikey", "authorization", "password", "payload", "prompt", "secret", "token")
 _CONTROL_META_KEYS = {
     "creates_precedent",

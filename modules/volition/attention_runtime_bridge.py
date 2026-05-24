@@ -261,9 +261,7 @@ def get_runtime_attention_bias(
             "recommendation_id": _safe_text(rec.get("recommendation_id"), 160),
             "conflict_id": _safe_text(rec.get("conflict_id"), 160),
             "redirect_hints": [
-                _safe_text(x, 120)
-                for x in list(rec.get("redirect_hints") or [])[:8]
-                if _safe_text(x, 120)
+                _safe_text(x, 120) for x in list(rec.get("redirect_hints") or [])[:8] if _safe_text(x, 120)
             ],
             "would_apply": bool(source_apply_enabled and would_multiplier < 1.0),
             "would_salience_multiplier": float(would_multiplier),

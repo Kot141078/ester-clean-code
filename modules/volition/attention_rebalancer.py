@@ -139,7 +139,11 @@ def _load_state() -> Dict[str, Any]:
     conflicts = obj.get("conflicts")
     if not isinstance(conflicts, dict):
         conflicts = {}
-    return {"schema": "ester.volition.conflict_state.v1", "updated_ts": int(obj.get("updated_ts") or 0), "conflicts": conflicts}
+    return {
+        "schema": "ester.volition.conflict_state.v1",
+        "updated_ts": int(obj.get("updated_ts") or 0),
+        "conflicts": conflicts,
+    }
 
 
 def _read_json(path: Path) -> Dict[str, Any]:
@@ -286,7 +290,9 @@ def _trigger_for(conflict: Dict[str, Any], row: Dict[str, Any]) -> Dict[str, Any
     }
 
 
-def _build_recommendation(conflict: Dict[str, Any], row: Dict[str, Any], *, now: int, existing: Dict[str, Any] | None = None) -> Dict[str, Any]:
+def _build_recommendation(
+    conflict: Dict[str, Any], row: Dict[str, Any], *, now: int, existing: Dict[str, Any] | None = None
+) -> Dict[str, Any]:
     existing = existing or {}
     conflict_id = _safe_text(conflict.get("conflict_id"), 120)
     status = _safe_text(conflict.get("status"), 60) or "held"

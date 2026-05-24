@@ -46,7 +46,15 @@ def _candidate_digest(candidate: Dict[str, Any], meta: Dict[str, Any]) -> str:
 
 
 def _safe_meta(candidate: Dict[str, Any], meta: Dict[str, Any], digest: str) -> Dict[str, Any]:
-    allowed = {"conflict_id", "recommendation_id", "action_id", "policy_hit", "reason_code", "signal_digest", "summary_digest"}
+    allowed = {
+        "conflict_id",
+        "recommendation_id",
+        "action_id",
+        "policy_hit",
+        "reason_code",
+        "signal_digest",
+        "summary_digest",
+    }
     out: Dict[str, Any] = {}
     for src in (meta, candidate):
         for key, value in dict(src or {}).items():

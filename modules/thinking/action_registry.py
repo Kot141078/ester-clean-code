@@ -62,7 +62,9 @@ def _record_gate_conflict(kind: str, args: Dict[str, Any], vctx: Any, decision: 
         # Slot A remains permissive; would-deny is only recorded for later review.
         reason_code = str(policy.get("would_reason_code") or reason_code)
         reason = str(policy.get("would_reason") or reason)
-    policy_hit = reason_code if source.startswith("volition_gate.") else str(metadata.get("policy_hit") or reason_code or "")
+    policy_hit = (
+        reason_code if source.startswith("volition_gate.") else str(metadata.get("policy_hit") or reason_code or "")
+    )
     _record_conflict_safely(
         source=source,
         action_id=str(kind or getattr(vctx, "action_kind", "") or ""),

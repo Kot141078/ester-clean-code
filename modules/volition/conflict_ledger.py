@@ -66,7 +66,8 @@ _IDENTITY_META_KEYS = {
     "runtime_surface",
     "hook_family",
 }
-# Audit flags describe review semantics, not runtime permission; keep this whitelist narrow to avoid raw payload leakage.
+# Audit flags describe review semantics, not runtime permission; keep this
+# whitelist narrow to avoid raw payload leakage.
 _BOOLEAN_META_KEYS = {
     "creates_precedent",
     "does_not_authorize_action",
@@ -139,7 +140,7 @@ def _safe_identity_text(value: Any, limit: int = 120) -> str:
         return ""
     if "\\" in text or "/" in text or ":" in text:
         return ""
-    if low.startswith("traceback") or "traceback (most recent call last)" in low or "file \"" in low:
+    if low.startswith("traceback") or "traceback (most recent call last)" in low or 'file "' in low:
         return ""
     if len(text) > limit:
         text = text[:limit]

@@ -255,8 +255,12 @@ def validate_resolution_packet(packet: Dict[str, Any]) -> Dict[str, Any]:
         errors.append("forbidden_raw_or_secret_field")
     errors.extend(_control_findings(packet))
     ok = not errors
-    status = "evidence_reframed_allowed" if ok else (
-        "policy_review" if any("required" in item or "review" in item for item in errors) else "reframed_candidate"
+    status = (
+        "evidence_reframed_allowed"
+        if ok
+        else (
+            "policy_review" if any("required" in item or "review" in item for item in errors) else "reframed_candidate"
+        )
     )
     return {"ok": ok, "status": status, "errors": errors}
 
@@ -281,7 +285,9 @@ def _build_resolution_packet(conflict: Dict[str, Any], payload: Dict[str, Any], 
         "original_denial_reason": _safe_text(payload.get("original_denial_reason") or conflict.get("reason"), 240),
         "original_action_id": _safe_text(payload.get("original_action_id") or conflict.get("action_id"), 120),
         "proposed_action": _safe_text(payload.get("proposed_action") or conflict.get("action_id"), 120),
-        "original_intent_summary": _safe_text(payload.get("original_intent_summary") or conflict.get("intent_summary"), 240),
+        "original_intent_summary": _safe_text(
+            payload.get("original_intent_summary") or conflict.get("intent_summary"), 240
+        ),
         "reframed_goal": reframed_goal,
         "legitimacy_controls": controls,
         "evidence_refs": evidence_refs,

@@ -84,7 +84,9 @@ def build_dream_candidates(
         merged_meta.update(row_meta)
         kind = _safe_text(row.get("kind") or merged_meta.get("kind") or row.get("type") or "doc", 40) or "doc"
         digest = _safe_text(row.get("text_digest") or row.get("digest") or "", 128) or _digest_text(text)
-        candidate_id = _safe_text(row.get("candidate_id") or row.get("id") or "", 160) or _candidate_id(src, idx, digest)
+        candidate_id = _safe_text(row.get("candidate_id") or row.get("id") or "", 160) or _candidate_id(
+            src, idx, digest
+        )
         # Neutral scores are placeholders for a future audited APPLY_DREAM hook; no bias is applied here.
         out.append(
             {
