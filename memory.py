@@ -6,14 +6,21 @@ Epizodicheskaya / Semanticheskaya / Kartochki.
 - cards: JSONL (pin/listing)
 - Avto-rotatsiya JSONL pri > rotate_threshold zapisey.
 - recall(query, k, scopes=...) => obedinennaya vydacha so skoupom i score."""
+
 from __future__ import annotations
 
 import json
 import os
 import time
 import uuid
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-from modules.memory.facade import memory_add, ESTER_MEM_FACADE
+
+from modules.memory.facade import ESTER_MEM_FACADE as ESTER_MEM_FACADE
+from modules.memory.facade import memory_add as memory_add
+
+# Keep this legacy module importable while allowing source-only memory.* submodules.
+__path__ = [str(Path(__file__).with_suffix(""))]
 
 # sententse-transformers (locally) - if possible; otherwise fullback to TF-IDF
 try:
@@ -42,8 +49,6 @@ def _now_iso() -> str:
 
 
 def _norm(vec):
-    import numpy as np
-
     v = vec.astype("float32")
     n = float((v**2).sum()) ** 0.5
     return v / (n + 1e-9)
@@ -128,9 +133,7 @@ class _SemanticIndex:
             vec = self.encoder.encode([text])
             v = _norm(np.array(vec, dtype="float32"))
             if self.index is None:
-                self.index = faiss.IndexFlatIP(
-                    v.shape[1]
-                )  # cosine via inner product over normalized vectors
+                self.index = faiss.IndexFlatIP(v.shape[1])  # cosine via inner product over normalized vectors
             self.index.add(v)
             self._persist_faiss()
         else:
@@ -139,12 +142,7 @@ class _SemanticIndex:
     def search(self, query: str, k: int = 8) -> List[Tuple[str, float, Dict[str, Any]]]:
         if not query.strip():
             return []
-        if (
-            self.encoder is not None
-            and faiss is not None
-            and self.index is not None
-            and len(self.meta) > 0
-        ):
+        if self.encoder is not None and faiss is not None and self.index is not None and len(self.meta) > 0:
             import numpy as np
 
             qv = _norm(np.array(self.encoder.encode([query]), dtype="float32"))
@@ -249,9 +247,7 @@ class HumanMemory:
         self._append_jsonl(self.episodic_path, rec)
         self._rotate_if_needed(self.episodic_path)
         # We index it semantically so that advertising works even for episodic content
-        self.semantic.add(
-            rec_id, text, {"created_at": rec["created_at"], "scope": "semantic-shadow"}
-        )
+        self.semantic.add(rec_id, text, {"created_at": rec["created_at"], "scope": "semantic-shadow"})
         return rec_id
 
     def recall(
