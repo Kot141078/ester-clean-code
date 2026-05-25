@@ -25,6 +25,7 @@ def _build_fallback_app() -> Flask:
         return jsonify(ok=True, src="app_fallback")
 
     for module_name in (
+        "routes.docs_routes",
         "routes.security_routes",
         "routes.p2p_crdt_routes",
         "routes.p2p_tasks_routes",
