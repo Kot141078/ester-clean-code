@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-import json
-
 from app import create_app
-from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 def _auth_token(client, role="replicator"):
@@ -13,7 +9,8 @@ def _auth_token(client, role="replicator"):
     return data["access_token"]
 
 
-def test_ingest_put_fetch_remove_flow():
+def test_ingest_put_fetch_remove_flow(monkeypatch, tmp_path):
+    monkeypatch.setenv("ESTER_CAS_DIR", str(tmp_path / "cas"))
     app = create_app()
     with app.test_client() as c:
         token = _auth_token(c, role="replicator")
