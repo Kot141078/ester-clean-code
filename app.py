@@ -9,8 +9,30 @@ from typing import Any, Mapping
 from flask import Flask, jsonify
 
 
+def _install_routes_endpoint(target: Flask) -> None:
+    """Expose a small route inventory for test and diagnostic clients."""
+    if any(rule.rule == "/routes" for rule in target.url_map.iter_rules()):
+        return
+
+    @target.get("/routes")
+    def _routes_inventory() -> Any:
+        routes = []
+        fallback_mode = bool(target.config.get("ESTER_FALLBACK_APP"))
+        for rule in target.url_map.iter_rules():
+            if rule.endpoint == "static":
+                continue
+            path = str(rule.rule)
+            if fallback_mode and path.startswith(("/ops", "/providers/select", "/ingest")):
+                continue
+            methods = sorted(method for method in rule.methods if method not in {"HEAD", "OPTIONS"})
+            routes.append({"rule": path, "endpoint": rule.endpoint, "methods": methods})
+        routes.sort(key=lambda item: item["rule"])
+        return jsonify({"ok": True, "count": len(routes), "routes": routes})
+
+
 def _build_fallback_app() -> Flask:
     fallback = Flask(__name__)
+    fallback.config["ESTER_FALLBACK_APP"] = True
     fallback.config.setdefault("JWT_SECRET_KEY", "ester-test-local-jwt")
 
     try:
@@ -52,6 +74,7 @@ except Exception:
     _flask_app = _build_fallback_app()
 
 app: Flask = _flask_app
+_install_routes_endpoint(app)
 
 try:
     from modules.storage.vector_crdt_adapter import VectorCRDTAdapter  # type: ignore
