@@ -1,22 +1,31 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
+
 import os
-from pathlib import Path
 import tempfile
 import zipfile
+from pathlib import Path
+
 from flask import Blueprint, jsonify, request
+
 try:
     from flask_jwt_extended import jwt_required  # type: ignore
 except Exception:
+
     def jwt_required(*args, **kwargs):  # type: ignore
         def _wrap(fn):
             return fn
+
         return _wrap
+
+
 try:
     from modules.auth.rbac import has_any_role as _has_any_role
 except Exception:
+
     def _has_any_role(_required):  # type: ignore
         return True
+
 
 try:
     from config_backup import create_backup, latest_backup_path, verify_backup  # type: ignore
@@ -24,9 +33,9 @@ except Exception:
     create_backup = None  # type: ignore
     latest_backup_path = None  # type: ignore
     verify_backup = None  # type: ignore
-from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 bp = Blueprint("ops_backup_routes", __name__)
+
 
 @bp.get("/ops/backup")
 @jwt_required()
@@ -140,3 +149,9 @@ def ops_backup_restore():
     except Exception as exc:
         return jsonify({"ok": False, "error": str(exc)}), 400
     return jsonify({"ok": True, "path": path, "target": target, "target_dir": target}), 200
+
+
+def register(app):
+    if bp.name not in app.blueprints:
+        app.register_blueprint(bp)
+    return app

@@ -149,6 +149,7 @@ def _build_fallback_app() -> Flask:
         "routes.proactive_routes",
         "routes.ready_routes",
         "routes.security_routes",
+        "routes.ops_backup_routes",
         "routes.p2p_crdt_routes",
         "routes.p2p_tasks_routes",
         "routes.ops_p2p_diff_routes",
