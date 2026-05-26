@@ -123,6 +123,7 @@ def _build_fallback_app() -> Flask:
     except Exception:
         pass
     ingest_jobs: dict[str, dict[str, Any]] = {}
+    empathy_counts: dict[str, int] = {}
 
     def _fallback_verify_jwt() -> bool:
         try:
@@ -180,6 +181,26 @@ def _build_fallback_app() -> Flask:
         upload.stream.seek(position, os.SEEK_SET)
         return size > limit
 
+    def _fallback_empathy_analysis(message: str, empathy_level: int) -> dict[str, Any]:
+        lower = str(message or "").lower()
+        tone = "neutral"
+        style = "standard"
+        prefix = ""
+        if any(marker in lower for marker in ("unpleasant", "angry", "bad", "upset", "nepriyatno", "plokho")):
+            tone = "negative"
+            style = "empathetic"
+            prefix = "I understand that this is unpleasant. Let's calmly take it apart and fix it. "
+        elif any(marker in lower for marker in ("thanks", "thank you", "great", "super", "spasibo", "otlichno")):
+            tone = "positive"
+            style = "warm"
+            prefix = "Thanks for your feedback. "
+        return {
+            "tone": tone,
+            "response_style": style,
+            "prefix": prefix,
+            "empathy_level": int(empathy_level),
+        }
+
     @fallback.get("/health")
     def _health() -> Any:
         return jsonify(ok=True, src="app_fallback")
@@ -231,6 +252,56 @@ def _build_fallback_app() -> Flask:
         if job is None:
             return jsonify(ok=False, error="not_found"), 404
         return jsonify(job), 200
+
+    @fallback.post("/empathy/analyze")
+    def _empathy_analyze_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        data: dict[str, Any] = request.get_json(silent=True) or {}
+        message = str(data.get("message") or data.get("text") or "").strip()
+        if not message:
+            return jsonify(ok=False, error="empty message"), 400
+        user_id = str(data.get("user_id") or "default_user")
+        try:
+            level = int(data.get("empathy_level", 6) or 6)
+        except (TypeError, ValueError):
+            level = 6
+        analysis = _fallback_empathy_analysis(message, level)
+        empathy_counts[user_id] = int(empathy_counts.get(user_id, 0)) + 1
+        return jsonify(ok=True, result=analysis, analysis=analysis), 200
+
+    @fallback.post("/empathy/apply")
+    def _empathy_apply_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        data: dict[str, Any] = request.get_json(silent=True) or {}
+        base = str(data.get("base_response") or data.get("base") or "").strip()
+        if not base:
+            return jsonify(ok=False, error="empty base_response"), 400
+        message = str(data.get("user_message") or data.get("message") or "").strip()
+        try:
+            level = int(data.get("empathy_level", 6) or 6)
+        except (TypeError, ValueError):
+            level = 6
+        analysis = data.get("analysis")
+        if not isinstance(analysis, dict):
+            analysis = _fallback_empathy_analysis(message, level)
+        suffix = " Gotov pomoch do rezultata." if level >= 8 else ""
+        response = f"{analysis.get('prefix', '')}{base}{suffix}".strip()
+        return jsonify(ok=True, response=response, analysis=analysis), 200
+
+    @fallback.get("/empathy/status")
+    def _empathy_status_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        user_id = str(request.args.get("user_id") or "default_user")
+        return jsonify(ok=True, user_id=user_id, history_len=int(empathy_counts.get(user_id, 0))), 200
+
+    @fallback.post("/empathy/save")
+    def _empathy_save_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        return jsonify(ok=True, saved=False, mode="fallback_memory_only"), 200
 
     for module_name in (
         "routes.docs_routes",
