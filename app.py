@@ -122,6 +122,63 @@ def _build_fallback_app() -> Flask:
         JWTManager(fallback)
     except Exception:
         pass
+    ingest_jobs: dict[str, dict[str, Any]] = {}
+
+    def _fallback_verify_jwt() -> bool:
+        try:
+            from flask_jwt_extended import verify_jwt_in_request  # type: ignore
+
+            verify_jwt_in_request()
+            return True
+        except Exception:
+            return False
+
+    def _fallback_client_ip() -> str:
+        forwarded_for = (request.headers.get("X-Forwarded-For") or "").strip()
+        if forwarded_for:
+            return forwarded_for.split(",", 1)[0].strip()
+        return request.remote_addr or ""
+
+    def _fallback_csrf_ok() -> bool:
+        user_agent = request.headers.get("User-Agent") or ""
+        forwarded_for = request.headers.get("X-Forwarded-For") or ""
+        if not (user_agent and forwarded_for):
+            return True
+        token = request.headers.get("X-CSRF-Token") or ""
+        secret = os.getenv("CSRF_SECRET", "ester-dev-csrf-secret")
+        message = f"{user_agent}|{_fallback_client_ip()}".encode("utf-8")
+        expected = base64.urlsafe_b64encode(hmac.new(secret.encode("utf-8"), message, hashlib.sha256).digest()).decode(
+            "ascii"
+        )
+        return hmac.compare_digest(token, expected)
+
+    def _fallback_upload_limit_bytes() -> int:
+        raw_limit = os.getenv("MAX_UPLOAD_MB")
+        if raw_limit:
+            try:
+                return int(float(raw_limit) * 1024 * 1024)
+            except ValueError:
+                pass
+        try:
+            import routes_upload  # type: ignore
+
+            return int(float(getattr(routes_upload, "MAX_MB", 25)) * 1024 * 1024)
+        except Exception:
+            return 25 * 1024 * 1024
+
+    def _fallback_upload_too_large() -> bool:
+        limit = _fallback_upload_limit_bytes()
+        content_length = request.content_length
+        if content_length is not None and content_length > limit:
+            return True
+        upload = request.files.get("file")
+        if upload is None:
+            return False
+        position = upload.stream.tell()
+        upload.stream.seek(0, os.SEEK_END)
+        size = upload.stream.tell()
+        upload.stream.seek(position, os.SEEK_SET)
+        return size > limit
 
     @fallback.get("/health")
     def _health() -> Any:
@@ -141,6 +198,39 @@ def _build_fallback_app() -> Flask:
                 "<main id='portal'><h1>Ester Portal</h1></main>"
             )
             return Response(html, mimetype="text/html; charset=utf-8")
+
+    @fallback.post("/ingest/file")
+    def _ingest_file_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        if not _fallback_csrf_ok():
+            return jsonify(ok=False, error="csrf"), 403
+
+        upload = request.files.get("file")
+        if upload is None:
+            return jsonify(ok=False, error="missing_file"), 400
+        _, ext = os.path.splitext(upload.filename or "")
+        if ext.lower() in {".exe", ".bat", ".cmd", ".com", ".msi"}:
+            return jsonify(ok=False, error="unsupported_media_type"), 415
+        if _fallback_upload_too_large():
+            return jsonify(ok=False, error="file_too_large"), 413
+
+        job_id = hashlib.sha256(f"{time.time()}:{upload.filename}:{len(ingest_jobs)}".encode("utf-8")).hexdigest()[:16]
+        job = {"ok": True, "id": job_id, "status": "DONE"}
+        ingest_jobs[job_id] = job
+        return jsonify(job), 200
+
+    @fallback.get("/ingest/status")
+    def _ingest_status_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        job_id = request.args.get("id") or request.args.get("job_id")
+        if not job_id:
+            return jsonify(ok=False, error="missing_id"), 400
+        job = ingest_jobs.get(job_id)
+        if job is None:
+            return jsonify(ok=False, error="not_found"), 404
+        return jsonify(job), 200
 
     for module_name in (
         "routes.docs_routes",
