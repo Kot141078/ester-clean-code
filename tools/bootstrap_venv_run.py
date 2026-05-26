@@ -33,9 +33,17 @@ def _remove_foreign_site_packages(venv_site: Path) -> None:
     sys.path[:] = keep
 
 
+def _is_windows_drive_path(path: str) -> bool:
+    return len(path) >= 3 and path[1] == ":" and path[0].isalpha() and path[2] in {"/", "\\"}
+
+
 def _resolve_entry(root: Path, raw: str) -> Path:
     candidate = Path(raw)
+    if _is_windows_drive_path(str(candidate)):
+        return candidate
     if not candidate.is_absolute():
+        if _is_windows_drive_path(str(root)):
+            return root / raw
         candidate = (root / raw).resolve()
     return candidate
 
