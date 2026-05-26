@@ -19,18 +19,21 @@ for the same path give backflow (hard-to-debug failures).
 
 from __future__ import annotations
 
+import asyncio
+import concurrent.futures
+import importlib
 import os
 import sys
-import zlib
-import asyncio
-import importlib
-import logging
 import time
 import traceback
-import concurrent.futures
-from typing import Dict, Any, Optional, Tuple, List
+import zlib
+from typing import Any, Dict, List, Optional, Tuple
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request
+
+from modules.llm.selector import chat as llm_chat
+from modules.llm.selector import health as llm_health
+from modules.util import history as hist
 
 
 def _env_bool(name: str, default: bool = False) -> bool:
@@ -60,7 +63,7 @@ def _env_int(name: str, default: int) -> int:
         return int(default)
 
 
-def _maybe_verify_jwt() -> Tuple[bool, Optional[str]]:
+def _maybe_verify_jwt(data: Optional[Dict[str, Any]] = None) -> Tuple[bool, Optional[str]]:
     """JWT contract for /chat/message.
 
     Default: OPTIONAL.
@@ -68,11 +71,17 @@ def _maybe_verify_jwt() -> Tuple[bool, Optional[str]]:
 
     Returns: (ok, error_code)
     """
-    # Default is optional JWT; explicit env flag can force required mode.
+    # Default is optional JWT for explicit compatibility clients. Ambiguous
+    # default-mode requests still require auth to avoid opening public chat.
     require = _env_bool("ESTER_CHAT_REQUIRE_JWT", False)
+    if not require and isinstance(data, dict):
+        auth = str(request.headers.get("Authorization", "") or "").strip()
+        explicit_mode = any(data.get(key) for key in ("mode", "engine", "provider"))
+        require = not auth and not explicit_mode
 
     try:
         from flask_jwt_extended import verify_jwt_in_request  # type: ignore
+
         verify_jwt_in_request(optional=not require)
         return True, None
     except Exception as e:
@@ -160,18 +169,17 @@ def _call_main_live_arbitrage(
             run_mod = None
 
     arb = None
-    run_sync = None
     for mod in (main_mod, run_mod):
         if mod is None:
             continue
         fn = getattr(mod, "ester_arbitrage", None)
         if callable(fn):
             arb = fn
-            run_sync = getattr(mod, "_run_coro_sync", None)
             break
 
     if not callable(arb):
         return ""
+    return ""
 
 
 _ARB_EXECUTOR = concurrent.futures.ThreadPoolExecutor(
@@ -214,41 +222,12 @@ def _call_main_live_arbitrage_with_timeout(
         return "", "timeout"
     except Exception:
         return "", "error"
-    chat_id = _stable_chat_id(sid)
-    try:
-        kwargs = {
-            "user_text": str(text or ""),
-            "user_id": str(user_id or sid or "web"),
-            "user_name": str(user_name or "WebUser"),
-            "chat_id": int(chat_id),
-            "address_as": str(address_as or user_name or "Polzovatel"),
-            "tone_context": str(tone_context or ""),
-            "file_context": str(file_context or ""),
-            "channel": "web",
-        }
-        try:
-            coro = arb(**kwargs)
-        except TypeError:
-            kwargs.pop("channel", None)
-            coro = arb(**kwargs)
-        out = run_sync(coro) if callable(run_sync) else _run_coro_sync(coro)
-        return str(out or "").strip()
-    except Exception as e:
-        try:
-            logging.warning("[chat_routes] live arbitrage failed: %s", e)
-        except Exception:
-            pass
-        return ""
 
 
 def _answer_text_and_meta(answer: Any) -> Tuple[str, Dict[str, Any]]:
     if isinstance(answer, dict):
         text = str(
-            answer.get("answer")
-            or answer.get("response")
-            or answer.get("reply")
-            or answer.get("text")
-            or ""
+            answer.get("answer") or answer.get("response") or answer.get("reply") or answer.get("text") or ""
         ).strip()
         return text, answer
     return str(answer or "").strip(), {}
@@ -312,12 +291,10 @@ def _emotions_from_text(text: str, answer_text: str) -> Dict[str, float]:
     if all(v <= 0.0 for v in emo.values()):
         emo["interest"] = 0.1
     return emo
+
+
 _ab = (os.environ.get("ESTER_CHAT_AB") or "A").upper()
 bp = Blueprint(f"chat_{_ab}", __name__, url_prefix="/chat")
-
-from modules.util import history as hist
-from modules.llm.selector import chat as llm_chat, health as llm_health
-from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 
 @bp.get("/health")
@@ -332,18 +309,18 @@ def history() -> Any:
         limit = int(request.args.get("limit") or 50)
     except Exception:
         limit = 50
-    items = hist.load(sid)[-max(0, min(limit, 500)):]
+    items = hist.load(sid)[-max(0, min(limit, 500)) :]
     return jsonify({"ok": True, "sid": sid, "history": items})
 
 
 @bp.post("/message")
 def message() -> Any:
     t0 = time.monotonic()
-    ok, err = _maybe_verify_jwt()
+    data = request.get_json(silent=True) or {}
+    ok, err = _maybe_verify_jwt(data)
     if not ok:
         return jsonify({"ok": False, "error": err or "jwt_required"}), 401
 
-    data = request.get_json(silent=True) or {}
     text = _pick_message(data)
     if not text:
         return jsonify({"ok": False, "error": "empty_message"}), 400
@@ -463,27 +440,29 @@ def message() -> Any:
         meta={"mode": mode, "live_status": live_status},
     )
 
-    return jsonify({
-        "ok": True,
-        "sid": sid,
-        "mode": mode,
-        "provider": provider_name,
-        "rag": use_rag,
-        "temperature": temperature,
-        "answer": answer_text,
-        "response": answer_text,
-        "reply": answer_text,
-        "answer_raw": answer_meta or answer,
-        "emotions": emotions,
-        "proactive": proactive,
-        "sources": sources,
-        "providers_local": local_providers,
-        "memory_hits": memory_hits,
-        "filters": filters,
-        "judge": judge_name,
-        "provider_trace": provider_trace,
-        "latency_ms": elapsed_ms,
-    })
+    return jsonify(
+        {
+            "ok": True,
+            "sid": sid,
+            "mode": mode,
+            "provider": provider_name,
+            "rag": use_rag,
+            "temperature": temperature,
+            "answer": answer_text,
+            "response": answer_text,
+            "reply": answer_text,
+            "answer_raw": answer_meta or answer,
+            "emotions": emotions,
+            "proactive": proactive,
+            "sources": sources,
+            "providers_local": local_providers,
+            "memory_hits": memory_hits,
+            "filters": filters,
+            "judge": judge_name,
+            "provider_trace": provider_trace,
+            "latency_ms": elapsed_ms,
+        }
+    )
 
 
 def register(app) -> None:

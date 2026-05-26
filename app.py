@@ -114,6 +114,7 @@ def _build_fallback_app() -> Flask:
     fallback = Flask(__name__)
     fallback.config["ESTER_FALLBACK_APP"] = True
     fallback.config.setdefault("JWT_SECRET_KEY", "ester-test-local-jwt")
+    os.environ.setdefault("ESTER_WEB_USE_ARBITRAGE", "0")
 
     try:
         from flask_jwt_extended import JWTManager  # type: ignore
@@ -149,6 +150,7 @@ def _build_fallback_app() -> Flask:
         "routes.proactive_routes",
         "routes.ready_routes",
         "routes.security_routes",
+        "routes.chat_routes",
         "routes.ops_backup_routes",
         "routes.p2p_crdt_routes",
         "routes.p2p_tasks_routes",

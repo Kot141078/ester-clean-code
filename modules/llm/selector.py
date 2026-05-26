@@ -6,13 +6,13 @@ The main goal: do not fall into a local stub if the cloud provider is available.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
 import asyncio
 import concurrent.futures
 import logging
 import os
 import time
 import urllib.request
+from typing import Any, Dict, List, Optional, Tuple
 
 from providers.pool import PROVIDERS
 
@@ -51,7 +51,9 @@ def _env_int(name: str, default: int) -> int:
 SMART_PROVIDER_NAME = (os.getenv("LLM_SMART_PROVIDER", "gpt-5-mini") or "gpt-5-mini").strip().lower()
 REFLEX_PROVIDER_NAME = (os.getenv("LLM_REFLEX_PROVIDER", "local") or "local").strip().lower()
 HIVE_BG_CLOUD_AUTO_BY_LOCAL = _env_bool("HIVE_BG_CLOUD_AUTO_BY_LOCAL", False)
-HIVE_BG_CLOUD_PROVIDER = (os.getenv("HIVE_BG_CLOUD_PROVIDER", SMART_PROVIDER_NAME) or SMART_PROVIDER_NAME).strip().lower()
+HIVE_BG_CLOUD_PROVIDER = (
+    (os.getenv("HIVE_BG_CLOUD_PROVIDER", SMART_PROVIDER_NAME) or SMART_PROVIDER_NAME).strip().lower()
+)
 SELECTOR_TOTAL_TIMEOUT_SEC = max(1.0, _env_float("ESTER_CHAT_TOTAL_TIMEOUT_SEC", 18.0))
 SELECTOR_PROVIDER_TIMEOUT_SEC = max(0.8, _env_float("ESTER_CHAT_PROVIDER_TIMEOUT_SEC", 7.0))
 SELECTOR_REQUEST_TIMEOUT_SEC = max(0.8, _env_float("ESTER_SELECTOR_REQUEST_TIMEOUT_SEC", 7.0))
@@ -113,8 +115,14 @@ def _provider_enabled(name: str) -> bool:
         return False
 
 
+def _network_allowed() -> bool:
+    return _env_bool("ALLOW_NET", True)
+
+
 def _probe_local_runtime_online(timeout_sec: float = 0.8) -> bool:
     try:
+        if not _network_allowed():
+            return False
         if not _provider_enabled("local"):
             return False
         base_url = str(getattr(PROVIDERS.cfg("local"), "base_url", "") or "").strip().rstrip("/")
@@ -195,7 +203,9 @@ class _PoolAdapter:
             pass
 
         try:
-            req_timeout = float(request_timeout_sec if request_timeout_sec is not None else SELECTOR_REQUEST_TIMEOUT_SEC)
+            req_timeout = float(
+                request_timeout_sec if request_timeout_sec is not None else SELECTOR_REQUEST_TIMEOUT_SEC
+            )
         except Exception:
             req_timeout = float(SELECTOR_REQUEST_TIMEOUT_SEC)
         if timeout_cap > 0.0:
@@ -255,7 +265,9 @@ class _PoolAdapter:
             system_prompt=str(kwargs.get("system_prompt") or ""),
             temperature=float(kwargs.get("temperature", 0.7) or 0.7),
             max_tokens=int(kwargs.get("max_tokens", 0) or 0),
-            request_timeout_sec=(None if kwargs.get("request_timeout_sec") is None else float(kwargs.get("request_timeout_sec"))),
+            request_timeout_sec=(
+                None if kwargs.get("request_timeout_sec") is None else float(kwargs.get("request_timeout_sec"))
+            ),
             channel=str(kwargs.get("channel") or "unknown"),
         )
 
@@ -266,6 +278,8 @@ class _PoolAdapter:
 
 
 def get_adapter_by_name(name: str):
+    if not _network_allowed():
+        return LocalProvider()
     n = _canon_provider(name)
     if n and _provider_enabled(n):
         return _PoolAdapter(n)
