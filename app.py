@@ -3,10 +3,90 @@
 
 from __future__ import annotations
 
+import base64
+import hashlib
+import hmac
 import importlib
+import json
+import os
+import time
 from typing import Any, Mapping
 
-from flask import Flask, jsonify
+from flask import Flask, Response, jsonify, render_template, request
+
+
+def _b64url_decode(value: str) -> bytes:
+    padding = "=" * ((4 - len(value) % 4) % 4)
+    return base64.urlsafe_b64decode(value + padding)
+
+
+def _portal_jwt_secrets() -> list[bytes]:
+    secrets: list[bytes] = []
+    seen: set[str] = set()
+    for name in ("JWT_SECRET", "JWT_SECRET_KEY", "ESTER_JWT_SECRET"):
+        value = str(os.getenv(name, "") or "").strip()
+        if value and value not in seen:
+            seen.add(value)
+            secrets.append(value.encode("utf-8"))
+    return secrets
+
+
+def _roles_from_claims(claims: Mapping[str, Any]) -> set[str]:
+    roles: set[str] = set()
+    raw_roles = claims.get("roles")
+    if isinstance(raw_roles, str):
+        roles.add(raw_roles.strip().lower())
+    elif isinstance(raw_roles, (list, tuple, set)):
+        roles.update(str(role).strip().lower() for role in raw_roles if str(role).strip())
+    raw_role = claims.get("role")
+    if isinstance(raw_role, str) and raw_role.strip():
+        roles.add(raw_role.strip().lower())
+    raw_scope = claims.get("scope")
+    if isinstance(raw_scope, str):
+        roles.update(part.strip().lower() for part in raw_scope.split() if part.strip())
+    return roles
+
+
+def _verified_admin_portal_claims(token: str) -> Mapping[str, Any] | None:
+    parts = token.split(".")
+    if len(parts) != 3:
+        return None
+    try:
+        header = json.loads(_b64url_decode(parts[0]).decode("utf-8"))
+        if str(header.get("alg", "")).upper() != "HS256":
+            return None
+        payload = json.loads(_b64url_decode(parts[1]).decode("utf-8"))
+        signature = _b64url_decode(parts[2])
+    except Exception:
+        return None
+
+    secrets = _portal_jwt_secrets()
+    if not secrets:
+        return None
+    signing_input = f"{parts[0]}.{parts[1]}".encode("ascii")
+    if not any(
+        hmac.compare_digest(hmac.new(secret, signing_input, hashlib.sha256).digest(), signature) for secret in secrets
+    ):
+        return None
+
+    exp = payload.get("exp")
+    if exp is not None:
+        try:
+            if float(exp) < time.time():
+                return None
+        except (TypeError, ValueError):
+            return None
+
+    if "admin" not in _roles_from_claims(payload):
+        return None
+    return payload
+
+
+def _admin_portal_claims_from_request() -> Mapping[str, Any] | None:
+    auth = str(request.headers.get("Authorization", "") or "")
+    if not auth.lower().startswith("bearer "):
+        return None
+    return _verified_admin_portal_claims(auth.split(" ", 1)[1].strip())
 
 
 def _install_routes_endpoint(target: Flask) -> None:
@@ -45,6 +125,21 @@ def _build_fallback_app() -> Flask:
     @fallback.get("/health")
     def _health() -> Any:
         return jsonify(ok=True, src="app_fallback")
+
+    @fallback.get("/portal")
+    @fallback.get("/portal/")
+    def _portal() -> Any:
+        if _admin_portal_claims_from_request() is None:
+            return jsonify(ok=False, error="admin_jwt_required"), 401
+        try:
+            return render_template("portal.html")
+        except Exception:
+            html = (
+                "<!doctype html><meta charset='utf-8'>"
+                "<title>Ester Portal</title>"
+                "<main id='portal'><h1>Ester Portal</h1></main>"
+            )
+            return Response(html, mimetype="text/html; charset=utf-8")
 
     for module_name in (
         "routes.docs_routes",
