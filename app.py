@@ -143,6 +143,7 @@ def _build_fallback_app() -> Flask:
 
     for module_name in (
         "routes.docs_routes",
+        "routes.admin_reports_routes",
         "routes.ingest_crdt_adapter_routes",
         "routes.probe_routes",
         "routes.proactive_routes",
