@@ -253,6 +253,56 @@ def _build_fallback_app() -> Flask:
             return jsonify(ok=False, error="not_found"), 404
         return jsonify(job), 200
 
+    @fallback.post("/ingest/submit")
+    def _ingest_submit_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+
+        user = "anon"
+        collection = ""
+        source_name = ""
+        if "file" in request.files:
+            upload = request.files["file"]
+            user = str(request.form.get("user") or "anon")
+            collection = str(request.form.get("collection") or "")
+            source_name = os.path.basename(upload.filename or "upload.bin")
+            added = 1 if source_name else 0
+        else:
+            data: dict[str, Any] = request.get_json(silent=True) or {}
+            path = str(data.get("path") or "").strip()
+            user = str(data.get("user") or "anon")
+            collection = str(data.get("collection") or "")
+            if not path:
+                return jsonify(ok=False, error="path required"), 400
+            if not os.path.isfile(path):
+                return jsonify(ok=False, error="path not found"), 400
+            source_name = os.path.basename(path)
+            added = 1
+
+        job_id = hashlib.sha256(f"submit:{time.time()}:{len(ingest_jobs)}:{source_name}".encode("utf-8")).hexdigest()[
+            :16
+        ]
+        job = {
+            "id": job_id,
+            "job_id": job_id,
+            "status": "done",
+            "user": user,
+            "collection": collection,
+            "source": source_name,
+            "stats": {"vstore_added": added},
+        }
+        ingest_jobs[job_id] = job
+        return jsonify(ok=True, job_id=job_id), 200
+
+    @fallback.get("/ingest/job/<job_id>")
+    def _ingest_job_fallback(job_id: str) -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        job = ingest_jobs.get(str(job_id))
+        if job is None:
+            return jsonify(ok=False, error="not_found"), 404
+        return jsonify(ok=True, job=job), 200
+
     @fallback.post("/empathy/analyze")
     def _empathy_analyze_fallback() -> tuple[Any, int]:
         if not _fallback_verify_jwt():
