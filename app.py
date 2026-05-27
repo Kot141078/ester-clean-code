@@ -376,6 +376,7 @@ def _build_fallback_app() -> Flask:
         "routes.security_routes",
         "routes.chat_routes",
         "routes.ops_backup_routes",
+        "routes.ops_help_routes",
         "routes.replication_guarded_test",
         "routes.ops_mtls_guarded",
         "routes.p2p_crdt_routes",
