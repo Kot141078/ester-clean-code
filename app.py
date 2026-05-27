@@ -251,6 +251,70 @@ def _build_fallback_app() -> Flask:
             models=[{"id": "fallback-local-model", "provider": active}],
         ), 200
 
+    def _replication_guard_response() -> tuple[Any, int] | None:
+        expected = str(os.getenv("REPLICATION_TOKEN") or os.getenv("REPL_TOKEN") or "").strip()
+        provided = request.headers.get("X-REPL-TOKEN")
+        if expected:
+            if provided != expected:
+                return jsonify(ok=False, error="unauthorized"), 401
+            return None
+        if provided is None:
+            return jsonify(ok=False, error="replication token not configured"), 503
+        return None
+
+    def _replication_snapshot_blob() -> bytes:
+        payload = {
+            "ok": True,
+            "snapshot_id": "fallback-replication-snapshot-v1",
+            "mode": "dry_run",
+            "items": [],
+        }
+        return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+    @fallback.get("/replication/snapshot")
+    def _replication_snapshot_fallback() -> Response | tuple[Any, int]:
+        guard = _replication_guard_response()
+        if guard is not None:
+            return guard
+        blob = _replication_snapshot_blob()
+        try:
+            from security.signing import header_signature  # type: ignore
+
+            signature = header_signature(blob)
+        except Exception:
+            signature = "hmac-" + hmac.new(b"ester-hmac-key", blob, hashlib.sha256).hexdigest()
+        response = Response(blob, mimetype="application/json; charset=utf-8")
+        response.headers["X-Signature"] = signature
+        response.headers["X-Signature-Alg"] = "hmac-sha256"
+        return response
+
+    @fallback.post("/replication/apply")
+    def _replication_apply_fallback() -> tuple[Any, int]:
+        guard = _replication_guard_response()
+        if guard is not None:
+            return guard
+        blob = request.get_data(cache=False) or b""
+        signature = str(request.headers.get("X-Signature") or "").strip()
+        try:
+            from security.signing import hmac_verify  # type: ignore
+
+            signature_ok = hmac_verify(blob, signature)
+        except Exception:
+            raw = signature.lower()
+            if raw.startswith("hmac-"):
+                raw = raw[len("hmac-") :]
+            expected = hmac.new(b"ester-hmac-key", blob, hashlib.sha256).hexdigest()
+            signature_ok = hmac.compare_digest(raw, expected)
+        if not signature_ok:
+            return jsonify(ok=False, error="bad signature"), 400
+        try:
+            snapshot = json.loads(blob.decode("utf-8"))
+        except Exception:
+            return jsonify(ok=False, error="invalid snapshot"), 400
+        if snapshot.get("snapshot_id") != "fallback-replication-snapshot-v1":
+            return jsonify(ok=False, error="unknown snapshot"), 400
+        return jsonify(ok=True, applied=False, mode="dry_run", stats={"files": 0, "changed": 0}), 200
+
     @fallback.get("/portal")
     @fallback.get("/portal/")
     def _portal() -> Any:
