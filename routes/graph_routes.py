@@ -51,6 +51,10 @@ def submit():
 def status(run_id: str):
     st = load_state(run_id)
     if not st:
+        with LOCK:
+            eng = RUNNERS.get(run_id)
+            st = dict(eng.state) if eng is not None else {}
+    if not st:
         return jsonify({"ok": False, "error": "unknown_run"}), 404
     include_ctx = request.args.get("include_ctx", "0") in ("1", "true", "yes")
     data: Dict[str, Any] = {"ok": True, "state": st}
@@ -114,9 +118,7 @@ def start():
             st = load_state(run_id)
             if not st:
                 return jsonify({"ok": False, "error": "unknown_run"}), 404
-            main_nodes = list(
-                (st.get("branches", {}).get("main", {}) or {}).get("nodes", {}).keys()
-            )
+            main_nodes = list((st.get("branches", {}).get("main", {}) or {}).get("nodes", {}).keys())
             eng = DAGEngine(
                 {
                     "run_id": run_id,
