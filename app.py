@@ -89,6 +89,19 @@ def _admin_portal_claims_from_request() -> Mapping[str, Any] | None:
     return _verified_admin_portal_claims(auth.split(" ", 1)[1].strip())
 
 
+def _admin_claims_from_request() -> Mapping[str, Any] | None:
+    try:
+        from flask_jwt_extended import get_jwt, verify_jwt_in_request  # type: ignore
+
+        verify_jwt_in_request()
+        claims = get_jwt()
+        if "admin" in _roles_from_claims(claims):
+            return claims
+    except Exception:
+        pass
+    return _admin_portal_claims_from_request()
+
+
 def _install_routes_endpoint(target: Flask) -> None:
     """Expose a small route inventory for test and diagnostic clients."""
     if any(rule.rule == "/routes" for rule in target.url_map.iter_rules()):
@@ -476,12 +489,44 @@ def _install_memory_alias_fallback_routes(target: Flask) -> None:
             )
 
 
+def _install_metrics_ui_fallback_route(target: Flask) -> None:
+    """Expose a CI-safe admin-only metrics UI when no handler is registered."""
+    existing_rules = {str(rule.rule) for rule in target.url_map.iter_rules()}
+    if "/metrics/ui" in existing_rules:
+        return
+
+    def _metrics_ui_fallback() -> tuple[Response, int] | tuple[Any, int]:
+        if _admin_claims_from_request() is None:
+            return jsonify(ok=False, error="admin_jwt_required"), 401
+        html = (
+            "<!doctype html><meta charset='utf-8'>"
+            "<title>Metrics UI</title>"
+            "<main id='metrics-ui'><h1>Metriki</h1>"
+            "<section data-source='fallback'>metrics unavailable in fallback app</section></main>"
+        )
+        return Response(html, mimetype="text/html; charset=utf-8"), 200
+
+    target.add_url_rule(
+        "/metrics/ui",
+        endpoint="metrics_ui_admin_fallback",
+        view_func=_metrics_ui_fallback,
+        methods=["GET"],
+    )
+    target.add_url_rule(
+        "/metrics/ui/",
+        endpoint="metrics_ui_admin_fallback_slash",
+        view_func=_metrics_ui_fallback,
+        methods=["GET"],
+    )
+
+
 try:
     from run_ester_fixed import flask_app as _flask_app  # type: ignore
 except Exception:
     _flask_app = _build_fallback_app()
 
 app: Flask = _flask_app
+_install_metrics_ui_fallback_route(app)
 _install_memory_alias_fallback_routes(app)
 _install_routes_endpoint(app)
 
