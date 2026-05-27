@@ -137,6 +137,8 @@ def _build_fallback_app() -> Flask:
         pass
     ingest_jobs: dict[str, dict[str, Any]] = {}
     empathy_counts: dict[str, int] = {}
+    provider_state: dict[str, str] = {"active": "local"}
+    provider_names = ("local", "lmstudio", "cloud", "judge")
 
     def _fallback_verify_jwt() -> bool:
         try:
@@ -217,6 +219,37 @@ def _build_fallback_app() -> Flask:
     @fallback.get("/health")
     def _health() -> Any:
         return jsonify(ok=True, src="app_fallback")
+
+    @fallback.get("/providers/status")
+    def _providers_status_fallback() -> tuple[Any, int]:
+        active = provider_state.get("active") or "local"
+        return jsonify(
+            ok=True,
+            active=active,
+            available=list(provider_names),
+            providers=list(provider_names),
+            default_cloud="cloud",
+            lmstudio={"available": False, "mode": "fallback_no_probe"},
+            source="fallback_static",
+        ), 200
+
+    @fallback.post("/providers/select")
+    def _providers_select_fallback() -> tuple[Any, int]:
+        data: dict[str, Any] = request.get_json(silent=True) or {}
+        requested = str(data.get("mode") or data.get("provider") or data.get("name") or "").strip().lower()
+        if requested not in provider_names:
+            return jsonify(ok=False, error="unknown_provider"), 400
+        provider_state["active"] = requested
+        return jsonify(ok=True, active=requested), 200
+
+    @fallback.get("/providers/models")
+    def _providers_models_fallback() -> tuple[Any, int]:
+        active = provider_state.get("active") or "local"
+        return jsonify(
+            ok=True,
+            active=active,
+            models=[{"id": "fallback-local-model", "provider": active}],
+        ), 200
 
     @fallback.get("/portal")
     @fallback.get("/portal/")
