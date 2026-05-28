@@ -468,7 +468,39 @@ def _build_fallback_app() -> Flask:
     def _mem_kg_export_fallback() -> tuple[Any, int]:
         if not _fallback_verify_jwt():
             return jsonify(ok=False, error="unauthorized"), 401
-        return jsonify(ok=True, nodes=[dict(node) for node in kg_nodes.values()], edges=list(kg_edges.values())), 200
+        nodes = [dict(node) for node in kg_nodes.values()]
+        edges = [dict(edge) for edge in kg_edges.values()]
+        return jsonify(ok=True, nodes=nodes, edges=edges, graph={"nodes": nodes, "edges": edges}), 200
+
+    @fallback.post("/mem/kg/import")
+    def _mem_kg_import_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        payload = request.get_json(silent=True) or {}
+        graph: Mapping[str, Any] = payload if isinstance(payload, Mapping) else {}
+        nested = graph.get("graph")
+        if isinstance(nested, Mapping):
+            graph = nested
+        node_ids: list[str] = []
+        edge_ids: list[str] = []
+        for raw_node in graph.get("nodes") or []:
+            if not isinstance(raw_node, Mapping):
+                continue
+            node = _kg_node_from_payload(raw_node)
+            if node is None:
+                continue
+            kg_nodes[str(node["id"])] = node
+            node_ids.append(str(node["id"]))
+        for raw_edge in graph.get("edges") or []:
+            if not isinstance(raw_edge, Mapping):
+                continue
+            edge = _kg_edge_from_payload(raw_edge)
+            if edge is None:
+                continue
+            key = (str(edge["src"]), str(edge["rel"]), str(edge["dst"]))
+            kg_edges[key] = edge
+            edge_ids.append(str(edge["id"]))
+        return jsonify(ok=True, nodes=len(node_ids), edges=len(edge_ids)), 200
 
     def _hypothesis_id(text: str, topic: str) -> str:
         raw = f"{topic}\n{text}".encode("utf-8", errors="ignore")
