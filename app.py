@@ -139,6 +139,7 @@ def _build_fallback_app() -> Flask:
     empathy_counts: dict[str, int] = {}
     provider_state: dict[str, str] = {"active": "local"}
     provider_names = ("local", "lmstudio", "cloud", "judge")
+    hypothesis_records: dict[str, dict[str, Any]] = {}
 
     def _fallback_verify_jwt() -> bool:
         try:
@@ -364,6 +365,91 @@ def _build_fallback_app() -> Flask:
         except (TypeError, ValueError):
             limit = 3
         return jsonify(_research_search_payload(query, limit)), 200
+
+    def _hypothesis_id(text: str, topic: str) -> str:
+        raw = f"{topic}\n{text}".encode("utf-8", errors="ignore")
+        return "h_" + hashlib.sha256(raw).hexdigest()[:16]
+
+    def _hypothesis_public_item(item: Mapping[str, Any]) -> dict[str, Any]:
+        return {
+            "id": str(item.get("id") or ""),
+            "topic": str(item.get("topic") or ""),
+            "tags": list(item.get("tags") or []),
+            "score": float(item.get("score") or 0.0),
+            "used": bool(item.get("used", False)),
+            "used_count": int(item.get("used_count") or 0),
+            "uses": int(item.get("used_count") or 0),
+        }
+
+    @fallback.post("/mem/hypothesis/add")
+    def _mem_hypothesis_add_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        data: dict[str, Any] = request.get_json(silent=True) or {}
+        text = str(data.get("text") or "").strip()
+        if not text:
+            return jsonify(ok=False, error="text is required"), 400
+        topic = str(data.get("topic") or "")
+        tags_in = data.get("tags") or []
+        if isinstance(tags_in, str):
+            tags = [tag.strip() for tag in tags_in.split(",") if tag.strip()]
+        else:
+            tags = [str(tag).strip() for tag in tags_in if str(tag).strip()]
+        try:
+            score = float(data.get("score") if data.get("score") is not None else 0.5)
+        except (TypeError, ValueError):
+            score = 0.5
+        hid = _hypothesis_id(text, topic)
+        old = hypothesis_records.get(hid, {})
+        merged_tags = list(dict.fromkeys([*list(old.get("tags") or []), *tags]))
+        hypothesis_records[hid] = {
+            "id": hid,
+            "topic": topic,
+            "tags": merged_tags,
+            "score": score,
+            "used": bool(old.get("used", False)),
+            "used_count": int(old.get("used_count") or 0),
+            "ordinal": int(old.get("ordinal") or (len(hypothesis_records) + 1)),
+        }
+        return jsonify(ok=True, id=hid), 200
+
+    @fallback.get("/mem/hypothesis/list")
+    def _mem_hypothesis_list_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        topic = request.args.get("topic")
+        try:
+            limit = int(request.args.get("limit", "100") or 100)
+        except (TypeError, ValueError):
+            limit = 100
+        rows = list(hypothesis_records.values())
+        if topic is not None:
+            rows = [row for row in rows if str(row.get("topic") or "") == str(topic)]
+        rows.sort(key=lambda row: int(row.get("ordinal") or 0))
+        items = [_hypothesis_public_item(row) for row in rows[: max(0, limit)]]
+        return jsonify(ok=True, items=items), 200
+
+    @fallback.post("/mem/hypothesis/feedback")
+    def _mem_hypothesis_feedback_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        data: dict[str, Any] = request.get_json(silent=True) or {}
+        hid = str(data.get("id") or "").strip()
+        if not hid:
+            return jsonify(ok=False, error="id is required"), 400
+        item = hypothesis_records.get(hid)
+        if item is None:
+            return jsonify(ok=False, error="not_found", id=hid), 404
+        if "used" in data:
+            item["used"] = bool(data.get("used"))
+            if item["used"]:
+                item["used_count"] = int(item.get("used_count") or 0) + 1
+        if data.get("delta_score") is not None:
+            try:
+                item["score"] = float(item.get("score") or 0.0) + float(data.get("delta_score"))
+            except (TypeError, ValueError):
+                pass
+        return jsonify(ok=True, item=_hypothesis_public_item(item)), 200
 
     @fallback.get("/portal")
     @fallback.get("/portal/")
