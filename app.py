@@ -315,6 +315,56 @@ def _build_fallback_app() -> Flask:
             return jsonify(ok=False, error="unknown snapshot"), 400
         return jsonify(ok=True, applied=False, mode="dry_run", stats={"files": 0, "changed": 0}), 200
 
+    def _research_search_payload(query: str, limit: int) -> dict[str, Any]:
+        count = max(1, min(int(limit or 1), 3))
+        seed = hashlib.sha256(query.encode("utf-8", errors="ignore")).hexdigest()[:10]
+        results = [
+            {
+                "id": f"fallback_research_{seed}_{idx}",
+                "title": f"Fallback research result {idx + 1}",
+                "snippet": f"Deterministic fallback result for {query}.",
+                "score": round(1.0 - (idx * 0.05), 6),
+                "source": "fallback_static",
+            }
+            for idx in range(count)
+        ]
+        return {
+            "ok": True,
+            "query": query,
+            "results": results,
+            "items": results,
+            "summary": f"Deterministic fallback summary for {query}.",
+            "took_ms": 0,
+            "elapsed_ms": 0,
+        }
+
+    @fallback.get("/research/search")
+    def _research_search_get_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        query = str(request.args.get("query") or "").strip()
+        if not query:
+            return jsonify(ok=False, error="empty query", results=[], items=[]), 400
+        try:
+            limit = int(request.args.get("k", "3") or 3)
+        except (TypeError, ValueError):
+            limit = 3
+        return jsonify(_research_search_payload(query, limit)), 200
+
+    @fallback.post("/research/search")
+    def _research_search_post_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        data: dict[str, Any] = request.get_json(silent=True) or {}
+        query = str(data.get("query") or "").strip()
+        if not query:
+            return jsonify(ok=False, error="empty query", results=[], items=[]), 400
+        try:
+            limit = int(data.get("k") or 3)
+        except (TypeError, ValueError):
+            limit = 3
+        return jsonify(_research_search_payload(query, limit)), 200
+
     @fallback.get("/portal")
     @fallback.get("/portal/")
     def _portal() -> Any:
