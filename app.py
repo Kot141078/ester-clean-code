@@ -140,6 +140,8 @@ def _build_fallback_app() -> Flask:
     provider_state: dict[str, str] = {"active": "local"}
     provider_names = ("local", "lmstudio", "cloud", "judge")
     hypothesis_records: dict[str, dict[str, Any]] = {}
+    kg_nodes: dict[str, dict[str, Any]] = {}
+    kg_edges: dict[tuple[str, str, str], dict[str, Any]] = {}
 
     def _fallback_verify_jwt() -> bool:
         try:
@@ -365,6 +367,108 @@ def _build_fallback_app() -> Flask:
         except (TypeError, ValueError):
             limit = 3
         return jsonify(_research_search_payload(query, limit)), 200
+
+    def _kg_limit(raw: Any, default: int = 50) -> int:
+        try:
+            return max(0, min(int(raw if raw is not None else default), 1000))
+        except (TypeError, ValueError):
+            return default
+
+    def _kg_node_from_payload(raw: Mapping[str, Any]) -> dict[str, Any] | None:
+        node_id = str(raw.get("id") or raw.get("label") or "").strip()
+        if not node_id:
+            return None
+        return {
+            "id": node_id,
+            "type": str(raw.get("type") or "entity"),
+            "label": str(raw.get("label") or node_id),
+        }
+
+    def _kg_edge_from_payload(raw: Mapping[str, Any]) -> dict[str, Any] | None:
+        src = str(raw.get("src") or raw.get("source") or "").strip()
+        rel = str(raw.get("rel") or raw.get("type") or "related").strip()
+        dst = str(raw.get("dst") or raw.get("target") or "").strip()
+        if not (src and rel and dst):
+            return None
+        try:
+            weight = float(raw.get("weight") if raw.get("weight") is not None else 1.0)
+        except (TypeError, ValueError):
+            weight = 1.0
+        edge_id = str(raw.get("id") or "").strip()
+        if not edge_id:
+            digest = hashlib.sha256(f"{src}\0{rel}\0{dst}".encode("utf-8", errors="ignore")).hexdigest()[:16]
+            edge_id = f"edge::{digest}"
+        return {"id": edge_id, "src": src, "rel": rel, "dst": dst, "weight": weight}
+
+    @fallback.post("/mem/kg/upsert")
+    def _mem_kg_upsert_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        data: dict[str, Any] = request.get_json(silent=True) or {}
+        node_ids: list[str] = []
+        edge_ids: list[str] = []
+        for raw_node in data.get("nodes") or []:
+            if not isinstance(raw_node, Mapping):
+                continue
+            node = _kg_node_from_payload(raw_node)
+            if node is None:
+                continue
+            kg_nodes[str(node["id"])] = node
+            node_ids.append(str(node["id"]))
+        for raw_edge in data.get("edges") or []:
+            if not isinstance(raw_edge, Mapping):
+                continue
+            edge = _kg_edge_from_payload(raw_edge)
+            if edge is None:
+                continue
+            key = (str(edge["src"]), str(edge["rel"]), str(edge["dst"]))
+            kg_edges[key] = edge
+            edge_ids.append(str(edge["id"]))
+        return jsonify(ok=True, nodes=len(node_ids), edges=len(edge_ids), node_ids=node_ids, edge_ids=edge_ids), 200
+
+    @fallback.get("/mem/kg/query")
+    def _mem_kg_query_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        query = str(request.args.get("q") or "").strip().casefold()
+        node_type = str(request.args.get("type") or "").strip().casefold()
+        limit = _kg_limit(request.args.get("limit"), 100)
+        rows: list[dict[str, Any]] = []
+        for node in kg_nodes.values():
+            if node_type and str(node.get("type") or "").casefold() != node_type:
+                continue
+            haystack = " ".join(str(node.get(key) or "") for key in ("id", "type", "label")).casefold()
+            if query and query not in haystack:
+                continue
+            rows.append(dict(node))
+        return jsonify(ok=True, nodes=rows[:limit]), 200
+
+    @fallback.get("/mem/kg/neighbors")
+    def _mem_kg_neighbors_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        node_id = str(request.args.get("id") or request.args.get("node_id") or "").strip()
+        if not node_id:
+            return jsonify(ok=False, error="id required"), 400
+        rel = str(request.args.get("rel") or "").strip()
+        node = dict(kg_nodes.get(node_id) or {"id": node_id, "type": "entity", "label": node_id})
+        out_edges = [
+            dict(edge)
+            for edge in kg_edges.values()
+            if str(edge.get("src") or "") == node_id and (not rel or str(edge.get("rel") or "") == rel)
+        ]
+        in_edges = [
+            dict(edge)
+            for edge in kg_edges.values()
+            if str(edge.get("dst") or "") == node_id and (not rel or str(edge.get("rel") or "") == rel)
+        ]
+        return jsonify(ok=True, node=node, out=out_edges, **{"in": in_edges}), 200
+
+    @fallback.get("/mem/kg/export")
+    def _mem_kg_export_fallback() -> tuple[Any, int]:
+        if not _fallback_verify_jwt():
+            return jsonify(ok=False, error="unauthorized"), 401
+        return jsonify(ok=True, nodes=[dict(node) for node in kg_nodes.values()], edges=list(kg_edges.values())), 200
 
     def _hypothesis_id(text: str, topic: str) -> str:
         raw = f"{topic}\n{text}".encode("utf-8", errors="ignore")
