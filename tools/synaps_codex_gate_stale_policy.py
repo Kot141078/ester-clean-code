@@ -8,7 +8,6 @@ import json
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -38,6 +37,7 @@ def main(argv: list[str] | None = None) -> int:
             max_peer_silent_open=args.max_peer_silent_open,
             stale_after_hours=args.stale_after_hours,
         ),
+        operation="policy_write" if args.write else "status_only",
     )
     write = write_codex_gate_stale_policy(
         evaluation=evaluation,

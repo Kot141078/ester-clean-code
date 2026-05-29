@@ -8,7 +8,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping
 
-
 CODEX_GATE_STALE_POLICY_SCHEMA = "ester.synaps.codex_gate_stale_policy.v1"
 CODEX_GATE_STALE_POLICY_CONFIRM_PHRASE = "ESTER_READY_FOR_CODEX_GATE_STALE_POLICY_WRITE"
 
@@ -27,6 +26,7 @@ def evaluate_codex_gate_stale_policy(
     dashboard: Mapping[str, Any],
     policy: CodexGateStalePolicy | None = None,
     now: datetime | None = None,
+    operation: str = "status_only",
 ) -> dict[str, Any]:
     actual_policy = policy or CodexGateStalePolicy()
     actual_now = now or datetime.now(timezone.utc)
@@ -42,6 +42,7 @@ def evaluate_codex_gate_stale_policy(
         open_count=len(open_fronts),
         peer_silent_count=len(peer_silent),
         stale_count=len(stale_fronts),
+        operation=operation,
         policy=actual_policy,
     )
     output = {
@@ -49,6 +50,7 @@ def evaluate_codex_gate_stale_policy(
         "ok": True,
         "recommendation": recommendation,
         "reason": reason,
+        "operation": operation,
         "policy": actual_policy.to_record(),
         "dashboard_schema": dashboard.get("schema", ""),
         "dashboard_open_count": int(dashboard.get("open_count") or len(open_fronts)),
@@ -70,11 +72,12 @@ def evaluate_codex_gate_stale_policy_file(
     dashboard_path: str | Path,
     policy: CodexGateStalePolicy | None = None,
     now: datetime | None = None,
+    operation: str = "status_only",
 ) -> dict[str, Any]:
     dashboard = json.loads(Path(dashboard_path).read_text(encoding="utf-8"))
     if not isinstance(dashboard, Mapping):
         raise ValueError("dashboard JSON must be an object")
-    payload = evaluate_codex_gate_stale_policy(dashboard=dashboard, policy=policy, now=now)
+    payload = evaluate_codex_gate_stale_policy(dashboard=dashboard, policy=policy, now=now, operation=operation)
     payload["dashboard_path"] = str(dashboard_path)
     return payload
 
@@ -113,7 +116,10 @@ def write_codex_gate_stale_policy(
     if out_json:
         json_path = Path(out_json)
         json_path.parent.mkdir(parents=True, exist_ok=True)
-        json_path.write_text(json.dumps(dict(evaluation), ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        json_path.write_text(
+            json.dumps(dict(evaluation), ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
         paths["json"] = str(json_path)
     if out_md:
         md_path = Path(out_md)
@@ -202,10 +208,19 @@ def _parse_datetime(raw: str) -> datetime | None:
     return value.astimezone(timezone.utc)
 
 
-def _recommendation(*, open_count: int, peer_silent_count: int, stale_count: int, policy: CodexGateStalePolicy) -> tuple[str, str]:
+def _recommendation(
+    *,
+    open_count: int,
+    peer_silent_count: int,
+    stale_count: int,
+    operation: str,
+    policy: CodexGateStalePolicy,
+) -> tuple[str, str]:
     if peer_silent_count >= policy.max_peer_silent_open:
         return "pause_new_patch_sends", f"peer_silent_count:{peer_silent_count}>=max:{policy.max_peer_silent_open}"
     if stale_count:
+        if operation not in {"status_only", "read_only", "dashboard_only"}:
+            return "wait", f"stale_write_operation:{operation}:stale_count:{stale_count}"
         return "request_status_only", f"stale_count:{stale_count}"
     if open_count:
         return "wait", f"open_count:{open_count}"
