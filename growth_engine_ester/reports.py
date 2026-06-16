@@ -27,6 +27,13 @@ def build_report(*, root: str | None = None) -> dict[str, Any]:
                     fitness_curve.append(float(subj["candidate_fit"]))
                 except Exception:
                     pass
+    latest_shadow_event = None
+    for row in reversed(witness_rows):
+        if row.get("event_type") == "shadow_eval":
+            latest_shadow_event = row
+            break
+    latest_candidate = candidates[-1] if candidates else None
+    latest_report = paths["reports"] / "latest_shadow_report.md"
     return {
         "ok": True,
         "config": config_status(),
@@ -36,12 +43,15 @@ def build_report(*, root: str | None = None) -> dict[str, Any]:
             "fitness_rows": len(fitness),
             "candidate_rows": len(candidates),
             "witness_rows": len(witness_rows),
+            "latest_shadow_report": str(latest_report) if latest_report.exists() else "",
         },
         "fitness": {
             "n": len(fitness),
             "mean_score": _mean(fitness_scores),
             "fitness_curve": fitness_curve,
         },
+        "latest_shadow_event": latest_shadow_event,
+        "latest_candidate": latest_candidate,
         "witness": verify_witness(root=str(paths["root"])),
         "current_policy": load_promoted_policy(str(paths["root"])),
     }
