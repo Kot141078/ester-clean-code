@@ -6,8 +6,19 @@ from pathlib import Path
 from typing import Any
 
 from growth_engine import ReplaySet
+from growth_engine.common import err, ok
 
-from .state import state_paths
+from .outcomes import accepted_outcomes
+from .state import ensure_layout, state_paths
+
+REAL_REPLAY_SCHEMA = "ester.srlm.replay.real_redacted.v1"
+DEFAULT_MIN_REAL_OUTCOMES = 20
+
+
+class ReplayUnavailable(ValueError):
+    def __init__(self, report: dict[str, Any]) -> None:
+        super().__init__(str(report.get("error_code") or "replay_unavailable"))
+        self.report = report
 
 
 def _default_contexts() -> list[dict[str, Any]]:
@@ -25,6 +36,8 @@ def _load_replay_contexts(root: str | None = None) -> list[dict[str, Any]]:
         return []
     contexts: list[dict[str, Any]] = []
     for path in sorted(Path(folder).glob("*.jsonl")):
+        if path.name == "real_redacted.jsonl":
+            continue
         with path.open("r", encoding="utf-8", errors="replace") as f:
             for line in f:
                 try:
@@ -39,11 +52,136 @@ def _load_replay_contexts(root: str | None = None) -> list[dict[str, Any]]:
     return contexts
 
 
+def eligible_real_outcomes(root: str | None = None) -> list[dict[str, Any]]:
+    rows = []
+    for row in accepted_outcomes(root):
+        if row.get("schema") != "ester.srlm.outcome.v1":
+            continue
+        if row.get("redacted") is not True:
+            continue
+        if row.get("eligible_for_replay") is not True:
+            continue
+        rows.append(row)
+    return rows
+
+
+def _context_from_outcome(row: dict[str, Any]) -> dict[str, Any]:
+    source = str(row.get("source") or "")
+    score = max(0.0, min(1.0, float(row.get("score", 0.0) or 0.0)))
+    uncertainty = max(0.0, min(1.0, float(row.get("uncertainty", 0.0) or 0.0)))
+    ctx = {
+        "local_signal": 0.0,
+        "judge_signal": 0.0,
+        "online_signal": 0.0,
+        "semantic_signal": 0.0,
+        "structured_signal": 0.0,
+        "card_signal": 0.0,
+        "target": score * 2.0,
+        "uncertainty": uncertainty,
+    }
+    if source == "human":
+        ctx["local_signal"] = 1.0
+        ctx["semantic_signal"] = 0.6
+    elif source == "reality":
+        ctx["online_signal"] = 1.0
+        ctx["structured_signal"] = 0.6
+    elif source == "l4":
+        ctx["judge_signal"] = 1.0
+        ctx["card_signal"] = 0.4
+    return ctx
+
+
 def score_context(ctx: dict[str, Any], action: Any) -> float:
     target = float(ctx.get("target", 1.0))
-    return 1.0 / (1.0 + abs(float(action) - target))
+    uncertainty = max(0.0, min(1.0, float(ctx.get("uncertainty", 0.0) or 0.0)))
+    base = 1.0 / (1.0 + abs(float(action) - target))
+    return base * (1.0 - (uncertainty * 0.5))
 
 
-def build_replay(root: str | None = None) -> ReplaySet:
-    contexts = _load_replay_contexts(root) or _default_contexts()
-    return ReplaySet("ester_srlm_replay", contexts, score_context)
+def replay_status(*, root: str | None = None, min_n: int = DEFAULT_MIN_REAL_OUTCOMES) -> dict[str, Any]:
+    paths = state_paths(root)
+    rows = eligible_real_outcomes(str(paths["root"]))
+    return ok(
+        synthetic={"available": True, "label": "synthetic"},
+        real_redacted={
+            "available": len(rows) >= int(min_n),
+            "eligible_count": len(rows),
+            "min_required": int(min_n),
+            "path": str(paths["real_replay"]),
+            "label": "real_redacted",
+            "status": "ready" if len(rows) >= int(min_n) else "insufficient_real_outcomes",
+        },
+    )
+
+
+def build_real_replay(*, root: str | None = None, min_n: int = DEFAULT_MIN_REAL_OUTCOMES) -> dict[str, Any]:
+    paths = ensure_layout(root)
+    rows = eligible_real_outcomes(str(paths["root"]))
+    if len(rows) < int(min_n):
+        return err(
+            "insufficient_real_outcomes",
+            "not enough redacted eligible outcomes to build real replay",
+            eligible_count=len(rows),
+            min_required=int(min_n),
+            replay_source="real_redacted",
+        )
+    records = []
+    for row in rows:
+        records.append(
+            {
+                "schema": REAL_REPLAY_SCHEMA,
+                "outcome_id": row.get("outcome_id"),
+                "source": row.get("source"),
+                "event_kind": row.get("event_kind"),
+                "evidence_hash": row.get("evidence_hash"),
+                "score": row.get("score"),
+                "uncertainty": row.get("uncertainty"),
+                "redacted": True,
+                "context": _context_from_outcome(row),
+            }
+        )
+    path = paths["real_replay"]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="\n") as f:
+        for record in records:
+            f.write(json.dumps(record, ensure_ascii=True, sort_keys=True, separators=(",", ":")) + "\n")
+    return ok(path=str(path), count=len(records), replay_source="real_redacted", label="real_redacted")
+
+
+def _load_real_replay_contexts(root: str | None = None, *, min_n: int = DEFAULT_MIN_REAL_OUTCOMES) -> list[dict[str, Any]]:
+    built = build_real_replay(root=root, min_n=min_n)
+    if not built.get("ok"):
+        raise ReplayUnavailable(built)
+    contexts: list[dict[str, Any]] = []
+    path = state_paths(root)["real_replay"]
+    with path.open("r", encoding="utf-8", errors="replace") as f:
+        for line in f:
+            try:
+                obj = json.loads(line)
+            except Exception:
+                continue
+            ctx = obj.get("context") if isinstance(obj, dict) else None
+            if isinstance(ctx, dict) and "target" in ctx:
+                contexts.append({k: v for k, v in ctx.items() if isinstance(v, (int, float))})
+    if len(contexts) < int(min_n):
+        raise ReplayUnavailable(
+            err(
+                "insufficient_real_outcomes",
+                "real replay file contains too few usable contexts",
+                eligible_count=len(contexts),
+                min_required=int(min_n),
+                replay_source="real_redacted",
+            )
+        )
+    return contexts
+
+
+def build_replay(root: str | None = None, *, source: str = "synthetic", min_real: int = DEFAULT_MIN_REAL_OUTCOMES) -> ReplaySet:
+    replay_source = str(source or "synthetic").strip().lower()
+    if replay_source == "synthetic":
+        contexts = _load_replay_contexts(root) or _default_contexts()
+        return ReplaySet("ester_srlm_replay_synthetic", contexts, score_context)
+    if replay_source == "real_redacted":
+        contexts = _load_real_replay_contexts(root, min_n=min_real)
+        return ReplaySet("ester_srlm_replay_real_redacted", contexts, score_context)
+    raise ReplayUnavailable(err("SRLM_REPLAY_SOURCE_INVALID", f"unknown replay_source:{replay_source}", replay_source=replay_source))

@@ -6,6 +6,7 @@ from flask import Blueprint, jsonify, request
 from .config import status
 from .decision_adapter import shadow_step
 from .promotion_adapter import promote_candidate, rollback, verify_witness
+from .replay_store import build_real_replay, replay_status
 from .reports import build_report
 from .signals import record_outcome
 from .state import read_jsonl, state_paths
@@ -42,6 +43,25 @@ def srlm_report():
 def srlm_candidates():
     rows = read_jsonl(state_paths()["candidates"], limit=200)
     return jsonify({"ok": True, "candidates": rows})
+
+
+@bp.get("/srlm/replay/status")
+def srlm_replay_status():
+    return jsonify(replay_status())
+
+
+@bp.post("/srlm/replay/build")
+def srlm_replay_build():
+    denied = _admin_guard()
+    if denied:
+        return denied
+    body = request.get_json(silent=True) or {}
+    try:
+        min_n = int(body.get("min_n", 20) or 20)
+    except Exception:
+        min_n = 20
+    rep = build_real_replay(min_n=min_n)
+    return jsonify(rep), 200 if rep.get("ok") else 400
 
 
 @bp.post("/srlm/record_outcome")

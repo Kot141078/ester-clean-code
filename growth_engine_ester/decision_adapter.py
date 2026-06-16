@@ -10,7 +10,7 @@ from growth_engine.common import err, ok, q
 
 from .config import load_config
 from .policy import validate_candidate_risk, validate_params
-from .replay_store import build_replay
+from .replay_store import ReplayUnavailable, build_replay
 from .state import append_candidate, ensure_layout, load_promoted_policy
 
 
@@ -38,6 +38,7 @@ def shadow_compare(
     current_params: Mapping[str, Any],
     proposed_params: Mapping[str, Any],
     root: str | None = None,
+    replay_source: str = "synthetic",
 ) -> dict[str, Any]:
     cur = validate_params(current_params)
     if not cur.get("ok"):
@@ -47,7 +48,10 @@ def shadow_compare(
         return prop
     current = new_version(dict(cur["params"]), kind="ester_srlm_policy", note="current")
     proposed = new_version(dict(prop["params"]), parent=current, kind="ester_srlm_policy", note="candidate")
-    replay = build_replay(root)
+    try:
+        replay = build_replay(root, source=replay_source)
+    except ReplayUnavailable as exc:
+        return exc.report
     ev = shadow_eval(replay, current, proposed, decide_fn=decide_params)
     cand = Candidate(
         candidate_id="cand_" + proposed.fingerprint()[:16],
@@ -211,6 +215,7 @@ def _persist_shadow_result(rep: dict[str, Any], *, root: str | None = None) -> d
 
 def shadow_step(payload: Mapping[str, Any] | None = None, *, root: str | None = None) -> dict[str, Any]:
     body = dict(payload or {})
+    replay_source = str(body.get("replay_source") or "synthetic").strip().lower()
     current_params = body.get("current_params")
     if not isinstance(current_params, dict):
         current_params = load_promoted_policy(root)
@@ -219,7 +224,7 @@ def shadow_step(payload: Mapping[str, Any] | None = None, *, root: str | None = 
         return err("SRLM_PROPOSED_PARAMS_REQUIRED", "proposed_params/params/changes must be an object")
     merged = dict(current_params)
     merged.update(proposed_params)
-    rep = shadow_compare(current_params=current_params, proposed_params=merged, root=root)
+    rep = shadow_compare(current_params=current_params, proposed_params=merged, root=root, replay_source=replay_source)
     if not rep.get("ok"):
         return rep
     return _persist_shadow_result(rep, root=root)

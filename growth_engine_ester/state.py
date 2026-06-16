@@ -19,9 +19,11 @@ def state_paths(root: str | None = None) -> dict[str, Path]:
     return {
         "root": base,
         "fitness": base / "fitness.jsonl",
+        "outcome_rejections": base / "outcome_rejections.jsonl",
         "witness": base / "growth_witness.jsonl",
         "candidates": base / "candidates.jsonl",
         "replay": base / "replay",
+        "real_replay": base / "replay" / "real_redacted.jsonl",
         "promoted_policy": base / "promoted_policy.json",
         "rollback": base / "rollback",
         "reports": base / "reports",

@@ -12,9 +12,19 @@ def _mean(values: list[float]) -> float:
     return sum(values) / len(values) if values else 0.0
 
 
+def _counts(rows: list[dict[str, Any]], key: str) -> dict[str, int]:
+    out: dict[str, int] = {}
+    for row in rows:
+        value = str(row.get(key) or "")
+        if value:
+            out[value] = out.get(value, 0) + 1
+    return dict(sorted(out.items()))
+
+
 def build_report(*, root: str | None = None) -> dict[str, Any]:
     paths = state_paths(root)
     fitness = read_jsonl(paths["fitness"], limit=1000)
+    rejections = read_jsonl(paths["outcome_rejections"], limit=1000)
     witness_rows = read_jsonl(paths["witness"], limit=1000)
     candidates = read_jsonl(paths["candidates"], limit=1000)
     fitness_scores = [float(row.get("score", 0.0) or 0.0) for row in fitness]
@@ -34,6 +44,8 @@ def build_report(*, root: str | None = None) -> dict[str, Any]:
             break
     latest_candidate = candidates[-1] if candidates else None
     latest_report = paths["reports"] / "latest_shadow_report.md"
+    replay_eligible = [row for row in fitness if row.get("redacted") is True and row.get("eligible_for_replay") is True]
+    min_real = 20
     return {
         "ok": True,
         "config": config_status(),
@@ -49,6 +61,14 @@ def build_report(*, root: str | None = None) -> dict[str, Any]:
             "n": len(fitness),
             "mean_score": _mean(fitness_scores),
             "fitness_curve": fitness_curve,
+            "total_outcomes": len(fitness),
+            "counts_by_source": _counts(fitness, "source"),
+            "counts_by_event_kind": _counts(fitness, "event_kind"),
+            "rejected_outcome_count": len(rejections),
+            "last_accepted_outcome": fitness[-1] if fitness else None,
+            "replay_eligible_count": len(replay_eligible),
+            "warning": "too_few_real_outcomes" if len(replay_eligible) < min_real else "",
+            "min_real_outcomes_for_replay": min_real,
         },
         "latest_shadow_event": latest_shadow_event,
         "latest_candidate": latest_candidate,

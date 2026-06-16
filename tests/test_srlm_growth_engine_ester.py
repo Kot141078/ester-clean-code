@@ -12,6 +12,7 @@ from growth_engine_ester.config import load_config
 from growth_engine_ester.decision_adapter import shadow_step
 from growth_engine_ester.policy import validate_params
 from growth_engine_ester.promotion_adapter import promote_candidate, rollback, verify_witness
+from growth_engine_ester.replay_store import build_real_replay, replay_status
 from growth_engine_ester.reports import build_report
 from growth_engine_ester.routes import register as register_srlm_routes
 from growth_engine_ester.signals import record_outcome
@@ -92,6 +93,18 @@ def _better_params() -> dict[str, float]:
     return params
 
 
+def _human_outcome(outcome_id: str, score: float = 0.8) -> dict:
+    return {
+        "outcome_id": outcome_id,
+        "source": "human",
+        "event_kind": "human.answer.corrected",
+        "score": score,
+        "uncertainty": 0.1,
+        "source_ref": f"event-{outcome_id}",
+        "notes": "short redacted note",
+    }
+
+
 def test_srlm_disabled_by_default(tmp_path, monkeypatch):
     _clear_env(monkeypatch, tmp_path)
     cfg = load_config()
@@ -106,6 +119,157 @@ def test_invalid_fitness_source_and_model_self_score_rejected(tmp_path, monkeypa
     model = record_outcome({"episode_id": "e2", "score": 0.5, "source": "model"}, root=str(tmp_path))
     assert bad["ok"] is False and bad["error_code"] == "FITNESS_SOURCE_INVALID"
     assert model["ok"] is False and model["error_code"] == "FITNESS_SOURCE_INVALID"
+
+
+def test_human_reality_l4_outcomes_are_accepted(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    human = record_outcome(_human_outcome("human-1", 0.8), root=str(tmp_path))
+    reality = record_outcome(
+        {
+            "outcome_id": "reality-1",
+            "source": "reality",
+            "event_kind": "reality.tool.success",
+            "score": 1.0,
+            "uncertainty": 0.0,
+            "source_ref": "tool-run-1",
+            "notes": "tool completed",
+        },
+        root=str(tmp_path),
+    )
+    l4 = record_outcome(
+        {
+            "outcome_id": "l4-1",
+            "source": "l4",
+            "event_kind": "l4.gate.correctly_blocked",
+            "score": 1.0,
+            "uncertainty": 0.0,
+            "source_ref": "gate-1",
+            "notes": "constraint behaved correctly",
+        },
+        root=str(tmp_path),
+    )
+    assert human["ok"] is True
+    assert reality["ok"] is True
+    assert l4["ok"] is True
+    rows = _read_jsonl(tmp_path / "fitness.jsonl")
+    assert {row["source"] for row in rows} == {"human", "reality", "l4"}
+    assert rows[0]["schema"] == "ester.srlm.outcome.v1"
+    assert rows[0]["eligible_for_promotion"] is False
+    assert rows[0]["auto_ingest"] is False
+    assert rows[0]["memory"] == "off"
+
+
+def test_invalid_score_and_private_notes_rejected(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    invalid_score = record_outcome(_human_outcome("bad-score", 1.5), root=str(tmp_path))
+    secret = _human_outcome("secret-note", 0.5)
+    secret["notes"] = "authorization: bearer abc"
+    secret_note = record_outcome(secret, root=str(tmp_path))
+    long_note = _human_outcome("long-note", 0.5)
+    long_note["notes"] = "x" * 700
+    too_long = record_outcome(long_note, root=str(tmp_path))
+    assert invalid_score["ok"] is False
+    assert invalid_score["error_code"] == "FITNESS_SCORE_OUT_OF_RANGE"
+    assert secret_note["ok"] is False
+    assert secret_note["error_code"] == "SRLM_SECRET_REJECTED"
+    assert too_long["ok"] is False
+    assert too_long["error_code"] == "SRLM_TEXT_TOO_LONG"
+    assert not (tmp_path / "fitness.jsonl").exists()
+    assert len(_read_jsonl(tmp_path / "outcome_rejections.jsonl")) == 3
+
+
+def test_duplicate_outcome_id_is_idempotent(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    first = record_outcome(_human_outcome("dupe-1", 0.7), root=str(tmp_path))
+    second = record_outcome(_human_outcome("dupe-1", 0.2), root=str(tmp_path))
+    assert first["ok"] is True
+    assert second["ok"] is True
+    assert second["idempotent"] is True
+    rows = _read_jsonl(tmp_path / "fitness.jsonl")
+    assert len(rows) == 1
+    assert rows[0]["score"] == 0.7
+
+
+def test_fitness_report_sees_outcome_counts(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    record_outcome(_human_outcome("report-human", 0.8), root=str(tmp_path))
+    rejected = _human_outcome("report-bad", 0.8)
+    rejected["source"] = "model"
+    record_outcome(rejected, root=str(tmp_path))
+    report = build_report(root=str(tmp_path))
+    assert report["fitness"]["total_outcomes"] == 1
+    assert report["fitness"]["counts_by_source"] == {"human": 1}
+    assert report["fitness"]["counts_by_event_kind"] == {"human.answer.corrected": 1}
+    assert report["fitness"]["rejected_outcome_count"] == 1
+    assert report["fitness"]["replay_eligible_count"] == 1
+    assert report["fitness"]["warning"] == "too_few_real_outcomes"
+    assert (tmp_path / "reports" / "latest_fitness_report.md").exists()
+
+
+def test_replay_build_fails_closed_when_insufficient_real_outcomes(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    record_outcome(_human_outcome("few-1", 0.6), root=str(tmp_path))
+    status = replay_status(root=str(tmp_path), min_n=20)
+    built = build_real_replay(root=str(tmp_path), min_n=20)
+    assert status["real_redacted"]["status"] == "insufficient_real_outcomes"
+    assert built["ok"] is False
+    assert built["error_code"] == "insufficient_real_outcomes"
+    assert not (tmp_path / "replay" / "real_redacted.jsonl").exists()
+
+
+def test_replay_build_succeeds_after_enough_redacted_outcomes(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    for i in range(20):
+        record_outcome(_human_outcome(f"enough-{i}", 0.4 + (i % 5) * 0.1), root=str(tmp_path))
+    built = build_real_replay(root=str(tmp_path), min_n=20)
+    assert built["ok"] is True
+    assert built["count"] == 20
+    rows = _read_jsonl(tmp_path / "replay" / "real_redacted.jsonl")
+    assert len(rows) == 20
+    assert rows[0]["schema"] == "ester.srlm.replay.real_redacted.v1"
+    assert rows[0]["redacted"] is True
+    assert "notes" not in rows[0]
+
+
+def test_shadow_step_with_real_redacted_refuses_when_insufficient(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    rep = shadow_step(
+        {"current_params": _current_params(), "proposed_params": _better_params(), "replay_source": "real_redacted"},
+        root=str(tmp_path),
+    )
+    assert rep["ok"] is False
+    assert rep["error_code"] == "insufficient_real_outcomes"
+    assert not (tmp_path / "growth_witness.jsonl").exists()
+
+
+def test_shadow_step_with_real_redacted_persists_witness_when_sufficient(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    for i in range(20):
+        record_outcome(_human_outcome(f"real-shadow-{i}", 0.5 + (i % 4) * 0.1), root=str(tmp_path))
+    rep = shadow_step(
+        {"current_params": _current_params(), "proposed_params": _better_params(), "replay_source": "real_redacted"},
+        root=str(tmp_path),
+    )
+    assert rep["ok"] is True
+    assert rep["eval"]["replay"] == "ester_srlm_replay_real_redacted"
+    rows = _read_jsonl(tmp_path / "growth_witness.jsonl")
+    assert rows[-1]["event_type"] == "shadow_eval"
+    assert rows[-1]["subject"]["replay"] == "ester_srlm_replay_real_redacted"
+
+
+def test_record_outcome_does_not_touch_memory_rag_vector(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path / "srlm")
+    memory_store = tmp_path / "memory" / "memory.json"
+    vector_store = tmp_path / "vector" / "index.json"
+    rag_store = tmp_path / "rag" / "store.json"
+    for path in (memory_store, vector_store, rag_store):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('{"sentinel":true}\n', encoding="utf-8")
+    before = {path: _sha256(path) for path in (memory_store, vector_store, rag_store)}
+    rep = record_outcome(_human_outcome("no-ingest", 0.8), root=str(tmp_path / "srlm"))
+    assert rep["ok"] is True
+    after = {path: _sha256(path) for path in (memory_store, vector_store, rag_store)}
+    assert after == before
 
 
 def test_blocked_params_rejected():
@@ -142,7 +306,7 @@ def test_shadow_step_persists_witness_event_under_configured_root(tmp_path, monk
     assert subject["candidate_id"] == data["candidate"]["candidate_id"]
     assert subject["current_version"]
     assert subject["candidate_version"]
-    assert subject["replay"] == "ester_srlm_replay"
+    assert subject["replay"] == "ester_srlm_replay_synthetic"
     assert subject["n"] > 0
     assert "current_mean" in subject
     assert "candidate_mean" in subject
@@ -322,6 +486,22 @@ def test_srlm_routes(tmp_path, monkeypatch):
     )
     assert bad_source.status_code == 400
     assert bad_source.get_json()["error_code"] == "FITNESS_SOURCE_INVALID"
+
+    good_source = client.post(
+        "/srlm/record_outcome",
+        headers=admin,
+        json=_human_outcome("route-human", 0.7),
+    )
+    assert good_source.status_code == 200
+    assert good_source.get_json()["recorded"]["schema"] == "ester.srlm.outcome.v1"
+
+    replay_state = client.get("/srlm/replay/status")
+    assert replay_state.status_code == 200
+    assert replay_state.get_json()["real_redacted"]["status"] == "insufficient_real_outcomes"
+
+    replay_build = client.post("/srlm/replay/build", headers=admin, json={})
+    assert replay_build.status_code == 400
+    assert replay_build.get_json()["error_code"] == "insufficient_real_outcomes"
 
     witness = client.get("/srlm/verify_witness")
     assert witness.status_code == 200
