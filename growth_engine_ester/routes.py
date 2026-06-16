@@ -5,6 +5,7 @@ from flask import Blueprint, jsonify, request
 
 from .config import status
 from .decision_adapter import shadow_step
+from .outcome_candidates import accept_candidate, candidate_stats, list_candidates, propose_candidate, reject_candidate
 from .promotion_adapter import promote_candidate, rollback, verify_witness
 from .quality import list_outcomes, list_rejections, outcome_stats, replay_quality_profile
 from .replay_store import build_real_replay, replay_status
@@ -73,6 +74,45 @@ def srlm_outcome_stats():
 def srlm_outcome_rejections():
     limit, offset = _limit_offset()
     return jsonify(list_rejections(limit=limit, offset=offset))
+
+
+@bp.get("/srlm/outcome_candidates")
+def srlm_outcome_candidates():
+    limit, offset = _limit_offset()
+    status_filter = str(request.args.get("status", "") or "")
+    return jsonify(list_candidates(limit=limit, offset=offset, status=status_filter))
+
+
+@bp.get("/srlm/outcome_candidates/stats")
+def srlm_outcome_candidate_stats():
+    return jsonify(candidate_stats())
+
+
+@bp.post("/srlm/outcome_candidates/propose")
+def srlm_outcome_candidate_propose():
+    denied = _admin_guard()
+    if denied:
+        return denied
+    rep = propose_candidate(request.get_json(silent=True) or {})
+    return jsonify(rep), 200 if rep.get("ok") else 400
+
+
+@bp.post("/srlm/outcome_candidates/accept")
+def srlm_outcome_candidate_accept():
+    denied = _admin_guard()
+    if denied:
+        return denied
+    rep = accept_candidate(request.get_json(silent=True) or {})
+    return jsonify(rep), 200 if rep.get("ok") else 400
+
+
+@bp.post("/srlm/outcome_candidates/reject")
+def srlm_outcome_candidate_reject():
+    denied = _admin_guard()
+    if denied:
+        return denied
+    rep = reject_candidate(request.get_json(silent=True) or {})
+    return jsonify(rep), 200 if rep.get("ok") else 400
 
 
 @bp.get("/srlm/replay/quality")

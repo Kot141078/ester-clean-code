@@ -12,6 +12,13 @@ from flask import Flask
 
 from growth_engine_ester.config import load_config
 from growth_engine_ester.decision_adapter import shadow_step
+from growth_engine_ester.outcome_candidates import (
+    accept_candidate,
+    auto_propose_candidate,
+    candidate_stats,
+    propose_candidate,
+    reject_candidate,
+)
 from growth_engine_ester.policy import validate_params
 from growth_engine_ester.promotion_adapter import promote_candidate, rollback, verify_witness
 from growth_engine_ester.replay_store import build_real_replay, replay_status
@@ -107,6 +114,19 @@ def _human_outcome(outcome_id: str, score: float = 0.8) -> dict:
         "uncertainty": 0.1,
         "source_ref": f"event-{outcome_id}",
         "notes": "short redacted note",
+    }
+
+
+def _candidate_payload(candidate_id: str, source: str = "human", event_kind: str = "human.answer.corrected") -> dict:
+    return {
+        "candidate_id": candidate_id,
+        "source": source,
+        "event_kind": event_kind,
+        "score": 0.8,
+        "uncertainty": 0.1,
+        "source_ref": f"candidate-event-{candidate_id}",
+        "notes": "short redacted candidate note",
+        "reason": "bounded event may represent a real fitness outcome",
     }
 
 
@@ -226,6 +246,173 @@ def test_duplicate_outcome_id_is_idempotent(tmp_path, monkeypatch):
     rows = _read_jsonl(tmp_path / "fitness.jsonl")
     assert len(rows) == 1
     assert rows[0]["score"] == 0.7
+
+
+def test_propose_valid_candidates_are_pending_without_fitness_write(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    cases = [
+        _candidate_payload("cand-human", "human", "human.answer.corrected"),
+        _candidate_payload("cand-reality", "reality", "reality.tool.success"),
+        _candidate_payload("cand-l4", "l4", "l4.gate.correctly_blocked"),
+    ]
+    reps = [propose_candidate(case, root=str(tmp_path)) for case in cases]
+    assert all(rep["ok"] is True for rep in reps)
+    assert all(rep["candidate"]["status"] == "pending" for rep in reps)
+    assert not (tmp_path / "fitness.jsonl").exists()
+    rows = _read_jsonl(tmp_path / "outcome_candidates.jsonl")
+    assert len(rows) == 3
+    assert {row["proposed_source"] for row in rows} == {"human", "reality", "l4"}
+    assert all(row["auto_execute"] is False for row in rows)
+    assert all(row["auto_ingest"] is False for row in rows)
+    assert all(row["memory"] == "off" for row in rows)
+
+
+def test_propose_model_candidate_is_rejected(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    bad = propose_candidate(_candidate_payload("cand-model", "model", "human.answer.corrected"), root=str(tmp_path))
+    assert bad["ok"] is False
+    assert bad["error_code"] == "FITNESS_SOURCE_INVALID"
+    assert not (tmp_path / "outcome_candidates.jsonl").exists()
+    assert not (tmp_path / "fitness.jsonl").exists()
+
+
+def test_accept_candidate_writes_fitness_through_existing_validation(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    proposed = propose_candidate(_candidate_payload("cand-accept", "reality", "reality.tool.success"), root=str(tmp_path))
+    accepted = accept_candidate(
+        {
+            "candidate_id": proposed["candidate"]["candidate_id"],
+            "reviewed_by": "operator",
+            "review_note": "valid bounded outcome",
+            "outcome_id": "accepted-from-candidate",
+        },
+        root=str(tmp_path),
+    )
+    assert accepted["ok"] is True
+    assert accepted["candidate"]["status"] == "accepted"
+    assert accepted["recorded"]["outcome_id"] == "accepted-from-candidate"
+    fitness_rows = _read_jsonl(tmp_path / "fitness.jsonl")
+    candidate_rows = _read_jsonl(tmp_path / "outcome_candidates.jsonl")
+    assert len(fitness_rows) == 1
+    assert fitness_rows[0]["schema"] == "ester.srlm.outcome.v1"
+    assert fitness_rows[0]["source"] == "reality"
+    assert len(candidate_rows) == 2
+    assert candidate_rows[-1]["status"] == "accepted"
+    assert (tmp_path / "growth_witness.jsonl").exists()
+
+
+def test_reject_candidate_does_not_write_fitness(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    proposed = propose_candidate(_candidate_payload("cand-reject", "l4", "l4.witness.incomplete"), root=str(tmp_path))
+    rejected = reject_candidate(
+        {
+            "candidate_id": proposed["candidate"]["candidate_id"],
+            "reviewed_by": "operator",
+            "review_note": "too vague",
+        },
+        root=str(tmp_path),
+    )
+    assert rejected["ok"] is True
+    assert rejected["candidate"]["status"] == "rejected"
+    assert not (tmp_path / "fitness.jsonl").exists()
+    candidate_rows = _read_jsonl(tmp_path / "outcome_candidates.jsonl")
+    assert len(candidate_rows) == 2
+    assert candidate_rows[-1]["status"] == "rejected"
+
+
+def test_duplicate_candidate_id_is_idempotent(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    first = propose_candidate(_candidate_payload("cand-dupe", "human", "human.task.confirmed"), root=str(tmp_path))
+    second = propose_candidate(_candidate_payload("cand-dupe", "reality", "reality.tool.failure"), root=str(tmp_path))
+    assert first["ok"] is True
+    assert second["ok"] is True
+    assert second["idempotent"] is True
+    rows = _read_jsonl(tmp_path / "outcome_candidates.jsonl")
+    assert len(rows) == 1
+    assert rows[0]["proposed_source"] == "human"
+
+
+def test_candidate_stats_and_reports_include_queue_state(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    propose_candidate(_candidate_payload("cand-report-pending", "human", "human.answer.accepted"), root=str(tmp_path))
+    accept_candidate(
+        {
+            "candidate_id": "cand-report-pending",
+            "reviewed_by": "operator",
+            "review_note": "valid bounded outcome",
+            "outcome_id": "out-report-accepted",
+        },
+        root=str(tmp_path),
+    )
+    propose_candidate(_candidate_payload("cand-report-rejected", "reality", "reality.exception"), root=str(tmp_path))
+    reject_candidate(
+        {"candidate_id": "cand-report-rejected", "reviewed_by": "operator", "review_note": "too vague"},
+        root=str(tmp_path),
+    )
+    stats = candidate_stats(root=str(tmp_path))
+    assert stats["accepted_count"] == 1
+    assert stats["rejected_count"] == 1
+    assert stats["pending_count"] == 0
+    candidate_report = (tmp_path / "reports" / "latest_outcome_candidate_report.md").read_text(encoding="utf-8")
+    fitness_report = (tmp_path / "reports" / "latest_fitness_report.md").read_text(encoding="utf-8")
+    assert "accepted_candidate_count: 1" in candidate_report
+    assert "rejected_candidate_count: 1" in candidate_report
+    assert "pending_candidate_count: 0" in fitness_report
+    assert "replay_quality_ready: False" in fitness_report
+
+
+def test_auto_candidate_producer_creates_candidate_only(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    rep = auto_propose_candidate(
+        {
+            "event_kind": "l4.fail_closed.triggered",
+            "score": 1.0,
+            "uncertainty": 0.0,
+            "source_ref": "l4-event-1",
+            "notes": "fail closed triggered as expected",
+        },
+        root=str(tmp_path),
+    )
+    assert rep["ok"] is True
+    assert rep["candidate"]["proposed_source"] == "l4"
+    assert rep["candidate"]["status"] == "pending"
+    assert _read_jsonl(tmp_path / "outcome_candidates.jsonl")
+    assert not (tmp_path / "fitness.jsonl").exists()
+
+
+def test_candidate_queue_does_not_touch_memory_rag_vector(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path / "srlm")
+    memory_store = tmp_path / "memory" / "memory.json"
+    vector_store = tmp_path / "vector" / "index.json"
+    rag_store = tmp_path / "rag" / "store.json"
+    for path in (memory_store, vector_store, rag_store):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('{"sentinel":true}\n', encoding="utf-8")
+    before = {path: _sha256(path) for path in (memory_store, vector_store, rag_store)}
+    proposed = propose_candidate(_candidate_payload("cand-no-ingest", "human", "human.task.confirmed"), root=str(tmp_path / "srlm"))
+    accepted = accept_candidate(
+        {
+            "candidate_id": proposed["candidate"]["candidate_id"],
+            "reviewed_by": "operator",
+            "review_note": "valid bounded outcome",
+        },
+        root=str(tmp_path / "srlm"),
+    )
+    assert accepted["ok"] is True
+    after = {path: _sha256(path) for path in (memory_store, vector_store, rag_store)}
+    assert after == before
+
+
+def test_replay_quality_stays_insufficient_after_single_candidate_accept(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    propose_candidate(_candidate_payload("cand-quality", "human", "human.answer.corrected"), root=str(tmp_path))
+    accept_candidate(
+        {"candidate_id": "cand-quality", "reviewed_by": "operator", "review_note": "valid bounded outcome"},
+        root=str(tmp_path),
+    )
+    profile = replay_quality_profile(root=str(tmp_path), min_total=20)
+    assert profile["quality_ready"] is False
+    assert "insufficient_real_outcomes" in profile["blocking_reasons"]
 
 
 def test_fitness_report_sees_outcome_counts(tmp_path, monkeypatch):
@@ -454,6 +641,126 @@ def test_cli_helper_accepts_valid_sources_and_rejects_model(tmp_path):
             "0.9",
             "--outcome-id",
             "cli-model",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert bad.returncode == 2
+    assert json.loads(bad.stdout)["error_code"] == "FITNESS_SOURCE_INVALID"
+
+
+def test_candidate_cli_helpers_propose_accept_and_reject(tmp_path):
+    root = str(tmp_path)
+    propose_tool = Path(__file__).resolve().parents[1] / "tools" / "srlm_propose_outcome_candidate.py"
+    review_tool = Path(__file__).resolve().parents[1] / "tools" / "srlm_review_outcome_candidate.py"
+    proposed = subprocess.run(
+        [
+            sys.executable,
+            str(propose_tool),
+            "--root",
+            root,
+            "--candidate-id",
+            "cli-cand-accept",
+            "--source",
+            "reality",
+            "--kind",
+            "reality.tool.success",
+            "--score",
+            "0.9",
+            "--source-ref",
+            "cli-event-1",
+            "--note",
+            "short redacted note",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proposed.returncode == 0
+    assert not (tmp_path / "fitness.jsonl").exists()
+
+    accepted = subprocess.run(
+        [
+            sys.executable,
+            str(review_tool),
+            "--root",
+            root,
+            "--candidate-id",
+            "cli-cand-accept",
+            "--accept",
+            "--reviewed-by",
+            "operator",
+            "--note",
+            "valid bounded outcome",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert accepted.returncode == 0
+    assert len(_read_jsonl(tmp_path / "fitness.jsonl")) == 1
+
+    proposed_reject = subprocess.run(
+        [
+            sys.executable,
+            str(propose_tool),
+            "--root",
+            root,
+            "--candidate-id",
+            "cli-cand-reject",
+            "--source",
+            "l4",
+            "--kind",
+            "l4.witness.incomplete",
+            "--score",
+            "0.2",
+            "--source-ref",
+            "cli-event-2",
+            "--note",
+            "short redacted note",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    rejected = subprocess.run(
+        [
+            sys.executable,
+            str(review_tool),
+            "--root",
+            root,
+            "--candidate-id",
+            "cli-cand-reject",
+            "--reject",
+            "--reviewed-by",
+            "operator",
+            "--note",
+            "too vague",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proposed_reject.returncode == 0
+    assert rejected.returncode == 0
+    assert len(_read_jsonl(tmp_path / "fitness.jsonl")) == 1
+    assert _read_jsonl(tmp_path / "outcome_candidates.jsonl")[-1]["status"] == "rejected"
+
+    bad = subprocess.run(
+        [
+            sys.executable,
+            str(propose_tool),
+            "--root",
+            root,
+            "--candidate-id",
+            "cli-cand-model",
+            "--source",
+            "model",
+            "--kind",
+            "human.answer.corrected",
+            "--score",
+            "0.8",
         ],
         capture_output=True,
         text=True,
@@ -713,6 +1020,61 @@ def test_srlm_routes(tmp_path, monkeypatch):
     replay_build = client.post("/srlm/replay/build", headers=admin, json={})
     assert replay_build.status_code == 400
     assert replay_build.get_json()["error_code"] == "insufficient_real_outcomes"
+
+    before_candidate_fitness = len(_read_jsonl(tmp_path / "fitness.jsonl"))
+    proposed_candidate = client.post(
+        "/srlm/outcome_candidates/propose",
+        headers=admin,
+        json=_candidate_payload("route-cand-accept", "reality", "reality.tool.success"),
+    )
+    assert proposed_candidate.status_code == 200
+    assert len(_read_jsonl(tmp_path / "fitness.jsonl")) == before_candidate_fitness
+
+    bad_candidate = client.post(
+        "/srlm/outcome_candidates/propose",
+        headers=admin,
+        json=_candidate_payload("route-cand-model", "model", "human.answer.corrected"),
+    )
+    assert bad_candidate.status_code == 400
+    assert bad_candidate.get_json()["error_code"] == "FITNESS_SOURCE_INVALID"
+
+    candidate_list = client.get("/srlm/outcome_candidates")
+    assert candidate_list.status_code == 200
+    assert candidate_list.get_json()["total"] == 1
+
+    candidate_stats_route = client.get("/srlm/outcome_candidates/stats")
+    assert candidate_stats_route.status_code == 200
+    assert candidate_stats_route.get_json()["pending_count"] == 1
+
+    accepted_candidate = client.post(
+        "/srlm/outcome_candidates/accept",
+        headers=admin,
+        json={
+            "candidate_id": "route-cand-accept",
+            "reviewed_by": "operator",
+            "review_note": "valid bounded outcome",
+        },
+    )
+    assert accepted_candidate.status_code == 200
+    assert len(_read_jsonl(tmp_path / "fitness.jsonl")) == before_candidate_fitness + 1
+
+    proposed_reject = client.post(
+        "/srlm/outcome_candidates/propose",
+        headers=admin,
+        json=_candidate_payload("route-cand-reject", "l4", "l4.witness.incomplete"),
+    )
+    assert proposed_reject.status_code == 200
+    before_reject_fitness = len(_read_jsonl(tmp_path / "fitness.jsonl"))
+    rejected_candidate = client.post(
+        "/srlm/outcome_candidates/reject",
+        headers=admin,
+        json={"candidate_id": "route-cand-reject", "reviewed_by": "operator", "review_note": "too vague"},
+    )
+    assert rejected_candidate.status_code == 200
+    assert len(_read_jsonl(tmp_path / "fitness.jsonl")) == before_reject_fitness
+    final_candidate_stats = client.get("/srlm/outcome_candidates/stats").get_json()
+    assert final_candidate_stats["accepted_count"] == 1
+    assert final_candidate_stats["rejected_count"] == 1
 
     witness = client.get("/srlm/verify_witness")
     assert witness.status_code == 200

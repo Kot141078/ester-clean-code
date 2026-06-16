@@ -4,8 +4,10 @@ from __future__ import annotations
 from typing import Any
 
 from .config import status as config_status
+from .outcome_candidates import candidate_stats
 from .state import load_promoted_policy, read_jsonl, state_paths
 from .promotion_adapter import verify_witness
+from .quality import replay_quality_profile
 
 
 def _mean(values: list[float]) -> float:
@@ -46,14 +48,18 @@ def build_report(*, root: str | None = None) -> dict[str, Any]:
     latest_report = paths["reports"] / "latest_shadow_report.md"
     replay_eligible = [row for row in fitness if row.get("redacted") is True and row.get("eligible_for_replay") is True]
     min_real = 20
+    outcome_candidate_stats = candidate_stats(root=str(paths["root"]))
+    replay_quality = replay_quality_profile(root=str(paths["root"]), min_total=min_real)
+    config = config_status()
     return {
         "ok": True,
-        "config": config_status(),
+        "config": config,
         "state": {
             "root": str(paths["root"]),
             "has_promoted_policy": paths["promoted_policy"].exists(),
             "fitness_rows": len(fitness),
             "candidate_rows": len(candidates),
+            "outcome_candidate_rows": int(outcome_candidate_stats.get("total_candidates", 0) or 0),
             "witness_rows": len(witness_rows),
             "latest_shadow_report": str(latest_report) if latest_report.exists() else "",
         },
@@ -69,6 +75,13 @@ def build_report(*, root: str | None = None) -> dict[str, Any]:
             "replay_eligible_count": len(replay_eligible),
             "warning": "too_few_real_outcomes" if len(replay_eligible) < min_real else "",
             "min_real_outcomes_for_replay": min_real,
+        },
+        "outcome_candidates": outcome_candidate_stats,
+        "replay_quality": replay_quality,
+        "promotion": {
+            "promotion_gate_open": bool(config.get("gates", {}).get("promotion_gate_open")),
+            "shadow_only": bool(config.get("limits", {}).get("shadow_only", True)),
+            "canary_enable": bool(config.get("limits", {}).get("canary_enable", False)),
         },
         "latest_shadow_event": latest_shadow_event,
         "latest_candidate": latest_candidate,

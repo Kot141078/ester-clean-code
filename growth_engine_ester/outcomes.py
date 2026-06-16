@@ -100,6 +100,18 @@ def _write_fitness_report(root: str | None = None) -> str:
     rows = accepted_outcomes(str(paths["root"]))
     rejections = rejected_outcomes(str(paths["root"]))
     eligible = [row for row in rows if row.get("redacted") is True and row.get("eligible_for_replay") is True]
+    try:
+        from .config import status as config_status
+        from .outcome_candidates import candidate_stats
+        from .quality import replay_quality_profile
+
+        candidates = candidate_stats(root=str(paths["root"]))
+        quality = replay_quality_profile(root=str(paths["root"]))
+        cfg = config_status()
+    except Exception:
+        candidates = {}
+        quality = {}
+        cfg = {}
     path = paths["reports"] / "latest_fitness_report.md"
     lines = [
         "# SRLM fitness report",
@@ -108,6 +120,12 @@ def _write_fitness_report(root: str | None = None) -> str:
         f"total_outcomes: {len(rows)}",
         f"rejected_outcome_count: {len(rejections)}",
         f"replay_eligible_count: {len(eligible)}",
+        f"pending_candidate_count: {candidates.get('pending_count', 0)}",
+        f"accepted_candidate_count: {candidates.get('accepted_count', 0)}",
+        f"rejected_candidate_count: {candidates.get('rejected_count', 0)}",
+        f"replay_quality_ready: {quality.get('quality_ready', False)}",
+        f"quality_blocking_reasons: {','.join(quality.get('blocking_reasons') or [])}",
+        f"promotion_gate_open: {cfg.get('gates', {}).get('promotion_gate_open', False)}",
         f"warning: {'too_few_real_outcomes' if len(eligible) < 20 else ''}",
         "",
         "counts_by_source:",
