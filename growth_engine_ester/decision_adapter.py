@@ -10,7 +10,7 @@ from growth_engine.common import err, ok, q
 
 from .config import load_config
 from .policy import validate_candidate_risk, validate_params
-from .replay_store import ReplayUnavailable, build_replay
+from .replay_store import ReplayUnavailable, build_replay, replay_metadata
 from .state import append_candidate, ensure_layout, load_promoted_policy
 
 
@@ -53,6 +53,11 @@ def shadow_compare(
     except ReplayUnavailable as exc:
         return exc.report
     ev = shadow_eval(replay, current, proposed, decide_fn=decide_params)
+    ev["replay_source"] = replay_source
+    if replay_source == "real_redacted":
+        meta = replay_metadata(root=root)
+        ev["replay_hash"] = str(meta.get("replay_hash") or "")
+        ev["replay_quality_hash"] = str(meta.get("quality_hash") or "")
     cand = Candidate(
         candidate_id="cand_" + proposed.fingerprint()[:16],
         base_version_id=current.version_id,
@@ -128,6 +133,9 @@ def _candidate_record(rep: Mapping[str, Any]) -> dict[str, Any]:
         "risk_class": risk_class,
         "rationale": str(candidate.get("rationale") or ""),
         "replay": str(ev.get("replay") or ""),
+        "replay_source": str(ev.get("replay_source") or ""),
+        "replay_hash": str(ev.get("replay_hash") or ""),
+        "replay_quality_hash": str(ev.get("replay_quality_hash") or ""),
         "n": int(ev.get("n", 0) or 0),
         "current_mean": float(ev.get("current_mean", 0.0) or 0.0),
         "candidate_mean": float(ev.get("candidate_mean", 0.0) or 0.0),
@@ -150,6 +158,9 @@ def _shadow_witness_subject(record: Mapping[str, Any]) -> dict[str, Any]:
         "current_version": str(record.get("current_version") or ""),
         "candidate_version": str(record.get("candidate_version") or ""),
         "replay": str(record.get("replay") or ""),
+        "replay_source": str(record.get("replay_source") or ""),
+        "replay_hash": str(record.get("replay_hash") or ""),
+        "replay_quality_hash": str(record.get("replay_quality_hash") or ""),
         "n": int(record.get("n", 0) or 0),
         "current_mean": q(float(record.get("current_mean", 0.0) or 0.0)),
         "candidate_mean": q(float(record.get("candidate_mean", 0.0) or 0.0)),
@@ -173,6 +184,9 @@ def _write_shadow_report(root: str | None, record: Mapping[str, Any], witness_re
         f"candidate_id: {record.get('candidate_id')}",
         f"risk_class: {record.get('risk_class')}",
         f"replay: {record.get('replay')}",
+        f"replay_source: {record.get('replay_source')}",
+        f"replay_hash: {record.get('replay_hash')}",
+        f"replay_quality_hash: {record.get('replay_quality_hash')}",
         f"n: {record.get('n')}",
         f"current_mean: {record.get('current_mean')}",
         f"candidate_mean: {record.get('candidate_mean')}",

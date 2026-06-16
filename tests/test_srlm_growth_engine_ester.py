@@ -4,6 +4,8 @@ from __future__ import annotations
 import builtins
 import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 from flask import Flask
@@ -13,6 +15,7 @@ from growth_engine_ester.decision_adapter import shadow_step
 from growth_engine_ester.policy import validate_params
 from growth_engine_ester.promotion_adapter import promote_candidate, rollback, verify_witness
 from growth_engine_ester.replay_store import build_real_replay, replay_status
+from growth_engine_ester.quality import replay_quality_profile
 from growth_engine_ester.reports import build_report
 from growth_engine_ester.routes import register as register_srlm_routes
 from growth_engine_ester.signals import record_outcome
@@ -51,6 +54,8 @@ def _enable_shadow(monkeypatch, root: Path) -> None:
 
 
 def _read_jsonl(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
     rows = []
     for line in path.read_text(encoding="utf-8").splitlines():
         if line.strip():
@@ -103,6 +108,39 @@ def _human_outcome(outcome_id: str, score: float = 0.8) -> dict:
         "source_ref": f"event-{outcome_id}",
         "notes": "short redacted note",
     }
+
+
+def _diverse_outcome(i: int, score: float | None = None) -> dict:
+    cases = [
+        ("human", "human.answer.corrected"),
+        ("human", "human.task.confirmed"),
+        ("reality", "reality.tool.success"),
+        ("reality", "reality.route.completed"),
+        ("l4", "l4.gate.correctly_blocked"),
+        ("l4", "l4.witness.complete"),
+    ]
+    source, event_kind = cases[i % len(cases)]
+    return {
+        "outcome_id": f"diverse-{i}",
+        "source": source,
+        "event_kind": event_kind,
+        "score": float(score if score is not None else 0.35 + ((i % 7) * 0.08)),
+        "uncertainty": 0.05 * (i % 3),
+        "source_ref": f"event-diverse-{i}",
+        "notes": "short redacted note",
+    }
+
+
+def _record_diverse(root: Path, n: int = 20, *, score: float | None = None) -> None:
+    for i in range(n):
+        rep = record_outcome(_diverse_outcome(i, score=score), root=str(root))
+        assert rep["ok"] is True
+
+
+def _append_jsonl(path: Path, row: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(row, ensure_ascii=True, sort_keys=True) + "\n")
 
 
 def test_srlm_disabled_by_default(tmp_path, monkeypatch):
@@ -217,18 +255,106 @@ def test_replay_build_fails_closed_when_insufficient_real_outcomes(tmp_path, mon
     assert not (tmp_path / "replay" / "real_redacted.jsonl").exists()
 
 
-def test_replay_build_succeeds_after_enough_redacted_outcomes(tmp_path, monkeypatch):
+def test_quality_profile_fails_with_fewer_than_20_outcomes(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    record_outcome(_human_outcome("quality-few", 0.6), root=str(tmp_path))
+    profile = replay_quality_profile(root=str(tmp_path), min_total=20)
+    assert profile["quality_ready"] is False
+    assert "insufficient_real_outcomes" in profile["blocking_reasons"]
+    assert profile["eligible_total"] == 1
+
+
+def test_quality_profile_rejects_source_model_contamination(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    _record_diverse(tmp_path, 20)
+    bad = _diverse_outcome(21)
+    bad["outcome_id"] = "contaminated-model"
+    bad["source"] = "model"
+    bad.update(
+        {
+            "schema": "ester.srlm.outcome.v1",
+            "created_at": "2026-06-16T00:00:00Z",
+            "evidence_hash": "contaminated",
+            "redacted": True,
+            "eligible_for_replay": True,
+            "eligible_for_promotion": False,
+            "auto_ingest": False,
+            "memory": "off",
+        }
+    )
+    _append_jsonl(tmp_path / "fitness.jsonl", bad)
+    profile = replay_quality_profile(root=str(tmp_path), min_total=20)
+    assert profile["quality_ready"] is False
+    assert "forbidden_source_contamination" in profile["blocking_reasons"]
+
+
+def test_quality_profile_warns_on_one_source_only_replay(tmp_path, monkeypatch):
     _enable_shadow(monkeypatch, tmp_path)
     for i in range(20):
-        record_outcome(_human_outcome(f"enough-{i}", 0.4 + (i % 5) * 0.1), root=str(tmp_path))
+        record_outcome(_human_outcome(f"one-source-{i}", 0.4 + (i % 3) * 0.1), root=str(tmp_path))
+    profile = replay_quality_profile(root=str(tmp_path), min_total=20)
+    assert profile["quality_ready"] is False
+    assert "insufficient_source_mix" in profile["blocking_reasons"]
+    assert "one_source_only" in profile["warnings"]
+
+
+def test_quality_profile_warns_on_identical_scores(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    _record_diverse(tmp_path, 20, score=0.5)
+    profile = replay_quality_profile(root=str(tmp_path), min_total=20)
+    assert profile["quality_ready"] is True
+    assert "identical_scores" in profile["warnings"]
+
+
+def test_quality_profile_rejects_unredacted_outcome(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    _record_diverse(tmp_path, 19)
+    row = _diverse_outcome(19)
+    row.update(
+        {
+            "schema": "ester.srlm.outcome.v1",
+            "created_at": "2026-06-16T00:00:00Z",
+            "evidence_hash": "abc",
+            "redacted": False,
+            "eligible_for_replay": True,
+            "eligible_for_promotion": False,
+            "auto_ingest": False,
+            "memory": "off",
+        }
+    )
+    _append_jsonl(tmp_path / "fitness.jsonl", row)
+    profile = replay_quality_profile(root=str(tmp_path), min_total=20)
+    assert profile["quality_ready"] is False
+    assert "unredacted_outcome" in profile["blocking_reasons"]
+
+
+def test_replay_build_fails_closed_when_quality_insufficient(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    for i in range(20):
+        record_outcome(_human_outcome(f"quality-bad-{i}", 0.4 + (i % 3) * 0.1), root=str(tmp_path))
+    built = build_real_replay(root=str(tmp_path), min_n=20)
+    assert built["ok"] is False
+    assert built["error_code"] == "replay_quality_not_ready"
+    assert "insufficient_source_mix" in built["blocking_reasons"]
+    assert not (tmp_path / "replay" / "real_redacted.jsonl").exists()
+
+
+def test_replay_build_succeeds_after_enough_redacted_outcomes(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    _record_diverse(tmp_path, 20)
     built = build_real_replay(root=str(tmp_path), min_n=20)
     assert built["ok"] is True
     assert built["count"] == 20
+    assert built["replay_hash"]
+    assert built["quality_hash"]
     rows = _read_jsonl(tmp_path / "replay" / "real_redacted.jsonl")
     assert len(rows) == 20
     assert rows[0]["schema"] == "ester.srlm.replay.real_redacted.v1"
     assert rows[0]["redacted"] is True
     assert "notes" not in rows[0]
+    meta = json.loads((tmp_path / "replay" / "real_redacted.meta.json").read_text(encoding="utf-8"))
+    assert meta["replay_hash"] == built["replay_hash"]
+    assert meta["quality_hash"] == built["quality_hash"]
 
 
 def test_shadow_step_with_real_redacted_refuses_when_insufficient(tmp_path, monkeypatch):
@@ -244,17 +370,21 @@ def test_shadow_step_with_real_redacted_refuses_when_insufficient(tmp_path, monk
 
 def test_shadow_step_with_real_redacted_persists_witness_when_sufficient(tmp_path, monkeypatch):
     _enable_shadow(monkeypatch, tmp_path)
-    for i in range(20):
-        record_outcome(_human_outcome(f"real-shadow-{i}", 0.5 + (i % 4) * 0.1), root=str(tmp_path))
+    _record_diverse(tmp_path, 20)
     rep = shadow_step(
         {"current_params": _current_params(), "proposed_params": _better_params(), "replay_source": "real_redacted"},
         root=str(tmp_path),
     )
     assert rep["ok"] is True
     assert rep["eval"]["replay"] == "ester_srlm_replay_real_redacted"
+    assert rep["eval"]["replay_hash"]
+    assert rep["eval"]["replay_quality_hash"]
     rows = _read_jsonl(tmp_path / "growth_witness.jsonl")
     assert rows[-1]["event_type"] == "shadow_eval"
     assert rows[-1]["subject"]["replay"] == "ester_srlm_replay_real_redacted"
+    assert rows[-1]["subject"]["replay_source"] == "real_redacted"
+    assert rows[-1]["subject"]["replay_hash"] == rep["eval"]["replay_hash"]
+    assert rows[-1]["subject"]["replay_quality_hash"] == rep["eval"]["replay_quality_hash"]
 
 
 def test_record_outcome_does_not_touch_memory_rag_vector(tmp_path, monkeypatch):
@@ -270,6 +400,67 @@ def test_record_outcome_does_not_touch_memory_rag_vector(tmp_path, monkeypatch):
     assert rep["ok"] is True
     after = {path: _sha256(path) for path in (memory_store, vector_store, rag_store)}
     assert after == before
+
+
+def test_cli_helper_accepts_valid_sources_and_rejects_model(tmp_path):
+    tool = Path(__file__).resolve().parents[1] / "tools" / "srlm_record_outcome.py"
+    accepted = []
+    cases = [
+        ("human", "human.answer.corrected", "cli-human"),
+        ("reality", "reality.tool.success", "cli-reality"),
+        ("l4", "l4.gate.correctly_blocked", "cli-l4"),
+    ]
+    for source, kind, outcome_id in cases:
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(tool),
+                "--root",
+                str(tmp_path),
+                "--source",
+                source,
+                "--kind",
+                kind,
+                "--score",
+                "0.8",
+                "--uncertainty",
+                "0.1",
+                "--source-ref",
+                f"event-{outcome_id}",
+                "--note",
+                "short redacted note",
+                "--outcome-id",
+                outcome_id,
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        accepted.append(proc)
+    assert all(proc.returncode == 0 for proc in accepted)
+    assert len(_read_jsonl(tmp_path / "fitness.jsonl")) == 3
+
+    bad = subprocess.run(
+        [
+            sys.executable,
+            str(tool),
+            "--root",
+            str(tmp_path),
+            "--source",
+            "model",
+            "--kind",
+            "human.answer.corrected",
+            "--score",
+            "0.9",
+            "--outcome-id",
+            "cli-model",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert bad.returncode == 2
+    assert json.loads(bad.stdout)["error_code"] == "FITNESS_SOURCE_INVALID"
 
 
 def test_blocked_params_rejected():
@@ -494,6 +685,26 @@ def test_srlm_routes(tmp_path, monkeypatch):
     )
     assert good_source.status_code == 200
     assert good_source.get_json()["recorded"]["schema"] == "ester.srlm.outcome.v1"
+
+    outcomes = client.get("/srlm/outcomes?limit=5")
+    assert outcomes.status_code == 200
+    assert outcomes.get_json()["total"] == 1
+    assert "raw_private_payload" not in json.dumps(outcomes.get_json()).lower()
+
+    stats = client.get("/srlm/outcomes/stats")
+    assert stats.status_code == 200
+    assert stats.get_json()["source_counts"] == {"human": 1}
+    assert stats.get_json()["rejection_count"] == 1
+
+    rejections = client.get("/srlm/outcomes/rejections")
+    assert rejections.status_code == 200
+    assert rejections.get_json()["total"] == 1
+    assert "source_ref" not in rejections.get_json()["rejections"][0]
+
+    quality = client.get("/srlm/replay/quality")
+    assert quality.status_code == 200
+    assert quality.get_json()["quality_ready"] is False
+    assert "insufficient_real_outcomes" in quality.get_json()["blocking_reasons"]
 
     replay_state = client.get("/srlm/replay/status")
     assert replay_state.status_code == 200

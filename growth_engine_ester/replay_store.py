@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 from typing import Any
 
@@ -9,6 +10,7 @@ from growth_engine import ReplaySet
 from growth_engine.common import err, ok
 
 from .outcomes import accepted_outcomes
+from .quality import fail_for_quality, replay_quality_profile
 from .state import ensure_layout, state_paths
 
 REAL_REPLAY_SCHEMA = "ester.srlm.replay.real_redacted.v1"
@@ -101,30 +103,27 @@ def score_context(ctx: dict[str, Any], action: Any) -> float:
 def replay_status(*, root: str | None = None, min_n: int = DEFAULT_MIN_REAL_OUTCOMES) -> dict[str, Any]:
     paths = state_paths(root)
     rows = eligible_real_outcomes(str(paths["root"]))
+    quality = replay_quality_profile(root=str(paths["root"]), min_total=int(min_n))
     return ok(
         synthetic={"available": True, "label": "synthetic"},
         real_redacted={
-            "available": len(rows) >= int(min_n),
+            "available": bool(quality.get("quality_ready")),
             "eligible_count": len(rows),
             "min_required": int(min_n),
             "path": str(paths["real_replay"]),
             "label": "real_redacted",
-            "status": "ready" if len(rows) >= int(min_n) else "insufficient_real_outcomes",
+            "status": "ready" if quality.get("quality_ready") else str((quality.get("blocking_reasons") or ["replay_quality_not_ready"])[0]),
+            "quality": quality,
         },
     )
 
 
 def build_real_replay(*, root: str | None = None, min_n: int = DEFAULT_MIN_REAL_OUTCOMES) -> dict[str, Any]:
     paths = ensure_layout(root)
+    quality = replay_quality_profile(root=str(paths["root"]), min_total=int(min_n))
+    if not quality.get("quality_ready"):
+        return fail_for_quality(quality)
     rows = eligible_real_outcomes(str(paths["root"]))
-    if len(rows) < int(min_n):
-        return err(
-            "insufficient_real_outcomes",
-            "not enough redacted eligible outcomes to build real replay",
-            eligible_count=len(rows),
-            min_required=int(min_n),
-            replay_source="real_redacted",
-        )
     records = []
     for row in rows:
         records.append(
@@ -145,7 +144,40 @@ def build_real_replay(*, root: str | None = None, min_n: int = DEFAULT_MIN_REAL_
     with path.open("w", encoding="utf-8", newline="\n") as f:
         for record in records:
             f.write(json.dumps(record, ensure_ascii=True, sort_keys=True, separators=(",", ":")) + "\n")
-    return ok(path=str(path), count=len(records), replay_source="real_redacted", label="real_redacted")
+    replay_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+    meta = {
+        "schema": "ester.srlm.replay.real_redacted.meta.v1",
+        "replay_source": "real_redacted",
+        "path": str(path),
+        "count": len(records),
+        "replay_hash": replay_hash,
+        "quality_hash": quality.get("quality_hash", ""),
+        "quality": quality,
+        "source_counts": quality.get("source_counts", {}),
+        "event_kind_counts": quality.get("event_kind_counts", {}),
+    }
+    paths["real_replay_meta"].write_text(json.dumps(meta, ensure_ascii=True, sort_keys=True, indent=2), encoding="utf-8")
+    return ok(
+        path=str(path),
+        metadata_path=str(paths["real_replay_meta"]),
+        count=len(records),
+        replay_source="real_redacted",
+        label="real_redacted",
+        replay_hash=replay_hash,
+        quality_hash=quality.get("quality_hash", ""),
+        quality=quality,
+    )
+
+
+def replay_metadata(*, root: str | None = None) -> dict[str, Any]:
+    path = state_paths(root)["real_replay_meta"]
+    if not path.exists():
+        return {}
+    try:
+        obj = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    return obj if isinstance(obj, dict) else {}
 
 
 def _load_real_replay_contexts(root: str | None = None, *, min_n: int = DEFAULT_MIN_REAL_OUTCOMES) -> list[dict[str, Any]]:

@@ -24,6 +24,7 @@ def state_paths(root: str | None = None) -> dict[str, Path]:
         "candidates": base / "candidates.jsonl",
         "replay": base / "replay",
         "real_replay": base / "replay" / "real_redacted.jsonl",
+        "real_replay_meta": base / "replay" / "real_redacted.meta.json",
         "promoted_policy": base / "promoted_policy.json",
         "rollback": base / "rollback",
         "reports": base / "reports",
