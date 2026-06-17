@@ -11,9 +11,9 @@ Daet vosproizvodimost i audit: kazhdoe naznachenie i ego iskhod popadaet v neizm
 Esli chto-to poshlo ne tak - po tsepochke mozhno vosstanovit pravdu i plan na lyuboy moment vremeni.
 
 # c=a+b"""
+
 from __future__ import annotations
 
-import dataclasses
 import hashlib
 import json
 import os
@@ -21,19 +21,24 @@ import sqlite3
 import threading
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, Optional, Tuple
-from modules.memory.facade import memory_add, ESTER_MEM_FACADE
+from typing import Any, Dict, List, Optional, Tuple
+
+from modules.memory.facade import ESTER_MEM_FACADE, memory_add  # noqa: F401
 
 # ================== VSPOMOGATELNOE ==================
+
 
 def _now_s() -> int:
     return int(time.time())
 
+
 def _sha256_hex(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
 
+
 def _json_dumps(obj: Any) -> str:
     return json.dumps(obj, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+
 
 def _conn_path() -> str:
     # Prioritet: SYNERGY_DB_PATH → SYNERGY_DB_URL (sqlite:///path)
@@ -48,6 +53,7 @@ def _conn_path() -> str:
         return url  # sqlite3 umeet URI pri uri=True
     # fallback
     return url
+
 
 # ==== Schema/Initialization ==================
 
@@ -88,6 +94,7 @@ CREATE TABLE IF NOT EXISTS edits(
 
 # ================== KLASS KhRANILISchA ==================
 
+
 @dataclass
 class Event:
     id: int
@@ -100,6 +107,7 @@ class Event:
     meta: Optional[Dict[str, Any]]
     prev_hash: Optional[str]
     hash: str
+
 
 @dataclass
 class VerifyReport:
@@ -148,7 +156,15 @@ class AssignmentStore:
         row = c.execute("SELECT hash FROM events ORDER BY id DESC LIMIT 1").fetchone()
         return row["hash"] if row else None
 
-    def _calc_hash(self, prev_hash: Optional[str], ts: int, team_id: str, typ: str, payload: Dict[str, Any], request_id: Optional[str]) -> str:
+    def _calc_hash(
+        self,
+        prev_hash: Optional[str],
+        ts: int,
+        team_id: str,
+        typ: str,
+        payload: Dict[str, Any],
+        request_id: Optional[str],
+    ) -> str:
         body = _json_dumps(payload).encode("utf-8")
         h = f"{prev_hash or ''}|{ts}|{team_id}|{typ}|{_sha256_hex(body)}|{request_id or ''}"
         return _sha256_hex(h.encode("utf-8"))
@@ -170,7 +186,10 @@ class AssignmentStore:
             h = self._calc_hash(prev, ts, team_id, typ, payload, request_id)
             cur = c.cursor()
             cur.execute(
-                "INSERT INTO events(ts,team_id,type,payload,request_id,who,meta,prev_hash,hash) VALUES(?,?,?,?,?,?,?,?,?)",
+                (
+                    "INSERT INTO events(ts,team_id,type,payload,request_id,who,meta,prev_hash,hash) "
+                    "VALUES(?,?,?,?,?,?,?,?,?)"
+                ),
                 (ts, team_id, typ, _json_dumps(payload), request_id, who, _json_dumps(meta), prev, h),
             )
             ev_id = cur.lastrowid
@@ -187,10 +206,11 @@ class AssignmentStore:
 
     def verify_chain(self, team_id: Optional[str] = None) -> VerifyReport:
         """Checks the continuity of the hash chain (within team_ids or globally)."""
-        sql = "SELECT id,ts,team_id,type,payload,request_id,prev_hash,hash FROM events"
+        clauses = ["SELECT id,ts,team_id,type,payload,request_id,prev_hash,hash FROM events"]
         if team_id:
-            sql += "WHERE team_id=? "
-        sql += "ORDER BY id ASC"
+            clauses.append("WHERE team_id=?")
+        clauses.append("ORDER BY id ASC")
+        sql = " ".join(clauses)
         args: Tuple[Any, ...] = (team_id,) if team_id else tuple()
 
         with self._connect() as c, self._lock:
@@ -206,11 +226,20 @@ class AssignmentStore:
         return VerifyReport(ok=True)
 
     # ---------- plans (upsert aktualnogo sostoyaniya) ----------
-    def upsert_plan(self, team_id: str, assigned: Dict[str, str], trace_id: Optional[str], total: Optional[float], penalty: Optional[float]) -> None:
+    def upsert_plan(
+        self,
+        team_id: str,
+        assigned: Dict[str, str],
+        trace_id: Optional[str],
+        total: Optional[float],
+        penalty: Optional[float],
+    ) -> None:
         with self._connect() as c, self._lock:
             c.execute(
                 "INSERT INTO plans(team_id,assigned,trace_id,total,penalty,updated_ts) VALUES(?,?,?,?,?,?) "
-                "ON CONFLICT(team_id) DO UPDATE SET assigned=excluded.assigned, trace_id=excluded.trace_id, total=excluded.total, penalty=excluded.penalty, updated_ts=excluded.updated_ts",
+                "ON CONFLICT(team_id) DO UPDATE SET assigned=excluded.assigned, "
+                "trace_id=excluded.trace_id, total=excluded.total, "
+                "penalty=excluded.penalty, updated_ts=excluded.updated_ts",
                 (team_id, _json_dumps(assigned), trace_id, total, penalty, _now_s()),
             )
 
@@ -256,12 +285,27 @@ class AssignmentStore:
         return out
 
     # ---------- utility integratsii (drop-in) ----------
-    def hook_assign_request(self, team_id: str, roles: List[str], overrides: Dict[str, str], request_id: Optional[str] = None, who: Optional[str] = None, meta: Optional[Dict[str, Any]] = None) -> Event:
+    def hook_assign_request(
+        self,
+        team_id: str,
+        roles: List[str],
+        overrides: Dict[str, str],
+        request_id: Optional[str] = None,
+        who: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+    ) -> Event:
         """Record the fact of the assignment request (before calling the orchestrator)."""
         payload = {"roles": roles, "overrides": overrides}
         return self.record_event(team_id, "AssignmentRequested", payload, request_id=request_id, who=who, meta=meta)
 
-    def hook_assign_result(self, team_id: str, result: Dict[str, Any], request_id: Optional[str] = None, who: Optional[str] = None, meta: Optional[Dict[str, Any]] = None) -> Event:
+    def hook_assign_result(
+        self,
+        team_id: str,
+        result: Dict[str, Any],
+        request_id: Optional[str] = None,
+        who: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+    ) -> Event:
         """Write down the plan, save the current snapshot.
         Expects a result in the format assign_v2(...)."""
         assigned = dict(result.get("assigned") or {})
@@ -272,14 +316,34 @@ class AssignmentStore:
         ev = self.record_event(team_id, "Planned", {"result": result}, request_id=request_id, who=who, meta=meta)
         return ev
 
-    def hook_apply(self, team_id: str, plan: Dict[str, Any], request_id: Optional[str] = None, who: Optional[str] = None, meta: Optional[Dict[str, Any]] = None) -> Event:
-        """Record the application of the plan (for example, when the assignments actually took effect in external systems)."""
+    def hook_apply(
+        self,
+        team_id: str,
+        plan: Dict[str, Any],
+        request_id: Optional[str] = None,
+        who: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+    ) -> Event:
+        """Record the application of the plan.
+
+        Use this when assignments actually took effect in external systems.
+        """
         ev = self.record_event(team_id, "Applied", {"plan": plan}, request_id=request_id, who=who, meta=meta)
         return ev
 
-    def hook_outcome(self, team_id: str, outcome: str, notes: str = "", request_id: Optional[str] = None, who: Optional[str] = None, meta: Optional[Dict[str, Any]] = None) -> Event:
+    def hook_outcome(
+        self,
+        team_id: str,
+        outcome: str,
+        notes: str = "",
+        request_id: Optional[str] = None,
+        who: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+    ) -> Event:
         """The final outcome of the operation."""
-        ev = self.record_event(team_id, "OutcomeReported", {"outcome": outcome, "notes": notes}, request_id=request_id, who=who, meta=meta)
+        ev = self.record_event(
+            team_id, "OutcomeReported", {"outcome": outcome, "notes": notes}, request_id=request_id, who=who, meta=meta
+        )
         return ev
 
     # ---------- reconstruction based on events ----------
@@ -297,7 +361,13 @@ class AssignmentStore:
                 total = float(r.get("total") or 0.0)
                 penalty = float(r.get("penalty") or 0.0)
                 last_trace = r.get("trace_id")
-        return {"team_id": team_id, "assigned": last_result or {}, "trace_id": last_trace, "total": total, "penalty": penalty}
+        return {
+            "team_id": team_id,
+            "assigned": last_result or {},
+            "trace_id": last_trace,
+            "total": total,
+            "penalty": penalty,
+        }
 
     # ---------- utility ----------
     @staticmethod
@@ -318,5 +388,6 @@ class AssignmentStore:
             prev_hash=r["prev_hash"],
             hash=r["hash"],
         )
+
 
 # End of module

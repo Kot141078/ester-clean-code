@@ -10,26 +10,31 @@ ZEMNOY ABZATs:
 Pokazyvaet, chto “sobytie” realno privodit k izmerimoy otpravke (ili dryrun), ne lomaya ostalnuyu sistemu.
 
 # c=a+b"""
+
 from __future__ import annotations
 
-import os, time
+import time
 
 from nudges import store
 from nudges.engine import plan as plan_nudges
-from routes.nudges_routes import nudges_flush
-from messaging.outbox_store import list_outgoing
-from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
-def test_event_to_outbox(monkeypatch, anyio_backend):
-    monkeypatch.setenv("MESSAGING_DB_PATH", "data/test_nudges.sqlite")
+
+def test_event_to_outbox(monkeypatch, tmp_path, anyio_backend):
+    monkeypatch.setenv("MESSAGING_DB_PATH", str(tmp_path / "test_nudges.sqlite"))
     monkeypatch.setenv("DEV_DRYRUN", "1")  # bezopasno
+    monkeypatch.delenv("NUDGES_SLA_CHAIN", raising=False)
 
     # mapping
     store.map_agent("pilot-1", "telegram:42")
 
     # event with deadline in 10 minutes
-    payload = {"deadline_ts": time.time()+600, "actors":[{"agent_id":"pilot-1","role":"operator"}], "summary":"dostavka"}
-    ev_id = store.add_event("AssignmentPlanned", "task-42", time.time(), payload)
+    now = time.time()
+    payload = {
+        "deadline_ts": now + 600,
+        "actors": [{"agent_id": "pilot-1", "role": "operator"}],
+        "summary": "dostavka",
+    }
+    ev_id = store.add_event("AssignmentPlanned", "task-42", now - 2, payload)
     ev = store.read_event(ev_id)
     plans = plan_nudges(ev)
     assert plans and plans[0]["key"] == "telegram:42"
@@ -41,6 +46,7 @@ def test_event_to_outbox(monkeypatch, anyio_backend):
     # otpravit
     # simulates calling an endpoint manually (without FastAPI); just pull store.list_pending and use broadcast
     from messaging.broadcast import send_broadcast
+
     pend = store.list_pending(limit=100)
     keys = [p[4] for p in pend]
     res = send_broadcast(keys, pend[0][6], adapt_kind=pend[0][5])  # vozmem intent/kind pervoy zapisi

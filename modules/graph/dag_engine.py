@@ -116,7 +116,8 @@ def load_plan_from_text(text: str) -> Dict[str, Any]:
     try:
         import yaml  # type: ignore
 
-        obj = yaml.safe_load(src)
+        normalized = re.sub(r"(?m)^(\s*type):(?=\S)", r"\1: ", src)
+        obj = yaml.safe_load(normalized)
         if isinstance(obj, dict):
             return obj
     except Exception:
@@ -193,10 +194,10 @@ class DAGEngine:
         self.nodes: List[Dict[str, Any]] = []
         for i, raw in enumerate(raw_nodes):
             incoming = dict(raw or {})
-            incoming_id = str(incoming.get("id") or f"n{i+1}")
+            incoming_id = str(incoming.get("id") or f"n{i + 1}")
             base = dict(persisted_by_id.get(incoming_id) or {})
             node = {**base, **incoming}
-            node_id = str(node.get("id") or f"n{i+1}")
+            node_id = str(node.get("id") or f"n{i + 1}")
             node_type = str(node.get("type") or node.get("kind") or base.get("type") or "noop")
             node["id"] = node_id
             node["type"] = node_type
@@ -230,9 +231,7 @@ class DAGEngine:
         state = {
             "run_id": self.run_id,
             "branch_id": self.root_branch,
-            "branches": {
-                self.root_branch: {"nodes": {nid: "pending" for nid in self.node_ids}}
-            },
+            "branches": {self.root_branch: {"nodes": {nid: "pending" for nid in self.node_ids}}},
             "inflight": {},
             "fanouts": {},
             "finished": False,
@@ -268,9 +267,7 @@ class DAGEngine:
         if not isinstance(items, list):
             items = []
         child_names: List[str] = []
-        parent_nodes = (
-            self.state.get("branches", {}).get(branch, {}) or {}
-        ).get("nodes", {})
+        parent_nodes = (self.state.get("branches", {}).get(branch, {}) or {}).get("nodes", {})
         seed = {k: ("done" if v == "done" else "pending") for k, v in parent_nodes.items()}
         seed[node["id"]] = "done"
         # Join nodes are aggregate-only in the root branch; child branches must
@@ -308,15 +305,11 @@ class DAGEngine:
         if source:
             children = list((self.state.get("fanouts") or {}).get(source) or [])
         else:
-            children = sorted(
-                b for b in (self.state.get("branches") or {}).keys() if b.startswith(f"{branch}#")
-            )
+            children = sorted(b for b in (self.state.get("branches") or {}).keys() if b.startswith(f"{branch}#"))
 
         await_nodes = [str(x) for x in (node.get("await_nodes") or [])]
         for child in children:
-            child_nodes = (
-                self.state.get("branches", {}).get(child, {}) or {}
-            ).get("nodes", {})
+            child_nodes = (self.state.get("branches", {}).get(child, {}) or {}).get("nodes", {})
             if any(str(child_nodes.get(nid) or "") != "done" for nid in await_nodes):
                 return False, None
 
@@ -488,10 +481,11 @@ class DAGEngine:
             ctx = load_context(self.run_id, branch)
             value = result.get("result") if isinstance(result, dict) and "result" in result else result
             ctx[out_key] = value
+            node_type = str((self.node_map.get(node_id) or {}).get("type") or "")
+            if node_type == "human.review" and out_key == "approved":
+                ctx.setdefault("approval", value)
             _save_context(self.run_id, branch, ctx)
-            branch_nodes = (
-                self.state.get("branches", {}).get(branch, {}) or {}
-            ).setdefault("nodes", {})
+            branch_nodes = (self.state.get("branches", {}).get(branch, {}) or {}).setdefault("nodes", {})
             if node_id:
                 branch_nodes[node_id] = "done"
             save_state(self.run_id, self.state)

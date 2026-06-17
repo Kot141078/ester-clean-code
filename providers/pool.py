@@ -2,7 +2,8 @@
 """
 providers/pool.py — канонический пул провайдеров (local / gemini / gpt4) для Ester.
 
-ЯВНЫЙ МОСТ: c=a+b → человек (a) задаёт режимы/ключи, код (b) гарантирует единый выбор провайдера → узел (c) не распадается на дубли.
+ЯВНЫЙ МОСТ: c=a+b → человек (a) задаёт режимы/ключи, код (b) гарантирует
+единый выбор провайдера → узел (c) не распадается на дубли.
 СКРЫТЫЕ МОСТЫ:
   - Ashby (кибернетика): variety должно быть управляемым — несколько моделей полезны, но только через один шлюз.
   - Cover & Thomas (инфотеория): канал/бюджет ограничен — облако включаем только при наличии ключей и вне CLOSED_BOX.
@@ -24,10 +25,21 @@ import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
-from openai import AsyncOpenAI  # OpenAI python SDK (v1+)
-from modules.memory.facade import memory_add, ESTER_MEM_FACADE
+from modules.memory.facade import ESTER_MEM_FACADE, memory_add  # noqa: F401
+
+
+class ProviderUnavailable(RuntimeError):
+    """Raised when an optional provider SDK is needed but unavailable."""
+
+
+def _load_async_openai() -> Any:
+    try:
+        from openai import AsyncOpenAI  # type: ignore
+    except ImportError as exc:
+        raise ProviderUnavailable("openai SDK is not installed") from exc
+    return AsyncOpenAI
 
 
 def _env_int(name: str, default: int) -> int:
@@ -141,21 +153,21 @@ def _fetch_openai_models(base_url: str, timeout_sec: float = 2.5) -> list[str]:
         raw = r.read().decode("utf-8", errors="ignore")
     payload = json.loads(raw or "{}")
     out: list[str] = []
-    for item in (payload.get("data") or []):
+    for item in payload.get("data") or []:
         mid = str((item or {}).get("id") or "").strip()
         if mid:
             out.append(mid)
     return out
 
 
-def _resolve_local_model(base_url: str) -> str:
+def _resolve_local_model(base_url: str, discover: bool = True) -> str:
     pin = _env_str("LMSTUDIO_MODEL_PIN", "")
     if pin:
         return pin
 
     configured = _env_str("LMSTUDIO_MODEL", "")
     auto_model = _env_bool("LMSTUDIO_AUTO_MODEL", True)
-    if not auto_model:
+    if not auto_model or not discover:
         return configured or "local-model"
 
     timeout = _env_float("LMSTUDIO_MODEL_DISCOVERY_TIMEOUT_SEC", 2.5)
@@ -220,19 +232,25 @@ class ProviderPool:
         "gpt-4.1-mini": "gpt4",
     }
 
-    def __init__(self) -> None:
-        self._clients: Dict[str, AsyncOpenAI] = {}
+    def __init__(self, autoload: bool = False, discover_models: bool = False) -> None:
+        self._clients: Dict[str, Any] = {}
         self._cfg: Dict[str, ProviderConfig] = {}
+        self._loaded = False
         self._last_local_model_refresh_ts = 0.0
         self._local_model_refresh_sec = 30
         self._local_model_auto = True
-        self.reload()
+        if autoload:
+            self.reload(discover_models=discover_models)
 
     def _canon_name(self, name: str) -> str:
         n = (name or "").strip().lower()
         return self._ALIASES.get(n, n)
 
-    def reload(self) -> None:
+    def ensure_loaded(self, discover_models: bool = False) -> None:
+        if not self._loaded:
+            self.reload(discover_models=discover_models)
+
+    def reload(self, discover_models: bool = True) -> None:
         """
         Перечитать env и пересобрать конфиги.
         Клиенты не пересоздаём автоматически — вызови reset_clients()
@@ -243,7 +261,7 @@ class ProviderPool:
         openai_base = _norm_url(_env_str("OPENAI_API_BASE", "https://api.openai.com/v1"))
         gemini_key = _first_usable_api_key("GEMINI_API_KEY", "GOOGLE_API_KEY", "ESTER_GEMINI_API_KEY")
         openai_key = _first_usable_api_key("OPENAI_API_KEY", "ESTER_OPENAI_API_KEY")
-        local_model = _resolve_local_model(local_base)
+        local_model = _resolve_local_model(local_base, discover=discover_models)
 
         ctx_tokens = _env_int("LMSTUDIO_CONTEXT_WINDOW_TOKENS", _env_int("LMSTUDIO_CTX_WINDOW_TOKENS", 37500))
         reserve = _env_int("LMSTUDIO_CONTEXT_RESERVE_TOKENS", 6000)
@@ -279,6 +297,7 @@ class ProviderPool:
                 timeout=min(_env_float("OPENAI_TIMEOUT", 120.0), float(TIMEOUT_CAP)),
             ),
         }
+        self._loaded = True
 
     def _maybe_refresh_local_model(self) -> None:
         if not self._local_model_auto:
@@ -308,10 +327,12 @@ class ProviderPool:
         return
 
     def has(self, name: str) -> bool:
+        self.ensure_loaded()
         name = self._canon_name(name)
         return name in self._cfg
 
     def cfg(self, name: str) -> ProviderConfig:
+        self.ensure_loaded()
         name = self._canon_name(name)
         if name == "local":
             self._maybe_refresh_local_model()
@@ -324,13 +345,14 @@ class ProviderPool:
         local — всегда доступен.
         cloud — только если есть ключ и не включён режим закрытого бокса.
         """
+        self.ensure_loaded()
         name = self._canon_name(name)
         cfg = self._cfg.get(name)
         if not cfg:
             return False
 
         if CLOSED_BOX or LOCAL_ONLY:
-            return (cfg.name == "local")
+            return cfg.name == "local"
 
         if cfg.name == "local":
             return True
@@ -366,7 +388,7 @@ class ProviderPool:
             return max(0.8, float(cap))
         return max(0.8, min(float(base), float(cap)))
 
-    def client(self, name: str) -> AsyncOpenAI:
+    def client(self, name: str) -> Any:
         name = self._canon_name(name)
 
         if name not in self._clients:
@@ -375,6 +397,7 @@ class ProviderPool:
             if cfg.name != "local" and not self.enabled(name):
                 raise RuntimeError(f"Provider disabled (missing key or CLOSED_BOX): {name}")
 
+            AsyncOpenAI = _load_async_openai()
             self._clients[name] = AsyncOpenAI(
                 base_url=cfg.base_url,
                 api_key=cfg.api_key,

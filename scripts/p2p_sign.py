@@ -10,28 +10,29 @@ Mosty:
 Zemnoy abzats:
 Odin skript pokryvaet i novyy, i staryy formaty - menshe sluchaynykh 401 i raznoboya mezhdu klientami.
 # c=a+b"""
+
 from __future__ import annotations
 
-import base64
 import hashlib
 import hmac
 import os
 import sys
 import time
-import typing as _t
 from urllib.parse import urlparse
-from modules.memory.facade import memory_add, ESTER_MEM_FACADE
 
 try:
     import typer  # type: ignore
-except Exception:
-    print("ERROR: 'typer' is required. Try: pip install typer", file=sys.stderr)
-    sys.exit(2)
+except ModuleNotFoundError:
+    typer = None  # type: ignore[assignment]
 
-app = typer.Typer(help="Generate P2P signature headers for Ester.")
+_TYPER_REQUIRED = "ERROR: 'typer' is required for CLI usage. Try: pip install typer"
+
+app = typer.Typer(help="Generate P2P signature headers for Ester.") if typer is not None else None
+
 
 def _sha256_hex(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
+
 
 def _read_body(body_path: str | None) -> bytes:
     if not body_path or body_path == "-":
@@ -42,6 +43,7 @@ def _read_body(body_path: str | None) -> bytes:
     with open(body_path, "rb") as f:
         return f.read()
 
+
 def _path_only(target: str) -> str:
     """Accepts either an absolute URL or a path like /self/archive - returns path."""
     if not target:
@@ -50,9 +52,11 @@ def _path_only(target: str) -> str:
         return urlparse(target).path or "/"
     return target if target.startswith("/") else "/" + target
 
+
 def _sign_new(secret: str, ts: int, method: str, path: str, body: bytes) -> str:
     msg = f"{ts}\n{method.upper()}\n{path}\n{_sha256_hex(body)}".encode("utf-8")
     return hmac.new(secret.encode("utf-8"), msg, hashlib.sha256).hexdigest()
+
 
 def _sign_legacy(secret: str, ts: int, method: str, path: str) -> str:
     msg = f"{method.upper()}\n{path}\n{ts}".encode("utf-8")
@@ -62,6 +66,15 @@ def _sign_legacy(secret: str, ts: int, method: str, path: str) -> str:
 def sign(secret: str, ts: int, method: str, path: str, body: bytes) -> str:
     """Public helper used by tests/scripts."""
     return _sign_new(secret, int(ts), str(method), str(path), body)
+
+
+def _warn_empty_secret() -> None:
+    message = "WARNING: ESTER_P2P_SECRET is empty; printing minimal headers."
+    if typer is not None:
+        typer.secho(message, fg="yellow")
+        return
+    print(message, file=sys.stderr)
+
 
 def _print_headers(headers: dict[str, str], mode: str) -> None:
     """
@@ -75,27 +88,27 @@ def _print_headers(headers: dict[str, str], mode: str) -> None:
     parts = [f"-H '{k}: {v}'" for k, v in headers.items()]
     print(" ".join(parts))
 
-@app.command()
+
 def main(
-    method: str = typer.Argument(..., help="HTTP method, e.g. GET/POST"),
-    target: str = typer.Argument(..., help="Absolute URL or path, e.g. /self/archives"),
-    body: str = typer.Option(None, "--body", "-b", help="Body file path or '-' for stdin"),
-    secret: str = typer.Option(None, "--secret", "-s", help="Secret, overrides ESTER_P2P_SECRET"),
-    ts: int = typer.Option(None, "--ts", help="Custom unix timestamp"),
-    legacy: bool = typer.Option(False, "--legacy", help="Use legacy X-P2P-Auth instead of new X-P2P-Signature"),
-    node: str = typer.Option(None, "--node", help="Optional node id for X-P2P-Node"),
-    print_mode: str = typer.Option("curl", "--print", help="Output: curl|raw", show_default=True),
+    method: str,
+    target: str,
+    body: str | None = None,
+    secret: str | None = None,
+    ts: int | None = None,
+    legacy: bool = False,
+    node: str | None = None,
+    print_mode: str = "curl",
 ) -> None:
     """Primery:
-      $ export ESTER_P2P_SECRET=dev-secret
-      $ scripts/p2p_sign.py GET /self/archives
-      $ scripts/p2p_sign.py POST http://127.0.0.1:8000/p2p/push -b payload.json
-      $ scripts/p2p_sign.py --legacy GET /self/archives
-      $ scripts/p2p_sign.py GET /self/archives --print raw"""
+    $ export ESTER_P2P_SECRET=dev-secret
+    $ scripts/p2p_sign.py GET /self/archives
+    $ scripts/p2p_sign.py POST http://127.0.0.1:8000/p2p/push -b payload.json
+    $ scripts/p2p_sign.py --legacy GET /self/archives
+    $ scripts/p2p_sign.py GET /self/archives --print raw"""
     secret_env = secret or os.getenv("ESTER_P2P_SECRET", "")
     if not secret_env:
-        # Does not block: returns only S-P2P-Ts/S-P2P-Nodier, so that it is convenient to debug in non-wired environments
-        typer.secho("WARNING: ESTER_P2P_SECRET is empty; printing minimal headers.", fg="yellow")
+        # Keep unsigned diagnostic headers available in non-wired environments.
+        _warn_empty_secret()
 
     method = (method or "GET").upper()
     path = _path_only(target)
@@ -115,5 +128,33 @@ def main(
 
     _print_headers(headers, print_mode)
 
-if __name__ == "__main__":
+
+if typer is not None and app is not None:
+
+    @app.command()
+    def _cli_main(
+        method: str = typer.Argument(..., help="HTTP method, e.g. GET/POST"),
+        target: str = typer.Argument(..., help="Absolute URL or path, e.g. /self/archives"),
+        body: str = typer.Option(None, "--body", "-b", help="Body file path or '-' for stdin"),
+        secret: str = typer.Option(None, "--secret", "-s", help="Secret, overrides ESTER_P2P_SECRET"),
+        ts: int = typer.Option(None, "--ts", help="Custom unix timestamp"),
+        legacy: bool = typer.Option(
+            False,
+            "--legacy",
+            help="Use legacy X-P2P-Auth instead of new X-P2P-Signature",
+        ),
+        node: str = typer.Option(None, "--node", help="Optional node id for X-P2P-Node"),
+        print_mode: str = typer.Option("curl", "--print", help="Output: curl|raw", show_default=True),
+    ) -> None:
+        main(method, target, body, secret, ts, legacy, node, print_mode)
+
+
+def cli() -> None:
+    if app is None:
+        print(_TYPER_REQUIRED, file=sys.stderr)
+        raise SystemExit(2)
     app()
+
+
+if __name__ == "__main__":
+    cli()
