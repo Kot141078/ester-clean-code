@@ -32,6 +32,17 @@ def _default_contexts() -> list[dict[str, Any]]:
     ]
 
 
+def _write_bytes_if_changed(path: Path, data: bytes) -> bool:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        if path.exists() and path.read_bytes() == data:
+            return False
+    except Exception:
+        pass
+    path.write_bytes(data)
+    return True
+
+
 def _load_replay_contexts(root: str | None = None) -> list[dict[str, Any]]:
     folder = state_paths(root)["replay"]
     if not folder.exists():
@@ -140,11 +151,10 @@ def build_real_replay(*, root: str | None = None, min_n: int = DEFAULT_MIN_REAL_
             }
         )
     path = paths["real_replay"]
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="\n") as f:
-        for record in records:
-            f.write(json.dumps(record, ensure_ascii=True, sort_keys=True, separators=(",", ":")) + "\n")
-    replay_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+    replay_text = "".join(json.dumps(record, ensure_ascii=True, sort_keys=True, separators=(",", ":")) + "\n" for record in records)
+    replay_bytes = replay_text.encode("utf-8")
+    replay_written = _write_bytes_if_changed(path, replay_bytes)
+    replay_hash = hashlib.sha256(replay_bytes).hexdigest()
     meta = {
         "schema": "ester.srlm.replay.real_redacted.meta.v1",
         "replay_source": "real_redacted",
@@ -156,7 +166,10 @@ def build_real_replay(*, root: str | None = None, min_n: int = DEFAULT_MIN_REAL_
         "source_counts": quality.get("source_counts", {}),
         "event_kind_counts": quality.get("event_kind_counts", {}),
     }
-    paths["real_replay_meta"].write_text(json.dumps(meta, ensure_ascii=True, sort_keys=True, indent=2), encoding="utf-8")
+    metadata_written = _write_bytes_if_changed(
+        paths["real_replay_meta"],
+        json.dumps(meta, ensure_ascii=True, sort_keys=True, indent=2).encode("utf-8"),
+    )
     return ok(
         path=str(path),
         metadata_path=str(paths["real_replay_meta"]),
@@ -166,6 +179,8 @@ def build_real_replay(*, root: str | None = None, min_n: int = DEFAULT_MIN_REAL_
         replay_hash=replay_hash,
         quality_hash=quality.get("quality_hash", ""),
         quality=quality,
+        replay_written=replay_written,
+        metadata_written=metadata_written,
     )
 
 
@@ -180,13 +195,71 @@ def replay_metadata(*, root: str | None = None) -> dict[str, Any]:
     return obj if isinstance(obj, dict) else {}
 
 
+def _real_replay_unavailable(root: str | None, min_n: int, error_code: str, error: str, **extra: Any) -> ReplayUnavailable:
+    quality = replay_quality_profile(root=root, min_total=int(min_n))
+    if not quality.get("quality_ready"):
+        return ReplayUnavailable(fail_for_quality(quality))
+    return ReplayUnavailable(
+        err(
+            error_code,
+            error,
+            replay_source="real_redacted",
+            quality=quality,
+            min_required=int(min_n),
+            **extra,
+        )
+    )
+
+
 def _load_real_replay_contexts(root: str | None = None, *, min_n: int = DEFAULT_MIN_REAL_OUTCOMES) -> list[dict[str, Any]]:
-    built = build_real_replay(root=root, min_n=min_n)
-    if not built.get("ok"):
-        raise ReplayUnavailable(built)
+    paths = state_paths(root)
+    replay_path = paths["real_replay"]
+    meta_path = paths["real_replay_meta"]
+    if not replay_path.exists() or not meta_path.exists():
+        raise _real_replay_unavailable(
+            str(paths["root"]),
+            min_n,
+            "real_redacted_replay_missing",
+            "real_redacted replay is missing; run /srlm/replay/build first",
+            replay_path=str(replay_path),
+            metadata_path=str(meta_path),
+        )
+    meta = replay_metadata(root=str(paths["root"]))
+    if not meta:
+        raise _real_replay_unavailable(
+            str(paths["root"]),
+            min_n,
+            "real_redacted_replay_metadata_invalid",
+            "real_redacted replay metadata is missing or invalid; run /srlm/replay/build first",
+            metadata_path=str(meta_path),
+        )
+    expected_hash = str(meta.get("replay_hash") or "")
+    actual_hash = hashlib.sha256(replay_path.read_bytes()).hexdigest()
+    if not expected_hash or actual_hash != expected_hash:
+        raise _real_replay_unavailable(
+            str(paths["root"]),
+            min_n,
+            "real_redacted_replay_hash_mismatch",
+            "real_redacted replay hash does not match metadata; run /srlm/replay/build first",
+            replay_hash=actual_hash,
+            expected_replay_hash=expected_hash,
+        )
+    quality = replay_quality_profile(root=str(paths["root"]), min_total=int(min_n))
+    if not quality.get("quality_ready"):
+        raise ReplayUnavailable(fail_for_quality(quality))
+    current_quality_hash = str(quality.get("quality_hash") or "")
+    metadata_quality_hash = str(meta.get("quality_hash") or "")
+    if current_quality_hash != metadata_quality_hash:
+        raise _real_replay_unavailable(
+            str(paths["root"]),
+            min_n,
+            "real_redacted_replay_stale",
+            "real_redacted replay quality hash does not match current outcomes; run /srlm/replay/build first",
+            replay_quality_hash=metadata_quality_hash,
+            current_quality_hash=current_quality_hash,
+        )
     contexts: list[dict[str, Any]] = []
-    path = state_paths(root)["real_replay"]
-    with path.open("r", encoding="utf-8", errors="replace") as f:
+    with replay_path.open("r", encoding="utf-8", errors="replace") as f:
         for line in f:
             try:
                 obj = json.loads(line)

@@ -4,6 +4,7 @@ from __future__ import annotations
 import builtins
 import hashlib
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -544,6 +545,52 @@ def test_replay_build_succeeds_after_enough_redacted_outcomes(tmp_path, monkeypa
     assert meta["quality_hash"] == built["quality_hash"]
 
 
+def test_replay_build_noops_when_content_identical(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    _record_diverse(tmp_path, 20)
+    built = build_real_replay(root=str(tmp_path), min_n=20)
+    assert built["ok"] is True
+    replay_path = tmp_path / "replay" / "real_redacted.jsonl"
+    meta_path = tmp_path / "replay" / "real_redacted.meta.json"
+    old_time = 1_700_000_000
+    os.utime(replay_path, (old_time, old_time))
+    os.utime(meta_path, (old_time, old_time))
+
+    rebuilt = build_real_replay(root=str(tmp_path), min_n=20)
+
+    assert rebuilt["ok"] is True
+    assert rebuilt["replay_hash"] == built["replay_hash"]
+    assert rebuilt["quality_hash"] == built["quality_hash"]
+    assert rebuilt["replay_written"] is False
+    assert rebuilt["metadata_written"] is False
+    assert replay_path.stat().st_mtime == old_time
+    assert meta_path.stat().st_mtime == old_time
+
+
+def test_replay_build_writes_when_explicitly_requested_and_content_changes(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    _record_diverse(tmp_path, 20)
+    built = build_real_replay(root=str(tmp_path), min_n=20)
+    assert built["ok"] is True
+    replay_path = tmp_path / "replay" / "real_redacted.jsonl"
+    meta_path = tmp_path / "replay" / "real_redacted.meta.json"
+    old_time = 1_700_000_000
+    os.utime(replay_path, (old_time, old_time))
+    os.utime(meta_path, (old_time, old_time))
+    record_outcome(_diverse_outcome(20), root=str(tmp_path))
+
+    rebuilt = build_real_replay(root=str(tmp_path), min_n=20)
+
+    assert rebuilt["ok"] is True
+    assert rebuilt["count"] == 21
+    assert rebuilt["replay_hash"] != built["replay_hash"]
+    assert rebuilt["quality_hash"] != built["quality_hash"]
+    assert rebuilt["replay_written"] is True
+    assert rebuilt["metadata_written"] is True
+    assert replay_path.stat().st_mtime != old_time
+    assert meta_path.stat().st_mtime != old_time
+
+
 def test_shadow_step_with_real_redacted_refuses_when_insufficient(tmp_path, monkeypatch):
     _enable_shadow(monkeypatch, tmp_path)
     rep = shadow_step(
@@ -558,6 +605,8 @@ def test_shadow_step_with_real_redacted_refuses_when_insufficient(tmp_path, monk
 def test_shadow_step_with_real_redacted_persists_witness_when_sufficient(tmp_path, monkeypatch):
     _enable_shadow(monkeypatch, tmp_path)
     _record_diverse(tmp_path, 20)
+    built = build_real_replay(root=str(tmp_path), min_n=20)
+    assert built["ok"] is True
     rep = shadow_step(
         {"current_params": _current_params(), "proposed_params": _better_params(), "replay_source": "real_redacted"},
         root=str(tmp_path),
@@ -572,6 +621,105 @@ def test_shadow_step_with_real_redacted_persists_witness_when_sufficient(tmp_pat
     assert rows[-1]["subject"]["replay_source"] == "real_redacted"
     assert rows[-1]["subject"]["replay_hash"] == rep["eval"]["replay_hash"]
     assert rows[-1]["subject"]["replay_quality_hash"] == rep["eval"]["replay_quality_hash"]
+
+
+def test_shadow_step_with_real_redacted_refuses_missing_built_replay(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    _record_diverse(tmp_path, 20)
+
+    rep = shadow_step(
+        {"current_params": _current_params(), "proposed_params": _better_params(), "replay_source": "real_redacted"},
+        root=str(tmp_path),
+    )
+
+    assert rep["ok"] is False
+    assert rep["error_code"] == "real_redacted_replay_missing"
+    assert not (tmp_path / "growth_witness.jsonl").exists()
+    assert not (tmp_path / "candidates.jsonl").exists()
+
+
+def test_shadow_step_with_real_redacted_does_not_rewrite_replay_files(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    _record_diverse(tmp_path, 20)
+    built = build_real_replay(root=str(tmp_path), min_n=20)
+    assert built["ok"] is True
+    replay_path = tmp_path / "replay" / "real_redacted.jsonl"
+    meta_path = tmp_path / "replay" / "real_redacted.meta.json"
+    old_time = 1_700_000_000
+    os.utime(replay_path, (old_time, old_time))
+    os.utime(meta_path, (old_time, old_time))
+    before = {path: (_sha256(path), path.stat().st_mtime) for path in (replay_path, meta_path)}
+
+    rep = shadow_step(
+        {"current_params": _current_params(), "proposed_params": _better_params(), "replay_source": "real_redacted"},
+        root=str(tmp_path),
+    )
+
+    assert rep["ok"] is True
+    after = {path: (_sha256(path), path.stat().st_mtime) for path in (replay_path, meta_path)}
+    assert after == before
+    assert (tmp_path / "growth_witness.jsonl").exists()
+    assert (tmp_path / "candidates.jsonl").exists()
+    assert (tmp_path / "reports" / "latest_shadow_report.md").exists()
+
+
+def test_shadow_step_with_real_redacted_refuses_stale_replay(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path)
+    _record_diverse(tmp_path, 20)
+    built = build_real_replay(root=str(tmp_path), min_n=20)
+    assert built["ok"] is True
+    record_outcome(_diverse_outcome(20), root=str(tmp_path))
+
+    rep = shadow_step(
+        {"current_params": _current_params(), "proposed_params": _better_params(), "replay_source": "real_redacted"},
+        root=str(tmp_path),
+    )
+
+    assert rep["ok"] is False
+    assert rep["error_code"] == "real_redacted_replay_stale"
+    assert rep["replay_quality_hash"] == built["quality_hash"]
+    assert rep["current_quality_hash"] != built["quality_hash"]
+    assert not (tmp_path / "growth_witness.jsonl").exists()
+
+
+def test_isolated_real_redacted_shadow_step_only_changes_srlm_audit_artifacts(tmp_path, monkeypatch):
+    _enable_shadow(monkeypatch, tmp_path / "srlm")
+    srlm_root = tmp_path / "srlm"
+    memory_store = tmp_path / "memory" / "memory.json"
+    sqlite_store = tmp_path / "memory_core" / "ester_memory.sqlite"
+    vector_store = tmp_path / "vector_store" / "index.json"
+    rag_store = tmp_path / "rag" / "store.json"
+    for path in (memory_store, sqlite_store, vector_store, rag_store):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('{"sentinel":true}\n', encoding="utf-8")
+    _record_diverse(srlm_root, 20)
+    built = build_real_replay(root=str(srlm_root), min_n=20)
+    assert built["ok"] is True
+    replay_path = srlm_root / "replay" / "real_redacted.jsonl"
+    meta_path = srlm_root / "replay" / "real_redacted.meta.json"
+    before_external = {path: _sha256(path) for path in (memory_store, sqlite_store, vector_store, rag_store)}
+    before_replay = {path: (_sha256(path), path.stat().st_mtime_ns) for path in (replay_path, meta_path)}
+    source_file = Path(__file__).resolve().parents[1] / "growth_engine_ester" / "replay_store.py"
+    before_source = _sha256(source_file)
+
+    rep = shadow_step(
+        {"current_params": _current_params(), "proposed_params": _better_params(), "replay_source": "real_redacted"},
+        root=str(srlm_root),
+    )
+
+    assert rep["ok"] is True
+    assert {path: _sha256(path) for path in (memory_store, sqlite_store, vector_store, rag_store)} == before_external
+    assert {path: (_sha256(path), path.stat().st_mtime_ns) for path in (replay_path, meta_path)} == before_replay
+    assert _sha256(source_file) == before_source
+    assert sorted(p.relative_to(srlm_root).as_posix() for p in srlm_root.rglob("*") if p.is_file()) == [
+        "candidates.jsonl",
+        "fitness.jsonl",
+        "growth_witness.jsonl",
+        "replay/real_redacted.jsonl",
+        "replay/real_redacted.meta.json",
+        "reports/latest_fitness_report.md",
+        "reports/latest_shadow_report.md",
+    ]
 
 
 def test_record_outcome_does_not_touch_memory_rag_vector(tmp_path, monkeypatch):
